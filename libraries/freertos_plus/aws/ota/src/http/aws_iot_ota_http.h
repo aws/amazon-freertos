@@ -31,9 +31,9 @@
 #include "aws_iot_ota_agent_internal.h"
 
 
-OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t* pxAgentCtx );
+OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pxAgentCtx );
 
-OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t* pxAgentCtx );
+OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pxAgentCtx );
 
 OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
                                            size_t messageSize,
@@ -43,6 +43,6 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
                                            uint8_t ** pPayload,
                                            size_t * pPayloadSize );
 
-OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t* pxAgentCtx );
+OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t * pxAgentCtx );
 
-#endif
+#endif /* ifndef __AWS_OTA_HTTP__H__ */

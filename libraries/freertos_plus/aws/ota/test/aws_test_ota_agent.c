@@ -315,7 +315,6 @@ TEST( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit )
 TEST( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit )
 {
     /* Attempt to get statistics without initializing the agent. */
-    ;
     TEST_ASSERT_EQUAL( 0, OTA_GetPacketsDropped() );
     TEST_ASSERT_EQUAL( 0, OTA_GetPacketsQueued() );
     TEST_ASSERT_EQUAL( 0, OTA_GetPacketsProcessed() );

@@ -83,15 +83,15 @@ extern const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
  */
 typedef enum
 {
-	eOTA_AgentState_NoTransition = -1,
-    eOTA_AgentState_Init = 0 ,
+    eOTA_AgentState_NoTransition = -1,
+    eOTA_AgentState_Init = 0,
     eOTA_AgentState_Ready,
     eOTA_AgentState_RequestingJob,
-	eOTA_AgentState_WaitingForJob,
+    eOTA_AgentState_WaitingForJob,
     eOTA_AgentState_CreatingFile,
-	eOTA_AgentState_RequestingFileBlock,
-	eOTA_AgentState_WaitingForFileBlock,
-	eOTA_AgentState_InSelfTest,
+    eOTA_AgentState_RequestingFileBlock,
+    eOTA_AgentState_WaitingForFileBlock,
+    eOTA_AgentState_InSelfTest,
     eOTA_AgentState_ClosingFile,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
@@ -112,7 +112,7 @@ typedef enum
     eOTA_AgentEvent_CreateFile,
     eOTA_AgentEvent_RequestFileBlock,
     eOTA_AgentEvent_ReceivedFileBlock,
-	eOTA_AgentEvent_RequestTimer,
+    eOTA_AgentEvent_RequestTimer,
     eOTA_AgentEvent_CloseFile,
     eOTA_AgentEvent_UserAbort,
     eOTA_AgentEvent_Shutdown,
@@ -265,11 +265,11 @@ typedef struct
     Sig256_t * pxSignature;     /*!< Pointer to the file's signature structure. */
     uint8_t * pucRxBlockBitmap; /*!< Bitmap of blocks received (for de-duping and missing block request). */
     uint8_t * pucCertFilepath;  /*!< Pathname of the certificate file used to validate the receive file. */
-	uint8_t * pucUpdateUrlPath; /*!< Url for the file. */
-	uint8_t * pucAuthScheme;    /*!< Authorization scheme. */
+    uint8_t * pucUpdateUrlPath; /*!< Url for the file. */
+    uint8_t * pucAuthScheme;    /*!< Authorization scheme. */
     uint32_t ulUpdaterVersion;  /*!< Used by OTA self-test detection, the version of FW that did the update. */
     bool_t xIsInSelfTest;       /*!< True if the job is in self test mode. */
-	uint8_t * pucProtocols;     /*!< Authorization scheme. */
+    uint8_t * pucProtocols;     /*!< Authorization scheme. */
 } OTA_FileContext_t;
 
 /**

@@ -104,9 +104,9 @@ const char * pcOTA_JobReason_Strings[ eNumJobReasons ] = { "", "ready", "active"
 
 /* Queue MQTT callback event for processing. */
 
-static void prvSendCallbackEvent(void* pvCallbackContext,
-	                             IotMqttCallbackParam_t* const pxPublishData,
-	                             OTA_Event_t xEventId);
+static void prvSendCallbackEvent( void * pvCallbackContext,
+                                  IotMqttCallbackParam_t * const pxPublishData,
+                                  OTA_Event_t xEventId );
 
 /* Called when a MQTT message is received on an OTA Job topic. */
 
@@ -215,13 +215,13 @@ static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCt
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
-	xUnSub.qos = IOT_MQTT_QOS_0;
+    xUnSub.qos = IOT_MQTT_QOS_0;
 
     if( pxAgentCtx != NULL )
     {
         /* Try to build the dynamic data stream topic and un-subscribe from it. */
 
-		xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcOTA_RxStreamTopic, /*lint -e586 Intentionally using snprintf. */
+        xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcOTA_RxStreamTopic, /*lint -e586 Intentionally using snprintf. */
                                                           sizeof( pcOTA_RxStreamTopic ),
                                                           pcOTA_StreamData_TopicTemplate,
                                                           pxAgentCtx->pcThingName,
@@ -229,7 +229,7 @@ static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCt
 
         if( ( xUnSub.topicFilterLength > 0U ) && ( xUnSub.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
         {
-			xUnSub.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
+            xUnSub.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
 
             if( IotMqtt_TimedUnsubscribe( ( ( OTA_ConnectionContext_t * ) pxAgentCtx->pvConnectionContext )->pvControlClient,
                                           &xUnSub,
@@ -265,12 +265,12 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
     IotMqttOperation_t paUnubscribeOperation[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
-	OTA_ConnectionContext_t* pvConnContext = pxAgentCtx->pvConnectionContext;
+    OTA_ConnectionContext_t * pvConnContext = pxAgentCtx->pvConnectionContext;
 
     /* Try to unsubscribe from the first of two job topics. */
-	xUnSub.qos = IOT_MQTT_QOS_0;
-	xUnSub.pTopicFilter = ( const char * ) pcJobTopic;            /* Point to local string storage. Built below. */
-	xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
+    xUnSub.qos = IOT_MQTT_QOS_0;
+    xUnSub.pTopicFilter = ( const char * ) pcJobTopic;            /* Point to local string storage. Built below. */
+    xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
                                                       sizeof( pcJobTopic ),
                                                       pcOTA_JobsNotifyNext_TopicTemplate,
                                                       pxAgentCtx->pcThingName );
@@ -293,10 +293,10 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
     }
 
     /* Try to unsubscribe from the second of two job topics. */
-	xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
-                                                       sizeof( pcJobTopic ),
-                                                       pcOTA_JobsGetNextAccepted_TopicTemplate,
-                                                       pxAgentCtx->pcThingName );
+    xUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
+                                                      sizeof( pcJobTopic ),
+                                                      pcOTA_JobsGetNextAccepted_TopicTemplate,
+                                                      pxAgentCtx->pcThingName );
 
     if( ( xUnSub.topicFilterLength > 0U ) && ( xUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
@@ -317,21 +317,19 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
 
     if( paUnubscribeOperation[ 0 ] != NULL )
     {
-		if ( IotMqtt_Wait(paUnubscribeOperation[0], OTA_UNSUBSCRIBE_WAIT_MS) != IOT_MQTT_SUCCESS )
-		{
-			OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 0 );
-		}
-
+        if( IotMqtt_Wait( paUnubscribeOperation[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+        {
+            OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 0 );
+        }
     }
 
-	if ( paUnubscribeOperation[1] != NULL )
-	{
-		if ( IotMqtt_Wait(paUnubscribeOperation[1], OTA_UNSUBSCRIBE_WAIT_MS) != IOT_MQTT_SUCCESS )
-		{
-			OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 1 );
-		}
-
-	}
+    if( paUnubscribeOperation[ 1 ] != NULL )
+    {
+        if( IotMqtt_Wait( paUnubscribeOperation[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+        {
+            OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 1 );
+        }
+    }
 }
 
 /*
@@ -365,53 +363,53 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 /*
  * This function queues callback events for processing.
  */
-static void prvSendCallbackEvent(void* pvCallbackContext,
-	                             IotMqttCallbackParam_t* const pxPublishData,
-	                             OTA_Event_t xEventId )
+static void prvSendCallbackEvent( void * pvCallbackContext,
+                                  IotMqttCallbackParam_t * const pxPublishData,
+                                  OTA_Event_t xEventId )
 {
-	DEFINE_OTA_METHOD_NAME("prvSendCallbackEvent");
-	OTA_EventMsg_t xEventMsg = { 0 };
-	BaseType_t xErr = pdFALSE;
-	OTA_EventData_t* pxData;
+    DEFINE_OTA_METHOD_NAME( "prvSendCallbackEvent" );
+    OTA_EventMsg_t xEventMsg = { 0 };
+    BaseType_t xErr = pdFALSE;
+    OTA_EventData_t * pxData;
 
-	/* Get the OTA agent context. */
-	OTA_AgentContext_t* pxAgentCtx = (OTA_AgentContext_t*)pvCallbackContext;
+    /* Get the OTA agent context. */
+    OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
 
-	if (pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE)
-	{
-		/* Try to get OTA data buffer. */
-		pxData = prvOTAEventBufferGet();
+    if( pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE )
+    {
+        /* Try to get OTA data buffer. */
+        pxData = prvOTAEventBufferGet();
 
-		if (pxData != NULL)
-		{
-			memcpy(pxData->ucData, pxPublishData->u.message.info.pPayload, pxPublishData->u.message.info.payloadLength);
-			pxData->ulDataLength = pxPublishData->u.message.info.payloadLength;
-			xEventMsg.xEventId = xEventId;
-			xEventMsg.pxEventData = pxData;
+        if( pxData != NULL )
+        {
+            memcpy( pxData->ucData, pxPublishData->u.message.info.pPayload, pxPublishData->u.message.info.payloadLength );
+            pxData->ulDataLength = pxPublishData->u.message.info.payloadLength;
+            xEventMsg.xEventId = xEventId;
+            xEventMsg.pxEventData = pxData;
 
-			/* Send job document received event. */
-			xErr = OTA_SignalEvent(&xEventMsg);
-		}
-		else
-		{
-			OTA_LOG_L1("Error: No OTA data buffers available.\r\n", OTA_DATA_BLOCK_SIZE);
-		}
-	}
-	else
-	{
-		OTA_LOG_L1("Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE, pxPublishData->u.message.info.payloadLength);
-	}
+            /* Send job document received event. */
+            xErr = OTA_SignalEvent( &xEventMsg );
+        }
+        else
+        {
+            OTA_LOG_L1( "Error: No OTA data buffers available.\r\n", OTA_DATA_BLOCK_SIZE );
+        }
+    }
+    else
+    {
+        OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE, pxPublishData->u.message.info.payloadLength );
+    }
 
-	if (xErr == pdTRUE)
-	{
-		/* Update packet received statistics counter. */
-		pxAgentCtx->xStatistics.ulOTA_PacketsReceived++;
-	}
-	else
-	{
-		/* Update packet received statistics counter. */
-		pxAgentCtx->xStatistics.ulOTA_PacketsDropped++;
-	}
+    if( xErr == pdTRUE )
+    {
+        /* Update packet received statistics counter. */
+        pxAgentCtx->xStatistics.ulOTA_PacketsReceived++;
+    }
+    else
+    {
+        /* Update packet received statistics counter. */
+        pxAgentCtx->xStatistics.ulOTA_PacketsDropped++;
+    }
 }
 
 /*
@@ -423,7 +421,7 @@ static void prvJobPublishCallback( void * pvCallbackContext,
     DEFINE_OTA_METHOD_NAME( "prvJobPublishCallback" );
 
     /* Do nothing if this callback is invoked when the OTA agent is stopped. */
-    if( (( OTA_AgentContext_t * ) pvCallbackContext)->eState != eOTA_AgentState_Stopped )
+    if( ( ( OTA_AgentContext_t * ) pvCallbackContext )->eState != eOTA_AgentState_Stopped )
     {
         /* Queue the event for processing job document. */
         prvSendCallbackEvent( pvCallbackContext, pxPublishData, eOTA_AgentEvent_ReceivedJobDocument );
@@ -436,10 +434,10 @@ static void prvJobPublishCallback( void * pvCallbackContext,
 static void prvDataPublishCallback( void * pvCallbackContext,
                                     IotMqttCallbackParam_t * const pxPublishData )
 {
-	DEFINE_OTA_METHOD_NAME("prvDataPublishCallback");
+    DEFINE_OTA_METHOD_NAME( "prvDataPublishCallback" );
 
     /* Do nothing if this callback is invoked when the OTA agent is stopped. */
-    if( (( OTA_AgentContext_t * ) pvCallbackContext)->eState != eOTA_AgentState_Stopped )
+    if( ( ( OTA_AgentContext_t * ) pvCallbackContext )->eState != eOTA_AgentState_Stopped )
     {
         /* Queue the event for processing received file block. */
         prvSendCallbackEvent( pvCallbackContext, pxPublishData, eOTA_AgentEvent_ReceivedFileBlock );
@@ -451,66 +449,66 @@ static void prvDataPublishCallback( void * pvCallbackContext,
  * a "get next job" message to the job service.
  */
 
-OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t* pxAgentCtx)
+OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
-	DEFINE_OTA_METHOD_NAME("prvRequestJob_Mqtt");
+    DEFINE_OTA_METHOD_NAME( "prvRequestJob_Mqtt" );
 
-	char pcJobTopic[OTA_MAX_TOPIC_LEN];
-	static uint32_t ulReqCounter = 0;
-	IotMqttError_t eResult;
-	uint32_t ulMsgLen;
-	uint16_t usTopicLen;
-	OTA_Err_t xError = kOTA_Err_PublishFailed;
+    char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
+    static uint32_t ulReqCounter = 0;
+    IotMqttError_t eResult;
+    uint32_t ulMsgLen;
+    uint16_t usTopicLen;
+    OTA_Err_t xError = kOTA_Err_PublishFailed;
 
-	/* The following buffer is big enough to hold a dynamically constructed $next/get job message.
-	 * It contains a client token that is used to track how many requests have been made. */
-	char pcMsg[CONST_STRLEN(pcOTA_GetNextJob_MsgTemplate) + U32_MAX_PLACES + otaconfigMAX_THINGNAME_LEN];
+    /* The following buffer is big enough to hold a dynamically constructed $next/get job message.
+     * It contains a client token that is used to track how many requests have been made. */
+    char pcMsg[ CONST_STRLEN( pcOTA_GetNextJob_MsgTemplate ) + U32_MAX_PLACES + otaconfigMAX_THINGNAME_LEN ];
 
-	/* Subscribe to the OTA job notification topic. */
-	if (prvSubscribeToJobNotificationTopics(pxAgentCtx) == (bool_t)pdTRUE)
-	{
-		OTA_LOG_L1("[%s] Request #%u\r\n", OTA_METHOD_NAME, ulReqCounter);
-		/*lint -e586 Intentionally using snprintf. */
-		ulMsgLen = (uint32_t)snprintf(pcMsg,
-			sizeof(pcMsg),
-			pcOTA_GetNextJob_MsgTemplate,
-			ulReqCounter,
-			pxAgentCtx->pcThingName);
-		ulReqCounter++;
-		usTopicLen = (uint16_t)snprintf(pcJobTopic,
-			sizeof(pcJobTopic),
-			pcOTA_JobsGetNext_TopicTemplate,
-			pxAgentCtx->pcThingName);
+    /* Subscribe to the OTA job notification topic. */
+    if( prvSubscribeToJobNotificationTopics( pxAgentCtx ) == ( bool_t ) pdTRUE )
+    {
+        OTA_LOG_L1( "[%s] Request #%u\r\n", OTA_METHOD_NAME, ulReqCounter );
+        /*lint -e586 Intentionally using snprintf. */
+        ulMsgLen = ( uint32_t ) snprintf( pcMsg,
+                                          sizeof( pcMsg ),
+                                          pcOTA_GetNextJob_MsgTemplate,
+                                          ulReqCounter,
+                                          pxAgentCtx->pcThingName );
+        ulReqCounter++;
+        usTopicLen = ( uint16_t ) snprintf( pcJobTopic,
+                                            sizeof( pcJobTopic ),
+                                            pcOTA_JobsGetNext_TopicTemplate,
+                                            pxAgentCtx->pcThingName );
 
-		if ((usTopicLen > 0U) && (usTopicLen < sizeof(pcJobTopic)))
-		{
-			eResult = prvPublishMessage(
-				pxAgentCtx,
-				pcJobTopic,
-				usTopicLen,
-				pcMsg,
-				ulMsgLen,
-				IOT_MQTT_QOS_1);
+        if( ( usTopicLen > 0U ) && ( usTopicLen < sizeof( pcJobTopic ) ) )
+        {
+            eResult = prvPublishMessage(
+                pxAgentCtx,
+                pcJobTopic,
+                usTopicLen,
+                pcMsg,
+                ulMsgLen,
+                IOT_MQTT_QOS_1 );
 
-			if (eResult != IOT_MQTT_SUCCESS)
-			{
-				OTA_LOG_L1("[%s] Failed to publish MQTT message.\r\n", OTA_METHOD_NAME);
-				xError = kOTA_Err_PublishFailed;
-			}
-			else
-			{
-				/* Nothing special to do. We succeeded. */
-				xError = kOTA_Err_None;
-			}
-		}
-		else
-		{
-			OTA_LOG_L1("[%s] Topic too large for supplied buffer.\r\n", OTA_METHOD_NAME);
-			xError = kOTA_Err_TopicTooLarge;
-		}
-	}
+            if( eResult != IOT_MQTT_SUCCESS )
+            {
+                OTA_LOG_L1( "[%s] Failed to publish MQTT message.\r\n", OTA_METHOD_NAME );
+                xError = kOTA_Err_PublishFailed;
+            }
+            else
+            {
+                /* Nothing special to do. We succeeded. */
+                xError = kOTA_Err_None;
+            }
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Topic too large for supplied buffer.\r\n", OTA_METHOD_NAME );
+            xError = kOTA_Err_TopicTooLarge;
+        }
+    }
 
-	return xError;
+    return xError;
 }
 
 
@@ -530,10 +528,10 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
     char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
 
-	/*
+    /*
      * Get the current file context.
      */
-	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[pxAgentCtx->ulFileIndex] );
+    OTA_FileContext_t * C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
     /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
     eQOS = IOT_MQTT_QOS_1;
@@ -705,15 +703,15 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
     IotMqttSubscription_t xOTAUpdateDataSubscription;
 
     memset( &xOTAUpdateDataSubscription, 0, sizeof( xOTAUpdateDataSubscription ) );
-	xOTAUpdateDataSubscription.qos = IOT_MQTT_QOS_0;
-	xOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
-	xOTAUpdateDataSubscription.callback.pCallbackContext = ( void * ) pxAgentCtx;              /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
-	xOTAUpdateDataSubscription.callback.function = prvDataPublishCallback;
-	xOTAUpdateDataSubscription.topicFilterLength = ( uint16_t ) snprintf( pcOTA_RxStreamTopic, /*lint -e586 Intentionally using snprintf. */
-                                                                           sizeof( pcOTA_RxStreamTopic ),
-                                                                           pcOTA_StreamData_TopicTemplate,
-                                                                           pxAgentCtx->pcThingName,
-                                                                           ( const char * ) pxAgentCtx->pxOTA_Files->pucStreamName );
+    xOTAUpdateDataSubscription.qos = IOT_MQTT_QOS_0;
+    xOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
+    xOTAUpdateDataSubscription.callback.pCallbackContext = ( void * ) pxAgentCtx;              /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
+    xOTAUpdateDataSubscription.callback.function = prvDataPublishCallback;
+    xOTAUpdateDataSubscription.topicFilterLength = ( uint16_t ) snprintf( pcOTA_RxStreamTopic, /*lint -e586 Intentionally using snprintf. */
+                                                                          sizeof( pcOTA_RxStreamTopic ),
+                                                                          pcOTA_StreamData_TopicTemplate,
+                                                                          pxAgentCtx->pcThingName,
+                                                                          ( const char * ) pxAgentCtx->pxOTA_Files->pucStreamName );
 
     if( ( xOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( xOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
@@ -742,156 +740,156 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 /*
  * Request file block by publishing to the get stream topic.
  */
-OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx)
+OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
-	DEFINE_OTA_METHOD_NAME("prvRequestFileBlock_Mqtt");
+    DEFINE_OTA_METHOD_NAME( "prvRequestFileBlock_Mqtt" );
 
-	uint32_t ulMsgSizeToPublish;
-	size_t xMsgSizeFromStream;
-	uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
-	IotMqttError_t eResult;
-	OTA_Err_t xErr = kOTA_Err_None;
-	char pcMsg[OTA_REQUEST_MSG_MAX_SIZE];
-	char pcTopicBuffer[OTA_MAX_TOPIC_LEN];
+    uint32_t ulMsgSizeToPublish;
+    size_t xMsgSizeFromStream;
+    uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
+    IotMqttError_t eResult;
+    OTA_Err_t xErr = kOTA_Err_None;
+    char pcMsg[ OTA_REQUEST_MSG_MAX_SIZE ];
+    char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
 
-	/*
+    /*
      * Get the current file context.
      */
-	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
+    OTA_FileContext_t * C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
     /* Reset number of blocks requested. */
     pxAgentCtx->ulNumOfBlocksToReceive = otaconfigMAX_NUM_BLOCKS_REQUEST;
 
-	if ( C != NULL )
-	{
-		ulNumBlocks = ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
-		ulBitmapLen = ( ulNumBlocks + ( BITS_PER_BYTE - 1U ) ) >> LOG2_BITS_PER_BYTE;
+    if( C != NULL )
+    {
+        ulNumBlocks = ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
+        ulBitmapLen = ( ulNumBlocks + ( BITS_PER_BYTE - 1U ) ) >> LOG2_BITS_PER_BYTE;
 
-		if ( pdTRUE == OTA_CBOR_Encode_GetStreamRequestMessage(
-			(uint8_t*)pcMsg,
-			sizeof(pcMsg),
-			&xMsgSizeFromStream,
-			OTA_CLIENT_TOKEN,
-			(int32_t)C->ulServerFileID,
-			(int32_t)(OTA_FILE_BLOCK_SIZE & 0x7fffffffUL), /* Mask to keep lint happy. It's still a constant. */
-			0,
-			C->pucRxBlockBitmap,
-			ulBitmapLen,
-			otaconfigMAX_NUM_BLOCKS_REQUEST ) )
-		{
-			ulMsgSizeToPublish = (uint32_t)xMsgSizeFromStream;
+        if( pdTRUE == OTA_CBOR_Encode_GetStreamRequestMessage(
+                ( uint8_t * ) pcMsg,
+                sizeof( pcMsg ),
+                &xMsgSizeFromStream,
+                OTA_CLIENT_TOKEN,
+                ( int32_t ) C->ulServerFileID,
+                ( int32_t ) ( OTA_FILE_BLOCK_SIZE & 0x7fffffffUL ), /* Mask to keep lint happy. It's still a constant. */
+                0,
+                C->pucRxBlockBitmap,
+                ulBitmapLen,
+                otaconfigMAX_NUM_BLOCKS_REQUEST ) )
+        {
+            ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
 
-			/* Try to build the dynamic data REQUEST topic and subscribe to it. */
-			ulTopicLen = (uint32_t)snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
-				sizeof(pcTopicBuffer),
-				pcOTA_GetStream_TopicTemplate,
-				pxAgentCtx->pcThingName,
-				(const char*)C->pucStreamName );
+            /* Try to build the dynamic data REQUEST topic and subscribe to it. */
+            ulTopicLen = ( uint32_t ) snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
+                                                sizeof( pcTopicBuffer ),
+                                                pcOTA_GetStream_TopicTemplate,
+                                                pxAgentCtx->pcThingName,
+                                                ( const char * ) C->pucStreamName );
 
-			if ( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
-			{
-				eResult = prvPublishMessage(
-					pxAgentCtx,
-					pcTopicBuffer,
-					(uint16_t)ulTopicLen,
-					&pcMsg[0],
-					ulMsgSizeToPublish,
-					IOT_MQTT_QOS_0 );
+            if( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
+            {
+                eResult = prvPublishMessage(
+                    pxAgentCtx,
+                    pcTopicBuffer,
+                    ( uint16_t ) ulTopicLen,
+                    &pcMsg[ 0 ],
+                    ulMsgSizeToPublish,
+                    IOT_MQTT_QOS_0 );
 
-				if ( eResult != IOT_MQTT_SUCCESS )
-				{
-					/* Don't return an error. Let max momentum catch it since this may be intermittent. */
-					OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-				}
-				else
-				{
-					OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-				}
+                if( eResult != IOT_MQTT_SUCCESS )
+                {
+                    /* Don't return an error. Let max momentum catch it since this may be intermittent. */
+                    OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+                }
+                else
+                {
+                    OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+                }
 
-				/* Restart the timer regardless if we published the Get Stream Request message
-				 * or not.
-				 *
-				 * If we published the message, then the timer will be used to time
-				 * out the OTA not continuing again.
-				 *
-				 * If we failed to publish the message, then
-				 * the timer will be used to retry publishing the message again later.
-				 *
-				 * In both cases the max momentum, if reached, will be used to stop publishing
-				 * the Get Stream Request message. */
-				 /*prvStartRequestTimer(C);*/
-			}
-			else
-			{
-				/* 0 should never happen since we supply the format strings. It must be overflow. */
-				OTA_LOG_L1( "[%s] Failed to build stream topic!\r\n", OTA_METHOD_NAME );
-				xErr = kOTA_Err_TopicTooLarge;
-			}
-		}
-		else
-		{
-			OTA_LOG_L1( "[%s] CBOR encode failed.\r\n", OTA_METHOD_NAME );
-			xErr = kOTA_Err_FailedToEncodeCBOR;
-		}
-	}
+                /* Restart the timer regardless if we published the Get Stream Request message
+                 * or not.
+                 *
+                 * If we published the message, then the timer will be used to time
+                 * out the OTA not continuing again.
+                 *
+                 * If we failed to publish the message, then
+                 * the timer will be used to retry publishing the message again later.
+                 *
+                 * In both cases the max momentum, if reached, will be used to stop publishing
+                 * the Get Stream Request message. */
+                /*prvStartRequestTimer(C);*/
+            }
+            else
+            {
+                /* 0 should never happen since we supply the format strings. It must be overflow. */
+                OTA_LOG_L1( "[%s] Failed to build stream topic!\r\n", OTA_METHOD_NAME );
+                xErr = kOTA_Err_TopicTooLarge;
+            }
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] CBOR encode failed.\r\n", OTA_METHOD_NAME );
+            xErr = kOTA_Err_FailedToEncodeCBOR;
+        }
+    }
 
-	return xErr;
+    return xErr;
 }
 
 /*
  * Decode a cbor encoded fileblock received from streaming service.
  */
-OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
-	size_t xMessageSize,
-	int32_t* plFileId,
-	int32_t* plBlockId,
-	int32_t* plBlockSize,
-	uint8_t** ppucPayload,
-	size_t* pxPayloadSize)
+OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t * pucMessageBuffer,
+                                   size_t xMessageSize,
+                                   int32_t * plFileId,
+                                   int32_t * plBlockId,
+                                   int32_t * plBlockSize,
+                                   uint8_t ** ppucPayload,
+                                   size_t * pxPayloadSize )
 {
-	DEFINE_OTA_METHOD_NAME( "prvDecodeFileBlock_Mqtt" );
-	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+    DEFINE_OTA_METHOD_NAME( "prvDecodeFileBlock_Mqtt" );
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
-	/* Decode the CBOR content. */
-	if (pdFALSE == OTA_CBOR_Decode_GetStreamResponseMessage(
-		pucMessageBuffer,
-		xMessageSize,
-		plFileId,
-		plBlockId,    /*lint !e9087 CBOR requires pointer to int and our block index's never exceed 31 bits. */
-		plBlockSize,  /*lint !e9087 CBOR requires pointer to int and our block sizes never exceed 31 bits. */
-		ppucPayload,  /* This payload gets malloc'd by OTA_CBOR_Decode_GetStreamResponseMessage(). We must free it. */
-		pxPayloadSize ) )
-	{
-		xErr = kOTA_Err_GenericIngestError;
-	}
-	else
-	{
-		/* Decode the CBOR content. */
-		memcpy( pucMessageBuffer, *ppucPayload, *pxPayloadSize );
+    /* Decode the CBOR content. */
+    if( pdFALSE == OTA_CBOR_Decode_GetStreamResponseMessage(
+            pucMessageBuffer,
+            xMessageSize,
+            plFileId,
+            plBlockId,   /*lint !e9087 CBOR requires pointer to int and our block index's never exceed 31 bits. */
+            plBlockSize, /*lint !e9087 CBOR requires pointer to int and our block sizes never exceed 31 bits. */
+            ppucPayload, /* This payload gets malloc'd by OTA_CBOR_Decode_GetStreamResponseMessage(). We must free it. */
+            pxPayloadSize ) )
+    {
+        xErr = kOTA_Err_GenericIngestError;
+    }
+    else
+    {
+        /* Decode the CBOR content. */
+        memcpy( pucMessageBuffer, *ppucPayload, *pxPayloadSize );
 
-		/* Free the payload as it is copied in data buffer. */
-		vPortFree(*ppucPayload);
-		*ppucPayload = pucMessageBuffer;
+        /* Free the payload as it is copied in data buffer. */
+        vPortFree( *ppucPayload );
+        *ppucPayload = pucMessageBuffer;
 
-		xErr = kOTA_Err_None;
-	}
+        xErr = kOTA_Err_None;
+    }
 
-	return xErr;
+    return xErr;
 }
 
 /*
  * Perform any cleanup operations required like unsubscribing from
  * job topics.
  */
-OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t* pxAgentCtx )
+OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
-	DEFINE_OTA_METHOD_NAME("prvCleanup_Mqtt");
+    DEFINE_OTA_METHOD_NAME( "prvCleanup_Mqtt" );
 
-	/* Unsubscribe from job notification topics. */
-	prvUnSubscribeFromJobNotificationTopic( pxAgentCtx );
+    /* Unsubscribe from job notification topics. */
+    prvUnSubscribeFromJobNotificationTopic( pxAgentCtx );
 
-	/* Unsubscribe from data stream topics. */
-	prvUnSubscribeFromDataStream( pxAgentCtx );
+    /* Unsubscribe from data stream topics. */
+    prvUnSubscribeFromDataStream( pxAgentCtx );
 
-	return kOTA_Err_None;
+    return kOTA_Err_None;
 }

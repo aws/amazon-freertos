@@ -87,13 +87,13 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx );
  * error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
-	size_t xMessageSize,
-	int32_t* plFileId,
-	int32_t* plBlockId,
-	int32_t* plBlockSize,
-	uint8_t** ppucPayload,
-	size_t* pxPayloadSize);
+OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t * pucMessageBuffer,
+                                   size_t xMessageSize,
+                                   int32_t * plFileId,
+                                   int32_t * plBlockId,
+                                   int32_t * plBlockSize,
+                                   uint8_t ** ppucPayload,
+                                   size_t * pxPayloadSize );
 
 /**
  * @brief Cleanup related to OTA over MQTT.
@@ -126,9 +126,9 @@ OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t * pxAgentCtx );
  */
 
 OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
-                              OTA_JobStatus_t eStatus,
-                              int32_t lReason,
-                              int32_t lSubReason );
+                                   OTA_JobStatus_t eStatus,
+                                   int32_t lReason,
+                                   int32_t lSubReason );
 
 
 #endif /* ifndef __AWS_IOT_OTA_MQTT__H__ */
