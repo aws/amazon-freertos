@@ -69,7 +69,7 @@
  *
  * This is used for writing headers automatically during the sending of the HTTP request.
  * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
- * "Connection: close\r\n" is written automatically for a non-presistent connection.
+ * "Connection: close\r\n" is written automatically for a non-persistent connection.
  */
 #define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE           HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR /**< @brief String literal for "Connection: keep-alive\r\n". */
 #define HTTPS_CONNECTION_CLOSE_HEADER_LINE                HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_CLOSE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR      /**< @brief String literal for "Connection: close\r\n". */
@@ -197,7 +197,7 @@ static int _httpParserOnHeaderValueCallback( http_parser * pHttpParser,
                                              size_t length );
 
 /**
- * @brief Callback from http-parser to indicate it reached the end of the headers in the HTTP response messsage.
+ * @brief Callback from http-parser to indicate it reached the end of the headers in the HTTP response message.
  *
  * The end of the headers is signalled in a HTTP response message by another "\r\n" after the final header line.
  *
@@ -232,10 +232,10 @@ static int _httpParserOnBodyCallback( http_parser * pHttpParser,
                                       size_t length );
 
 /**
- * @brief Callback from http-parser to indicate it reached the end of the HTTP response messsage.
+ * @brief Callback from http-parser to indicate it reached the end of the HTTP response message.
  *
  * The end of the message is signalled in a HTTP response message by another "\r\n" after the final header line, with no
- * entity body; or it is singalled by "\r\n" at the end of the entity body.
+ * entity body; or it is signaled by "\r\n" at the end of the entity body.
  *
  * For a Transfer-Encoding: chunked type of response message, the end of the message is signalled by a terminating
  * chunk header with length zero.
@@ -272,7 +272,7 @@ static int _httpParserOnMessageCompleteCallback( http_parser * pHttpParser );
     static int _httpParserOnChunkHeaderCallback( http_parser * pHttpParser );
 
 /**
- * @brief Callback from http-parser to indicate it reached the end of an HTTP response messsage "chunk".
+ * @brief Callback from http-parser to indicate it reached the end of an HTTP response message "chunk".
  *
  * A chunk is complete when the chunk header size is read fully in the body.
  *
@@ -610,7 +610,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t * pRes
 /**
  * @brief Increment the pointer stored in pBufCur depending on the character found in there.
  *
- * This function increments the pHeadersCur pointer further if the message ended with a header line delimitter.
+ * This function increments the pHeadersCur pointer further if the message ended with a header line delimiter.
  *
  * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is a double pointer to update the response context buffer pointers.
  * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
@@ -773,7 +773,7 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
     /* This if-case is not incrementing any pHeaderCur pointers, so this case is safe to call when flushing the
      * network buffer. Flushing the network buffer needs the logic below to reach PARSER_STATE_BODY_COMPLETE if the
      * response is for a HEAD request. Before flushing the network buffer the bufferProcessingState is set to
-     * PROCESSING_STATE_FINISHED so that other callback fuctions don't update header or body current pointers in the
+     * PROCESSING_STATE_FINISHED so that other callback functions don't update header or body current pointers in the
      * response context. We don't want those pointers incremented because flushing the network uses a different buffer
      * to receive the rest of the response. */
     if( pHttpsResponse->bufferProcessingState <= PROCESSING_STATE_FINISHED )
@@ -792,7 +792,7 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
          * response, then the body buffer will be filled with the zeros from rest of the header buffer. http-parser
          * will invoke the on_body callback and consider the zeros following the headers as body. */
 
-        /* If there is not body configured for a synchronous reponse, we do not stop the parser from continueing. */
+        /* If there is not body configured for a synchronous response, we do not stop the parser from continueing. */
 
         /* Skipping the body will cause the parser to invoke the _httpParserOnMessageComplete() callback. This is
          * not desired when there is actually HTTP response body sent by the server because this will set the parser
@@ -943,7 +943,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
         /* If there is still more body that has not been passed back to the user, then this callback is invoked again. */
         do
         {
-            IotLogDebug( "Invoking the readReadyCallback." );
+            IotLogDebug( "Invoking the readReadyCallback for response %d.", pHttpsResponse );
             pHttpsResponse->pCallbacks->readReadyCallback( pHttpsResponse->pUserPrivData,
                                                            pHttpsResponse,
                                                            pHttpsResponse->bodyRxStatus,
@@ -1110,7 +1110,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         {
             /* Given the function signature of IotNetworkInterface_t.receive, we can only receive 0 to the number of bytes
              * requested. Receiving less than the number of bytes requests is OK since we do not how much data is expected, so
-             * we ask for the full size of the receive buffer. Thereofore, the only error that can be returned from receiving
+             * we ask for the full size of the receive buffer. Therefore, the only error that can be returned from receiving
              * the headers or body is a timeout. We always disconnect from the network when there is a timeout because the
              * server may be slow to respond. If the server happens to send the response later at the same time another response
              * is waiting in the queue, then the workflow is corrupted. Pipelining is not current supported in this library. */
@@ -1167,7 +1167,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         }
         else if( status == IOT_HTTPS_NETWORK_ERROR )
         {
-            /* We walways disconnect for a network error because failure to receive the HTTPS body will result in a
+            /* We always disconnect for a network error because failure to receive the HTTPS body will result in a
              * corruption of the workflow. */
             IotLogError( "Network error receiving the HTTPS body for response %d. Error code: %d",
                          pCurrentHttpsResponse,
@@ -1322,7 +1322,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     }
     else if( pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
     {
-        /* Signal to a synchronous reponse that the response is complete. */
+        /* Signal to a synchronous response that the response is complete. */
         pCurrentHttpsResponse->pCallbacks->responseCompleteCallback( pCurrentHttpsResponse->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
     }
 }
@@ -1571,7 +1571,7 @@ static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
      * (name:value\r\n). We need to add a "\r\n" at the end of headers. The use of
      * possibleLastHeaderAdditionalLength is to make sure that there is always
      * space for the last "\r\n". */
-    if( ( additionalLength + possibleLastHeaderAdditionalLength ) > ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur ) )
+    if( ( additionalLength + possibleLastHeaderAdditionalLength ) > ( ( uint32_t ) ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur ) ) )
     {
         IotLogError( "There is %d space left in the header buffer, but we want to add %d more of header.",
                      pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur,
@@ -1693,7 +1693,7 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
      * both the connection type strings will fit in the buffer. */
     char finalHeaders[ HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH ] = { 0 };
 
-    /* Send the headers passed into this function first. These headers are not termined with a second set of "\r\n". */
+    /* Send the headers passed into this function first. These headers are not terminated with a second set of "\r\n". */
     status = _networkSend( pHttpsConnection, pHeadersBuf, headersLength );
 
     if( HTTPS_FAILED( status ) )
@@ -1810,13 +1810,13 @@ static void _incrementNextLocationToWriteBeyondParsed( uint8_t ** pBufCur,
                                                        uint8_t ** pBufEnd )
 {
     /* There is an edge case where the final one or two character received in the header buffer is part of
-     * the header field separator ": " or part of the header line end "\r\n" delimitters. When this
+     * the header field separator ": " or part of the header line end "\r\n" delimiters. When this
      * happens, pHeadersCur in the response will point not the end of the buffer, but to a character in
      * the delimiter. For example:
      * Let's say this is our current header buffer after receiving and parsing:
      * ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n"]
      * pHeadersCur will point to \r because the http-parser does not invoke a callback on the
-     * delimitters. Since no callback is invoked, pHeadersCur is not incremented. pHeadersEnd points to
+     * delimiters. Since no callback is invoked, pHeadersCur is not incremented. pHeadersEnd points to
      * the end of the header buffer which is the unwritable memory location right after the final '\n'.
      * Because pHeadersCur is less than pHeaderEnd we loop again and receive on the network causing the
      * buffer to look like this:
@@ -1924,7 +1924,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
             _incrementNextLocationToWriteBeyondParsed( pBufCur, pBufEnd );
         }
 
-        /* The _httResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
+        /* The _httpsResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
         IotLogDebug( "There is %d of space left in the buffer.", *pBufEnd - *pBufCur );
     }
 
@@ -2080,6 +2080,8 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
         HTTPS_GOTO_CLEANUP();
     }
 
+    IotLogDebug( "Sent HTTPS headers for request %d.", pHttpsRequest );
+
     if( ( pHttpsRequest->pBody != NULL ) && ( pHttpsRequest->bodyLength > 0 ) )
     {
         status = _sendHttpsBody( pHttpsConnection, pHttpsRequest->pBody, pHttpsRequest->bodyLength );
@@ -2089,6 +2091,8 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
             IotLogError( "Error sending final HTTPS body. Return code: %d", status );
             HTTPS_GOTO_CLEANUP();
         }
+
+        IotLogDebug( "Sent HTTPS body for request %d.", pHttpsRequest );
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2376,6 +2380,7 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) &&
         ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
     {
+        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the taskpool." );
         scheduleRequest = true;
     }
 
@@ -2636,6 +2641,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
     if( pRespItem != NULL )
     {
         pHttpsResponse = IotLink_Container( _httpsResponse_t, pRespItem, link );
+        IotLogDebug( "Response %d found in the queue during disconnect.", pHttpsResponse );
 
         if( pHttpsResponse->reqFinishedSending == false )
         {
@@ -2668,6 +2674,9 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
             IotDeQueue_EnqueueHead( &( connHandle->respQ ), pRespItem );
         }
     }
+
+    /* Debug code */
+    IotLogDebug( "There were %d requests in the queue while disconnecting. ", IotDeQueue_Count( &( connHandle->reqQ ) ) );
 
     /* Remove all pending requests. If this routine is called from the application context and there is a
      * network receive callback in process, this routine will wait in _networkDestroy until that routine returns.
@@ -2893,14 +2902,14 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
                                          HTTPS_CONNECTION_HEADER );
 
     /* Check for auto-generated header "Host". This header is created and placed into the header buffer space
-     * in IotHttpClient_InitializeRequest(). */
+     * in IotHttpsClient_InitializeRequest(). */
     HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_HOST_HEADER, FAST_MACRO_STRLEN( HTTPS_HOST_HEADER ) ) != 0,
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
                                          HTTPS_HOST_HEADER );
 
     /* Check for auto-generated header "User-Agent". This header is created and placed into the header buffer space
-     * in IotHttpClient_InitializeRequest(). */
+     * in IotHttpsClient_InitializeRequest(). */
     HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( strncmp( pName, HTTPS_USER_AGENT_HEADER, FAST_MACRO_STRLEN( HTTPS_USER_AGENT_HEADER ) ) != 0,
                                          IOT_HTTPS_INVALID_PARAMETER,
                                          "Attempting to add auto-generated header %s. This is not allowed.",
@@ -3099,7 +3108,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody( IotHttpsResponseHandle_t r
     respHandle->pBodyEnd = respHandle->pBodyCur + *pLen;
 
     /* When there is part of the body in the header pBuffer. We need to move that data to this body pBuffer
-     *  provided in this fuction. */
+     * provided in this function. */
     bodyLengthInHeaderBuf = respHandle->pBodyCurInHeaderBuf - respHandle->pBodyInHeaderBuf;
 
     if( bodyLengthInHeaderBuf > 0 )
@@ -3261,10 +3270,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     savedParserState = respHandle->parserState;
 
     /* The header search parameters in the response handle are used as context in the http-parser callbacks. During
-     * the callback, pReadHeaderField is checked against the currently parsed header name. foundHeaderFiled is set to
+     * the callback, pReadHeaderField is checked against the currently parsed header name. foundHeaderField is set to
      * true when the pReadHeaderField is found in a header field callback. The bufferProcessingState tells the callback
      * to skip the logic pertaining to when the response is being parsed for the first time. pReadHeaderValue will store
-     * the header value found. readHeaderValueLength will store the the header value found's length from within the
+     * the header value found. readHeaderValueLength will store the length of the header value found from within the
      * response headers. */
     respHandle->pReadHeaderField = pName;
     respHandle->readHeaderFieldLength = nameLen;
