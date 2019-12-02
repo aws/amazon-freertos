@@ -2513,19 +2513,27 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
 
-	OTA_State_t xState;
+    OTA_State_t xState;
 
-	/*
-	 * Init default OTA pal callbacks.
-	 */
-    OTA_PAL_Callbacks_t xDefaultCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
+    if( xOTA_Agent.eState == eOTA_AgentState_Stopped )
+    {
+        /* Init default OTA pal callbacks. */
+        OTA_PAL_Callbacks_t xDefaultCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
 
-	/*
-     * Set the OTA complete callback.
-     */
-    xDefaultCallbacks.xCompleteCallback = xFunc;
+        /* Set the OTA complete callback. */
+        xDefaultCallbacks.xCompleteCallback = xFunc;
 
-    xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xDefaultCallbacks, xTicksToWait );
+        xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xDefaultCallbacks, xTicksToWait );
+    }
+    else
+    {
+        if( xFunc != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCompleteCallback = xFunc;
+        }
+        memset( &xOTA_Agent.xStatistics, 0, sizeof( xOTA_Agent.xStatistics ) );
+        xState = xOTA_Agent.eState;
+    }
 
     return xState;
 }
@@ -2853,6 +2861,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_CheckForUpdate" );
 
+    OTA_Err_t xReturn = kOTA_Err_None;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     OTA_LOG_L1( "[%s] Sending event to check for update.\r\n", OTA_METHOD_NAME );
@@ -2861,12 +2870,15 @@ OTA_Err_t OTA_CheckForUpdate( void )
      * Send event to get OTA job document.
      */
     xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
-    OTA_SignalEvent( &xEventMsg );
+    if( OTA_SignalEvent( &xEventMsg ) != pdTRUE )
+    {
+        xReturn = kOTA_Err_EventQueueSendFailed;
+    }
 
     /*
 	 * The event will be processed later so return kOTA_Err_None.
 	 */
-    return kOTA_Err_None;
+    return xReturn;
 }
 
 /*
