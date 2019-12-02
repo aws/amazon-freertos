@@ -102,6 +102,12 @@ const char * pcOTA_JobStatus_Strings[ eNumJobStatusMappings ] =
  */
 const char * pcOTA_JobReason_Strings[ eNumJobReasons ] = { "", "ready", "active", "accepted", "rejected", "aborted" };
 
+/* Queue MQTT callback event for processing. */
+
+static void prvSendCallbackEvent(void* pvCallbackContext,
+	                             IotMqttCallbackParam_t* const pxPublishData,
+	                             OTA_Event_t xEventId);
+
 /* Called when a MQTT message is received on an OTA Job topic. */
 
 static void prvJobPublishCallback( void * pvCallbackContext,
@@ -258,7 +264,8 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
     IotMqttSubscription_t xUnSub;
     IotMqttOperation_t paUnubscribeOperation[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
-    OTA_ConnectionContext_t * pvConnContext = pxAgentCtx->pvConnectionContext;
+
+	OTA_ConnectionContext_t* pvConnContext = pxAgentCtx->pvConnectionContext;
 
     /* Try to unsubscribe from the first of two job topics. */
 	xUnSub.qos = IOT_MQTT_QOS_0;
@@ -310,13 +317,21 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
 
     if( paUnubscribeOperation[ 0 ] != NULL )
     {
-        IotMqtt_Wait( paUnubscribeOperation[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS );
+		if ( IotMqtt_Wait(paUnubscribeOperation[0], OTA_UNSUBSCRIBE_WAIT_MS) != IOT_MQTT_SUCCESS )
+		{
+			OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 0 );
+		}
+
     }
 
-    if( paUnubscribeOperation[ 1 ] != NULL )
-    {
-        IotMqtt_Wait( paUnubscribeOperation[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS );
-    }
+	if ( paUnubscribeOperation[1] != NULL )
+	{
+		if ( IotMqtt_Wait(paUnubscribeOperation[1], OTA_UNSUBSCRIBE_WAIT_MS) != IOT_MQTT_SUCCESS )
+		{
+			OTA_LOG_L1( "[%s] Unsubscribe wait failed on topic %d\n\r", OTA_METHOD_NAME, 1 );
+		}
+
+	}
 }
 
 /*
@@ -348,59 +363,70 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 }
 
 /*
+ * This function queues callback events for processing.
+ */
+static void prvSendCallbackEvent(void* pvCallbackContext,
+	                             IotMqttCallbackParam_t* const pxPublishData,
+	                             OTA_Event_t xEventId )
+{
+	DEFINE_OTA_METHOD_NAME("prvSendCallbackEvent");
+	OTA_EventMsg_t xEventMsg = { 0 };
+	BaseType_t xErr = pdFALSE;
+	OTA_EventData_t* pxData;
+
+	/* Get the OTA agent context. */
+	OTA_AgentContext_t* pxAgentCtx = (OTA_AgentContext_t*)pvCallbackContext;
+
+	if (pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE)
+	{
+		/* Try to get OTA data buffer. */
+		pxData = prvOTAEventBufferGet();
+
+		if (pxData != NULL)
+		{
+			memcpy(pxData->ucData, pxPublishData->u.message.info.pPayload, pxPublishData->u.message.info.payloadLength);
+			pxData->ulDataLength = pxPublishData->u.message.info.payloadLength;
+			xEventMsg.xEventId = xEventId;
+			xEventMsg.pxEventData = pxData;
+
+			/* Send job document received event. */
+			xErr = OTA_SignalEvent(&xEventMsg);
+		}
+		else
+		{
+			OTA_LOG_L1("Error: No OTA data buffers available.\r\n", OTA_DATA_BLOCK_SIZE);
+		}
+	}
+	else
+	{
+		OTA_LOG_L1("Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE, pxPublishData->u.message.info.payloadLength);
+	}
+
+	if (xErr == pdTRUE)
+	{
+		/* Update packet received statistics counter. */
+		pxAgentCtx->xStatistics.ulOTA_PacketsReceived++;
+	}
+	else
+	{
+		/* Update packet received statistics counter. */
+		pxAgentCtx->xStatistics.ulOTA_PacketsDropped++;
+	}
+}
+
+/*
  * This function is called whenever we receive a Job MQTT publish message.
  */
 static void prvJobPublishCallback( void * pvCallbackContext,
                                    IotMqttCallbackParam_t * const pxPublishData )
 {
     DEFINE_OTA_METHOD_NAME( "prvJobPublishCallback" );
-    OTA_EventMsg_t xEventMsg = { 0 };
-    BaseType_t xErr = pdFALSE;
-    OTA_EventData_t * pxData;
 
-    /* Get the OTA agent context. */
-    OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
-
-    /* Bail out if this callback is invoked after the OTA agent is stopped. */
-    if( pxAgentCtx->eState == eOTA_AgentState_Stopped )
+    /* Do nothing if this callback is invoked when the OTA agent is stopped. */
+    if( (( OTA_AgentContext_t * ) pvCallbackContext)->eState != eOTA_AgentState_Stopped )
     {
-        return;
-    }
-
-    if( pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE )
-    {
-        /* Try to get OTA data buffer. */
-        pxData = prvOTAEventBufferGet();
-
-        if( pxData != NULL )
-        {
-            memcpy( pxData->ucData, pxPublishData->u.message.info.pPayload, pxPublishData->u.message.info.payloadLength );
-            pxData->ulDataLength = pxPublishData->u.message.info.payloadLength;
-            xEventMsg.xEventId = eOTA_AgentEvent_ReceivedJobDocument;
-            xEventMsg.pxEventData = pxData;
-
-            /* Send job document received event. */
-            xErr = OTA_SignalEvent( &xEventMsg );
-        }
-        else
-        {
-            OTA_LOG_L1( "Error: No OTA data buffers available.\r\n", OTA_DATA_BLOCK_SIZE );
-        }
-    }
-    else
-    {
-        OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE, pxPublishData->u.message.info.payloadLength );
-    }
-
-    if( xErr == pdTRUE )
-    {
-        /* Update packet received statistics counter. */
-        pxAgentCtx->xStatistics.ulOTA_PacketsReceived++;
-    }
-    else
-    {
-        /* Update packet received statistics counter. */
-        pxAgentCtx->xStatistics.ulOTA_PacketsDropped++;
+        /* Queue the event for processing job document. */
+        prvSendCallbackEvent( pvCallbackContext, pxPublishData, eOTA_AgentEvent_ReceivedJobDocument );
     }
 }
 
@@ -410,55 +436,13 @@ static void prvJobPublishCallback( void * pvCallbackContext,
 static void prvDataPublishCallback( void * pvCallbackContext,
                                     IotMqttCallbackParam_t * const pxPublishData )
 {
-    DEFINE_OTA_METHOD_NAME( "prvDataPublishCallback" );
+	DEFINE_OTA_METHOD_NAME("prvDataPublishCallback");
 
-    BaseType_t xErr = pdFALSE;
-    OTA_EventMsg_t xEventMsg = { 0 };
-    OTA_EventData_t * pxData = NULL;
-
-    /* Get the OTA agent context. */
-    OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
-
-    /* Bail out if this callback is invoked after the OTA agent is stopped. */
-    if( pxAgentCtx->eState == eOTA_AgentState_Stopped )
+    /* Do nothing if this callback is invoked when the OTA agent is stopped. */
+    if( (( OTA_AgentContext_t * ) pvCallbackContext)->eState != eOTA_AgentState_Stopped )
     {
-        return;
-    }
-
-    if( pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE )
-    {
-        /* Try to get OTA data buffer. */
-        pxData = prvOTAEventBufferGet();
-
-        if( pxData != NULL )
-        {
-            memcpy( pxData->ucData, pxPublishData->u.message.info.pPayload, pxPublishData->u.message.info.payloadLength );
-            pxData->ulDataLength = pxPublishData->u.message.info.payloadLength;
-            xEventMsg.xEventId = eOTA_AgentEvent_ReceivedFileBlock;
-            xEventMsg.pxEventData = pxData;
-
-            /* Send job document received event. */
-            xErr = OTA_SignalEvent( &xEventMsg );
-        }
-        else
-        {
-            OTA_LOG_L1( "Error: No OTA data buffers available.\r\n", OTA_DATA_BLOCK_SIZE );
-        }
-    }
-    else
-    {
-        OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE, pxPublishData->u.message.info.payloadLength );
-    }
-
-    if( xErr == pdTRUE )
-    {
-        /* Update packet received statistics counter. */
-        pxAgentCtx->xStatistics.ulOTA_PacketsReceived++;
-    }
-    else
-    {
-        /* Update packet received statistics counter. */
-        pxAgentCtx->xStatistics.ulOTA_PacketsDropped++;
+        /* Queue the event for processing received file block. */
+        prvSendCallbackEvent( pvCallbackContext, pxPublishData, eOTA_AgentEvent_ReceivedFileBlock );
     }
 }
 

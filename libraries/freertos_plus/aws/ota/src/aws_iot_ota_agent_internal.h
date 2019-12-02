@@ -256,7 +256,7 @@ typedef struct ota_agent_context
     OTA_PAL_Callbacks_t xPALCallbacks;                      /* Variable to store PAL callbacks */
     uint32_t ulNumOfBlocksToReceive;                        /* Number of data blocks to receive per data request. */
     OTA_AgentStatistics_t xStatistics;                      /* The OTA agent statistics block. */
-    SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety will managing data buffers. */
+    SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety while managing data buffers. */
     uint32_t ulRequestMomentum;                             /* The number of requests sent before a response was received. */
 } OTA_AgentContext_t;
 

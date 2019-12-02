@@ -148,7 +148,7 @@ static void prvRequestTimer_Callback( TimerHandle_t T );
 
 /* Start the self test timer if in self-test mode. */
 
-static BaseType_t prvCheckForSelfTest( void );
+static BaseType_t prvStartSelfTestTimer( void );
 
 /* Stop the OTA self test timer if it is running. */
 
@@ -298,7 +298,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .ulNumOfBlocksToReceive        = 1,
     .xStatistics                   = { 0 },
     .xOTA_ThreadSafetyMutex        = NULL,
-    .ulRequestMomentum             = otaconfigMAX_NUM_REQUEST_MOMENTUM
+    .ulRequestMomentum             = 0
 };
 
 OTAStateTableEntry_t OTATransitionTable[] =
@@ -375,9 +375,9 @@ static bool_t prvInSelftest( void )
  * production stage of the job service resulting in a different job queue being
  * used.
  */
-static BaseType_t prvCheckForSelfTest( void )
+static BaseType_t prvStartSelfTestTimer( void )
 {
-    DEFINE_OTA_METHOD_NAME( "prvCheckForSelfTest" );
+    DEFINE_OTA_METHOD_NAME( "prvStartSelfTestTimer" );
     static const char pcTimerName[] = "OTA_SelfTest";
     BaseType_t xTimerStarted = pdFALSE;
     static StaticTimer_t xTimerBuffer;
@@ -417,51 +417,6 @@ static BaseType_t prvCheckForSelfTest( void )
     }
 
     return xTimerStarted;
-}
-
-static OTA_Err_t prvStartSelfTestTimer( void )
-{
-    DEFINE_OTA_METHOD_NAME( "prvStartSelfTestTimer" );
-
-    static const char pcTimerName[] = "OTA_SelfTest";
-    BaseType_t xTimerStarted = pdFALSE;
-    static StaticTimer_t xTimerBuffer;
-    OTA_Err_t xReturn = kOTA_Err_Uninitialized;
-
-    if( xOTA_Agent.pvSelfTestTimer == NULL )
-    {
-        xOTA_Agent.pvSelfTestTimer = xTimerCreateStatic( pcTimerName,
-                                                         pdMS_TO_TICKS( otaconfigSELF_TEST_RESPONSE_WAIT_MS ),
-                                                         pdFALSE, NULL, prvSelfTestTimer_Callback,
-                                                         &xTimerBuffer );
-
-        if( xOTA_Agent.pvSelfTestTimer != NULL )
-        {
-            xTimerStarted = xTimerStart( xOTA_Agent.pvSelfTestTimer, portMAX_DELAY );
-        }
-        else
-        {
-            /* Static timers are guaranteed to be created unless we pass in a NULL buffer. */
-        }
-    }
-    else
-    {
-        xTimerStarted = xTimerReset( xOTA_Agent.pvSelfTestTimer, portMAX_DELAY );
-    }
-
-    /* Common check for whether the timer was started or not. It should be impossible to not start. */
-    if( xTimerStarted == pdTRUE )
-    {
-        OTA_LOG_L1( "[%s] Starting %s timer.\r\n", OTA_METHOD_NAME, pcTimerName );
-        xReturn = kOTA_Err_None;
-    }
-    else
-    {
-        OTA_LOG_L1( "[%s] ERROR: failed to reset/start %s timer.\r\n", OTA_METHOD_NAME, pcTimerName );
-        xReturn = kOTA_Err_SelfTestTimerFailed;
-    }
-
-    return xReturn;
 }
 
 /* When the self test response timer expires, reset the device since we're likely broken. */
@@ -750,7 +705,13 @@ static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
     DEFINE_OTA_METHOD_NAME( "prvDefaultCustomJobCallback" );
 	(void)ulMsgLen;
 	(void)pcJSON;
-    OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent.\r\n", OTA_METHOD_NAME );
+
+	/*
+	 * The JOB document received is not conforming to AFR OTA job document and it could be a
+	 * custom OTA job. No applciation callback for handling custom job document is registered so just
+	 * return error code for non conforming job document from this default handler.
+	 */
+    OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent which is not supported.\r\n", OTA_METHOD_NAME );
 
     return eOTA_JobParseErr_NonConformingJobDoc;
 }
@@ -784,7 +745,7 @@ static OTA_Err_t prvInSelfTestHandler( OTA_EventData_t * pxEventData )
     OTA_LOG_L1( "[%s] prvInSelfTestHandler, platform is in self-test.\r\n", OTA_METHOD_NAME );
 
     /* Check the platform's OTA update image state. It should also be in self test. */
-    if( prvCheckForSelfTest() == pdTRUE )
+    if( prvStartSelfTestTimer() == pdTRUE )
     {
         /* Callback for application specific self-test. */
         xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_StartTest );
@@ -1330,16 +1291,21 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C )
 
     bool_t xResult = pdFALSE;
 
-	OTA_LOG_L1("[%s] Context->0x%08x\r\n", OTA_METHOD_NAME, C);
+	OTA_LOG_L1( "[%s] Context->0x%p\r\n", OTA_METHOD_NAME, C );
 
     if( C != NULL )
     {
+        /*
+		 * Abort any active file access and release the file resource, if needed.
+		 */
+        ( void ) xOTA_Agent.xPALCallbacks.xAbort( C );
+
 		/* Free the resources. */
 		prvOTA_FreeContext( C );
 
-        /* Abort any active file access and release the file resource, if needed. */
-        ( void ) xOTA_Agent.xPALCallbacks.xAbort( C );
-        memset( C, 0, sizeof( OTA_FileContext_t ) ); /* Clear the entire structure now that it is free. */
+		/* Clear the entire structure now that it is free. */
+        memset( C, 0, sizeof( OTA_FileContext_t ) );
+
         xResult = pdTRUE;
     }
 
@@ -2401,6 +2367,14 @@ static void prvAgentShutdownCleanup( void )
 		vQueueDelete( xOTA_Agent.xOTA_EventQueue );
 	}
 
+	/*
+     * Free OTA event buffers.
+     */
+	for ( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
+	{
+		xEventBuffer[ulIndex].bBufferUsed = false;
+	}
+
 	/* Delete the semaphore.*/
 	if ( xOTA_Agent.xOTA_ThreadSafetyMutex != NULL)
 	{
@@ -2446,7 +2420,7 @@ static void prvOTAAgentTask( void* pUnused )
 
 							if ( xErr == kOTA_Err_None )
 							{
-								OTA_LOG_L1( " [%s] Called handler. Current State [%s] Event [%s] New state [%s] \n",
+								OTA_LOG_L1( "[%s] Called handler. Current State [%s] Event [%s] New state [%s] \n",
 									       OTA_METHOD_NAME,
 									       pcOTA_AgentState_Strings[xOTA_Agent.eState],
 									       pcOTA_Event_Strings[xEventMsg.xEventId],
@@ -2458,7 +2432,7 @@ static void prvOTAAgentTask( void* pUnused )
 							}
 							else
 							{
-								OTA_LOG_L1( " [%s] Handler failed. Current State [%s] Event  [%s] Error Code [%d] \n",
+								OTA_LOG_L1( "[%s] Handler failed. Current State [%s] Event  [%s] Error Code [%d] \n",
 									       OTA_METHOD_NAME,
 									       pcOTA_AgentState_Strings[xOTA_Agent.eState],
 									       pcOTA_Event_Strings[xEventMsg.xEventId],
@@ -2470,6 +2444,11 @@ static void prvOTAAgentTask( void* pUnused )
 					}
 				}
 			}
+
+			OTA_LOG_L1("[%s] Unexpected Event. Current State [%s] Event  [%s]  \n",
+				       OTA_METHOD_NAME,
+				       pcOTA_AgentState_Strings[xOTA_Agent.eState],
+				       pcOTA_Event_Strings[xEventMsg.xEventId] );
 		}
 	}
 }

@@ -73,8 +73,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx );
 /**
  * @brief Decode a cbor encoded fileblock.
  *
- * This function is used for requesting a file block over MQTT using the
- * file context from the OTA agent context.
+ * This function is used for decoding a file block received over MQTT & encoded in cbor.
  *
  * @param[in] pucMessageBuffer The message to be decoded.
  * @param[in] xMessageSize     The size of the message in bytes.

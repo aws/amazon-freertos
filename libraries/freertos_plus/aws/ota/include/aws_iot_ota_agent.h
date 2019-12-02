@@ -136,7 +136,7 @@ typedef uint32_t OTA_Err_t;
 
 /**
  * @defgroup OTA Error code operation helpers.
- * @brief Helper constanteiis for extracting the error code from the OTA error returned.
+ * @brief Helper constant for extracting the error code from the OTA error returned.
  *
  * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
  * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
