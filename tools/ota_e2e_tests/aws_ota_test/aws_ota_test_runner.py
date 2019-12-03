@@ -72,31 +72,6 @@ class OtaTestRunner:
 
         # Get the test cases from the board's ota config.
         self._otaTestCases = self.__getOtaTestCases(self._otaConfig)
-        # Initialize the Amazon FreeRTOS project for OTA.
-        self.__intializeOtaProject()
-
-    def __intializeOtaProject(self):
-        """Initialize the OtaAfrProject object for OTA."""
-        try:
-            self._otaProject.initializeOtaProject()
-            self._otaProject.setClientCredentialsForAwsIotEndpoint(self._otaAwsAgent.getAwsIotEndpoint())
-            self._otaProject.setClientCredentialsForWifi(self._boardConfig['wifi_ssid'], self._boardConfig['wifi_password'], self._boardConfig['wifi_security'])
-            self._otaProject.setClientCredentialForThingName(self._otaAwsAgent.getThingName())
-            self._otaProject.setClientCredentialKeys(self._otaAwsAgent.getThingCertificate(), self._otaAwsAgent.getThingPrivateKey())
-            self._otaProject.copyCodesignerCertificateToBootloader(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
-            self._otaProject.setMqttLogsOn()
-            self._otaProject.setFreeRtosConfigNetworkInterface(self._boardConfig.get('windows_network_interface', 0))
-            if self._otaConfig.get('compile_codesigner_certificate', False):
-                self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
-            if self._stageParams:
-                # Currently 12/13/2018 only the TI CC3220SF LaunchpadXL needs the Root CA to connect to other internal Amazon development stage endpoints.
-                if 'cc3220' in self._boardConfig['name']:
-                    self._otaProject.setOtaUpdateDemoForRootCA()
-                    self._otaProject.addRootCAToClientCredentialKeys(self._stageParams['certificate'])
-        except Exception as e:
-            print(e)
-            self.__cleanup()
-            raise
 
     def __getOtaTestCases(self, _otaConfig):
         """Get all of the tests supported by the input board.

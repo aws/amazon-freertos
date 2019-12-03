@@ -96,12 +96,23 @@ class OtaTestCase(ABC):
         """Setup the OTA test.
         All the necessary setup. Optional method, but do call super setup if implementation is provided in sub-class.
         """
+        self._otaProject.initializeOtaProject()
+        self._otaProject.setClientCredentialsForAwsIotEndpoint(self._otaAwsAgent.getAwsIotEndpoint())
+        self._otaProject.setClientCredentialsForWifi(self._boardConfig['wifi_ssid'], self._boardConfig['wifi_password'], self._boardConfig['wifi_security'])
+        self._otaProject.setClientCredentialForThingName(self._otaAwsAgent.getThingName())
+        self._otaProject.setClientCredentialKeys(self._otaAwsAgent.getThingCertificate(), self._otaAwsAgent.getThingPrivateKey())
+        self._otaProject.copyCodesignerCertificateToBootloader(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
+        self._otaProject.setMqttLogsOn()
+        self._otaProject.setFreeRtosConfigNetworkInterface(self._boardConfig.get('windows_network_interface', 0))
+        if self._otaConfig.get('compile_codesigner_certificate', False):
+            self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
         transportation = self._otaConfig.get('transportation')
         if transportation == 'ble':
             self._otaProject.setBleConfig()
         if 'HTTP' in self._protocol:
             self._otaProject.setHTTPConfig()
         self._otaProject.setApplicationVersion(0, 9, 0)
+
         buildReturnCode = self._otaProject.buildProject()
         flashReturnCode = self._flashComm.flashAndRead()
 
