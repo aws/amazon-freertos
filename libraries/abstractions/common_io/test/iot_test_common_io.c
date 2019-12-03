@@ -54,13 +54,29 @@ TEST_TEAR_DOWN( Common_IO )
  */
 TEST_GROUP_RUNNER( Common_IO )
 {
+    size_t i = 0;
+
     #if ( IOT_TEST_COMMON_IO_UART_SUPPORTED == 1 )
-        SET_TEST_IOT_UART_CONFIG( 0 );
-        RUN_TEST_GROUP( TEST_IOT_UART );
+        for( i = 0; i < UART_TEST_SET; i++ )
+        {
+            SET_TEST_IOT_UART_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_UART );
+        }
     #endif
 
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED == 1 )
-        SET_TEST_IOT_I2C_CONFIG( 0 );
-        RUN_TEST_GROUP( TEST_IOT_I2C );
+        for( i = 0; i < I2C_TEST_SET; i++ )
+        {
+            SET_TEST_IOT_I2C_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_I2C );
+        }
+    #endif
+
+    #if ( IOT_TEST_COMMON_IO_SPI_SUPPORTED == 1 )
+        for( i = 0; i < SPI_TEST_SET; i++ )
+        {
+            SET_TEST_IOT_SPI_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_SPI );
+        }
     #endif
 }

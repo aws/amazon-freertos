@@ -1301,7 +1301,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_read_sync( NULL, ucBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_read_sync( xSPIHandle, NULL, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1330,7 +1330,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_read_async( NULL, ucBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_read_async( xSPIHandle, NULL, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1359,7 +1359,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_write_sync( NULL, ucBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_write_sync( xSPIHandle, NULL, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1388,7 +1388,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_write_async( NULL, ucBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_write_async( xSPIHandle, NULL, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1418,7 +1418,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_transfer_sync( NULL, ucRxBuffer, ucTxBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_transfer_sync( xSPIHandle, NULL, ucTxBuffer, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1451,7 +1451,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     lRetVal = iot_spi_transfer_async( NULL, ucRxBuffer, ucTxBuffer, SPI_BUFFER_SIZE );
-    TEST_ASSERT_EQUAL( IOT_SPI_MASTER_NOT_INITIALIZED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_spi_transfer_async( xSPIHandle, NULL, ucTxBuffer, SPI_BUFFER_SIZE );
     TEST_ASSERT_EQUAL( IOT_SPI_INVALID_VALUE, lRetVal );
@@ -1491,7 +1491,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelFuzzing )
     lRetVal = iot_spi_cancel( xSPIHandle );
 
     if( ( lRetVal != IOT_SPI_FUNCTION_NOT_SUPPORTED ) &&
-        ( lRetVal != IOT_SPI_MASTER_NOT_INITIALIZED ) )
+        ( lRetVal != IOT_SPI_INVALID_VALUE ) )
     {
         TEST_ASSERT_EQUAL( IOT_SPI_NOTHING_TO_CANCEL, lRetVal );
     }
