@@ -67,7 +67,6 @@ if(DEFINED CBMC)
     add_subdirectory("tools/cbmc/proofs")
     list(FILTER cbmc_proof_names EXCLUDE REGEX "^$")
     list(TRANSFORM cbmc_proof_names APPEND "-proof" OUTPUT_VARIABLE all_proof_targets)
-    add_custom_target("all-proofs" DEPENDS ${all_proof_targets})
     add_custom_target("cbmc" DEPENDS ${all_proof_targets})
 endif()
 
