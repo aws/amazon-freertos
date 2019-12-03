@@ -13,10 +13,6 @@ if("${AFR_BOARD_NAME}" STREQUAL "esp32_plus_ecc608a_devkitc")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_plus_ecc608a_devkitc.cmake")
     set(ECC608_IN_USE TRUE)
 endif()
-if("${AFR_BOARD_NAME}" STREQUAL "esp32_plus_ecc608a_wrover_kit")
-    set(ECC608_IN_USE TRUE)
-    include("${CMAKE_CURRENT_LIST_DIR}/esp32_plus_ecc608a_wrover_kit.cmake")
-endif()
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -281,7 +277,7 @@ if(ECC608_IN_USE)
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
             "${ecc608a_pkcs11_src}"
-            "${afr_ports_dir}/pkcs11/atca_cert_chain.c"        
+            "${board_dir}/application_code/atca_cert_chain.c"
             "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
     )
 else()
@@ -407,6 +403,15 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
     execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
 endif()
 
+if(ECC608_IN_USE)
+set_source_files_properties(
+    ${ecc608a_dir}/lib/pkcs11/pkcs11_token.c
+    ${ecc608a_dir}/lib/pkcs11/pkcs11_object.c
+    ${ecc608a_dir}/lib/basic/atca_helpers.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-error=pointer-sign -Wno-error=char-subscripts"
+)
+endif()
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c

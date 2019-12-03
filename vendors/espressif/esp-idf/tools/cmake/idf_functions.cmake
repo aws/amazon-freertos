@@ -113,8 +113,6 @@ function(idf_set_global_compile_options)
 
     list(APPEND compile_options "-Wall"
                                 "-Werror=all"
-                                "-Wno-error=char-subscripts"
-                                "-Wno-error=pointer-sign"
                                 "-Wno-error=unused-function"
                                 "-Wno-error=unused-but-set-variable"
                                 "-Wno-error=unused-variable"
