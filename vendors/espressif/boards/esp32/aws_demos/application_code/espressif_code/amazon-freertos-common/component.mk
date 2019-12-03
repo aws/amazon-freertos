@@ -80,7 +80,9 @@ COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_p
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.o \
-                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.o 
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.o  \
+                        $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11/iot_pkcs11_secure_element.o  \
+                        atca_cert_chain.o
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
                               $(AMAZON_FREERTOS_ARF_PORTS)/ota \
