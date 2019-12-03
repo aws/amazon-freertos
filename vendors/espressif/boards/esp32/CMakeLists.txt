@@ -165,13 +165,13 @@ endif()
 
 if(ECC608_IN_USE)
     list(APPEND kernel_inc_dirs
-    "${afr_ports_dir}/pkcs11/esp32_plus_ecc608_include"
+    "${board_dir}/config_files/ecc608a_pkcs11_config"
     "${ecc608a_dir}/lib"
     "${esp_idf_dir}/components/esp_ringbuf/include"
     )
 else()
     list(APPEND kernel_inc_dirs
-    "${afr_ports_dir}/pkcs11/esp32_include"
+    "${afr_ports_dir}/config_files/default_pkcs11_config"
     )
 endif()
 
@@ -186,7 +186,7 @@ target_include_directories(
 )
 
 # WiFi
-afr_mcu_port(wifi)  
+afr_mcu_port(wifi)
 
 if(NOT AFR_ESP_LWIP)
 target_link_libraries(

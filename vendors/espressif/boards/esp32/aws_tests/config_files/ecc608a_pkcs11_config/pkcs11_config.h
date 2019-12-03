@@ -1,3 +1,4 @@
+
 /**
  * \file
  * \brief PKCS11 Library Configuration
@@ -65,7 +66,7 @@
 
 /** Enable PKCS#11 Debugging Messages */
 #ifndef PKCS11_DEBUG_ENABLE
-#define PKCS11_DEBUG_ENABLE             1
+#define PKCS11_DEBUG_ENABLE             0
 #endif
 
 /** Use Static or Dynamic Allocation */
