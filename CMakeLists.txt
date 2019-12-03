@@ -118,20 +118,12 @@ afr_status("")
 # Enable us to use targets defined in vendor CMake files.
 cmake_policy(SET CMP0079 NEW)
 
-target_compile_options(afr_ble PUBLIC "-Wno-unused-variable")
-target_compile_options(afr_mqtt PUBLIC "-Wno-unused-function")
-target_compile_options(afr_common PUBLIC "-Wno-unused-function")
-target_compile_options(afr_https PUBLIC "-Wno-unused-variable")
-target_compile_options(afr_defender PUBLIC "-Wno-unused-but-set-variable")
-
 if(TARGET aws_demos)
-    target_compile_options(aws_demos PUBLIC "-Wno-unused-function")
     list(TRANSFORM AFR_DEMOS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE demos_list)
     target_link_libraries(aws_demos PRIVATE ${demos_list})
 endif()
 
 if(TARGET aws_tests)
-    target_compile_options(aws_tests PUBLIC "-Wno-clobbered")
     list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE tests_list)
     target_link_libraries(aws_tests PRIVATE ${tests_list})
 endif()
