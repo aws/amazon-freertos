@@ -2386,7 +2386,8 @@ static void prvOTAAgentTask( void * pUnused )
 
     OTA_EventMsg_t xEventMsg = { 0 };
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
-    uint32_t i;
+    uint32_t ulTransitionTableLen = sizeof( OTATransitionTable ) / sizeof( OTATransitionTable[ 0 ] );
+    uint32_t i = 0;
 
     /*
      * OTA Agent is ready to receive and process events so update the state to ready.
@@ -2400,7 +2401,7 @@ static void prvOTAAgentTask( void * pUnused )
          */
         if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
         {
-            for( i = 0; i < ( sizeof( OTATransitionTable ) / sizeof( OTATransitionTable[ 0 ] ) ); i++ )
+            for( i = 0; i < ulTransitionTableLen; i++ )
             {
                 if( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState )
                 {
@@ -2442,10 +2443,13 @@ static void prvOTAAgentTask( void * pUnused )
                 }
             }
 
-            OTA_LOG_L1( "[%s] Unexpected Event. Current State [%s] Event  [%s]  \n",
-                        OTA_METHOD_NAME,
-                        pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
-                        pcOTA_Event_Strings[ xEventMsg.xEventId ] );
+            if( i == ulTransitionTableLen )
+            {
+                OTA_LOG_L1( "[%s] Unexpected Event. Current State [%s] Event  [%s]  \n",
+                            OTA_METHOD_NAME,
+                            pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
+                            pcOTA_Event_Strings[ xEventMsg.xEventId ] );
+            }
         }
     }
 }
