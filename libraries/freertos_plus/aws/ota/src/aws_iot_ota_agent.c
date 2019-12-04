@@ -262,6 +262,7 @@ static OTA_Err_t prvInitFileHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData );
+static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData );
 
 /* OTA default callback initializer. */
 
@@ -316,6 +317,7 @@ OTAStateTableEntry_t OTATransitionTable[] =
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        NULL, prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    NULL, prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  NULL, prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           NULL, prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
 };
 
 const char * pcOTA_AgentState_Strings[ eOTA_AgentState_Max ] =
