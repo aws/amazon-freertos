@@ -186,11 +186,6 @@
 #define configECHO_SERVER_ADDR3       6
 #define configTCP_ECHO_CLIENT_PORT    7
 
-/* Maximum number of entries in the OTA message queue. Larger values reduce packet drops. */
-#define configOTA_NUM_MSG_Q_ENTRIES                   40U
-/* Frequency of OTA status updates published via MQTT */
-#define configOTA_PUBLISH_WAIT_MS                     80000UL
-
 /* Prevent the assembler seeing code it doesn't understand. */
 #if defined(__ICCARM__) || defined( __ARMCC_VERSION ) || defined( __GNUC__)
 	/* Logging task definitions. */

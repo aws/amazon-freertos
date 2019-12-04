@@ -53,7 +53,11 @@
 #define OTA_REQUEST_MSG_MAX_SIZE     ( 3U * OTA_MAX_BLOCK_BITMAP_SIZE )
 #define OTA_REQUEST_URL_MAX_SIZE     ( 1500 )
 #define OTA_ERASED_BLOCKS_VAL        0xffU                 /* The starting state of a group of erased blocks in the Rx block bitmap. */
-#define OTA_NUM_MSG_Q_ENTRIES        20U                   /* Maximum number of entries in the OTA event message queue. */
+#ifdef configOTA_NUM_MSG_Q_ENTRIES
+    #define OTA_NUM_MSG_Q_ENTRIES    configOTA_NUM_MSG_Q_ENTRIES
+#else
+    #define OTA_NUM_MSG_Q_ENTRIES    20U                   /* Maximum number of entries in the OTA message queue. */
+#endif
 
 /* Job document parser constants. */
 #define OTA_MAX_JSON_TOKENS          64U                                                                         /* Number of JSON tokens supported in a single parser call. */
