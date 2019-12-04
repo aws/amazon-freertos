@@ -52,6 +52,7 @@
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 uint32_t ultestIotSpiInstance = 0;                            /* Test SPI Instance */
+uint32_t ulAssistedTestIotSpiInstance = 0;                    /* Assisted Test SPI Instance */
 uint32_t ultestIotSPIFrequency = 500000U;                     /* Test SPI Frequency */
 uint32_t ultestIotSPIDummyValue = 0;                          /* Test SPI Dummy Value */
 IotSPIMode_t xtestIotSPIDefaultConfigMode = eSPIMode0;              /* Default SPI eSPIMode0 */
@@ -276,7 +277,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -419,7 +420,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -565,7 +566,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -700,7 +701,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -854,7 +855,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -1008,7 +1009,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
