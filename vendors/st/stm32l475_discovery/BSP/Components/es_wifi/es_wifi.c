@@ -1710,7 +1710,10 @@ ES_WIFI_Status_t ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_
 ES_WIFI_Status_t ES_WIFI_StartServerSingleConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
-  LOCK_WIFI();  
+  LOCK_WIFI();    
+#if (ES_WIFI_USE_UART == 1)
+  char *ptr;
+#endif
     
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);

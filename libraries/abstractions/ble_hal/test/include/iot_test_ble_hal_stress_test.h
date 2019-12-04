@@ -37,10 +37,28 @@
 /*The stress test cases are related.
  * e.g. If only one stress test case needs to be run,
  * the parameters of outside cases should be set to 1 and inside and parallel ones should be set to 0.*/
-#define RESTART_NUMBER_STRESS_TEST           1
-#define RECONNECT_NUMBER_STRESS_TEST         1
-#define INIT_DEINIT_NUMBER_STRESS_TEST       1
-#define ENABLE_DISABLE_NUMBER_STRESS_TEST    1
+#define STRESS_TIER_0                        0
+#define STRESS_TIER_1                        1
+#define STRESS_TIER_2                        0
+#define STRESS_TIER_3                        0
+
+#if STRESS_TIER_0
+    #define STRESS_TEST_INIT_REPETITION      1
+    #define STRESS_TEST_ENABLE_REPETITION    1
+    #define STRESS_TEST_MODULE_REPETITION    1
+#elif STRESS_TIER_1
+    #define STRESS_TEST_INIT_REPETITION      1
+    #define STRESS_TEST_ENABLE_REPETITION    1
+    #define STRESS_TEST_MODULE_REPETITION    10
+#elif STRESS_TIER_2
+    #define STRESS_TEST_INIT_REPETITION      2
+    #define STRESS_TEST_ENABLE_REPETITION    10
+    #define STRESS_TEST_MODULE_REPETITION    100
+#elif STRESS_TIER_3
+    #define STRESS_TEST_INIT_REPETITION      3
+    #define STRESS_TEST_ENABLE_REPETITION    100
+    #define STRESS_TEST_MODULE_REPETITION    1000
+#endif /* if STRESS_TIER_0 */
 
 void prvRestartService( BTService_t * xRefSrvc );
 

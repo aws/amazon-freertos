@@ -146,6 +146,10 @@ extern __IMPORT char *_tzname[2];
 #include <cygwin/time.h>
 #endif /*__CYGWIN__*/
 
+#if defined(_POSIX_TIMERS)
+
+#include <signal.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -155,16 +159,6 @@ extern "C" {
 int _EXFUN(clock_settime, (clockid_t clock_id, const struct timespec *tp));
 int _EXFUN(clock_gettime, (clockid_t clock_id, struct timespec *tp));
 int _EXFUN(clock_getres,  (clockid_t clock_id, struct timespec *res));
-
-#ifdef __cplusplus
-}
-#endif
-
-#if defined(_POSIX_TIMERS)
-#include <signal.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Create a Per-Process Timer, P1003.1b-1993, p. 264 */
 

@@ -32,13 +32,6 @@
 
 
 /**
- * @brief The number of sockets that can be open at one time on a port.
- *
- * This test is not run in WinSim as there are too many sockets that can be opened at one time.
- */
-#define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    0
-
-/**
  * @brief Indicates how much longer than the specified timeout is acceptable for
  * RCVTIMEO tests.
  *

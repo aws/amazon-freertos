@@ -60,8 +60,6 @@ endif
 export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
 
 GLOBAL_INCLUDES := $(AFR_THIRDPARTY_PATH)lwip/src/include \
-                   $(AFR_THIRDPARTY_PATH)lwip/src/portable \
-                   $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM)/include \
                    WICED
 
 $(NAME)_SOURCES :=  $(AFR_THIRDPARTY_PATH)lwip/src/api/api_lib.c \
@@ -76,6 +74,7 @@ $(NAME)_SOURCES :=  $(AFR_THIRDPARTY_PATH)lwip/src/api/api_lib.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/dns.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/init.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/ip.c \
+                    $(AFR_THIRDPARTY_PATH)lwip/src/core/ipv4/acd.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/ipv4/autoip.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/ipv4/icmp.c \
                     $(AFR_THIRDPARTY_PATH)lwip/src/core/ipv4/igmp.c \

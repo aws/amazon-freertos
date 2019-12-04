@@ -27,7 +27,16 @@
 #include "bootloader_flash.h"
 #include "bootloader_common.h"
 #include "soc/gpio_periph.h"
+#include "soc/efuse_reg.h"
+#include "soc/rtc.h"
 #include "soc/spi_reg.h"
+#include "soc/efuse_reg.h"
+#include "soc/apb_ctrl_reg.h"
+#include "esp_image_format.h"
+#include "bootloader_sha.h"
+#include "sys/param.h"
+
+#define ESP_PARTITION_HASH_LEN 32 /* SHA-256 digest length */
 
 static const char* TAG = "boot_comm";
 
@@ -36,13 +45,14 @@ uint32_t bootloader_common_ota_select_crc(const esp_ota_select_entry_t *s)
     return crc32_le(UINT32_MAX, (uint8_t*)&s->ota_seq, 4);
 }
 
+bool bootloader_common_ota_select_invalid(const esp_ota_select_entry_t *s)
+{
+    return s->ota_seq == UINT32_MAX || s->ota_state == ESP_OTA_IMG_INVALID || s->ota_state == ESP_OTA_IMG_ABORTED;
+}
+
 bool bootloader_common_ota_select_valid(const esp_ota_select_entry_t *s)
 {
-    bool val = s->ota_seq != UINT32_MAX && s->crc == bootloader_common_ota_select_crc(s);
-#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
-    val &= (s->ota_flags != ESP_OTA_IMG_INVALID && s->ota_flags != ESP_OTA_IMG_ABORTED && s->ota_flags != ESP_OTA_IMG_PENDING_VERIFY);
-#endif
-    return val;
+    return bootloader_common_ota_select_invalid(s) == false && s->crc == bootloader_common_ota_select_crc(s);
 }
 
 esp_comm_gpio_hold_t bootloader_common_check_long_hold_gpio(uint32_t num_pin, uint32_t delay_sec)
@@ -127,7 +137,7 @@ bool bootloader_common_erase_part_type_data(const char *list_erase, bool ota_dat
                     fl_ota_data_erase = true;
                 }
                 // partition->label is not null-terminated string.
-                strncpy(label, (char *)&partition->label, sizeof(partition->label));
+                strncpy(label, (char *)&partition->label, sizeof(label) - 1);
                 if (fl_ota_data_erase == true || (bootloader_common_label_search(list_erase, label) == true)) {
                     err = bootloader_flash_erase_range(partition->pos.offset, partition->pos.size);
                     if (err != ESP_OK) {
@@ -149,4 +159,169 @@ bool bootloader_common_erase_part_type_data(const char *list_erase, bool ota_dat
     bootloader_munmap(partitions);
 
     return ret;
+}
+
+esp_err_t bootloader_common_get_sha256_of_partition (uint32_t address, uint32_t size, int type, uint8_t *out_sha_256)
+{
+    if (out_sha_256 == NULL || size == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (type == PART_TYPE_APP) {
+        const esp_partition_pos_t partition_pos = {
+            .offset = address,
+            .size = size,
+        };
+        esp_image_metadata_t data;
+        // Function esp_image_verify() verifies and fills the structure data.
+        // here important to get: image_digest, image_len, hash_appended.
+        if (esp_image_verify(ESP_IMAGE_VERIFY_SILENT, &partition_pos, &data) != ESP_OK) {
+            return ESP_ERR_IMAGE_INVALID;
+        }
+        if (data.image.hash_appended) {
+            memcpy(out_sha_256, data.image_digest, ESP_PARTITION_HASH_LEN);
+            return ESP_OK;
+        }
+        // If image doesn't have a appended hash then hash calculates for entire image.
+        size = data.image_len;
+    }
+    // If image is type by data then hash is calculated for entire image.
+    const void *partition_bin = bootloader_mmap(address, size);
+    if (partition_bin == NULL) {
+        ESP_LOGE(TAG, "bootloader_mmap(0x%x, 0x%x) failed", address, size);
+        return ESP_FAIL;
+    }
+    bootloader_sha256_handle_t sha_handle = bootloader_sha256_start();
+    if (sha_handle == NULL) {
+        bootloader_munmap(partition_bin);
+        return ESP_ERR_NO_MEM;
+    }
+    bootloader_sha256_data(sha_handle, partition_bin, size);
+    bootloader_sha256_finish(sha_handle, out_sha_256);
+
+    bootloader_munmap(partition_bin);
+
+    return ESP_OK;
+}
+
+int bootloader_common_select_otadata(const esp_ota_select_entry_t *two_otadata, bool *valid_two_otadata, bool max)
+{
+    if (two_otadata == NULL || valid_two_otadata == NULL) {
+        return -1;
+    }
+    int active_otadata = -1;
+    if (valid_two_otadata[0] && valid_two_otadata[1]) {
+        int condition = (max == true) ? MAX(two_otadata[0].ota_seq, two_otadata[1].ota_seq) : MIN(two_otadata[0].ota_seq, two_otadata[1].ota_seq);
+        if (condition == two_otadata[0].ota_seq) {
+            active_otadata = 0;
+        } else {
+            active_otadata = 1;
+        }
+        ESP_LOGD(TAG, "Both OTA copies are valid");
+    } else {
+        for (int i = 0; i < 2; ++i) {
+            if (valid_two_otadata[i]) {
+                active_otadata = i;
+                ESP_LOGD(TAG, "Only otadata[%d] is valid", i);
+                break;
+            }
+        }
+    }
+    return active_otadata;
+}
+
+int bootloader_common_get_active_otadata(esp_ota_select_entry_t *two_otadata)
+{
+    if (two_otadata == NULL) {
+        return -1;
+    }
+    bool valid_two_otadata[2];
+    valid_two_otadata[0] = bootloader_common_ota_select_valid(&two_otadata[0]);
+    valid_two_otadata[1] = bootloader_common_ota_select_valid(&two_otadata[1]);
+    return bootloader_common_select_otadata(two_otadata, valid_two_otadata, true);
+}
+
+esp_err_t bootloader_common_get_partition_description(const esp_partition_pos_t *partition, esp_app_desc_t *app_desc)
+{
+    if (partition == NULL || app_desc == NULL || partition->offset == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    const uint8_t *image = bootloader_mmap(partition->offset, partition->size);
+    if (image == NULL) {
+        ESP_LOGE(TAG, "bootloader_mmap(0x%x, 0x%x) failed", partition->offset, partition->size);
+        return ESP_FAIL;
+    }
+
+    memcpy(app_desc, image + sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t), sizeof(esp_app_desc_t));
+    bootloader_munmap(image);
+
+    if (app_desc->magic_word != ESP_APP_DESC_MAGIC_WORD) {
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    return ESP_OK;
+}
+
+void bootloader_common_vddsdio_configure()
+{
+#if CONFIG_BOOTLOADER_VDDSDIO_BOOST_1_9V
+    rtc_vddsdio_config_t cfg = rtc_vddsdio_get_config();
+    if (cfg.enable == 1 && cfg.tieh == RTC_VDDSDIO_TIEH_1_8V) {    // VDDSDIO regulator is enabled @ 1.8V
+        cfg.drefh = 3;
+        cfg.drefm = 3;
+        cfg.drefl = 3;
+        cfg.force = 1;
+        rtc_vddsdio_set_config(cfg);
+        ets_delay_us(10); // wait for regulator to become stable
+    }
+#endif // CONFIG_BOOTLOADER_VDDSDIO_BOOST
+}
+
+#ifdef CONFIG_IDF_TARGET_ESP32
+uint8_t bootloader_common_get_chip_revision(void)
+{
+    uint8_t eco_bit0, eco_bit1, eco_bit2;
+    eco_bit0 = (REG_READ(EFUSE_BLK0_RDATA3_REG) & 0xF000) >> 15;
+    eco_bit1 = (REG_READ(EFUSE_BLK0_RDATA5_REG) & 0x100000) >> 20;
+    eco_bit2 = (REG_READ(APB_CTRL_DATE_REG) & 0x80000000) >> 31;
+    uint32_t combine_value = (eco_bit2 << 2) | (eco_bit1 << 1) | eco_bit0;
+    uint8_t chip_ver = 0;
+    switch (combine_value) {
+    case 0:
+        chip_ver = 0;
+        break;
+    case 1:
+        chip_ver = 1;
+        break;
+    case 3:
+        chip_ver = 2;
+        break;
+    case 7:
+        chip_ver = 3;
+        break;
+    default:
+        chip_ver = 0;
+        break;
+    }
+    return chip_ver;
+}
+#endif
+
+esp_err_t bootloader_common_check_chip_validity(const esp_image_header_t* img_hdr, esp_image_type type)
+{
+    esp_err_t err = ESP_OK;
+    esp_chip_id_t chip_id = CONFIG_IDF_FIRMWARE_CHIP_ID;
+    if (chip_id != img_hdr->chip_id) {
+        ESP_LOGE(TAG, "mismatch chip ID, expected %d, found %d", chip_id, img_hdr->chip_id);
+        err = ESP_FAIL;
+    }
+    uint8_t revision = bootloader_common_get_chip_revision();
+    if (revision < img_hdr->min_chip_rev) {
+        ESP_LOGE(TAG, "can't run on lower chip revision, expected %d, found %d", revision, img_hdr->min_chip_rev);
+        err = ESP_FAIL;
+    } else if (revision != img_hdr->min_chip_rev) {
+        ESP_LOGI(TAG, "chip revision: %d, min. %s chip revision: %d", revision, type == ESP_IMAGE_BOOTLOADER ? "bootloader" : "application", img_hdr->min_chip_rev);
+    }
+    return err;
 }

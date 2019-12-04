@@ -38,7 +38,7 @@ i=0; while [ $i -le 1 ]; do
         else
             echo "Generating documentation for $file..."
 
-            # Redirect errors to file when running under Travis CI.
+            # Redirect errors to a file.
             doxygen $file 2>>doxygen_warnings.txt
         fi
     done
@@ -47,6 +47,7 @@ i=0; while [ $i -le 1 ]; do
 done
 
 echo "Documentation written to doc/output"
+echo "Doxygen warnings written to ./doxygen_warnings.txt"
 
 # Print any doxygen errors or warnings and exit with a nonzero value.
 if [ -s doxygen_warnings.txt ]; then

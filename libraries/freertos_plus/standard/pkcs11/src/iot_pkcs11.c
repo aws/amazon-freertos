@@ -311,12 +311,12 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     }
 
     /* Get the certificate handle. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxFunctionList->C_FindObjectsInit( xSession, xTemplate, sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xFindInit = CK_TRUE;
         xResult = pxFunctionList->C_FindObjects( xSession,
@@ -325,12 +325,12 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                                  &ulCount );
     }
 
-    if( CK_TRUE == xFindInit )
+    if( ( CKR_OK == xResult ) && ( CK_TRUE == xFindInit ) )
     {
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ulCount == 0 )
+    if( ( CKR_ARGUMENTS_BAD != xResult ) && ( ulCount == 0 ) )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
@@ -351,8 +351,11 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
-    memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
+    if( xResult == CKR_OK )
+    {
+        memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
+        memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
+    }
 
     return xResult;
 }

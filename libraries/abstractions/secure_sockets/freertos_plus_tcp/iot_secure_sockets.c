@@ -632,13 +632,41 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 }
 /*-----------------------------------------------------------*/
 
-uint32_t ulRand( void )
+/*uint32_t ulRand( void ) __attribute__ ((deprecated)) */
+#if 0
+
+/* Why is this function between #if 0? Because the function ulRand()
+ * is now reprecated. The function is still shown here for users who
+ * are looking for it.
+ * It is deprecated because a return value of 0 would mean that the
+ * RND module is broken. This was confusing because 0 is also a
+ * possible valid random number. */
+    uint32_t ulRand( void )
+    {
+        uint32_t ulNumber = 0uL;
+        BaseType_t xResult = xApplicationGetRandomNumber( &( ulNumber ) );
+
+        if( xResult == pdFALSE )
+        {
+            ulNumber = 0uL;
+        }
+        else
+        {
+            /* Function succeeded, a random number will be returned. */
+        }
+
+        return ulNumber;
+    }
+#endif /* 0 */
+
+BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
     CK_RV xResult = 0;
     SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
+    BaseType_t xReturn; /* Return pdTRUE if successful */
 
     xResult = prvSocketsGetCryptoSession( &xSessionLock,
                                           &xPkcs11Session,
@@ -654,12 +682,18 @@ uint32_t ulRand( void )
     }
 
     /* Check if any of the API calls failed. */
-    if( 0 != xResult )
+    if( 0 == xResult )
     {
-        ulRandomValue = 0;
+        xReturn = pdTRUE;
+        *( pulNumber ) = ulRandomValue;
+    }
+    else
+    {
+        xReturn = pdFALSE;
+        *( pulNumber ) = 0uL;
     }
 
-    return ulRandomValue;
+    return xReturn;
 }
 /*-----------------------------------------------------------*/
 

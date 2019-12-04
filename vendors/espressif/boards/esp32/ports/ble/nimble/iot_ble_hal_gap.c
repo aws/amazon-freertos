@@ -392,7 +392,7 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( ble_gap_terminate( usConnId, BLE_ERR_CONN_TERM_LOCAL ) != 0 )
+    if( ble_gap_terminate( usConnId, BLE_ERR_REM_USER_CONN_TERM ) != 0 )
     {
         xStatus = eBTStatusFail;
     }
@@ -607,10 +607,21 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         fields.mfg_data_len = usManufacturerLen;
     }
 
+
+    if( ( pxParams->ulMinInterval != 0 ) && ( pxParams->ulMaxInterval != 0 ) )
+    {
+        uint8_t slave_itvl_range[ 4 ];
+        slave_itvl_range[ 0 ] = ( pxParams->ulMinInterval ) & 0xFF;
+        slave_itvl_range[ 1 ] = ( pxParams->ulMinInterval >> 8 ) & 0xFF;
+        slave_itvl_range[ 2 ] = ( pxParams->ulMaxInterval ) & 0xFF;
+        slave_itvl_range[ 3 ] = ( pxParams->ulMaxInterval >> 8 ) & 0xFF;
+        fields.slave_itvl_range = slave_itvl_range;
+    }
+
     if( usServiceDataLen && pcServiceData )
     {
-        fields.svc_data_uuid128 = ( uint8_t * ) pcServiceData;
-        fields.svc_data_uuid128_len = usServiceDataLen;
+        fields.svc_data_uuid16 = ( uint8_t * ) pcServiceData;
+        fields.svc_data_uuid16_len = usServiceDataLen;
     }
 
     if( pxServiceUuid != NULL )
@@ -641,8 +652,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         }
     }
 
-    xAdv_params.itvl_min = ( pxParams->ulMinInterval * 1000 / BLE_HCI_ADV_ITVL );
-    xAdv_params.itvl_max = ( pxParams->ulMaxInterval * 1000 / BLE_HCI_ADV_ITVL );
+    xAdv_params.itvl_min = ( IOT_BLE_ADVERTISING_INTERVAL * 1000 ) / ( BLE_HCI_ADV_ITVL );
+    xAdv_params.itvl_max = ( IOT_BLE_ADVERTISING_INTERVAL * 2 * 1000 ) / ( BLE_HCI_ADV_ITVL );
 
     if( pxParams->usAdvertisingEventProperties == BTAdvInd )
     {

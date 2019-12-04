@@ -891,7 +891,7 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
                    }
 
                    xReturnedProperty.pvVal = pucBondedAddresses;
-                   xReturnedProperty.xLen = peer_count;
+                   xReturnedProperty.xLen = peer_count * btADDRESS_LEN;
                    xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xReturnedProperty );
                }
 

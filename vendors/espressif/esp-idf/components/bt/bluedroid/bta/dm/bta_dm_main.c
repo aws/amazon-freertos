@@ -75,10 +75,14 @@ const tBTA_DM_ACTION bta_dm_action[BTA_DM_MAX_EVT] = {
     /* simple pairing events */
 #if (SMP_INCLUDED == TRUE)
     bta_dm_confirm,                         /* BTA_DM_API_CONFIRM_EVT */
+#if (BT_SSP_INCLUDED == TRUE)
+    bta_dm_key_req,                         /* BTA_DM_API_KEY_REQ_EVT */
+#endif ///BT_SSP_INCLUDED == TRUE
     bta_dm_set_encryption,                  /* BTA_DM_API_SET_ENCRYPTION_EVT */
 #endif  ///SMP_INCLUDED == TRUE
 #if (BTM_OOB_INCLUDED == TRUE && SMP_INCLUDED == TRUE)
     bta_dm_loc_oob,                         /* BTA_DM_API_LOC_OOB_EVT */
+    bta_dm_oob_reply,                       /* BTA_DM_API_OOB_REPLY_EVT */
     bta_dm_ci_io_req_act,                   /* BTA_DM_CI_IO_REQ_EVT */
     bta_dm_ci_rmt_oob_act,                  /* BTA_DM_CI_RMT_OOB_EVT */
 #endif /* BTM_OOB_INCLUDED */
@@ -104,7 +108,8 @@ const tBTA_DM_ACTION bta_dm_action[BTA_DM_MAX_EVT] = {
     /* This handler function added by
        Yulong at 2016/9/9 to support the
        random address setting for the APP */
-    bta_dm_ble_set_rand_address,            /* BTA_DM_API_SET_RAND_ADDR_EVT */
+    bta_dm_ble_set_rand_address,            /* BTA_DM_API_SET_RAND_ADDR_EVT*/
+    bta_dm_ble_clear_rand_address,          /* BTA_DM_API_CLEAR_RAND_ADDR_EVT */
     /* This handler function added by
        Yulong at 2016/10/19 to support
        stop the ble advertising setting
@@ -126,6 +131,7 @@ const tBTA_DM_ACTION bta_dm_action[BTA_DM_MAX_EVT] = {
     bta_dm_ble_set_scan_rsp_raw,            /* BTA_DM_API_BLE_SET_SCAN_RSP_RAW_EVT */
     bta_dm_ble_broadcast,                   /* BTA_DM_API_BLE_BROADCAST_EVT */
     bta_dm_ble_set_data_length,             /* BTA_DM_API_SET_DATA_LENGTH_EVT */
+    bta_dm_ble_set_long_adv,                /* BTA_DM_API_BLE_SET_LONG_ADV_EVT */
 #if BLE_ANDROID_CONTROLLER_SCAN_FILTER == TRUE
     bta_dm_cfg_filter_cond,                 /* BTA_DM_API_CFG_FILTER_COND_EVT */
     bta_dm_scan_filter_param_setup,         /* BTA_DM_API_SCAN_FILTER_SETUP_EVT */
@@ -153,6 +159,7 @@ const tBTA_DM_ACTION bta_dm_action[BTA_DM_MAX_EVT] = {
     bta_dm_update_white_list,               /* BTA_DM_API_UPDATE_WHITE_LIST_EVT */
     bta_dm_ble_read_adv_tx_power,           /* BTA_DM_API_BLE_READ_ADV_TX_POWER_EVT */
     bta_dm_ble_read_rssi,                   /* BTA_DM_API_BLE_READ_RSSI_EVT */
+    bta_dm_ble_update_duplicate_exceptional_list,/* BTA_DM_API_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_EVT */
 };
 
 

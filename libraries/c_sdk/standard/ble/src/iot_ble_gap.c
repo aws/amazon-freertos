@@ -55,6 +55,8 @@
 
 #if ( IOT_BLE_ADVERTISING_UUID_SIZE == 2 )
     #define BT_ADV_UUID_TYPE    eBTuuidType16
+#elif ( IOT_BLE_ADVERTISING_UUID_SIZE == 4 )
+    #define BT_ADV_UUID_TYPE    eBTuuidType32
 #else
     #define BT_ADV_UUID_TYPE    eBTuuidType128
 #endif
@@ -69,6 +71,15 @@ static const BTUuid_t _serverUUID =
     .ucType   = eBTuuidType128,
     .uu.uu128 = IOT_BLE_SERVER_UUID
 };
+
+
+/**
+ * @brief Contains parameters to be set in the scan response data.
+ *
+ * Note that total available data size in scan response
+ * is 31 bytes. Parameters are chosen below such that overall size
+ * does not exceed 31 bytes.
+ */
 static IotBleAdvertisementParams_t _scanRespParams =
 {
     .includeTxPower    = true,
@@ -88,6 +99,14 @@ static IotBleAdvertisementParams_t _scanRespParams =
     .pUUID1            = NULL,
     .pUUID2            = NULL
 };
+
+/**
+ * @brief Contains parameters to be set in the advertisement data.
+ *
+ * Note that total available data size in advertisement
+ * is 31 bytes. Parameters are chosen below such that overall size
+ * does not exceed 31 bytes.
+ */
 
 static IotBleAdvertisementParams_t _advParams =
 {

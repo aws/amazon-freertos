@@ -29,12 +29,6 @@
 /**
  * @file aws_integration_test_tcp_portable.h
  * @brief Port-specific variables for TCP tests. */
-#define MW320
-/**
- * @brief The number of sockets that can be open at one time on a port.
- *
- */
-#define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    20
 
 /**
  * @brief Indicates how much longer than the specified timeout is acceptable for

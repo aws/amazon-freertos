@@ -18,6 +18,7 @@
 // var are woken up.
 
 #include <errno.h>
+#include <pthread.h>
 #include <string.h>
 #include "esp_err.h"
 #include "esp_attr.h"
@@ -25,8 +26,6 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/list.h"
-#include "esp_pthread.h"
-#include <pthread.h>
 
 #include <rom/queue.h>
 #include <sys/time.h>
@@ -34,17 +33,16 @@
 #define LOG_LOCAL_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include "esp_log.h"
 const static char *TAG = "esp_pthread";
-static portMUX_TYPE s_cond_init_lock = portMUX_INITIALIZER_UNLOCKED;
 
-static void pthread_cond_init_if_static(esp_pthread_cond_t *cond)
-{
-    if (cond->lock == 0) {
-        portENTER_CRITICAL(&s_cond_init_lock);
-        _lock_init_recursive(&cond->lock);
-        TAILQ_INIT(&cond->waiter_list);
-        portEXIT_CRITICAL(&s_cond_init_lock);
-    }
-}
+typedef struct esp_pthread_cond_waiter {
+    SemaphoreHandle_t   wait_sem;           ///< task specific semaphore to wait on
+    TAILQ_ENTRY(esp_pthread_cond_waiter) link;  ///< stash on the list of semaphores to be notified
+} esp_pthread_cond_waiter_t;
+
+typedef struct esp_pthread_cond {
+    _lock_t lock;                      ///< lock that protects the list of semaphores
+    TAILQ_HEAD(, esp_pthread_cond_waiter) waiter_list;  ///< head of the list of semaphores
+} esp_pthread_cond_t;
 
 int pthread_cond_signal(pthread_cond_t *cv)
 {
@@ -53,7 +51,6 @@ int pthread_cond_signal(pthread_cond_t *cv)
     }
 
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     _lock_acquire_recursive(&cond->lock);
     esp_pthread_cond_waiter_t *entry;
@@ -73,7 +70,6 @@ int pthread_cond_broadcast(pthread_cond_t *cv)
     }
 
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     _lock_acquire_recursive(&cond->lock);
     esp_pthread_cond_waiter_t *entry;
@@ -100,7 +96,6 @@ int pthread_cond_timedwait(pthread_cond_t *cv, pthread_mutex_t *mut, const struc
     }
 
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     if (to == NULL) {
         timeout_ticks = portMAX_DELAY;

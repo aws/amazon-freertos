@@ -86,7 +86,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
      * IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t fileSizeReqHandle = NULL;
 
-    /* Handle identifying the HTTP response. This is valid after the reponse has been received with
+    /* Handle identifying the HTTP response. This is valid after the response has been received with
      * IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t fileSizeRespHandle = NULL;
 

@@ -8,8 +8,8 @@
 #include "FreeRTOS_IP_Private.h"
 #include "FreeRTOS_Sockets.h"
 
-/* This assumes the length of pcHostName is bounded by MAX_HOSTNAME_LEN and the size of UDPPayloadBuffer is bounded by 
-MAX_REQ_SIZE. */ 
+/* This assumes the length of pcHostName is bounded by MAX_HOSTNAME_LEN and the size of UDPPayloadBuffer is bounded by
+MAX_REQ_SIZE. */
 
 void *safeMalloc(size_t xWantedSize) {
 	if(xWantedSize == 0) {
@@ -21,7 +21,7 @@ void *safeMalloc(size_t xWantedSize) {
 
 /* Abstraction of FreeRTOS_GetUDPPayloadBuffer. This should be checked later. For now we are allocating a fixed sized memory of size MAX_REQ_SIZE. */
 void * FreeRTOS_GetUDPPayloadBuffer(size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks ) {
-	void *pvReturn = safeMalloc(MAX_REQ_SIZE); 
+	void *pvReturn = safeMalloc(MAX_REQ_SIZE);
 	return pvReturn;
 }
 
@@ -32,7 +32,9 @@ Socket_t FreeRTOS_socket( BaseType_t xDomain, BaseType_t xType, BaseType_t xProt
 }
 
 /* This function only uses the return value of prvParseDNSReply. Hence it returns an unconstrained uint32 value */
-uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier) { }
+uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
+			   size_t xBufferLength,
+			   BaseType_t xExpected ) {}
 
 void harness() {
 	size_t len;

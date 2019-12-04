@@ -36,8 +36,8 @@
 #include "iot_secure_sockets.h"
 
 
-#include "sockets.h"
-#include "netdb.h"
+#include "lwip/sockets.h"
+#include "lwip/netdb.h"
 
 #include "iot_wifi.h"
 
@@ -221,7 +221,6 @@ static void vTaskRxSelect( void * param )
 
             /*vTaskDelete( rx_handle ); */
             vTaskDelete( NULL );
-            return;
         }
 
         if( FD_ISSET( s, &read_fds ) )
@@ -240,12 +239,13 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 {
     BaseType_t xReturned;
     TaskHandle_t xHandle = NULL;
+    configSTACK_DEPTH_TYPE xStackDepth = socketsconfigRECEIVE_CALLBACK_TASK_STACK_DEPTH;
 
     ctx->rx_callback = ( void ( * )( Socket_t ) )pvOptionValue;
 
     xReturned = xTaskCreate( vTaskRxSelect, /* pvTaskCode */
                              "rxs",         /* pcName */
-                             512,           /* usStackDepth */
+                             xStackDepth,   /* usStackDepth */
                              ctx,           /* pvParameters */
                              1,             /* uxPriority */
                              &xHandle );    /* pxCreatedTask */

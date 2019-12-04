@@ -83,6 +83,7 @@
 #include "usb_device_descriptor.h"
 #include "virtual_com.h"
 #include "fsl_power.h"
+#include "mflash_drv.h"
 
 /*******************************************************************************
  * Definitions
@@ -216,6 +217,9 @@ int main( void )
     #endif
 
     BOARD_InitDebugConsole();
+
+    /* Initialize FLASH driver */
+    mflash_drv_init();
 
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             mainLOGGING_TASK_PRIORITY,

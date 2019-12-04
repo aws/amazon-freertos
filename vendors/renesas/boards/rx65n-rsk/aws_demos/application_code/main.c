@@ -151,8 +151,9 @@ void vApplicationDaemonTaskStartupHook( void )
         /* We should wait for the network to be up before we run any demos. */
         while( FreeRTOS_IsNetworkUp() == pdFALSE )
         {
-            vTaskDelay(3000);
+            vTaskDelay(300);
         }
+		FreeRTOS_printf( ( "The network is up and running\n" ) );
 
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();

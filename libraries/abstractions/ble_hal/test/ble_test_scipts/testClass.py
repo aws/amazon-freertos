@@ -37,6 +37,7 @@ except ImportError:
 # Config for enable/disable test case
 ENABLE_TC_AFQP_SECONDARY_SERVICE = 0
 
+
 class runTest:
     mainloop = GObject.MainLoop()
 
@@ -149,12 +150,9 @@ class runTest:
     @staticmethod
     def notificationMTUCb(uuid, value, flag):
         notification = runTest.notificationMTU2(uuid, value, flag)
-        if notification == runTest.DUT_FAIL_STRING:
-            runTest.mainloop.quit()
-            runTest.isNotificationDeclinedSuccessFull = True
         if notification == runTest.DUT_MTU_2_STRING:
             runTest.mainloop.quit()
-            runTest.isNotificationDeclinedSuccessFull = False
+            runTest.isNotificationDeclinedSuccessFull = True
 
     @staticmethod
     def errorConnectCb():
@@ -221,13 +219,20 @@ class runTest:
         runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
 
     @staticmethod
+    def waitForDisconnect():
+        isTestSuccessfull = bleAdapter.isDisconnected(
+            timeout=runTest.GENERIC_TEST_TIMEOUT)
+        runTest.submitTestResult(isTestSuccessfull, runTest.waitForDisconnect)
+
+    @staticmethod
     def pairing():
         isTestSuccessFull = True
         if bleAdapter.isPaired() == False:
             bleAdapter.writeCharacteristic(
                 runTest.DUT_ENCRYPT_CHAR_UUID,
                 runTest.DUT_ENCRYPT_CHAR_UUID)  # should trigger a pairing event
-            isTestSuccessFull = bleAdapter.isPaired()
+            isTestSuccessFull = bleAdapter.isPaired(
+                timeout=runTest.GENERIC_TEST_TIMEOUT)
         else:
             isTestSuccessFull = False
         return isTestSuccessFull
@@ -344,9 +349,23 @@ class runTest:
             runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
-    def writeLongCharacteristic():
-        long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
-        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
+    def writereadLongCharacteristic():
+        # TODO: get correct mtu size, assume 200 for now
+        long_value = "1" * (runTest.MTU_SIZE + 10)
+        bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
+        (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(
+            runTest.DUT_OPEN_CHAR_UUID)
+
+        if charRead != long_value:
+            isTestSuccessfull = False
+            print(
+                "readWriteSimpleConnection test: Expected value:" +
+                long_value +
+                " got:" +
+                charRead)
+
+        sys.stdout.flush()
+        return isTestSuccessfull
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
@@ -394,7 +413,8 @@ class runTest:
 
     @staticmethod
     def discoverPrimaryServices():
-        return bleAdapter.getPropertie(runTest.testDevice, "ServicesResolved")
+        return bleAdapter.isServicesResolved(
+            timeout=runTest.GENERIC_TEST_TIMEOUT)
 
     @staticmethod
     def checkProperties(gatt):
@@ -421,16 +441,22 @@ class runTest:
                 runTest.DUT_SERVICEB_UUID)
             isTestSuccessfull = False
         elif (gatt.services[runTest.DUT_SERVICEB_UUID]["Primary"] != True):
-            print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
+            print(
+                "checkUUIDs test: wrong service type: " +
+                runTest.DUT_SERVICEC_UUID)
             isTestSuccessfull = False
 
-        #Check secondary service UUID
+        # Check secondary service UUID
         if (ENABLE_TC_AFQP_SECONDARY_SERVICE == 1):
             if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
-                print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
+                print(
+                    "checkUUIDs test: missing secondary service UUID: " +
+                    runTest.DUT_SERVICEC_UUID)
                 isTestSuccessfull = False
-            elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
-                print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
+            elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"]):
+                print(
+                    "checkUUIDs test: wrong service type: " +
+                    runTest.DUT_SERVICEC_UUID)
                 isTestSuccessfull = False
 
         # Check characteristics UUIDs
@@ -642,7 +668,6 @@ class runTest:
             discoveryEvent_Cb=runTest.discoveryEventCb_16bit)
         return True
 
-
     @staticmethod
     def _scan_discovery_with_timer(bleAdapter):
         bleAdapter.startDiscovery(runTest.discoveryStartedCb)
@@ -652,15 +677,15 @@ class runTest:
         bleAdapter.stopDiscovery()
         return ScanTime
 
-
     @staticmethod
     def Advertise_Interval_Consistent_After_BT_Reset(scan_filter,
                                                      bleAdapter):
         isTestSuccessFull = True
-        runTest._advertisement_start(scan_filter=scan_filter,
-                                     UUID=runTest.DUT_UUID_128,
-                                     discoveryEvent_Cb=runTest.discoveryEventCb,
-                                     bleAdapter=bleAdapter)
+        runTest._advertisement_start(
+            scan_filter=scan_filter,
+            UUID=runTest.DUT_UUID_128,
+            discoveryEvent_Cb=runTest.discoveryEventCb,
+            bleAdapter=bleAdapter)
         secondKPI = runTest._scan_discovery_with_timer(bleAdapter)
 
         runTest._simple_connect()
@@ -675,7 +700,7 @@ class runTest:
         # Third time connection
         # wait for DUT to start advertising
         thirdKPI = runTest._scan_discovery_with_timer(bleAdapter)
-        isTestSuccessFull &=  bleAdapter.connect(runTest.testDevice)
+        isTestSuccessFull &= bleAdapter.connect(runTest.testDevice)
 
         if thirdKPI > secondKPI * 10:
             isTestSuccessFull &= False
@@ -696,26 +721,37 @@ class runTest:
     @staticmethod
     def Write_Notification_Size_Greater_Than_MTU_3(scan_filter,
                                                    bleAdapter):
-        runTest._advertisement_start(scan_filter=scan_filter,
-                                     UUID=runTest.DUT_UUID_128,
-                                     discoveryEvent_Cb=runTest.discoveryEventCb,
-                                     bleAdapter=bleAdapter)
+        runTest._advertisement_start(
+            scan_filter=scan_filter,
+            UUID=runTest.DUT_UUID_128,
+            discoveryEvent_Cb=runTest.discoveryEventCb,
+            bleAdapter=bleAdapter)
         runTest._simple_connect()
 
         runTest.stopAdvertisement(scan_filter)
         isTestSuccessFull_discover = runTest.discoverPrimaryServices()
         bleAdapter.gatt.updateLocalAttributeTable()
 
+        time.sleep(2)  # wait for connection parameters update
+
+        # Check device not present. After discovery of services, advertisement
+        # should have stopped.
+        runTest.stopAdvertisement(scan_filter)
+
         bleAdapter.setNotificationCallBack(runTest.notificationMTUCb)
         bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID)  # subscribe for next test
         runTest.mainloop.run()
         isTestSuccessFull_notification = runTest.isNotificationDeclinedSuccessFull
-        runTest.submitTestResult(isTestSuccessFull_notification, runTest.notification)
+        runTest.submitTestResult(
+            isTestSuccessFull_notification,
+            runTest.notification)
 
         isTestSuccessFull_removenotification = bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
-        runTest.submitTestResult(isTestSuccessFull_removenotification, runTest.removeNotification)
+        runTest.submitTestResult(
+            isTestSuccessFull_removenotification,
+            runTest.removeNotification)
 
         isTestSuccessFull_disconnect = bleAdapter.disconnect()
         testutils.removeBondedDevices()
@@ -728,11 +764,12 @@ class runTest:
 
     @staticmethod
     def Send_Data_After_Disconnected(scan_filter,
-                                    bleAdapter):
-        runTest._advertisement_start(scan_filter=scan_filter,
-                                     UUID=runTest.DUT_UUID_128,
-                                     discoveryEvent_Cb=runTest.discoveryEventCb,
-                                     bleAdapter=bleAdapter)
+                                     bleAdapter):
+        runTest._advertisement_start(
+            scan_filter=scan_filter,
+            UUID=runTest.DUT_UUID_128,
+            discoveryEvent_Cb=runTest.discoveryEventCb,
+            bleAdapter=bleAdapter)
         runTest._simple_connect()
 
         isTestSuccessFull = runTest.discoverPrimaryServices()
@@ -816,6 +853,28 @@ class runTest:
         return isTestSuccessFull
 
     @staticmethod
+    def Check_Bond_State(scan_filter, bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        runTest.submitTestResult(
+            isTestSuccessFull,
+            runTest.discoverPrimaryServices)
+
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        isTestSuccessFull &= bleAdapter.pair_cancelpairing()
+
+        time.sleep(2)
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
     def advertisement_16bit(testDevice):
         return runTest.advertisement(
             testDevice, DUT_UUID=runTest.UUID_16to128(
@@ -835,53 +894,23 @@ class runTest:
 
     @staticmethod
     def submitTestResult(isSuccessfull, testMethod):
-        switch = {
-            runTest.advertisement: "_advertisement",
-            runTest.discoverPrimaryServices: "_discoverPrimaryServices",
-            runTest.simpleConnection: "_simpleConnection",
-            runTest.reConnection: "_reConnection",
-            runTest.checkProperties: "_checkProperties",
-            runTest.checkUUIDs: "_checkUUIDs",
-            runTest.writeLongCharacteristic: "_writeLongCharacteristic",
-            runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
-            runTest.writeWithoutResponse: "_writeWithoutResponse",
-            runTest.notification: "_notification",
-            runTest.indication: "_indication",
-            runTest.removeNotification: "_removeNotification",
-            runTest.removeIndication: "_removeIndication",
-            runTest.readWriteProtectedAttributesWhileNotPaired: "_readWriteProtectedAttributesWhileNotPaired",
-            runTest.readWriteProtectedAttributesWhilePaired: "_readWriteProtectedAttributesWhilePaired",
-            runTest.pairing: "_pairing",
-            runTest.disconnect: "_disconnect",
-            runTest.reconnectWhileBonded: "_reconnectWhileBonded",
-            runTest.reconnectWhileNotBonded: "_reconnectWhileNotBonded",
-            runTest.stopAdvertisement: "_stopAdvertisement",
-            runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
-            runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
-            runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
-            runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
-            runTest.Send_Data_After_Disconnected: "_Send_Data_After_Disconnected",
-            runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
-        }
-
         runTest.numberOfTests += 1
 
-        if(isSuccessfull):
+        if isSuccessfull is True:
             successString = "PASS"
         else:
             successString = "FAIL"
             runTest.numberOfFailedTests += 1
 
-        print(
-            "TEST(" +
-            runTest.TEST_GROUP +
-            ", " +
-            runTest.TEST_NAME_PREFIX +
-            switch.get(
-                testMethod,
-                "methodNotFound") +
-            ") " +
-            successString)
+        print("TEST("
+              + runTest.TEST_GROUP
+              + ", "
+                + runTest.TEST_NAME_PREFIX
+                + "_"
+                + testMethod.__name__
+                + ") "
+                + successString)
+
         sys.stdout.flush()
 
     @staticmethod

@@ -358,6 +358,8 @@ typedef  UINT32  tBTM_BLE_AD_MASK;
 #define BTM_BLE_AD_TYPE_MANU            HCI_EIR_MANUFACTURER_SPECIFIC_TYPE      /* 0xff */
 typedef UINT8   tBTM_BLE_AD_TYPE;
 
+#define BTM_BLE_LONG_ADV_MAX_LEN  249
+
 /*  Security settings used with L2CAP LE COC */
 #define BTM_SEC_LE_LINK_ENCRYPTED           0x01
 #define BTM_SEC_LE_LINK_PAIRED_WITHOUT_MITM 0x02
@@ -867,6 +869,7 @@ tBTM_BLE_SCAN_SETUP_CBACK bta_ble_scan_setup_cb;
 typedef void (tBTM_START_ADV_CMPL_CBACK) (UINT8 status);
 typedef void (tBTM_START_STOP_ADV_CMPL_CBACK) (UINT8 status);
 
+typedef void (tBTM_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_CMPL_CBACK) (tBTM_STATUS status, uint8_t subcode, uint32_t length, uint8_t *device_info);
 
 
 /*****************************************************************************
@@ -950,7 +953,7 @@ tBTM_STATUS BTM_BleSetAdvParams(UINT16 adv_int_min, UINT16 adv_int_max,
 
 /*******************************************************************************
 **
-** Function         BTM_BleSetAdvParamsStartAdv
+** Function         BTM_BleSetAdvParamsAll
 **
 ** Description      This function is called to set all of the advertising parameters.
 **
@@ -959,9 +962,22 @@ tBTM_STATUS BTM_BleSetAdvParams(UINT16 adv_int_min, UINT16 adv_int_max,
 ** Returns          void
 **
 *******************************************************************************/
-tBTM_STATUS BTM_BleSetAdvParamsStartAdv(UINT16 adv_int_min, UINT16 adv_int_max, UINT8 adv_type,
+tBTM_STATUS BTM_BleSetAdvParamsAll(UINT16 adv_int_min, UINT16 adv_int_max, UINT8 adv_type,
                                         tBLE_ADDR_TYPE own_bda_type, tBLE_BD_ADDR *p_dir_bda,
                                         tBTM_BLE_ADV_CHNL_MAP chnl_map, tBTM_BLE_AFP afp, tBTM_START_ADV_CMPL_CBACK *adv_cb);
+
+/*******************************************************************************
+**
+** Function         BTM_BleStartAdv
+**
+** Description      This function is called to start adv.
+**
+** Parameters:       None.
+**
+** Returns          status
+**
+*******************************************************************************/
+tBTM_STATUS BTM_BleStartAdv(void);
 
 
 /*******************************************************************************
@@ -981,6 +997,20 @@ tBTM_STATUS BTM_BleWriteAdvData(tBTM_BLE_AD_MASK  data_mask,
 
 /*******************************************************************************
 **
+** Function         BTM_BleWriteLongAdvData
+**
+** Description      This function is called to write long advertising data.
+**
+** Parameters:      adv_data: long advertising data
+**                  adv_data_len: the length of long advertising data
+**
+** Returns          void
+**
+*******************************************************************************/
+tBTM_STATUS BTM_BleWriteLongAdvData(uint8_t *adv_data, uint8_t adv_data_len);
+
+/*******************************************************************************
+**
 ** Function         BTM_BleWriteAdvDataRaw
 **
 ** Description      This function is called to write raw advertising data.
@@ -996,6 +1026,8 @@ tBTM_STATUS BTM_BleWriteAdvDataRaw(UINT8 *p_raw_adv, UINT32 raw_adv_len);
 
 
 tBTM_STATUS BTM_BleSetRandAddress(BD_ADDR rand_addr);
+
+void BTM_BleClearRandAddress(void);
 
 
 /*******************************************************************************
@@ -1070,9 +1102,9 @@ void BTM_BleSetScanParams(tGATT_IF client_if, UINT32 scan_interval,
 ** Returns          void
 **
 *******************************************************************************/
-void BTM_BleSetScanFilterParams(tGATT_IF client_if, UINT32 scan_interval, UINT32 scan_window,
-                                tBLE_SCAN_MODE scan_mode, UINT8 addr_type_own, UINT8 scan_duplicate_filter, tBTM_BLE_SFP scan_filter_policy,
-                                tBLE_SCAN_PARAM_SETUP_CBACK scan_setup_status_cback);
+tBTM_STATUS BTM_BleSetScanFilterParams(tGATT_IF client_if, UINT32 scan_interval, UINT32 scan_window,
+                                    tBLE_SCAN_MODE scan_mode, UINT8 addr_type_own, UINT8 scan_duplicate_filter, tBTM_BLE_SFP scan_filter_policy,
+                                    tBLE_SCAN_PARAM_SETUP_CBACK scan_setup_status_cback);
 
 
 /*******************************************************************************
@@ -2051,6 +2083,22 @@ tBTM_STATUS BTM_BleGetEnergyInfo(tBTM_BLE_ENERGY_INFO_CBACK *p_ener_cback);
 //extern
 tBTM_STATUS BTM_SetBleDataLength(BD_ADDR bd_addr, UINT16 tx_pdu_length);
 
+/*******************************************************************************
+**
+** Function         BTM_UpdateBleDuplicateExceptionalList
+**
+** Description      This function is called to update duplicate scan exceptional list.
+**
+** Parameters:      subcode: add, remove or clean duplicate scan exceptional list.
+**                  type: device info type
+**                  device_info: device information
+**                  update_exceptional_list_cmp_cb: complete callback
+**
+** Returns          status
+**
+*******************************************************************************/
+
+tBTM_STATUS BTM_UpdateBleDuplicateExceptionalList(uint8_t subcode, uint32_t type, BD_ADDR device_info, tBTM_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_CMPL_CBACK update_exceptional_list_cmp_cb);
 /*
 #ifdef __cplusplus
 }

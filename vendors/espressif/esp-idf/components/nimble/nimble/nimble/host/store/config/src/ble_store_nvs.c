@@ -329,7 +329,7 @@ populate_db_from_nvs(int obj_type, void *dst, int *db_num)
  * the keys in database may get lost.
  */
 static int
-ble_nvs_restore_sec_keys()
+ble_nvs_restore_sec_keys(void)
 {
     esp_err_t err;
 
@@ -362,7 +362,7 @@ ble_nvs_restore_sec_keys()
     return 0;
 }
 
-int ble_store_config_persist_cccds()
+int ble_store_config_persist_cccds(void)
 {
     int nvs_count, nvs_idx;
     union ble_store_value val;
@@ -388,7 +388,7 @@ int ble_store_config_persist_cccds()
     return 0;
 }
 
-int ble_store_config_persist_peer_secs()
+int ble_store_config_persist_peer_secs(void)
 {
     int nvs_count, nvs_idx;
     union ble_store_value val;
@@ -414,7 +414,7 @@ int ble_store_config_persist_peer_secs()
     return 0;
 }
 
-int ble_store_config_persist_our_secs()
+int ble_store_config_persist_our_secs(void)
 {
     int nvs_count, nvs_idx;
     union ble_store_value val;
@@ -440,7 +440,7 @@ int ble_store_config_persist_our_secs()
     return 0;
 }
 
-void ble_store_config_conf_init()
+void ble_store_config_conf_init(void)
 {
     esp_err_t err;
 

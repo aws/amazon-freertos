@@ -37,6 +37,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
     target_sources(
         afr_3rdparty_lwip
         PRIVATE
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/src/sys_arch.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
@@ -62,6 +63,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
             "${AFR_3RDPARTY_DIR}/lwip/src/core/pbuf.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_out.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ip.c"
+            "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/acd.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/autoip.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/dhcp.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/icmp.c"
@@ -85,8 +87,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
         afr_3rdparty_lwip
         PUBLIC
             "${AFR_3RDPARTY_DIR}/lwip/src/include"
-            "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-            "${AFR_3RDPARTY_DIR}/lwip/src/portable"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/include"
     )
     target_link_libraries(
         afr_3rdparty_lwip

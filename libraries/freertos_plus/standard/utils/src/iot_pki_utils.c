@@ -41,15 +41,7 @@ int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 {
     int xReturn = 0;
     uint8_t * pxNextLength;
-
-    /* The signature has the format
-     * SEQUENCE LENGTH (of entire rest of signature)
-     *      INTEGER LENGTH  (of R component)
-     *      INTEGER LENGTH  (of S component)
-     */
-
-    /* The 4th byte contains the length of the R component */
-    uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
+    uint8_t ucSigComponentLength;
 
     if( ( pxSignaturePKCS == NULL ) || ( pxMbedSignature == NULL ) )
     {
@@ -58,6 +50,15 @@ int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 
     if( xReturn == 0 )
     {
+        /* The signature has the format
+         * SEQUENCE LENGTH (of entire rest of signature)
+         *      INTEGER LENGTH  (of R component)
+         *      INTEGER LENGTH  (of S component)
+         */
+
+        /* The 4th byte contains the length of the R component */
+        ucSigComponentLength = pxMbedSignature[ 3 ];
+
         /* The new signature will be 64 bytes long (32 bytes for R, 32 bytes for S).
          * Zero this buffer out in case a component is shorter than 32 bytes. */
         memset( pxSignaturePKCS, 0, 64 );

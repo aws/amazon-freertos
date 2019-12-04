@@ -252,16 +252,16 @@ target_sources(
     "${AFR_VENDORS_DIR}/mediatek/sdk/driver/board/mt76x7_hdk/ept/src/bsp_gpio_ept_config.c"
     "${AFR_VENDORS_DIR}/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/src/bsp_flash_config.c"
 
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwipopts.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/netif/ethernetif.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch/sys_arch.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwip_log.c"
+    "${AFR_VENDORS_DIR}/mediatek/lwip/src/lwipopts.c"
+    "${AFR_VENDORS_DIR}/mediatek/lwip/src/netif/ethernetif.c"
+    "${AFR_VENDORS_DIR}/mediatek/lwip/src/lwip_log.c"
 
 )
 
 target_include_directories(
     AFR::wifi::mcu_port
     INTERFACE
+        "${AFR_VENDORS_DIR}/mediatek/lwip/include"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc/"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/inc"
@@ -270,7 +270,6 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/third_party/ping/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/inc"
         "${board_dir}/application_code/mediatek_code/include"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
 
 )
 

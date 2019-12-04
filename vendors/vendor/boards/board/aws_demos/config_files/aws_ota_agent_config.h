@@ -56,7 +56,7 @@
  */
 #define otaconfigFILE_REQUEST_WAIT_MS           2500U   /* FIX ME. */
 
- /**
+/**
  * @brief The OTA agent task priority. Normally it runs at a low priority.
  */
 #define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY    /* FIX ME. */

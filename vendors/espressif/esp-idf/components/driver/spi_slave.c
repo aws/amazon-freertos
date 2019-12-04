@@ -29,7 +29,6 @@
 #include "freertos/semphr.h"
 #include "freertos/xtensa_api.h"
 #include "freertos/task.h"
-#include "freertos/ringbuf.h"
 #include "soc/soc.h"
 #include "soc/soc_memory_layout.h"
 #include "soc/dport_reg.h"
@@ -46,6 +45,18 @@ static const char *SPI_TAG = "spi_slave";
     }
 
 #define VALID_HOST(x) (x>SPI_HOST && x<=VSPI_HOST)
+
+#ifdef CONFIG_SPI_SLAVE_ISR_IN_IRAM
+#define SPI_SLAVE_ISR_ATTR IRAM_ATTR
+#else
+#define SPI_SLAVE_ISR_ATTR
+#endif
+
+#ifdef CONFIG_SPI_SLAVE_IN_IRAM
+#define SPI_SLAVE_ATTR IRAM_ATTR
+#else
+#define SPI_SLAVE_ATTR
+#endif
 
 typedef struct {
     int id;
@@ -99,8 +110,11 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
     SPI_CHECK(VALID_HOST(host), "invalid host", ESP_ERR_INVALID_ARG);
     SPI_CHECK( dma_chan >= 0 && dma_chan <= 2, "invalid dma channel", ESP_ERR_INVALID_ARG );
     SPI_CHECK((bus_config->intr_flags & (ESP_INTR_FLAG_HIGH|ESP_INTR_FLAG_EDGE|ESP_INTR_FLAG_INTRDISABLED))==0, "intr flag not allowed", ESP_ERR_INVALID_ARG);
+#ifndef CONFIG_SPI_SLAVE_ISR_IN_IRAM
+    SPI_CHECK((bus_config->intr_flags & ESP_INTR_FLAG_IRAM)==0, "ESP_INTR_FLAG_IRAM should be disabled when CONFIG_SPI_SLAVE_ISR_IN_IRAM is not set.", ESP_ERR_INVALID_ARG);
+#endif
 
-    spi_chan_claimed=spicommon_periph_claim(host);
+    spi_chan_claimed=spicommon_periph_claim(host, "spi slave");
     SPI_CHECK(spi_chan_claimed, "host already in use", ESP_ERR_INVALID_STATE);
 
     if ( dma_chan != 0 ) {
@@ -188,26 +202,62 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
     spihost[host]->hw->slave.sync_reset = 1;
     spihost[host]->hw->slave.sync_reset = 0;
 
-
-    bool nodelay = true;
     spihost[host]->hw->ctrl.rd_bit_order = (slave_config->flags & SPI_SLAVE_RXBIT_LSBFIRST) ? 1 : 0;
     spihost[host]->hw->ctrl.wr_bit_order = (slave_config->flags & SPI_SLAVE_TXBIT_LSBFIRST) ? 1 : 0;
-    if (slave_config->mode == 0) {
-        spihost[host]->hw->pin.ck_idle_edge = 0;
-        spihost[host]->hw->user.ck_i_edge = 1;
-        spihost[host]->hw->ctrl2.miso_delay_mode = nodelay ? 0 : 2;
-    } else if (slave_config->mode == 1) {
-        spihost[host]->hw->pin.ck_idle_edge = 0;
-        spihost[host]->hw->user.ck_i_edge = 0;
-        spihost[host]->hw->ctrl2.miso_delay_mode = nodelay ? 0 : 1;
-    } else if (slave_config->mode == 2) {
+
+    const int mode = slave_config->mode;
+    if (mode == 0) {
+        //The timing needs to be fixed to meet the requirements of DMA
         spihost[host]->hw->pin.ck_idle_edge = 1;
         spihost[host]->hw->user.ck_i_edge = 0;
-        spihost[host]->hw->ctrl2.miso_delay_mode = nodelay ? 0 : 1;
-    } else if (slave_config->mode == 3) {
+        spihost[host]->hw->ctrl2.miso_delay_mode = 0;
+        spihost[host]->hw->ctrl2.miso_delay_num = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_mode = 2;
+        spihost[host]->hw->ctrl2.mosi_delay_num = 2;
+    } else if (mode == 1) {
         spihost[host]->hw->pin.ck_idle_edge = 1;
         spihost[host]->hw->user.ck_i_edge = 1;
-        spihost[host]->hw->ctrl2.miso_delay_mode = nodelay ? 0 : 2;
+        spihost[host]->hw->ctrl2.miso_delay_mode = 2;
+        spihost[host]->hw->ctrl2.miso_delay_num = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_mode = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_num = 0;
+    } else if (mode == 2) {
+        //The timing needs to be fixed to meet the requirements of DMA
+        spihost[host]->hw->pin.ck_idle_edge = 0;
+        spihost[host]->hw->user.ck_i_edge = 1;
+        spihost[host]->hw->ctrl2.miso_delay_mode = 0;
+        spihost[host]->hw->ctrl2.miso_delay_num = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_mode = 1;
+        spihost[host]->hw->ctrl2.mosi_delay_num = 2;
+    } else if (mode == 3) {
+        spihost[host]->hw->pin.ck_idle_edge = 0;
+        spihost[host]->hw->user.ck_i_edge = 0;
+        spihost[host]->hw->ctrl2.miso_delay_mode = 1;
+        spihost[host]->hw->ctrl2.miso_delay_num = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_mode = 0;
+        spihost[host]->hw->ctrl2.mosi_delay_num = 0;
+    }
+
+    /* Silicon issues exists in mode 0 and 2 with DMA, change clock phase to
+     * avoid dma issue. This will cause slave output to appear at most half a
+     * spi clock before
+     */
+    if (dma_chan != 0) {
+        if (mode == 0) {
+            spihost[host]->hw->pin.ck_idle_edge = 0;
+            spihost[host]->hw->user.ck_i_edge = 1;
+            spihost[host]->hw->ctrl2.miso_delay_mode = 0;
+            spihost[host]->hw->ctrl2.miso_delay_num = 2;
+            spihost[host]->hw->ctrl2.mosi_delay_mode = 0;
+            spihost[host]->hw->ctrl2.mosi_delay_num = 3;
+        } else if (mode == 2) {
+            spihost[host]->hw->pin.ck_idle_edge = 1;
+            spihost[host]->hw->user.ck_i_edge = 0;
+            spihost[host]->hw->ctrl2.miso_delay_mode = 0;
+            spihost[host]->hw->ctrl2.miso_delay_num = 2;
+            spihost[host]->hw->ctrl2.mosi_delay_mode = 0;
+            spihost[host]->hw->ctrl2.mosi_delay_num = 3;
+        }
     }
 
     //Reset DMA
@@ -277,15 +327,17 @@ esp_err_t spi_slave_free(spi_host_device_t host)
 }
 
 
-esp_err_t spi_slave_queue_trans(spi_host_device_t host, const spi_slave_transaction_t *trans_desc, TickType_t ticks_to_wait)
+esp_err_t SPI_SLAVE_ATTR spi_slave_queue_trans(spi_host_device_t host, const spi_slave_transaction_t *trans_desc, TickType_t ticks_to_wait)
 {
     BaseType_t r;
     SPI_CHECK(VALID_HOST(host), "invalid host", ESP_ERR_INVALID_ARG);
     SPI_CHECK(spihost[host], "host not slave", ESP_ERR_INVALID_ARG);
     SPI_CHECK(spihost[host]->dma_chan == 0 || trans_desc->tx_buffer==NULL || esp_ptr_dma_capable(trans_desc->tx_buffer),
 			"txdata not in DMA-capable memory", ESP_ERR_INVALID_ARG);
-    SPI_CHECK(spihost[host]->dma_chan == 0 || trans_desc->rx_buffer==NULL || esp_ptr_dma_capable(trans_desc->rx_buffer),
-			"rxdata not in DMA-capable memory", ESP_ERR_INVALID_ARG);
+    SPI_CHECK(spihost[host]->dma_chan == 0 || trans_desc->rx_buffer==NULL ||
+        (esp_ptr_dma_capable(trans_desc->rx_buffer) && esp_ptr_word_aligned(trans_desc->rx_buffer) &&
+            (trans_desc->length%4==0)),
+        "rxdata not in DMA-capable memory or not WORD aligned", ESP_ERR_INVALID_ARG);
 
     SPI_CHECK(trans_desc->length <= spihost[host]->max_transfer_sz * 8, "data transfer > host maximum", ESP_ERR_INVALID_ARG);
     r = xQueueSend(spihost[host]->trans_queue, (void *)&trans_desc, ticks_to_wait);
@@ -295,7 +347,7 @@ esp_err_t spi_slave_queue_trans(spi_host_device_t host, const spi_slave_transact
 }
 
 
-esp_err_t spi_slave_get_trans_result(spi_host_device_t host, spi_slave_transaction_t **trans_desc, TickType_t ticks_to_wait)
+esp_err_t SPI_SLAVE_ATTR spi_slave_get_trans_result(spi_host_device_t host, spi_slave_transaction_t **trans_desc, TickType_t ticks_to_wait)
 {
     BaseType_t r;
     SPI_CHECK(VALID_HOST(host), "invalid host", ESP_ERR_INVALID_ARG);
@@ -306,7 +358,7 @@ esp_err_t spi_slave_get_trans_result(spi_host_device_t host, spi_slave_transacti
 }
 
 
-esp_err_t spi_slave_transmit(spi_host_device_t host, spi_slave_transaction_t *trans_desc, TickType_t ticks_to_wait)
+esp_err_t SPI_SLAVE_ATTR spi_slave_transmit(spi_host_device_t host, spi_slave_transaction_t *trans_desc, TickType_t ticks_to_wait)
 {
     esp_err_t ret;
     spi_slave_transaction_t *ret_trans;
@@ -343,7 +395,7 @@ static void dumpll(lldesc_t *ll)
 }
 #endif
 
-static void IRAM_ATTR spi_slave_restart_after_dmareset(void *arg)
+static void SPI_SLAVE_ISR_ATTR spi_slave_restart_after_dmareset(void *arg)
 {
     spi_slave_t *host = (spi_slave_t *)arg;
     esp_intr_enable(host->intr);
@@ -352,7 +404,7 @@ static void IRAM_ATTR spi_slave_restart_after_dmareset(void *arg)
 //This is run in interrupt context and apart from initialization and destruction, this is the only code
 //touching the host (=spihost[x]) variable. The rest of the data arrives in queues. That is why there are
 //no muxes in this code.
-static void IRAM_ATTR spi_intr(void *arg)
+static void SPI_SLAVE_ISR_ATTR spi_intr(void *arg)
 {
     BaseType_t r;
     BaseType_t do_yield = pdFALSE;

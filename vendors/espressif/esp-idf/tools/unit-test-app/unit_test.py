@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+#
+# Copyright 2018 Espressif Systems (Shanghai) PTE LTD
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
 Test script for unit test case.
 """
@@ -6,17 +22,28 @@ import re
 import os
 import sys
 import time
+import argparse
 import threading
 
-# if we want to run test case outside `tiny-test-fw` folder,
-# we need to insert tiny-test-fw path into sys path
-test_fw_path = os.getenv("TEST_FW_PATH")
-if test_fw_path and test_fw_path not in sys.path:
-    sys.path.insert(0, test_fw_path)
+try:
+    import TinyFW
+except ImportError:
+    # if we want to run test case outside `tiny-test-fw` folder,
+    # we need to insert tiny-test-fw path into sys path
+    test_fw_path = os.getenv("TEST_FW_PATH")
+    if test_fw_path and test_fw_path not in sys.path:
+        sys.path.insert(0, test_fw_path)
+    else:
+        # or try the copy in IDF
+        idf_path = os.getenv("IDF_PATH")
+        tiny_test_path = idf_path + "/tools/tiny-test-fw"
+        if os.path.exists(tiny_test_path):
+            sys.path.insert(0, tiny_test_path)
+    import TinyFW
 
-import TinyFW
 import IDF
 import Utility
+import Env
 from DUT import ExpectTimeout
 from IDF.IDFApp import UT
 
@@ -24,12 +51,24 @@ from IDF.IDFApp import UT
 UT_APP_BOOT_UP_DONE = "Press ENTER to see the list of tests."
 RESET_PATTERN = re.compile(r"(ets [\w]{3}\s+[\d]{1,2} [\d]{4} [\d]{2}:[\d]{2}:[\d]{2}[^()]*\([\w].*?\))")
 EXCEPTION_PATTERN = re.compile(r"(Guru Meditation Error: Core\s+\d panic'ed \([\w].*?\))")
-ABORT_PATTERN = re.compile(r"(abort\(\) was called at PC 0x[a-eA-E\d]{8} on core \d)")
+ABORT_PATTERN = re.compile(r"(abort\(\) was called at PC 0x[a-fA-F\d]{8} on core \d)")
 FINISH_PATTERN = re.compile(r"1 Tests (\d) Failures (\d) Ignored")
+END_LIST_STR = r'\r?\nEnter test for running'
+TEST_PATTERN = re.compile(r'\((\d+)\)\s+"([^"]+)" ([^\r\n]+)\r?\n(' + END_LIST_STR + r')?')
+TEST_SUBMENU_PATTERN = re.compile(r'\s+\((\d+)\)\s+"[^"]+"\r?\n(?=(?=\()|(' + END_LIST_STR + r'))')
 
-STARTUP_TIMEOUT = 10
+SIMPLE_TEST_ID = 0
+MULTI_STAGE_ID = 1
+MULTI_DEVICE_ID = 2
+
+DEFAULT_TIMEOUT = 20
+
 DUT_STARTUP_CHECK_RETRY_COUNT = 5
 TEST_HISTORY_CHECK_TIMEOUT = 1
+
+
+class TestCaseFailed(AssertionError):
+    pass
 
 
 def format_test_case_config(test_case_data):
@@ -123,7 +162,8 @@ def reset_dut(dut):
     # before reset finish, serial port is closed. therefore DUT could already bootup before serial port opened.
     # this could cause checking bootup print failed.
     # now use input cmd `-` and check test history to check if DUT is bootup.
-    # we'll retry this step for a few times in case `dut.reset` returns during DUT bootup (when DUT can't process any command).
+    # we'll retry this step for a few times,
+    # in case `dut.reset` returns during DUT bootup (when DUT can't process any command).
     for _ in range(DUT_STARTUP_CHECK_RETRY_COUNT):
         dut.write("-")
         try:
@@ -135,7 +175,7 @@ def reset_dut(dut):
         raise AssertionError("Reset {} ({}) failed!".format(dut.name, dut.port))
 
 
-def run_one_normal_case(dut, one_case, junit_test_case, failed_cases):
+def run_one_normal_case(dut, one_case, junit_test_case):
 
     reset_dut(dut)
 
@@ -158,9 +198,9 @@ def run_one_normal_case(dut, one_case, junit_test_case, failed_cases):
         if result:
             Utility.console_log("Success: " + one_case["name"], color="green")
         else:
-            failed_cases.append(one_case["name"])
             Utility.console_log("Failed: " + one_case["name"], color="red")
             junit_test_case.add_failure_info(output)
+            raise TestCaseFailed()
 
     def handle_exception_reset(data):
         """
@@ -206,7 +246,7 @@ def run_one_normal_case(dut, one_case, junit_test_case, failed_cases):
                            timeout=one_case["timeout"])
         except ExpectTimeout:
             Utility.console_log("Timeout in expect", color="orange")
-            junit_test_case.add_error_info("timeout")
+            junit_test_case.add_failure_info("timeout")
             one_case_finish(False)
             break
 
@@ -224,6 +264,7 @@ def run_unit_test_cases(env, extra_data):
     3. as list of string or dict:
                [case1, case2, case3, {"name": "restart from PRO CPU", "reset": "SW_CPU_RESET"}, ...]
 
+    :param env: test env instance
     :param extra_data: the case name or case list or case dictionary
     :return: None
     """
@@ -238,6 +279,8 @@ def run_unit_test_cases(env, extra_data):
     for ut_config in case_config:
         Utility.console_log("Running unit test for config: " + ut_config, "O")
         dut = env.get_dut("unit-test-app", app_path=ut_config, allow_dut_exception=True)
+        if len(case_config[ut_config]) > 0:
+            replace_app_bin(dut, "unit-test-app", case_config[ut_config][0].get('app_bin'))
         dut.start_app()
         Utility.console_log("Download finished, start running test cases", "O")
 
@@ -245,7 +288,9 @@ def run_unit_test_cases(env, extra_data):
             # create junit report test case
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
-                run_one_normal_case(dut, one_case, junit_test_case, failed_cases)
+                run_one_normal_case(dut, one_case, junit_test_case)
+            except TestCaseFailed:
+                failed_cases.append(one_case["name"])
             except Exception as e:
                 junit_test_case.add_failure_info("Unexpected exception: " + str(e))
                 failed_cases.append(one_case["name"])
@@ -262,8 +307,8 @@ def run_unit_test_cases(env, extra_data):
 
 class Handler(threading.Thread):
 
-    WAIT_SIGNAL_PATTERN = re.compile(r'Waiting for signal: \[(.+)\]!')
-    SEND_SIGNAL_PATTERN = re.compile(r'Send signal: \[(.+)\]!')
+    WAIT_SIGNAL_PATTERN = re.compile(r'Waiting for signal: \[(.+)]!')
+    SEND_SIGNAL_PATTERN = re.compile(r'Send signal: \[([^]]+)](\[([^]]+)])?!')
     FINISH_PATTERN = re.compile(r"1 Tests (\d) Failures (\d) Ignored")
 
     def __init__(self, dut, sent_signal_list, lock, parent_case_name, child_case_index, timeout):
@@ -307,18 +352,26 @@ class Handler(threading.Thread):
             expected_signal = data[0]
             while 1:
                 if time.time() > start_time + self.timeout:
-                    Utility.console_log("Timeout in device for function: %s"%self.child_case_name, color="orange")
+                    Utility.console_log("Timeout in device for function: %s" % self.child_case_name, color="orange")
                     break
                 with self.lock:
-                    if expected_signal in self.sent_signal_list:
-                        self.dut.write(" ")
-                        self.sent_signal_list.remove(expected_signal)
-                        break
-                time.sleep(0.01)
+                    for sent_signal in self.sent_signal_list:
+                        if expected_signal == sent_signal["name"]:
+                            self.dut.write(sent_signal["parameter"])
+                            self.sent_signal_list.remove(sent_signal)
+                            break
+                    else:
+                        time.sleep(0.01)
+                        continue
+                    break
 
         def device_send_action(data):
             with self.lock:
-                self.sent_signal_list.append(data[0].encode('utf-8'))
+                self.sent_signal_list.append({
+                    "name": data[0].encode('utf-8'),
+                    "parameter": "" if data[2] is None else data[2].encode('utf-8')
+                    # no parameter means we only write EOL to DUT
+                })
 
         def handle_device_test_finish(data):
             """ test finished without reset """
@@ -336,7 +389,8 @@ class Handler(threading.Thread):
             Utility.console_log("No case detected!", color="orange")
         while not self.finish and not self.force_stop.isSet():
             try:
-                self.dut.expect_any((re.compile('\(' + str(self.child_case_index) + '\)\s"(\w+)"'), get_child_case_name),
+                self.dut.expect_any((re.compile('\(' + str(self.child_case_index) + '\)\s"(\w+)"'),  # noqa: W605 - regex
+                                     get_child_case_name),
                                     (self.WAIT_SIGNAL_PATTERN, device_wait_action),  # wait signal pattern
                                     (self.SEND_SIGNAL_PATTERN, device_send_action),  # send signal pattern
                                     (self.FINISH_PATTERN, handle_device_test_finish),  # test finish pattern
@@ -356,17 +410,18 @@ def get_case_info(one_case):
     return parent_case, child_case_num
 
 
-def get_dut(duts, env, name, ut_config):
+def get_dut(duts, env, name, ut_config, app_bin=None):
     if name in duts:
         dut = duts[name]
     else:
         dut = env.get_dut(name, app_path=ut_config, allow_dut_exception=True)
         duts[name] = dut
-        dut.start_app()
+        replace_app_bin(dut, "unit-test-app", app_bin)
+        dut.start_app()  # download bin to board
     return dut
 
 
-def run_one_multiple_devices_case(duts, ut_config, env, one_case, junit_test_case):
+def run_one_multiple_devices_case(duts, ut_config, env, one_case, app_bin, junit_test_case):
     lock = threading.RLock()
     threads = []
     send_signal_list = []
@@ -374,7 +429,7 @@ def run_one_multiple_devices_case(duts, ut_config, env, one_case, junit_test_cas
     parent_case, case_num = get_case_info(one_case)
 
     for i in range(case_num):
-        dut = get_dut(duts, env, "dut%d" % i, ut_config)
+        dut = get_dut(duts, env, "dut%d" % i, ut_config, app_bin)
         threads.append(Handler(dut, send_signal_list, lock,
                                parent_case, i, one_case["timeout"]))
     for thread in threads:
@@ -424,7 +479,8 @@ def run_multiple_devices_cases(env, extra_data):
             result = False
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
-                result = run_one_multiple_devices_case(duts, ut_config, env, one_case, junit_test_case)
+                result = run_one_multiple_devices_case(duts, ut_config, env, one_case,
+                                                       one_case.get('app_bin'), junit_test_case)
             except Exception as e:
                 junit_test_case.add_failure_info("Unexpected exception: " + str(e))
             finally:
@@ -442,7 +498,7 @@ def run_multiple_devices_cases(env, extra_data):
         raise AssertionError("Unit Test Failed")
 
 
-def run_one_multiple_stage_case(dut, one_case, failed_cases, junit_test_case):
+def run_one_multiple_stage_case(dut, one_case, junit_test_case):
     reset_dut(dut)
 
     dut.start_capture_raw_data()
@@ -477,7 +533,7 @@ def run_one_multiple_stage_case(dut, one_case, failed_cases, junit_test_case):
                     err_msg = "Reset Check Failed: \r\n\tExpected: {}\r\n\tGet: {}".format(one_case["reset"],
                                                                                            exception_reset_list)
                     Utility.console_log(err_msg, color="orange")
-                    junit_test_case.add_error_info(err_msg)
+                    junit_test_case.add_failure_info(err_msg)
             else:
                 # we allow omit reset in multi stage cases
                 result = True
@@ -492,9 +548,9 @@ def run_one_multiple_stage_case(dut, one_case, failed_cases, junit_test_case):
             if result:
                 Utility.console_log("Success: " + one_case["name"], color="green")
             else:
-                failed_cases.append(one_case["name"])
                 Utility.console_log("Failed: " + one_case["name"], color="red")
                 junit_test_case.add_failure_info(output)
+                raise TestCaseFailed()
             stage_finish.append("break")
 
         def handle_exception_reset(data):
@@ -552,6 +608,7 @@ def run_multiple_stage_cases(env, extra_data):
     3. as list of string or dict:
                [case1, case2, case3, {"name": "restart from PRO CPU", "child case num": 2}, ...]
 
+    :param env: test env instance
     :param extra_data: the case name or case list or case dictionary
     :return: None
     """
@@ -566,12 +623,16 @@ def run_multiple_stage_cases(env, extra_data):
     for ut_config in case_config:
         Utility.console_log("Running unit test for config: " + ut_config, "O")
         dut = env.get_dut("unit-test-app", app_path=ut_config, allow_dut_exception=True)
+        if len(case_config[ut_config]) > 0:
+            replace_app_bin(dut, "unit-test-app", case_config[ut_config][0].get('app_bin'))
         dut.start_app()
 
         for one_case in case_config[ut_config]:
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
-                run_one_multiple_stage_case(dut, one_case, failed_cases, junit_test_case)
+                run_one_multiple_stage_case(dut, one_case, junit_test_case)
+            except TestCaseFailed:
+                failed_cases.append(one_case["name"])
             except Exception as e:
                 junit_test_case.add_failure_info("Unexpected exception: " + str(e))
                 failed_cases.append(one_case["name"])
@@ -586,8 +647,132 @@ def run_multiple_stage_cases(env, extra_data):
         raise AssertionError("Unit Test Failed")
 
 
+def detect_update_unit_test_info(env, extra_data, app_bin):
+
+    case_config = format_test_case_config(extra_data)
+
+    for ut_config in case_config:
+        dut = env.get_dut("unit-test-app", app_path=ut_config)
+        replace_app_bin(dut, "unit-test-app", app_bin)
+        dut.start_app()
+
+        reset_dut(dut)
+
+        # get the list of test cases
+        dut.write("")
+        dut.expect("Here's the test menu, pick your combo:", timeout=DEFAULT_TIMEOUT)
+
+        def find_update_dic(name, _t, _timeout, child_case_num=None):
+            for _case_data in extra_data:
+                if _case_data['name'] == name:
+                    _case_data['type'] = _t
+                    if 'timeout' not in _case_data:
+                        _case_data['timeout'] = _timeout
+                    if child_case_num:
+                        _case_data['child case num'] = child_case_num
+
+        try:
+            while True:
+                data = dut.expect(TEST_PATTERN, timeout=DEFAULT_TIMEOUT)
+                test_case_name = data[1]
+                m = re.search(r'\[timeout=(\d+)\]', data[2])
+                if m:
+                    timeout = int(m.group(1))
+                else:
+                    timeout = 30
+                m = re.search(r'\[multi_stage\]', data[2])
+                if m:
+                    test_case_type = MULTI_STAGE_ID
+                else:
+                    m = re.search(r'\[multi_device\]', data[2])
+                    if m:
+                        test_case_type = MULTI_DEVICE_ID
+                    else:
+                        test_case_type = SIMPLE_TEST_ID
+                        find_update_dic(test_case_name, test_case_type, timeout)
+                        if data[3] and re.search(END_LIST_STR, data[3]):
+                            break
+                        continue
+                # find the last submenu item
+                data = dut.expect(TEST_SUBMENU_PATTERN, timeout=DEFAULT_TIMEOUT)
+                find_update_dic(test_case_name, test_case_type, timeout, child_case_num=int(data[0]))
+                if data[1] and re.search(END_LIST_STR, data[1]):
+                    break
+            # check if the unit test case names are correct, i.e. they could be found in the device
+            for _dic in extra_data:
+                if 'type' not in _dic:
+                    raise ValueError("Unit test \"{}\" doesn't exist in the flashed device!".format(_dic.get('name')))
+        except ExpectTimeout:
+            Utility.console_log("Timeout during getting the test list", color="red")
+        finally:
+            dut.close()
+
+        # These options are the same for all configs, therefore there is no need to continue
+        break
+
+
 if __name__ == '__main__':
-    run_multiple_devices_cases(extra_data={"name":  "gpio master/slave test example",
-                                           "child case num": 2,
-                                           "config": "release",
-                                           "env_tag": "UT_T2_1"})
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--repeat', '-r',
+        help='Number of repetitions for the test(s). Default is 1.',
+        type=int,
+        default=1
+    )
+    parser.add_argument("--env_config_file", "-e",
+                        help="test env config file",
+                        default=None
+                        )
+    parser.add_argument("--app_bin", "-b",
+                        help="application binary file for flashing the chip",
+                        default=None
+                        )
+    parser.add_argument(
+        'test',
+        help='Comma separated list of <option>:<argument> where option can be "name" (default), "child case num", \
+                "config", "timeout".',
+        nargs='+'
+    )
+    args = parser.parse_args()
+    list_of_dicts = []
+    for test in args.test:
+        test_args = test.split(r',')
+        test_dict = dict()
+        for test_item in test_args:
+            if len(test_item) == 0:
+                continue
+            pair = test_item.split(r':')
+            if len(pair) == 1 or pair[0] is 'name':
+                test_dict['name'] = pair[0]
+            elif len(pair) == 2:
+                if pair[0] == 'timeout' or pair[0] == 'child case num':
+                    test_dict[pair[0]] = int(pair[1])
+                else:
+                    test_dict[pair[0]] = pair[1]
+            else:
+                raise ValueError('Error in argument item {} of {}'.format(test_item, test))
+        test_dict['app_bin'] = args.app_bin
+        list_of_dicts.append(test_dict)
+
+    TinyFW.set_default_config(env_config_file=args.env_config_file)
+
+    env_config = TinyFW.get_default_config()
+    env_config['app'] = UT
+    env_config['dut'] = IDF.IDFDUT
+    env_config['test_suite_name'] = 'unit_test_parsing'
+    test_env = Env.Env(**env_config)
+    detect_update_unit_test_info(test_env, extra_data=list_of_dicts, app_bin=args.app_bin)
+
+    for index in range(1, args.repeat + 1):
+        if args.repeat > 1:
+            Utility.console_log("Repetition {}".format(index), color="green")
+        for dic in list_of_dicts:
+            t = dic.get('type', SIMPLE_TEST_ID)
+            if t == SIMPLE_TEST_ID:
+                run_unit_test_cases(extra_data=dic)
+            elif t == MULTI_STAGE_ID:
+                run_multiple_stage_cases(extra_data=dic)
+            elif t == MULTI_DEVICE_ID:
+                run_multiple_devices_cases(extra_data=dic)
+            else:
+                raise ValueError('Unknown type {} of {}'.format(t, dic.get('name')))

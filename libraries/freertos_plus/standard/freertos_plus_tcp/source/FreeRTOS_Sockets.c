@@ -702,9 +702,11 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 		}
 		taskEXIT_CRITICAL();
 
-		/* The returned value is the data length, which may have been capped to
-		the receive buffer size. */
-		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength;
+		/* The returned value is the length of the payload data, which is
+		calculated at the total packet size minus the headers.
+		The validity of `xDataLength` prvProcessIPPacket has been confirmed
+		in 'prvProcessIPPacket()'. */
+		lReturn = ( int32_t ) ( pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ) );
 
 		if( pxSourceAddress != NULL )
 		{
@@ -833,7 +835,8 @@ FreeRTOS_Socket_t *pxSocket;
 
 			if( pxNetworkBuffer != NULL )
 			{
-				pxNetworkBuffer->xDataLength = xTotalDataLength;
+				/* xDataLength is the size of the total packet, including the Ethernet header. */
+				pxNetworkBuffer->xDataLength = xTotalDataLength + sizeof( UDPPacket_t );
 				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
 				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
 				pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;
@@ -1654,7 +1657,6 @@ const uint16_t usEphemeralPortCount =
 uint16_t usIterations = usEphemeralPortCount;
 uint32_t ulRandomSeed = 0;
 uint16_t usResult = 0;
-BaseType_t xGotZeroOnce = pdFALSE;
 const List_t *pxList;
 
 #if ipconfigUSE_TCP == 1
@@ -1675,21 +1677,10 @@ const List_t *pxList;
 	point. */
 	do
 	{
-		/* Generate a random seed. */
-		ulRandomSeed = ipconfigRAND32( );
-
 		/* Only proceed if the random number generator succeeded. */
-		if( 0 == ulRandomSeed )
+		if( xApplicationGetRandomNumber( &( ulRandomSeed ) ) == pdFALSE )
 		{
-			if( pdFALSE == xGotZeroOnce )
-			{
-				xGotZeroOnce = pdTRUE;
-				continue;
-			}
-			else
-			{
-				break;
-			}
+			break;
 		}
 
 		/* Map the random to a candidate port. */

@@ -76,7 +76,6 @@ IRAM_ATTR void *heap_caps_malloc( size_t size, uint32_t caps )
         if ((caps & MALLOC_CAP_8BIT) || (caps & MALLOC_CAP_DMA)) {
             return NULL;
         }
-
         caps |= MALLOC_CAP_32BIT; // IRAM is 32-bit accessible RAM
     }
 

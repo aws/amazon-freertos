@@ -605,11 +605,11 @@ void vARPGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffe
 {
 ARPPacket_t *pxARPPacket;
 
-        /* Buffer allocation ensures that buffers always have space
-	   for an ARP packet. See buffer allocation implementations 1
-	   and 2 under portable/BufferManagement. */
-        configASSERT( pxNetworkBuffer );
-        configASSERT( pxNetworkBuffer->xDataLength >= sizeof(ARPPacket_t) );
+	/* Buffer allocation ensures that buffers always have space
+	for an ARP packet. See buffer allocation implementations 1
+	and 2 under portable/BufferManagement. */
+	configASSERT( pxNetworkBuffer );
+	configASSERT( pxNetworkBuffer->xDataLength >= sizeof(ARPPacket_t) );
 
 	pxARPPacket = ( ARPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 

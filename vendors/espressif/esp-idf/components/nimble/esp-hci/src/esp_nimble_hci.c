@@ -365,7 +365,10 @@ static esp_vhci_host_callback_t vhci_host_cb = {
 
 esp_err_t esp_nimble_hci_init(void)
 {
-    esp_vhci_host_register_callback(&vhci_host_cb);
+    esp_err_t ret;
+    if ((ret = esp_vhci_host_register_callback(&vhci_host_cb)) != ESP_OK) {
+        return ret;
+    }
 
     ble_hci_transport_init();
 

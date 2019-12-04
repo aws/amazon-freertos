@@ -354,9 +354,7 @@ BaseType_t xGivingUp = pdFALSE;
 
 				if( xDHCPData.xDHCPTxPeriod <= ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
 				{
-					xDHCPData.ulTransactionId = ipconfigRAND32( );
-
-					if( 0 != xDHCPData.ulTransactionId )
+					if( xApplicationGetRandomNumber( &( xDHCPData.ulTransactionId ) ) != pdFALSE )
 					{
 						xDHCPData.xDHCPTxTime = xTaskGetTickCount( );
 						xDHCPData.xUseBroadcast = !xDHCPData.xUseBroadcast;
@@ -589,10 +587,9 @@ static void prvInitialiseDHCP( void )
 	/* Initialise the parameters that will be set by the DHCP process. Per
 	https://www.ietf.org/rfc/rfc2131.txt, Transaction ID should be a random
 	value chosen by the client. */
-	xDHCPData.ulTransactionId = ipconfigRAND32();
 
 	/* Check for random number generator API failure. */
-	if( 0 != xDHCPData.ulTransactionId )
+	if( xApplicationGetRandomNumber( &( xDHCPData.ulTransactionId ) ) != pdFALSE )
 	{
 		xDHCPData.xUseBroadcast = 0;
 		xDHCPData.ulOfferedIPAddress = 0UL;
@@ -603,6 +600,10 @@ static void prvInitialiseDHCP( void )
 		prvCreateDHCPSocket();
 		FreeRTOS_debug_printf( ( "prvInitialiseDHCP: start after %lu ticks\n", dhcpINITIAL_TIMER_PERIOD ) );
 		vIPReloadDHCPTimer( dhcpINITIAL_TIMER_PERIOD );
+	}
+	else
+	{
+		/* There was a problem with the randomiser. */
 	}
 }
 /*-----------------------------------------------------------*/
@@ -968,13 +969,16 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 	static void prvPrepareLinkLayerIPLookUp( void )
 	{
 	uint8_t ucLinkLayerIPAddress[ 2 ];
+	uint32_t ulNumbers[ 2 ];
 
 		/* After DHCP has failed to answer, prepare everything to start
 		trying-out LinkLayer IP-addresses, using the random method. */
 		xDHCPData.xDHCPTxTime = xTaskGetTickCount();
 
-		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
-		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
+		xApplicationGetRandomNumber( &( ulNumbers[ 0 ] ) );
+		xApplicationGetRandomNumber( &( ulNumbers[ 1 ] ) );
+		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 0 ] % 0xFDu );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
+		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 1 ] % 0xFDu );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
 
 		xNetworkAddressing.ulGatewayAddress = FreeRTOS_htonl( 0xA9FE0203 );
 
@@ -1002,7 +1006,8 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		    xDHCPData.xDHCPSocket = NULL;
 		}
 
-		xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000ul + ( ipconfigRAND32() & 0x3fful ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
+		xApplicationGetRandomNumber( &( ulNumbers[ 0 ] ) );
+		xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000ul + ( ulNumbers[ 0 ] & 0x3ffuL ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
 
 		xARPHadIPClash = pdFALSE;	   /* reset flag that shows if have ARP clash. */
 		vARPSendGratuitous();
