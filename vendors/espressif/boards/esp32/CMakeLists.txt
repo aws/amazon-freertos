@@ -169,7 +169,7 @@ if(ECC608_IN_USE)
     )
 else()
     list(APPEND kernel_inc_dirs
-    "${afr_ports_dir}/config_files/default_pkcs11_config"
+    "${board_dir}/config_files/default_pkcs11_config"
     )
 endif()
 
