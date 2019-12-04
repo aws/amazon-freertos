@@ -1,3 +1,5 @@
 Debug
+Release
 settings
 *.dep
+*.ewt

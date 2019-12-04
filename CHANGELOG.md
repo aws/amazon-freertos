@@ -9,6 +9,9 @@
     - The same socket may be used by multiple tasks concurrently
 - lwIP is now a submodule from https://github.com/lwip-tcpip/lwip.git
 
+#### OTA for NXP LPC54018 IoT Module
+- Over-the-air (OTA) updates are now available for LPC54018.
+
 ## 201910.00 10/29/2019
 
 ### New Features
