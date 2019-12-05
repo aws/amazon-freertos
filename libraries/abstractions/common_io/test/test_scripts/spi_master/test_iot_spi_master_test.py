@@ -55,6 +55,7 @@ class pyboard_spi:
         """
         self._serial.write('spi = SPI(2, SPI.SLAVE, baudrate=500000, polarity=0, phase=0)\r\n'.encode('utf-8'))
         self._serial.write('list(spi.recv(16, timeout=50000))\r\n'.encode('utf-8'))
+        sleep(1)
 
     def send(self, data):
         """
@@ -65,6 +66,7 @@ class pyboard_spi:
         self._serial.write('spi = SPI(2, SPI.SLAVE, baudrate=500000, polarity=0, phase=0)\r\n'.encode('utf-8'))
         self._serial.write('data=bytearray({})\r\n'.format(data).encode('utf-8'))
         self._serial.write('spi.send(data, timeout=50000)\r\n'.encode('utf-8'))
+        sleep(1)
 
     def send_recv(self, data):
         """
@@ -75,6 +77,7 @@ class pyboard_spi:
         self._serial.write('spi = SPI(2, SPI.SLAVE, baudrate=500000, polarity=0, phase=0)\r\n'.encode('utf-8'))
         self._serial.write('data=bytearray({})\r\n'.format(data).encode('utf-8'))
         self._serial.write('list(spi.send_recv(data, timeout=50000))\r\n'.encode('utf-8'))
+        sleep(1)
 
     def deinit(self):
         """

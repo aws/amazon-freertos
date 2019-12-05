@@ -126,7 +126,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args.port[0])
     try:
-        serial_port = serial.Serial(port=args.port[0], timeout=5)
+        serial_port = serial.Serial(port=args.port[0], timeout=5, baudrate=115200)
     except Exception as e:
         print(e)
         exit()
