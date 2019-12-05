@@ -151,8 +151,11 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_16BIT_SERVICEUUID
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
     #endif
-    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUDATA_SERVDATA
-        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManuData_ServData );
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ServiceData );
     #endif
     #if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset );
@@ -299,52 +302,67 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     }
 #endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_16BIT_SERVICEUUID */
 
-#if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUDATA_SERVDATA
-    TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManuData_ServData )
+#if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA
+    TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData )
     {
         /* Manufacturer-specific Data
          * First two bytes are company ID (randomly select Espressif(0x02E5) for test purpose)
          * Next bytes are defined by the company (randomly select 0x05 for test purpose)*/
-
-        /* Service Data,
-         * First two bytes are 16bit Service UUID (randomly select 0xEF12 for test purpose)
-         * Next bytes are Service Data (randomly select 0xD6 for test purpose)*/
-        uint16_t usManufacturerLen = 3;
-        uint8_t pusManufacturerData[] = { 0xE5, 0x02, 0x05 };
-        uint16_t usServiceDataLen = 3;
-        uint8_t pusServiceData[] = { 0xEF, 0x12, 0xD6 };
+        uint16_t usManufacturerLen = bletests_MANUFACTURERDATA_LEN;
+        uint8_t pusManufacturerData[ bletests_MANUFACTURERDATA_LEN ] = bletests_MANUFACTURERDATA;
 
         IotTestBleHal_SetAdvProperty();
 
         /* Check when manufacture data length is 0, but pointer is valid */
-        /* Check when service data length is 0, but pointer is valid */
-        IotTestBleHal_SetAdvData( eBTuuidType16, 0, ( char * ) pusServiceData, 0, ( char * ) pusManufacturerData );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, 0, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data pointer is NULL, but length is not 0 */
-        /* Check when service data pointer is NULL, but length is not 0 */
-        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, NULL, usManufacturerLen, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, usManufacturerLen, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data length is not 0, and pointer is valid */
-        /* Check when service data length is 0, pointer is NULL */
         IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, usManufacturerLen, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
+    }
+#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA */
 
-        /* Check when manufacture data length is not 0, and pointer is valid */
-        /* Check when manufacture data length is 0, pointer is NULL */
+#if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA
+    TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ServiceData )
+    {
+        /* Service Data,
+         * First two bytes are 16bit Service UUID (randomly select 0xEF12 for test purpose)
+         * Next bytes are Service Data (randomly select 0xD6 for test purpose)*/
+        uint16_t usServiceDataLen = bletests_SERVICEDATA_LEN;
+        uint8_t pusServiceData[ bletests_SERVICEDATA_LEN ] = bletests_SERVICEDATA;
+
+        IotTestBleHal_SetAdvProperty();
+
+        /* Check when service data length is 0, but pointer is valid */
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, ( char * ) pusServiceData, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
+
+        /* Check when service data pointer is NULL, but length is not 0 */
+        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, NULL, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
+
+        /* Check when service data length is 0, pointer is NULL */
         IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, ( char * ) pusServiceData, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
     }
-#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUDATA_SERVDATA */
+#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA */
 
 /* The sequence of set advertisement data and start advertisement can change. */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )

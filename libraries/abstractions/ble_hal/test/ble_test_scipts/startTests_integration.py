@@ -50,11 +50,17 @@ def main():
     runTest.submitTestResult(isTestSuccessFull,
                              runTest.Advertise_With_16bit_ServiceUUID)
 
-    isTestSuccessFull = runTest.Advertise_With_ManuData_ServData(
+    isTestSuccessFull = runTest.Advertise_With_Manufacture_Data(
         scan_filter=scan_filter, bleAdapter=bleAdapter)
     runTest.submitTestResult(
         isTestSuccessFull,
-        runTest.Advertise_With_ManuData_ServData)
+        runTest.Advertise_With_Manufacture_Data)
+
+    isTestSuccessFull = runTest.Advertise_With_Service_Data(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Advertise_With_Service_Data)
 
     isTestSuccessFull = runTest.Advertise_Interval_Consistent_After_BT_Reset(
         scan_filter=scan_filter, bleAdapter=bleAdapter)
