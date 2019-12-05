@@ -584,6 +584,11 @@ static void _httpErrorCallback( void * pPrivateData,
     ( void ) responseHandle;
     ( void ) returnCode;
 
+    if( _httpDownloader.err == OTA_HTTP_ERR_NONE )
+    {
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
+    }
+
     IotLogError( "An error occurred for HTTP async request: %d", returnCode );
 }
 
