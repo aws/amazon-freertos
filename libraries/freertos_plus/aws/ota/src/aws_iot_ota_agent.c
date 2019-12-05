@@ -1828,14 +1828,14 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
 
     if( prvInitDocModel( &xOTA_JobDocModel,
                          xOTA_JobDocModelParamStructure,
-                         ( uint32_t ) C,     /*lint !e9078 !e923 Intentionally casting context pointer to a value for prvInitDocModel. */
+                         ( uint32_t ) C, /*lint !e9078 !e923 Intentionally casting context pointer to a value for prvInitDocModel. */
                          sizeof( OTA_FileContext_t ),
                          OTA_NUM_JOB_PARAMS ) != eDocParseErr_None )
     {
         eErr = eOTA_JobParseErr_BadModelInitParams;
     }
     else if( prvParseJSONbyModel( pcJSON, ulMsgLen, &xOTA_JobDocModel ) == eDocParseErr_None )
-    {     /* Validate the job document parameters. */
+    { /* Validate the job document parameters. */
         eErr = eOTA_JobParseErr_None;
 
         if( C->ulFileSize == 0U )
@@ -1856,7 +1856,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                     eErr = eOTA_JobParseErr_BusyWithExistingJob;
                 }
                 else
-                {     /* The same job is being reported so update the url. */
+                { /* The same job is being reported so update the url. */
                     OTA_LOG_L1( "[%s] Job received is current active job.\r\n", OTA_METHOD_NAME );
 
                     if( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].pucUpdateUrlPath != NULL )
@@ -1881,7 +1881,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
         }
         else
-        {     /* Assume control of the job name from the context. */
+        { /* Assume control of the job name from the context. */
             xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
             C->pucJobName = NULL;
         }
@@ -1927,10 +1927,10 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                             OTA_LOG_L1( "[%s] Rejecting image because version is older than previous.\r\n", OTA_METHOD_NAME );
                             ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
                         }
-                        else     /* Version reported is the same as the running version. */
+                        else /* Version reported is the same as the running version. */
                         {
                             if( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
-                                ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) )     /*lint !e9007 We don't provide a modifiable variable to strtoul. */
+                                ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) ) /*lint !e9007 We don't provide a modifiable variable to strtoul. */
                             {
                                 /* The version is the same so either we're not actually the new firmware or
                                  * someone messed up and sent firmware with the same version. In either case,
@@ -1945,7 +1945,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                         }
 
                         /* All reject cases must reset the device. */
-                        ( void ) prvResetDevice();     /* Ignore return code since there's nothing we can do if we can't force reset. */
+                        ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
                     }
                 }
                 else
@@ -1982,7 +1982,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
         }
     }
     else
-    {     /* We have an unknown job parser error. Check to see if we can pass control to a callback for parsing */
+    { /* We have an unknown job parser error. Check to see if we can pass control to a callback for parsing */
         eErr = xOTA_Agent.xPALCallbacks.xCustomJobCallback( pcJSON, ulMsgLen );
 
         if( eErr == eOTA_JobParseErr_None )

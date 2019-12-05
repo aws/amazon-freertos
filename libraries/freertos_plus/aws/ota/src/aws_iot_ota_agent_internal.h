@@ -60,13 +60,13 @@
 #endif
 
 /* Job document parser constants. */
-#define OTA_MAX_JSON_TOKENS          64U                                                                         /* Number of JSON tokens supported in a single parser call. */
-#define OTA_MAX_JSON_STR_LEN         256U                                                                        /* Limit our JSON string compares to something small to avoid going into the weeds. */
-#define OTA_DOC_MODEL_MAX_PARAMS     32U                                                                         /* The parameter list is backed by a 32 bit longword bitmap by design. */
-#define OTA_JOB_PARAM_REQUIRED       ( ( bool_t ) pdTRUE )                                                       /* Used to denote a required document model parameter. */
-#define OTA_JOB_PARAM_OPTIONAL       ( ( bool_t ) pdFALSE )                                                      /* Used to denote an optional document model parameter. */
-#define OTA_DONT_STORE_PARAM         0xffffffffUL                                                                /* If ulDestOffset in the model is 0xffffffff, do not store the value. */
-#define OTA_DATA_BLOCK_SIZE          ( ( 1U << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30 ) /* Header is 19 bytes.*/
+#define OTA_MAX_JSON_TOKENS         64U                                                                          /* Number of JSON tokens supported in a single parser call. */
+#define OTA_MAX_JSON_STR_LEN        256U                                                                         /* Limit our JSON string compares to something small to avoid going into the weeds. */
+#define OTA_DOC_MODEL_MAX_PARAMS    32U                                                                          /* The parameter list is backed by a 32 bit longword bitmap by design. */
+#define OTA_JOB_PARAM_REQUIRED      ( ( bool_t ) pdTRUE )                                                        /* Used to denote a required document model parameter. */
+#define OTA_JOB_PARAM_OPTIONAL      ( ( bool_t ) pdFALSE )                                                       /* Used to denote an optional document model parameter. */
+#define OTA_DONT_STORE_PARAM        0xffffffffUL                                                                 /* If ulDestOffset in the model is 0xffffffff, do not store the value. */
+#define OTA_DATA_BLOCK_SIZE         ( ( 1U << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30 )  /* Header is 19 bytes.*/
 
 
 /* OTA Agent task event flags. */
