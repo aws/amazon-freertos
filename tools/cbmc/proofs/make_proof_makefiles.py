@@ -119,7 +119,7 @@ def prolog():
 def load_json_config_file(file):
     with open(file) as handle:
         lines = handle.read().splitlines()
-    no_comments = "\n".join([line for line in lines 
+    no_comments = "\n".join([line for line in lines
                              if line and not line.lstrip().startswith("#")])
     try:
         data = json.loads(no_comments,
@@ -154,11 +154,11 @@ def dump_makefile(dyr, system):
             makefile[name] = " ".join(new_value)
         else:
             makefile[name] = compute(value, so_far, system, name, dyr)
-    
+
     if (("EXPECTED" not in makefile.keys()) or
             str(makefile["EXPECTED"]).lower() == "true"):
         makefile["EXPECTED"] = "SUCCESSFUL"
-    elif(str(makefile["EXPECTED"]).lower() == "false"):
+    elif str(makefile["EXPECTED"]).lower() == "false":
         makefile["EXPECTED"] = "FAILURE"
     makefile = ["H_%s = %s" % (k, v) for k, v in makefile.items()]
 
@@ -232,10 +232,10 @@ def compute(value, so_far, system, key, harness, appending=False):
     return final_value
 
 
-"""
-Safe evaluation of purely arithmetic expressions
-"""
 def eval_expr(expr_string, harness, key, value):
+    """
+    Safe evaluation of purely arithmetic expressions
+    """
     try:
         tree = ast.parse(expr_string, mode="eval").body
     except SyntaxError:
@@ -248,11 +248,11 @@ def eval_expr(expr_string, harness, key, value):
 
     def eval_single_node(node):
         logging.debug(node)
-        if type(node) is ast.Num:
+        if isinstance(node, ast.Num):
             return node.n
         # We're only doing IfExp, which is Python's ternary operator
         # (i.e. it's an expression). NOT If, which is a statement.
-        elif type(node) is ast.IfExp:
+        if isinstance(node, ast.IfExp):
             # Let's be strict and only allow actual booleans in the guard
             guard = eval_single_node(node.test)
             if guard is not True and guard is not False:
@@ -262,20 +262,19 @@ def eval_expr(expr_string, harness, key, value):
                 exit(1)
             if guard:
                 return eval_single_node(node.body)
-            else:
-                return eval_single_node(node.orelse)
-        elif type(node) is ast.Compare:
+            return eval_single_node(node.orelse)
+        if isinstance(node, ast.Compare):
             left = eval_single_node(node.left)
             # Don't allow expressions like (a < b) < c
             right = eval_single_node(node.comparators[0])
             op = eval_single_node(node.ops[0])
             return op(left, right)
-        elif type(node) is ast.BinOp:
+        if isinstance(node, ast.BinOp):
             left = eval_single_node(node.left)
             right = eval_single_node(node.right)
             op = eval_single_node(node.op)
             return op(left, right)
-        elif type(node) is ast.Call:
+        if isinstance(node, ast.Call):
             valid_calls = {
                 "max": max,
                 "min": min,
@@ -288,28 +287,27 @@ def eval_expr(expr_string, harness, key, value):
             left = eval_single_node(node.args[0])
             right = eval_single_node(node.args[1])
             return valid_calls[node.func.id](left, right)
-        else:
-            try:
-                return {
-                    ast.Eq: operator.eq,
-                    ast.NotEq: operator.ne,
-                    ast.Lt: operator.lt,
-                    ast.LtE: operator.le,
-                    ast.Gt: operator.gt,
-                    ast.GtE: operator.ge,
+        try:
+            return {
+                ast.Eq: operator.eq,
+                ast.NotEq: operator.ne,
+                ast.Lt: operator.lt,
+                ast.LtE: operator.le,
+                ast.Gt: operator.gt,
+                ast.GtE: operator.ge,
 
-                    ast.Add: operator.add,
-                    ast.Sub: operator.sub,
-                    ast.Mult: operator.mul,
-                    # Use floordiv (i.e. //) so that we never need to
-                    # cast to an int
-                    ast.Div: operator.floordiv,
-                }[type(node)]
-            except KeyError:
-                logging.error(wrap("""\
-                    in file %s at key '%s', there was expression that
-                    was impossible to evaluate"""), harness, key)
-                exit(1)
+                ast.Add: operator.add,
+                ast.Sub: operator.sub,
+                ast.Mult: operator.mul,
+                # Use floordiv (i.e. //) so that we never need to
+                # cast to an int
+                ast.Div: operator.floordiv,
+            }[type(node)]
+        except KeyError:
+            logging.error(wrap("""\
+                in file %s at key '%s', there was expression that
+                was impossible to evaluate"""), harness, key)
+            exit(1)
 
     return eval_single_node(tree)
 
