@@ -121,12 +121,19 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
     }
 }
 
-static const char * pcStateStr[ eOTA_NumAgentStates ] =
+static const char * pcStateStr[ eOTA_AgentState_Max ] =
 {
-    "Not Ready",
+    "Init",
     "Ready",
-    "Active",
-    "Shutting down"
+    "RequestingJob",
+    "WaitingForJob",
+    "CreatingFile",
+    "RequestingFileBlock",
+    "WaitingForFileBlock",
+    "InSelfTest",
+    "ClosingFile",
+    "ShuttingDown",
+    "Stopped"
 };
 
 void vOTAUpdateTestTask( void * pvParameters )
@@ -179,12 +186,12 @@ void vOTAUpdateTestTask( void * pvParameters )
         {
             eState = OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
-            if( eState == eOTA_AgentState_NotReady )
+            if( eState == eOTA_AgentState_Stopped )
             {
                 configPRINTF( ( "Failed to start the OTA Agent\n" ) );
             }
 
-            while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
+            while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped )
             {
                 /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
                 vTaskDelay( ONE_SECOND_DELAY_IN_TICKS );
