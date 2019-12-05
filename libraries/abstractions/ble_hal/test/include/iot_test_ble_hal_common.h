@@ -55,7 +55,7 @@
 #endif
 
 #define LIBRARY_LOG_NAME         ( "BLE_HAL_API_TEST" )
-#include "iot_logging_setup.h"
+#include IOT_LOG
 
 /* Configs for enable/diable test cases */
 #include "iot_test_ble_hal_config_defaults.h"
@@ -534,6 +534,8 @@ void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
                                 bool bEnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
+                               uint16_t usServiceDataLen,
+                               char * pcServiceData,
                                uint16_t usManufacturerLen,
                                char * pcManufacturerData );
 

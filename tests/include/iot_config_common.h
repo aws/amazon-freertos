@@ -170,6 +170,7 @@
 #define IOT_BT_HAL_GATT_TYPES             "bt_hal_gatt_types.h"
 #define IOT_UNITY_FIXTURE                 "unity_fixture.h"
 #define IOT_UNITY                         "unity.h"
+#define IOT_LOG                           "iot_logging_setup.h"
 
 /* Cloud endpoint to which the device connects to. */
 #define IOT_CLOUD_ENDPOINT                clientcredentialMQTT_BROKER_ENDPOINT

@@ -371,7 +371,7 @@ BTGattServerCallbacks_t _xBTGattServerCb =
 
 BTCallbacks_t _xBTManager_NULL_Cb =
 {
-    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
+    .pxDeviceStateChangedCb     = NULL,
     .pxAdapterPropertiesCb      = prvAdapterPropertiesCb,
     .pxRemoteDevicePropertiesCb = NULL,
     .pxSspRequestCb             = NULL,
@@ -417,7 +417,7 @@ BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
 {
     .pxRegisterServerCb       = prvBTRegisterServerCb,
     .pxUnregisterServerCb     = NULL,
-    .pxConnectionCb           = NULL,
+    .pxConnectionCb           = prvConnectionCb,
     .pxServiceAddedCb         = prvServiceAddedCb,
     .pxIncludedServiceAddedCb = prvIncludedServiceAddedCb,
     .pxCharacteristicAddedCb  = prvCharacteristicAddedCb,
@@ -869,11 +869,11 @@ static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
 
 
 void IotTestBleHal_SetAdvData( BTuuidType_t type,
+                               uint16_t usServiceDataLen,
+                               char * pcServiceData,
                                uint16_t usManufacturerLen,
                                char * pcManufacturerData )
 {
-    uint16_t usServiceDataLen;
-    char * pcServiceData;
     uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
     /* To make sure stack creates their own pointers, use local variables */
     BTGattAdvertismentParams_t l_xAdvertisementConfigA;
@@ -900,8 +900,6 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type,
             break;
     }
 
-    usServiceDataLen = 0;
-    pcServiceData = NULL;
     xNbServices = 1;
 
     l_xAdvertisementConfigA = xAdvertisementConfigA;
@@ -1041,6 +1039,9 @@ void IotTestBleHal_SetAdvProperty( void )
     pxProperty.xType = eBTpropertyBdname;
     pxProperty.xLen = strlen( bletestsDEVICE_NAME );
     pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
+
+    /* Clear event queue: Bluedroid trigger eBLEHALEventPropertyCb after pxEnable */
+    IotTestBleHal_ClearEventQueue();
 
     /* Set the name */
     IotTestBleHal_SetGetProperty( &pxProperty, true );

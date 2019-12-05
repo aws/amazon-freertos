@@ -117,7 +117,7 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
 
     /* Advertise and Connect */
     IotTestBleHal_SetAdvProperty();
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 }
@@ -153,6 +153,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #endif
     #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ServiceData );
     #endif
     #if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset );
@@ -193,7 +196,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
 
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
 
@@ -276,7 +279,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 #if ENABLE_TC_INTEGRATION_ADVERTISE_WITHOUT_PROPERTY
     TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Without_Properties )
     {
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         /* Connect for evaluate KPI for next test case. */
         IotTestBleHal_WaitConnection( true );
@@ -290,7 +293,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID )
     {
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         /* Simple Connect */
         IotTestBleHal_WaitConnection( true );
@@ -304,37 +307,68 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     {
         /* Manufacturer-specific Data
          * First two bytes are company ID (randomly select Espressif(0x02E5) for test purpose)
-         * Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)*/
-        uint16_t usManufacturerLen = 3;
-        uint8_t pusManufacturerData[] = { 0xE5, 0x02, 0x05 };
+         * Next bytes are defined by the company (randomly select 0x05 for test purpose)*/
+        uint16_t usManufacturerLen = bletests_MANUFACTURERDATA_LEN;
+        uint8_t pusManufacturerData[ bletests_MANUFACTURERDATA_LEN ] = bletests_MANUFACTURERDATA;
 
         IotTestBleHal_SetAdvProperty();
 
         /* Check when manufacture data length is 0, but pointer is valid */
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, ( char * ) pusManufacturerData );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, 0, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data pointer is NULL, but length is not 0 */
-        IotTestBleHal_SetAdvData( eBTuuidType128, usManufacturerLen, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, usManufacturerLen, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data length is not 0, and pointer is valid */
-        IotTestBleHal_SetAdvData( eBTuuidType128, usManufacturerLen, ( char * ) pusManufacturerData );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, usManufacturerLen, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
     }
 #endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA */
 
+#if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA
+    TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ServiceData )
+    {
+        /* Service Data,
+         * First two bytes are 16bit Service UUID (randomly select 0xEF12 for test purpose)
+         * Next bytes are Service Data (randomly select 0xD6 for test purpose)*/
+        uint16_t usServiceDataLen = bletests_SERVICEDATA_LEN;
+        uint8_t pusServiceData[ bletests_SERVICEDATA_LEN ] = bletests_SERVICEDATA;
+
+        IotTestBleHal_SetAdvProperty();
+
+        /* Check when service data length is 0, but pointer is valid */
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, ( char * ) pusServiceData, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
+
+        /* Check when service data pointer is NULL, but length is not 0 */
+        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, NULL, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
+
+        /* Check when service data length is not 0, and pointer is NULL */
+        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, ( char * ) pusServiceData, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
+    }
+#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_SERVICEDATA */
+
 /* The sequence of set advertisement data and start advertisement can change. */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 {
     IotTestBleHal_StartAdvertisement();
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
     BTStatus_t xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
@@ -394,7 +428,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     {
         BTStatus_t xStatus = eBTStatusSuccess;
 
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
 
         IotTestBleHal_WaitConnection( true );
@@ -415,7 +449,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
         IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
         IotTestBleHal_CreateStartServiceB( false );
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
 
         /* Third time connection begins. Got third KPI. */
         IotTestBleHal_StartAdvertisement();
@@ -488,7 +522,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 
         /* Advertise and Reconnect */
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
 
@@ -515,7 +549,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     {
         /* Advertise and Connect */
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         prvShortWaitConnection();
     }
@@ -554,10 +588,13 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
 #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )
     {
+        BTStatus_t xStatus;
+
         /* GAP common setup with NULL Cb */
         IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
-        IotTestBleHal_BLEEnable( true );
+        xStatus = _pxBTInterface->pxEnable( 0 );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         /* BLEGAPInit with NULL Cb */
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false );
@@ -743,13 +780,22 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
 
     void prvStartStopAdvertisementWithNULLCb( void )
     {
+        BLETESTConnectionCallback_t xConnectionEvent;
         BTStatus_t xStatus = eBTStatusSuccess;
 
         xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( true, xConnectionEvent.bConnected );
+
         xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( false, xConnectionEvent.bConnected );
     }
 
     void prvStopServiceWithNULLCb( BTService_t * xRefSrvc )
