@@ -14,14 +14,20 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_iot_ota_agent.c"
-        "${src_dir}/aws_ota_cbor.c"
-        "${src_dir}/aws_ota_cbor.h"
-        "${src_dir}/aws_ota_pal.h"
-        "${src_dir}/aws_ota_agent_internal.h"
-        "${src_dir}/aws_ota_cbor_internal.h"
         "${inc_dir}/aws_iot_ota_agent.h"
-        "${inc_dir}/aws_ota_types.h"
+        "${inc_dir}/aws_iot_ota_types.h"
+        "${src_dir}/aws_iot_ota_agent_internal.h"
+        "${src_dir}/aws_iot_ota_agent.c"
+        "${src_dir}/aws_iot_ota_interface.c"
+        "${src_dir}/aws_iot_ota_interface.h"
+        "${src_dir}/aws_iot_ota_pal.h"
+        "${src_dir}/mqtt/aws_iot_ota_cbor_internal.h"
+        "${src_dir}/mqtt/aws_iot_ota_cbor.c"
+        "${src_dir}/mqtt/aws_iot_ota_cbor.h"
+        "${src_dir}/mqtt/aws_iot_ota_mqtt.c"
+        "${src_dir}/mqtt/aws_iot_ota_mqtt.h"
+        "${src_dir}/http/aws_iot_ota_http.c"
+        "${src_dir}/http/aws_iot_ota_http.h"
 )
 
 afr_module_include_dirs(
@@ -40,6 +46,7 @@ afr_module_dependencies(
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
         AFR::mqtt
+        AFR::https
         3rdparty::tinycbor
         3rdparty::jsmn
 )

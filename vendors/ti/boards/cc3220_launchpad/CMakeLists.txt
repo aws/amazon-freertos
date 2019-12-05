@@ -85,6 +85,7 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
+        "${CMAKE_CURRENT_LIST_DIR}/CC3220SF.ccxml"
         "${simplelink_dir}/kernel/freertos/dpl/ClockP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/DebugP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/HwiPCC32XX_freertos.c"

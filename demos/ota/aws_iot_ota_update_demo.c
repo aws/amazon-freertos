@@ -48,8 +48,6 @@
 #include "task.h"
 #include "semphr.h"
 
-
-
 /* Demo network handling */
 #include "aws_iot_demo_network.h"
 
@@ -86,6 +84,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType,
 #define myappONE_SECOND_DELAY_IN_TICKS    pdMS_TO_TICKS( 1000UL )
 
 #define otaDemoNETWORK_TYPES              ( AWSIOT_NETWORK_TYPE_ALL )
+
 
 /**
  * @brief Structure which holds the context for an MQTT connection within Demo.
@@ -190,18 +189,27 @@ static BaseType_t prxCreateNetworkConnection( void )
     return xRet;
 }
 
-static const char * pcStateStr[ eOTA_NumAgentStates ] =
+static const char * pcStateStr[ eOTA_AgentState_Max ] =
 {
-    "Not Ready",
+    "Init",
     "Ready",
-    "Active",
-    "Shutting down"
+    "RequestingJob",
+    "WaitingForJob",
+    "CreatingFile",
+    "RequestingFileBlock",
+    "WaitingForFileBlock",
+    "InSelfTest",
+    "ClosingFile",
+    "ShuttingDown",
+    "Stopped"
 };
 
-void vRunOTAUpdateDemo( void )
+void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
+                        void * pNetworkCredentialInfo )
 {
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
+    OTA_ConnectionContext_t xOTAConnectionCtx = { 0 };
 
     configPRINTF( ( "OTA demo version %u.%u.%u\r\n",
                     xAppFirmwareVersion.u.x.ucMajor,
@@ -241,9 +249,13 @@ void vRunOTAUpdateDemo( void )
                                  otaDemoCONN_TIMEOUT_MS, &( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
-                OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+                xOTAConnectionCtx.pvControlClient = xConnection.xMqttConnection;
+                xOTAConnectionCtx.pxNetworkInterface = ( void * ) pNetworkInterface;
+                xOTAConnectionCtx.pvNetworkCredentials = pNetworkCredentialInfo;
 
-                while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
+                OTA_AgentInit( ( void * ) ( &xOTAConnectionCtx ), ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+
+                while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped )
                 {
                     /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
                     vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
@@ -339,8 +351,6 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;
-    ( void ) pNetworkCredentialInfo;
-    ( void ) pNetworkInterface;
 
     if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
@@ -392,7 +402,7 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
 
     if( xRet == EXIT_SUCCESS )
     {
-        vRunOTAUpdateDemo();
+        vRunOTAUpdateDemo( pNetworkInterface, pNetworkCredentialInfo );
     }
     else
     {

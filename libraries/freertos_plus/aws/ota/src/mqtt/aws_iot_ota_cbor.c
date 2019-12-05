@@ -24,14 +24,14 @@
  */
 
 /**
- * @file aws_ota_cbor.c
+ * @file aws_iot_ota_cbor.c
  * @brief CBOR encode/decode routines for AWS IoT Over-the-Air updates.
  */
 
 #include "FreeRTOS.h"
 #include "cbor.h"
-#include "aws_ota_cbor.h"
-#include "aws_ota_cbor_internal.h"
+#include "aws_iot_ota_cbor.h"
+#include "aws_iot_ota_cbor_internal.h"
 
 /**
  * @brief Message field definitions, per the server specification.

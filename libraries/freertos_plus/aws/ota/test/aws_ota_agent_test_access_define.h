@@ -36,20 +36,21 @@
 /*-----------------------------------------------------------*/
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
-                                            const char * pacRawMsg,
+                                            uint8_t * pcRawMsg,
                                             u32 iMsgSize,
                                             OTA_Err_t * pxCloseResult )
 {
-    return prvIngestDataBlock( C, pacRawMsg, iMsgSize, pxCloseResult );
+    return prvIngestDataBlock( C, pcRawMsg, iMsgSize, pxCloseResult );
 }
 
 
 /*-----------------------------------------------------------*/
 
 OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
-                                             u32 iMsgLen )
+                                             u32 iMsgLen,
+                                             bool_t * pbUpdateJob )
 {
-    return prvParseJobDoc( pacRawMsg, iMsgLen );
+    return prvParseJobDoc( pacRawMsg, iMsgLen, pbUpdateJob );
 }
 
 /*-----------------------------------------------------------*/

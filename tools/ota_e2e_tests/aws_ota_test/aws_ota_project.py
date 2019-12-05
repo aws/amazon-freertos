@@ -27,6 +27,7 @@ import fileinput
 import sys
 import subprocess
 import os
+import math
 from time import sleep
 
 
@@ -79,6 +80,7 @@ class OtaAfrProject:
         self._bootloaderSequenceNumber = 0
 
         OtaAfrProject.RUNNER_PATH = self._boardProjectPath + '/config_files/aws_demo_config.h'
+        OtaAfrProject.OTA_CONFIG_PATH = self._boardProjectPath + '/config_files/aws_ota_agent_config.h'
         OtaAfrProject.BLE_CONFIG_PATH = self._boardProjectPath + '/config_files/iot_ble_config.h'
         OtaAfrProject.IOT_NETWORK_PATH = self._boardProjectPath + '/config_files/aws_iot_network_config.h'
         OtaAfrProject.CLIENT_CREDENTIAL_PATH = self._buildProject + '/include/aws_clientcredential.h'
@@ -299,11 +301,28 @@ class OtaAfrProject:
         )
 
     def setOtaBlockSize(self, blockSize):
-        """Set aws_application_version.h with the input version.
+        """Set size of data block for OTA in aws_ota_agent_config.h.
+        """
+        log2size = int(round(math.log2(blockSize)))
+        self.__setIdentifierInFile(
+            {'#define otaconfigLOG2_FILE_BLOCK_SIZE': str(log2size) + 'UL'},
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
+
+    def setOtaBlockNumber(self, blockNum):
+        """Set number of data block for OTA streaming service in aws_ota_agent_config.h.
         """
         self.__setIdentifierInFile(
-            {' #define otaconfigMAX_NUM_BLOCKS_REQUEST': str(blockSize) + 'U'},
-            os.path.join(self._projectRootDir, self._boardProjectPath, 'config_files', 'aws_ota_agent_config.h')
+            {'#define otaconfigMAX_NUM_BLOCKS_REQUEST': str(blockNum) + 'U'},
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
+
+    def setOTAPrimaryDataProtocol(self, protocol):
+        """Set primary data protocol in aws_ota_agent_config.h.
+        """
+        self.__setIdentifierInFile(
+            {'#define configOTA_PRIMARY_DATA_PROTOCOL': f'OTA_DATA_OVER_{protocol.upper()}'},
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
         )
 
     def __insertTexts(self, prefix, texts, filePath):
@@ -351,6 +370,26 @@ class OtaAfrProject:
             os.path.join(self._projectRootDir, OtaAfrProject.BLE_CONFIG_PATH)
         )
 
+    def setHTTPConfig(self):
+        """Set necessary configs for enabling OTA over HTTP
+        """
+        # Disable BLE as we don't have enough memory.
+        if 'esp32' in self._board_name:
+            self.__setIdentifierInFile(
+                {
+                    '#define configENABLED_NETWORKS': '( AWSIOT_NETWORK_TYPE_WIFI )'
+                },
+                os.path.join(self._projectRootDir, OtaAfrProject.IOT_NETWORK_PATH)
+            )
+
+        # Turn on HTTP in OTA.
+        self.__setIdentifierInFile(
+            {
+                '#define configENABLED_DATA_PROTOCOLS': '( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )'
+            },
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
+
     def setCodesignerCertificate(self, certificate):
         """Set aws_ota_codesigner_certificate.h with the certificate specified.
         """
@@ -369,28 +408,6 @@ class OtaAfrProject:
             {
                 '            xConnectParams.pcCertificate =': '( char* ) clientcredentialROOT_CA_PEM;',
                 '            xConnectParams.ulCertificateSize =': 'sizeof(clientcredentialROOT_CA_PEM)-1;'
-            },
-            os.path.join(self._projectRootDir, OtaAfrProject.OTA_UPDATE_DEMO_PATH)
-        )
-
-    def setOtaUpdateDemoForNullCertificate(self):
-        """Sets the secure connection certificate in the MQTT connection parameters
-        in the OTA update demo.
-        """
-        self.__setIdentifierInFile(
-            {
-                '            xConnectParams.pcCertificate =': 'NULL;',
-                '            xConnectParams.ulCertificateSize =': '0;'
-            },
-            os.path.join(self._projectRootDir, OtaAfrProject.OTA_UPDATE_DEMO_PATH)
-        )
-
-    def setOtaDemoRunnerForSNIDisabled(self):
-        """Disabled SNI by setting mqttagentURL_IS_IP_ADDRESS in the connection parameters.
-        """
-        self.__setIdentifierInFile(
-            {
-                '            xConnectParams.xFlags =': 'mqttagentREQUIRE_TLS | mqttagentURL_IS_IP_ADDRESS;'
             },
             os.path.join(self._projectRootDir, OtaAfrProject.OTA_UPDATE_DEMO_PATH)
         )

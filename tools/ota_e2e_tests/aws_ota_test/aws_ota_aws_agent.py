@@ -110,14 +110,15 @@ class OtaAwsAgent:
         # Create the OTA update job.
         otaUpdateId = self.createOtaUpdate(otaConfig['device_firmware_file_name'], streamId, signerJobId)
     """
-    def __init__(self, boardName, otaRoleArn, s3BucketName, stageParams, cleanOnExit):
+    def __init__(self, boardName, otaConfig, stageParams, cleanOnExit):
         self._awsIotClient = boto3.client('iot')
         self._cleanOnExit = cleanOnExit
         self._iotThing = AWSIoTThing(boardName, stageParams)
-        self._s3Bucket = AWSS3Bucket(s3BucketName, stageParams)
-        self._otaRoleArn = otaRoleArn
+        self._s3Bucket = AWSS3Bucket(otaConfig['aws_s3_bucket_name'], stageParams)
+        self._otaRoleArn = otaConfig['aws_ota_update_role_arn']
         self._stageParams = stageParams
         self._boardName = boardName
+        self._protocols = otaConfig['data_protocols']
 
         # TODO: Create an OTA Role automatically with agent creation.
         # TODO: Create certificates and upload to ACM with agent creation.
@@ -214,7 +215,7 @@ class OtaAwsAgent:
         AWS_SIGNER_TIMEOUT = 30
 
         if not profileName:
-            profileName = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
+            profileName = f'{self.getThingName()[-8:]}{self._boardName[:10]}'
 
         # Get the object.
         firmwareObject = self._s3Bucket.get_s3_object(firmwareFileName)
@@ -353,7 +354,7 @@ class OtaAwsAgent:
 
         return createStreamResponse['streamId']
 
-    def createOtaUpdate(self, deploymentFiles, roleArn = None):
+    def createOtaUpdate(self, protocols, deploymentFiles, roleArn=None, urlExpired=3600):
         """Create an OTA update job.
         Returns the AWS IoT OTA Update ID.
         Args:
@@ -379,18 +380,26 @@ class OtaAwsAgent:
                 '--targets ' + \
                 self._iotThing.thing_arn + ' ' + \
                 '--role-arn ' + \
-                self._otaRoleArn,
+                self._otaRoleArn + ' ' + \
+                '--protocols ' + \
+                ' '.join(protocols) + ' ' + \
+                '--aws-job-presigned-url-config ' + \
+                'expiresInSec=' + urlExpired,
                 self._stageParams
             )
         else:
             createOtaResponse = self._awsIotClient.create_ota_update(
-                otaUpdateId = str(uuid4()),
-                targets = [
+                otaUpdateId=str(uuid4()),
+                targets=[
                     self._iotThing.thing_arn
                 ],
-                targetSelection = 'SNAPSHOT',
-                roleArn = self._otaRoleArn,
-                files = deploymentFiles
+                targetSelection='SNAPSHOT',
+                roleArn=self._otaRoleArn,
+                files=deploymentFiles,
+                protocols=protocols,
+                awsJobPresignedUrlConfig={
+                    'expiresInSec': urlExpired
+                }
             )
 
         # Confirm that the OTA update job is ready.
@@ -428,7 +437,7 @@ class OtaAwsAgent:
 
         return otaGetStatusResponse['otaUpdateInfo']['otaUpdateId']
 
-    def quickCreateOtaUpdate(self, otaConfig):
+    def quickCreateOtaUpdate(self, otaConfig, protocols, urlExpired=3600):
         """Create an OTA update in AWS IoT by using the otaConfig.
         We follow the path of:
             1. Upload unsigned image to the unsigned s3 bucket.
@@ -449,9 +458,11 @@ class OtaAwsAgent:
             os.path.basename(otaConfig['ota_firmware_file_path'])
         )
 
-        signingProfile = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
+        signingProfile = f'{self.getThingName()[-8:]}{self._boardName[:10]}'
         otaUpdateId = self.createOtaUpdate(
-            deploymentFiles = [
+            protocols=protocols,
+            urlExpired=urlExpired,
+            deploymentFiles=[
                 {
                     'fileName': otaConfig['device_firmware_file_name'],
                     'fileVersion': '1',
@@ -706,7 +717,7 @@ class AWSS3Bucket:
     def __init__(self, name, stageParams):
         self._s3_client = boto3.resource('s3')
         if stageParams:
-            self._s3_client = boto3.resource('s3', region_name='us-east-1')
+            self._s3_client = boto3.resource('s3', region_name=stageParams['region'])
         self._stageParams = stageParams
         self.s3_name = name
         self.s3_bucket = self._s3_client.Bucket(self.s3_name)
@@ -731,8 +742,9 @@ class AWSS3Bucket:
 
         # If the bucket exists we want to make sure it is in the right region for the AWS development stage.
         if response and self._stageParams:
-            if response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region'] != 'us-east-1':
-                raise Exception('ERROR: Please delete S3 bucket {} because it is in region {}, and rerun this script. This script does not delete the bucket because after deleting the bucket it takes 1+ hours for a bucket of the same name of be made again.'.format(self.s3_name, response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']))
+            response_region = response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
+            if response_region not in ('us-east-1', 'us-west-2'):
+                raise Exception(f'ERROR: Bucket {self.s3_name} already exist and it is in region {response_region}. However testing in gamma or beta only supports us-west-2 and us-east-1.')
 
     def upload_file(self, file_path, file_name):
         self._s3_client.Bucket(self.s3_name).upload_file(file_path, file_name)

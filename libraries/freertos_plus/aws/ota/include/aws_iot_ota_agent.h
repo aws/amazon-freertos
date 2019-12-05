@@ -32,7 +32,7 @@
 #define _AWS_IOT_OTA_AGENT_H_
 
 /* Type definitions for OTA Agent */
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"
@@ -83,17 +83,45 @@ extern const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
  */
 typedef enum
 {
-    eOTA_AgentState_Unknown = -1,     /*!< The OTA agent state is not yet known. */
-    eOTA_AgentState_NotReady = 0,     /*!< The OTA agent task is not running. */
-    eOTA_AgentState_Ready = 1,        /*!< The OTA agent task is running and ready to transfer. */
-    eOTA_AgentState_Active = 2,       /*!< The OTA agent is actively receiving an update. */
-    eOTA_AgentState_ShuttingDown = 3, /*!< The OTA agent task is performing shut down activities. */
-    eOTA_NumAgentStates = 4
+    eOTA_AgentState_NoTransition = -1,
+    eOTA_AgentState_Init = 0,
+    eOTA_AgentState_Ready,
+    eOTA_AgentState_RequestingJob,
+    eOTA_AgentState_WaitingForJob,
+    eOTA_AgentState_CreatingFile,
+    eOTA_AgentState_RequestingFileBlock,
+    eOTA_AgentState_WaitingForFileBlock,
+    eOTA_AgentState_InSelfTest,
+    eOTA_AgentState_ClosingFile,
+    eOTA_AgentState_ShuttingDown,
+    eOTA_AgentState_Stopped,
+    eOTA_AgentState_Max
 } OTA_State_t;
+
+/**
+ * @brief OTA Agent Events.
+ *
+ * The events sent to OTA agent.
+ */
+typedef enum
+{
+    eOTA_AgentEvent_Start = 0,
+    eOTA_AgentEvent_StartSelfTest,
+    eOTA_AgentEvent_RequestJobDocument,
+    eOTA_AgentEvent_ReceivedJobDocument,
+    eOTA_AgentEvent_CreateFile,
+    eOTA_AgentEvent_RequestFileBlock,
+    eOTA_AgentEvent_ReceivedFileBlock,
+    eOTA_AgentEvent_RequestTimer,
+    eOTA_AgentEvent_CloseFile,
+    eOTA_AgentEvent_UserAbort,
+    eOTA_AgentEvent_Shutdown,
+    eOTA_AgentEvent_Max
+} OTA_Event_t;
 
 /* A composite cryptographic signature structure able to hold our largest supported signature. */
 
-#define kOTA_MaxSignatureSize    256            /* Max bytes supported for a file signature (2048 bit RSA is 256 bytes). */
+#define kOTA_MaxSignatureSize    256        /* Max bytes supported for a file signature (2048 bit RSA is 256 bytes). */
 
 typedef struct
 {
@@ -108,9 +136,9 @@ typedef uint32_t OTA_Err_t;
 
 /**
  * @defgroup OTA Error code operation helpers.
- * @brief Helper constants for extracting the error code from the OTA error returned.
+ * @brief Helper constant for extracting the error code from the OTA error returned.
  *
- * The OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
+ * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
  * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
  * layer in use to determine the meaning of the lower 24 bits.
  */
@@ -138,6 +166,8 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_BadImageState           0x09000000UL     /*!< The specified OTA image state was out of range. */
 #define kOTA_Err_NoActiveJob             0x0a000000UL     /*!< Attempt to set final image state without an active job. */
 #define kOTA_Err_NoFreeContext           0x0b000000UL     /*!< There wasn't an OTA file context available for processing. */
+#define kOTA_Err_HTTPInitFailed          0x0c000000UL     /*!< Error initializing the HTTP connection. */
+#define kOTA_Err_HTTPRequestFailed       0x0d000000UL     /*!< Error sending the HTTP request. */
 #define kOTA_Err_FileAbort               0x10000000UL     /*!< Error in low level file abort. */
 #define kOTA_Err_FileClose               0x11000000UL     /*!< Error in low level file close. */
 #define kOTA_Err_RxFileCreateFailed      0x12000000UL     /*!< The PAL failed to create the OTA receive file. */
@@ -154,6 +184,8 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_UserAbort               0x28000000UL     /*!< User aborted the active OTA. */
 #define kOTA_Err_ResetNotSupported       0x29000000UL     /*!< We tried to reset the device but the device doesn't support it. */
 #define kOTA_Err_TopicTooLarge           0x2a000000UL     /*!< Attempt to build a topic string larger than the supplied buffer. */
+#define kOTA_Err_SelfTestTimerFailed     0x2b000000UL     /*!< Attempt to start self-test timer faield. */
+#define kOTA_Err_EventQueueSendFailed    0x2c000000UL     /*!< Posting event message to the event queue failed. */
 
 /**
  * @brief OTA Job callback events.
@@ -217,27 +249,40 @@ typedef struct
     uint8_t * pucFilePath; /*!< Local file pathname. */
     union
     {
-        int32_t lFileHandle;     /*!< Device internal file pointer or handle.
-                                  * File type is handle after file is open for write. */
+        int32_t lFileHandle;    /*!< Device internal file pointer or handle.
+                                 * File type is handle after file is open for write. */
         #if WIN32
-            FILE * pxFile;       /*!< File type is stdio FILE structure after file is open for write. */
+            FILE * pxFile;      /*!< File type is stdio FILE structure after file is open for write. */
         #endif
-        uint8_t * pucFile;       /*!< File type is RAM/Flash image pointer after file is open for write. */
+        uint8_t * pucFile;      /*!< File type is RAM/Flash image pointer after file is open for write. */
     };
-    TimerHandle_t xRequestTimer; /*!< The request timer associated with this OTA context. */
-    uint32_t ulFileSize;         /*!< The size of the file in bytes. */
-    uint32_t ulBlocksRemaining;  /*!< How many blocks remain to be received (a code optimization). */
-    uint32_t ulFileAttributes;   /*!< Flags specific to the file being received (e.g. secure, bundle, archive). */
-    uint32_t ulServerFileID;     /*!< The file is referenced by this numeric ID in the OTA job. */
-    uint32_t ulRequestMomentum;  /*!< The number of stream requests published before a response was received. */
-    uint8_t * pucJobName;        /*!< The job name associated with this file from the job service. */
-    uint8_t * pucStreamName;     /*!< The stream associated with this file from the OTA service. */
-    Sig256_t * pxSignature;      /*!< Pointer to the file's signature structure. */
-    uint8_t * pucRxBlockBitmap;  /*!< Bitmap of blocks received (for de-duping and missing block request). */
-    uint8_t * pucCertFilepath;   /*!< Pathname of the certificate file used to validate the receive file. */
-    uint32_t ulUpdaterVersion;   /*!< Used by OTA self-test detection, the version of FW that did the update. */
-    bool_t xIsInSelfTest;        /*!< True if the job is in self test mode. */
+    uint32_t ulFileSize;        /*!< The size of the file in bytes. */
+    uint32_t ulBlocksRemaining; /*!< How many blocks remain to be received (a code optimization). */
+    uint32_t ulFileAttributes;  /*!< Flags specific to the file being received (e.g. secure, bundle, archive). */
+    uint32_t ulServerFileID;    /*!< The file is referenced by this numeric ID in the OTA job. */
+    uint8_t * pucJobName;       /*!< The job name associated with this file from the job service. */
+    uint8_t * pucStreamName;    /*!< The stream associated with this file from the OTA service. */
+    Sig256_t * pxSignature;     /*!< Pointer to the file's signature structure. */
+    uint8_t * pucRxBlockBitmap; /*!< Bitmap of blocks received (for de-duping and missing block request). */
+    uint8_t * pucCertFilepath;  /*!< Pathname of the certificate file used to validate the receive file. */
+    uint8_t * pucUpdateUrlPath; /*!< Url for the file. */
+    uint8_t * pucAuthScheme;    /*!< Authorization scheme. */
+    uint32_t ulUpdaterVersion;  /*!< Used by OTA self-test detection, the version of FW that did the update. */
+    bool_t xIsInSelfTest;       /*!< True if the job is in self test mode. */
+    uint8_t * pucProtocols;     /*!< Authorization scheme. */
 } OTA_FileContext_t;
+
+/**
+ * @brief OTA Connection context.
+ *
+ * Connection information that user provides to initialize control and data transfer for OTA.
+ */
+typedef struct
+{
+    void * pvControlClient;
+    const void * pxNetworkInterface;
+    void * pvNetworkCredentials;
+} OTA_ConnectionContext_t;
 
 
 /**
@@ -291,7 +336,7 @@ typedef enum
     eOTA_JobParseErr_None = 0,            /* Signifies no error has occurred. */
     eOTA_JobParseErr_BusyWithExistingJob, /* We're busy with a job but received a new job document. */
     eOTA_JobParseErr_NullJob,             /* A null job was reported (no job ID). */
-    eOTA_JobParseErr_BusyWithSameJob,     /* We're already busy with the reported job ID. */
+    eOTA_JobParseErr_UpdateCurrentJob,    /* We're already busy with the reported job ID. */
     eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
     eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
     eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */
@@ -427,7 +472,7 @@ typedef struct
  * @brief OTA Agent initialization function.
  *
  * Initialize the OTA engine by starting the OTA Agent ("OTA Task") in the system. This function must
- * be called with the MQTT messaging client context before calling OTA_CheckForUpdate(). Only one
+ * be called with the connection client context before calling OTA_CheckForUpdate(). Only one
  * OTA Agent may exist.
  *
  * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
@@ -533,7 +578,7 @@ OTA_Err_t OTA_SetImageState( OTA_ImageState_t eState );
  */
 OTA_ImageState_t OTA_GetImageState( void );
 
-/* @brief Request for the next available OTA job from the job service via MQTT.
+/* @brief Request for the next available OTA job from the job service.
  *
  * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
  * list above.

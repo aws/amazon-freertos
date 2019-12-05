@@ -33,17 +33,18 @@
 #ifndef _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_
 #define _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_
 
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 #include "aws_iot_ota_agent.h"
-#include "aws_ota_agent_internal.h"
+#include "aws_iot_ota_agent_internal.h"
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
-                                            const char * pacRawMsg,
+                                            uint8_t * pcRawMsg,
                                             u32 iMsgSize,
                                             OTA_Err_t * pxCloseResult );
 
 OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
-                                             u32 iMsgLen );
+                                             u32 iMsgLen,
+                                             bool_t * pbUpdateJob );
 
 bool_t TEST_OTA_prvOTA_Close( OTA_FileContext_t * const C );
 

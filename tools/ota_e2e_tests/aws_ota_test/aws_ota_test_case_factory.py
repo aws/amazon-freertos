@@ -24,43 +24,26 @@ http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case_greater_version import OtaTestGreaterVersion
+from .aws_ota_test_case_back_to_back_switch_protocol import OtaTestBackToBackSwitchProtocol
+from .aws_ota_test_case_default_data_protocol import OtaTestDefaultDataProtocol
+from .aws_ota_test_case_presigned_url_expired import OtaTestPresignedUrlExpired
 from .aws_ota_test_case_unsigned_image import OtaTestUnsignedImage
 from .aws_ota_test_case_same_version import OtaTestSameVersion
 from .aws_ota_test_case_untrusted_certificate import OtaTestUntrustedCertificate
-from .aws_ota_test_case_corrupt_image_before_signing import OtaTestCorruptImageBeforeSigning
 from .aws_ota_test_case_previous_version import OtaTestPreviousVersion
-from .aws_ota_test_case_corrupt_image_after_signing import OtaTestCorruptImageAfterSigning
-from .aws_ota_test_case_corrupt_signature import OtaTestCorruptSignature
 from .aws_ota_test_case_single_byte_image import OtaTestSingleByteImage
 from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
+from .aws_ota_test_case_greater_version_min_block_config import OtaTestGreaterVersionMinBlockConfig
+from .aws_ota_test_case_greater_version_max_block_config import OtaTestGreaterVersionMaxBlockConfig
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
-"""
-All OTA test cases in the system.
-"""
-AllOtaTestCases = {
-    OtaTestGreaterVersion.NAME : OtaTestGreaterVersion,
-    OtaTestUnsignedImage.NAME : OtaTestUnsignedImage,
-    OtaTestSameVersion.NAME: OtaTestSameVersion,
-    OtaTestUntrustedCertificate.NAME : OtaTestUntrustedCertificate,
-    OtaTestCorruptImageBeforeSigning.NAME : OtaTestCorruptImageBeforeSigning,
-    OtaTestPreviousVersion.NAME : OtaTestPreviousVersion,
-    OtaTestCorruptImageAfterSigning.NAME : OtaTestCorruptImageAfterSigning,
-    OtaTestCorruptSignature.NAME : OtaTestCorruptSignature,
-    OtaTestIncorrectPlatform.NAME : OtaTestIncorrectPlatform,
-    OtaTestSingleByteImage.NAME : OtaTestSingleByteImage,
-    OtaTestMissingFilename.NAME : OtaTestMissingFilename,
-    OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
-    OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
-    OtaTestDummyTest.NAME : OtaTestDummyTest
-}
 
-class OtaTestCaseFactory( object ):
+class OtaTestCaseFactory:
     """Return OTA test case objects based on the test name.
     """
-    def createTestCase(test, boardConfig, otaProject, otaAwsAgent, flashComm):
-        return AllOtaTestCases[test](boardConfig, otaProject, otaAwsAgent, flashComm)
-    createTestCase = staticmethod(createTestCase)
+    @staticmethod
+    def createTestCases(test_name, boardConfig, otaProject, otaAwsAgent, flashComm):
+        return globals()[test_name].generate_test_cases(boardConfig, otaProject, otaAwsAgent, flashComm)
