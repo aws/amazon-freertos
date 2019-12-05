@@ -135,6 +135,16 @@ def dump_makefile(dyr, system):
     data = load_json_config_file(os.path.join(dyr, "Makefile.json"))
 
     makefile = collections.OrderedDict()
+
+    # Makefile.common expects a variable called OBJS_EXCEPT_HARNESS to be
+    # set to a list of all the object files except the harness.
+    if "OBJS" not in data:
+        logging.error(
+            "Expected a list of object files in %s/Makefile.json" % dyr)
+        exit(1)
+    makefile["OBJS_EXCEPT_HARNESS"] = " ".join(
+        o for o in data["OBJS"] if not o.endswith("_harness.goto"))
+
     so_far = collections.OrderedDict()
     for name, value in data.items():
         if isinstance(value, list):
