@@ -31,15 +31,31 @@ import logging
 import operator
 import os
 import os.path
+import platform
 import re
 import sys
 import textwrap
 import traceback
 
+
+# ______________________________________________________________________________
+# Compatibility between different python versions
+# ``````````````````````````````````````````````````````````````````````````````
+
+# Python 3 doesn't have basestring
 try:
     basestring
 except NameError:
     basestring = str
+
+# ast.Num was deprecated in python 3.8
+_plat = platform.python_version().split(".")
+if _plat[0] == "3" and int(_plat[1]) > 7:
+    ast_num = ast.Constant
+else:
+    ast_num = ast.Num
+# ______________________________________________________________________________
+
 
 def prolog():
     return textwrap.dedent("""\
@@ -248,7 +264,7 @@ def eval_expr(expr_string, harness, key, value):
 
     def eval_single_node(node):
         logging.debug(node)
-        if isinstance(node, ast.Num):
+        if isinstance(node, ast_num):
             return node.n
         # We're only doing IfExp, which is Python's ternary operator
         # (i.e. it's an expression). NOT If, which is a statement.
