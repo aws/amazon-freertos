@@ -191,15 +191,17 @@ static BaseType_t prxCreateNetworkConnection( void )
 
 static const char * pcStateStr[ eOTA_AgentState_Max ] =
 {
-	"Ready",
-	"InSelfTest",
-	"RequestingJob",
-	"ProcessingJob",
-	"InitFileTransfer",
-	"ReceivingFile",
-	"CloseFile",
-	"ShuttingDown",
-	"Stopped"
+    "Init",
+    "Ready",
+    "RequestingJob",
+    "WaitingForJob",
+    "CreatingFile",
+    "RequestingFileBlock",
+    "WaitingForFileBlock",
+    "InSelfTest",
+    "ClosingFile",
+    "ShuttingDown",
+    "Stopped"
 };
 
 void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
