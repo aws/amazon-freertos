@@ -2551,6 +2551,33 @@
 					<name>ota</name>
 					<group>
 						<name>src</name>
+						<group>
+							<name>http</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h</name>
+							</file>
+						</group>
+						<group>
+							<name>mqtt</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h</name>
+							</file>
+						</group>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
 						</file>
@@ -2558,16 +2585,13 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h</name>
 						</file>
 					</group>
 					<group>
@@ -2576,7 +2600,7 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h</name>
 						</file>
 					</group>
 				</group>

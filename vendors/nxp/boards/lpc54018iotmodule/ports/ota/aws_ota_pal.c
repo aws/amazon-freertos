@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "aws_ota_pal.h"
+#include "aws_iot_ota_pal.h"
 #include "iot_crypto.h"
 #include "aws_ota_codesigner_certificate.h"
 
