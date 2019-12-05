@@ -964,7 +964,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open(ultestIotSpiInstance);
+    xSPIHandle = iot_spi_open(ulAssistedTestIotSpiInstance);
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */

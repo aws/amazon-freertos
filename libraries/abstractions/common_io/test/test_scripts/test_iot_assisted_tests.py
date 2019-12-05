@@ -33,27 +33,29 @@ from pwm.test_iot_pwm_test import TestPwmAssisted
 from adc.test_iot_adc_test import TestAdcAssisted
 from tsensor.test_iot_tsensor_test import TestTsensorAssisted
 from uart.test_iot_uart_test import TestUartAssisted
+from spi_master.test_iot_spi_master_test import TestSPIMasterAssisted
 import os
 
 test_class_list = [(TestGpioAssisted, "./gpio"),
                    (TestPwmAssisted, "./pwm"),
                    (TestAdcAssisted, "./adc"),
-                   (TestTsensorAssisted, "./tsensor")
-                   (TestUartAssisted "./uart")
+                   (TestTsensorAssisted, "./tsensor"),
+                   (TestUartAssisted, "./uart"),
+                   (TestSPIMasterAssisted, "./spi_master")
 ]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--ip', nargs=1, help='ip address of rpi')
-    parser.add_argument('-l', '--login_name', nargs=1, help='login name of rpi')
-    parser.add_argument('-s', '--password', nargs=1, help='password of rpi')
-    parser.add_argument('-p', '--port', nargs=1, help='serial port of connected platform')
+    parser.add_argument('-i', '--ip', nargs=1, default=[''], help='ip address of rpi')
+    parser.add_argument('-l', '--login_name', nargs=1, default=[''], help='login name of rpi')
+    parser.add_argument('-s', '--password', nargs=1, default=[''], help='password of rpi')
+    parser.add_argument('-p', '--port', nargs=1, default=[''], help='serial port of connected platform')
 
     args = parser.parse_args()
 
     try:
-        serial_port = serial.Serial(port=args.port[0], timeout=5)
+        serial_port = serial.Serial(port=args.port[0], timeout=5, baudrate=115200)
     except Exception as e:
         print(e)
         exit()
