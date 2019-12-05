@@ -306,7 +306,10 @@
             </folder>
             <folder Name="src">
               <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c" />
+              <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h" />
               <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c" />
+              <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h" />
+              <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h" />
               <folder Name="mqtt">
                 <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c" />
                 <file file_name="../../../../../libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h" />
