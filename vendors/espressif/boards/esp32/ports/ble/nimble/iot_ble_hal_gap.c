@@ -43,6 +43,8 @@
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static struct ble_gap_adv_params xAdv_params;
+/* Duration of advertisement. By default advertise for inifinite duration. */
+static int32_t lAdvDurationMS = BLE_HS_FOREVER;
 static bool xPrivacy;
 
 static BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks );
@@ -417,7 +419,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xStatus = eBTStatusFail;
     }
 
-    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, BLE_HS_FOREVER,
+    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, lAdvDurationMS,
                                     &xAdv_params, prvGAPeventHandler, NULL );
 
     if( xESPStatus != 0 )
@@ -665,6 +667,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_DIR;
         /* fixme: set adv_params->high_duty_cycle accordingly */
+    }
+
+    if( pxParams->usDuration != 0 )
+    {
+        lAdvDurationMS = ( int32_t ) ( pxParams->usDuration * 10 );  /* Multiply pxParams->usTimeout value by 10ms */
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )

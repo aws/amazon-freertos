@@ -383,7 +383,7 @@ BTStatus_t _startAllServices()
 BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 {
     BTStatus_t status = eBTStatusSuccess;
-    BTGattAdvertismentParams_t pParams;
+    BTGattAdvertismentParams_t pParams = { 0 };
     size_t countService = 0;
     BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
 
@@ -398,6 +398,7 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 
     pParams.xAddrType = BTAddrTypePublic;
     pParams.ucChannelMap = 0;
+    pParams.usDuration = 0;              /* Set to 0 to disable the advertisement duration. */
     pParams.ucPrimaryAdvertisingPhy = 0;
     pParams.ucSecondaryAdvertisingPhy = 0;
 
