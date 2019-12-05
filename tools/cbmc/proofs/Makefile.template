@@ -73,10 +73,10 @@ unpatch:
 #
 # Rules for building the CBMC harness
 
-queue_datastructure.h: $(filter-out $(ENTRY)_harness.goto, $(OBJS))
+queue_datastructure.h: $(H_OBJS_EXCEPT_HARNESS)
 	python3 @TYPE_HEADER_SCRIPT@ --binary $(FREERTOS)/freertos_kernel/queue.goto --c-file $(FREERTOS)/freertos_kernel/queue.c
 
-$(ENTRY)_harness.goto: $(ENTRY)_harness.c $(filter-out $(ENTRY)_harness.goto, $(OBJS)) $(H_GENERATE_HEADER)
+$(ENTRY)_harness.goto: $(ENTRY)_harness.c $(H_OBJS_EXCEPT_HARNESS) $(H_GENERATE_HEADER)
 	$(GOTO_CC) @COMPILE_ONLY@ @RULE_OUTPUT@ $(INC) $(CFLAGS) @RULE_INPUT@
 
 $(ENTRY)1.goto: $(OBJS)
