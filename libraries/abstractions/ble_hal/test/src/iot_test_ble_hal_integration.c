@@ -356,7 +356,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
-        /* Check when service data length is 0, pointer is NULL */
+        /* Check when service data length is not 0, and pointer is NULL */
         IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, ( char * ) pusServiceData, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
