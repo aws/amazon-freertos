@@ -185,7 +185,9 @@ TEST_SETUP( Full_OTA_CBOR )
             szOriginalWorkingDirectory ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE(
+            ulStatus, 0,
+            "Failed to get current working directory in TEST_SETUP." );
     }
 
     /* Get the user %TEMP% directory. */
@@ -194,7 +196,7 @@ TEST_SETUP( Full_OTA_CBOR )
             szFullPath ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( ulStatus, 0, "Failed to get TEMP directory in TEST_SETUP." );
     }
     else
     {
@@ -202,7 +204,9 @@ TEST_SETUP( Full_OTA_CBOR )
         if( FALSE == SetCurrentDirectoryA( szFullPath ) )
         {
             ulStatus = GetLastError();
-            TEST_ASSERT_EQUAL( ulStatus, 0 );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE(
+                ulStatus, 0,
+                "Failed to set current working directory to TEMP directory in TEST_SETUP." );
         }
     }
 }
@@ -215,7 +219,7 @@ TEST_TEAR_DOWN( Full_OTA_CBOR )
     if( FALSE == SetCurrentDirectoryA( szOriginalWorkingDirectory ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( ulStatus, 0, "Failed to restore the working directory in TEST_TEAR_DOWN." );
     }
 }
 

@@ -171,8 +171,8 @@ TEST_SETUP( Full_OTA_AGENT )
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
-    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( true, IotSdk_Init(), "Failed to initialize IoT SDK in TEST_SETUP." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, IotMqtt_Init(), "Failed to initialize MQTT in TEST_SETUP." );
 
     /* Set the parameters for MQTT connect. */
     networkInfo.createNetworkConnection = true;
@@ -190,9 +190,9 @@ TEST_SETUP( Full_OTA_AGENT )
                                      otatestAGENT_INIT_WAIT,
                                      &xMQTTClientHandle );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, connectStatus,
-                                   "Failed to connect to the MQTT broker during "
-                                   "TEST_SETUP." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(
+        IOT_MQTT_SUCCESS, connectStatus,
+        "Failed to connect to the MQTT broker in TEST_SETUP." );
 
     xOTAConnContext.pvControlClient = xMQTTClientHandle;
 }
