@@ -949,39 +949,31 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
         /* Start the request timer. */
         prvStartRequestTimer( otaconfigFILE_REQUEST_WAIT_MS );
 
-        /* Request data blocks. */
-        xErr = xOTA_DataInterface.prvRequestFileBlock( &xOTA_Agent );
-
-        if( xErr != kOTA_Err_None )
+        if( xOTA_Agent.ulRequestMomentum < otaconfigMAX_NUM_REQUEST_MOMENTUM )
         {
-            if( xOTA_Agent.ulRequestMomentum < otaconfigMAX_NUM_REQUEST_MOMENTUM )
-            {
-                /* Each Get Stream Request increases the momentum until a response
-                 * is received to ANY request. Too much momentum is interpreted as
-                 * a failure to communicate and will cause us to abort the OTA. */
-                xOTA_Agent.ulRequestMomentum++;
+            /* Request data blocks. */
+            xErr = xOTA_DataInterface.prvRequestFileBlock( &xOTA_Agent );
 
-                xErr = kOTA_Err_PublishFailed;
-            }
-            else
-            {
-                /* Stop the request timer. */
-                prvStopRequestTimer();
-
-                /* Failed to send data request abort and close file. */
-                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
-
-                /* Send close file event. */
-                xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
-                OTA_SignalEvent( &xEventMsg );
-
-                /* Too many requests have been sent without a response or too many failures
-                 * when trying to publish the request message. Abort. Store attempt count in low bits. */
-                xErr = ( uint32_t ) kOTA_Err_MomentumAbort | ( otaconfigMAX_NUM_REQUEST_MOMENTUM & ( uint32_t ) kOTA_PAL_ErrMask );
-            }
+            /* Each request increases the momentum until a response is received. Too much momentum is
+             * interpreted as a failure to communicate and will cause us to abort the OTA. */
+            xOTA_Agent.ulRequestMomentum++;
         }
         else
         {
+            /* Stop the request timer. */
+            prvStopRequestTimer();
+
+            /* Failed to send data request abort and close file. */
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
+
+            /* Send close file event. */
+            xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
+            OTA_SignalEvent( &xEventMsg );
+
+            /* Too many requests have been sent without a response or too many failures
+             * when trying to publish the request message. Abort. Store attempt count in low bits. */
+            xErr = ( uint32_t ) kOTA_Err_MomentumAbort | ( otaconfigMAX_NUM_REQUEST_MOMENTUM & ( uint32_t ) kOTA_PAL_ErrMask );
+
             /* Reset the request momentum. */
             xOTA_Agent.ulRequestMomentum = 0;
         }

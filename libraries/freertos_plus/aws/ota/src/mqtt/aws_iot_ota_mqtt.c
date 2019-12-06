@@ -798,8 +798,8 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 
                 if( eResult != IOT_MQTT_SUCCESS )
                 {
-                    /* Don't return an error. Let max momentum catch it since this may be intermittent. */
                     OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+                    xErr = kOTA_Err_PublishFailed;
                 }
                 else
                 {
