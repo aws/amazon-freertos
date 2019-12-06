@@ -125,7 +125,6 @@ TEST_SETUP( TEST_IOT_UART )
 {
     xtestIotUARTSemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotUARTCompleted );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotUARTSemaphore );
-
 }
 
 /*-----------------------------------------------------------*/
@@ -139,13 +138,11 @@ TEST_TEAR_DOWN( TEST_IOT_UART )
 
 /*-----------------------------------------------------------*/
 
-/*-----------------------------------------------------------*/
 /**
  * @brief Function to define which tests to execute as part of this group.
  */
 TEST_GROUP_RUNNER( TEST_IOT_UART )
 {
-
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing );
@@ -279,6 +276,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to check if UART can be configured to a different baudrate.
  *  Works by signal external device to change to a new baudrate. Sending and recieving a message.
@@ -424,7 +422,6 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     {
         cpBufferLarge[ i ] = 0xAA;
     }
-    cpBufferLarge[testIotUART_BUFFER_LENGTH_LARGE - 1] = '\n';
 
     cpBufferLarge[ testIotUART_BUFFER_LENGTH_LARGE - 1 ] = '\n';
 
@@ -455,6 +452,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -621,6 +619,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to fuzz iot_uart_read_async
  *-----------------------------------------------------------*/
