@@ -92,6 +92,12 @@ def main():
         isTestSuccessFull,
         runTest.Check_Bond_State)
 
+    isTestSuccessFull = runTest.Change_MTU_Size(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Change_MTU_Size)
+
     time.sleep(2)  # wait for connection parameters update
     runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
     runTest.printTestsSummary()
