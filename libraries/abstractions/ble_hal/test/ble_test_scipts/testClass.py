@@ -952,6 +952,20 @@ class runTest:
         return isTestSuccessFull
 
     @staticmethod
+    def Change_MTU_Size(scan_filter, bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+        time.sleep(5)
+
+        isTestSuccessFull = bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
     def Callback_NULL_check(scan_filter, bleAdapter):
         runTest._advertisement_start(scan_filter=scan_filter,
                                      UUID=runTest.DUT_UUID_128,
