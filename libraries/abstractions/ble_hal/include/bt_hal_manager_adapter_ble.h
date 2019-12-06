@@ -101,7 +101,7 @@ typedef struct
     uint32_t ulMaxInterval; /**< Maximum Connection Interval. If set to 0, maximum connection interval is not included in advertisement/scan response data. */
     uint8_t ucChannelMap;
     uint8_t ucTxPower;
-    uint16_t usDuration;    /**< Advertisement duration value in units of 10ms. Set to 0 for infinite timeout for advertisements. */
+    uint16_t usTimeout;    /**< Advertisement duration value in units of 10ms. Set to 0 for infinite timeout for advertisements. */
     uint8_t ucPrimaryAdvertisingPhy;   /* 5.0 Specific interface */
     uint8_t ucSecondaryAdvertisingPhy; /* 5.0 Specific interface */
     BTAddrType_t xAddrType;

@@ -674,9 +674,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     if( pxParams->bSetScanRsp == false )
     {
-        if( pxParams->usDuration != 0 )
+        if( pxParams->usTimeout != 0 )
         {
-            lAdvDurationMS = ( int32_t ) ( pxParams->usDuration * IOT_BLE_ADVERTISING_DURATION_UNITS );  /* Multiply pxParams->usTimeout value by units = 10ms */
+            lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_UNITS );  /* Multiply pxParams->usTimeout value by units = 10ms */
         }
         else
         {

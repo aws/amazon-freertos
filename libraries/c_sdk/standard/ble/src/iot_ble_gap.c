@@ -398,7 +398,7 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 
     pParams.xAddrType = BTAddrTypePublic;
     pParams.ucChannelMap = 0;
-    pParams.usDuration = 0;              /* Set to 0 to disable the advertisement duration. */
+    pParams.usTimeout = 0;              /* Set to 0 to disable the advertisement duration. */
     pParams.ucPrimaryAdvertisingPhy = 0;
     pParams.ucSecondaryAdvertisingPhy = 0;
 
