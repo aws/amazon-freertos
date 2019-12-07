@@ -69,4 +69,11 @@ DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
     return prvParseJSONbyModel( pcJSON, ulMsgLen, pxDocModel );
 }
 
+/*-----------------------------------------------------------*/
+
+void TEST_OTA_prvSetDataInterfaceMQTT()
+{
+    prvSetDataInterface( &xOTA_DataInterface, ( const uint8_t * ) "MQTT" );
+}
+
 #endif /* _AWS_OTA_AGENT_TEST_ACCESS_DEFINE_H_ */

@@ -52,4 +52,6 @@ DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
                                             uint32_t ulMsgLen,
                                             JSON_DocModel_t * pxDocModel );
 
+void TEST_OTA_prvSetDataInterfaceMQTT();
+
 #endif /* ifndef _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_ */
