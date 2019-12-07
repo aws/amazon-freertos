@@ -200,11 +200,11 @@ typedef void (* BTScanResultCallback_t)( BTBdaddr_t * pxBda,
  * @brief  Callback invoked on pxStartAdv and stop advertisement.
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] ulServerIf GATT server interface.
+ * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
  * @param[in] bStarted: True for start advertisement, flase for stop
  */
 typedef void (* BTAdvStatusCallback_t)( BTStatus_t xStatus,
-                                        uint32_t ulServerIf,
+                                        uint8_t  ucAdapterIf,
                                         bool bStart );
 
 /**

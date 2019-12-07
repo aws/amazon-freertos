@@ -183,7 +183,7 @@ static void _registerBleAdapterCb( BTStatus_t status,
                                    uint8_t adapter_if,
                                    BTUuid_t * pAppUuid );
 static void _advStatusCb( BTStatus_t status,
-                          uint32_t serverIf,
+                          uint8_t adapterIf,
                           bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
 
@@ -314,10 +314,13 @@ void _registerBleAdapterCb( BTStatus_t status,
 /*-----------------------------------------------------------*/
 
 void _advStatusCb( BTStatus_t status,
-                   uint32_t serverIf,
+                   uint8_t adapterIf,
                    bool bStart )
 {
+    ( void ) adapterIf;
+
     _BTInterface.cbStatus = status;
+
 
     if( bStart == true )
     {

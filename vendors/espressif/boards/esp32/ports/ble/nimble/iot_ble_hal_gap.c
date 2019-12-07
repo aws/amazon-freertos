@@ -432,7 +432,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, true );
     }
 
     return xStatus;
