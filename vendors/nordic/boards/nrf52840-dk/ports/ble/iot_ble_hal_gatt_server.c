@@ -239,6 +239,8 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
 static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                                      BTService_t * pxService );
 
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu );
+
 static BTGattServerInterface_t xGATTserverInterface =
 {
     .pxRegisterServer     = prvBTRegisterServer,
@@ -256,7 +258,8 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxStopService        = prvBTStopService,
     .pxDeleteService      = prvBTDeleteService,
     .pxSendIndication     = prvBTSendIndication,
-    .pxSendResponse       = prvBTSendResponse
+    .pxSendResponse       = prvBTSendResponse,
+    .pxConfigureMtu       = prvBTConfigureMtu
 };
 
 /*-----------------------------------------------------------*/
@@ -1227,4 +1230,16 @@ static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermition
         default:
             *pxNordicPermitions = SEC_NO_ACCESS;
     }
+}
+
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xNRFstatus = NRF_SUCCESS;
+
+    nrf_ble_gatt_t * pxGattHandler =  prvGetGattHandle();
+
+    xNRFstatus = nrf_ble_gatt_att_mtu_periph_set( pxGattHandler, usMtu );
+    xStatus = BTNRFError( xNRFstatus );
+    return xStatus;
 }

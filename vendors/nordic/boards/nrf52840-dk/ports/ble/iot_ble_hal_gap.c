@@ -558,7 +558,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, true );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, true );
     }
 
     if( xStatus != eBTStatusSuccess )
@@ -594,7 +594,7 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, false );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, false );
     }
     return xStatus;
 }
@@ -929,7 +929,17 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xAdvConfig.ble_adv_fast_enabled = true;
         xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
-        xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+
+        /* If it is an advertisement data and advertising timeout is provided, set the timeout. Else set the default timeout by vendor. */
+        if( pxParams->bSetScanRsp == false && pxParams->usTimeout != 0 )
+        {
+            xAdvConfig.ble_adv_fast_timeout = pxParams->usTimeout;
+        }
+        else
+        {
+             xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+        }
+
         xAdvConfig.ble_adv_primary_phy = pxParams->ucPrimaryAdvertisingPhy; /* TODO: Check which values can these variable get */
         xAdvConfig.ble_adv_secondary_phy = pxParams->ucSecondaryAdvertisingPhy;
         xAdvConfig.ble_adv_on_disconnect_disabled = true;
