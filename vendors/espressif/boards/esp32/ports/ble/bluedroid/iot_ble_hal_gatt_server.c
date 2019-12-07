@@ -92,7 +92,8 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
                                      BTStatus_t xStatus,
                                      BTGattResponse_t * pxResponse );
 
-static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu );
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu );
 
 static BTGattServerInterface_t xGATTserverInterface =
 {
@@ -794,12 +795,14 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 
 /*-----------------------------------------------------------*/
 
-static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu )
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     esp_err_t xESPStatus;
 
     xESPStatus = esp_ble_gatt_set_local_mtu( usMtu );
+
     if( xESPStatus != ESP_OK )
     {
         xStatus = eBTStatusFail;

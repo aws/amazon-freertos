@@ -128,7 +128,8 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
                                      BTStatus_t xStatus,
                                      BTGattResponse_t * pxResponse );
 
-static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu );
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu );
 
 static BTGattServerInterface_t xGATTserverInterface =
 {
@@ -382,6 +383,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
 
             ESP_LOGD( TAG, "In write for handle %d and len %d", attr_handle, out_len );
             trans_id = ( uint32_t ) ctxt;
+
             if( xGattServerCb.pxRequestWriteCb != NULL )
             {
                 if( ( ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR ) && ( ctxt->chr->flags & BLE_GATT_CHR_F_WRITE_NO_RSP ) )
@@ -642,6 +644,7 @@ static bool prvValidGattRequest()
     {
         return true;
     }
+
     return false;
 }
 
@@ -650,7 +653,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
                               BTStatus_t xStatus,
                               BTGattResponse_t * pxResponse )
 {
-    struct ble_gatt_access_ctxt *ctxt = ( struct ble_gatt_access_ctxt * )ulTransId;
+    struct ble_gatt_access_ctxt * ctxt = ( struct ble_gatt_access_ctxt * ) ulTransId;
 
     BTStatus_t xReturnStatus = eBTStatusSuccess;
 
@@ -666,6 +669,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
                 xReturnStatus = eBTStatusFail;
             }
         }
+
         prvGattGiveSemaphore();
     }
     else
@@ -948,7 +952,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pDescriptors->uuid = uuid;
                     pDescriptors->arg = ( void * ) pxService;
                     pDescriptors->access_cb = prvGATTCharAccessCb;
-                    pDescriptors->min_key_size  = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
+                    pDescriptors->min_key_size = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
                     pDescriptors->att_flags = prvAFRToESPDescPerm( pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xPermissions );
 
                     dscrCount++;
@@ -1011,12 +1015,14 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     return xStatus;
 }
 
-static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf, uint16_t usMtu )
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     esp_err_t xESPStatus;
 
     xESPStatus = ble_att_set_preferred_mtu( usMtu );
+
     if( xESPStatus != ESP_OK )
     {
         xStatus = eBTStatusFail;
