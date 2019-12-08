@@ -143,6 +143,8 @@
 *                               (BLANK_CHECK_SMALLEST, BLANK_CHECK_ENTIRE_BLOCK,
 *                                FLASH_CMD_LOCKBIT_PROGRAM, FLASH_CMD_LOCKBIT_PROTECTION,
 *                                FLASH_ERR_ALIGNED, FLASH_ERR_BOUNDARY, FLASH_ERR_OVERFLOW)
+*           07.06.2019 4.10    Added support for RX23W.
+*           19.07.2019 4.20    Added support for RX72M.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_INTERFACE_HEADER_FILE
@@ -160,7 +162,7 @@ Macro definitions
 ***********************************************************************************************************************/
 /* Driver Version Number. */
 #define FLASH_RX_VERSION_MAJOR           (4)
-#define FLASH_RX_VERSION_MINOR           (00)
+#define FLASH_RX_VERSION_MINOR           (20)
 
 
 /***********************************************************************************************************************
@@ -175,14 +177,15 @@ Typedef definitions
 
 #if (defined(MCU_RX110) || defined(MCU_RX111) || defined(MCU_RX113) || \
      defined(MCU_RX130) || defined(MCU_RX231) || defined(MCU_RX23T) || \
-     defined(MCU_RX24T) || defined(MCU_RX24U) ||defined(MCU_RX230))
+     defined(MCU_RX24T) || defined(MCU_RX24U) || defined(MCU_RX230) || \
+     defined(MCU_RX23W))
 #define FLASH_TYPE              FLASH_TYPE_1
 
 #elif (defined(MCU_RX64M) || defined(MCU_RX66T) || defined(MCU_RX71M) || \
      defined(MCU_RX72T))
 #define FLASH_TYPE              FLASH_TYPE_3
 
-#elif (defined(MCU_RX651) || defined(MCU_RX65N))
+#elif (defined(MCU_RX651) || defined(MCU_RX65N) || defined(MCU_RX72M))
 #define FLASH_TYPE              FLASH_TYPE_4
 #endif
 
@@ -217,7 +220,7 @@ Typedef definitions
 #define FLASH_HAS_ROM_CACHE     1
 #endif
 
-#if (defined(MCU_RX66T) || defined(MCU_RX72T))
+#if (defined(MCU_RX66T) || defined(MCU_RX72T) || defined(MCU_RX72M))
 #define FLASH_HAS_NON_CACHED_RANGES     1
 #endif
 
@@ -476,6 +479,7 @@ typedef enum _flash_no_cache_size
     FLASH_NON_CACHED_256_KBYTES = 0x40000,
     FLASH_NON_CACHED_512_KBYTES = 0x80000,
     FLASH_NON_CACHED_1_MBYTE    = 0x100000,
+    FLASH_NON_CACHED_2_MBYTE    = 0x200000,
     FLASH_NON_CACHED_END_ENUM
 } flash_non_cached_size_t;
 

@@ -29,6 +29,7 @@
 *                              Fixed GSCE Code Checker errors.
 *                              Added WAIT_LOOP comments.
 *           20.05.2019 3.00    Added support for GNUC and ICCRX.
+*           15.08.2019 3.20    Fixed warnings in IAR.
 ***********************************************************************************************************************/
 
 /*****************************************************************************
@@ -372,7 +373,8 @@ int32_t sci_init_bit_rate(sci_hdl_t const  hdl,
     /* Casting uint32_t to float is valid*/
     error = (( (float)(pclk) / (((divisor * tmp) * baud) * ((float)(256)/int_M)) ) - 1) * 100;
 
-    return (error*10);
+    /* Casting float to int32_t */
+    return (int32_t)(error*10);
 } /* End of function sci_init_bit_rate() */
 
 /*****************************************************************************

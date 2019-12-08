@@ -19,7 +19,7 @@
  ***********************************************************************************************************************/
 /***********************************************************************************************************************
  * File Name    : r_ether_rx_config.h
- * Version      : 1.04
+ * Version      : 1.17
  * Description  : Ethernet module device driver
  ***********************************************************************************************************************/
 /**********************************************************************************************************************
@@ -29,6 +29,7 @@
  *         : 01.10.2016 1.02     Added changes for RX65N.
  *         : 01.10.2017 1.03     Added changes for RX65N-2MB.
  *         : 08.01.2018 1.04     Changed comment.
+ *         : 30.07.2019 1.17     Added changes for RX72M.
  ***********************************************************************************************************************/
 
 /* Guards against multiple inclusion */
@@ -49,6 +50,7 @@
  Please set the value 31 ETHER_CFG_CH0_PHY_ADDRESS when use default setting of the RSK+RX63N.
  Please set the value 30 ETHER_CFG_CH0_PHY_ADDRESS when use default setting of the RSK+RX65N/RSK+RX65N_2MB.
  Please set the value 0 ETHER_CFG_CH0_PHY_ADDRESS and value 1 ETHER_CFG_CH1_PHY_ADDRESS when use default setting of the RSK+RX64M/RSK+RX71M.
+ Please set the value 1 ETHER_CFG_CH0_PHY_ADDRESS and value 2 ETHER_CFG_CH1_PHY_ADDRESS when use default setting of the RSK+RX72M.
  */
     #define ETHER_CFG_CH0_PHY_ADDRESS                   (30)     /* Please define the PHY-LSI address in the range of 0-31. */
     #define ETHER_CFG_CH1_PHY_ADDRESS                   (1)     /* Please define the PHY-LSI address in the range of 0-31. */
@@ -77,6 +79,7 @@
  Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS when use default setting of the RSK+RX63N.
  Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS when use default setting of the RSK+RX65N/RSK+RX65N_2MB.
  Please set the value 1 ETHER_CFG_CH0_PHY_ACCESS and ETHER_CFG_CH1_PHY_ACCESS when use default setting of the RSK+RX64M/RSK+RX71M.
+ Please set the value 0 ETHER_CFG_CH0_PHY_ACCESS and ETHER_CFG_CH1_PHY_ACCESS when use default setting of the RSK+RX72M.
  */
     #define ETHER_CFG_CH0_PHY_ACCESS                    (0)
     #define ETHER_CFG_CH1_PHY_ACCESS                    (1)

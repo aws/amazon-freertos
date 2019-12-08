@@ -44,6 +44,7 @@
 *                02.08.2017 2.20     Removed #include "r_mcu_config.h". Now in
 *                                    targets.h (r_flash_rx_if.h includes)
 *                19.04.2019 4.00     Added support for GNUC and ICCRX.
+*                07.06.2019 4.10     Fixed FEARL & FSARL register settings.
 *******************************************************************************/
 
 /******************************************************************************
@@ -180,7 +181,7 @@ void R_CF_Write_Operation (const uint32_t *psrc_addr, const uint32_t dest_addr)
 #if defined(MCU_RX23_ALL) || defined (MCU_RX24_ALL)
     /* Write start address setting */
     FLASH.FSARH = (uint16_t)(dest_addr_idx >> 16);
-    FLASH.FSARL = (uint16_t)(dest_addr_idx & 0xFFFF);
+    FLASH.FSARL = (uint16_t)(dest_addr_idx & 0xFFF8);
 
     FLASH.FWB1 = (uint16_t)(*psrc_addr >> 16);
     FLASH.FWB0 = (uint16_t)(*psrc_addr & 0xFFFF);
@@ -192,7 +193,7 @@ void R_CF_Write_Operation (const uint32_t *psrc_addr, const uint32_t dest_addr)
 #else
     /* Write start address setting */
     FLASH.FSARH = (uint8_t)((dest_addr_idx >> 16) & 0x0F);
-    FLASH.FSARL = (uint16_t)(dest_addr_idx & 0xFFFF);
+    FLASH.FSARL = (uint16_t)(dest_addr_idx & 0xFFFC);
 
     /* Write data setting */
     FLASH.FWBH = (uint16_t)(*psrc_addr >> 16);
@@ -296,19 +297,19 @@ void R_CF_Erase (const uint32_t start_addr, const uint32_t num_blocks)
 #if defined(MCU_RX23_ALL) || defined(MCU_RX24_ALL)
     /* Erase start address setting */
      FLASH.FSARH = (uint16_t)(block_start_addr >> 16);
-     FLASH.FSARL = (uint16_t)(block_start_addr & 0xFFFF);
+     FLASH.FSARL = (uint16_t)(block_start_addr & 0xFFF8);
 
      /* Erase end address setting */
      FLASH.FEARH = (uint16_t)(block_end_addr >> 16);
-     FLASH.FEARL = (uint16_t)(block_end_addr & 0xFFFF);
+     FLASH.FEARL = (uint16_t)(block_end_addr & 0xFFF8);
 #else
      /* Erase start address setting */
       FLASH.FSARH = (uint8_t)((block_start_addr >> 16) & 0x0F);
-      FLASH.FSARL = (uint16_t)(block_start_addr & 0xFFFF);
+      FLASH.FSARL = (uint16_t)(block_start_addr & 0xFFFC);
 
       /* Erase end address setting */
       FLASH.FEARH = (uint8_t)((block_end_addr >> 16) & 0x0F);
-      FLASH.FEARL = (uint16_t)(block_end_addr & 0xFFFF);
+      FLASH.FEARL = (uint16_t)(block_end_addr & 0xFFFC);
 #endif
 
      /* Execute Erase command */
@@ -390,19 +391,19 @@ void R_CF_BlankCheck (const uint32_t start_addr, const uint32_t end_addr)
 #if defined(MCU_RX23_ALL) || defined(MCU_RX24_ALL)
     /* BlankCheck start address setting */
     FLASH.FSARH = (uint16_t)(start_addr_idx >> 16);
-    FLASH.FSARL = (uint16_t)(start_addr_idx & 0xFFFF);
+    FLASH.FSARL = (uint16_t)(start_addr_idx & 0xFFF8);
 
     /* BlankCheck end address setting */
     FLASH.FEARH = (uint16_t)(end_addr_idx >> 16);
-    FLASH.FEARL = (uint16_t)(end_addr_idx & 0xFFFF);
+    FLASH.FEARL = (uint16_t)(end_addr_idx & 0xFFF8);
 #else
     /* BlankCheck start address setting */
     FLASH.FSARH = (uint8_t)((start_addr_idx >> 16) & 0x0F);
-    FLASH.FSARL = (uint16_t)(start_addr_idx & 0xFFFF);
+    FLASH.FSARL = (uint16_t)(start_addr_idx & 0xFFFC);
 
     /* BlankCheck end address setting */
     FLASH.FEARH = (uint8_t)((end_addr_idx >> 16) & 0x0F);
-    FLASH.FEARL = (uint16_t)(end_addr_idx & 0xFFFF);
+    FLASH.FEARL = (uint16_t)(end_addr_idx & 0xFFFC);
 #endif
 
     /* Execute BlankCheck command */

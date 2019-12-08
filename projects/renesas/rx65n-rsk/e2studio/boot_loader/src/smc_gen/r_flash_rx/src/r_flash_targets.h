@@ -27,6 +27,8 @@
 *           27.02.2018 1.10    Added RX66T
 *           23.10.2018 1.20    Added RX72T
 *         : 19.04.2019 4.00    Removed support for flash type 2.
+*         : 07.06.2019 4.10    Added RX23W
+*         : 19.07.2019 4.20    Added RX72M
 ***********************************************************************************************************************/
 
 #ifndef FLASH_TARGETS_HEADER_FILE
@@ -67,6 +69,9 @@ Macro definitions
 #elif defined(BSP_MCU_RX23T)
     #define MCU_RX23T
     #define MCU_RX23_ALL
+#elif defined(BSP_MCU_RX23W)
+    #define MCU_RX23W
+    #define MCU_RX23_ALL
 #elif defined(BSP_MCU_RX24T)
     #define MCU_RX24T
     #define MCU_RX24_ALL
@@ -88,6 +93,9 @@ Macro definitions
     #define MCU_RX71_ALL
 #elif defined(BSP_MCU_RX72T)
     #define MCU_RX72T
+    #define MCU_RX72_ALL
+#elif defined(BSP_MCU_RX72M)
+    #define MCU_RX72M
     #define MCU_RX72_ALL
 #else
     #error "!!! No 'targets' folder for this MCU Group !!!"

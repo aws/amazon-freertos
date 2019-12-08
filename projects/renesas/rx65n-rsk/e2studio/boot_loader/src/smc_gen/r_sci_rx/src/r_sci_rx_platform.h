@@ -25,6 +25,8 @@
 *           19.12.2016 1.90    Added RX24U support
 *           28.09.2018 2.10    Added RX66T support
 *           01.02.2019 2.20    Added RX72T, RX65N-64pin support
+*           28.06.2019 3.10    Added RX23W support
+*           15.08.2019 3.20    Added RX72M support
 ************************************************************************************************************************/
 
 #ifndef SCI_RX_PLATFORM_H
@@ -51,6 +53,8 @@ Includes   <System Includes> , "Project Includes"
 #include "./targets/rx231/r_sci_rx231_private.h"  /* RX231 */
 #elif defined(BSP_MCU_RX23T)
 #include "./targets/rx23t/r_sci_rx23t_private.h"  /* RX23T */
+#elif defined(BSP_MCU_RX23W)
+#include "./targets/rx23w/r_sci_rx23w_private.h"  /* RX23W */
 #elif defined(BSP_MCU_RX24T)
 #include "./targets/rx24t/r_sci_rx24t_private.h"  /* RX24T */
 #elif defined(BSP_MCU_RX24U)
@@ -69,6 +73,8 @@ Includes   <System Includes> , "Project Includes"
 #include "./targets/rx71m/r_sci_rx71m_private.h"  /* RX71M */
 #elif defined(BSP_MCU_RX72T)
 #include "./targets/rx72t/r_sci_rx72t_private.h"  /* RX72T */
+#elif defined(BSP_MCU_RX72M)
+#include "./targets/rx72m/r_sci_rx72m_private.h"  /* RX72M */
 #else
 #error "ERROR - r_sci_rxXXX_private.h not included."
 #endif

@@ -30,6 +30,8 @@
 *                                     FLASH_CMD_CONFIG_CLOCK in flash_init_fcu().
 *              : 06.09.2018 1.30    Modified flash_write() to check for FLASH_CUR_STOP (write access error occurred).
 *              : 19.04.2019 4.00    Added support for GNUC and ICCRX.
+*              : 19.07.2019 4.20    Modified flash_erase() & Excep_FCU_FRDYI().
+*                                   Removed include of r_flash_type3_if.h.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -39,9 +41,6 @@ Includes   <System Includes> , "Project Includes"
 #include "r_flash_rx_if.h"
 #include "r_flash_fcu.h"
 #include "r_flash_group.h"
-#if (FLASH_TYPE == FLASH_TYPE_3)
-#include "r_flash_type3_if.h"
-#endif
 
 /***********************************************************************************************************************
 Macro definitions
@@ -490,7 +489,7 @@ flash_err_t flash_erase(uint32_t block_address, uint32_t num_blocks)
 #ifdef FLASH_IN_DUAL_BANK_MODE
             if (g_current_parameters.dest_addr <= (uint32_t)FLASH_CF_LO_BANK_HI_ADDR)
             {
-                size_boundary = (uint32_t)FLASH_CF_BLOCK_45;
+                size_boundary = (uint32_t)FLASH_CF_LO_BANK_SMALL_BLOCK_ADDR;
             }
 #endif
 
@@ -689,9 +688,6 @@ R_BSP_PRAGMA_STATIC_INTERRUPT(Excep_FCU_FRDYI,VECT(FCU,FRDYI))
 FLASH_PE_MODE_SECTION
 R_BSP_ATTRIB_STATIC_INTERRUPT void Excep_FCU_FRDYI(void)
 {
-    /* Cancel interrupt disable for serial USB boot. */
-    R_BSP_InterruptsEnable();
-
 #if (FLASH_CFG_CODE_FLASH_ENABLE == 1)
     uint32_t    size_boundary;
 #endif
@@ -761,7 +757,7 @@ R_BSP_ATTRIB_STATIC_INTERRUPT void Excep_FCU_FRDYI(void)
 #ifdef FLASH_IN_DUAL_BANK_MODE
                 if (g_current_parameters.dest_addr <= (uint32_t)FLASH_CF_LO_BANK_HI_ADDR)
                 {
-                    size_boundary = (uint32_t)FLASH_CF_BLOCK_45;
+                    size_boundary = (uint32_t)FLASH_CF_LO_BANK_SMALL_BLOCK_ADDR;
                 }
 #endif
                 if (g_current_parameters.dest_addr <= size_boundary)

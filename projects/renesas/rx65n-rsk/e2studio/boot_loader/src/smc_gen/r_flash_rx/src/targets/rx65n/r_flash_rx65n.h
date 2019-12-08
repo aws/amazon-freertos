@@ -29,6 +29,9 @@
 *         : 19.06.2017 2.20    Added FLASH_HAS_APP_SWAP qualification to bank mode check.
 *         : 02.08.2017 2.30    Replaced #include "r_mcu_config.h" with "r_flash_targets.h"
 *         : 19.04.2019 4.00    Added support for GNUC and ICCRX.
+*         : 19.07.2019 4.20    Deleted FLASH_RAM_END_ADDRESS, NUM_BLOCK_TABLE_ENTRIES,
+*                              g_flash_RomBlockSizes, rom_block_sizes_t, rom_block_info_t.
+*                              Added FLASH_CF_LO_BANK_SMALL_BLOCK_ADDR.
 ***********************************************************************************************************************/
 
 #ifndef RX65N_FLASH_PRIVATE_HEADER_FILE
@@ -61,17 +64,16 @@ Macro definitions
 #endif
 
 
-#define FLASH_NUM_BLOCKS_DF         (512)
-#define FLASH_DF_MIN_PGM_SIZE       (4)
-#define FLASH_CF_MIN_PGM_SIZE       (128)
+#define FLASH_NUM_BLOCKS_DF                 (512)
+#define FLASH_DF_MIN_PGM_SIZE               (4)
+#define FLASH_CF_MIN_PGM_SIZE               (128)
 
-#define FLASH_CF_SMALL_BLOCK_SIZE   (8192)
-#define FLASH_CF_MEDIUM_BLOCK_SIZE  (32768)
-#define FLASH_CF_LOWEST_VALID_BLOCK (FLASH_CF_BLOCK_INVALID + 1)
-#define FLASH_DF_BLOCK_SIZE         (64)
-#define FLASH_DF_HIGHEST_VALID_BLOCK    (FLASH_DF_BLOCK_INVALID - FLASH_DF_BLOCK_SIZE)
-
-#define FLASH_RAM_END_ADDRESS       (0x0003FFFF)
+#define FLASH_CF_SMALL_BLOCK_SIZE           (8192)
+#define FLASH_CF_MEDIUM_BLOCK_SIZE          (32768)
+#define FLASH_CF_LO_BANK_SMALL_BLOCK_ADDR   (FLASH_CF_BLOCK_45)
+#define FLASH_CF_LOWEST_VALID_BLOCK         (FLASH_CF_BLOCK_INVALID + 1)
+#define FLASH_DF_BLOCK_SIZE                 (64)
+#define FLASH_DF_HIGHEST_VALID_BLOCK        (FLASH_DF_BLOCK_INVALID - FLASH_DF_BLOCK_SIZE)
 
 /***********************************************************************************************************************
 Typedef definitions
@@ -779,32 +781,6 @@ typedef enum _flash_block_address
     FLASH_DF_BLOCK_INVALID = 0x00108000     /*   Block 511 + 64 bytes */
 #endif // MCU_DATA_FLASH_SIZE_BYTES != 0
 } flash_block_address_t;
-
-
-typedef struct _rom_block_sizes
-{
-    uint32_t num_blocks;            // number of blocks at this size
-    uint32_t block_size;            // Size of each block
-}rom_block_sizes_t;
-
-
-typedef struct _rom_block_info
-{
-    uint32_t start_addr;            // starting address for this block section
-    uint32_t end_addr;              // ending (up to and including this) address
-    uint16_t block_number;          // the rom block number for this address queried
-    uint32_t thisblock_stAddr;      // the starting address for the above block #
-    uint32_t block_size;            // Size of this block
-} rom_block_info_t;
-
-
-#define NUM_BLOCK_TABLE_ENTRIES 3
-static rom_block_sizes_t g_flash_RomBlockSizes[NUM_BLOCK_TABLE_ENTRIES] =
-{
-    8,  8192,   // 8 blocks of 8K
-    30, 32768,  // 30 blocks of 32K
-    0,  0
-};
 
 
 R_BSP_PRAGMA_UNPACK

@@ -5,12 +5,12 @@ r_flash_rx
 
 Document Number 
 ---------------
-r01an2184ej0400
-r01an2184jj0400
+r01an2184ej0420
+r01an2184jj0420
 
 Version
 -------
-v4.00
+v4.20
 
 Overview
 --------
@@ -40,6 +40,7 @@ Supported MCUs
 * RX230 Group
 * RX231 Group
 * RX23T Group
+* RX23W Group
 * RX24T Group
 * RX24U Group
 * RX64M Group
@@ -47,6 +48,7 @@ Supported MCUs
 * RX66T Group
 * RX71M Group
 * RX72T Group
+* RX72M Group
 
 
 Boards Tested On
@@ -57,6 +59,7 @@ Boards Tested On
 * RSKRX130
 * RSKRX231
 * RSKRX23T
+* RSSKRX23W
 * RSKRX24T
 * RSKRX24U
 * RSKRX64M
@@ -65,6 +68,7 @@ Boards Tested On
 * RSKRX66T
 * RSKRX71M
 * RSKRX72T
+* RSKRX72M
 
 
 Limitations
@@ -83,7 +87,7 @@ Peripherals Used Directly
 
 Required Packages
 -----------------
-* r_bsp      V5.00
+* r_bsp      V5.20
 
 How to add to your project
 --------------------------
@@ -115,8 +119,8 @@ How to add to your project
 Toolchain(s) Used
 -----------------
 * Renesas RXC 3.01.00
-* GNU GNURX 4.08.04.201801
-* IAR ICCRX 4.10.01
+* GNU GNURX 4.08.04.201902
+* IAR ICCRX 4.12.01
 
 
 File Structure
@@ -127,9 +131,9 @@ r_flash_rx
 |
 +---doc
 |   +-- en
-|   |   +-- r01an2184ej0400-rx-flash.pdf
+|   |   +-- r01an2184ej0420-rx-flash.pdf
 |   +-- ja
-|       +-- r01an2184jj0400-rx-flash.pdf
+|       +-- r01an2184jj0420-rx-flash.pdf
 |
 +---ref
 |   +-- r_flash_rx_config_reference.h
@@ -185,6 +189,9 @@ r_flash_rx
         +--rx23t
              +-- r_flash_rx23t.h
         |
+        +--rx23w
+             +-- r_flash_rx23w.h
+        |
         +--rx24t
              +-- r_flash_rx24t.h
         |
@@ -205,6 +212,9 @@ r_flash_rx
         |    
         +--rx72t
              +-- r_flash_rx72t.h
+        |    
+        +--rx72m
+             +-- r_flash_rx72m.h
 
 r_config
     r_flash_rx_config.h

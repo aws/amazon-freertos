@@ -5,8 +5,8 @@
 <property id="com.renesas.smc.service.project.buildArtefactType" values="com.renesas.smc.service.project.buildArtefactType.exe"/>
 <toolchain id="com.renesas.smc.toolchain.rxc.toolchain.rxc">
 <option id="com.renesas.smc.toolchain.option.buildArtefactType" key="com.renesas.smc.toolchain.option.buildArtefactType.exe"/>
-<option id="com.renesas.smc.toolchain.option.rtos" key="com.renesas.smc.toolchain.option.rtos.none">
-<item id="com.renesas.smc.toolchain.option.rtos.freertos" value="FreeRTOS_RX_V10.0.00"/>
+<option id="com.renesas.smc.toolchain.option.rtos" key="com.renesas.smc.toolchain.option.rtos.freertos">
+<item id="com.renesas.smc.toolchain.option.rtos.freertos" value="AmazonFreeRTOS_RX_v201908.00-rx-0.1.16"/>
 </option>
 </toolchain>
 </configuration>
@@ -110,9 +110,9 @@
 <Item current="120.0 MHz" id="pclkadivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="pclkadivider.Condition"/>
 <Item current="comboBox1-2" error="false" id="pclkadivider.comboBox"/>
-<Item current="true" id="uckdivider.selectBox"/>
+<Item current="false" id="uckdivider.selectBox"/>
 <Item current="240.0 MHz" id="uckdivider.InputValue"/>
-<Item current="48.0 MHz" id="uckdivider.OutputValue"/>
+<Item current="" id="uckdivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="uckdivider.Condition"/>
 <Item current="comboBox1-5" error="false" id="uckdivider.comboBox"/>
 <Item current="true" id="iclkdivider.isSelected"/>
@@ -175,19 +175,12 @@
 <Item current="MHz" id="bck.unitTxt"/>
 <Item current="120.0" id="bck.CurrentValue"/>
 <Item current="false" id="bck.Disabled"/>
-<Item current="false" id="sdclk.selectBox"/>
-<Item current="120.0 MHz" id="sdclk.InputValue"/>
-<Item current="0" id="sdclk.OutputValue"/>
-<Item current="-" id="sdclk.frequencyTxt"/>
-<Item current="MHz" id="sdclk.unitTxt"/>
-<Item current="true" id="sdclk.Disabled"/>
-<Item current="true" id="sdclk.SelectBoxDisabled"/>
-<Item current="true" id="uclk.isSelected"/>
-<Item current="48.0 MHz" id="uclk.InputValue"/>
-<Item current="48.0 MHz" id="uclk.OutputValue"/>
-<Item current="48.0" id="uclk.frequencyTxt"/>
+<Item current="false" id="uclk.isSelected"/>
+<Item current="" id="uclk.InputValue"/>
+<Item current="0" id="uclk.OutputValue"/>
+<Item current="-" id="uclk.frequencyTxt"/>
 <Item current="MHz" id="uclk.unitTxt"/>
-<Item current="false" id="uclk.Disabled"/>
+<Item current="true" id="uclk.Disabled"/>
 <Item current="true" id="cacmclk.isSelected"/>
 <Item current="24 MHz" id="cacmclk.InputValue"/>
 <Item current="24 MHz" id="cacmclk.OutputValue"/>
@@ -226,32 +219,99 @@
 <Item current="-" id="cacilsclk.frequencyTxt"/>
 <Item current="MHz" id="cacilsclk.unitTxt"/>
 <Item current="true" id="cacilsclk.Disabled"/>
-<Item current="60.0" id="bckpin.CurrentValue"/>
-<Item current="48.0" id="uclk.CurrentValue"/>
+<Item current="false" id="sdclk.selectBox"/>
+<Item current="120.0 MHz" id="sdclk.InputValue"/>
+<Item current="0" id="sdclk.OutputValue"/>
+<Item current="-" id="sdclk.frequencyTxt"/>
+<Item current="MHz" id="sdclk.unitTxt"/>
+<Item current="true" id="sdclk.Disabled"/>
+<Item current="true" id="sdclk.SelectBoxDisabled"/>
 </tool>
 <tool id="Pins" version="1.0.1.0">
 <pinItem allocation="22" comments="" direction="None" id="XTAL" locked="false" status="0"/>
-<pinItem allocation="24" comments="" direction="None" id="EXTAL" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="USB0_OVRCURA" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="USB0_OVRCURB" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="USB0_VBUSEN" locked="false" status="0"/>
 <pinItem allocation="59" comments="" direction="None" id="RXD8" locked="false" status="0"/>
+<pinItem allocation="81" comments="" direction="None" id="ET0_TX_EN" locked="false" status="0"/>
+<pinItem allocation="83" comments="" direction="None" id="ET0_TX_ER" locked="false" status="0"/>
+<pinItem allocation="101" comments="" direction="None" id="ET0_MDC" locked="false" status="0"/>
+<pinItem allocation="76" comments="" direction="None" id="ET0_COL" locked="false" status="0"/>
+<pinItem allocation="74" comments="" direction="None" id="ET0_CRS" locked="false" status="0"/>
 <pinItem allocation="58" comments="" direction="None" id="TXD8" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="RXD6" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="TXD6" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="CTS6#" locked="false" status="0"/>
-<pinItem allocation="" comments="" direction="None" id="RTS6#" locked="false" status="0"/>
-<pinnumItem comment="ET-ET0ERXD1_RMII0RXD1" id="88"/>
-<pinnumItem comment="ET-ET0ERXD2" id="89"/>
+<pinItem allocation="24" comments="" direction="None" id="EXTAL" locked="false" status="0"/>
+<pinItem allocation="86" comments="" direction="None" id="ET0_RX_DV" locked="false" status="0"/>
+<pinItem allocation="27" comments="" direction="None" id="ET0_LINKSTA" locked="false" status="0"/>
+<pinItem allocation="84" comments="" direction="None" id="ET0_RX_ER" locked="false" status="0"/>
+<pinItem allocation="77" comments="" direction="None" id="ET0_ETXD3" locked="false" status="0"/>
+<pinItem allocation="78" comments="" direction="None" id="ET0_ETXD2" locked="false" status="0"/>
+<pinItem allocation="79" comments="" direction="None" id="ET0_ETXD1" locked="false" status="0"/>
+<pinItem allocation="80" comments="" direction="None" id="ET0_ETXD0" locked="false" status="0"/>
+<pinItem allocation="85" comments="" direction="None" id="ET0_RX_CLK" locked="false" status="0"/>
+<pinItem allocation="91" comments="" direction="None" id="ET0_ERXD3" locked="false" status="0"/>
+<pinItem allocation="89" comments="" direction="None" id="ET0_ERXD2" locked="false" status="0"/>
+<pinItem allocation="88" comments="" direction="None" id="ET0_ERXD1" locked="false" status="0"/>
+<pinItem allocation="87" comments="" direction="None" id="ET0_ERXD0" locked="false" status="0"/>
+<pinItem allocation="82" comments="" direction="None" id="ET0_TX_CLK" locked="false" status="0"/>
+<pinItem allocation="102" comments="" direction="None" id="ET0_MDIO" locked="false" status="0"/>
 <pinnumItem comment="OnTFT-G2" id="110"/>
-<pinnumItem comment="LED1" id="111"/>
 <pinnumItem comment="OnTFT-G3" id="112"/>
 <pinnumItem comment="LED2" id="113"/>
+<pinnumItem comment="PMOD1-IO2" id="119"/>
+<pinnumItem comment="SDRAM-DQMH" id="120"/>
+<pinnumItem comment="PMOD1-IO3" id="121"/>
+<pinnumItem comment="LED2" id="122"/>
+<pinnumItem comment="RL78G1CRTS" id="123"/>
+<pinnumItem comment="SDRAM-CKE" id="124"/>
+<pinnumItem comment="WE#/" id="136"/>
+<pinnumItem comment="ET-ET0ETXD1_RMII0TXD1" id="79"/>
+<pinnumItem comment="ET-ET0MDC" id="101"/>
+<pinnumItem comment="ET-ET0MDIO" id="102"/>
+<pinnumItem comment="OnTFT-R3" id="104"/>
+<pinnumItem comment="OnTFT-R4" id="106"/>
+<pinnumItem comment="ET-ET0ETXD0_RMII0TXD0" id="80"/>
+<pinnumItem comment="OnTFT-R5" id="107"/>
+<pinnumItem comment="OnTFT-R6" id="108"/>
+<pinnumItem comment="OnTFT-R7" id="109"/>
+<pinnumItem comment="LED1" id="111"/>
 <pinnumItem comment="OnTFT-G4" id="114"/>
 <pinnumItem comment="LED3" id="116"/>
-<pinnumItem comment="ET-ET0ERXD3" id="91"/>
 <pinnumItem comment="OnTFT-G5" id="118"/>
-<pinnumItem comment="PMOD1-IO2" id="119"/>
+<pinnumItem comment="OnTFT-G6" id="125"/>
+<pinnumItem comment="OnTFT-G7" id="126"/>
+<pinnumItem comment="SDRAM-SDCLK" id="128"/>
+<pinnumItem comment="CAN1TX" id="29"/>
+<pinnumItem comment="OnTFT-B3" id="130"/>
+<pinnumItem comment="OnTFT-B4" id="131"/>
+<pinnumItem comment="OnTFT-B5" id="132"/>
+<pinnumItem comment="OnTFT-B6" id="133"/>
+<pinnumItem comment="OnTFT-B7" id="134"/>
+<pinnumItem comment="SDRAM-D8" id="135"/>
+<pinnumItem comment="SDRAM-CASn" id="137"/>
+<pinnumItem comment="DRAM-RASn" id="138"/>
+<pinnumItem comment="SDRAM-SDCSn" id="139"/>
+<pinnumItem comment="E1-TDI_RXD" id="31"/>
+<pinnumItem comment="JA3-Csa" id="141"/>
+<pinnumItem comment="QIO1-B" id="143"/>
+<pinnumItem comment="QIO0-B" id="145"/>
+<pinnumItem comment="QSPCLK-B" id="147"/>
+<pinnumItem comment="QSSL-B" id="148"/>
+<pinnumItem comment="OnTFT-DISP" id="149"/>
+<pinnumItem comment="SDHIPE" id="49"/>
+<pinnumItem comment="QIO3-B" id="150"/>
+<pinnumItem comment="QIO2-B" id="154"/>
+<pinnumItem comment="SDRAM-D1" id="156"/>
+<pinnumItem comment="SDRAM-D0" id="158"/>
+<pinnumItem comment="PMOD1-IO0" id="50"/>
+<pinnumItem comment="SERIAL-RXD" id="59"/>
+<pinnumItem comment="TFT-SCL" id="160"/>
+<pinnumItem comment="TFT-SDA" id="163"/>
+<pinnumItem comment="OnTFT-INT" id="170"/>
+<pinnumItem comment="VREFL0" id="172"/>
+<pinnumItem comment="P40" id="173"/>
+<pinnumItem comment="VREFH0" id="174"/>
+<pinnumItem comment="AVCC0" id="175"/>
+<pinnumItem comment="P07" id="176"/>
+<pinnumItem comment="ET-ET0ERXD1_RMII0RXD1" id="88"/>
+<pinnumItem comment="ET-ET0ERXD2" id="89"/>
+<pinnumItem comment="ET-ET0ERXD3" id="91"/>
 <pinnumItem comment="LED0" id="93"/>
 <pinnumItem comment="OnTFT-BACKLIGHT" id="94"/>
 <pinnumItem comment="SDRAM-A14" id="95"/>
@@ -263,21 +323,13 @@
 <pinnumItem comment="PMOD1-CS" id="13"/>
 <pinnumItem comment="TRST#" id="17"/>
 <pinnumItem comment="XCIN" id="19"/>
-<pinnumItem comment="SDRAM-DQMH" id="120"/>
-<pinnumItem comment="PMOD1-IO3" id="121"/>
 <pinnumItem comment="AVSS0" id="1"/>
-<pinnumItem comment="LED2" id="122"/>
 <pinnumItem comment="SW2" id="2"/>
-<pinnumItem comment="RL78G1CRTS" id="123"/>
 <pinnumItem comment="AVCC1" id="3"/>
-<pinnumItem comment="SDRAM-CKE" id="124"/>
 <pinnumItem comment="SW1" id="4"/>
-<pinnumItem comment="OnTFT-G6" id="125"/>
 <pinnumItem comment="AVSS1" id="5"/>
-<pinnumItem comment="OnTFT-G7" id="126"/>
 <pinnumItem comment="PMOD1-SCK" id="6"/>
 <pinnumItem comment="PMOD1-MISO" id="7"/>
-<pinnumItem comment="SDRAM-SDCLK" id="128"/>
 <pinnumItem comment="PMOD1-MOSI" id="8"/>
 <pinnumItem comment="PMOD1-IO1" id="9"/>
 <pinnumItem comment="XCOUT" id="20"/>
@@ -287,19 +339,7 @@
 <pinnumItem comment="NMI" id="26"/>
 <pinnumItem comment="ET-ET0LINKSTA" id="27"/>
 <pinnumItem comment="CAN1RX" id="28"/>
-<pinnumItem comment="CAN1TX" id="29"/>
-<pinnumItem comment="OnTFT-B3" id="130"/>
-<pinnumItem comment="OnTFT-B4" id="131"/>
-<pinnumItem comment="OnTFT-B5" id="132"/>
-<pinnumItem comment="OnTFT-B6" id="133"/>
-<pinnumItem comment="OnTFT-B7" id="134"/>
-<pinnumItem comment="SDRAM-D8" id="135"/>
-<pinnumItem comment="WE#/" id="136"/>
-<pinnumItem comment="SDRAM-CASn" id="137"/>
-<pinnumItem comment="DRAM-RASn" id="138"/>
-<pinnumItem comment="SDRAM-SDCSn" id="139"/>
 <pinnumItem comment="E1-TMS" id="30"/>
-<pinnumItem comment="E1-TDI_RXD" id="31"/>
 <pinnumItem comment="RSPI-CS" id="32"/>
 <pinnumItem comment="RSPI-MISO" id="33"/>
 <pinnumItem comment="E1-TCK" id="34"/>
@@ -307,12 +347,6 @@
 <pinnumItem comment="RSPI-CLK" id="36"/>
 <pinnumItem comment="RSPI-MOSI" id="37"/>
 <pinnumItem comment="SDHI_CD" id="38"/>
-<pinnumItem comment="JA3-Csa" id="141"/>
-<pinnumItem comment="QIO1-B" id="143"/>
-<pinnumItem comment="QIO0-B" id="145"/>
-<pinnumItem comment="QSPCLK-B" id="147"/>
-<pinnumItem comment="QSSL-B" id="148"/>
-<pinnumItem comment="OnTFT-DISP" id="149"/>
 <pinnumItem comment="SDHI_WP" id="40"/>
 <pinnumItem comment="SDHI-D1" id="42"/>
 <pinnumItem comment="SDHI_D0" id="43"/>
@@ -321,42 +355,18 @@
 <pinnumItem comment="SDHI_D3" id="46"/>
 <pinnumItem comment="SDHI_D2" id="47"/>
 <pinnumItem comment="USB0_VBUS" id="48"/>
-<pinnumItem comment="SDHIPE" id="49"/>
-<pinnumItem comment="QIO3-B" id="150"/>
-<pinnumItem comment="QIO2-B" id="154"/>
-<pinnumItem comment="SDRAM-D1" id="156"/>
-<pinnumItem comment="SDRAM-D0" id="158"/>
-<pinnumItem comment="PMOD1-IO0" id="50"/>
 <pinnumItem comment="USB0_OVRCURA" id="51"/>
 <pinnumItem comment="E2P-SDA" id="52"/>
 <pinnumItem comment="E2P-SCL" id="53"/>
 <pinnumItem comment="SERIAL-TXD" id="58"/>
-<pinnumItem comment="SERIAL-RXD" id="59"/>
-<pinnumItem comment="TFT-SCL" id="160"/>
-<pinnumItem comment="TFT-SDA" id="163"/>
 <pinnumItem comment="SERIAL-CTS" id="68"/>
-<pinnumItem comment="OnTFT-INT" id="170"/>
-<pinnumItem comment="VREFL0" id="172"/>
-<pinnumItem comment="P40" id="173"/>
-<pinnumItem comment="VREFH0" id="174"/>
-<pinnumItem comment="AVCC0" id="175"/>
-<pinnumItem comment="P07" id="176"/>
 <pinnumItem comment="ET-ET0CRS_RMII0CRSDV" id="74"/>
 <pinnumItem comment="ET-ET0COL" id="76"/>
 <pinnumItem comment="ET-ET0ETXD3" id="77"/>
 <pinnumItem comment="ET-ET0ETXD2" id="78"/>
-<pinnumItem comment="ET-ET0ETXD1_RMII0TXD1" id="79"/>
 <pinnumItem comment="OnTFT-DEN" id="100"/>
-<pinnumItem comment="ET-ET0MDC" id="101"/>
-<pinnumItem comment="ET-ET0MDIO" id="102"/>
-<pinnumItem comment="OnTFT-R3" id="104"/>
-<pinnumItem comment="OnTFT-R4" id="106"/>
-<pinnumItem comment="ET-ET0ETXD0_RMII0TXD0" id="80"/>
-<pinnumItem comment="OnTFT-R5" id="107"/>
 <pinnumItem comment="ET-ET0TXEN_RMII0TXDEN" id="81"/>
-<pinnumItem comment="OnTFT-R6" id="108"/>
 <pinnumItem comment="ET-ET0TXCLK" id="82"/>
-<pinnumItem comment="OnTFT-R7" id="109"/>
 <pinnumItem comment="ET-ET0RXER_RMII0RXER" id="84"/>
 <pinnumItem comment="ET-ET0RXCLK_REF50CK0" id="85"/>
 <pinnumItem comment="ET-ET0RXDV" id="86"/>
@@ -442,7 +452,7 @@
 <Item id="BL0" priority="15"/>
 <Item id="BL1" priority="15"/>
 <Item id="AL0" priority="15"/>
-<Item id="AL1" priority="15"/>
+<Item id="AL1" priority="2"/>
 <Item id="SCI11_RXI11" priority="15"/>
 <Item id="SCI11_TXI11" priority="15"/>
 <Item id="SCI12_RXI12" priority="15"/>
@@ -593,9 +603,9 @@
 <gridItem id="BSP_CFG_ISTACK_BYTES" selectedIndex="0x400"/>
 <gridItem id="BSP_CFG_HEAP_BYTES" selectedIndex="0x400"/>
 <gridItem id="BSP_CFG_IO_LIB_ENABLE" selectedIndex="1"/>
-<gridItem id="BSP_CFG_USER_CHARGET_ENABLED" selectedIndex="1"/>
+<gridItem id="BSP_CFG_USER_CHARGET_ENABLED" selectedIndex="0"/>
 <gridItem id="BSP_CFG_USER_CHARGET_FUNCTION" selectedIndex="my_sw_charget_function"/>
-<gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="1"/>
+<gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="0"/>
 <gridItem id="BSP_CFG_USER_CHARPUT_FUNCTION" selectedIndex="my_sw_charput_function"/>
 <gridItem id="BSP_CFG_RUN_IN_USER_MODE" selectedIndex="0"/>
 <gridItem id="BSP_CFG_ID_CODE_LONG_1" selectedIndex="0xFFFFFFFF"/>
@@ -638,6 +648,345 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
+<configuration id="46eb7c1e-a9e9-4727-a675-cd2793e0d8cf" inuse="true" name="FreeRTOS_Object">
+<allocatable id="OBJECT" name="OBJECT">
+<allocatable id="TASK" name="TASK">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="QUEUE" name="QUEUE">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="SEMAPHORE" name="SEMAPHORE">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="SWTIMER" name="SWTIMER">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="EVENTGROUP" name="EVENTGROUP">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="STREAMBUFFER" name="STREAMBUFFER">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+<allocatable id="MESSAGEBUFFER" name="MESSAGEBUFFER">
+<option defaultValue="0" id="LinkNum" value=""/>
+</allocatable>
+</allocatable>
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to create and configure new object of FreeRTOS." detailDescription="" display="FreeRTOS_Object" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.object" version="1.0.0"/>
+<allocator description="FreeRTOS Object component for RX" display="FreeRTOS_Object" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.object.rx" type="object">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="1c2fea2b-a2bc-46e1-a6fd-d14561236f0a" inuse="true" name="FreeRTOS_Kernel">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="FreeRTOS_kernel" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.kernel" version="1.0.0">
+<gridItem id="configENABLE_BACKWARD_COMPATIBILITY" selectedIndex="1"/>
+<gridItem id="configUSE_PREEMPTION" selectedIndex="1"/>
+<gridItem id="configUSE_PORT_OPTIMISED_TASK_SELECTION" selectedIndex="0"/>
+<gridItem id="configMAX_PRIORITIES" selectedIndex="7"/>
+<gridItem id="configTICK_RATE_HZ" selectedIndex="1000"/>
+<gridItem id="configMINIMAL_STACK_SIZE" selectedIndex="( unsigned short ) 512"/>
+<gridItem id="configTOTAL_HEAP_SIZE" selectedIndex="( size_t ) ( 256U * 1024U )"/>
+<gridItem id="configMAX_TASK_NAME_LEN" selectedIndex="12"/>
+<gridItem id="configUSE_TRACE_FACILITY" selectedIndex="1"/>
+<gridItem id="configUSE_16_BIT_TICKS" selectedIndex="0"/>
+<gridItem id="configIDLE_SHOULD_YIELD" selectedIndex="1"/>
+<gridItem id="configUSE_MUTEXES" selectedIndex="1"/>
+<gridItem id="configUSE_RECURSIVE_MUTEXES" selectedIndex="1"/>
+<gridItem id="configQUEUE_REGISTRY_SIZE" selectedIndex="0"/>
+<gridItem id="configUSE_APPLICATION_TASK_TAG" selectedIndex="0"/>
+<gridItem id="configUSE_COUNTING_SEMAPHORES" selectedIndex="1"/>
+<gridItem id="configUSE_ALTERNATIVE_API" selectedIndex="0"/>
+<gridItem id="configNUM_THREAD_LOCAL_STORAGE_POINTERS" selectedIndex="3"/>
+<gridItem id="configRECORD_STACK_HIGH_ADDRESS" selectedIndex="1"/>
+<gridItem id="configUSE_DAEMON_TASK_STARTUP_HOOK" selectedIndex="1"/>
+<gridItem id="configCPU_CLOCK_HZ" selectedIndex="BSP_ICLK_HZ"/>
+<gridItem id="configPERIPHERAL_CLOCK_HZ" selectedIndex="BSP_PCLKB_HZ"/>
+<gridItem id="configUSE_QUEUE_SETS" selectedIndex="1"/>
+<gridItem id="configUSE_TICK_HOOK" selectedIndex="0"/>
+<gridItem id="configUSE_IDLE_HOOK" selectedIndex="0"/>
+<gridItem id="configUSE_MALLOC_FAILED_HOOK" selectedIndex="1"/>
+<gridItem id="configCHECK_FOR_STACK_OVERFLOW" selectedIndex="0"/>
+<gridItem id="configUSE_TIMERS" selectedIndex="1"/>
+<gridItem id="configTIMER_TASK_PRIORITY" selectedIndex="configMAX_PRIORITIES - 1"/>
+<gridItem id="configTIMER_QUEUE_LENGTH" selectedIndex="5"/>
+<gridItem id="configTIMER_TASK_STACK_DEPTH" selectedIndex="configMINIMAL_STACK_SIZE * 6"/>
+<gridItem id="configKERNEL_INTERRUPT_PRIORITY" selectedIndex="1"/>
+<gridItem id="configMAX_SYSCALL_INTERRUPT_PRIORITY" selectedIndex="4"/>
+<gridItem id="configTICK_VECTOR" selectedIndex="0"/>
+<gridItem id="configUSE_EVENT_GROUPS" selectedIndex="1"/>
+<gridItem id="configGENERATE_RUN_TIME_STATS" selectedIndex="0"/>
+<gridItem id="configUSE_CO_ROUTINES" selectedIndex="0"/>
+<gridItem id="configMAX_CO_ROUTINE_PRIORITIES" selectedIndex="2"/>
+<gridItem id="configSUPPORT_DYNAMIC_ALLOCATION" selectedIndex="1"/>
+<gridItem id="configSUPPORT_STATIC_ALLOCATION" selectedIndex="1"/>
+<gridItem id="INCLUDE_vTaskPrioritySet" selectedIndex="1"/>
+<gridItem id="INCLUDE_uxTaskPriorityGet" selectedIndex="1"/>
+<gridItem id="INCLUDE_vTaskDelete" selectedIndex="1"/>
+<gridItem id="INCLUDE_vTaskCleanUpResources" selectedIndex="0"/>
+<gridItem id="INCLUDE_vTaskSuspend" selectedIndex="1"/>
+<gridItem id="INCLUDE_vTaskDelayUntil" selectedIndex="1"/>
+<gridItem id="INCLUDE_vTaskDelay" selectedIndex="1"/>
+<gridItem id="INCLUDE_uxTaskGetStackHighWaterMark" selectedIndex="1"/>
+<gridItem id="INCLUDE_xTaskGetSchedulerState" selectedIndex="1"/>
+<gridItem id="INCLUDE_xTimerGetTimerTaskHandle" selectedIndex="0"/>
+<gridItem id="INCLUDE_xTaskGetIdleTaskHandle" selectedIndex="0"/>
+<gridItem id="INCLUDE_xQueueGetMutexHolder" selectedIndex="1"/>
+<gridItem id="INCLUDE_eTaskGetState" selectedIndex="1"/>
+<gridItem id="INCLUDE_xEventGroupSetBitsFromISR" selectedIndex="1"/>
+<gridItem id="INCLUDE_xTimerPendFunctionCall" selectedIndex="1"/>
+<gridItem id="INCLUDE_xTaskGetCurrentTaskHandle" selectedIndex="1"/>
+<gridItem id="INCLUDE_xTaskAbortDelay" selectedIndex="1"/>
+<gridItem id="configUSE_STATS_FORMATTING_FUNCTIONS" selectedIndex="1"/>
+<gridItem id="configPRINTF ( X )" selectedIndex="vLoggingPrintf X"/>
+<gridItem id="configPRINT( X )" selectedIndex="vLoggingPrint( X )"/>
+<gridItem id="configPRINT_STRING( x )" selectedIndex="uart_string_printf( x )"/>
+<gridItem id="configLOGGING_MAX_MESSAGE_LENGTH" selectedIndex="192"/>
+<gridItem id="configLOGGING_INCLUDE_TIME_AND_TASK_NAME" selectedIndex="1"/>
+<gridItem id="configINCLUDE_DEMO_DEBUG_STATS" selectedIndex="1"/>
+<gridItem id="configCOMMAND_INT_MAX_OUTPUT_SIZE" selectedIndex="1"/>
+<gridItem id="configMAC_ISR_SIMULATOR_PRIORITY" selectedIndex="configMAX_PRIORITIES - 1"/>
+<gridItem id="configNETWORK_INTERFACE_TO_USE" selectedIndex="2L"/>
+<gridItem id="configECHO_SERVER_ADDR0" selectedIndex="192"/>
+<gridItem id="configECHO_SERVER_ADDR1" selectedIndex="168"/>
+<gridItem id="configECHO_SERVER_ADDR2" selectedIndex="1"/>
+<gridItem id="configECHO_SERVER_ADDR3" selectedIndex="200"/>
+<gridItem id="configTCP_ECHO_CLIENT_PORT" selectedIndex="9999"/>
+<gridItem id="configMAC_ADDR0" selectedIndex="0x74"/>
+<gridItem id="configMAC_ADDR1" selectedIndex="0x90"/>
+<gridItem id="configMAC_ADDR2" selectedIndex="0x50"/>
+<gridItem id="configMAC_ADDR3" selectedIndex="0x00"/>
+<gridItem id="configMAC_ADDR4" selectedIndex="0x79"/>
+<gridItem id="configMAC_ADDR5" selectedIndex="0x03"/>
+<gridItem id="configIP_ADDR0" selectedIndex="172"/>
+<gridItem id="configIP_ADDR1" selectedIndex="27"/>
+<gridItem id="configIP_ADDR2" selectedIndex="49"/>
+<gridItem id="configIP_ADDR3" selectedIndex="127"/>
+<gridItem id="configGATEWAY_ADDR0" selectedIndex="172"/>
+<gridItem id="configGATEWAY_ADDR1" selectedIndex="27"/>
+<gridItem id="configGATEWAY_ADDR2" selectedIndex="49"/>
+<gridItem id="configGATEWAY_ADDR3" selectedIndex="1"/>
+<gridItem id="configDNS_SERVER_ADDR0" selectedIndex="143"/>
+<gridItem id="configDNS_SERVER_ADDR1" selectedIndex="103"/>
+<gridItem id="configDNS_SERVER_ADDR2" selectedIndex="47"/>
+<gridItem id="configDNS_SERVER_ADDR3" selectedIndex="193"/>
+<gridItem id="configNET_MASK0" selectedIndex="8"/>
+<gridItem id="configNET_MASK1" selectedIndex="8"/>
+<gridItem id="configNET_MASK2" selectedIndex="8"/>
+<gridItem id="configNET_MASK3" selectedIndex="0"/>
+<gridItem id="configPRINT_PORT" selectedIndex="15000"/>
+<gridItem id="configPROFILING" selectedIndex="0"/>
+<gridItem id="configRAND32()" selectedIndex="ulRand()"/>
+<gridItem id="configPLATFORM_NAME" selectedIndex="&quot;RenesasRX65N&quot;"/>
+<gridItem id="configINCLUDE_PLATFORM_H_INSTEAD_OF_IODEFINE_H" selectedIndex="1"/>
+</component>
+<allocator description="FreeRTOS Amazon kernel component" display="AWS_kernel" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.kernel.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="7c8ff464-2c08-48c7-bab0-d198e4db1a68" inuse="true" name="AWS_device_shadow">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_device_shadow" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.device_shadow" version="1.0.0">
+<gridItem id="shadowConfigJSON_JSMN_TOKENS" selectedIndex="64"/>
+<gridItem id="shadowConfigJSON_CLIENT_TOKEN" selectedIndex="&quot;clientToken&quot;"/>
+<gridItem id="shadowConfigUNIQUE_CLIENT_TOKEN_CHECK" selectedIndex="1"/>
+</component>
+<allocator description="FreeRTOS Amazon device shadow component" display="AWS_shadow" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.device_shadow.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="aef4e026-3276-45f8-8f86-e416aa54a6c0" inuse="true" name="AWS_tcp_ip">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_tcp_ip" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.tcp_ip" version="1.0.0">
+<gridItem id="ipconfigHAS_DEBUG_PRINTF" selectedIndex="1"/>
+<gridItem id="ipconfigHAS_PRINTF" selectedIndex="0"/>
+<gridItem id="ipconfigBYTE_ORDER" selectedIndex="0"/>
+<gridItem id="ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM" selectedIndex="0"/>
+<gridItem id="ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME" selectedIndex="10000"/>
+<gridItem id="ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME" selectedIndex="10000"/>
+<gridItem id="ipconfigUSE_DNS_CACHE" selectedIndex="0"/>
+<gridItem id="ipconfigDNS_REQUEST_ATTEMPTS" selectedIndex="2"/>
+<gridItem id="ipconfigIP_TASK_PRIORITY" selectedIndex="configMAX_PRIORITIES - 2"/>
+<gridItem id="ipconfigIP_TASK_STACK_SIZE_WORDS" selectedIndex="configMINIMAL_STACK_SIZE * 5"/>
+<gridItem id="ipconfigUSE_NETWORK_EVENT_HOOK" selectedIndex="0"/>
+<gridItem id="ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS" selectedIndex="5000 / portTICK_PERIOD_MS"/>
+<gridItem id="ipconfigUSE_DHCP" selectedIndex="0"/>
+<gridItem id="ipconfigDHCP_REGISTER_HOSTNAME" selectedIndex="0"/>
+<gridItem id="ipconfigDHCP_USES_UNICAST" selectedIndex="0"/>
+<gridItem id="ipconfigDHCP_SEND_DISCOVER_AFTER_AUTO_IP" selectedIndex="1"/>
+<gridItem id="ipconfigUSE_DHCP_HOOK" selectedIndex="1"/>
+<gridItem id="ipconfigMAXIMUM_DISCOVER_TX_PERIOD" selectedIndex="120000 / portTICK_PERIOD_MS"/>
+<gridItem id="ipconfigARP_CACHE_ENTRIES" selectedIndex="6"/>
+<gridItem id="ipconfigMAX_ARP_RETRANSMISSIONS" selectedIndex="5"/>
+<gridItem id="ipconfigMAX_ARP_AGE" selectedIndex="150"/>
+<gridItem id="ipconfigINCLUDE_FULL_INET_ADDR" selectedIndex="1"/>
+<gridItem id="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" selectedIndex="8"/>
+<gridItem id="ipconfigEVENT_QUEUE_LENGTH" selectedIndex="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5"/>
+<gridItem id="ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND" selectedIndex="0"/>
+<gridItem id="ipconfigUDP_TIME_TO_LIVE" selectedIndex="128"/>
+<gridItem id="ipconfigTCP_TIME_TO_LIVE" selectedIndex="128"/>
+<gridItem id="ipconfigUSE_TCP" selectedIndex="0"/>
+<gridItem id="ipconfigUSE_TCP_WIN" selectedIndex="1"/>
+<gridItem id="ipconfigNETWORK_MTU" selectedIndex="1500"/>
+<gridItem id="ipconfigUSE_DNS" selectedIndex="0"/>
+<gridItem id="ipconfigREPLY_TO_INCOMING_PINGS" selectedIndex="0"/>
+<gridItem id="ipconfigSUPPORT_OUTGOING_PINGS" selectedIndex="1"/>
+<gridItem id="ipconfigSUPPORT_SELECT_FUNCTION" selectedIndex="1"/>
+<gridItem id="ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES" selectedIndex="0"/>
+<gridItem id="ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES" selectedIndex="1"/>
+<gridItem id="configWINDOWS_MAC_INTERRUPT_SIMULATOR_DELAY" selectedIndex="20 / portTICK_PERIOD_MS"/>
+<gridItem id="ipconfigPACKET_FILLER_SIZE" selectedIndex="2"/>
+<gridItem id="ipconfigTCP_WIN_SEG_COUNT" selectedIndex="240"/>
+<gridItem id="ipconfigTCP_RX_BUFFER_LENGTH" selectedIndex="1460 * 3"/>
+<gridItem id="ipconfigTCP_TX_BUFFER_LENGTH" selectedIndex="1460 * 3"/>
+<gridItem id="ipconfigTCP_KEEP_ALIVE" selectedIndex="0"/>
+<gridItem id="ipconfigTCP_KEEP_ALIVE_INTERVAL" selectedIndex="20"/>
+<gridItem id="ipconfigSOCKET_HAS_USER_SEMAPHORE" selectedIndex="1"/>
+<gridItem id="ipconfigSOCKET_HAS_USER_WAKE_CALLBACK" selectedIndex="0"/>
+<gridItem id="ipconfigUSE_CALLBACKS" selectedIndex="1"/>
+<gridItem id="ipconfigZERO_COPY_TX_DRIVER" selectedIndex="1"/>
+<gridItem id="ipconfigZERO_COPY_RX_DRIVER" selectedIndex="1"/>
+<gridItem id="ipconfigUSE_LINKED_RX_MESSAGES" selectedIndex="1"/>
+</component>
+<allocator description="FreeRTOS Amazon component" display="AWS_tcp_ip" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.tcp_ip.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="21c046a0-2474-482f-9b48-fb21a0bcf300" inuse="true" name="AWS_mqtt">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_mqtt" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.mqtt" version="1.0.0">
+<gridItem id="mqttconfigENABLE_METRICS" selectedIndex="0"/>
+<gridItem id="mqttOPERATION_TIMEOUT_MS" selectedIndex="120000"/>
+<gridItem id="mqttconfigKEEP_ALIVE_INTERVAL_SECONDS" selectedIndex="100"/>
+<gridItem id="mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS" selectedIndex="pdMS_TO_TICKS( 300000 )"/>
+<gridItem id="mqttconfigKEEP_ALIVE_TIMEOUT_TICKS" selectedIndex="1000"/>
+<gridItem id="mqttconfigMQTT_TASK_STACK_DEPTH" selectedIndex="2048"/>
+<gridItem id="mqttconfigMQTT_TASK_PRIORITY" selectedIndex="configMAX_PRIORITIES - 3"/>
+<gridItem id="mqttconfigMAX_BROKERS" selectedIndex="2"/>
+<gridItem id="mqttconfigMAX_PARALLEL_OPS" selectedIndex="5"/>
+<gridItem id="mqttconfigTCP_SEND_TIMEOUT_MS" selectedIndex="20"/>
+<gridItem id="mqttconfigRX_BUFFER_SIZE" selectedIndex="1024"/>
+<gridItem id="mqttconfigMQTT_TASK_MAX_BLOCK_TICKS" selectedIndex="100"/>
+<gridItem id="mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT" selectedIndex="0"/>
+<gridItem id="mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH" selectedIndex="128"/>
+<gridItem id="mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS" selectedIndex="8"/>
+<gridItem id="mqttconfigENABLE_DEBUG_LOGS" selectedIndex="1"/>
+</component>
+<allocator description="FreeRTOS Amazon mqtt component" display="AWS_mqtt" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.mqtt.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="f7e8c596-34b7-4347-bea1-e542d2b40577" inuse="true" name="AWS_secure_socket">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_secure_socket" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.secure_socket" version="1.0.0">
+<gridItem id="socketsconfigBYTE_ORDER" selectedIndex="0"/>
+<gridItem id="socketsconfigDEFAULT_SEND_TIMEOUT" selectedIndex="10000"/>
+<gridItem id="socketsconfigDEFAULT_RECV_TIMEOUT" selectedIndex="10000"/>
+</component>
+<allocator description="FreeRTOS Amazon secure socket component" display="AWS_secure_socket" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.secure_socket.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration id="7b9017e6-94f5-4a54-8233-fffb30714610" inuse="true" name="AWS_ggd">
+<component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_ggd" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.ggd" version="1.0.0">
+<gridItem id="ggdconfigCORE_NETWORK_INTERFACE" selectedIndex="0"/>
+<gridItem id="ggdconfigJSON_MAX_TOKENS" selectedIndex="128"/>
+</component>
+<allocator description="FreeRTOS Amazon gdd component" display="AWS_ggd" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.ggd.rx" type="gridConfiguration">
+<context/>
+</allocator>
+<source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
+</configuration>
+<configuration inuse="true" name="r_s12ad_rx">
+<component description="依存モジュール: r_bsp バージョン 5.20&#10;This A/D driver supports the temperature sensor, internal reference voltage sensor, and all analog channels available on the MCU. Single scan and continuous scanning are supported. Group and Double Trigger modes are supported. Triggers may be synchronous, asynchronous, or initiated by software. " detailDescription="Multi-Channel A/D and Sensor Driver." display="r_s12ad_rx" id="r_s12ad_rx4.20" version="4.20">
+<gridItem id="AN000" selectedIndex="0"/>
+<gridItem id="AN001" selectedIndex="0"/>
+<gridItem id="AN002" selectedIndex="0"/>
+<gridItem id="AN003" selectedIndex="0"/>
+<gridItem id="AN004" selectedIndex="0"/>
+<gridItem id="AN005" selectedIndex="0"/>
+<gridItem id="AN006" selectedIndex="0"/>
+<gridItem id="AN007" selectedIndex="0"/>
+<gridItem id="AN008" selectedIndex="0"/>
+<gridItem id="AN009" selectedIndex="0"/>
+<gridItem id="AN010" selectedIndex="0"/>
+<gridItem id="AN011" selectedIndex="0"/>
+<gridItem id="AN012" selectedIndex="0"/>
+<gridItem id="AN013" selectedIndex="0"/>
+<gridItem id="AN014" selectedIndex="0"/>
+<gridItem id="AN015" selectedIndex="0"/>
+<gridItem id="AN016" selectedIndex="0"/>
+<gridItem id="AN017" selectedIndex="0"/>
+<gridItem id="AN018" selectedIndex="0"/>
+<gridItem id="AN019" selectedIndex="0"/>
+<gridItem id="AN020" selectedIndex="0"/>
+<gridItem id="AN021" selectedIndex="0"/>
+<gridItem id="AN022" selectedIndex="0"/>
+<gridItem id="AN023" selectedIndex="0"/>
+<gridItem id="AN024" selectedIndex="0"/>
+<gridItem id="AN025" selectedIndex="0"/>
+<gridItem id="AN026" selectedIndex="0"/>
+<gridItem id="AN027" selectedIndex="0"/>
+<gridItem id="AN028" selectedIndex="0"/>
+<gridItem id="AN029" selectedIndex="0"/>
+<gridItem id="AN030" selectedIndex="0"/>
+<gridItem id="AN031" selectedIndex="0"/>
+<gridItem id="VREFH0" selectedIndex="0"/>
+<gridItem id="VREFL0" selectedIndex="0"/>
+<gridItem id="ADTRG0#" selectedIndex="0"/>
+<gridItem id="ADST0" selectedIndex="0"/>
+<gridItem id="PGAVSS0" selectedIndex="0"/>
+<gridItem id="S12AD0" selectedIndex="0"/>
+<gridItem id="AN100" selectedIndex="0"/>
+<gridItem id="AN101" selectedIndex="0"/>
+<gridItem id="AN102" selectedIndex="0"/>
+<gridItem id="AN103" selectedIndex="0"/>
+<gridItem id="AN104" selectedIndex="0"/>
+<gridItem id="AN105" selectedIndex="0"/>
+<gridItem id="AN106" selectedIndex="0"/>
+<gridItem id="AN107" selectedIndex="0"/>
+<gridItem id="AN108" selectedIndex="0"/>
+<gridItem id="AN109" selectedIndex="0"/>
+<gridItem id="AN110" selectedIndex="0"/>
+<gridItem id="AN111" selectedIndex="0"/>
+<gridItem id="AN112" selectedIndex="0"/>
+<gridItem id="AN113" selectedIndex="0"/>
+<gridItem id="AN114" selectedIndex="0"/>
+<gridItem id="AN115" selectedIndex="0"/>
+<gridItem id="AN116" selectedIndex="0"/>
+<gridItem id="AN117" selectedIndex="0"/>
+<gridItem id="AN118" selectedIndex="0"/>
+<gridItem id="AN119" selectedIndex="0"/>
+<gridItem id="AN120" selectedIndex="0"/>
+<gridItem id="ANEX0" selectedIndex="0"/>
+<gridItem id="ANEX1" selectedIndex="0"/>
+<gridItem id="ADTRG1#" selectedIndex="0"/>
+<gridItem id="ADST1" selectedIndex="0"/>
+<gridItem id="PGAVSS1" selectedIndex="0"/>
+<gridItem id="S12AD1" selectedIndex="0"/>
+<gridItem id="AN200" selectedIndex="0"/>
+<gridItem id="AN201" selectedIndex="0"/>
+<gridItem id="AN202" selectedIndex="0"/>
+<gridItem id="AN203" selectedIndex="0"/>
+<gridItem id="AN204" selectedIndex="0"/>
+<gridItem id="AN205" selectedIndex="0"/>
+<gridItem id="AN206" selectedIndex="0"/>
+<gridItem id="AN207" selectedIndex="0"/>
+<gridItem id="AN208" selectedIndex="0"/>
+<gridItem id="AN209" selectedIndex="0"/>
+<gridItem id="AN210" selectedIndex="0"/>
+<gridItem id="AN211" selectedIndex="0"/>
+<gridItem id="AN216" selectedIndex="0"/>
+<gridItem id="AN217" selectedIndex="0"/>
+<gridItem id="ADTRG2#" selectedIndex="0"/>
+<gridItem id="ADST2" selectedIndex="0"/>
+<gridItem id="S12AD2" selectedIndex="0"/>
+<gridItem id="ADC_CFG_PARAM_CHECKING_ENABLE" selectedIndex="0"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
 <configuration inuse="true" name="r_flash_rx">
 <component description="依存モジュール: r_bsp バージョン 5.20&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.20" version="4.20">
 <gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
@@ -645,6 +994,101 @@
 <gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
 <gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
 <gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration inuse="true" name="r_ether_rx">
+<component description="依存モジュール: r_bsp バージョン 5.20&#10;The Ethernet fit module provides a method to send and receive Ethernet / IEEE802.3 frame using Ethernet controller (ETHERC), Ethernet DMA controller (EDMAC)." detailDescription="Ethernet Driver." display="r_ether_rx" id="r_ether_rx1.17" version="1.17">
+<gridItem id="CLKOUT25M" selectedIndex="0"/>
+<gridItem id="ET0_TX_CLK" selectedIndex="1"/>
+<gridItem id="ET0_RX_CLK" selectedIndex="1"/>
+<gridItem id="ET0_TX_EN" selectedIndex="1"/>
+<gridItem id="ET0_ETXD3" selectedIndex="1"/>
+<gridItem id="ET0_ETXD2" selectedIndex="1"/>
+<gridItem id="ET0_ETXD1" selectedIndex="1"/>
+<gridItem id="ET0_ETXD0" selectedIndex="1"/>
+<gridItem id="ET0_TX_ER" selectedIndex="1"/>
+<gridItem id="ET0_RX_DV" selectedIndex="1"/>
+<gridItem id="ET0_ERXD3" selectedIndex="1"/>
+<gridItem id="ET0_ERXD2" selectedIndex="1"/>
+<gridItem id="ET0_ERXD1" selectedIndex="1"/>
+<gridItem id="ET0_ERXD0" selectedIndex="1"/>
+<gridItem id="ET0_RX_ER" selectedIndex="1"/>
+<gridItem id="ET0_CRS" selectedIndex="1"/>
+<gridItem id="ET0_COL" selectedIndex="1"/>
+<gridItem id="ET0_MDC" selectedIndex="1"/>
+<gridItem id="ET0_MDIO" selectedIndex="1"/>
+<gridItem id="ET0_LINKSTA" selectedIndex="1"/>
+<gridItem id="ET0_EXOUT" selectedIndex="0"/>
+<gridItem id="ET0_WOL" selectedIndex="0"/>
+<gridItem id="ETHERC0_MII" selectedIndex="1"/>
+<gridItem id="REF50CK0" selectedIndex="0"/>
+<gridItem id="RMII0_TXD_EN" selectedIndex="0"/>
+<gridItem id="RMII0_TXD1" selectedIndex="0"/>
+<gridItem id="RMII0_TXD0" selectedIndex="0"/>
+<gridItem id="RMII0_RXD1" selectedIndex="0"/>
+<gridItem id="RMII0_RXD0" selectedIndex="0"/>
+<gridItem id="RMII0_RX_ER" selectedIndex="0"/>
+<gridItem id="RMII0_CRS_DV" selectedIndex="0"/>
+<gridItem id="ET0_MDC" selectedIndex="1"/>
+<gridItem id="ET0_MDIO" selectedIndex="1"/>
+<gridItem id="ET0_LINKSTA" selectedIndex="1"/>
+<gridItem id="ET0_EXOUT" selectedIndex="0"/>
+<gridItem id="ET0_WOL" selectedIndex="0"/>
+<gridItem id="ETHERC0_RMII" selectedIndex="0"/>
+<gridItem id="CLKOUT25M" selectedIndex="0"/>
+<gridItem id="ET1_TX_CLK" selectedIndex="0"/>
+<gridItem id="ET1_RX_CLK" selectedIndex="0"/>
+<gridItem id="ET1_TX_EN" selectedIndex="0"/>
+<gridItem id="ET1_ETXD3" selectedIndex="0"/>
+<gridItem id="ET1_ETXD2" selectedIndex="0"/>
+<gridItem id="ET1_ETXD1" selectedIndex="0"/>
+<gridItem id="ET1_ETXD0" selectedIndex="0"/>
+<gridItem id="ET1_TX_ER" selectedIndex="0"/>
+<gridItem id="ET1_RX_DV" selectedIndex="0"/>
+<gridItem id="ET1_ERXD3" selectedIndex="0"/>
+<gridItem id="ET1_ERXD2" selectedIndex="0"/>
+<gridItem id="ET1_ERXD1" selectedIndex="0"/>
+<gridItem id="ET1_ERXD0" selectedIndex="0"/>
+<gridItem id="ET1_RX_ER" selectedIndex="0"/>
+<gridItem id="ET1_CRS" selectedIndex="0"/>
+<gridItem id="ET1_COL" selectedIndex="0"/>
+<gridItem id="ET1_MDC" selectedIndex="0"/>
+<gridItem id="ET1_MDIO" selectedIndex="0"/>
+<gridItem id="ET1_LINKSTA" selectedIndex="0"/>
+<gridItem id="ET1_EXOUT" selectedIndex="0"/>
+<gridItem id="ET1_WOL" selectedIndex="0"/>
+<gridItem id="ETHERC1_MII" selectedIndex="0"/>
+<gridItem id="REF50CK1" selectedIndex="0"/>
+<gridItem id="RMII1_TXD_EN" selectedIndex="0"/>
+<gridItem id="RMII1_TXD1" selectedIndex="0"/>
+<gridItem id="RMII1_TXD0" selectedIndex="0"/>
+<gridItem id="RMII1_RXD1" selectedIndex="0"/>
+<gridItem id="RMII1_RXD0" selectedIndex="0"/>
+<gridItem id="RMII1_RX_ER" selectedIndex="0"/>
+<gridItem id="RMII1_CRS_DV" selectedIndex="0"/>
+<gridItem id="ET1_MDC" selectedIndex="0"/>
+<gridItem id="ET1_MDIO" selectedIndex="0"/>
+<gridItem id="ET1_LINKSTA" selectedIndex="0"/>
+<gridItem id="ET1_EXOUT" selectedIndex="0"/>
+<gridItem id="ET1_WOL" selectedIndex="0"/>
+<gridItem id="ETHERC1_RMII" selectedIndex="0"/>
+<gridItem id="ETHER_CFG_MODE_SEL" selectedIndex="0"/>
+<gridItem id="ETHER_CFG_CH0_PHY_ADDRESS" selectedIndex="30"/>
+<gridItem id="ETHER_CFG_CH1_PHY_ADDRESS" selectedIndex="1"/>
+<gridItem id="ETHER_CFG_EMAC_RX_DESCRIPTORS" selectedIndex="6"/>
+<gridItem id="ETHER_CFG_EMAC_TX_DESCRIPTORS" selectedIndex="3"/>
+<gridItem id="ETHER_CFG_BUFSIZE" selectedIndex="1536"/>
+<gridItem id="ETHER_CFG_EINT_INT_PRIORITY" selectedIndex="1"/>
+<gridItem id="ETHER_CFG_AL1_INT_PRIORTY" selectedIndex="1"/>
+<gridItem id="ETHER_CFG_CH0_PHY_ACCESS" selectedIndex="0"/>
+<gridItem id="ETHER_CFG_CH1_PHY_ACCESS" selectedIndex="1"/>
+<gridItem id="ETHER_CFG_PHY_MII_WAIT" selectedIndex="8"/>
+<gridItem id="ETHER_CFG_PHY_DELAY_RESET" selectedIndex="0x00020000L"/>
+<gridItem id="ETHER_CFG_LINK_PRESENT" selectedIndex="0"/>
+<gridItem id="ETHER_CFG_USE_LINKSTA" selectedIndex="1"/>
+<gridItem id="ETHER_CFG_USE_PHY_KSZ8041NL" selectedIndex="0"/>
 </component>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
@@ -764,7 +1208,7 @@
 <gridItem id="SCI_CFG_CH10_RX_BUFSIZ" selectedIndex="80"/>
 <gridItem id="SCI_CFG_CH11_RX_BUFSIZ" selectedIndex="80"/>
 <gridItem id="SCI_CFG_CH12_RX_BUFSIZ" selectedIndex="80"/>
-<gridItem id="SCI_CFG_TEI_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_TEI_INCLUDED" selectedIndex="1"/>
 <gridItem id="SCI_CFG_RXERR_PRIORITY" selectedIndex="3"/>
 <gridItem id="SCI_CFG_ERI_TEI_PRIORITY" selectedIndex="3"/>
 <gridItem id="SCI_CFG_CH7_FIFO_INCLUDED" selectedIndex="0"/>
