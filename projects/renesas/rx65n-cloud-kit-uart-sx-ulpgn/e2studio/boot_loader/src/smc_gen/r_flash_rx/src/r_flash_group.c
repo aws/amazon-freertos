@@ -37,6 +37,8 @@
 *                                     code flash address and blankcheck not supported in code flash.
 *              : 19.04.2019 4.00    Added support for GNUC and ICCRX.
 *                                   Removed support for flash type 2.
+*              : 19.07.2019 4.20    Modified get_cf_addr_info().
+*                                   Added volatile to g_current_parameters.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -140,17 +142,17 @@ flash_int_cb_args_t g_flash_int_ready_cb_args;  // Callback argument structure f
 flash_int_cb_args_t g_flash_int_error_cb_args;  // Callback argument structure for flash ERROR interrupt
 
 /*Structure that holds the parameters for current operations*/
-current_param_t g_current_parameters = {
-                                         0,     /* Source Address */
-                                         0,     /* Destination Address */
-                                         0,     /* Total Count */
-                                         0,     /* Current Count */
-                                         FLASH_CUR_INVALID, /* Current Operation */
-                                         0,     /* Minimum Program Size */
-                                         0,     /* Wait Count for current operation */
-                                         false, /* DF BGO Disabled */
-                                         false, /* CF BGO Disabled */
-                                        };
+volatile current_param_t g_current_parameters = {
+                                                  0,     /* Source Address */
+                                                  0,     /* Destination Address */
+                                                  0,     /* Total Count */
+                                                  0,     /* Current Count */
+                                                  FLASH_CUR_INVALID, /* Current Operation */
+                                                  0,     /* Minimum Program Size */
+                                                  0,     /* Wait Count for current operation */
+                                                  false, /* DF BGO Disabled */
+                                                  false, /* CF BGO Disabled */
+                                                 };
 
 static bool g_driver_opened=false;
 static flash_err_t flash_interrupt_config(bool state, void *pcfg);
@@ -713,7 +715,7 @@ static void get_cf_addr_info(uint32_t addr, flash_addr_info_t *info)
     }
     else
     {
-        info->size_boundary = FLASH_CF_BLOCK_45;
+        info->size_boundary = FLASH_CF_LO_BANK_SMALL_BLOCK_ADDR;
         info->low_addr = FLASH_CF_LO_BANK_LO_ADDR;
     }
 #else
@@ -1471,7 +1473,7 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
 
 
 #if (FLASH_HAS_BOOT_SWAP && FLASH_CFG_CODE_FLASH_ENABLE)
-
+#if (FLASH_IN_DUAL_BANK_MODE == 0)
     case FLASH_CMD_SWAPSTATE_GET:
         /* GET CURRENT STARTUP AREA (NOT NECESSARILY PRESERVED THROUGH RESET */
         FLASH_RETURN_IF_PCFG_NULL;
@@ -1487,6 +1489,7 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
         FLASH_RETURN_IF_BAD_SAS;
         R_CF_SetCurrentSwapState(*pSwapInfo);
     break;
+#endif // FLASH_IN_DUAL_BANK_MODE
 
 
     case FLASH_CMD_SWAPFLAG_GET:
@@ -1537,7 +1540,7 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
         if ((pAccessInfo->start_addr > pAccessInfo->end_addr)
          || (pAccessInfo->start_addr < (uint32_t)FLASH_CF_LOWEST_VALID_BLOCK)
          || ((pAccessInfo->start_addr & ACCESS_BAD_ADDR_MASK) != 0)
-         || (((pAccessInfo->end_addr & ACCESS_BAD_ADDR_MASK) != 0) && (pAccessInfo->end_addr != FLASH_CF_BLOCK_END)))
+         || (((pAccessInfo->end_addr & ACCESS_BAD_ADDR_MASK) != 0) && (pAccessInfo->end_addr != (uint32_t)FLASH_CF_BLOCK_END)))
         {
             return(FLASH_ERR_ACCESSW);
         }

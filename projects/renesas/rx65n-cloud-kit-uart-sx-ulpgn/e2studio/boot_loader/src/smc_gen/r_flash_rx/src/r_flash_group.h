@@ -26,6 +26,7 @@
 *           05.10.2016 1.00    First Release
 *           31.10.2017 1.10    Added function prototype for r_flash_close().
 *           19.04.2019 4.00    Removed support for flash type 2.
+*           19.07.2019 4.20    Added volatile to g_current_parameters.
 ***********************************************************************************************************************/
 
 #ifndef RX_FLASH_GROUP_HEADER_FILE
@@ -48,7 +49,7 @@ extern void (*flash_ready_isr_handler)(void *);        // Function pointer for F
 extern void (*flash_error_isr_handler)(void *);        // Function pointer for Flash Error ISR
 extern flash_int_cb_args_t g_flash_int_ready_cb_args;  // Callback argument structure for flash READY interrupt
 extern flash_int_cb_args_t g_flash_int_error_cb_args;  // Callback argument structure for flash ERROR interrupt
-extern current_param_t g_current_parameters;
+extern volatile current_param_t g_current_parameters;
 
 /***********************************************************************************************************************
 Exported global functions (to be accessed by other files)

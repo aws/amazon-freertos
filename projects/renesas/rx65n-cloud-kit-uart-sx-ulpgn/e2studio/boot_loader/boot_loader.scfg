@@ -590,17 +590,6 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration inuse="true" name="r_flash_rx">
-<component description="依存モジュール: r_bsp バージョン 5.00&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.00" version="4.00">
-<gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_ENABLE" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration inuse="true" name="r_byteq">
 <component description="依存モジュール: r_bsp バージョン 3.10&#10;This module allocates a queue control block in an Open() call to handle indexing for buffers provided by the user application. Additional functions are provided to put and get data from the buffer queue, inspect the number of bytes available or in use, and to flush the queue. There is no limit to the number of queues supported, and queue control blocks can be allocated statically at build time or dynamically at run time." detailDescription="Byte-based circular buffer library." display="r_byteq" id="r_byteq1.80" version="1.80">
 <gridItem id="BYTEQ_CFG_PARAM_CHECKING_ENABLE" selectedIndex="0"/>
@@ -610,8 +599,19 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
+<configuration inuse="true" name="r_flash_rx">
+<component description="依存モジュール: r_bsp バージョン 5.20&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.20" version="4.20">
+<gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_ENABLE" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
 <configuration inuse="true" name="r_sci_rx">
-<component description="依存モジュール: r_bsp バージョン 5.20&#10;依存モジュール: r_byteq バージョン 1.40, 1.50, 1.60, 1.70, 1.71&#10;This module allows any number of SCI channels on the MCU to run in full duplex Asynchronous mode, single master Simple SPI mode, or master Synchronous mode simultaneously. The driver is interrupt driven and non-blocking. Transmit and receive buffer queues are used in Asynchronous mode and their sizes may be configured independently for each channel. Resources for unused channels or modes may be removed via settings in the driver's config.h file." detailDescription="Multi-Channel Multi-Mode SCI Driver." display="r_sci_rx" id="r_sci_rx3.00" version="3.00">
+<component description="依存モジュール: r_bsp バージョン 5.20&#10;依存モジュール: r_byteq バージョン 1.40, 1.50, 1.60, 1.70, 1.71&#10;This module allows any number of SCI channels on the MCU to run in full duplex Asynchronous mode, single master Simple SPI mode, or master Synchronous mode simultaneously. The driver is interrupt driven and non-blocking. Transmit and receive buffer queues are used in Asynchronous mode and their sizes may be configured independently for each channel. Resources for unused channels or modes may be removed via settings in the driver's config.h file." detailDescription="Multi-Channel Multi-Mode SCI Driver." display="r_sci_rx" id="r_sci_rx3.20" version="3.20">
 <gridItem id="SCK0" selectedIndex="0"/>
 <gridItem id="RXD0/SMISO0" selectedIndex="0"/>
 <gridItem id="TXD0/SMOSI0" selectedIndex="0"/>
@@ -728,15 +728,29 @@
 <gridItem id="SCI_CFG_TEI_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_RXERR_PRIORITY" selectedIndex="3"/>
 <gridItem id="SCI_CFG_ERI_TEI_PRIORITY" selectedIndex="3"/>
+<gridItem id="SCI_CFG_CH7_FIFO_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH8_FIFO_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH9_FIFO_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH10_FIFO_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH11_FIFO_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH7_TX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH8_TX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH9_TX_FIFO_THRESH" selectedIndex="8"/>
 <gridItem id="SCI_CFG_CH10_TX_FIFO_THRESH" selectedIndex="8"/>
 <gridItem id="SCI_CFG_CH11_TX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH7_RX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH8_RX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH9_RX_FIFO_THRESH" selectedIndex="8"/>
 <gridItem id="SCI_CFG_CH10_RX_FIFO_THRESH" selectedIndex="8"/>
 <gridItem id="SCI_CFG_CH11_RX_FIFO_THRESH" selectedIndex="8"/>
+<gridItem id="SCI_CFG_CH0_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH1_DATA_MATCH_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH2_DATA_MATCH_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH3_DATA_MATCH_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH4_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH5_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH6_DATA_MATCH_INCLUDED" selectedIndex="0"/>
+<gridItem id="SCI_CFG_CH7_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH8_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH9_DATA_MATCH_INCLUDED" selectedIndex="0"/>
 <gridItem id="SCI_CFG_CH10_DATA_MATCH_INCLUDED" selectedIndex="0"/>

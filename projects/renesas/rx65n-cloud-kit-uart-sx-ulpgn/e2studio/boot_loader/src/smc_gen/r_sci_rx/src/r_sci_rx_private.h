@@ -26,6 +26,9 @@
 *                              Fix GSCE Code Checker errors.
 *           01.02.2019 2.20    Added support received data match function for RX65N (SCI10 and SCI11).
 *           20.05.2019 3.00    Added support for GNUC and ICCRX.
+*           28.06.2019 3.10    Added support for RX23W
+*           15.08.2019 3.20    Added support received data match function for RX72M (SCI0 to SCI11).
+*                              Added support FIFO mode for RX72M (SCI7 to SCI11).
 ***********************************************************************************************************************/
 
 #ifndef SCI_RX_H
@@ -77,13 +80,22 @@ Macro definitions
     #define NULL (0)
 #endif
 
-#if (SCI_CFG_CH10_FIFO_INCLUDED) || (SCI_CFG_CH11_FIFO_INCLUDED)
+#if ((SCI_CFG_CH7_FIFO_INCLUDED)    || \
+     (SCI_CFG_CH8_FIFO_INCLUDED)    || \
+     (SCI_CFG_CH9_FIFO_INCLUDED)    || \
+     (SCI_CFG_CH10_FIFO_INCLUDED)   || \
+     (SCI_CFG_CH11_FIFO_INCLUDED))
     #define SCI_CFG_FIFO_INCLUDED (1)
 #endif
 
-#if ((SCI_CFG_CH1_DATA_MATCH_INCLUDED)  ||   \
+#if ((SCI_CFG_CH0_DATA_MATCH_INCLUDED)  ||   \
+     (SCI_CFG_CH1_DATA_MATCH_INCLUDED)  ||   \
+     (SCI_CFG_CH2_DATA_MATCH_INCLUDED)  ||   \
+     (SCI_CFG_CH3_DATA_MATCH_INCLUDED)  ||   \
+     (SCI_CFG_CH4_DATA_MATCH_INCLUDED)  ||   \
      (SCI_CFG_CH5_DATA_MATCH_INCLUDED)  ||   \
      (SCI_CFG_CH6_DATA_MATCH_INCLUDED)  ||   \
+     (SCI_CFG_CH7_DATA_MATCH_INCLUDED)  ||   \
      (SCI_CFG_CH8_DATA_MATCH_INCLUDED)  ||   \
      (SCI_CFG_CH9_DATA_MATCH_INCLUDED)  ||   \
      (SCI_CFG_CH10_DATA_MATCH_INCLUDED) ||   \

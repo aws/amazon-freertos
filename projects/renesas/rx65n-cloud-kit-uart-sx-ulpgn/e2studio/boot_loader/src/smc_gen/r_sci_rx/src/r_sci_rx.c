@@ -44,6 +44,8 @@
 *          01.02.2019  2.20    Added support RX72T, RX65N-64pin.
 *                              Fix GSCE Code Checker errors.
 *          20.05.2019  3.00    Added support for GNUC and ICCRX.
+*          28.06.2019  3.10    Added support for RX23W
+*          15.08.2019  3.20    Added support for RX72M
 ***********************************************************************************************************************/
 
 /*****************************************************************************
@@ -771,10 +773,10 @@ static sci_err_t sci_init_sync(sci_hdl_t const         hdl,
     }
 
     /* Configure data inversion */
-    hdl->rom->regs->SCMR.BIT.SINV = (uint8_t)((p_cfg->invert_data == true) ? 1 : 0);
+    hdl->rom->regs->SCMR.BIT.SINV = (uint8_t)((true == p_cfg->invert_data) ? 1 : 0);
 
     /* Configure bit order */
-    hdl->rom->regs->SCMR.BIT.SDIR = (uint8_t)((p_cfg->msb_first == true) ? 1 : 0);
+    hdl->rom->regs->SCMR.BIT.SDIR = (uint8_t)((true == p_cfg->msb_first) ? 1 : 0);
 
 
     /* SETUP CLOCK FOR BIT RATE */
@@ -2017,7 +2019,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
             return SCI_ERR_NULL_PTR;
         }
 #endif
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
         if ((SCI_CMD_SET_TXI_PRIORITY == cmd) || (SCI_CMD_SET_RXI_PRIORITY == cmd))
         {
             return SCI_ERR_NULL_PTR;
@@ -2046,7 +2048,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
         }
     }
 #endif
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
     if ((SCI_CMD_SET_TXI_PRIORITY == cmd) || (SCI_CMD_SET_RXI_PRIORITY == cmd))
     {
         /* Casting void* type is valid */
@@ -2152,7 +2154,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
     }
 #endif /* End of SCI_CFG_FIFO_INCLUDED */
 
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
     case (SCI_CMD_SET_TXI_PRIORITY):
     {
         /* Casting void type to uint8_t type is valid */
