@@ -46,7 +46,7 @@ have the Ninja build tool installed:
 ctest --build-and-test                \
     ~/src/amazon-freertos             \
     ~/build/amazon-freertos           \
-    --build-target all-proofs         \
+    --build-target cbmc               \
     --build-generator Ninja           \
     --build-options                   \
       -DCOMPILER=cbmc                 \

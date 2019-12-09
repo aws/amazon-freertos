@@ -106,34 +106,29 @@ set_target_properties(
 function(cbmc_remove_functions funs_to_remove binary)
     list(LENGTH ${funs_to_remove} n_funs_to_remove)
 
-    if(${n_funs_to_remove})
-      list(JOIN ${funs_to_remove} ";--remove-function-body;" cmd_list)
-      list(PREPEND
-          cmd_list
-          goto-instrument
-          --verbosity ${CBMC_VERBOSITY}
-          --remove-function-body
-      )
-      list(APPEND
-          cmd_list
-          ${cbmc_proof_name}_0010_${binary}.goto
-          ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
-      )
+    set(in_file ${cbmc_proof_name}_0010_${binary}.goto)
+    set(out_file ${cbmc_proof_name}_0020_${binary}_functions_removed.goto)
 
+    if(${n_funs_to_remove})
+      list(JOIN ${funs_to_remove} ";--remove-function-body;" fun_remove_flags)
+      add_custom_command(
+          COMMENT "Removing ${n_funs_to_remove} functions from ${cbmc_proof_name}"
+          DEPENDS ${in_file}
+          OUTPUT  ${out_file}
+          COMMAND
+              goto-instrument
+              --verbosity ${CBMC_VERBOSITY}
+              --remove-function-body ${fun_remove_flags}
+              ${in_file} ${out_file}
+      )
     else()
-      set(cmd_list
-          cmake -E copy
-          ${cbmc_proof_name}_0010_${binary}.goto
-          ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
+      add_custom_command(
+          COMMENT "Not removing any functions from ${cbmc_proof_name}"
+          DEPENDS ${in_file}
+          OUTPUT  ${out_file}
+          COMMAND cmake -E copy ${in_file} ${out_file}
       )
     endif()
-
-    add_custom_command(
-        COMMENT "Removing ${n_funs_to_remove} functions from ${cbmc_proof_name}"
-        DEPENDS ${cbmc_proof_name}_0010_${binary}.goto
-        OUTPUT  ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
-        COMMAND ${cmd_list}
-    )
 endfunction()
 
 cbmc_remove_functions(cbmc_harness_remove harness)
@@ -173,44 +168,46 @@ add_custom_command(
 )
 
 list(LENGTH cbmc_nondet_static_exclude cnse_length)
+
+# Nondeterministically initialize static variables
+set(in_file ${cbmc_proof_name}_0050_unused_functions_dropped.goto)
+set(out_file ${cbmc_proof_name}_0060_nondet_static.goto)
+# At most one of these disjuncts will be true, given the sanity check at the top
+# of the file
 if(${cbmc_nondet_static} OR ${cnse_length})
     if(${cbmc_nondet_static})
-        set(nondet_static_flags --nondet-static)
+        add_custom_command(
+            COMMENT "Havocking all statics in ${cbmc_proof_name}"
+            DEPENDS ${in_file}
+            OUTPUT ${out_file}
+            COMMAND
+                goto-instrument --nondet-static
+                --verbosity ${CBMC_VERBOSITY}
+                ${in_file} ${out_file}
+        )
     else()
         list(JOIN
             cbmc_nondet_static_exclude
-            ";--nondet-static-exclude;" nondet_static_flags)
-        list(PREPEND
+            ";--nondet-static-exclude;"
             nondet_static_flags
-            --nondet-static-exclude
+        )
+        add_custom_command(
+            COMMENT "Havocking all except ${cnse_length} statics in ${cbmc_proof_name}"
+            DEPENDS ${in_file}
+            OUTPUT ${out_file}
+            COMMAND
+                goto-instrument
+                --nondet-static-exclude ${nondet_static_flags}
+                --verbosity ${CBMC_VERBOSITY}
+                ${in_file} ${out_file}
         )
     endif()
-
-    add_custom_command(
-        COMMENT
-            "Havoccing all except ${cnse_length} statics in ${cbmc_proof_name}"
-        DEPENDS
-            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-        OUTPUT
-            ${cbmc_proof_name}_0060_nondet_static.goto
-        COMMAND
-            goto-instrument ${nondet_static_flags}
-            --verbosity ${CBMC_VERBOSITY}
-            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-            ${cbmc_proof_name}_0060_nondet_static.goto
-    )
 else()
     add_custom_command(
-        COMMENT
-            "Not havoccing statics in ${cbmc_proof_name}"
-        DEPENDS
-            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-        OUTPUT
-            ${cbmc_proof_name}_0060_nondet_static.goto
-        COMMAND
-            cmake -E copy
-            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-            ${cbmc_proof_name}_0060_nondet_static.goto
+        COMMENT "Not havocking statics in ${cbmc_proof_name}"
+        DEPENDS ${in_file}
+        OUTPUT ${out_file}
+        COMMAND cmake -E copy ${in_file} ${out_file}
     )
 endif()
 
@@ -224,7 +221,7 @@ add_custom_command(
         ${cbmc_proof_name}.goto
 )
 
-add_custom_target(${cbmc_proof_name}-proof DEPENDS ${cbmc_proof_name}.goto)
+add_custom_target(${cbmc_proof_name}-goto DEPENDS ${cbmc_proof_name}.goto)
 
 
 # ______________________________________________________________________________
@@ -294,7 +291,7 @@ set(_report_command
     --srcdir ${CMAKE_SOURCE_DIR}
     --blddir ${CMAKE_SOURCE_DIR}
     --htmldir ${CMAKE_BINARY_DIR}/cbmc-reports/${cbmc_proof_name}
-    --srcexclude "\"(./doc|./tests|./vendors)\""
+    --srcexclude ${cbmc_viewer_src_exclude}
     --result cbmc.txt
     --property property.xml
     --block coverage.xml

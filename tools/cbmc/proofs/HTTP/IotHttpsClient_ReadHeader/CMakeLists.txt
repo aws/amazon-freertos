@@ -1,13 +1,5 @@
 set(cbmc_proof_name IotHttpsClient_ReadHeader)
 
-################################################################
-
-set(IotHttpsClient_ReadHeader_MAX_ACCEPTED_SIZE 20 CACHE STRING "TODO what is this?")
-math(EXPR strncpy_unwind "${IotHttpsClient_ReadHeader_MAX_ACCEPTED_SIZE} + 1")
-
-list(APPEND cbmc_compile_defines
-    MAX_ACCEPTED_SIZE=${IotHttpsClient_ReadHeader_MAX_ACCEPTED_SIZE}
-)
 
 ################################################################
 

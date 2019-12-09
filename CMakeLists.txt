@@ -66,7 +66,7 @@ afr_resolve_dependencies()
 if(DEFINED CBMC)
     add_subdirectory("tools/cbmc/proofs")
     list(FILTER cbmc_proof_names EXCLUDE REGEX "^$")
-    list(TRANSFORM cbmc_proof_names APPEND "-proof" OUTPUT_VARIABLE all_proof_targets)
+    list(TRANSFORM cbmc_proof_names APPEND "-goto" OUTPUT_VARIABLE all_proof_targets)
     add_custom_target("cbmc" DEPENDS ${all_proof_targets})
 endif()
 

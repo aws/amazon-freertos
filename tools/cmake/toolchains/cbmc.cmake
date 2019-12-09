@@ -25,7 +25,7 @@ set(CBMC 1)
 #  8 statistical information
 #  9 progress information
 # 10 debug info
-set(CBMC_VERBOSITY 4 CACHE STRING "Verbosity of CBMC and related tools")
+set(CBMC_VERBOSITY 6 CACHE STRING "Verbosity of CBMC and related tools")
 
 # ______________________________________________________________________________
 #     Variables that are not intended to be directly changed by proof-writers
@@ -40,6 +40,10 @@ set(cbmc_dir ${CMAKE_SOURCE_DIR}/tools/cbmc)
 # The cbmc proof root
 set(cbmc_proofs_dir ${cbmc_dir}/proofs)
 
+# Directories that cbmc-viewer should not bother to scan. This saves a lot of
+# time when generating reports.
+set(cbmc_viewer_src_exclude "\"(./doc|./tests|./vendors)\"")
+
 # ______________________________________________________________________________
 #     Strings that proof-writers can change for a particular proof in each
 #     proof's CMakeLists.txt
@@ -48,9 +52,9 @@ set(cbmc_proofs_dir ${cbmc_dir}/proofs)
 # Argument to cbmc --unwind flag. See also cbmc_unwindset below.
 set(cbmc_unwind 1)
 
-# Setting this to true for a particular proof builds that proof with the
+# Setting this to TRUE for a particular proof builds that proof with the
 # --nondet-static flag. See also cbmc_nondet_static_except below.
-set(cbmc_nondet_static OFF)
+set(cbmc_nondet_static FALSE)
 
 # Argument to cbmc --object-bits flag
 set(cbmc_object_bits 8)
