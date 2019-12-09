@@ -535,13 +535,12 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
                             BTUuid_t * pxServiceUuid,
                             size_t xNbServices )
 {
-    const size_t c_max_uuid_per_adv_message = 2;
     struct ble_hs_adv_fields fields;
     const char * name;
     int xESPStatus;
-    ble_uuid16_t uuid16[c_max_uuid_per_adv_message];
-    ble_uuid32_t uuid32[c_max_uuid_per_adv_message];
-    ble_uuid128_t uuid128[c_max_uuid_per_adv_message];
+    ble_uuid16_t uuid16;
+    ble_uuid32_t uuid32;
+    ble_uuid128_t uuid128;
 
     BTStatus_t xStatus = eBTStatusSuccess;
 
@@ -636,9 +635,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         {
           if(fields.num_uuids16==0)
           {
-            uuid16[fields.num_uuids16].u.type = BLE_UUID_TYPE_16;
-            uuid16[fields.num_uuids16].value = pxServiceUuid->uu.uu16;
-            fields.uuids16 = uuid16;
+            uuid16.u.type = BLE_UUID_TYPE_16;
+            uuid16.value = pxServiceUuid->uu.uu16;
+            fields.uuids16 = &uuid16;
             fields.num_uuids16++;
             fields.uuids16_is_complete = 1;
           }
@@ -653,9 +652,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         {
           if(fields.num_uuids32==0)
           {
-            uuid32[fields.num_uuids32].u.type = BLE_UUID_TYPE_32;
-            uuid32[fields.num_uuids32].value = pxServiceUuid->uu.uu32;
-            fields.uuids32 = uuid32;
+            uuid32.u.type = BLE_UUID_TYPE_32;
+            uuid32.value = pxServiceUuid->uu.uu32;
+            fields.uuids32 = &uuid32;
             fields.num_uuids32++;
             fields.uuids32_is_complete = 1;
           }
@@ -670,9 +669,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         {
           if(fields.num_uuids128==0)
           {
-            uuid128[fields.num_uuids128].u.type = BLE_UUID_TYPE_128;
-            memcpy( uuid128[fields.num_uuids128].value, pxServiceUuid->uu.uu128, sizeof( pxServiceUuid->uu.uu128 ) );
-            fields.uuids128 = uuid128;
+            uuid128.u.type = BLE_UUID_TYPE_128;
+            memcpy( uuid128.value, pxServiceUuid->uu.uu128, sizeof( pxServiceUuid->uu.uu128 ) );
+            fields.uuids128 = &uuid128;
             fields.num_uuids128++;
             fields.uuids128_is_complete = 1;
           }
