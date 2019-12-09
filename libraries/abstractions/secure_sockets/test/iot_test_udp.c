@@ -52,7 +52,7 @@
 #include "aws_clientcredential.h"
 
 /* Verbose printing. */
-#define udptestPRINTF( x )
+#define udptestPRINTF( x )           configPRINTF( x )
 /* In case of test failures, FAILUREPRINTF may provide more detailed information. */
 #define udptestFAILUREPRINTF( x )    vLoggingPrintf x
 /* Fail the test on tcptestASSERT. */
@@ -112,7 +112,6 @@ static void prvEchoClientTxTask( void * pvParameters );
 #define udptestECHO_TEST_LOW_PRIORITY     tskIDLE_PRIORITY
 #define udptestECHO_TEST_HIGH_PRIORITY    ( configMAX_PRIORITIES - 1 )
 
-/* static size_t xSyncLoop; */
 static BaseType_t xSendSuccess;
 static BaseType_t xRecvSuccess;
 
@@ -212,7 +211,7 @@ TEST_TEAR_DOWN( Full_UDP )
         {
             lReturn = SOCKETS_Close( xSocket );
             xSocketOpen = pdFALSE;
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, lReturn, "SOCKETS_Close failed in tear down. \r\n" );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, lReturn, "SOCKETS_Close failed in tear down.\r\n" );
         }
     }
 
@@ -221,7 +220,7 @@ TEST_TEAR_DOWN( Full_UDP )
         vTaskDelay( 500 );
         xHeapA = xPortGetFreeHeapSize();
 
-        configPRINTF( ( "Heap before: %d, Heap After: %d \r\n", xHeapB, xHeapA ) );
+        configPRINTF( ( "Heap before: %d, Heap After: %d\r\n", xHeapB, xHeapA ) );
     #endif
 }
 
@@ -327,7 +326,7 @@ static BaseType_t prvSendHelper( Socket_t xSocket,
         if( xNumBytes <= 0 )
         {
             xResult = pdFAIL;
-            udptestFAILUREPRINTF( ( "Error in SOCKETS_SendTo.  Return value: %d \r\n", xNumBytes ) );
+            udptestFAILUREPRINTF( ( "Error in SOCKETS_SendTo.  Return value: %d\r\n", xNumBytes ) );
             break;
         }
 
@@ -368,7 +367,7 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
 
         if( xNumBytes == 0 )
         {
-            udptestFAILUREPRINTF( ( "Timed out receiving from echo server \r\n" ) );
+            udptestFAILUREPRINTF( ( "Timed out receiving from echo server\r\n" ) );
             xResult = pdFAIL;
             break;
         }
@@ -477,7 +476,7 @@ static BaseType_t prvCheckRxTxBuffers( uint8_t * pucTxBuffer,
         if( pucTxBuffer[ xIndex ] != pucRxBuffer[ xIndex ] )
         {
             xReturn = pdFAIL;
-            udptestFAILUREPRINTF( ( "Message bytes received different than those sent. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+            udptestFAILUREPRINTF( ( "Message bytes received different than those sent. Message Length %d, Byte Index %d\r\n", xMessageLength, xIndex ) );
             break;
         }
     }
@@ -490,18 +489,18 @@ static BaseType_t prvCheckRxTxBuffers( uint8_t * pucTxBuffer,
             if( pucRxBuffer[ xIndex ] != udptestRX_BUFFER_FILLER )
             {
                 xReturn = pdFAIL;
-                udptestFAILUREPRINTF( ( "Rx buffer padding modified byte. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+                udptestFAILUREPRINTF( ( "Rx buffer padding modified byte. Message Length %d, Byte Index %d\r\n", xMessageLength, xIndex ) );
             }
 
             if( pucTxBuffer[ xIndex ] != udptestTX_BUFFER_FILLER )
             {
                 xReturn = pdFAIL;
-                udptestFAILUREPRINTF( ( "Tx buffer padding modified. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+                udptestFAILUREPRINTF( ( "Tx buffer padding modified. Message Length %d, Byte Index %d\r\n", xMessageLength, xIndex ) );
             }
         }
     }
 
-    /* udptestASSERT( xReturn == pdPASS ); */
+    udptestASSERT( xReturn == pdPASS );
 
     return xReturn;
 }
@@ -525,7 +524,6 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
 
     xIntermResult = pdPASS;
     xResult = pdPASS;
-    ulRetry = 0;
 
     memset( pucTxBuffer, udptestTX_BUFFER_FILLER, udptestBUFFER_SIZE );
 
@@ -533,7 +531,7 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
                      xLength,
                      ulTxCount );
 
-    for( ; ulRetry < udptestMAX_RETRY; ulRetry++ )
+    for( ulRetry = 0; ulRetry < udptestMAX_RETRY; ulRetry++ )
     {
         xIntermResult = prvSendHelper( xSocket,
                                        pucTxBuffer,
@@ -555,12 +553,26 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
         if( xIntermResult != pdPASS )
         {
             udptestPRINTF( ( "Rx %d data was not received on try %d\r\n", ulTxCount, ulRetry ) );
+            xResult = pdFAIL;
+
+            /* Pause, failure may cause by network congestion */
+            vTaskDelay( 500 );
             continue;
         }
 
         xIntermResult = prvCheckRxTxBuffers( pucTxBuffer,
                                              pucRxBuffer,
                                              xLength );
+
+        if( xIntermResult != pdPASS )
+        {
+            udptestPRINTF( ( "Rx %d data mismatch on try %d\r\n", ulTxCount, ulRetry ) );
+            xResult = pdFAIL;
+
+            /* Pause, failure may cause by network congestion */
+            vTaskDelay( 500 );
+            continue;
+        }
 
         if( pxEchoServerAddress->ulAddress == xReceiveAddress.ulAddress )
         {
@@ -590,7 +602,7 @@ TEST_GROUP_RUNNER( Full_UDP )
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendToInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendRecv_VaryLength );
-    // RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek );
+    /* RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek ); */
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
 }
@@ -866,8 +878,8 @@ static void prvSOCKETS_SetSockOpt_RCVTIMEO()
 
 
     xResult = pdPASS;
-    udptestPRINTF( ( "Starting %s \r\n", __FUNCTION__ ) );
-    udptestPRINTF( ( "This tests timeouts, so it takes a while! \r\n" ) );
+    udptestPRINTF( ( "Starting %s\r\n", __FUNCTION__ ) );
+    udptestPRINTF( ( "This tests timeouts, so it takes a while!\r\n" ) );
 
     /* Create UDP Socket */
     xSocket = prvUdpSocketHelper( &xSocketOpen );
@@ -898,6 +910,7 @@ static void prvSOCKETS_SetSockOpt_RCVTIMEO()
     for( xIndex = 0; xIndex < sizeof( xTimeouts ) / sizeof( TickType_t ); xIndex++ )
     {
         xTimeout = pdMS_TO_TICKS( xTimeouts[ xIndex ] );
+        udptestPRINTF( ( "Testing timeout = %dms\r\n", xTimeout ) );
         xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_RCVTIMEO, &xTimeout, sizeof( TickType_t ) );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to set receive timeout" );
 
@@ -1043,7 +1056,6 @@ static void prvEchoClientTxTask( void * pvParameters )
 
         if( xReturned <= 0 )
         {
-            /* xStatus = pdFAIL; */
             udptestPRINTF( ( "SendTo Error: code %d\r\n", xReturned ) );
         }
         else
@@ -1146,14 +1158,14 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
             }
 
             /* Wait to receive the socket that will be used from the Tx task. */
-            if( xEventGroupSync( xSyncEventGroup,                            /* The event group used for the rendezvous. */
-                                 udptestRX_TASK_BIT,                         /* The bit representing the Tx task reaching the rendezvous. */
-                                 ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ),/* Also wait for the Rx task. */
+            if( xEventGroupSync( xSyncEventGroup,                             /* The event group used for the rendezvous. */
+                                 udptestRX_TASK_BIT,                          /* The bit representing the Tx task reaching the rendezvous. */
+                                 ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ), /* Also wait for the Rx task. */
                                  udptestECHO_TEST_SYNC_TIMEOUT_TICKS ) != ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ) )
             {
                 TEST_FAIL();
             }
-            
+
             xReturned = SOCKETS_RecvFrom( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0, &xEchoServerAddress, &xServerAddrLen );
 
             if( xReturned == 0 )
@@ -1274,7 +1286,7 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
                                  uSendLength,
                                  &xClientAddress );
 
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data was not received \r\n" );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data was not received\r\n" );
 
         pxUdptestEchoClientsTaskParams->xResult = SOCKETS_ERROR_NONE;
     }
@@ -1402,7 +1414,7 @@ static void prvSOCKETS_RecvFrom_Peek()
                              uSendLength,
                              &xClientAddress );
 
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data was not received \r\n" );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Data was not received\r\n" );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
