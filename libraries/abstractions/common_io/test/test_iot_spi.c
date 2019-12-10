@@ -274,7 +274,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -320,7 +320,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
@@ -420,7 +420,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -474,7 +474,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
@@ -570,7 +570,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -615,7 +615,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
@@ -709,7 +709,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -763,7 +763,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
@@ -865,7 +865,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -915,7 +915,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
@@ -1024,7 +1024,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -1074,7 +1074,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
         #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #endif
     }
