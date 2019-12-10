@@ -627,9 +627,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     fields.num_uuids16=0;
     fields.num_uuids32=0;
     fields.num_uuids128=0;
-    for (size_t i = 0; i < xNbServices; i++)
+    if( pxServiceUuid != NULL )
     {
-      if( &(pxServiceUuid[i]) != NULL )
+      for (size_t i = 0; i < xNbServices; i++)
       {
         if( pxServiceUuid[i].ucType == eBTuuidType16 )
         {
