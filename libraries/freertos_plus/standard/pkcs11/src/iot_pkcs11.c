@@ -310,7 +310,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* Get the certificate handle. */
+    /* Initialize the FindObject state in the underlying PKCS #11 module based
+     * on the search template provided by the caller. */
     if( CKR_OK == xResult )
     {
         xResult = pxFunctionList->C_FindObjectsInit( xSession, xTemplate, sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
@@ -319,6 +320,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     if( CKR_OK == xResult )
     {
         xFindInit = CK_TRUE;
+        /* Find the first matching object, if any. */
         xResult = pxFunctionList->C_FindObjects( xSession,
                                                  pxHandle,
                                                  1,
@@ -327,6 +329,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
     if( ( CKR_OK == xResult ) && ( CK_TRUE == xFindInit ) )
     {
+        /* Indicate to the module that the we're done looking for the indicated
+         * type of object. */
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
