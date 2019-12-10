@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "ESP32-DevKitC-With-MCHP-ATECC608A")
 afr_set_board_metadata(DISPLAY_NAME "ESP32-DevKitC with ATECC608A")
-afr_set_board_metadata(DESCRIPTION "Development board produced by Espressif that comes in the ESP32-WROOM-32SE module. This edition includes Microchip's ATECC608A Secure element")
+afr_set_board_metadata(DESCRIPTION "ESP32-WROOM-32SE with Microchip ATECC608A Secure Element")
 afr_set_board_metadata(VENDOR_NAME "Espressif")
 afr_set_board_metadata(FAMILY_NAME "ESP32")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
