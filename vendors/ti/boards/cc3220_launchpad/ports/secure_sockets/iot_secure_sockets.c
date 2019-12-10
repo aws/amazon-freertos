@@ -917,32 +917,28 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         ( void ) xAddressLength;
 
         /* Ensure that the socket and address is valid. */
-        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) || ( pxAddress != NULL ) )
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) && ( pxAddress != NULL ) )
         {
             /* Shortcut for easy access. */
             pxSocketContext = &( xSockets[ ulSocketNumber ] );
 
-            /* Connect. */
-            if( lRetCode == SOCKETS_ERROR_NONE )
+            /* Set up the address to connect to. */
+            xAddress.sin_family = SL_AF_INET;
+            xAddress.sin_port = pxAddress->usPort;
+            xAddress.sin_addr.s_addr = pxAddress->ulAddress;
+
+            /* Initiate connect. */
+            sTIRetCode = sl_Bind( pxSocketContext->sSocketDescriptor,
+                                  ( const SlSockAddr_t * ) &( xAddress ),   /*lint !e9087 !e740 SlSockAddr_t behaves like a union of SlSockAddrIn_t.
+                                                                            * SlSockAddrIn_t is the appropriate interpretation of a IPv4 address. */
+                                  ( _i16 ) sizeof( SlSockAddrIn_t ) );
+
+            /* If the connection wasn't successful, return a socket error. */
+            if( sTIRetCode != 0 )
             {
-                /* Set up the address to connect to. */
-                xAddress.sin_family = SL_AF_INET;
-                xAddress.sin_port = pxAddress->usPort;
-                xAddress.sin_addr.s_addr = pxAddress->ulAddress;
-
-                /* Initiate connect. */
-                sTIRetCode = sl_Bind( pxSocketContext->sSocketDescriptor,
-                                      ( const SlSockAddr_t * ) &( xAddress ), /*lint !e9087 !e740 SlSockAddr_t behaves like a union of SlSockAddrIn_t.
-                                                                              * SlSockAddrIn_t is the appropriate interpretation of a IPv4 address. */
-                                      ( _i16 ) sizeof( SlSockAddrIn_t ) );
-
-                /* If the connection wasn't successful, return a socket error. */
-                if( sTIRetCode != 0 )
-                {
-                    /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
-                    SOCKETS_PRINT( ( "ERROR: %d Socket failed to bind.\r\n", sTIRetCode ) );
-                    lRetCode = SOCKETS_SOCKET_ERROR;
-                }
+                /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
+                SOCKETS_PRINT( ( "ERROR: %d Socket failed to bind.\r\n", sTIRetCode ) );
+                lRetCode = SOCKETS_SOCKET_ERROR;
             }
         }
         else
