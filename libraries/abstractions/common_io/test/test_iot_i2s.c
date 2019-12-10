@@ -512,6 +512,9 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
     IotI2SClkPolarity_t xPolarity;
     uint32_t ulBusState;
     uint32_t ulRxTxBytes;
+    uint32_t ulFreqVals[2] = {8000, 16000};
+    uint32_t ulFrameLenVals[2] = {32, 64};
+    uint32_t ulDataLenVals[2] = {8, 16};
 
     /* Open i2s to initialize hardware */
     xI2SHandle = iot_i2s_open( ltestIotI2sInputInstance );
@@ -572,8 +575,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
        xTestConfig.xI2SWsPolarity = eI2SFallingEdge;
 
        /* Validate different frequencies */
-       xTestConfig.ulI2SFrequency++;
-       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xTestConfig );
+       if( xTestConfig.ulI2SFrequency != ulFreqVals[0] ) {
+          xTestConfig.ulI2SFrequency = ulFreqVals[0];
+       } else {
+          xTestConfig.ulI2SFrequency = ulFreqVals[1];
+       }
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SSetConfig, &xTestConfig );
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
        lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xConfirmConfig );
@@ -581,8 +588,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
        TEST_ASSERT_EQUAL( xConfirmConfig.ulI2SFrequency, xTestConfig.ulI2SFrequency );
 
        /* Validate different data lengths */
-       xTestConfig.ulI2SDataLength++;
-       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xTestConfig );
+       if( xTestConfig.ulI2SDataLength != ulDataLenVals[0] ) {
+          xTestConfig.ulI2SDataLength = ulDataLenVals[0];
+       } else {
+          xTestConfig.ulI2SDataLength = ulDataLenVals[1];
+       }
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SSetConfig, &xTestConfig );
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
        lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xConfirmConfig );
@@ -590,8 +601,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
        TEST_ASSERT_EQUAL( xConfirmConfig.ulI2SDataLength, xTestConfig.ulI2SDataLength );
 
        /* Validate different frame lengths */
-       xTestConfig.ulI2SFrameLength++;
-       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xTestConfig );
+       if( xTestConfig.ulI2SFrameLength != ulFrameLenVals[0] ) {
+          xTestConfig.ulI2SFrameLength = ulFrameLenVals[0];
+       } else {
+          xTestConfig.ulI2SFrameLength = ulFrameLenVals[1];
+       }
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SSetConfig, &xTestConfig );
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
        lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xConfirmConfig );
@@ -599,7 +614,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
        TEST_ASSERT_EQUAL( xConfirmConfig.ulI2SFrameLength, xTestConfig.ulI2SFrameLength );
 
        /* Restore original config */
-       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetConfig, &xOrigConfig );
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SSetConfig, &xOrigConfig );
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
        /* Get bus state */
