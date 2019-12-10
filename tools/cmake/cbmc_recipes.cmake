@@ -239,74 +239,74 @@ if(${cbmc_unwindset_length} GREATER 0)
     list(APPEND cbmc_flags --unwindset ${_cbmc_unwindset})
 endif()
 
-list(JOIN cbmc_flags " " _cbmc_flags)
-
-# Actually check the proof
-# TODO this obviously won't work on windows.
 add_test(
     NAME ${cbmc_proof_name}-cbmc
     COMMAND
-        /bin/sh -c
-        "cbmc --trace --unwinding-assertions ${_cbmc_flags} ${cbmc_proof_name}.goto > cbmc.txt 2>&1"
+        ${CMAKE_COMMAND}
+        "-Dproof_name=${cbmc_proof_name}"
+        "-Dcbmc_flags=${cbmc_flags}"
+        "-Dcbmc_verbosity=${cbmc_verbosity}"
+        "-Dgoto_binary=${cbmc_proof_name}.goto"
+        "-Dout_file=cbmc.txt"
+        -P ${cbmc_dir}/cmake/model-check.cmake
 )
 set_tests_properties(
     ${cbmc_proof_name}-cbmc
     PROPERTIES
-    LABELS ${cbmc_test_labels}
-    SKIP_RETURN_CODE 10
+    LABELS "${cbmc_test_labels}"
 )
 
-# Show the properties that were checked
-# TODO this obviously won't work on windows.
 add_test(
     NAME ${cbmc_proof_name}-property
     COMMAND
-        /bin/sh -c
-        "cbmc --show-properties --unwinding-assertions --xml-ui ${_cbmc_flags} ${cbmc_proof_name}.goto > property.xml 2>&1"
+        ${CMAKE_COMMAND}
+        "-Dproof_name=${cbmc_proof_name}"
+        "-Dcbmc_flags=${cbmc_flags}"
+        "-Dcbmc_verbosity=${cbmc_verbosity}"
+        "-Dgoto_binary=${cbmc_proof_name}.goto"
+        "-Dout_file=property.xml"
+        -P ${cbmc_dir}/cmake/compute-property.cmake
 )
 set_tests_properties(
     ${cbmc_proof_name}-property
     PROPERTIES
-    LABELS ${cbmc_test_labels}
+    LABELS "${cbmc_test_labels}"
 )
 
-# Compute which lines of code were covered by the proof
-# TODO this obviously won't work on windows.
 add_test(
     NAME ${cbmc_proof_name}-coverage
     COMMAND
-        /bin/sh -c
-        "cbmc --cover location --xml-ui ${_cbmc_flags} ${cbmc_proof_name}.goto > coverage.xml 2>&1"
+        ${CMAKE_COMMAND}
+        "-Dproof_name=${cbmc_proof_name}"
+        "-Dcbmc_flags=${cbmc_flags}"
+        "-Dcbmc_verbosity=${cbmc_verbosity}"
+        "-Dgoto_binary=${cbmc_proof_name}.goto"
+        "-Dout_file=coverage.xml"
+        -P ${cbmc_dir}/cmake/compute-coverage.cmake
 )
 set_tests_properties(
     ${cbmc_proof_name}-coverage
     PROPERTIES
-    LABELS ${cbmc_test_labels}
+    LABELS "${cbmc_test_labels}"
 )
 
-# Accumulate the results of the proof runs above and generate a report
-set(_report_command
-    cbmc-viewer
-    --goto ${cbmc_proof_name}.goto
-    --srcdir ${CMAKE_SOURCE_DIR}
-    --blddir ${CMAKE_SOURCE_DIR}
-    --htmldir ${CMAKE_BINARY_DIR}/cbmc-reports/${cbmc_proof_name}
-    --srcexclude ${cbmc_viewer_src_exclude}
-    --result cbmc.txt
-    --property property.xml
-    --block coverage.xml
-)
-list(JOIN _report_command " " report_command)
-
-# TODO this obviously won't work on windows. But why do we even need a shell here?
 add_test(
     NAME ${cbmc_proof_name}-report
-    COMMAND /bin/sh -c ${report_command}
+    COMMAND
+        cbmc-viewer
+        --goto ${cbmc_proof_name}.goto
+        --srcdir ${CMAKE_SOURCE_DIR}
+        --blddir ${CMAKE_SOURCE_DIR}
+        --htmldir ${CMAKE_BINARY_DIR}/cbmc-reports/${cbmc_proof_name}
+        --srcexclude ${cbmc_viewer_src_exclude}
+        --result cbmc.txt
+        --property property.xml
+        --block coverage.xml
 )
 set_tests_properties(
     ${cbmc_proof_name}-report
     PROPERTIES
-    LABELS ${cbmc_test_labels}
+    LABELS "${cbmc_test_labels}"
     DEPENDS
         ${cbmc_proof_name}-cbmc
         ${cbmc_proof_name}-property

@@ -42,7 +42,7 @@ set(cbmc_proofs_dir ${cbmc_dir}/proofs)
 
 # Directories that cbmc-viewer should not bother to scan. This saves a lot of
 # time when generating reports.
-set(cbmc_viewer_src_exclude "\"(./doc|./tests|./vendors)\"")
+set(cbmc_viewer_src_exclude "(./doc|./tests|./vendors)")
 
 # ______________________________________________________________________________
 #     Strings that proof-writers can change for a particular proof in each
