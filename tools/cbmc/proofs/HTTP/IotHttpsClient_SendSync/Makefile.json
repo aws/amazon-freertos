@@ -1,5 +1,5 @@
 {
-  "ENTRY": "HttpsClient_SendSync",
+  "ENTRY": "IotHttpsClient_SendSync",
 
   # A CBMC pointer is an object id followed by an offset into the object.
   # The size of the offset is limited by the size of the object id.
