@@ -44,7 +44,7 @@
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static struct ble_gap_adv_params xAdv_params;
 
-#define IOT_BLE_ADVERTISING_DURATION_UNITS    ( 10 )
+#define IOT_BLE_ADVERTISING_DURATION_MS    ( 10 )
 
 /* Duration of advertisement. By default advertise for inifinite duration. */
 static int32_t lAdvDurationMS = BLE_HS_FOREVER;
@@ -675,7 +675,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         if( pxParams->usTimeout != 0 )
         {
-            lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_UNITS ); /* Multiply pxParams->usTimeout value by units = 10ms */
+            lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_MS );
         }
         else
         {
