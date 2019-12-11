@@ -517,9 +517,10 @@ BTStatus_t IotBle_Off( void )
                 status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
                                                                            &bdAddr,
                                                                            connId );
+
                 if( status != eBTStatusSuccess )
                 {
-                    IotLogError("Failed disconnect");
+                    IotLogError( "Failed disconnect" );
                     break;
                 }
             }
