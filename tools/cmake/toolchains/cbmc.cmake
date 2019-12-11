@@ -56,6 +56,11 @@ set(cbmc_unwind 1)
 # --nondet-static flag. See also cbmc_nondet_static_except below.
 set(cbmc_nondet_static FALSE)
 
+# Setting this to TRUE for a particular proof exports all of the static
+# functions of that proof, enabling you to directly write harnesses for
+# those functions.
+set(cbmc_export_static FALSE)
+
 # Argument to cbmc --object-bits flag
 set(cbmc_object_bits 8)
 

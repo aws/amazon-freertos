@@ -85,6 +85,12 @@ set_target_properties(
     COMPILE_OPTIONS     "${cbmc_compile_options}"
 )
 
+# We may want to export functions marked as `static` so that we can write
+# harnesses for them.
+if(cbmc_export_static)
+    list(APPEND cbmc_compile_options "--export-function-local-symbols")
+endif()
+
 add_executable(
     ${cbmc_proof_name}_0010_project.goto
     ${cbmc_project_source}
