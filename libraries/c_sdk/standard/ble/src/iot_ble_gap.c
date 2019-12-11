@@ -520,7 +520,7 @@ BTStatus_t IotBle_Off( void )
 
                 if( status != eBTStatusSuccess )
                 {
-                    IotLogError( "Failed disconnect" );
+                    IotLogError( "Failed disconnect with Bluetooth status = %u", status );
                     break;
                 }
             }
