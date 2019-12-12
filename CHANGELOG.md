@@ -12,6 +12,9 @@
 #### OTA for NXP LPC54018 IoT Module
 - Over-the-air (OTA) updates are now available for LPC54018.
 
+#### HTTPS Client Library V1.1.1
+- Documentation updates and additional debug logging.
+
 ## 201910.00 10/29/2019
 
 ### New Features
