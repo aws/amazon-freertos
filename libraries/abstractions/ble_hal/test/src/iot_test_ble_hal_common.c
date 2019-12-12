@@ -1576,7 +1576,7 @@ void prvSetAdvDataCb( BTStatus_t xStatus )
 }
 
 void prvAdvStatusCb( BTStatus_t xStatus,
-                     uint32_t ulServerIf,
+                     uint8_t ucAdapterIf,
                      bool bStart )
 {
     BLETESTAdvParamCallback_t * xdvParamCallback = IotTest_Malloc( sizeof( BLETESTAdvParamCallback_t ) );
@@ -1588,7 +1588,7 @@ void prvAdvStatusCb( BTStatus_t xStatus,
 
     if( xdvParamCallback->xStatus == eBTStatusSuccess )
     {
-        if( ulServerIf != _ucBLEServerIf )
+        if( ucAdapterIf != _ucBLEAdapterIf )
         {
             xdvParamCallback->xStatus = eBTStatusFail;
         }

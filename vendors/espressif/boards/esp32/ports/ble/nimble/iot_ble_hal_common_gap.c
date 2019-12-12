@@ -244,7 +244,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                     xStatus = eBTStatusFail;
                 }
 
-                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, false );
             }
 
             return 0;
