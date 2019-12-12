@@ -15,6 +15,10 @@
 #### HTTPS Client Library V1.1.1
 - Documentation updates and additional debug logging.
 
+#### Bluetooth Low Energy V4.0.0
+- HAL modification to replace bonded callback with pairing state change callback.
+- HAL modification to change to 16-bit value for advertisement duration.
+
 ## 201910.00 10/29/2019
 
 ### New Features
