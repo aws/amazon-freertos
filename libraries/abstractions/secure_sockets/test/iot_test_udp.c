@@ -523,7 +523,7 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
     uint32_t ulRetry;
 
     xIntermResult = pdPASS;
-    xResult = pdPASS;
+    xResult = pdFAIL;
 
     memset( pucTxBuffer, udptestTX_BUFFER_FILLER, udptestBUFFER_SIZE );
 
@@ -533,7 +533,7 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
 
     /* Since UDP does not guarantee data delivery, we will retry until there is a
      * successful loop */
-    for( ulRetry = 0; ulRetry < udptestMAX_RETRY; ulRetry++ )
+    for( ulRetry = 0; ulRetry < udptestMAX_RETRY + 1; ulRetry++ )
     {
         xIntermResult = prvSendHelper( xSocket,
                                        pucTxBuffer,
@@ -543,6 +543,9 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
         if( xIntermResult != pdPASS )
         {
             udptestPRINTF( ( "Tx %d data failed to send on try %d\r\n", ulTxCount, ulRetry ) );
+
+            /* Pause, failure may cause by network congestion */
+            vTaskDelay( 500 );
             continue;
         }
 
@@ -555,7 +558,6 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
         if( xIntermResult != pdPASS )
         {
             udptestPRINTF( ( "Rx %d data was not received on try %d\r\n", ulTxCount, ulRetry ) );
-            xResult = pdFAIL;
 
             /* Pause, failure may cause by network congestion */
             vTaskDelay( 500 );
@@ -569,7 +571,6 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
         if( xIntermResult != pdPASS )
         {
             udptestPRINTF( ( "Rx %d data mismatch on try %d\r\n", ulTxCount, ulRetry ) );
-            xResult = pdFAIL;
 
             /* Pause, failure may cause by network congestion */
             vTaskDelay( 500 );
@@ -604,7 +605,7 @@ TEST_GROUP_RUNNER( Full_UDP )
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendToInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendRecv_VaryLength );
-    /* RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek ); */
+    RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
 }
