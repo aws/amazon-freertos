@@ -183,7 +183,7 @@ static void _registerBleAdapterCb( BTStatus_t status,
                                    uint8_t adapter_if,
                                    BTUuid_t * pAppUuid );
 static void _advStatusCb( BTStatus_t status,
-                          uint32_t serverIf,
+                          uint8_t adapterIf,
                           bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
 
@@ -314,9 +314,11 @@ void _registerBleAdapterCb( BTStatus_t status,
 /*-----------------------------------------------------------*/
 
 void _advStatusCb( BTStatus_t status,
-                   uint32_t serverIf,
+                   uint8_t adapterIf,
                    bool bStart )
 {
+    ( void ) adapterIf;
+
     _BTInterface.cbStatus = status;
 
     if( bStart == true )
@@ -383,7 +385,7 @@ BTStatus_t _startAllServices()
 BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 {
     BTStatus_t status = eBTStatusSuccess;
-    BTGattAdvertismentParams_t pParams;
+    BTGattAdvertismentParams_t pParams = { 0 };
     size_t countService = 0;
     BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
 
@@ -398,6 +400,7 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 
     pParams.xAddrType = BTAddrTypePublic;
     pParams.ucChannelMap = 0;
+    pParams.usTimeout = 0; /* Set to 0 to disable the advertisement duration. */
     pParams.ucPrimaryAdvertisingPhy = 0;
     pParams.ucSecondaryAdvertisingPhy = 0;
 

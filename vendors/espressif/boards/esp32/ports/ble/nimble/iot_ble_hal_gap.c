@@ -43,6 +43,11 @@
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static struct ble_gap_adv_params xAdv_params;
+
+#define IOT_BLE_ADVERTISING_DURATION_MS    ( 10 )
+
+/* Duration of advertisement. By default advertise for inifinite duration. */
+static int32_t lAdvDurationMS = BLE_HS_FOREVER;
 static bool xPrivacy;
 
 static BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks );
@@ -417,7 +422,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xStatus = eBTStatusFail;
     }
 
-    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, BLE_HS_FOREVER,
+    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, lAdvDurationMS,
                                     &xAdv_params, prvGAPeventHandler, NULL );
 
     if( xESPStatus != 0 )
@@ -427,7 +432,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, true );
     }
 
     return xStatus;
@@ -607,7 +612,6 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         fields.mfg_data_len = usManufacturerLen;
     }
 
-
     if( ( pxParams->ulMinInterval != 0 ) && ( pxParams->ulMaxInterval != 0 ) )
     {
         uint8_t slave_itvl_range[ 4 ];
@@ -665,6 +669,18 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_DIR;
         /* fixme: set adv_params->high_duty_cycle accordingly */
+    }
+
+    if( pxParams->bSetScanRsp == false )
+    {
+        if( pxParams->usTimeout != 0 )
+        {
+            lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_MS );
+        }
+        else
+        {
+            lAdvDurationMS = BLE_HS_FOREVER;
+        }
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
