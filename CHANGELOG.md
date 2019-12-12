@@ -19,8 +19,8 @@
 - Over-the-air (OTA) updates are now available for LPC54018.
 
 #### Ethernet Support on Nuvoton NuMaker-IoT-M487
-- Ethernet porting code has been added for Nuvoton NuMaker-IoT-M487.
-- Either WI-FI or Ethernet can be enabled exclusively.
+- Ethernet is now available for Nuvoton NuMaker-IoT-M487.
+- Either Wi-Fi or Ethernet can be enabled exclusively.
 
 ## 201910.00 10/29/2019
 
