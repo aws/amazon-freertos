@@ -22,7 +22,7 @@
 					<folderInfo id="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.configuration.327171527." name="/" resourcePath="">
 						<toolChain id="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.toolChain.175356731" name="Renesas CCRX Toolchain" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.toolChain">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.PE" id="com.renesas.cdt.managedbuild.renesas.ccrx.base.targetPlatform.1732330969" osList="win32" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.base.targetPlatform"/>
-							<builder arguments="-k" buildPath="${workspace_loc:/aws_tests}/HardwareDebug" command="../aws_demos_build_path_check_and_make.bat" id="com.renesas.cdt.managedbuild.renesas.ccrx.base.builder.1688637393" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CCRX Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.base.builder"/>
+							<builder buildPath="${workspace_loc:/aws_tests}/HardwareDebug" id="com.renesas.cdt.managedbuild.renesas.ccrx.base.builder.1688637393" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CCRX Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.base.builder"/>
 							<tool id="com.renesas.cdt.managedbuild.renesas.ccrx.base.dsp.2136801445" name="DSP Assembler" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.base.dsp">
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.dsp.option.noDebugInfo.1790185126" name="Output debug information" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.dsp.option.noDebugInfo" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 							</tool>
@@ -119,9 +119,9 @@
 									<listOptionValue builtIn="false" value="__RX=1"/>
 									<listOptionValue builtIn="false" value="__RENESAS__"/>
 									<listOptionValue builtIn="false" value="__LITTLE_ENDIAN__"/>
-									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
-									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
 									<listOptionValue builtIn="false" value="__FUNCTION__=__func__"/>
+									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
 								</option>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC.2136784131" name="C source file" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC.c99" valueType="enumerated"/>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.optimize.1835292196" name="Optimization level" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.optimize" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.optimize.level2" valueType="enumerated"/>
@@ -147,7 +147,7 @@
 									<listOptionValue builtIn="false" value="D_2=R_2"/>
 								</option>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.linkerSection.421001419" name="Sections" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.linkerSection" useByScannerDiscovery="false" value="R_1,R_2,R,SI/04,C_PKCS11_STORAGE*/0100000,B_ETHERNET_BUFFERS_1,B_RX_DESC_1,B_TX_DESC_1,B,B_1,B_2/0800000,C_1,C_2,C,C$*,D*,W*,L,P*/0FFE00000,EXCEPTVECT/0FFFFFF80,RESETVECT/0FFFFFFFC" valueType="string"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.noneLinkageOrderList.335426047" name="(Linkage order list)" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.noneLinkageOrderList" useByScannerDiscovery="false" valueType="stringList"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.noneLinkageOrderList.335426047" name="(Linkage order list)" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.noneLinkageOrderList" useByScannerDiscovery="false"/>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.outputSymbolAllocation.570191124" name="Outputs the external symbol-allocation information file" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.outputSymbolAllocation" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.vect.871197267" name="Address setting for unused vector area" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.vect" useByScannerDiscovery="false" value="_undefined_interrupt_source_isr" valueType="string"/>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.showSymbol.1294042342" name="Output symbol information" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.linker.option.showSymbol" useByScannerDiscovery="false" value="true" valueType="boolean"/>
