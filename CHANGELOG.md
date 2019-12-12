@@ -7,7 +7,7 @@
 #### Common I/O Library V0.5.0
 - A preview of Common I/O library is included.
 - Common I/O library provides a set of standard APIs, across supported reference boards, for accessing common devices.
-- It will start with supporting serial peripherals for UART, SPI and I2C. Other peripheral support will follow.
+- This preview supports UART, SPI and I2C. Support for other peripherals will follow.
 
 ### Updates
 #### lwIP
