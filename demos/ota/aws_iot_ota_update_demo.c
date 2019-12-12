@@ -198,7 +198,6 @@ static const char * pcStateStr[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"

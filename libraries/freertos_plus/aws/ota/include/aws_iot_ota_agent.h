@@ -91,7 +91,6 @@ typedef enum
     eOTA_AgentState_CreatingFile,
     eOTA_AgentState_RequestingFileBlock,
     eOTA_AgentState_WaitingForFileBlock,
-    eOTA_AgentState_InSelfTest,
     eOTA_AgentState_ClosingFile,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
