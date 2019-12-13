@@ -913,7 +913,7 @@ static OTA_Err_t prvInitFileHandler( OTA_EventData_t * pxEventData )
             /* Stop the request timer. */
             prvStopRequestTimer();
 
-            /* Send close file event. */
+            /* Send shutdown event. */
             xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
             OTA_SignalEvent( &xEventMsg );
 
@@ -962,7 +962,7 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
             /* Failed to send data request abort and close file. */
             ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
 
-            /* Send close file event. */
+            /* Send shutdown event. */
             xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
             OTA_SignalEvent( &xEventMsg );
 
