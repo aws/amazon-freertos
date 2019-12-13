@@ -12,6 +12,9 @@
 #### OTA for NXP LPC54018 IoT Module
 - Over-the-air (OTA) updates are now available for LPC54018.
 
+#### HTTPS Client Library V1.1.1
+- Documentation updates and additional debug logging.
+
 #### Bluetooth Low Energy V4.0.0
 - HAL modification to replace bonded callback with pairing state change callback.
 - HAL modification to change to 16-bit value for advertisement duration.
