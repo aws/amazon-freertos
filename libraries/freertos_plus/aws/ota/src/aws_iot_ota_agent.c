@@ -317,11 +317,11 @@ OTAStateTableEntry_t OTATransitionTable[] =
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_Max,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_Max,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
 };
 
-const char * pcOTA_AgentState_Strings[ eOTA_AgentState_Max ] =
+const char * pcOTA_AgentState_Strings[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -883,8 +883,7 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
              * Failed to set the data interface so abort the OTA.If there is a valid job id,
              * then a job status update will be sent.
              */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn);
-
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn );
         }
     }
 
@@ -2375,7 +2374,7 @@ static void prvOTAAgentTask( void * pUnused )
         {
             for( i = 0; i < ulTransitionTableLen; i++ )
             {
-                if( ( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState ) || ( OTATransitionTable[ i ].xCurrentState == eOTA_AgentState_Max ) )
+                if( ( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState ) || ( OTATransitionTable[ i ].xCurrentState == eOTA_AgentState_All ) )
                 {
                     OTA_LOG_L3( "[%s] , State matched [%s]\n", OTA_METHOD_NAME, pcOTA_AgentState_Strings[ i ] );
 

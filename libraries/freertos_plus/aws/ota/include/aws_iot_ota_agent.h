@@ -94,7 +94,7 @@ typedef enum
     eOTA_AgentState_ClosingFile,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
-    eOTA_AgentState_Max
+    eOTA_AgentState_All
 } OTA_State_t;
 
 /**
