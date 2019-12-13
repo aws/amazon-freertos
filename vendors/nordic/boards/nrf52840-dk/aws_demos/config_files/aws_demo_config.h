@@ -89,4 +89,17 @@
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS                   ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
 
+#define democonfigMEMORY_ANALYSIS
+
+#ifdef democonfigMEMORY_ANALYSIS
+    #define democonfigMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
+    #define democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
+    #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+        /* Shift by left twice to convert from stack words to bytes */
+        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x ) << 2
+    #else
+        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
+    #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
+#endif /* democonfigMEMORY_ANALYSIS */
+
 #endif /* _AWS_DEMO_CONFIG_H_ */
