@@ -1,8 +1,14 @@
 # Change Log for Amazon FreeRTOS
 
-## Upcoming release
+## 201912.00 12/17/2019
 
 ### New Features
+
+#### Common I/O Library V0.1.0
+- A preview of Common I/O library is included.
+- Common I/O library provides a set of standard APIs, across supported reference boards, for accessing common devices.
+- This preview supports UART, SPI and I2C. Support for other peripherals will follow.
+
 ### Updates
 #### lwIP
 - Enable lwIP full duplex feature	
@@ -11,6 +17,10 @@
 
 #### OTA for NXP LPC54018 IoT Module
 - Over-the-air (OTA) updates are now available for LPC54018.
+
+#### Ethernet Support on Nuvoton NuMaker-IoT-M487
+- Ethernet is now available for Nuvoton NuMaker-IoT-M487.
+- Either Wi-Fi or Ethernet can be enabled exclusively.
 
 #### HTTPS Client Library V1.1.1
 - Documentation updates and additional debug logging.
