@@ -210,7 +210,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                     xStatus = eBTStatusFail;
                 }
 
-                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, true );
             }
 
             break;
@@ -225,7 +225,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                     xStatus = eBTStatusFail;
                 }
 
-                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, false );
             }
 
             break;
