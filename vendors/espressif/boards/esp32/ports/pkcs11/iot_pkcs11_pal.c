@@ -36,8 +36,8 @@
 #include "esp_flash_encrypt.h"
 #include "nvs_flash.h"
 
-#define NVS_PART_NAME                             configPKCS11_STORAGE_PARTITION
-#define NAMESPACE                                 configPKCS11_STORAGE_NS
+#define NVS_PART_NAME                             pkcs11configSTORAGE_PARTITION
+#define NAMESPACE                                 pkcs11configSTORAGE_NS
 static const char *TAG = "PKCS11";
 
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "P11_Cert"

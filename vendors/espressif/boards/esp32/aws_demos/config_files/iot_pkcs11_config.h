@@ -38,12 +38,12 @@
 /**
  * @brief ESP32 NVS Partition where PKCS #11 data is stored
  */
-#define configPKCS11_STORAGE_PARTITION  "storage"
+#define pkcs11configSTORAGE_PARTITION  "storage"
 
 /**
  * @brief ESP32 NVS namespace for PKCS #11 data
  */
-#define configPKCS11_STORAGE_NS         "creds"
+#define pkcs11configSTORAGE_NS         "creds"
 
 /**
  * @brief PKCS #11 default user PIN.
