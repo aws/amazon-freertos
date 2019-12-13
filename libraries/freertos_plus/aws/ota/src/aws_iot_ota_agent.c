@@ -883,9 +883,8 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
              * Failed to set the data interface so abort the OTA.If there is a valid job id,
              * then a job status update will be sent.
              */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn);
 
-            xReturn = kOTA_Err_JobParserError;
         }
     }
 

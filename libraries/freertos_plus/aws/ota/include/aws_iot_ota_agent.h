@@ -185,6 +185,7 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_TopicTooLarge           0x2a000000UL     /*!< Attempt to build a topic string larger than the supplied buffer. */
 #define kOTA_Err_SelfTestTimerFailed     0x2b000000UL     /*!< Attempt to start self-test timer faield. */
 #define kOTA_Err_EventQueueSendFailed    0x2c000000UL     /*!< Posting event message to the event queue failed. */
+#define kOTA_Err_InvalidDataProtocol     0x2d000000UL     /*!< Job does not have a valid protocol for data transfer. */
 
 /**
  * @brief OTA Job callback events.
