@@ -68,7 +68,6 @@
  * congested. */
 #define udptestLOOP_DELAY_MS      ( ( uint32_t ) 150 )
 #define udptestLOOP_DELAY         ( ( TickType_t ) udptestLOOP_DELAY_MS / portTICK_PERIOD_MS )
-/* Number of retries for a UDP send recv loop */
 
 /* At least number of times the loop needs to pass in order to pass the test.
  * This number is derived from Binomial probability with loop success rate of 98%.
