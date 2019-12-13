@@ -331,7 +331,7 @@ TEST( Full_GGD, GetIPandCertificateFromJSON )
                                                   &ulByteRead,
                                                   &xJSONFileRetrieveCompleted,
                                                   ulJSONFileSize );
-            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
+            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize > ulByteRead ) && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
         }
 
         TEST_ASSERT_EQUAL_INT32( pdPASS, xStatus );
@@ -952,7 +952,7 @@ TEST( Full_GGD, JSONRequestGetFile )
                                                   &ulByteRead,
                                                   &xJSONFileRetrieveCompleted,
                                                   ulJSONFileSize );
-            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
+            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize > ulByteRead ) && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
         }
 
         TEST_ASSERT_EQUAL_INT32( SOCKETS_INVALID_SOCKET, xSocket );
@@ -999,7 +999,7 @@ TEST( Full_GGD, JSONRequestGetFile )
                                                   &ulByteRead,
                                                   &xJSONFileRetrieveCompleted,
                                                   ulJSONFileSize );
-            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
+            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize > ulByteRead ) && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
         }
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, "GGD_JSONRequestGetFile() failed to return pdPASS." );
@@ -1028,12 +1028,12 @@ TEST( Full_GGD, JSONRequestGetFile )
             do
             {
                 xStatus = GGD_JSONRequestGetFile( &xSocket,
-                                                  cBuffer,
-                                                  ulBufferSize,
+                                                  &cBuffer[ ulByteRead ],
+                                                  ulBufferSize - ulByteRead,
                                                   &ulByteRead,
                                                   &xJSONFileRetrieveCompleted,
                                                   ulJSONFileSize - 1 ); /* Remove one byte to the expected JSON file size. */
-            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
+            } while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize > ulByteRead ) && ( ++ulRequestLoopCounter < ggdTestMAX_REQUEST_LOOP_COUNT ) );
         }
 
         TEST_ASSERT_EQUAL_INT32( pdFAIL, xStatus );
