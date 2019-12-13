@@ -83,8 +83,8 @@
     #define democonfigMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
     #define democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
-        /* Shift by left twice to convert from stack words to bytes */
-        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x ) << 2
+        /* Convert from stack words to bytes */
+        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x ) * ( uint32_t ) sizeof( StackType_t ); /*lint !e961 Casting is not redundant on smaller architectures. */
     #else
         #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
     #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
