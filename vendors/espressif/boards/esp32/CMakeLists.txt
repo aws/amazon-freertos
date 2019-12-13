@@ -102,6 +102,8 @@ if(ECC608_IN_USE)
     afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
     afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
     afr_glob_src(ecc608a_pkcs11_src RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
+    afr_glob_src(ecc608a_afr_pkcs11 RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
+
 
     set(
         ecc608a_hal_src
@@ -277,8 +279,6 @@ if(ECC608_IN_USE)
         AFR::pkcs11_implementation::mcu_port
         INTERFACE
             "${ecc608a_pkcs11_src}"
-            "${board_dir}/application_code/atca_cert_chain.c"
-            "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
     )
 else()
     afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)

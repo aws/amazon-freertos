@@ -1,5 +1,6 @@
 set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
 set(ecc608a_dir "${mchp_dir}/secure_elements")
+set(ECC608_IN_USE TRUE)
 
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
@@ -122,7 +123,6 @@ target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${ecc608a_pkcs11_src}"
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
 )
 
 # FreeRTOS Plus TCP
@@ -184,7 +184,6 @@ endif()
 add_executable(
     ${exe_target}
     "${board_dir}/application_code/main.c"
-    "${board_demos_dir}/application_code/atca_cert_chain.c"
     "${board_demos_dir}/application_code/aws_demo_logging.c"
     "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
     "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
