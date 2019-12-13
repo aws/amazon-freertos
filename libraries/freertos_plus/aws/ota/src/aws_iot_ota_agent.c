@@ -183,7 +183,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
 
 /* Close an open OTA file context and free it. */
 
-static void prvOTA_Close( OTA_FileContext_t * const C );
+static bool_t prvOTA_Close( OTA_FileContext_t * const C );
 
 
 /* Internal function to set the image state including an optional reason code. */
@@ -1084,7 +1084,7 @@ static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData )
 
     OTA_LOG_L2( "[%s] Closing File. %d\r\n", OTA_METHOD_NAME );
 
-    prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
+    ( void ) prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
 
     return kOTA_Err_None;
 }
@@ -1101,7 +1101,7 @@ static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData )
 
         if( xErr == kOTA_Err_None )
         {
-            prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
+            ( void ) prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
         }
     }
 
@@ -1258,9 +1258,11 @@ static void prvOTA_FreeContext( OTA_FileContext_t * const C )
 
 /* Close an existing OTA context and free its resources. */
 
-static void prvOTA_Close( OTA_FileContext_t * const C )
+static bool_t prvOTA_Close( OTA_FileContext_t * const C )
 {
     DEFINE_OTA_METHOD_NAME( "prvOTA_Close" );
+
+    bool_t xResult = pdFALSE;
 
     OTA_LOG_L1( "[%s] Context->0x%p\r\n", OTA_METHOD_NAME, C );
 
@@ -1276,7 +1278,11 @@ static void prvOTA_Close( OTA_FileContext_t * const C )
 
         /* Clear the entire structure now that it is free. */
         memset( C, 0, sizeof( OTA_FileContext_t ) );
+
+        xResult = pdTRUE;
     }
+
+    return xResult;
 }
 
 
@@ -2001,7 +2007,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     /* If we failed, free the reserved file context (C) to make it available again. */
     if( pxFinalFile == NULL )
     {
-        prvOTA_Close( C );
+        ( void ) prvOTA_Close( C );
     }
 
     /* Return pointer to populated file context or NULL if it failed. */
@@ -2078,14 +2084,14 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
                 if( xErr != kOTA_Err_None )
                 {
                     ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
-                    prvOTA_Close( pstUpdateFile ); /* Ignore false result since we're setting the pointer to null on the next line. */
+                    ( void ) prvOTA_Close( pstUpdateFile ); /* Ignore false result since we're setting the pointer to null on the next line. */
                     pstUpdateFile = NULL;
                 }
             }
             else
             {
                 /* Can't receive the image without enough memory. */
-                prvOTA_Close( pstUpdateFile );
+                ( void ) prvOTA_Close( pstUpdateFile );
                 pstUpdateFile = NULL;
             }
         }
@@ -2312,7 +2318,7 @@ static void prvAgentShutdownCleanup( void )
      */
     for( ulIndex = 0; ulIndex < OTA_MAX_FILES; ulIndex++ )
     {
-        prvOTA_Close( &xOTA_Agent.pxOTA_Files[ ulIndex ] );
+        ( void ) prvOTA_Close( &xOTA_Agent.pxOTA_Files[ ulIndex ] );
     }
 
     /*
