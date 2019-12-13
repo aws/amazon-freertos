@@ -121,7 +121,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
     }
 }
 
-static const char * pcStateStr[ eOTA_AgentState_Max ] =
+static const char * pcStateStr[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -130,7 +130,6 @@ static const char * pcStateStr[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"

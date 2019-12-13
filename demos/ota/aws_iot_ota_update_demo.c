@@ -189,7 +189,7 @@ static BaseType_t prxCreateNetworkConnection( void )
     return xRet;
 }
 
-static const char * pcStateStr[ eOTA_AgentState_Max ] =
+static const char * pcStateStr[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -198,7 +198,6 @@ static const char * pcStateStr[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"

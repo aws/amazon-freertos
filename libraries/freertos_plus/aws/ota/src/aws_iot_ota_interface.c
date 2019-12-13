@@ -84,7 +84,7 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface,
 {
     DEFINE_OTA_METHOD_NAME( "prvSetDataInterface" );
 
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+    OTA_Err_t xErr = kOTA_Err_InvalidDataProtocol;
     uint32_t i;
 
     for( i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++ )
