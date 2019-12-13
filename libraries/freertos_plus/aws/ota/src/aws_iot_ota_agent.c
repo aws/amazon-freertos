@@ -308,10 +308,8 @@ OTAStateTableEntry_t OTATransitionTable[] =
     { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_StartSelfTest,       prvInSelfTestHandler,  eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CreateFile,          prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
     { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_RequestTimer,        prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedFileBlock,   prvProcessDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
@@ -915,8 +913,8 @@ static OTA_Err_t prvInitFileHandler( OTA_EventData_t * pxEventData )
             /* Stop the request timer. */
             prvStopRequestTimer();
 
-            /* Send close file event. */
-            xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
+            /* Send shutdown event. */
+            xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
             OTA_SignalEvent( &xEventMsg );
 
             /* Too many requests have been sent without a response or too many failures
@@ -964,8 +962,8 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
             /* Failed to send data request abort and close file. */
             ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
 
-            /* Send close file event. */
-            xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
+            /* Send shutdown event. */
+            xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
             OTA_SignalEvent( &xEventMsg );
 
             /* Too many requests have been sent without a response or too many failures
