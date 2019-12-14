@@ -100,7 +100,7 @@
  * This configurations parameter sets the maximum number of static data buffers used by
  * the OTA agent for job and file data blocks received.
  */
-#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       2U
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       10U
 
 /**
  * @brief The protocol selected for OTA control operations.
@@ -136,11 +136,5 @@
   * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
    */
 #define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
-
-
- /**
-  * @brief Maximum number of entries in the OTA message queue. Larger values reduce packet drops.
-  */
-#define configOTA_NUM_MSG_Q_ENTRIES             40U
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
