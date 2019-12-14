@@ -90,11 +90,41 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
     )
     target_link_libraries(
         afr_3rdparty_lwip
-        PRIVATE 
+        PRIVATE
             AFR::kernel
-            AFR::lwip_osal
+            3rdparty::lwip_osal
     )
     add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
+endif()
+
+# lwip implementation based on FreeRTOS
+if(EXISTS "${AFR_3RDPARTY_DIR}/lwip_osal" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows")
+    add_library(
+        afr_3rdparty_lwip_osal STATIC EXCLUDE_FROM_ALL
+    )
+
+    target_include_directories(
+        afr_3rdparty_lwip_osal
+        PUBLIC
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include"
+    )
+
+    target_sources(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/lwipopts_freertos.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/cc.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/perf.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/sys_arch.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/src/sys_arch.c"
+    )
+    target_link_libraries(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            AFR::kernel
+            3rdparty::lwip
+    )
+    add_library(3rdparty::lwip_osal ALIAS afr_3rdparty_lwip_osal)
 endif()
 
 # mbedtls - TLS protocol implementation
