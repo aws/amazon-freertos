@@ -55,6 +55,8 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define ipconfigHAS_PRINTF    1
 #if ( ipconfigHAS_PRINTF == 1 )
     #define FreeRTOS_printf( X )    configPRINTF( X )
+	/* Allow monitoring the message queue of the IP-task. */
+	#define ipconfigCHECK_IP_QUEUE_SPACE	1
 #endif
 
 /* Define the byte order of the target MCU (the MCU FreeRTOS+TCP is executing
@@ -65,6 +67,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * then set ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM to 1 to prevent the software
  * stack repeating the checksum calculations. */
 #define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM     1
+
+/* TX checksum offloading has NOT been implemented in the Wi-Fi of ESP32. */
+#define ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM     0
 
 /* Several API's will block until the result is known, or the action has been
  * performed, for example FreeRTOS_send() and FreeRTOS_recv().  The timeouts can be
@@ -230,9 +235,10 @@ extern uint32_t ulRand();
 
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
- * lower value can save RAM, depending on the buffer management scheme used.  If
- * ipconfigCAN_FRAGMENT_OUTGOING_PACKETS is 1 then (ipconfigNETWORK_MTU - 28) must
- * be divisible by 8. */
+ * lower value can save RAM.
+ * When the distance between Wi-Fi station and access point is long, or when
+ * the signal passes through walls, packets may get lost.  In that case it
+ * helps to decrease the MTU. */
 #define ipconfigNETWORK_MTU                            1460
 
 /* Set ipconfigUSE_DNS to 1 to include a basic DNS client/resolver.  DNS is used
