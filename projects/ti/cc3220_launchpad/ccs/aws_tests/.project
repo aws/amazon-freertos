@@ -203,52 +203,22 @@
 		<link>
 			<name>freertos_kernel/include/FreeRTOS.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/Board.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/CC3220SF_LAUNCHXL.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/CC3220SF_LAUNCHXL.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/network_if.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/network_if.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/network_if.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/network_if.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/uart_term.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/uart_term.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/ti_code/uart_term.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_tests/application_code/ti_code/uart_term.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/FreeRTOS.h</name>
-			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/StackMacros.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
