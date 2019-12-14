@@ -432,6 +432,7 @@ target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
+        AFR::ota_mqtt
 )
 
 # POSIX

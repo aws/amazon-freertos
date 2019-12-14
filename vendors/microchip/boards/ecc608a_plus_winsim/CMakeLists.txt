@@ -158,7 +158,10 @@ target_sources(
 )
 target_link_libraries(
     AFR::ota::mcu_port
-    INTERFACE AFR::crypto
+    INTERFACE
+        AFR::crypto
+        AFR::ota_mqtt
+        AFR::ota_http
 )
 
 # -------------------------------------------------------------------------------------------------
