@@ -37,7 +37,6 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
     target_sources(
         afr_3rdparty_lwip
         PRIVATE
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/src/sys_arch.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
@@ -87,11 +86,13 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
         afr_3rdparty_lwip
         PUBLIC
             "${AFR_3RDPARTY_DIR}/lwip/src/include"
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/include"
+            "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
     )
     target_link_libraries(
         afr_3rdparty_lwip
-        PRIVATE AFR::kernel
+        PRIVATE 
+            AFR::kernel
+            AFR::lwip_osal
     )
     add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
 endif()
