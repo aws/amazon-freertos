@@ -543,9 +543,9 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     struct ble_hs_adv_fields fields;
     const char * name;
     int xESPStatus;
-    ble_uuid16_t uuid16 = { 0 };
-    ble_uuid32_t uuid32 = { 0 };
-    ble_uuid128_t uuid128 = { 0 };
+    ble_uuid16_t uuid16;
+    ble_uuid32_t uuid32;
+    ble_uuid128_t uuid128;
 
     BTStatus_t xStatus = eBTStatusSuccess;
 
@@ -628,32 +628,65 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         fields.svc_data_uuid16_len = usServiceDataLen;
     }
 
+    fields.num_uuids16=0;
+    fields.num_uuids32=0;
+    fields.num_uuids128=0;
     if( pxServiceUuid != NULL )
     {
-        if( pxServiceUuid->ucType == eBTuuidType16 )
+      for (size_t i = 0; i < xNbServices; i++)
+      {
+        if( pxServiceUuid[i].ucType == eBTuuidType16 )
         {
+          if(fields.num_uuids16==0)
+          {
             uuid16.u.type = BLE_UUID_TYPE_16;
             uuid16.value = pxServiceUuid->uu.uu16;
             fields.uuids16 = &uuid16;
-            fields.num_uuids16 = 1;
+            fields.num_uuids16++;
             fields.uuids16_is_complete = 1;
+          }
+          else
+          {
+            /// there are more than 1 service of this type, but as per bluetooth core specification supplement v8,
+            /// page 10, only one service UUID per type is allowed. Mark this as incomplete.
+            fields.uuids16_is_complete = 0;
+          }
         }
-        else if( pxServiceUuid->ucType == eBTuuidType32 )
+        else if( pxServiceUuid[i].ucType == eBTuuidType32 )
         {
+          if(fields.num_uuids32==0)
+          {
             uuid32.u.type = BLE_UUID_TYPE_32;
-            uuid16.value = pxServiceUuid->uu.uu32;
+            uuid32.value = pxServiceUuid->uu.uu32;
             fields.uuids32 = &uuid32;
-            fields.num_uuids32 = 1;
+            fields.num_uuids32++;
             fields.uuids32_is_complete = 1;
+          }
+          else
+          {
+            /// there are more than 1 service of this type, but as per bluetooth core specification supplement v8,
+            /// page 10, only one service UUID per type is allowed. Mark this as incomplete.
+            fields.uuids32_is_complete = 0;
+          }
         }
-        else if( pxServiceUuid->ucType == eBTuuidType128 )
+        else if( pxServiceUuid[i].ucType == eBTuuidType128 )
         {
+          if(fields.num_uuids128==0)
+          {
             uuid128.u.type = BLE_UUID_TYPE_128;
             memcpy( uuid128.value, pxServiceUuid->uu.uu128, sizeof( pxServiceUuid->uu.uu128 ) );
             fields.uuids128 = &uuid128;
-            fields.num_uuids128 = 1;
+            fields.num_uuids128++;
             fields.uuids128_is_complete = 1;
+          }
+          else
+          {
+            /// there are more than 1 service of this type, but as per bluetooth core specification supplement v8,
+            /// page 10, only one service UUID per type is allowed. Mark this as incomplete.
+            fields.uuids128_is_complete = 0;
+          }
         }
+      }
     }
 
     xAdv_params.itvl_min = ( IOT_BLE_ADVERTISING_INTERVAL * 1000 ) / ( BLE_HCI_ADV_ITVL );
