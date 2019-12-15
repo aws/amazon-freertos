@@ -55,6 +55,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define ipconfigHAS_PRINTF    1
 #if ( ipconfigHAS_PRINTF == 1 )
     #define FreeRTOS_printf( X )    configPRINTF( X )
+	/* When logging is allowed, also enable checking the space in the
+	queue to the IP-task. */
+    #define ipconfigCHECK_IP_QUEUE_SPACE			1
 #endif
 
 /* Define the byte order of the target MCU (the MCU FreeRTOS+TCP is executing
@@ -64,8 +67,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /* If the network card/driver includes checksum offloading (IP/TCP/UDP checksums)
  * then set ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM to 1 to prevent the software
  * stack repeating the checksum calculations. */
-#define ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM		( 1 )
-#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM     1
+#define ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM		1
+#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM		1
+
+/* The Xilinx Zynq driver uses zero-copy techniques both for reception
+ * and transmission. */
+#define ipconfigZERO_COPY_RX_DRIVER					1
+#define ipconfigZERO_COPY_TX_DRIVER					1
 
 /* Several API's will block until the result is known, or the action has been
  * performed, for example FreeRTOS_send() and FreeRTOS_recv().  The timeouts can be
@@ -74,12 +82,13 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #define ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME    ( 10000 )
 #define ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME       ( 10000 )
 
-/* Include support for LLMNR: Link-local Multicast Name Resolution
- * (non-Microsoft) */
-#define ipconfigUSE_LLMNR                          ( 1 )
+/* Include support for LLMNR: Link-local Multicast Name Resolution.
+ * This protocol is considered unsafe and therefore it is disabled by default. */
+#define ipconfigUSE_LLMNR                          ( 0 )
 
-/* Include support for NBNS: NetBIOS Name Service (Microsoft) */
-#define ipconfigUSE_NBNS                           ( 1 )
+/* Include support for NBNS: NetBIOS Name Service.
+ * This protocol is considered unsafe and therefore it is disabled by default. */
+#define ipconfigUSE_NBNS                           ( 0 )
 
 /* Include support for DNS caching.  For TCP, having a small DNS cache is very
  * useful.  When a cache is present, ipconfigDNS_REQUEST_ATTEMPTS can be kept low
