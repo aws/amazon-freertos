@@ -4,6 +4,10 @@
 
 ### New Features
 
+#### Over the Air Update V1.1.0
+- Refactor OTA agent and separate data transfer and control interface.
+- Support OTA data transfer over HTTP.
+
 #### Common I/O Library V0.1.0
 - A preview of Common I/O library is included.
 - Common I/O library provides a set of standard APIs, across supported reference boards, for accessing common devices.
