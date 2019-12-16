@@ -133,9 +133,8 @@ typedef struct
  */
 typedef uint32_t OTA_Err_t;
 
-/**
- * @defgroup OTA Error code operation helpers.
- * @brief Helper constant for extracting the error code from the OTA error returned.
+/*
+ * OTA Error code helper constant for extracting the error code from the OTA error returned.
  *
  * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
  * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
@@ -145,11 +144,10 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Main_ErrMask                0xff000000UL /*!< Mask out all but the OTA Agent error code (high 8 bits). */
 #define kOTA_MainErrShiftDownBits        24U          /*!< The OTA Agent error code is the highest 8 bits of the word. */
 
-/**
- * @defgroup OTA Agent error codes.
- * @brief Error codes returned by OTA agent API.
+/*
+ * OTA Agent error codes returned by OTA agent API.
  *
- * @note OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
+ * OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
  */
 #define kOTA_Err_Panic                   0xfe000000UL     /*!< Unrecoverable FW error. Probably should log error and reboot. */
 #define kOTA_Err_Uninitialized           0xff000000UL     /*!< The error code has not yet been set by a logic path. */
