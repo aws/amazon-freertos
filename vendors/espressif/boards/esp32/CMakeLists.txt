@@ -42,6 +42,8 @@ target_compile_options(
     $<$<COMPILE_LANGUAGE:CXX>:${IDF_CXX_COMPILE_OPTIONS}>
 )
 
+add_compile_options(-Wno-unused-variable -Wno-unused-function -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-clobbered)
+
 # Compiler definitions/macros
 target_compile_definitions(
     AFR::compiler::mcu_port
