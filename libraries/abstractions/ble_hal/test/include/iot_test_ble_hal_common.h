@@ -511,11 +511,13 @@ void IotTestBleHal_BLESetUp( void );
 void IotTestBleHal_BLEFree( void );
 
 void IotTestBleHal_StartAdvertisement( void );
+bool IotTestBleHal_CheckBondState( void * pvEvent );
 BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              int32_t lhandle,
                                              void * pxMessage,
                                              size_t xMessageLength,
-                                             uint32_t timeoutMs );
+                                             uint32_t timeoutMs,
+                                             bool ( * pxMatch )( void * pvEvent ) );
 void IotTestBleHal_ClearEventQueue( void );
 
 void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb );

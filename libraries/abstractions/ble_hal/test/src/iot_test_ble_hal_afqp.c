@@ -152,7 +152,7 @@ void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
     xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingEvent.xStatus );
     TEST_ASSERT_EQUAL( eBTbondStateNone, xPairingEvent.xBondState );
@@ -239,7 +239,7 @@ void IotTestBleHal_WaitConnection( bool bConnected )
     BLETESTConnectionCallback_t xConnectionEvent;
     BTStatus_t xStatus;
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( bConnected, xConnectionEvent.bConnected );
     TEST_ASSERT_EQUAL( _ucBLEServerIf, xConnectionEvent.ucServerIf );
@@ -265,19 +265,15 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
 
-    IotTestBleHal_ClearEventQueue();
-
-    printf("send sspreply");
     xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    printf("send sspreply......");
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY, IotTestBleHal_CheckBondState );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
     TEST_ASSERT_EQUAL( eBTStatusFail, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
     /* @TODO add correct flag */
@@ -338,7 +334,7 @@ TEST( Full_BLE, BLE_Connection_Disconnect_From_Peripheral )
     xStatus = _pxBTLeAdapterInterface->pxDisconnect( _ucBLEAdapterIf, &_xAddressConnectedDevice, _usBLEConnId );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( false, xConnectionEvent.bConnected );
     TEST_ASSERT_EQUAL( _ucBLEServerIf, xConnectionEvent.ucServerIf );
@@ -382,7 +378,7 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
     BTStatus_t xStatus;
 
     /* Wait write event on char A*/
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventRequestExecWriteCb, NO_HANDLE, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventRequestExecWriteCb, NO_HANDLE, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     IotLog( IOT_LOG_DEBUG,
             &_logHideAll,
             "prvExecuteWriteCheckAndResponse: received event (connid=%d, ulTransId=%d)",
@@ -406,7 +402,7 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
         xStatus = _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
         /* TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle ); */
     }
@@ -421,7 +417,7 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
     BTStatus_t xStatus;
 
     /* Wait write event on char A*/
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( IsPrep, xWriteEvent.bIsPrep );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
@@ -463,7 +459,7 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
 
     if( IsConnected == true )
     {
@@ -484,7 +480,7 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTconfirmCallback_t xConfirmEvent;
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
@@ -508,7 +504,7 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
     _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle );
 }
@@ -557,7 +553,7 @@ BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute
     BLETESTreadAttrCallback_t xReadEvent;
     BTStatus_t xStatus;
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xReadEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( _usBLEConnId, xReadEvent.usConnId );
@@ -582,7 +578,7 @@ void IotTestBleHal_ReadResponse( bletestAttSrvB_t xAttribute,
     xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     if( IsConnected == true )
@@ -631,7 +627,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
@@ -685,12 +681,12 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     xGattResponse.xAttrValue.pucValue = LongReadBuffer;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xConfirmEvent.usAttrHandle );
 
     /* Read blob transaction */
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     xGattResponse.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
@@ -698,7 +694,7 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     xGattResponse.xAttrValue.pucValue = LongReadBuffer + xReadEvent.usOffset;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xConfirmEvent.usAttrHandle );
 }
@@ -719,7 +715,7 @@ TEST( Full_BLE, BLE_Connection_UpdateConnectionParamReq )
                                                                      xConnectionParamA.timeout );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionUpdateCb, NO_HANDLE, ( void * ) &xUpdateConnectionParamReq, sizeof( BLETESTUpdateConnectionParamReqCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionUpdateCb, NO_HANDLE, ( void * ) &xUpdateConnectionParamReq, sizeof( BLETESTUpdateConnectionParamReqCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xUpdateConnectionParamReq.xStatus );
 
@@ -738,7 +734,7 @@ TEST( Full_BLE, BLE_Connection_SimpleConnection )
     IotTestBleHal_WaitConnection( true );
 
     /* Check the MTU size */
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( _usBLEConnId, xMtuChangedEvent.usConnId );
     TEST_ASSERT_EQUAL( bletestsMTU_SIZE1, xMtuChangedEvent.usMtu );
@@ -770,7 +766,7 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
                                                             _xSrvcA.pusHandlesBuffer[ 0 ] );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventIncludedServiceAdded, NO_HANDLE, ( void * ) &xBLETESTInclServiceCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventIncludedServiceAdded, NO_HANDLE, ( void * ) &xBLETESTInclServiceCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xBLETESTInclServiceCb.xStatus );
     TEST_ASSERT_EQUAL( _xSrvcB.pusHandlesBuffer[ 0 ], xBLETESTInclServiceCb.usSrvHandle );
