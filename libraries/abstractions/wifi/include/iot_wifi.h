@@ -65,6 +65,7 @@ typedef enum
     eWiFiSecurityWEP,         /**< WEP Security. */
     eWiFiSecurityWPA,         /**< WPA Security. */
     eWiFiSecurityWPA2,        /**< WPA2 Security. */
+    eWiFiSecurityWPA2_ent,    /**< WPA2 Enterprise Security. */
     eWiFiSecurityNotSupported /**< Unknown Security. */
 } WIFISecurity_t;
 
