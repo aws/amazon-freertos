@@ -155,6 +155,8 @@ static IotMqttError_t _mqttConnect( GGD_HostAddressData_t * pxHostAddressData,
     xCredentials.rootCaSize = ( size_t ) pxHostAddressData->ulCertificateSize;
     /* Disable SNI. */
     xCredentials.disableSni = true;
+    /* ALPN is not needed. */
+    xCredentials.pAlpnProtos = NULL;
 
     /* Set the server info. */
     xServerInfo.pHostName = pxHostAddressData->pcHostAddress;
