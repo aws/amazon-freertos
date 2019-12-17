@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /***********************************************************************************************************************
 * DISCLAIMER
 * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No 
@@ -14,7 +15,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2013-2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name     : r_sci_rx_config.h
@@ -29,6 +30,12 @@
 *           01.10.2016 1.80    Added support for RX65N (comments and TX/RX FIFO THRESHOLD options)
 *           19.12.2016 1.90    Added comments for RX24U support
 *           07.03.2017 2.00    Added comments for RX130-512KB support
+*           28.09.2018 2.10    Added comments for RX66T support
+*           01.02.2019 2.20    Added comments for RX72T, RX65N-64pin support
+*                              Added support received data match function for RX65N
+*           28.06.2019 3.10    Added comments for RX23W support
+*           15.08.2019 3.20    Added support received data match function for RX72M (SCI0- SCI11)
+*                              Added support FIFO mode for RX72M (SCI7 - SCI11)
 ***********************************************************************************************************************/
 #ifndef SCI_CONFIG_H
 #define SCI_CONFIG_H
@@ -60,28 +67,30 @@ Configuration Options
  * * = port connector RDKRX63N, RSKRX210, RSKRX11x
  * u = channel used by the USB-UART port (G1CUSB0)
  * a = this channel is used only for RX130-512KB
+ * n = this channel is not available for RX65N-64pin.
+ * s = this channel is not available in simple SPI mode.
  * RX MCU supported channels
  *
- * CH#  110 111 113 130 210 230 231 23T 24T 24U 63N 631 64M 71M 65N
- * ---  --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
- * CH0           X   Xa  X*  X   X               X*  X   X   X   X
- * CH1   X   X*  X*  Xu  X   X   X   Xu  Xu  Xu  X   X   X   X   X
- * CH2           X                               X   X   X   X   Xu
- * CH3                                           X   X   X   X   X
- * CH4                                           X   X   X   X   X
- * CH5   X   X   X   X   X   X   Xu  X   X   X   X   X   X   X   X
- * CH6           X   X   X   X   X       X   X   X   X   X   X   X
- * CH7                                           X   X   Xu  Xu  X
- * CH8           X   Xa  X   X   X           X   X   X           X
- * CH9           X   Xa  X   X   X           X   X   X           X
- * CH10                                          X   X           X
- * CH11                                      X   X   X           X
- * CH12  X   X   X   X   X   X   X               X   X   X   X   X
+ * CH#  110 111 113 130 210 230 231 23T 24T 24U 63N 631 64M 71M 65N 66T 72T 23W 72M
+ * ---  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+ * CH0           X   Xa  X*  X   X               X*  X   X   X   Xn              X
+ * CH1   X   X*  X*  Xu  X   X   X   Xu  Xu  Xu  X   X   X   X   Xs  X   X   X   X
+ * CH2           X                               X   X   X   X   Xu              X
+ * CH3                                           X   X   X   X   Xs              X
+ * CH4                                           X   X   X   X   Xn              X
+ * CH5   X   X   X   X   X   X   Xu  X   X   X   X   X   X   X   X   X   X   X   X
+ * CH6           X   X   X   X   X       X   X   X   X   X   X   Xn  X   X       Xu
+ * CH7                                           X   X   Xu  Xu  Xn              X
+ * CH8           X   Xa  X   X   X           X   X   X           X   X   X   Xu  X
+ * CH9           X   Xa  X   X   X           X   X   X           Xs  X   X       X
+ * CH10                                          X   X           X               X
+ * CH11                                      X   X   X           Xs  X   X       X
+ * CH12  X   X   X   X   X   X   X               X   X   X   X   Xs  X   X   X   X
 */
                                    
 #define SCI_CFG_CH0_INCLUDED    (0)
 #define SCI_CFG_CH1_INCLUDED    (0)
-#define SCI_CFG_CH2_INCLUDED    (1)
+#define SCI_CFG_CH2_INCLUDED    (0)
 #define SCI_CFG_CH3_INCLUDED    (0)
 #define SCI_CFG_CH4_INCLUDED    (0)
 #define SCI_CFG_CH5_INCLUDED    (0)
@@ -135,7 +144,7 @@ Configuration Options
 * for including the TEI code. The interrupt itself must be enabled using an
 * R_SCI_Control(hdl, SCI_CMD_EN_TEI, NULL) call.
 */
-#define SCI_CFG_TEI_INCLUDED    (0)      /* 1=included, 0=not */
+#define SCI_CFG_TEI_INCLUDED    (1)      /* 1=included, 0=not */
 
 /* 
 * SET GROUP12 (RECEIVER ERROR) INTERRUPT PRIORITY; RX63N/631 ONLY
@@ -146,26 +155,49 @@ Configuration Options
 #define SCI_CFG_RXERR_PRIORITY  (3)      /* (RX63N/631 ONLY) 1 lowest, 15 highest */
 
 /* 
-* SET GROUPBL0 (ERI, TEI) INTERRUPT PRIORITY; RX64M/RX71M/RX65N ONLY
-* SET GROUPBL1, GROUPAL0 (ERI,TEI) INTERRUPT PRIORITY; RX65N ONLY
+* SET GROUPBL0 (ERI, TEI) INTERRUPT PRIORITY; RX64M/RX71M/RX65N/RX72M ONLY
+* SET GROUPBL1; RX65N ONLY
+* SET GROUPAL0 (ERI,TEI) INTERRUPT PRIORITY; RX65N, RX72M ONLY
 * This sets the priority level for receiver overrun, framing, and parity errors
 * as well as TEI interrupts for all SCI channels.
 */
-#define SCI_CFG_ERI_TEI_PRIORITY (3)     /* (RX64M/RX71M/RX65N ONLY) 1 lowest, 15 highest */
+#define SCI_CFG_ERI_TEI_PRIORITY (3)     /* (RX64M/RX71M/RX65N/RX72M ONLY) 1 lowest, 15 highest */
 
 /* ENABLE TX/RX FIFO; (SCIi supported MCU ONLY) 1=included, 0=not */
+#define SCI_CFG_CH7_FIFO_INCLUDED   (0)
+#define SCI_CFG_CH8_FIFO_INCLUDED   (0)
+#define SCI_CFG_CH9_FIFO_INCLUDED   (0)
 #define SCI_CFG_CH10_FIFO_INCLUDED  (0)
 #define SCI_CFG_CH11_FIFO_INCLUDED  (0)
 
 /* SET TX FIFO THRESHOLD; (SCIi supported MCU ONLY) 0 lowest, 15 highest */
 /* TX FIFO THRESHOLD is invalid in Clock Synchronous Mode and Simple SPI Mode. */
 /* Set the same value for TX FIFO THRESHOLD and RX FIFO THRESHOLD in Clock Synchronous Mode and Simple SPI Mode. */
+#define SCI_CFG_CH7_TX_FIFO_THRESH (8)
+#define SCI_CFG_CH8_TX_FIFO_THRESH (8)
+#define SCI_CFG_CH9_TX_FIFO_THRESH (8)
 #define SCI_CFG_CH10_TX_FIFO_THRESH (8)
 #define SCI_CFG_CH11_TX_FIFO_THRESH (8)
 
 /* SET RX FIFO THRESHOLD; (SCIi supported MCU ONLY) 1 lowest, 15 highest */
+#define SCI_CFG_CH7_RX_FIFO_THRESH (8)
+#define SCI_CFG_CH8_RX_FIFO_THRESH (8)
+#define SCI_CFG_CH9_RX_FIFO_THRESH (8)
 #define SCI_CFG_CH10_RX_FIFO_THRESH (8)
 #define SCI_CFG_CH11_RX_FIFO_THRESH (8)
 
+/* ENABLE Received Data match function (SCIj and SCIi supported MCU RX65N/RX66T/RX72T/RX72M ONLY) 1=included, 0=not */
+#define SCI_CFG_CH0_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH1_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH2_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH3_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH4_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH5_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH6_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH7_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH8_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH9_DATA_MATCH_INCLUDED  (0)
+#define SCI_CFG_CH10_DATA_MATCH_INCLUDED (0)
+#define SCI_CFG_CH11_DATA_MATCH_INCLUDED (0)
 
 #endif /* SCI_CONFIG_H */

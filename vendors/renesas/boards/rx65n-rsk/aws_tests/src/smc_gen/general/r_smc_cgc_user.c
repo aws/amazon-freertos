@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_smc_cgc_user.c
-* Version      : 1.1.2
+* Version      : 1.5.1
 * Device(s)    : R5F565NEDxFC
 * Description  : None
-* Creation Date: 2018-11-17
+* Creation Date: 2019-11-24
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -36,6 +36,7 @@ Includes
 ***********************************************************************************************************************/
 #include "r_cg_macrodriver.h"
 /* Start user code for include. Do not edit comment generated here */
+#include "r_smc_cgc.h"
 /* End user code. Do not edit comment generated here */
 #include "r_cg_userdefine.h"
 

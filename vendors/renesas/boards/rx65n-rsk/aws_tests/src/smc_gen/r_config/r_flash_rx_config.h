@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /***********************************************************************************************************************
  * DISCLAIMER
  * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
@@ -14,7 +15,7 @@
  * following link:
  * http://www.renesas.com/disclaimer
  *
- * Copyright (C) 2014 Renesas Electronics Corporation. All rights reserved.
+ * Copyright (C) 2014-2019 Renesas Electronics Corporation. All rights reserved.
  ***********************************************************************************************************************/
 /***********************************************************************************************************************
  * File Name    : r_flash_rx_config_reference.h
@@ -26,13 +27,13 @@
 *           22.12.2014 1.10    Added flash type usage comments.
 *           25.06.2015 1.20    Added FLASH_CFG_CODE_FLASH_RUN_FROM_ROM.
 *         : 12.10.2016 2.00    Modified for BSPless operation (added FLASH_CFG_USE_FIT_BSP).
+*         : 19.04.2019 4.00    Removed BSPless operation (FLASH_CFG_USE_FIT_BSP).
+*                              Removed flash type 2 only operation (FLASH_CFG_FLASH_READY_IPL).
+*                              Removed flash type 2 only operation (FLASH_CFG_IGNORE_LOCK_BITS).
+*         : 19.07.2019 4.20    Modified comments (FLASH_CFG_CODE_FLASH_ENABLE, FLASH_CFG_CODE_FLASH_RUN_FROM_ROM).
 ***********************************************************************************************************************/
 #ifndef FLASH_CONFIG_HEADER_FILE
 #define FLASH_CONFIG_HEADER_FILE
-
-/* Set the following value to 0 when building without using the FIT BSP Module */
-#define FLASH_CFG_USE_FIT_BSP       (1)
-
 
 /***********************************************************************************************************************
  Configuration Options
@@ -50,10 +51,10 @@
 /* If you are only using data flash, set this to 0.
  * Setting to 1 includes code to program the ROM area. When programming ROM,
  * code must be executed from RAM, except under certain restrictions for flash
- * type 3 (see section 2.14 in App Note). See section 2.13 in the App Note for
+ * type 3 (see section 2.15 in App Note). See section 2.14 in the App Note for
  * details on how to set up code and the linker to execute code from RAM.
  */
-#define FLASH_CFG_CODE_FLASH_ENABLE (0)
+#define FLASH_CFG_CODE_FLASH_ENABLE (1)
 
 
 /******************************************************************************
@@ -65,7 +66,7 @@
  * started. Notification of the operation completion is done via the callback 
  * function. 
  */
-#define FLASH_CFG_DATA_FLASH_BGO   (0)
+#define FLASH_CFG_DATA_FLASH_BGO   (1)
 
 
 /******************************************************************************
@@ -79,7 +80,7 @@
  * INTERRUPT ROUTINES MUST BE IN RAM.  
  * See sections 2.16 Usage Notes in the App Note.
  */
-#define FLASH_CFG_CODE_FLASH_BGO   (0)
+#define FLASH_CFG_CODE_FLASH_BGO   (1)
 
 
 /******************************************************************************
@@ -87,30 +88,10 @@
 ******************************************************************************/
 /* Set this to 0 when programming code flash while executing in RAM.
  * Set this to 1 when programming code flash while executing from another
- * segment in ROM (possible only with RX64M, RX71M, RX65N-2 groups).
- * See section 2.14 in the App Note.
+ * segment in ROM (possible only with RX64M, RX71M, RX65N-2, RX72M groups).
+ * See section 2.15 in the App Note.
  */
-#define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (0)
-
-
-/******************************************************************************
- SET IPL OF FLASH READY INTERRUPT
-******************************************************************************/
-#define FLASH_CFG_FLASH_READY_IPL   (5)     // Flash type 2 only
-
-
-/******************************************************************************
- ENABLE OR DISABLE LOCK BIT PROTECTION
-******************************************************************************/
-/* Each erasure block has a corresponding lock bit that can be used to
- * protect that block from being programmed/erased after the lock bit is
- * set. The use of lock bits can be used or ignored.
- * Setting this to 1 will cause lock bits to be ignored and programs/erases to a
- * block will not be limited.
- * Setting this to 0 will cause lock bits to be used as the user configures through
- * the Control command. This only applies to ROM as the DF does not have lock bits.
- */
-#define FLASH_CFG_IGNORE_LOCK_BITS  (1)     // Flash type 2 only
+#define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (1)
 
 
 #endif /* FLASH_CONFIG_HEADER_FILE */

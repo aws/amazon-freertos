@@ -69,6 +69,6 @@ extern void vAssertCalled( void );
 /**
  * @brief Set this macro to 1 for enabling debug logs.
  */
-#define mqttconfigENABLE_DEBUG_LOGS    1
+#define mqttconfigENABLE_DEBUG_LOGS 1
 
 #endif /* _AWS_MQTT_CONFIG_H_ */

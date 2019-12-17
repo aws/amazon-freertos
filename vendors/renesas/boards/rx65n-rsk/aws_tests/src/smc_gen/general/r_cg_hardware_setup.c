@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_cg_hardware_setup.c
-* Version      : 1.2.0
+* Version      : 1.2.5
 * Device(s)    : R5F565NEDxFC
 * Description  : Initialization file for code generation configurations.
-* Creation Date: 2018-11-17
+* Creation Date: 2019-11-24
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -45,6 +45,7 @@ Includes
 Global variables and functions
 ***********************************************************************************************************************/
 /* Start user code for global. Do not edit comment generated here */
+void r_undefined_exception(void);
 /* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************

@@ -30,7 +30,8 @@
 <stringAttribute key="com.renesas.cdt.core.targetDevice" value="R5F565NE"/>
 <booleanAttribute key="com.renesas.cdt.core.useRemoteTarget" value="true"/>
 <stringAttribute key="com.renesas.cdt.debug.ioview.dsf.registerSelection" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;selectedRegisterList ioFilePath=&quot;C:\Renesas\e2_studio_v710\DebugComp\RX\Iofiles\RX65N.sfrx&quot;/&gt;&#13;&#10;"/>
-<stringAttribute key="com.renesas.cdt.launch.dsf.IO_MAP" value="${eclipse_home}"/>
+<stringAttribute key="com.renesas.cdt.debug.ioview.dsf.registerSelection0" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;selectedRegisterList ioFilePath=&quot;D:\Renesas\e2studio_offline_installer-7.6.0.R20190919-1708\DebugComp\RX\Iofiles\RX65N.sfrx&quot;/&gt;&#13;&#10;"/>
+<stringAttribute key="com.renesas.cdt.launch.dsf.IO_MAP" value="${support_area_loc}"/>
 <booleanAttribute key="com.renesas.cdt.launch.dsf.USE_DEFAULT_IO_MAP" value="true"/>
 <listAttribute key="com.renesas.cdt.launch.dsf.downloadImages">
 <listEntry value="|true|true|true||true|No core"/>
@@ -110,10 +111,11 @@
 <stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.supply.voltage" value="3.3"/>
 <intAttribute key="com.renesas.hardwaredebug.rx.e2lite.timer_clock" value="0"/>
 <intAttribute key="com.renesas.hardwaredebug.rx.e2lite.work_ram_start" value="4096"/>
+<booleanAttribute key="com.renesas.hardwaredebug.timemeasurement" value="true"/>
 <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.delay" value="3"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doHalt" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doReset" value="false"/>
-<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value="C:\Amazon\AFreeRTOS\tests\renesas\rskrx65n\e2studio\aws_tests\HardwareDebug\aws_tests.x"/>
+<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageFileName" value="C:\amazon-rx\amazon-freertos\projects\renesas\rx65n-rsk\e2studio\aws_tests\HardwareDebug\aws_tests.x"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.imageOffset" value=""/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.initCommands" value=""/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImage" value="true"/>
@@ -124,7 +126,7 @@
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setResume" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.setStopAt" value="true"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.stopAt" value="main"/>
-<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value="C:\Amazon\AFreeRTOS\tests\renesas\rskrx65n\e2studio\aws_tests\HardwareDebug\aws_tests.x"/>
+<stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName" value="C:\amazon-rx\amazon-freertos\projects\renesas\rx65n-rsk\e2studio\aws_tests\HardwareDebug\aws_tests.x"/>
 <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.symbolsOffset" value=""/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForImage" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.useFileForSymbols" value="false"/>
@@ -146,6 +148,6 @@
 <listEntry value="4"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
-<stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&#13;&#10;&#13;&#10;&lt;gdbmemoryBlockExpression address=&quot;0&quot; core_thread_id=&quot;1_i1&quot; label=&quot;0000&quot;/&gt;&#13;&#10;&lt;gdbmemoryBlockExpression address=&quot;187396&quot; core_thread_id=&quot;1_i1&quot; label=&quot;&amp;amp;(xSocket)&quot;/&gt;&#13;&#10;&lt;/memoryBlockExpressionList&gt;&#13;&#10;"/>
+<stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&#13;&#10;&#13;&#10;&lt;gdbmemoryBlockExpression address=&quot;0&quot; core_thread_id=&quot;1_i1&quot; label=&quot;0000&quot;/&gt;&#13;&#10;&lt;gdbmemoryBlockExpression address=&quot;14356&quot; core_thread_id=&quot;1_i1&quot; label=&quot;&amp;amp;(xSocket)&quot;/&gt;&#13;&#10;&lt;/memoryBlockExpressionList&gt;&#13;&#10;"/>
 <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
 </launchConfiguration>

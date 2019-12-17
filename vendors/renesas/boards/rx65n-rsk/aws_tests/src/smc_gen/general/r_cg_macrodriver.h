@@ -14,19 +14,19 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_cg_macrodriver.h
-* Version      : 1.2.0
+* Version      : 1.2.5
 * Device(s)    : R5F565NEDxFC
 * Description  : Macro header file for code generation.
-* Creation Date: 2018-11-17
+* Creation Date: 2019-11-24
 ***********************************************************************************************************************/
 
-#ifndef MODULEID_H
-#define MODULEID_H
+#ifndef MACRODRIVER_H
+#define MACRODRIVER_H
 
 /***********************************************************************************************************************
 Includes
