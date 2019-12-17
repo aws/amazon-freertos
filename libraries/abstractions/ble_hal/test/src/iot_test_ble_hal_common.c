@@ -1121,6 +1121,8 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
 
     if( xStatus == eBTStatusSuccess )
     {
+        IotTestBleHal_ClearEventQueue();
+
         xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
@@ -1880,12 +1882,17 @@ void prvIndicationSentCb( uint16_t usConnId,
 void prvMtuChangedCb( uint16_t usConnId,
                       uint16_t usMtu )
 {
-    IotLog( IOT_LOG_DEBUG,
-            &_logHideAll,
-            "prvMtuChangedCb conn=%d, mtu=%d",
-            usConnId,
-            usMtu );
-    _bletestsMTU_SIZE = usMtu;
+    BLETESTMtuChangedCallback_t * pxMtuChangedCallback = IotTest_Malloc( sizeof( BLETESTMtuChangedCallback_t ) );
+
+    if( pxMtuChangedCallback != NULL )
+    {
+        pxMtuChangedCallback->xEvent.xEventTypes = eBLEHALEventMtuChangedCb;
+        pxMtuChangedCallback->xEvent.lHandle = NO_HANDLE;
+        pxMtuChangedCallback->usConnId = usConnId;
+        pxMtuChangedCallback->usMtu = usMtu;
+
+        pushToQueue( &pxMtuChangedCallback->xEvent.eventList );
+    }
 }
 
 void prvResponseConfirmationCb( BTStatus_t xStatus,

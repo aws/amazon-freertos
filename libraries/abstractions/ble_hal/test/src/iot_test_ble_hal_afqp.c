@@ -246,9 +246,12 @@ void IotTestBleHal_WaitConnection( bool bConnected )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
 
     /* Stop advertisement. */
-    xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    IotTestBleHal_StartStopAdvCheck( false );
+    if( bConnected == true )
+    {
+        xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        IotTestBleHal_StartStopAdvCheck( false );
+    }
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level2 )
@@ -267,8 +270,12 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
     TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
 
+    IotTestBleHal_ClearEventQueue();
+
+    printf("send sspreply");
     xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    printf("send sspreply......");
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
@@ -725,7 +732,16 @@ TEST( Full_BLE, BLE_Connection_UpdateConnectionParamReq )
 
 TEST( Full_BLE, BLE_Connection_SimpleConnection )
 {
+    BTStatus_t xStatus;
+    BLETESTMtuChangedCallback_t xMtuChangedEvent;
+
     IotTestBleHal_WaitConnection( true );
+
+    /* Check the MTU size */
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xMtuChangedEvent.usConnId );
+    TEST_ASSERT_EQUAL( bletestsMTU_SIZE1, xMtuChangedEvent.usMtu );
 }
 
 

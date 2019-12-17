@@ -227,7 +227,8 @@ typedef enum
     eBLEHALEventSSPrequestConfirmationCb = 22,
     eBLEHALEventPairingStateChangedCb = 23,
     eBLEHALEventRequestExecWriteCb = 24,
-    eBLENbHALEvents,
+    eBLENbHALEvents = 25,
+    eBLEHALEventMtuChangedCb,
 } BLEHALEventsTypes_t;
 
 typedef struct
@@ -236,6 +237,13 @@ typedef struct
     BLEHALEventsTypes_t xEventTypes;
     int32_t lHandle;
 } BLEHALEventsInternals_t;
+
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usConnId;
+    uint16_t usMtu;
+} BLETESTMtuChangedCallback_t;
 
 typedef struct
 {

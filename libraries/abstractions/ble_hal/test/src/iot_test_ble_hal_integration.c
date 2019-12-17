@@ -197,6 +197,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     {
         BTStatus_t xStatus;
         BTProperty_t pxProperty;
+        BLETESTMtuChangedCallback_t xMtuChangedEvent;
         uint16_t usMTUsize = bletestsMTU_SIZE2;
 
         IotTestBleHal_SetAdvProperty();
@@ -206,9 +207,13 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
-        IotTestBleHal_WaitConnection( false );
 
-        TEST_ASSERT_EQUAL( bletestsMTU_SIZE2, _bletestsMTU_SIZE );
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( _usBLEConnId, xMtuChangedEvent.usConnId );
+        TEST_ASSERT_EQUAL( usMTUsize, xMtuChangedEvent.usMtu );
+
+        IotTestBleHal_WaitConnection( false );
     }
 #endif /* if ENABLE_TC_INTEGRATION_CHANGE_MTU_SIZE */
 
