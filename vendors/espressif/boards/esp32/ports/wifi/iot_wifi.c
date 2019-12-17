@@ -1210,9 +1210,8 @@ static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t
         case eWiFiSecurityWPA2:
             *authmode = WIFI_AUTH_WPA2_PSK;
             break;
-        case eWiFiSecurityNotSupported:
+        default:
             return ESP_FAIL;
-            break;
     }
     return ESP_OK;
 }

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,5 +51,7 @@ bool_t TEST_OTA_prvOTA_Close( OTA_FileContext_t * const C );
 DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
                                             uint32_t ulMsgLen,
                                             JSON_DocModel_t * pxDocModel );
+
+void TEST_OTA_prvSetDataInterfaceMQTT();
 
 #endif /* ifndef _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_ */

@@ -169,6 +169,12 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
 )
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::ota_mqtt
+        AFR::ota_http
+)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests

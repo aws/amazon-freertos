@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,17 +62,12 @@
 
 typedef OTA_Err_t ( * OTAEventHandler_t )( OTA_EventData_t * pxEventMsg );
 
-/* OTA Agent transition check. */
-
-typedef  bool ( * OTATransitionCheck )( void );
-
 /* OTA Agent state table entry. */
 
 typedef struct OTAStateTableEntry
 {
     OTA_State_t xCurrentState;
     OTA_Event_t xEventId;
-    OTATransitionCheck xCheck;
     OTAEventHandler_t xHandler;
     OTA_State_t xNextState;
 } OTAStateTableEntry_t;
@@ -263,6 +258,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData );
+static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData );
 
 /* OTA default callback initializer. */
 
@@ -304,23 +300,26 @@ static OTA_AgentContext_t xOTA_Agent =
 
 OTAStateTableEntry_t OTATransitionTable[] =
 {
-    /*STATE ,                                EVENT ,                                CHECK,    ACTION ,                    NEXT STATE                           */
-    { eOTA_AgentState_Ready,               eOTA_AgentEvent_Start,               NULL, prvStartHandler,       eOTA_AgentState_RequestingJob       },
-    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestJobDocument,  NULL, prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_ReceivedJobDocument, NULL, prvProcessJobHandler,  eOTA_AgentState_CreatingFile        },
-    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_RequestTimer,        NULL, prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_Shutdown,            NULL, prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_StartSelfTest,       NULL, prvInSelfTestHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CreateFile,          NULL, prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
-    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestFileBlock,    NULL, prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedFileBlock,   NULL, prvProcessDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        NULL, prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    NULL, prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  NULL, prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           NULL, prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
+    /*STATE ,                              EVENT ,                               ACTION ,               NEXT STATE                         */
+    { eOTA_AgentState_Ready,               eOTA_AgentEvent_Start,               prvStartHandler,       eOTA_AgentState_RequestingJob       },
+    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestTimer,        prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_ReceivedJobDocument, prvProcessJobHandler,  eOTA_AgentState_CreatingFile        },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_StartSelfTest,       prvInSelfTestHandler,  eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CreateFile,          prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_RequestTimer,        prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
+    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedFileBlock,   prvProcessDataHandler, eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
 };
 
-const char * pcOTA_AgentState_Strings[ eOTA_AgentState_Max ] =
+const char * pcOTA_AgentState_Strings[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -329,7 +328,6 @@ const char * pcOTA_AgentState_Strings[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"
@@ -865,7 +863,7 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
     else
     {
         /* Init data interface routines */
-        xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ].pucProtocols );
+        xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].pucProtocols );
 
         if( xReturn == kOTA_Err_None )
         {
@@ -883,9 +881,7 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
              * Failed to set the data interface so abort the OTA.If there is a valid job id,
              * then a job status update will be sent.
              */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
-
-            xReturn = kOTA_Err_JobParserError;
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn );
         }
     }
 
@@ -917,8 +913,8 @@ static OTA_Err_t prvInitFileHandler( OTA_EventData_t * pxEventData )
             /* Stop the request timer. */
             prvStopRequestTimer();
 
-            /* Send close file event. */
-            xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
+            /* Send shutdown event. */
+            xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
             OTA_SignalEvent( &xEventMsg );
 
             /* Too many requests have been sent without a response or too many failures
@@ -944,44 +940,36 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
-    if( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ].ulBlocksRemaining > 0U )
+    if( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].ulBlocksRemaining > 0U )
     {
         /* Start the request timer. */
         prvStartRequestTimer( otaconfigFILE_REQUEST_WAIT_MS );
 
-        /* Request data blocks. */
-        xErr = xOTA_DataInterface.prvRequestFileBlock( &xOTA_Agent );
-
-        if( xErr != kOTA_Err_None )
+        if( xOTA_Agent.ulRequestMomentum < otaconfigMAX_NUM_REQUEST_MOMENTUM )
         {
-            if( xOTA_Agent.ulRequestMomentum < otaconfigMAX_NUM_REQUEST_MOMENTUM )
-            {
-                /* Each Get Stream Request increases the momentum until a response
-                 * is received to ANY request. Too much momentum is interpreted as
-                 * a failure to communicate and will cause us to abort the OTA. */
-                xOTA_Agent.ulRequestMomentum++;
+            /* Request data blocks. */
+            xErr = xOTA_DataInterface.prvRequestFileBlock( &xOTA_Agent );
 
-                xErr = kOTA_Err_PublishFailed;
-            }
-            else
-            {
-                /* Stop the request timer. */
-                prvStopRequestTimer();
-
-                /* Failed to send data request abort and close file. */
-                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
-
-                /* Send close file event. */
-                xEventMsg.xEventId = eOTA_AgentEvent_CloseFile;
-                OTA_SignalEvent( &xEventMsg );
-
-                /* Too many requests have been sent without a response or too many failures
-                 * when trying to publish the request message. Abort. Store attempt count in low bits. */
-                xErr = ( uint32_t ) kOTA_Err_MomentumAbort | ( otaconfigMAX_NUM_REQUEST_MOMENTUM & ( uint32_t ) kOTA_PAL_ErrMask );
-            }
+            /* Each request increases the momentum until a response is received. Too much momentum is
+             * interpreted as a failure to communicate and will cause us to abort the OTA. */
+            xOTA_Agent.ulRequestMomentum++;
         }
         else
         {
+            /* Stop the request timer. */
+            prvStopRequestTimer();
+
+            /* Failed to send data request abort and close file. */
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
+
+            /* Send shutdown event. */
+            xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
+            OTA_SignalEvent( &xEventMsg );
+
+            /* Too many requests have been sent without a response or too many failures
+             * when trying to publish the request message. Abort. Store attempt count in low bits. */
+            xErr = ( uint32_t ) kOTA_Err_MomentumAbort | ( otaconfigMAX_NUM_REQUEST_MOMENTUM & ( uint32_t ) kOTA_PAL_ErrMask );
+
             /* Reset the request momentum. */
             xOTA_Agent.ulRequestMomentum = 0;
         }
@@ -999,7 +987,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
     OTA_EventMsg_t xEventMsg = { 0 };
 
     /* Get the file context. */
-    OTA_FileContext_t * pxFileContext = &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ];
+    OTA_FileContext_t * pxFileContext = &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ];
 
     /* Ingest data blocks received. */
     IngestResult_t xResult = prvIngestDataBlock( pxFileContext,
@@ -1084,18 +1072,32 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
     return kOTA_Err_None;
 }
 
+static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData )
+{
+    DEFINE_OTA_METHOD_NAME( "prvCloseFileHandler" );
+
+    ( void ) pxEventData;
+
+    OTA_LOG_L2( "[%s] Closing File. %d\r\n", OTA_METHOD_NAME );
+
+    ( void ) prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
+
+    return kOTA_Err_None;
+}
+
 static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData )
 {
     ( void ) pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
-    xErr = prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_UserAbort );
-
-    if( xErr == kOTA_Err_None )
+    /* If we have active Job abort it and close the file. */
+    if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
     {
-        if( prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ] ) ) != true )
+        xErr = prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_UserAbort );
+
+        if( xErr == kOTA_Err_None )
         {
-            xErr = kOTA_Err_AbortFailed;
+            ( void ) prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] ) );
         }
     }
 
@@ -1105,6 +1107,8 @@ static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData )
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 {
     ( void ) pxEventData;
+
+    OTA_LOG_L2( "[%s] Shutting Down OTA Agent. %d\r\n", OTA_METHOD_NAME );
 
     /* If we're here, we're shutting down the OTA agent. Free up all resources and quit. */
     prvAgentShutdownCleanup();
@@ -1116,40 +1120,6 @@ static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 
     /* Delete the OTA agent task. */
     vTaskDelete( NULL );
-
-    return kOTA_Err_None;
-}
-
-static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData )
-{
-    DEFINE_OTA_METHOD_NAME( "prvCloseFileHandler" );
-
-    ( void ) pxEventData;
-    OTA_Err_t xErr = kOTA_Err_None;
-
-    if( prvOTA_Close( &( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ] ) ) != true )
-    {
-        xErr = kOTA_Err_FileClose;
-    }
-
-    return xErr;
-}
-
-static OTA_Err_t prvErrorHandler( OTA_EventData_t * pxEventData )
-{
-    DEFINE_OTA_METHOD_NAME( "prvErrorHandler" );
-    ( void ) pxEventData;
-
-    OTA_LOG_L1( "[%s] prvErrorHandler.\r\n", OTA_METHOD_NAME );
-
-    return kOTA_Err_None;
-}
-
-static OTA_Err_t prvIdleHandler( OTA_EventData_t * pxEventData )
-{
-    DEFINE_OTA_METHOD_NAME( "prvIdleHandler" );
-    ( void ) pxEventData;
-    OTA_LOG_L1( "[%s] Unexpected Event.\r\n", OTA_METHOD_NAME );
 
     return kOTA_Err_None;
 }
@@ -2033,7 +2003,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     /* If we failed, free the reserved file context (C) to make it available again. */
     if( pxFinalFile == NULL )
     {
-        ( void ) prvOTA_Close( C ); /* Ignore impossible false result by design */
+        ( void ) prvOTA_Close( C );
     }
 
     /* Return pointer to populated file context or NULL if it failed. */
@@ -2117,7 +2087,7 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
             else
             {
                 /* Can't receive the image without enough memory. */
-                ( void ) prvOTA_Close( pstUpdateFile ); /* Ignore false result since we're setting the pointer to null on the next line. */
+                ( void ) prvOTA_Close( pstUpdateFile );
                 pstUpdateFile = NULL;
             }
         }
@@ -2344,10 +2314,7 @@ static void prvAgentShutdownCleanup( void )
      */
     for( ulIndex = 0; ulIndex < OTA_MAX_FILES; ulIndex++ )
     {
-        if( prvOTA_Close( &xOTA_Agent.pxOTA_Files[ ulIndex ] ) == ( bool_t ) pdFALSE )
-        {
-            OTA_LOG_L1( "[%s] Error! OTA_FileContext_t[%u] pointer is null.\r\n", OTA_METHOD_NAME, ulIndex );
-        }
+        ( void ) prvOTA_Close( &xOTA_Agent.pxOTA_Files[ ulIndex ] );
     }
 
     /*
@@ -2405,7 +2372,7 @@ static void prvOTAAgentTask( void * pUnused )
         {
             for( i = 0; i < ulTransitionTableLen; i++ )
             {
-                if( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState )
+                if( ( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState ) || ( OTATransitionTable[ i ].xCurrentState == eOTA_AgentState_All ) )
                 {
                     OTA_LOG_L3( "[%s] , State matched [%s]\n", OTA_METHOD_NAME, pcOTA_AgentState_Strings[ i ] );
 

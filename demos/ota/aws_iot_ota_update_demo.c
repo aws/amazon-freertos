@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201910.00
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -189,7 +189,7 @@ static BaseType_t prxCreateNetworkConnection( void )
     return xRet;
 }
 
-static const char * pcStateStr[ eOTA_AgentState_Max ] =
+static const char * pcStateStr[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -198,7 +198,6 @@ static const char * pcStateStr[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"

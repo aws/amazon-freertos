@@ -37,7 +37,6 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
     target_sources(
         afr_3rdparty_lwip
         PRIVATE
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/src/sys_arch.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
@@ -87,13 +86,45 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
         afr_3rdparty_lwip
         PUBLIC
             "${AFR_3RDPARTY_DIR}/lwip/src/include"
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/lwip_osal/include"
+            "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
     )
     target_link_libraries(
         afr_3rdparty_lwip
-        PRIVATE AFR::kernel
+        PRIVATE
+            AFR::kernel
+            3rdparty::lwip_osal
     )
     add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
+endif()
+
+# lwip implementation based on FreeRTOS
+if(EXISTS "${AFR_3RDPARTY_DIR}/lwip_osal" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows")
+    add_library(
+        afr_3rdparty_lwip_osal STATIC EXCLUDE_FROM_ALL
+    )
+
+    target_include_directories(
+        afr_3rdparty_lwip_osal
+        PUBLIC
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include"
+    )
+
+    target_sources(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/lwipopts_freertos.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/cc.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/perf.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/sys_arch.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/src/sys_arch.c"
+    )
+    target_link_libraries(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            AFR::kernel
+            3rdparty::lwip
+    )
+    add_library(3rdparty::lwip_osal ALIAS afr_3rdparty_lwip_osal)
 endif()
 
 # mbedtls - TLS protocol implementation

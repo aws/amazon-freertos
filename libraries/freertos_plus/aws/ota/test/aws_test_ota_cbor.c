@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -185,7 +185,9 @@ TEST_SETUP( Full_OTA_CBOR )
             szOriginalWorkingDirectory ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE(
+            ulStatus, 0,
+            "Failed to get current working directory in TEST_SETUP." );
     }
 
     /* Get the user %TEMP% directory. */
@@ -194,7 +196,7 @@ TEST_SETUP( Full_OTA_CBOR )
             szFullPath ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( ulStatus, 0, "Failed to get TEMP directory in TEST_SETUP." );
     }
     else
     {
@@ -202,7 +204,9 @@ TEST_SETUP( Full_OTA_CBOR )
         if( FALSE == SetCurrentDirectoryA( szFullPath ) )
         {
             ulStatus = GetLastError();
-            TEST_ASSERT_EQUAL( ulStatus, 0 );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE(
+                ulStatus, 0,
+                "Failed to set current working directory to TEMP directory in TEST_SETUP." );
         }
     }
 }
@@ -215,7 +219,7 @@ TEST_TEAR_DOWN( Full_OTA_CBOR )
     if( FALSE == SetCurrentDirectoryA( szOriginalWorkingDirectory ) )
     {
         ulStatus = GetLastError();
-        TEST_ASSERT_EQUAL( ulStatus, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( ulStatus, 0, "Failed to restore the working directory in TEST_TEAR_DOWN." );
     }
 }
 
@@ -231,7 +235,7 @@ TEST_TEAR_DOWN( Quarantine_OTA_CBOR )
 TEST_GROUP_RUNNER( Full_OTA_CBOR )
 {
     RUN_TEST_CASE( Full_OTA_CBOR, CborOtaApi );
-    RUN_TEST_CASE( Full_OTA_CBOR, CborOtaAgentIngest );
+    RUN_TEST_CASE( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse );
 }
 
 TEST_GROUP_RUNNER( Quarantine_OTA_CBOR )
@@ -569,7 +573,7 @@ TEST( Full_OTA_CBOR, CborOtaApi )
     }
 }
 
-TEST( Full_OTA_CBOR, CborOtaAgentIngest )
+TEST( Full_OTA_CBOR, CborOtaAgentIngestStreamResponse )
 {
     BaseType_t xResultBool = pdFALSE;
     IngestResult_t xResultIngest = 0;
@@ -599,6 +603,9 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
         0x28, 0xf2, 0xc4, 0x00, 0xc2, 0x7b, 0x35, 0x44, 0xd6, 0x3e, 0x8f, 0x9d, 0x8a, 0x7e, 0xf8, 0x2f,
         0x28, 0xa3, 0x77, 0xbb, 0xa1, 0xb7, 0xb2, 0xe1, 0x72, 0x55, 0x0a, 0x31, 0x58, 0x9b, 0xb7, 0x68
     };
+
+    /* Set OTA data interface to MQTT. */
+    TEST_OTA_prvSetDataInterfaceMQTT();
 
     /* Read the test signed file. */
     xResultBool = prvReadCborTestFile(

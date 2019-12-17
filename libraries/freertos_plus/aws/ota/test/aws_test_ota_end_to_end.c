@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -121,7 +121,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
     }
 }
 
-static const char * pcStateStr[ eOTA_AgentState_Max ] =
+static const char * pcStateStr[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -130,7 +130,6 @@ static const char * pcStateStr[ eOTA_AgentState_Max ] =
     "CreatingFile",
     "RequestingFileBlock",
     "WaitingForFileBlock",
-    "InSelfTest",
     "ClosingFile",
     "ShuttingDown",
     "Stopped"

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@
 
 /* OTA transport inteface includes. */
 
-#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT ) || ( configENABLED_CONTROL_PROTOCOL & OTA_CONTROL_OVER_MQTT )
     #include "mqtt/aws_iot_ota_mqtt.h"
 #endif
 
@@ -84,7 +84,7 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface,
 {
     DEFINE_OTA_METHOD_NAME( "prvSetDataInterface" );
 
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+    OTA_Err_t xErr = kOTA_Err_InvalidDataProtocol;
     uint32_t i;
 
     for( i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++ )

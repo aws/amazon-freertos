@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.1.0
+ * FreeRTOS+TCP V2.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -916,18 +916,25 @@ for testing purposes, by the module iot_test_freertos_tcp.c
 uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
 DNSMessage_t *pxDNSMessageHeader;
-size_t uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+size_t uxPayloadSize;
 
-	if( uxPayloadSize >= sizeof( DNSMessage_t ) )
-	{
-		pxDNSMessageHeader =
-			( DNSMessage_t * ) ( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
+    /* Only proceed if the payload length indicated in the header
+    appears to be valid. */
+    if( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
+    {
+        uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
-		/* The parameter pdFALSE indicates that the reply was not expected. */
-		prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
-						  uxPayloadSize,
-						  pdFALSE );
-	}
+        if( uxPayloadSize >= sizeof( DNSMessage_t ) )
+        {
+            pxDNSMessageHeader =
+                ( DNSMessage_t * ) ( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
+
+            /* The parameter pdFALSE indicates that the reply was not expected. */
+            prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
+                uxPayloadSize,
+                pdFALSE );
+        }
+    }
 
 	/* The packet was not consumed. */
 	return pdFAIL;

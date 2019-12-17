@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.3
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -473,6 +473,8 @@ static void _httpReadReadyCallback( void * pPrivateData,
         OTA_GOTO_CLEANUP();
     }
 
+    OTA_FUNCTION_CLEANUP_BEGIN();
+
     /* The connection could be closed by S3 after 100 requests, so we need to check the value
      * of the "Connection" filed in HTTP header to see if we need to reconnect. */
     memset( connectionValueStr, 0, sizeof( connectionValueStr ) );
@@ -482,22 +484,21 @@ static void _httpReadReadyCallback( void * pPrivateData,
                                              connectionValueStr,
                                              sizeof( connectionValueStr ) );
 
-    /* Exit if there is any other error besides not found when parsing the http header. */
+    /* Check if there is any other error besides not found when parsing the http header. */
     if( ( httpsStatus != IOT_HTTPS_OK ) && ( httpsStatus != IOT_HTTPS_NOT_FOUND ) )
     {
         IotLogError( "Failed to read header Connection. Error code: %d.", httpsStatus );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        OTA_GOTO_CLEANUP();
     }
-
-    /* Check if the server returns a response with connection field set to "close". */
-    if( strncmp( "close", connectionValueStr, sizeof( "close" ) ) == 0 )
+    else
     {
-        IotLogInfo( "Connection has been closed by the HTTP server, reconnecting to the server..." );
-        _httpReconnect();
+        /* Check if the server returns a response with connection field set to "close". */
+        if( strncmp( "close", connectionValueStr, sizeof( "close" ) ) == 0 )
+        {
+            IotLogInfo( "Connection has been closed by the HTTP server, reconnecting to the server..." );
+            _httpReconnect();
+        }
     }
-
-    OTA_FUNCTION_CLEANUP_BEGIN();
 
     /* Cancel receiving the response in case of error, _httpErrorCallback will be invoked next.
      * If the HTTP error is IOT_HTTPS_NETWORK_ERROR, the connection will then be closed by the HTTP
@@ -583,6 +584,11 @@ static void _httpErrorCallback( void * pPrivateData,
     ( void ) requestHandle;
     ( void ) responseHandle;
     ( void ) returnCode;
+
+    if( _httpDownloader.err == OTA_HTTP_ERR_NONE )
+    {
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
+    }
 
     IotLogError( "An error occurred for HTTP async request: %d", returnCode );
 }

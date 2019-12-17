@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -91,11 +91,10 @@ typedef enum
     eOTA_AgentState_CreatingFile,
     eOTA_AgentState_RequestingFileBlock,
     eOTA_AgentState_WaitingForFileBlock,
-    eOTA_AgentState_InSelfTest,
     eOTA_AgentState_ClosingFile,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
-    eOTA_AgentState_Max
+    eOTA_AgentState_All
 } OTA_State_t;
 
 /**
@@ -134,9 +133,8 @@ typedef struct
  */
 typedef uint32_t OTA_Err_t;
 
-/**
- * @defgroup OTA Error code operation helpers.
- * @brief Helper constant for extracting the error code from the OTA error returned.
+/*
+ * OTA Error code helper constant for extracting the error code from the OTA error returned.
  *
  * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
  * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
@@ -146,11 +144,10 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Main_ErrMask                0xff000000UL /*!< Mask out all but the OTA Agent error code (high 8 bits). */
 #define kOTA_MainErrShiftDownBits        24U          /*!< The OTA Agent error code is the highest 8 bits of the word. */
 
-/**
- * @defgroup OTA Agent error codes.
- * @brief Error codes returned by OTA agent API.
+/*
+ * OTA Agent error codes returned by OTA agent API.
  *
- * @note OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
+ * OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
  */
 #define kOTA_Err_Panic                   0xfe000000UL     /*!< Unrecoverable FW error. Probably should log error and reboot. */
 #define kOTA_Err_Uninitialized           0xff000000UL     /*!< The error code has not yet been set by a logic path. */
@@ -186,6 +183,7 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_TopicTooLarge           0x2a000000UL     /*!< Attempt to build a topic string larger than the supplied buffer. */
 #define kOTA_Err_SelfTestTimerFailed     0x2b000000UL     /*!< Attempt to start self-test timer faield. */
 #define kOTA_Err_EventQueueSendFailed    0x2c000000UL     /*!< Posting event message to the event queue failed. */
+#define kOTA_Err_InvalidDataProtocol     0x2d000000UL     /*!< Job does not have a valid protocol for data transfer. */
 
 /**
  * @brief OTA Job callback events.
