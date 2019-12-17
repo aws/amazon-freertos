@@ -25,6 +25,10 @@
 #### HTTPS Client Library V1.1.1
 - Documentation updates and additional debug logging.
 
+#### Greengrass Discovery V2.0.0
+- Remove demo configuration dependency from library files.
+- Update demonstration code to use MQTT V2 APIs.
+
 #### Bluetooth Low Energy V4.0.0
 - HAL modification to replace bonded callback with pairing state change callback.
 - HAL modification to change to 16-bit value for advertisement duration.
