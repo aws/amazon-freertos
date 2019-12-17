@@ -1030,7 +1030,7 @@ TEST( Full_GGD, JSONRequestGetFile )
             xStatus = prvGGD_JSONRequestGetFileLoop( ulBufferSize,
                                                      &ulByteRead,
                                                      &xJSONFileRetrieveCompleted,
-                                                     ulJSONFileSize - 1 ); /* Remove one byte to the expected JSON file size. */
+                                                     ulJSONFileSize - 1 ); /* Remove one byte from the expected JSON file size. */
         }
 
         TEST_ASSERT_EQUAL_INT32( pdFAIL, xStatus );
