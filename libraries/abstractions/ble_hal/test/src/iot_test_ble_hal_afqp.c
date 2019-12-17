@@ -285,6 +285,8 @@ TEST( Full_BLE, BLE_Connection_RemoveBonding )
     bool bFoundRemoteDevice;
     size_t xNumBonds;
 
+    IotTestBleHal_ClearEventQueue();
+
     prvRemoveBond( &_xAddressConnectedDevice );
 
     xNumBonds = prvGetNumberOfBonds();
