@@ -1016,13 +1016,12 @@ void R_ETHER_LinkProcess (uint32_t channel)
                     cb_arg.event_id = ETHER_CB_EVENT_ID_LINK_ON;
                     (*cb_func.pcb_func)((void *) &cb_arg);
                 }
-                lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
             }
             else
             {
                 /* When PHY auto-negotiation is not completed */
                 transfer_enable_flag[channel] = ETHER_FLAG_OFF;
-                lchng_flag[channel] = ETHER_FLAG_ON_LINK_OFF;
+                lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
             }
         }
         else
@@ -1060,13 +1059,12 @@ void R_ETHER_LinkProcess (uint32_t channel)
                 cb_arg.event_id = ETHER_CB_EVENT_ID_LINK_ON;
                 (*cb_func.pcb_func)((void *) &cb_arg);
             }
-            lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
         }
         else
         {
             /* When PHY auto-negotiation is not completed */
             transfer_enable_flag[channel] = ETHER_FLAG_OFF;
-            lchng_flag[channel] = ETHER_FLAG_ON_LINK_OFF;
+           	lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
         }
 #endif
     }
