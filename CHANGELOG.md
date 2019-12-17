@@ -19,9 +19,6 @@
     - The same socket may be used by multiple tasks concurrently
 - lwIP is now a submodule from https://github.com/lwip-tcpip/lwip.git
 
-#### OTA for NXP LPC54018 IoT Module
-- Over-the-air (OTA) updates are now available for LPC54018.
-
 #### Ethernet Support on Nuvoton NuMaker-IoT-M487
 - Ethernet is now available for Nuvoton NuMaker-IoT-M487.
 - Either Wi-Fi or Ethernet can be enabled exclusively.
