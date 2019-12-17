@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.1.0
+ * FreeRTOS+TCP V2.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -394,6 +394,12 @@ struct freertos_sockaddr xAddress;
 				pointer to the received buffer is located in the pvData member
 				of the received event structure. */
 				prvHandleEthernetPacket( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ) );
+				break;
+
+			case eNetworkTxEvent:
+				/* Send a network packet. The ownership will  be transferred to
+				the driver, which will release it after delivery. */
+				xNetworkInterfaceOutput( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ), pdTRUE );
 				break;
 
 			case eARPTimerEvent :
@@ -1116,7 +1122,8 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = FREERTOS_SO_UDPCKSUM_OUT;
 				pxNetworkBuffer->ulIPAddress = ulIPAddress;
 				pxNetworkBuffer->usPort = ipPACKET_CONTAINS_ICMP_DATA;
-				pxNetworkBuffer->xDataLength = xNumberOfBytesToSend + sizeof( ICMPHeader_t );
+				/* xDataLength is the size of the total packet, including the Ethernet header. */
+				pxNetworkBuffer->xDataLength = xNumberOfBytesToSend + sizeof( ICMPPacket_t );
 
 				/* Send to the stack. */
 				xStackTxEvent.pvData = pxNetworkBuffer;
@@ -1605,23 +1612,24 @@ uint8_t ucProtocol;
 
 					/* Only proceed if the payload length indicated in the header
 					appears to be valid. */
-					if ( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
+					if ( ( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) ) && ( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) >= sizeof( UDPHeader_t ) ) )
 					{
-						/* Ensure that downstream UDP packet handling has the lesser
-						 * of: the actual network buffer Ethernet frame length, or
-						 * the sender's UDP packet header payload length, minus the
-						 * size of the UDP header.
-						 *
-						 * The size of the UDP packet structure in this implementation
-						 * includes the size of the Ethernet header, the size of
-						 * the IP header, and the size of the UDP header.
+					size_t uxPayloadSize_1, uxPayloadSize_2;
+						/* The UDP payload size can be calculated by subtracting the
+						 * header size from `xDataLength`.
+						 * However, the `xDataLength` may be longer that expected,
+						 * e.g. when a small packet is padded with zero's.
+						 * The UDP header contains a field `usLength` reflecting
+						 * the payload size plus the UDP header ( 8 bytes ).
+						 * Set `xDataLength` to the size of the headers,
+						 * plus the lower of the two calculated payload sizes.
 						 */
 
-						pxNetworkBuffer->xDataLength -= sizeof( UDPPacket_t );
-						if( ( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t ) ) <
-								pxNetworkBuffer->xDataLength )
+						uxPayloadSize_1 = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+						uxPayloadSize_2 = FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t );
+						if( uxPayloadSize_1 > uxPayloadSize_2 )
 						{
-							pxNetworkBuffer->xDataLength = FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t );
+							pxNetworkBuffer->xDataLength = uxPayloadSize_2 + sizeof( UDPPacket_t );
 						}
 
 						/* Fields in pxNetworkBuffer (usPort, ulIPAddress) are network order. */

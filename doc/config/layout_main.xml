@@ -4,26 +4,16 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
     <tab type="mainpage" visible="yes" title=""/>
-    <tab type="pages" visible="yes" title="" intro=""/>
 
     <!-- Links to the library documentation. -->
-    <tab type="user" title="MQTT" url="../mqtt/index.html"/>
-    <tab type="user" title="POSIX" url="../posix/index.html"/>	
-    <tab type="user" title="Thing Shadows" url="../shadow/index.html"/>
-    <tab type="usergroup" title="Common" url="">
-      <tab type="user" title="Atomic" url="../atomic/index.html"/>
-      <tab type="user" title="Linear Containers" url="../linear_containers/index.html"/>
-      <tab type="user" title="Logging" url="../logging/index.html"/>
-      <tab type="user" title="Static Memory" url="../static_memory/index.html"/>
-      <tab type="user" title="Task Pool" url="../taskpool/index.html"/>
-    </tab>
-    <tab type="usergroup" title="Library documentation" url="">
+    <tab type="usergroup" title="Amazon FreeRTOS Library Documentation" url="">
+      <tab type="user" title="POSIX" url="../posix/index.html"/>
       <tab type="user" title="Secure Sockets" url="../secure_sockets/index.html"/>
       <tab type="user" title="Wi-Fi Management" url="../wifi/index.html"/>
-      <tab type="user" title="Defender" url="../defender/index.html"/>
-      <tab type="user" title="Shadow" url="../shadow/index.html"/>
+      <tab type="user" title="HTTPS Client" url="../https/index.html"/>
     </tab>
     <tab type="user" title="Platform" url="../platform/index.html"/>
+    <tab type="pages" visible="yes" title="" intro=""/>
 
     <!-- The main page does not use the standard Doxygen tabs. -->
     <tab type="modules" visible="no" title="" intro=""/>

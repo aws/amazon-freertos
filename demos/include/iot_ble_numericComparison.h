@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201910.00
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,6 +45,7 @@ extern void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
 
 extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
                                          BTBdaddr_t * pxRemoteBdAddr,
+                                         BTBondState_t bondState,
                                          BTSecurityLevel_t xSecurityLevel,
                                          BTAuthFailureReason_t xReason );
 extern void NumericComparisonInit( void );

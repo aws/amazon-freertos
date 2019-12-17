@@ -18,23 +18,25 @@
 from __future__ import division, print_function
 
 import argparse
+import esptool
+import io
+import json
 import os
 import struct
 import sys
 import time
-
-import esptool
 
 # Table of efuse values - (category, block, word in block, mask, write disable bit, read disable bit, type, description)
 # Match values in efuse_reg.h & Efuse technical reference chapter
 EFUSES = [
     ('WR_DIS',               "efuse",    0, 0, 0x0000FFFF, 1,  None, "int", "Efuse write disable mask"),
     ('RD_DIS',               "efuse",    0, 0, 0x000F0000, 0,  None, "int", "Efuse read disablemask"),
-    ('FLASH_CRYPT_CNT',      "security", 0, 0, 0x0FF00000, 2,  None, "bitcount", "Flash encryption mode counter"),
+    ('FLASH_CRYPT_CNT',      "security", 0, 0, 0x07F00000, 2,  None, "bitcount", "Flash encryption mode counter"),
     ('MAC',                  "identity", 0, 1, 0xFFFFFFFF, 3,  None, "mac", "Factory MAC Address"),
     ('XPD_SDIO_FORCE',       "config",   0, 4, 1 << 16,    5,  None, "flag", "Ignore MTDI pin (GPIO12) for VDD_SDIO on reset"),
     ('XPD_SDIO_REG',         "config",   0, 4, 1 << 14,    5,  None, "flag", "If XPD_SDIO_FORCE, enable VDD_SDIO reg on reset"),
     ('XPD_SDIO_TIEH',        "config",   0, 4, 1 << 15,    5,  None, "flag", "If XPD_SDIO_FORCE & XPD_SDIO_REG, 1=3.3V 0=1.8V"),
+    ('CLK8M_FREQ',           "config",   0, 4, 0xFF,    None,  None, "int",  "8MHz clock freq override"),
     ('SPI_PAD_CONFIG_CLK',   "config",   0, 5, 0x1F << 0,  6,  None, "spipin", "Override SD_CLK pad (GPIO6/SPICLK)"),
     ('SPI_PAD_CONFIG_Q',     "config",   0, 5, 0x1F << 5,  6,  None, "spipin", "Override SD_DATA_0 pad (GPIO7/SPIQ)"),
     ('SPI_PAD_CONFIG_D',     "config",   0, 5, 0x1F << 10, 6,  None, "spipin", "Override SD_DATA_1 pad (GPIO8/SPID)"),
@@ -42,6 +44,7 @@ EFUSES = [
     ('SPI_PAD_CONFIG_CS0',   "config",   0, 5, 0x1F << 15, 6,  None, "spipin", "Override SD_CMD pad (GPIO11/SPICS0)"),
     ('FLASH_CRYPT_CONFIG',   "security", 0, 5, 0x0F << 28, 10, 3, "int", "Flash encryption config (key tweak bits)"),
     ('CHIP_VER_REV1',        "identity", 0, 3, 1 << 15,    3,  None, "flag", "Silicon Revision 1"),
+    ('CHIP_VER_REV2',        "identity", 0, 5, 1 << 20,    6,  None, "flag", "Silicon Revision 2"),
     ('BLK3_PART_RESERVE',    "calibration", 0, 3, 1 << 14, 10, 3, "flag", "BLOCK3 partially served for ADC calibration data"),
     ('CHIP_VERSION',         "identity", 0, 3, 0x03 << 12, 3,  None, "int", "Reserved for future chip versions"),
     ('CHIP_PACKAGE',         "identity", 0, 3, 0x07 << 9,  3,  None, "int", "Chip package identifier"),
@@ -69,12 +72,6 @@ BLK3_PART_EFUSES = [
     ('ADC2_TP_HIGH', "calibration", 3, 3, 0x1FF << 23, 9, 2, "adc_tp", "ADC2 850mV reading"),
 ]
 
-# BLK3 can contain arbitrary information, and it is not possible to know whether the Custom MAC Address is present
-# there. Therefore, the following efuses are not shown in the efuse summary, and are accessed only by get_custom_mac
-# and burn_custom_mac commands.
-CUST_MAC_VER_EFUSE = ('CUST_MAC_VER', "identity", 3, 5, 0xFF << 24, None, None, "int",  "Version of Custom MAC Address")
-CUST_MAC_EFUSE     = ('CUST_MAC',     "identity", 3, 0, 0xFFFFFFFF, None, None, "cmac", "Custom MAC Address")
-
 # Offsets and lengths of each of the 4 efuse blocks in register space
 #
 # These offsets/lens are for esptool.read_efuse(X) which takes
@@ -94,6 +91,22 @@ EFUSE_REG_WRITE = [0x3FF5A01C, 0x3FF5A098, 0x3FF5A0B8, 0x3FF5A0D8]
 # 3/4 Coding scheme warnings registers
 EFUSE_REG_DEC_STATUS = 0x3FF5A11C
 EFUSE_REG_DEC_STATUS_MASK = 0xFFF
+
+# Efuse clock control
+EFUSE_DAC_CONF_REG = 0x3FF5A118
+EFUSE_CLK_REG = 0x3FF5A0F8
+
+EFUSE_DAC_CLK_DIV_MASK = 0xFF
+EFUSE_CLK_SEL0_MASK = 0x00FF
+EFUSE_CLK_SEL1_MASK = 0xFF00
+
+EFUSE_CLK_SETTINGS = {
+    # APB freq: clk_sel0, clk_sel1, dac_clk_div
+    # Taken from TRM chapter "eFuse Controller": Timing Configuration
+    26: (250, 255, 52),
+    40: (160, 255, 80),
+    80: (80, 128, 100),  # this is here for completeness only as esptool never sets an 80MHz APB clock
+}
 
 EFUSE_BURN_TIMEOUT = 0.250  # seconds
 
@@ -152,8 +165,17 @@ class EspEfuses(object):
         """ Write the values in the efuse write registers to
         the efuse hardware, then refresh the efuse read registers.
         """
-        self._esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_WRITE)
-        self._esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_WRITE)
+
+        # Configure clock
+        apb_freq = self._esp.get_crystal_freq()
+        clk_sel0, clk_sel1, dac_clk_div = EFUSE_CLK_SETTINGS[apb_freq]
+
+        self.update_reg(EFUSE_DAC_CONF_REG, EFUSE_DAC_CLK_DIV_MASK, dac_clk_div)
+        self.update_reg(EFUSE_CLK_REG, EFUSE_CLK_SEL0_MASK, clk_sel0)
+        self.update_reg(EFUSE_CLK_REG, EFUSE_CLK_SEL1_MASK, clk_sel1)
+
+        self.write_reg(EFUSE_REG_CONF, EFUSE_CONF_WRITE)
+        self.write_reg(EFUSE_REG_CMD, EFUSE_CMD_WRITE)
 
         def wait_idle():
             deadline = time.time() + EFUSE_BURN_TIMEOUT
@@ -162,8 +184,8 @@ class EspEfuses(object):
                     return
             raise esptool.FatalError("Timed out waiting for Efuse controller command to complete")
         wait_idle()
-        self._esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_READ)
-        self._esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_READ)
+        self.write_reg(EFUSE_REG_CONF, EFUSE_CONF_READ)
+        self.write_reg(EFUSE_REG_CMD, EFUSE_CMD_READ)
         wait_idle()
 
     def read_efuse(self, addr):
@@ -174,6 +196,9 @@ class EspEfuses(object):
 
     def write_reg(self, addr, value):
         return self._esp.write_reg(addr, value)
+
+    def update_reg(self, addr, mask, new_val):
+        return self._esp.update_reg(addr, mask, new_val)
 
     def get_coding_scheme_warnings(self):
         """ Check if the coding scheme has detected any errors.
@@ -192,7 +217,6 @@ class EfuseField(object):
         category = efuse_tuple[7]
         return {
             "mac": EfuseMacField,
-            "cmac": EfuseCustMacField,
             "keyblock": EfuseKeyblockField,
             "spipin": EfuseSpiPinField,
             "vref": EfuseVRefField,
@@ -206,11 +230,7 @@ class EfuseField(object):
         self.word = word
         self.data_reg_offs = EFUSE_BLOCK_OFFS[self.block] + self.word
         self.mask = mask
-        self.shift = 0
-        # self.shift is the number of the least significant bit in the mask
-        while mask & 0x1 == 0:
-            self.shift += 1
-            mask >>= 1
+        self.shift = esptool._mask_to_shift(mask)
         self.write_disable_bit = write_disable_bit
         self.read_disable_bit = read_disable_bit
         self.register_name = register_name
@@ -273,14 +293,18 @@ class EfuseMacField(EfuseField):
         bitstring = struct.pack(">II", *words)
         return bitstring[2:]  # trim 2 byte CRC from the beginning
 
+    @staticmethod
+    def get_and_check(raw_mac, stored_crc):
+        computed_crc = EfuseMacField.calc_crc(raw_mac)
+        if computed_crc == stored_crc:
+            valid_msg = "(CRC 0x%02x OK)" % stored_crc
+        else:
+            valid_msg = "(CRC 0x%02x invalid - calculated 0x%02x)" % (stored_crc, computed_crc)
+        return "%s %s" % (hexify(raw_mac, ":"), valid_msg)
+
     def get(self):
         stored_crc = self.get_stored_crc()
-        calc_crc = self.calc_crc(self.get_raw())
-        if calc_crc == stored_crc:
-            valid_msg = "(CRC %02x OK)" % stored_crc
-        else:
-            valid_msg = "(CRC %02x invalid - calculated 0x%02x)" % (stored_crc, calc_crc)
-        return "%s %s" % (hexify(self.get_raw(), ":"), valid_msg)
+        return EfuseMacField.get_and_check(self.get_raw(), stored_crc)
 
     def burn(self, new_value):
         # Writing the BLK0 default MAC is not sensible, as it's written in the factory.
@@ -305,34 +329,6 @@ class EfuseMacField(EfuseField):
                 if lsb != 0:
                     result ^= 0x8c
         return result
-
-
-class EfuseCustMacField(EfuseMacField):
-    """
-    The custom MAC field uses the formatting according to the specification for version 1
-    """
-    def get_raw(self):
-        words = [self.parent.read_efuse(self.data_reg_offs + word) for word in [0,1]]
-        bitstring = struct.pack("<II", *words)
-        return bitstring[1:-1]  # trim a byte from the beginning and one (CRC) from the end
-
-    def burn(self, new_value):
-        if len(new_value) != 6:
-            raise RuntimeError("Invalid new value length for MAC Address (%d)!" % len(new_value))
-        crc = self.calc_crc(new_value)
-        # Q has 8 bytes so new_value is extended by two bytes before unpacking:
-        i_new_value = struct.unpack("<Q", new_value + b'\x00\x00')[0]
-        word0 = ((i_new_value & 0xFFFFFF) << 8) | crc
-        word1 = i_new_value >> 24
-        write_reg_addr = efuse_write_reg_addr(self.block, self.word + 0)
-        self.parent.write_reg(write_reg_addr, word0)
-        write_reg_addr = efuse_write_reg_addr(self.block, self.word + 1)
-        self.parent.write_reg(write_reg_addr, word1)
-        self.parent.write_efuses()
-        return self.get()
-
-    def get_stored_crc(self):
-        return self.parent.read_efuse(self.data_reg_offs) & 0xFF
 
 
 class EfuseKeyblockField(EfuseField):
@@ -377,8 +373,8 @@ class EfuseKeyblockField(EfuseField):
         return struct.unpack("<" + "I" * (len(outbits) // 4), outbits)
 
     def burn_key(self, new_value):
-            new_value = new_value[::-1]  # AES keys are stored in reverse order in efuse
-            return self.burn(new_value)
+        new_value = new_value[::-1]  # AES keys are stored in reverse order in efuse
+        return self.burn(new_value)
 
     def burn(self, new_value):
         key_len = self.parent.get_block_len()
@@ -471,10 +467,16 @@ def dump(esp, _efuses, args):
 def summary(esp, efuses, args):
     """ Print a human-readable summary of efuse contents """
     ROW_FORMAT = "%-22s %-50s%s= %s %s %s"
-    print(ROW_FORMAT.replace("-50", "-12") % ("EFUSE_NAME", "Description", "", "[Meaningful Value]", "[Readable/Writeable]", "(Hex Value)"))
-    print("-" * 88)
+    human_output = (args.format == 'summary')
+    json_efuse = {}
+    if args.file != sys.stdout:
+        print("Saving efuse values to " + args.file.name)
+    if human_output:
+        print(ROW_FORMAT.replace("-50", "-12") % ("EFUSE_NAME", "Description", "", "[Meaningful Value]", "[Readable/Writeable]", "(Hex Value)"),file=args.file)
+        print("-" * 88,file=args.file)
     for category in set(e.category for e in efuses):
-        print("%s fuses:" % category.title())
+        if human_output:
+            print("%s fuses:" % category.title(),file=args.file)
         for e in (e for e in efuses if e.category == category):
             raw = e.get_raw()
             try:
@@ -490,25 +492,40 @@ def summary(esp, efuses, args):
                 perms = "-/W"
             else:
                 perms = "-/-"
-            value = str(e.get())
+            base_value = e.get()
+            value = str(base_value)
             if not readable:
                 value = value.replace("0", "?")
-            print(ROW_FORMAT % (e.register_name, e.description, "\n  " if len(value) > 20 else "", value, perms, raw))
+            if human_output:
+                print(ROW_FORMAT % (e.register_name, e.description, "\n  " if len(value) > 20 else "", value, perms, raw),file=args.file)
+            if args.format == 'json':
+                json_efuse[e.register_name] = {
+                    'value': base_value if readable else value,
+                    'readable':readable,
+                    'writeable':writeable}
+        if human_output:
+            print("",file=args.file)
+    if human_output:
+        sdio_force = efuses["XPD_SDIO_FORCE"]
+        sdio_tieh = efuses["XPD_SDIO_TIEH"]
+        sdio_reg = efuses["XPD_SDIO_REG"]
+        if sdio_force.get() == 0:
+            print("Flash voltage (VDD_SDIO) determined by GPIO12 on reset (High for 1.8V, Low/NC for 3.3V).",file=args.file)
+        elif sdio_reg.get() == 0:
+            print("Flash voltage (VDD_SDIO) internal regulator disabled by efuse.",file=args.file)
+        elif sdio_tieh.get() == 0:
+            print("Flash voltage (VDD_SDIO) set to 1.8V by efuse.",file=args.file)
+        else:
+            print("Flash voltage (VDD_SDIO) set to 3.3V by efuse.",file=args.file)
+        warnings = efuses.get_coding_scheme_warnings()
+        if warnings:
+            print("WARNING: Coding scheme has encoding bit error warnings (0x%x)" % warnings,file=args.file)
+        if args.file != sys.stdout:
+            args.file.close()
+            print("Done")
+    if args.format == 'json':
+        json.dump(json_efuse,args.file,sort_keys=True,indent=4)
         print("")
-    sdio_force = efuses["XPD_SDIO_FORCE"]
-    sdio_tieh = efuses["XPD_SDIO_TIEH"]
-    sdio_reg = efuses["XPD_SDIO_REG"]
-    if sdio_force.get() == 0:
-        print("Flash voltage (VDD_SDIO) determined by GPIO12 on reset (High for 1.8V, Low/NC for 3.3V).")
-    elif sdio_reg.get() == 0:
-        print("Flash voltage (VDD_SDIO) internal regulator disabled by efuse.")
-    elif sdio_tieh.get() == 0:
-        print("Flash voltage (VDD_SDIO) set to 1.8V by efuse.")
-    else:
-        print("Flash voltage (VDD_SDIO) set to 3.3V by efuse.")
-    warnings = efuses.get_coding_scheme_warnings()
-    if warnings:
-        print("WARNING: Coding scheme has encoding bit error warnings (0x%x)" % warnings)
 
 
 def burn_efuse(esp, efuses, args):
@@ -725,35 +742,95 @@ def adc_info(esp, efuses, args):
         print("    ADC2 High reading (850mV): %d" % efuses["ADC2_TP_HIGH"].get())
 
 
+class CustomMacAddressField(object):
+    """
+    The custom MAC field uses the formatting according to the specification for version 1
+    """
+    def __init__(self, efuses):
+        self.efuse = [e for e in efuses if e.register_name == 'BLK3'][0]
+        self.parent = self.efuse.parent
+
+    def get_raw(self):
+        words = [self.parent.read_efuse(self.efuse.data_reg_offs + word) for word in [0, 1]]
+        bitstring = struct.pack("<II", *words)
+        return bitstring[1:-1]  # trim a byte from the beginning and one (CRC) from the end
+
+    def get_stored_crc(self):
+        return self.parent.read_efuse(self.efuse.data_reg_offs) & 0xFF
+
+    @staticmethod
+    def calc_crc(raw_mac):
+        return EfuseMacField.calc_crc(raw_mac)
+
+    def get(self):
+        return EfuseMacField.get_and_check(self.get_raw(), self.get_stored_crc())
+
+    def get_version(self):
+        """
+        Returns the version of the MAC field
+
+        The version is stored in the block at the [191:184] bit positions. That is in the 5th 4-byte word, the most
+        significant byte (3 * 8 = 24)
+        """
+        return (self.parent.read_efuse(self.efuse.data_reg_offs + 5) >> 24) & 0xFF
+
+    def get_block(self, new_mac, new_version):
+        """
+        Returns a byte array which can be written directly to BLK3
+        """
+        num_words = self.parent.get_block_len() // 4
+        words = [self.parent.read_efuse(self.efuse.data_reg_offs + word) for word in range(num_words)]
+        B = sum([x << (i * 32) for i, x in enumerate(words)])  # integer representation of the whole BLK content
+
+        new_mac_b = struct.pack(">Q", new_mac)[2:]  # Q has 8-bytes. Removing two MSB bytes to get a 6-byte MAC
+        new_mac_rev = struct.unpack("<Q", new_mac_b + b'\x00\x00')[0]  # bytes in reversed order
+        crc = self.calc_crc(new_mac_b)
+
+        # MAC fields according to esp_efuse_table.c:
+        # - CRC - offset 0 bits, length 8 bits
+        # - MAC - offset 8 bits, length 48 bits
+        # - MAC version - offset 184 bits, length 8 bits
+        B |= (crc & ((1 << 8) - 1)) << 0
+        B |= (new_mac_rev & ((1 << 48) - 1)) << 8
+        B |= (new_version & ((1 << 8) - 1)) << 184
+
+        return bytearray([(B >> i * 8) & 0xFF for i in range(self.parent.get_block_len())])
+
+
 def burn_custom_mac(esp, efuses, args):
-    ver_fuse = EfuseField.from_tuple(efuses, CUST_MAC_VER_EFUSE)
-    ver = ver_fuse.get()
-    new_ver = ver | 1  # Only version 1 MAC Addresses are supported yet
-    if ver not in [0, new_ver]:
-        raise esptool.FatalError("The version of the custom MAC Address is already burned ({})!".format(ver))
-    mac_fuse = EfuseField.from_tuple(efuses, CUST_MAC_EFUSE)
-    old_mac = mac_fuse.get_raw()
-    new_mac = struct.pack(">Q", args.mac)[2:]  # Q has 8 bytes -> removing two MSBs to form a valid 6-byte MAC Address
-    # It doesn't make sense ORing together the old_mac and new_mac because probably the old and the new CRC won't be
-    # OR-able together.
-    if old_mac != b'\x00' * 6:
-        raise esptool.FatalError("Custom MAC Address was previously burned ({})!".format(hexify(old_mac, ":")))
-    old_crc = mac_fuse.get_stored_crc()
-    if old_crc != 0:
+    write_always = args.force_write_always
+    c = CustomMacAddressField(efuses)
+    old_version = c.get_version()
+    new_version = old_version | 1  # Only version 1 MAC Addresses are supported yet
+    if (not write_always and old_version != 0) or (write_always and old_version not in [0, new_version]):
+        raise esptool.FatalError("The version of the custom MAC Address is already burned ({})!".format(old_version))
+    old_mac_b = c.get_raw()
+    old_mac = struct.unpack(">Q", b'\x00\x00' + old_mac_b)[0]
+    new_mac_b = struct.pack(">Q", args.mac)[2:]  # Q has 8-bytes. Removing two MSB bytes to get a 6-byte MAC
+    new_mac = args.mac
+    if (not write_always and old_mac != 0) or (write_always and new_mac | old_mac != new_mac):
+        raise esptool.FatalError("Custom MAC Address was previously burned ({})!".format(hexify(old_mac_b, ":")))
+    old_crc = c.get_stored_crc()
+    new_crc = c.calc_crc(new_mac_b)
+    if (not write_always and old_crc != 0) or (write_always and new_crc | old_crc != new_crc):
         raise esptool.FatalError("The CRC of the custom MAC Address was previously burned ({})!".format(old_crc))
-    if ver != new_ver:
-        confirm("Burning efuse %s (%s) 0x%x -> 0x%x" % (ver_fuse.register_name, ver_fuse.description, ver, new_ver), args)
-        ver_fuse.burn(new_ver)
-    confirm("Burning efuse %s (%s) %s -> %s" % (mac_fuse.register_name, mac_fuse.description, hexify(old_mac, ":"), hexify(new_mac, ":")), args)
-    mac_fuse.burn(new_mac)
+    confirm("Burning efuse for custom MAC address {} (version {}, CRC 0x{:x}) -> {} (version {}, CRC 0x{:x})"
+            "".format(hexify(old_mac_b, ":"), old_version, old_crc, hexify(new_mac_b, ":"), new_version, new_crc), args)
+    with io.BytesIO(c.get_block(new_mac, new_version)) as buf:
+        args.do_not_confirm = True  # Custom MAC burning was already confirmed. No need to ask twice.
+        # behavour of burn_block_data() for args.force_write_always is compatible
+        args.offset = 0
+        args.datafile = buf
+        args.block = 'BLK3'
+        burn_block_data(esp, efuses, args)
 
 
 def get_custom_mac(esp, efuses, args):
-    cust_mac_ver = EfuseField.from_tuple(efuses, CUST_MAC_VER_EFUSE).get()
+    c = CustomMacAddressField(efuses)
+    version = c.get_version()
 
-    if cust_mac_ver > 0:
-        cust_mac = EfuseField.from_tuple(efuses, CUST_MAC_EFUSE).get()
-        print("Custom MAC Address version {}: {}".format(cust_mac_ver, cust_mac))
+    if version > 0:
+        print("Custom MAC Address version {}: {}".format(version, c.get()))
     else:
         print("Custom MAC Address is not set in the device.")
 
@@ -811,8 +888,10 @@ def main():
         help='Run espefuse.py {command} -h for additional help')
 
     subparsers.add_parser('dump', help='Dump raw hex values of all efuses')
-    subparsers.add_parser('summary',
-                          help='Print human-readable summary of efuse values')
+    p = subparsers.add_parser('summary',
+                              help='Print human-readable summary of efuse values')
+    p.add_argument('--format', help='Select the summary format',choices=['summary','json'],default='summary')
+    p.add_argument('--file', help='File to save the efuse summary',type=argparse.FileType('w'),default=sys.stdout)
 
     p = subparsers.add_parser('burn_efuse',
                               help='Burn the efuse with the specified name')
@@ -861,6 +940,7 @@ def main():
                               help='Burn a 48-bit Custom MAC Address to EFUSE BLK3.')
     p.add_argument('mac', help='Custom MAC Address to burn given in hexadecimal format with bytes separated by colons' +
                                ' (e.g. AB:CD:EF:01:02:03).', type=mac_int)
+    add_force_write_always(p)
 
     p = subparsers.add_parser('get_custom_mac',
                               help='Prints the Custom MAC Address.')

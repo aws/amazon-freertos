@@ -549,7 +549,7 @@ extern uint32_t g_bletest_IVs;
 #endif
 
 #if MYNEWT_VAL(BLE_LL_DIRECT_TEST_MODE)
-void ble_ll_dtm_init();
+void ble_ll_dtm_init(void);
 #endif
 
 #ifdef __cplusplus

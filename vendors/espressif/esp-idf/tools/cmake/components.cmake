@@ -17,6 +17,7 @@ endfunction()
 function(register_component)
     get_filename_component(component_dir ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
 
+    spaces2list(COMPONENT_SRCS)
     spaces2list(COMPONENT_SRCDIRS)
     spaces2list(COMPONENT_ADD_INCLUDEDIRS)
     spaces2list(COMPONENT_SRCEXCLUDE)
@@ -62,6 +63,8 @@ function(register_component)
         set(include_type PUBLIC)
 
         set_property(TARGET ${COMPONENT_TARGET} PROPERTY OUTPUT_NAME ${COMPONENT_NAME})
+
+        ldgen_generate_sections_info(${COMPONENT_TARGET})
     else()
         add_library(${COMPONENT_TARGET} INTERFACE) # header-only component
         set(include_type INTERFACE)
@@ -105,8 +108,11 @@ function(register_component)
     endforeach()
 
     if(${COMPONENT_NAME} IN_LIST BUILD_TEST_COMPONENTS)
-        target_link_libraries(${COMPONENT_TARGET} "-L${CMAKE_CURRENT_BINARY_DIR}")
-        target_link_libraries(${COMPONENT_TARGET} "-Wl,--whole-archive -l${COMPONENT_NAME} -Wl,--no-whole-archive")
+        set_property(TARGET ${IDF_PROJECT_EXECUTABLE} APPEND PROPERTY
+                LINK_LIBRARIES "-L${CMAKE_CURRENT_BINARY_DIR}")
+
+        set_property(TARGET ${IDF_PROJECT_EXECUTABLE} APPEND PROPERTY
+                LINK_LIBRARIES "-Wl,--whole-archive -l${COMPONENT_NAME} -Wl,--no-whole-archive")
     endif()
 
     if(COMPONENT_SRCS OR embed_binaries)
@@ -115,6 +121,11 @@ function(register_component)
         target_compile_options(${COMPONENT_TARGET} PUBLIC $<$<COMPILE_LANGUAGE:C>:${IDF_C_COMPILE_OPTIONS}>)
         target_compile_options(${COMPONENT_TARGET} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${IDF_CXX_COMPILE_OPTIONS}>)
         target_compile_definitions(${COMPONENT_TARGET} PUBLIC ${IDF_COMPILE_DEFINITIONS})
+    endif()
+
+    if(COMPONENT_ADD_LDFRAGMENTS)
+        spaces2list(COMPONENT_ADD_LDFRAGMENTS)
+        ldgen_add_fragment_files(${COMPONENT_TARGET} "${COMPONENT_ADD_LDFRAGMENTS}")
     endif()
 endfunction()
 

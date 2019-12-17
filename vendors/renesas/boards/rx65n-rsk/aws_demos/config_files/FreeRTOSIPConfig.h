@@ -189,7 +189,7 @@ uint32_t ulRand(void);
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    ETHER_CFG_EMAC_TX_DESCRIPTORS
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    8
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can
@@ -220,7 +220,7 @@ uint32_t ulRand(void);
 #define ipconfigUSE_TCP                                ( 1 )
 
 /* USE_WIN: Let TCP use windowing mechanism. */
-#define ipconfigUSE_TCP_WIN                            ( 0 )
+#define ipconfigUSE_TCP_WIN                            ( 1 )
 
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
@@ -278,10 +278,10 @@ uint32_t ulRand(void);
 
 /* Each TCP socket has a circular buffers for Rx and Tx, which have a fixed
  * maximum size.  Define the size of Rx buffer for TCP sockets. */
-#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 3000 )
+#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 1460 * 3 )
 
 /* Define the size of Tx buffer for TCP sockets. */
-#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 3000 )
+#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 1460 * 3 )
 
 /* When using call-back handlers, the driver may check if the handler points to
  * real program memory (RAM or flash) or just has a random non-zero value. */
@@ -316,5 +316,8 @@ uint32_t ulRand(void);
 void vApplicationMQTTGetKeys( const char ** ppcRootCA,
                               const char ** ppcClientCert,
                               const char ** ppcClientPrivateKey );
+
+/* Let NetworkInterface check the free space in the working queue for the IP-task. */
+#define ipconfigCHECK_IP_QUEUE_SPACE			1
 
 #endif /* FREERTOS_IP_CONFIG_H */

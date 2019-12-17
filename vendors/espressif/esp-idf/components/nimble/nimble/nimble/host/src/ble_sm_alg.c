@@ -27,6 +27,8 @@
 
 #include "nimble/ble.h"
 #include "ble_hs_priv.h"
+
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
 #include "mbedtls/aes.h"
 
 #if MYNEWT_VAL(BLE_SM_SC)
@@ -38,7 +40,30 @@
 #include "mbedtls/ecp.h"
 #endif
 
+#else
+#include "tinycrypt/aes.h"
+#include "tinycrypt/constants.h"
+#include "tinycrypt/utils.h"
+
+#if MYNEWT_VAL(BLE_SM_SC)
+#include "tinycrypt/cmac_mode.h"
+#include "tinycrypt/ecc_dh.h"
+#if MYNEWT_VAL(TRNG)
+#include "trng/trng.h"
+#endif
+#endif
+
+#endif
+
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
+#if MYNEWT_VAL(BLE_SM_SC)
 static mbedtls_ecp_keypair keypair;
+#endif
+#else
+#if MYNEWT_VAL(BLE_SM_SC) && MYNEWT_VAL(TRNG)
+static struct trng_dev *g_trng;
+#endif
+#endif
 
 static void
 ble_sm_alg_xor_128(uint8_t *p, uint8_t *q, uint8_t *r)
@@ -53,10 +78,12 @@ ble_sm_alg_xor_128(uint8_t *p, uint8_t *q, uint8_t *r)
 static int
 ble_sm_alg_encrypt(uint8_t *key, uint8_t *plaintext, uint8_t *enc_data)
 {
-    mbedtls_aes_context s = {0};
     uint8_t tmp[16];
 
     swap_buf(tmp, key, 16);
+
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
+    mbedtls_aes_context s = {0};
 
     mbedtls_aes_init(&s);
     if (mbedtls_aes_setkey_enc(&s, tmp, 128) != 0) {
@@ -64,9 +91,23 @@ ble_sm_alg_encrypt(uint8_t *key, uint8_t *plaintext, uint8_t *enc_data)
     }
 
     swap_buf(tmp, plaintext, 16);
+
     if (mbedtls_aes_crypt_ecb(&s, MBEDTLS_AES_ENCRYPT, tmp, enc_data) != 0) {
         return BLE_HS_EUNKNOWN;
     }
+#else
+    struct tc_aes_key_sched_struct s;
+
+    if (tc_aes128_set_encrypt_key(&s, tmp) == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    swap_buf(tmp, plaintext, 16);
+
+    if (tc_aes_encrypt(enc_data, tmp, &s) == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+#endif
 
     swap_in_place(enc_data, 16);
 
@@ -196,6 +237,8 @@ ble_sm_alg_log_buf(const char *name, const uint8_t *buf, int len)
  * @param len                   Length of the message in octets.
  * @param out                   Output; message authentication code.
  */
+
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
 static int
 ble_sm_alg_aes_cmac(const uint8_t *key, const uint8_t *in, size_t len,
                     uint8_t *out)
@@ -232,6 +275,30 @@ exit:
     mbedtls_cipher_free(&ctx);
     return rc;
 }
+
+#else
+static int
+ble_sm_alg_aes_cmac(const uint8_t *key, const uint8_t *in, size_t len,
+                    uint8_t *out)
+{
+    struct tc_aes_key_sched_struct sched;
+    struct tc_cmac_struct state;
+
+    if (tc_cmac_setup(&state, key, &sched) == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    if (tc_cmac_update(&state, in, len) == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    if (tc_cmac_final(out, &state) == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    return 0;
+}
+#endif
 
 int
 ble_sm_alg_f4(uint8_t *u, uint8_t *v, uint8_t *x, uint8_t z,
@@ -284,9 +351,8 @@ ble_sm_alg_f5(uint8_t *w, uint8_t *n1, uint8_t *n2, uint8_t a1t,
               uint8_t *ltk)
 {
     static const uint8_t salt[16] = { 0x6c, 0x88, 0x83, 0x91, 0xaa, 0xf5,
-                                      0xa5, 0x38, 0x60, 0x37, 0x0b, 0xdb,
-                                      0x5a, 0x60, 0x83, 0xbe
-                                    };
+                      0xa5, 0x38, 0x60, 0x37, 0x0b, 0xdb,
+                      0x5a, 0x60, 0x83, 0xbe };
     uint8_t m[53] = {
         0x00, /* counter */
         0x62, 0x74, 0x6c, 0x65, /* keyID */
@@ -436,17 +502,20 @@ ble_sm_alg_gen_dhkey(uint8_t *peer_pub_key_x, uint8_t *peer_pub_key_y,
     uint8_t pk[64];
     uint8_t priv[32];
     int rc = BLE_HS_EUNKNOWN;
-    struct mbedtls_ecp_point pt = {0}, Q = {0};
-    mbedtls_mpi z = {0}, d = {0};
-    mbedtls_ctr_drbg_context ctr_drbg = {0};
-    mbedtls_entropy_context entropy = {0};
 
     swap_buf(pk, peer_pub_key_x, 32);
     swap_buf(&pk[32], peer_pub_key_y, 32);
     swap_buf(priv, our_priv_key, 32);
 
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
+    struct mbedtls_ecp_point pt = {0}, Q = {0};
+    mbedtls_mpi z = {0}, d = {0};
+    mbedtls_ctr_drbg_context ctr_drbg = {0};
+    mbedtls_entropy_context entropy = {0};
+
     uint8_t pub[65] = {0};
-    pub[0] = 0x04; // Hardcoded for MBEDTLS_ECP_PF_UNCOMPRESSED
+    /* Hardcoded first byte of pub key for MBEDTLS_ECP_PF_UNCOMPRESSED */
+    pub[0] = 0x04;
     memcpy(&pub[1], pk, 64);
 
     /* Initialize the required structures here */
@@ -496,9 +565,6 @@ ble_sm_alg_gen_dhkey(uint8_t *peer_pub_key_x, uint8_t *peer_pub_key_y,
         goto exit;
     }
 
-    swap_buf(out_dhkey, dh, 32);
-    rc = 0;
-
 exit:
     mbedtls_ecp_point_free(&pt);
     mbedtls_mpi_free(&z);
@@ -508,9 +574,21 @@ exit:
     mbedtls_ctr_drbg_free(&ctr_drbg);
     if (rc != 0) {
         return BLE_HS_EUNKNOWN;
-    } else {
-        return 0;
     }
+
+#else
+    if (uECC_valid_public_key(pk, &curve_secp256r1) < 0) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    rc = uECC_shared_secret(pk, priv, dh, &curve_secp256r1);
+    if (rc == TC_CRYPTO_FAIL) {
+        return BLE_HS_EUNKNOWN;
+    }
+#endif
+
+    swap_buf(out_dhkey, dh, 32);
+    return 0;
 }
 
 /* based on Core Specification 4.2 Vol 3. Part H 2.3.5.6.1 */
@@ -533,6 +611,7 @@ static const uint8_t ble_sm_alg_dbg_pub_key[64] = {
 };
 #endif
 
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
 static int
 mbedtls_gen_keypair(uint8_t *public_key, uint8_t *private_key)
 {
@@ -545,8 +624,8 @@ mbedtls_gen_keypair(uint8_t *public_key, uint8_t *private_key)
     mbedtls_ctr_drbg_init(&ctr_drbg);
     mbedtls_ecp_keypair_init(&keypair);
 
-    if (( mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
-                                NULL, 0) ) != 0) {
+    if (( rc = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
+                                NULL, 0)) != 0) {
         goto exit;
     }
 
@@ -555,7 +634,7 @@ mbedtls_gen_keypair(uint8_t *public_key, uint8_t *private_key)
         goto exit;
     }
 
-    if (mbedtls_mpi_write_binary(&keypair.d, private_key, 32) != 0) {
+    if (( rc = mbedtls_mpi_write_binary(&keypair.d, private_key, 32)) != 0) {
         goto exit;
     }
 
@@ -569,16 +648,17 @@ mbedtls_gen_keypair(uint8_t *public_key, uint8_t *private_key)
 
     memcpy(public_key, &pub[1], 64);
 
-    mbedtls_ctr_drbg_free( &ctr_drbg );
-    mbedtls_entropy_free( &entropy );
-    return 0;
-
 exit:
-    mbedtls_ecp_keypair_free(&keypair);
     mbedtls_ctr_drbg_free( &ctr_drbg );
     mbedtls_entropy_free( &entropy );
-    return BLE_HS_EUNKNOWN;
+    if (rc != 0) {
+        mbedtls_ecp_keypair_free(&keypair);
+        return BLE_HS_EUNKNOWN;
+    }
+
+    return 0;
 }
+#endif
 
 /**
  * pub: 64 bytes
@@ -594,11 +674,17 @@ ble_sm_alg_gen_key_pair(uint8_t *pub, uint8_t *priv)
 #else
     uint8_t pk[64];
 
-
     do {
+
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
         if (mbedtls_gen_keypair(pk, priv) != 0) {
             return BLE_HS_EUNKNOWN;
         }
+#else
+        if (uECC_make_key(pk, priv, &curve_secp256r1) != TC_CRYPTO_SUCCESS) {
+            return BLE_HS_EUNKNOWN;
+        }
+#endif
 
         /* Make sure generated key isn't debug key. */
     } while (memcmp(priv, ble_sm_alg_dbg_priv_key, 32) == 0);
@@ -606,16 +692,45 @@ ble_sm_alg_gen_key_pair(uint8_t *pub, uint8_t *priv)
     swap_buf(pub, pk, 32);
     swap_buf(&pub[32], &pk[32], 32);
     swap_in_place(priv, 32);
-
 #endif
 
     return 0;
 }
 
-/* Dummy Function */
+#if !(MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS))
+/* used by uECC to get random data */
+static int
+ble_sm_alg_rand(uint8_t *dst, unsigned int size)
+{
+#if MYNEWT_VAL(TRNG)
+    size_t num;
+
+    if (!g_trng) {
+        g_trng = (struct trng_dev *)os_dev_open("trng", OS_WAIT_FOREVER, NULL);
+        assert(g_trng);
+    }
+
+    while (size) {
+        num = trng_read(g_trng, dst, size);
+        dst += num;
+        size -= num;
+    }
+#else
+    if (ble_hs_hci_util_rand(dst, size)) {
+        return 0;
+    }
+#endif
+
+    return 1;
+}
+#endif
+
 void
 ble_sm_alg_ecc_init(void)
 {
+#if (!MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS))
+    uECC_set_rng(ble_sm_alg_rand);
+#endif
     return;
 }
 

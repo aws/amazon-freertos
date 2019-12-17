@@ -831,10 +831,9 @@ next:
 	return 0;
 }
 
-static int conf_split_config(void)
+static int conf_load_auto_conf(void)
 {
 	const char *name;
-	char path[PATH_MAX+1];
 	char *s, *d, c;
 	struct symbol *sym;
 	struct stat sb;
@@ -843,9 +842,6 @@ static int conf_split_config(void)
 	name = conf_get_autoconfig_name();
 	conf_read_simple(name, S_DEF_AUTO);
 	sym_calc_value(modules_sym);
-
-	if (chdir("include/config"))
-		return 1;
 
 	res = 0;
 	for_all_symbols(i, sym) {
@@ -898,49 +894,8 @@ static int conf_split_config(void)
 		 *	isn't saved in auto.conf, so the old value is always
 		 *	different from 'no').
 		 */
-
-		/* Replace all '_' and append ".h" */
-		s = sym->name;
-		d = path;
-		while ((c = *s++)) {
-			c = tolower(c);
-			*d++ = (c == '_') ? '/' : c;
-		}
-		strcpy(d, ".h");
-
-		/* Assume directory path already exists. */
-		fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (fd == -1) {
-			if (errno != ENOENT) {
-				res = 1;
-				break;
-			}
-			/*
-			 * Create directory components,
-			 * unless they exist already.
-			 */
-			d = path;
-			while ((d = strchr(d, '/'))) {
-				*d = 0;
-				if (stat(path, &sb) && mkdir(path, 0755)) {
-					res = 1;
-					goto out;
-				}
-				*d++ = '/';
-			}
-			/* Try it again. */
-			fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd == -1) {
-				res = 1;
-				break;
-			}
-		}
-		close(fd);
 	}
 out:
-	if (chdir("../.."))
-		return 1;
-
 	return res;
 }
 
@@ -955,7 +910,7 @@ int conf_write_autoconf(void)
 
 	file_write_dep("include/config/auto.conf.cmd");
 
-	if (conf_split_config())
+	if (conf_load_auto_conf())
 		return 1;
 
 	out = fopen(".tmpconfig", "w");

@@ -24,28 +24,29 @@
 #include "bootloader_common.h"
 #include "sdkconfig.h"
 #include "esp_image_format.h"
+#include "rom/rtc.h"
 
 static const char* TAG = "boot";
 
 static int select_partition_number (bootloader_state_t *bs);
-static int selected_boot_partition(bootloader_state_t *bs);
+static int selected_boot_partition(const bootloader_state_t *bs);
 /*
  * We arrive here after the ROM bootloader finished loading this second stage bootloader from flash.
  * The hardware is mostly uninitialized, flash cache is down and the app CPU is in reset.
  * We do have a stack, so we can do the initialization in C.
  */
-void call_start_cpu0()
+void __attribute__((noreturn)) call_start_cpu0()
 {
     // 1. Hardware initialization
     if (bootloader_init() != ESP_OK) {
-        return;
+        bootloader_reset();
     }
 
     // 2. Select the number of boot partition
     bootloader_state_t bs = { 0 };
     int boot_index = select_partition_number(&bs);
     if (boot_index == INVALID_INDEX) {
-        return;
+        bootloader_reset();
     }
 
     // 3. Load the app image for booting
@@ -69,12 +70,13 @@ static int select_partition_number (bootloader_state_t *bs)
  * Selects a boot partition.
  * The conditions for switching to another firmware are checked.
  */
-static int selected_boot_partition(bootloader_state_t *bs)
+static int selected_boot_partition(const bootloader_state_t *bs)
 {
     int boot_index = bootloader_utility_get_selected_boot_partition(bs);
     if (boot_index == INVALID_INDEX) {
         return boot_index; // Unrecoverable failure (not due to corrupt ota data or bad partition contents)
-    } else {
+    }
+    if (rtc_get_reset_reason(0) != DEEPSLEEP_RESET) {
         // Factory firmware.
 #ifdef CONFIG_BOOTLOADER_FACTORY_RESET
         if (bootloader_common_check_long_hold_gpio(CONFIG_BOOTLOADER_NUM_PIN_FACTORY_RESET, CONFIG_BOOTLOADER_HOLD_TIME_GPIO) == 1) {

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 #ifndef _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 #define _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 #include "aws_iot_ota_agent.h"
 #include "aws_test_ota_config.h"
 

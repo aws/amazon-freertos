@@ -42,7 +42,7 @@ int mem_malloc_mbufpkt_pool(struct os_mempool *mempool,
                             void **out_buf);
 int mem_init_mbuf_pool(void *mem, struct os_mempool *mempool,
                        struct os_mbuf_pool *mbuf_pool, int num_blocks,
-                       int block_size, char *name);
+                       int block_size, const char *name);
 
 /**
  * Specifies a function used as a callback.  Functions of this type allocate an

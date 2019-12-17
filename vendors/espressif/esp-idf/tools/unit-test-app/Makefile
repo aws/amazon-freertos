@@ -71,6 +71,7 @@ $(BINARIES_DIR)/%/$(PROJECT_NAME).bin: configs/%
 	# of tests to build for given configuration.
 	# Build all tests if this option is not present.
 	test_components=`sed -n 's/^TEST_COMPONENTS=\(.*\)/\1/p' configs/$*`; \
+		test_exclude_components=`sed -n 's/^TEST_EXCLUDE_COMPONENTS=\(.*\)/\1/p' configs/$*`; \
 		tests_all=`test -n "$${test_components}"; echo $${?}`; \
 		exclude_components=`sed -n 's/^EXCLUDE_COMPONENTS=\(.*\)/\1/p' configs/$*`; \
 	$(MAKE) defconfig list-components all \
@@ -78,6 +79,7 @@ $(BINARIES_DIR)/%/$(PROJECT_NAME).bin: configs/%
 		SDKCONFIG=$(BUILDS_DIR)/$*/sdkconfig \
 		SDKCONFIG_DEFAULTS=$(BUILDS_DIR)/$*/sdkconfig.defaults \
 		TEST_COMPONENTS="$${test_components}" \
+		TEST_EXCLUDE_COMPONENTS="$${test_exclude_components}" \
 		TESTS_ALL=$${tests_all} \
 		EXCLUDE_COMPONENTS="$${exclude_components}"
 	$(MAKE) --silent print_flash_cmd \
@@ -90,7 +92,7 @@ $(BINARIES_DIR)/%/$(PROJECT_NAME).bin: configs/%
 	cp $(BUILDS_DIR)/$*/$(PROJECT_NAME).elf $(BINARIES_DIR)/$*/
 	cp $(BUILDS_DIR)/$*/$(PROJECT_NAME).bin $(BINARIES_DIR)/$*/
 	cp $(BUILDS_DIR)/$*/$(PROJECT_NAME).map $(BINARIES_DIR)/$*/
-	cp $(BUILDS_DIR)/$*/partition_table*.bin $(BINARIES_DIR)/$*/
+	cp $(BUILDS_DIR)/$*/*.bin $(BINARIES_DIR)/$*/
 	cp $(BUILDS_DIR)/$*/sdkconfig $(BINARIES_DIR)/$*/
 
 

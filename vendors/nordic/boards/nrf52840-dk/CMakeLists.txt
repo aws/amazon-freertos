@@ -432,6 +432,7 @@ target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
+        AFR::ota_mqtt
 )
 
 # POSIX
@@ -491,6 +492,10 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
        "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
     )
 
+    if(AFR_METADATA_MODE)
+        return()
+    endif()
+
     # -------------------------------------------------------------------------------------------------
     # Additional build configurations
     # -------------------------------------------------------------------------------------------------
@@ -504,6 +509,17 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
          "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
     )
 
+    find_program(gcc_objectcopy objcopy HINTS "${AFR_COMPILER_DIR}")
+    find_program(gcc_size arm-none-eabi-size HINTS "${AFR_COMPILER_DIR}")
+
+    if(NOT gcc_objectcopy)
+        message(FATAL_ERROR "Cannot find objcopy.")
+    endif()
+
+    if(NOT gcc_size)
+        message(FATAL_ERROR "Cannot find arm-none-eabi-size.")
+    endif()
+
     function(nrf52840_build)
         set( build_target ${ARGV0} )
         set( build_mkld_flags ${${ARGV1}} )
@@ -512,13 +528,6 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
             PRE_LINK
             COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${build_mkld_flags} "${CMAKE_BINARY_DIR}/${build_target}.ld"
         )
-
-        find_program(gcc_objectcopy objcopy)
-        find_program(gcc_size arm-none-eabi-size)
-
-        if(NOT gcc_objectcopy )
-            message(FATAL_ERROR "Cannot find objcopy.")
-        endif()
 
         set(output_file "$<TARGET_FILE_DIR:${build_target}>/${build_target}.hex")
 

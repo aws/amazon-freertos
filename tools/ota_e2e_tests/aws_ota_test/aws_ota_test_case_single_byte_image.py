@@ -23,26 +23,21 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 
-class OtaTestSingleByteImage( OtaTestCase ):
-    NAME = "OtaTestSingleByteImage"
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestSingleByteImage, self).__init__(
-            OtaTestSingleByteImage.NAME,
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
 
+class OtaTestSingleByteImage(OtaTestCase):
+    is_positive = False
+
+    def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
         # Create a large-ish file that is not a working binary image.
         self.singleByteFileName = 'singe_byte.bin'
         outfile = open(self.singleByteFileName, 'wb')
         charToWrite = "a"
         outfile.write(charToWrite.encode())
+
+        # Call base constructor.
+        super().__init__(positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol)
 
     def run(self):
         # Upload the bad image to s3.
@@ -65,12 +60,13 @@ class OtaTestSingleByteImage( OtaTestCase ):
         )
         # Create the OTA update job.
         otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-            deploymentFiles = [
+            protocols=[self._protocol],
+            deploymentFiles=[
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
                     'fileVersion': '1',
                     'fileLocation': {
-                        'stream':{
+                        'stream': {
                             'streamId': streamId,
                             'fileId': 0
                         },

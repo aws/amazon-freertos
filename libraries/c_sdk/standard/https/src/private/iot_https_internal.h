@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,12 +62,12 @@
 /* Convenience macros for handling errors in a standard way. */
 
 /**
- * @brief Every public API return an enumeration value with an undelying value of 0 in case of success.
+ * @brief Every public API return an enumeration value with an underlying value of 0 in case of success.
  */
 #define HTTPS_SUCCEEDED( x )                         ( ( x ) == IOT_HTTPS_OK )
 
 /**
- * @brief Every public API returns an enumeration value with an undelying value different than 0 in case of success.
+ * @brief Every public API returns an enumeration value with an underlying value different than 0 in case of success.
  */
 #define HTTPS_FAILED( x )                            ( ( x ) != IOT_HTTPS_OK )
 
@@ -284,7 +284,7 @@
  *
  * PARSER_STATE_IN_HEADERS is assigned at the start of the HTTP Response message. This occurs in the
  * _httpParserOnMessageBeginCallback(). HTTP headers are always first and there is always the response status line
- * and some headers in a response message acccording to RFC 2616.
+ * and some headers in a response message according to RFC 2616.
  *
  * PARSER_STATE_HEADERS_COMPLETE is assigned when all of the headers are finished being parsed in the HTTP response
  * message. This occurs in the _httpParserOnHeadersCompleteCallback(). The state can end here if the response has no
@@ -327,7 +327,7 @@ typedef enum IotHttpsResponseParserState
  * This state is then used in the parser callbacks _httpParserOnStatusCallback(), _httpParserOnHeaderFieldCallback(),
  * _httpParserOnHeaderValueCallback(), and _httpParserOnHeadersCompleteCallback() to move the
  * #_httpsResponse_t.headersCur pointer along in the header buffer.
- * Since the server sends the HTTP response as a single continuous message, somtimes during receiving of the HTTP
+ * Since the server sends the HTTP response as a single continuous message, sometimes during receiving of the HTTP
  * headers we may receive part or all of the HTTP response body:
  * ((example header buffer))[headers headers headers headers body body body]
  * When parsing this header buffer the parser will execute _httpParserOnBodyCallback() in the
@@ -436,7 +436,7 @@ typedef struct _httpsResponse
                                                           *          On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue and then exit the parsing. */
     struct _httpsConnection * pHttpsConnection;          /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
     bool isAsync;                                        /**< @brief This is set to true if this response is to be retrieved asynchronously. Set to false otherwise. */
-    uint8_t * pBodyInHeaderBuf;                          /**< @brief Pointer to the start of body inside the header buffer for copying to a body buffer provided later by the asyncrhonous response process. */
+    uint8_t * pBodyInHeaderBuf;                          /**< @brief Pointer to the start of body inside the header buffer for copying to a body buffer provided later by the asynchronous response process. */
     uint8_t * pBodyCurInHeaderBuf;                       /**< @brief Pointer to the next location to write body data during processing of the header buffer. This is necessary in case there is a chunk encoded HTTP response. */
     IotHttpsReturnCode_t bodyRxStatus;                   /**< @brief The status of network receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback. */
     bool cancelled;                                      /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */

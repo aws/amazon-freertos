@@ -46,7 +46,9 @@ Socket_t FreeRTOS_socket( BaseType_t xDomain, BaseType_t xType, BaseType_t xProt
 }
 
 /* This function FreeRTOS_gethostbyname_a only uses the return value of prvParseDNSReply. Hence it returns an unconstrained uint32 value */
-uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier) { }
+uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
+			   size_t xBufferLength,
+			   BaseType_t xExpected ) {}
 
 /* Abstraction of xTaskResumeAll from task pool. This also abstracts the concurrency. */
 BaseType_t xTaskResumeAll(void) { }

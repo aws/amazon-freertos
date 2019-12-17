@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201910.00
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,7 +49,7 @@
 #include "platform/iot_clock.h"
 
 /**
- * This demonstates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
+ * This demonstrates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
  * The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other webservers as
  * well.
  *
@@ -114,14 +114,14 @@
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines.
- * The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
+ * The size presented here accounts for the storage of the internal context, the first request line in the HTTP
  * formatted header and extra headers. The minimum size can be found in extern const uint32_t requestUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
     #define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE    ( ( int ) 512 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
- * The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
+ * The size presented here accounts for the storage of the internal context, the first request line in the HTTP
  * formatted header and extra headers. The minimum can be found in responseUserBufferMinimumSize.
  * Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
  * will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
@@ -231,7 +231,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
      * IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
-    /* Handle identifying the HTTP response. This is valid after the reponse has been received with
+    /* Handle identifying the HTTP response. This is valid after the response has been received with
      * IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
@@ -270,7 +270,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Synchronous S3 download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
 
-    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This fuction returns the length of the path
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
      * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL,
                                                    strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
@@ -374,7 +374,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IotLogError( "Failed to connect to the server. Error code: %d.", httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
@@ -517,7 +517,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IotLogInfo( "Downloaded %d/%d", curByte, fileSize );
 
         /* If amount of file remaining to request is less than the current amount of bytes to request next time, then
-         * udpdate the amount of bytes to request, on the next iteration, to be the amount remaining. */
+         * update the amount of bytes to request, on the next iteration, to be the amount remaining. */
         if( curByte > fileSize )
         {
             IotLogError( "Received more data than the size of the file specified." );
@@ -552,7 +552,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
-                IotLogError( "Failed to reconnect to the S3 server. Error code: %d.", httpsClientStatus );
+                IotLogError( "Failed to reconnect to the server. Error code: %d.", httpsClientStatus );
                 IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
             }
         }

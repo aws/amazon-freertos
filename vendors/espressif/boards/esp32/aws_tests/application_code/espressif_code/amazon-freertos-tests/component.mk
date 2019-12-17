@@ -41,17 +41,15 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/shadow/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/greengrass/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
+        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src/mqtt \
+        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src/http \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/tls/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/crypto/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/pkcs11/src \
-        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source \
-        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement \
-        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32 \
         $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/utils/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos \
-        $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/freertos_plus_tcp \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
@@ -59,12 +57,10 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
         $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11 \
-        $(AMAZON_FREERTOS_ARF_PORTS)/wifi 
-        
+        $(AMAZON_FREERTOS_ARF_PORTS)/wifi
+
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/include \
                              ${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/posix/include \
-                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
-                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/Compiler/GCC \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
@@ -77,17 +73,16 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
                              $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
-                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls 
+                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls
 
-COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.o \
-                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.o \
+COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.o \
                         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.o \
-                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.o 
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.o
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
                               $(AMAZON_FREERTOS_ARF_PORTS)/ota \
@@ -116,12 +111,10 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/test/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/test \
-        $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/wifi/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/ota/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/crypto/test \
-        ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/freertos_plus_tcp/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/tls/test \
         ${AMAZON_FREERTOS_3RD_PARTY_DIR}/unity/src \
         ${AMAZON_FREERTOS_3RD_PARTY_DIR}/unity/extras/fixture/src \
@@ -135,7 +128,6 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/ble/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/ota/test \
-        ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/freertos_plus_tcp/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/wifi/test \
 	${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/ble_hal/test/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/https/src \
@@ -153,7 +145,6 @@ COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_3RD_PARTY_DIR)/unity/extras/fixt
 # Define the board to pass the SOCKETS_Socket_InvalidTooManySockets test.
 CFLAGS += -DESP32
 
-tests/common/secure_sockets/aws_test_tcp.o: CFLAGS+=-Wno-uninitialized
 tests/common/wifi/aws_test_wifi.o: CFLAGS+=-Wno-uninitialized
 tests/common/ota/aws_test_ota_pal.o: CFLAGS+=-Wno-pointer-sign -Wno-sizeof-pointer-memaccess
 tests/common/ota/aws_test_ota_agent.o: CFLAGS+=-Wno-pointer-sign
@@ -175,8 +166,7 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/tcp
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/include \
-                             $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager 
+                             $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager
 
 demos/common/tcp/aws_tcp_echo_client_single_task.o: CFLAGS+=-Wno-format
 endif
-

@@ -176,12 +176,17 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
+    uint8_t * pFile = NULL;
+    size_t xFileLength = 0;
 
     /* Translate from the PKCS#11 label to local storage file name. */
     prvLabelToFilenameHandle( pLabel, &pcFileName, &xHandle );
 
-    /*TODO: check if file actually there.
-     * Note: g_cert_files only seems to check if the entry in the array is present */
+    /* Check if the file exists. */
+    if( pdFALSE == mflash_read_file( pcFileName, &pFile, &xFileLength ) )
+    {
+        xHandle = eInvalidHandle;
+    }
 
     return xHandle;
 }
@@ -293,7 +298,7 @@ extern CK_RV prvMbedTLS_Initialize( void );
 #endif
 
 CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( pvInitArgs );
 
     CK_RV xResult = CKR_OK;

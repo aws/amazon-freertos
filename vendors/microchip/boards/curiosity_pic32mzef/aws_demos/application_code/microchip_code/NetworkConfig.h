@@ -59,11 +59,17 @@ SOFTWARE
 //  - the Harmony MAC driver: TCPIP_MAC_PACKET 
 // from the beginning of the buffer:
 //      - 4 bytes pointer to the network descriptor (FreeRTOS)
-//      - 4 bytes pointer to the MAC packet (pic32_NetworkInterface.c)
+//      - 4 bytes pointer to the MAC packet ( only when PIC32_USE_ETHERNET is
+//          defined and NetworkInterface_eth.c is included )
+//      - 4 bytes space to store IP-type ( IPv4 / v6 )
 //      - 2 bytes offset from the MAC packet (Harmony MAC driver: segLoadOffset)
-// NOTE: the ipBUFFER_PADDING should be set to 10 to match the TCPIP_MAC_FRAME_OFFSET value!
-#define PIC32_BUFFER_PKT_PTR_OSSET    6
+// NOTE: the ipconfigBUFFER_PADDING should be set to 14 when PIC32_USE_ETHERNET is defined.
+// It is set to 10 when the WiFi driver is used.
+// Note that ipconfigBUFFER_PADDING == TCPIP_MAC_FRAME_OFFSET.
 
+#ifdef PIC32_USE_ETHERNET
+	#define PIC32_BUFFER_PKT_PTR_OSSET    ( ipconfigBUFFER_PADDING - 4 )
+#endif
 
 
 // standard PIC32 MAC driver configuration

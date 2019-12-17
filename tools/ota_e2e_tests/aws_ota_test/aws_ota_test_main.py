@@ -50,6 +50,7 @@ def parseArgs():
     parser.add_argument('--signer-endpoint-url', action='store', required=False, dest='signerEndpointUrl', help='On certain stages AWS signer needs an endpoint URL')
     parser.add_argument('--region', action='store', required=False, dest='region', help='The region for AWS CLI operations when --stage is specified.')
     parser.add_argument('--certificate', action='store', required=False, dest='certificatePath', help='The path to the PEM encoded secure connection certificate needed for stages other than Production.')
+    parser.add_argument('--data-protocols', nargs='+', required=False, default=['MQTT', 'HTTP'], dest='dataProtocols', help='OTA data transfer protocols, valid values are "mqtt" and "http". If not supported by device, tests are ignored.')
     args = parser.parse_args()
 
     return args
@@ -200,6 +201,10 @@ def otaTestMain():
         if boardConfig['exclude']:
             continue
         boardToResults[boardConfig['name']] = []
+        # Update 'data_protocols' key with user input.
+        args.dataProtocols = [p.upper() for p in args.dataProtocols]
+        data_protocols = set(args.dataProtocols) & set(boardConfig['ota_config'].get('data_protocols', ['MQTT']))
+        boardConfig['ota_config']['data_protocols'] = list(data_protocols)
         if args.separateThreads == True:
             threads.append(Thread(
                 target=getBoardOtaTestResult, \

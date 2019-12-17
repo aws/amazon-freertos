@@ -19,7 +19,7 @@ project file and building either the x86 or x64 version of the application.
 2) All commands starting with `aws iot` require that the AWS Command Line Interface (CLI) has been installed.  For more information about the AWS CLI and how to install it, please see
 https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html.
 
-3) Install OpenSSL.
+3) If they are not installed already, install OpenSSL, a TLS & cryptography library, as well as xxd, a tool for hex conversion.
 
 ## Set up a Certificate Ecosystem
 
@@ -59,7 +59,7 @@ register that certificate with AWS, and verficationCert.crt to prove that signer
 aws iot register-ca-certificate --ca-certificate file://signer-ca.crt --verification-cert file://verificationCert.crt
 ```
 
-This API returns the certificate ID for your new CA certificate (this is the 64 charcter hex value that follows arn:aws:iot:<region>:<account>:cacert/<ca-certificate-id>).
+This API returns the certificate ID for your new CA certificate (this is the 64 charcter hex value that follows arn:aws:iot:`<region>`:`<account>`:cacert/`<ca-certificate-id>`).
 
 Your signing CA certificate is now "inactive", meaning that it cannot yet be used.  Activate it by 
 calling 
@@ -103,7 +103,7 @@ If you do not see this printed to the console, try power cycling your device, do
 check that the file aws_clientcredential_keys.h has all defines set to "", and verify
 that keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR is set to 1.
 
-The 18 characters following the "CN" will become your device's "Thing Name".  The 91
+The 18 characters following the "CN" will become your device's `<thing-name>`.  The 91
 bytes contain your device public key.
 
 4) Copy the six lines of public key bytes into a file called *DevicePublicKeyAsciiHex.txt*. 
@@ -126,11 +126,11 @@ Otherwise, the device will create yet another key pair, and you will have to rep
 #define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 0
 ```
 7) Create your device certificate using the ca_create_device script. 
-Use the 18 characters following CN= for the --sn input, and the public_key.pem file
+Use the 18 characters following CN= for the thing name, and the public_key.pem file
 that you formatted step 5 as your public key.
 
 ```
->python ca_create_device.py  --sn 01234D2C14CBEAD5EE --cert signer-ca.crt --key signer-ca.key --file public_key.pem
+>python ca_create_device.py  --sn <thing-name> --cert signer-ca.crt --key signer-ca.key --file public_key.pem
 ```
 
 You now have a device certificate called device.crt.
@@ -169,13 +169,13 @@ Remember to use the <device-certificate-id> generated in step 2 of this section.
 Use the Thing Name from your serial number/CN value obtained while running the demo code.
 
 ```
-aws iot create-thing --thing-name 01234D2C14CBEAD5EE
+aws iot create-thing --thing-name <thing-name>
 ```
 
 6) Attach your device certificate to your thing.  Remember to switch out the example Thing Name in the command below for your thing name from the previous step, and the region/account
 id/device certificate id for your device certificate's ID.
 ```
-aws iot attach-thing-principal --thing-name 01234D2C14CBEAD5EE --principal arn:aws:iot:<region>:<account-id>:cert/<device-certificate-id>
+aws iot attach-thing-principal --thing-name <thing-name> --principal arn:aws:iot:<region>:<account-id>:cert/<device-certificate-id>
 ```
 
 The certificate is now ready to be used by the aws_demos examples.

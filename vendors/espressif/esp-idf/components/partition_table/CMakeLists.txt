@@ -29,7 +29,6 @@ else()
 endif()
 
 add_custom_command(OUTPUT "${IDF_BUILD_ARTIFACTS_DIR}/partition_table/${unsigned_partition_bin}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${IDF_BUILD_ARTIFACTS_DIR}/partition_table"
     COMMAND "${PYTHON}" "${CMAKE_CURRENT_SOURCE_DIR}/gen_esp32part.py" 
     -q --offset ${PARTITION_TABLE_OFFSET} ${md5_opt} ${flashsize_opt}
     ${partition_secure_opt} ${partition_csv} ${IDF_BUILD_ARTIFACTS_DIR}/partition_table/${unsigned_partition_bin}
@@ -68,6 +67,15 @@ if(CONFIG_SECURE_BOOT_ENABLED AND
         COMMAND ${CMAKE_COMMAND} -E echo
             "\t${ESPSECUREPY} sign_data --keyfile KEYFILE ${CMAKE_CURRENT_BINARY_DIR}/${final_partition_bin}"
         VERBATIM)
+endif()
+
+# If anti-rollback option is set then factory partition should not be in Partition Table.
+# In this case, should be used the partition table with two ota app without the factory.
+if(CONFIG_APP_ANTI_ROLLBACK AND FACTORY_OFFSET)
+    fail_at_build_time(check_table_contents
+        "ERROR: Anti-rollback option is enabled. Partition table should consist of two ota app without factory partition.")
+add_dependencies(bootloader check_table_contents)
+add_dependencies(app check_table_contents)
 endif()
 
 add_dependencies(bootloader partition_table)

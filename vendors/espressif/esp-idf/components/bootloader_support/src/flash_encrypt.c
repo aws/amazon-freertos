@@ -23,6 +23,7 @@
 #include "esp_efuse.h"
 #include "esp_log.h"
 #include "rom/secure_boot.h"
+#include "soc/rtc_wdt.h"
 
 #include "rom/cache.h"
 #include "rom/spi_flash.h"   /* TODO: Remove this */
@@ -288,7 +289,7 @@ static esp_err_t encrypt_partition(int index, const esp_partition_info_t *partit
     if (partition->type == PART_TYPE_APP) {
       /* check if the partition holds a valid unencrypted app */
       esp_image_metadata_t data_ignored;
-      err = esp_image_load(ESP_IMAGE_VERIFY,
+      err = esp_image_verify(ESP_IMAGE_VERIFY,
                            &partition->pos,
                            &data_ignored);
       should_encrypt = (err == ESP_OK);
@@ -325,6 +326,7 @@ esp_err_t esp_flash_encrypt_region(uint32_t src_addr, size_t data_length)
     }
 
     for (size_t i = 0; i < data_length; i += FLASH_SECTOR_SIZE) {
+        rtc_wdt_feed();
         uint32_t sec_start = i + src_addr;
         err = bootloader_flash_read(sec_start, buf, FLASH_SECTOR_SIZE, false);
         if (err != ESP_OK) {

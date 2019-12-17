@@ -3,6 +3,7 @@
 doc/html/*
 doc/output/*
 doc/tag/*
+doxygen_warnings.txt
 /.metadata/
 .vscode/*
 *.o

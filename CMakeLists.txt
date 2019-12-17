@@ -6,8 +6,8 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "201910.00")
-set(PROJECT_VERSION_MAJOR "201910")
+set(PROJECT_VERSION "201912.00")
+set(PROJECT_VERSION_MAJOR "201912")
 set(PROJECT_VERSION_MINOR "00")
 
 # Import global configurations.

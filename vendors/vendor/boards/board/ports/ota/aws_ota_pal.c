@@ -29,15 +29,15 @@
 
 /* Amazon FreeRTOS include. */
 #include "FreeRTOS.h"
-#include "aws_ota_pal.h"
-#include "aws_ota_agent_internal.h"
+#include "aws_iot_ota_pal.h"
+#include "aws_iot_ota_agent_internal.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";   /* FIX ME. */
 
 
-/* The static functions below (prvPAL_CheckFileSignature and prvPAL_ReadAndAssumeCertificate) 
- * are optionally implemented. If these functions are implemented then please set the following macros in 
+/* The static functions below (prvPAL_CheckFileSignature and prvPAL_ReadAndAssumeCertificate)
+ * are optionally implemented. If these functions are implemented then please set the following macros in
  * aws_test_ota_config.h to 1:
  * otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
  * otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
@@ -45,33 +45,33 @@ const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-
 
 /**
  * @brief Verify the signature of the specified file.
- * 
+ *
  * This function should be implemented if signature verification is not offloaded
  * to non-volatile memory io functions.
- * 
- * This function is called from prvPAL_Close(). 
- * 
+ *
+ * This function is called from prvPAL_Close().
+ *
  * @param[in] C OTA file context information.
- * 
+ *
  * @return Below are the valid return values for this function.
  * kOTA_Err_None if the signature verification passes.
  * kOTA_Err_SignatureCheckFailed if the signature verification fails.
  * kOTA_Err_BadSignerCert if the if the signature verification certificate cannot be read.
- * 
+ *
  */
 static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C );
 
 /**
  * @brief Read the specified signer certificate from the filesystem into a local buffer.
- * 
+ *
  * The allocated memory returned becomes the property of the caller who is responsible for freeing it.
- * 
+ *
  * This function is called from prvPAL_CheckFileSignature(). It should be implemented if signature
  * verification is not offloaded to non-volatile memory io function.
- * 
+ *
  * @param[in] pucCertName The file path of the certificate file.
  * @param[out] ulSignerCertSize The size of the certificate file read.
- * 
+ *
  * @return A pointer to the signer certificate in the file system. NULL if the certificate cannot be read.
  * This returned pointer is the responsibility of the caller; if the memory is allocated the caller must free it.
  */
@@ -92,7 +92,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
 {
     DEFINE_OTA_METHOD_NAME( "prvPAL_Abort" );
-    
+
     /* FIX ME. */
     return kOTA_Err_FileAbort;
 }

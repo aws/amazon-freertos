@@ -118,7 +118,7 @@ const static int_desc_t int_desc[32]={
     { 3, INTTP_LEVEL, {INTDESC_NORMAL, INTDESC_NORMAL} }, //23
     { 4, INTTP_LEVEL, {INTDESC_RESVD,  INTDESC_NORMAL} }, //24
     { 4, INTTP_LEVEL, {INTDESC_RESVD,  INTDESC_RESVD } }, //25
-    { 5, INTTP_LEVEL, {INTDESC_RESVD,  INTDESC_RESVD } }, //26
+    { 5, INTTP_LEVEL, {INTDESC_NORMAL, INTDESC_RESVD } }, //26
     { 3, INTTP_LEVEL, {INTDESC_RESVD,  INTDESC_RESVD } }, //27
     { 4, INTTP_EDGE,  {INTDESC_NORMAL, INTDESC_NORMAL} }, //28
     { 3, INTTP_NA,    {INTDESC_SPECIAL,INTDESC_SPECIAL}}, //29
@@ -706,13 +706,18 @@ esp_err_t IRAM_ATTR esp_intr_set_in_iram(intr_handle_t handle, bool is_in_iram)
     return ESP_OK;
 }
 
+static void esp_intr_free_cb(void *arg)
+{
+    (void)esp_intr_free((intr_handle_t)arg);
+}
+
 esp_err_t esp_intr_free(intr_handle_t handle)
 {
     bool free_shared_vector=false;
     if (!handle) return ESP_ERR_INVALID_ARG;
     //Assign this routine to the core where this interrupt is allocated on.
     if (handle->vector_desc->cpu!=xPortGetCoreID()) {
-        esp_err_t ret = esp_ipc_call_blocking(handle->vector_desc->cpu, (esp_ipc_func_t)&esp_intr_free, (void *)handle);
+        esp_err_t ret = esp_ipc_call_blocking(handle->vector_desc->cpu, &esp_intr_free_cb, (void *)handle);
         return ret == ESP_OK ? ESP_OK : ESP_FAIL;
     }
     portENTER_CRITICAL(&spinlock);
@@ -840,7 +845,7 @@ esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
     } else {
         //Disable using per-cpu regs
         if (handle->vector_desc->cpu!=xPortGetCoreID()) {
-            portEXIT_CRITICAL_SAFE(&spinlock);
+            portEXIT_CRITICAL(&spinlock);
             return ESP_ERR_INVALID_ARG; //Can only enable these ints on this cpu
         }
         ESP_INTR_DISABLE(handle->vector_desc->intno);

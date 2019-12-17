@@ -1,8 +1,8 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
-set(demos_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_demos/keil/)
-set(tests_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_tests/keil/)
+set(demos_uvision_dir "${AFR_ROOT_DIR}/projects/nuvoton/numaker_iot_m487_wifi/uvision/aws_demos")
+set(tests_uvision_dir "${AFR_ROOT_DIR}/projects/nuvoton/numaker_iot_m487_wifi/uvision/aws_tests")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
@@ -12,6 +12,12 @@ else()
     set(board_dir "${board_demos_dir}")
     set(board_uvision_dir "${demos_uvision_dir}")
     set(exe_target aws_demos)
+endif()
+
+if(AFR_ENABLE_ETH)
+    set(extra_define -DM487_ETH_DEMO)
+else()
+    set(extra_define "")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -24,7 +30,7 @@ afr_set_board_metadata(VENDOR_NAME "Nuvoton")
 afr_set_board_metadata(FAMILY_NAME "NuMicro M487 Series")
 afr_set_board_metadata(DATA_RAM_MEMORY "160KB")
 afr_set_board_metadata(PROGRAM_MEMORY "512KB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(SUPPORTED_IDE "uVision")
 afr_set_board_metadata(RECOMMENDED_IDE "uVision")
 afr_set_board_metadata(IDE_uVision_NAME "Keil uVision")
@@ -42,19 +48,20 @@ target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -D__MICROLIB
-    -D_REENT_SMALL
-    -DPRODUCT_VERSION=m487
-    -DCONFIG_REPEATER
-    -DSUPPORT_MBEDTLS
-    -DHAL_DFS_MODULE_ENABLED
-    -DLWIP_NO_STDINT_H=1
+    -D_REENT_SMALL 
+    -DPRODUCT_VERSION=m487 
+    -DCONFIG_REPEATER 
+    -DSUPPORT_MBEDTLS 
+    -DHAL_DFS_MODULE_ENABLED 
+    -DLWIP_NO_STDINT_H=1 
     -DLWIP_TIMEVAL_PRIVATE=1
     -D__little_endian__=1
     -DNDEBUG
-    -DUNITY_INCLUDE_CONFIG_H
-    -DRVDS_ARMCM4_NUC4xx
-    -D__LITTLE_ENDIAN__
-    -DM487
+    -DUNITY_INCLUDE_CONFIG_H 
+    -DRVDS_ARMCM4_NUC4xx 
+    -D__LITTLE_ENDIAN__ 
+    -DM487 
+    ${extra_define}
 )
 target_compile_definitions(
     AFR::compiler::mcu_port
@@ -99,7 +106,7 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        # Nuvoton SDK sources (driver)
+        # Nuvoton SDK sources (driver)		
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/clk.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/crypto.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/fmc.c"
@@ -117,28 +124,16 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/RVDS/ARM_CM4F"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/CMSIS/Include"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include"
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/Keil"
         "${board_dir}/config_files"
         "${board_dir}/application_code/nuvoton_code"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         "${board_dir}/config_files"
-)
-
-# WiFi
-afr_mcu_port(wifi)
-target_sources(
-    AFR::wifi::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/wifi/iot_wifi.c"
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
-)
-
-target_include_directories(
-    AFR::wifi::mcu_port
-    INTERFACE
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"
 )
 
 # PKCS11
@@ -149,21 +144,66 @@ target_sources(
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
-# Secure sockets
-afr_mcu_port(secure_sockets)
 
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-)
+if(AFR_ENABLE_ETH)
 
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-        AFR::wifi
-)
+    # FreeRTOS Plus TCP
+    afr_mcu_port(freertos_plus_tcp)
+    target_sources(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c"
+    )
+
+    target_include_directories(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487"
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
+    )
+
+    # Secure sockets for ETH
+    afr_mcu_port(secure_sockets)
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE AFR::secure_sockets_freertos_plus_tcp
+    )
+
+else()
+
+    # WiFi
+    afr_mcu_port(wifi)
+    target_sources(
+        AFR::wifi::mcu_port
+        INTERFACE 
+            "${afr_ports_dir}/wifi/iot_wifi.c"
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
+    )
+
+    target_include_directories(
+        AFR::wifi::mcu_port
+        INTERFACE
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
+    )
+
+    # Secure sockets for WiFi
+    afr_mcu_port(secure_sockets)
+
+    target_sources(
+        AFR::secure_sockets::mcu_port
+        INTERFACE 
+            "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
+    )
+
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+    )
+endif()
 
 
 # -------------------------------------------------------------------------------------------------
@@ -182,13 +222,24 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         "${board_dir}/application_code/main.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c"
+        $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
     )
+
+    if(AFR_ENABLE_ETH)
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::freertos_plus_tcp
+            AFR::utils
+    )
+    else()
     target_link_libraries(
         ${exe_target}
         PRIVATE
             AFR::wifi
             AFR::utils
     )
+    endif()
 
     if(NOT AFR_METADATA_MODE)
         # Convert afx file to bin file

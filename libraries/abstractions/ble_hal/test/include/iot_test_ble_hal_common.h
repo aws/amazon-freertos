@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V4.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,16 +35,30 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include "iot_linear_containers.h"
-#include "platform/iot_threads.h"
-#include "types/iot_platform_types.h"
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
-#include "bt_hal_gatt_types.h"
+#include IOT_LINEAR_CONTAINERS
+#include IOT_THREADS
+#include IOT_CLOCK
+#include IOT_PLATFORM_TYPES
+#include IOT_BT_HAL_MANAGER_ADAPTER_BLE
+#include IOT_BT_HAL_MANAGER_ADAPTER
+#include IOT_BT_HAL_GATT_SERVER
+#include IOT_BT_HAL_GATT_TYPES
 /* Test framework includes. */
-#include "unity_fixture.h"
-#include "unity.h"
+#include IOT_UNITY_FIXTURE
+#include IOT_UNITY
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL_API_TEST" )
+#include "iot_logging_setup.h"
+
+/* Configs for enable/diable test cases */
+#include "iot_test_ble_hal_config_defaults.h"
 
 /**
  * @brief Connection parameters.
@@ -69,6 +83,8 @@ typedef struct
 
 #define bletestsDEFAULT_CHAR_VALUE       "hello"
 #define bletestsSTRINGYFIED_UUID_SIZE    36 /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
+#define bletests_LONG_WRITE_LEN          210
+#define bletests_LONG_READ_LEN           210
 #define bletestsFULL_PERMISSIONS         ( eBTPermRead | eBTPermWrite )
 #define bletestsNB_INCLUDEDSERVICES      1
 
@@ -153,6 +169,18 @@ typedef struct
         .ucType = eBTuuidType128                                                                                   \
     }
 
+#define bletestsFREERTOS_SVC_C_UUID                                                                                     \
+    {                                                                                                                   \
+        .uu.uu128 = { 0x02, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
+        .ucType = eBTuuidType128                                                                                        \
+    }
+
+#define bletestsFREERTOS_CHAR_G_UUID                                                                                    \
+    {                                                                                                                   \
+        .uu.uu128 = { 0x03, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
+        .ucType = eBTuuidType128                                                                                        \
+    }
+
 
 #define bletestsDEVICE_NAME                   "TEST"
 #define bletestsMAX_PROPERTY_SIZE             30
@@ -168,6 +196,8 @@ typedef struct
 
 #define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
+
+#define BLE_TIME_LIMIT                        2500                  /* Set time limit to 2.5s */
 
 typedef enum
 {
@@ -196,7 +226,6 @@ typedef enum
     eBLEHALEventSSPrequestConfirmationCb = 22,
     eBLEHALEventPairingStateChangedCb = 23,
     eBLEHALEventRequestExecWriteCb = 24,
-    eBLEHALEventBondedCb = 25,
     eBLENbHALEvents,
 } BLEHALEventsTypes_t;
 
@@ -309,6 +338,7 @@ typedef struct
     BTStatus_t xStatus;
     BTBdaddr_t xRemoteBdAddr;
     BTSecurityLevel_t xSecurityLevel;
+    BTBondState_t xBondState;
     BTAuthFailureReason_t xReason;
 } BLETESTPairingStateChangedCallback_t;
 
@@ -330,15 +360,6 @@ typedef struct
     BTBdaddr_t pxBda;
     bool bConnected;
 } BLETESTConnectionCallback_t;
-
-typedef struct
-{
-    BLEHALEventsInternals_t xEvent;
-    BTStatus_t xStatus;
-    BTBdaddr_t xRemoteBdAddr;
-    bool bIsBonded;
-} BLETESTBondedCallback_t;
-
 
 typedef enum
 {
@@ -365,6 +386,13 @@ typedef enum
     bletestATTR_INCLUDED_SERVICE,
     bletestATTR_SRVCB_NUMBER
 } bletestAttSrvB_t;
+
+typedef enum
+{
+    bletestATTR_SRVCC_SERVICE,
+    bletestATTR_SRVCC_CHAR_A,
+    bletestATTR_SRVCC_NUMBER
+} bletestAttSrvC_t;
 
 typedef struct
 {
@@ -403,6 +431,11 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
                                BTUuid_t * pxUuid,
                                uint16_t usServiceHandle,
                                uint16_t usCharHandle );
+void prvCharAddedNestedCb( BTStatus_t xStatus,
+                           uint8_t ucServerIf,
+                           BTUuid_t * pxUuid,
+                           uint16_t usServiceHandle,
+                           uint16_t usCharHandle );
 void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
                                     uint8_t ucServerIf,
                                     BTUuid_t * pxUuid,
@@ -413,7 +446,7 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
                              BTProperty_t * pxProperties );
 void prvSetAdvDataCb( BTStatus_t xStatus );
 void prvAdvStatusCb( BTStatus_t xStatus,
-                     uint32_t ulServerIf,
+                     uint8_t ucAdapterIf,
                      bool bStart );
 void prvConnectionCb( uint16_t usConnId,
                       uint8_t ucServerIf,
@@ -442,6 +475,8 @@ void prvRequestWriteCb( uint16_t usConnId,
                         uint8_t * pucValue );
 void prvIndicationSentCb( uint16_t usConnId,
                           BTStatus_t xStatus );
+void prvMtuChangedCb( uint16_t usConnId,
+                      uint16_t usMtu );
 void prvResponseConfirmationCb( BTStatus_t xStatus,
                                 uint16_t usHandle );
 void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
@@ -472,19 +507,31 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              void * pxMessage,
                                              size_t xMessageLength,
                                              uint32_t timeoutMs );
-void IotTestBleHal_BLEManagerInit( void );
+void IotTestBleHal_ClearEventQueue( void );
+
+void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb );
 void IotTestBleHal_BLEEnable( bool bEnable );
+void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
+                                   bool bIsSet );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
-void IotTestBleHal_CreateServiceB( void );
+void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice );
+void IotTestBleHal_CreateServiceC( void );
+void IotTestBleHal_CreateStartServiceA();
+void IotTestBleHal_CreateStartServiceB( bool bEnableIncludedSrvice );
+void IotTestBleHal_CreateStartServiceC();
+void IotTestBleHal_CreateServiceB_Nested( void );
 void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
+void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc );
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                                 bool enable );
 void IotTestBleHal_BTUnregister( void );
-void IotTestBleHal_BLEGAPInit( void );
-void IotTestBleHal_BLEGATTInit( void );
+void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb,
+                               bool bEnableCb );
+void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
+                                bool bEnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,
@@ -492,6 +539,10 @@ void IotTestBleHal_SetAdvData( BTuuidType_t Type,
 
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
+void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                                          bool bNeedRsp,
+                                          bool IsPrep,
+                                          uint16_t usOffset );
 void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
                                                 bool IsConnected );
 BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute );
@@ -508,5 +559,7 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 
 void IotTestBleHal_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+size_t IotTestBleHal_ComputeNumberOfHandles( BTService_t * pxService );
+extern uint16_t _bletestsMTU_SIZE;
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

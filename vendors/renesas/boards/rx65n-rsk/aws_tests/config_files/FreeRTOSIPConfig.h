@@ -35,18 +35,11 @@
 #ifndef FREERTOS_IP_CONFIG_H
 #define FREERTOS_IP_CONFIG_H
 
-/* Prototype for the function used to print out.  In this case it prints to the
- * console before the network is connected then a UDP port after the network has
- * connected. */
-//extern void vLoggingPrintf( const char * pcFormatString,
-//                            ... );
-
 /* Set to 1 to print out debug messages.  If ipconfigHAS_DEBUG_PRINTF is set to
  * 1 then FreeRTOS_debug_printf should be defined to the function used to print
  * out the debugging messages. */
 #define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    //#define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )
     #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
@@ -196,7 +189,7 @@ uint32_t ulRand(void);
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    ETHER_CFG_EMAC_TX_DESCRIPTORS
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    8
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can
@@ -323,5 +316,8 @@ uint32_t ulRand(void);
 void vApplicationMQTTGetKeys( const char ** ppcRootCA,
                               const char ** ppcClientCert,
                               const char ** ppcClientPrivateKey );
+
+/* Let NetworkInterface check the free space in the working queue for the IP-task. */
+#define ipconfigCHECK_IP_QUEUE_SPACE			1
 
 #endif /* FREERTOS_IP_CONFIG_H */

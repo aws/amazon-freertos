@@ -27,7 +27,7 @@
 #include "ble_hs_test_util.h"
 
 static int
-ble_hs_conn_test_util_any()
+ble_hs_conn_test_util_any(void)
 {
     struct ble_hs_conn *conn;
 
