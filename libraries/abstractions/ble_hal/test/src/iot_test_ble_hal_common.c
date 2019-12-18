@@ -1901,6 +1901,8 @@ void prvMtuChangedCb( uint16_t usConnId,
         pxMtuChangedCallback->usConnId = usConnId;
         pxMtuChangedCallback->usMtu = usMtu;
 
+        _bletestsMTU_SIZE = usMtu;
+
         pushToQueue( &pxMtuChangedCallback->xEvent.eventList );
     }
 }

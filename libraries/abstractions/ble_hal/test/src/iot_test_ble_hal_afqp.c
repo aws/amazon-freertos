@@ -417,6 +417,7 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
+    size_t xLength;
 
     /* Wait write event on char A*/
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
@@ -435,8 +436,13 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
     }
     else
     {
-        TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN - bletestsMTU_SIZE1 + 5, xWriteEvent.xLength );
-        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, xWriteEvent.xLength );
+        if( xWriteEvent.xLength < _bletestsMTU_SIZE - 5 )
+        {
+            TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN, xWriteEvent.xLength + usOffset );
+        }
+
+        xLength = xWriteEvent.xLength > bletestsSTRINGYFIED_UUID_SIZE ? bletestsSTRINGYFIED_UUID_SIZE : xWriteEvent.xLength;
+        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, xLength );
     }
 
     return xWriteEvent;
@@ -628,6 +634,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
+    uint16_t usOffset = 0;
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT, NULL );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -645,10 +652,17 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
             IotTestBleHal_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
         }
 
-        IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                                             true,
-                                             true,
-                                             bletestsMTU_SIZE1 - 5 );
+        usOffset += _bletestsMTU_SIZE - 5;
+
+        while( usOffset < bletests_LONG_WRITE_LEN )
+        {
+            IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
+                                                 true,
+                                                 true,
+                                                 usOffset );
+            usOffset += _bletestsMTU_SIZE - 5;
+        }
+
         prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
                                          true );
     }
@@ -670,6 +684,7 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     BTGattResponse_t xGattResponse;
     BLETESTconfirmCallback_t xConfirmEvent;
     BTStatus_t xStatus;
+    uint16_t usOffset = 0;
 
     memset( LongReadBuffer, 49, bletests_LONG_READ_LEN * sizeof( uint8_t ) );
 
@@ -688,17 +703,24 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xConfirmEvent.usAttrHandle );
 
     /* Read blob transaction */
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT, NULL );
-    xGattResponse.usHandle = xReadEvent.usAttrHandle;
-    xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
-    xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
-    xGattResponse.xAttrValue.xLen = bletests_LONG_READ_LEN - xReadEvent.usOffset;
-    xGattResponse.xAttrValue.pucValue = LongReadBuffer + xReadEvent.usOffset;
-    _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+    usOffset += _bletestsMTU_SIZE - 1;
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
-    TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xConfirmEvent.usAttrHandle );
+    do
+    {
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT, NULL );
+        xGattResponse.usHandle = xReadEvent.usAttrHandle;
+        xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
+        xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
+        xGattResponse.xAttrValue.xLen = bletests_LONG_READ_LEN - xReadEvent.usOffset;
+        xGattResponse.xAttrValue.pucValue = LongReadBuffer + xReadEvent.usOffset;
+        _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT, NULL );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
+        TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xConfirmEvent.usAttrHandle );
+        usOffset += _bletestsMTU_SIZE - 1;
+    }
+    while( usOffset < bletests_LONG_READ_LEN );
 }
 
 TEST( Full_BLE, BLE_Connection_ChangeMTUsize )

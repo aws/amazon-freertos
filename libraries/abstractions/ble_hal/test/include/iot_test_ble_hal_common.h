@@ -83,8 +83,8 @@ typedef struct
 
 #define bletestsDEFAULT_CHAR_VALUE       "hello"
 #define bletestsSTRINGYFIED_UUID_SIZE    36 /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
-#define bletests_LONG_WRITE_LEN          210
-#define bletests_LONG_READ_LEN           210
+#define bletests_LONG_WRITE_LEN          512
+#define bletests_LONG_READ_LEN           512
 #define bletestsFULL_PERMISSIONS         ( eBTPermRead | eBTPermWrite )
 #define bletestsNB_INCLUDEDSERVICES      1
 

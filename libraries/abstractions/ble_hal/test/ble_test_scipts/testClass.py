@@ -356,8 +356,8 @@ class runTest:
 
     @staticmethod
     def writereadLongCharacteristic():
-        # TODO: get correct mtu size, assume 200 for now
-        long_value = "1" * (runTest.MTU_SIZE + 10)
+        # the maximum possible attribute size is 512 bytes, use 512 for long read/write test
+        long_value = "1" * 512
         bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
         (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(
             runTest.DUT_OPEN_CHAR_UUID)
