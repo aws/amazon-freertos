@@ -85,6 +85,10 @@ expansion. */
 	#warning Consider enabling checksum offloading
 #endif
 
+#ifned niDESCRIPTOR_WAIT_TIME_MS
+	#define niDESCRIPTOR_WAIT_TIME_MS		250uL
+#endif
+
 /*
  * Most users will want a PHY that negotiates about
  * the connection properties: speed, dmix and duplex.
@@ -141,6 +145,15 @@ and the index of the PHY in use ( between 0 and 31 ). */
 #else
 	#warning Using MII, make sure if this is correct
 #endif
+
+typedef enum
+{
+    eMACInit,   /* Must initialise MAC. */
+    eMACPass,   /* Initialisation was successful. */
+    eMACFailed, /* Initialisation failed. */
+} eMAC_INIT_STATUS_TYPE;
+
+static eMAC_INIT_STATUS_TYPE xMacInitStatus = eMACInit;
 
 /*-----------------------------------------------------------*/
 
@@ -370,99 +383,116 @@ BaseType_t xNetworkInterfaceInitialise( void )
 HAL_StatusTypeDef hal_eth_init_status;
 BaseType_t xResult;
 
-	if( xEMACTaskHandle == NULL )
+    if( xMacInitStatus == eMACInit )
 	{
+		xTXDescriptorSemaphore = xSemaphoreCreateCounting( ( UBaseType_t ) ETH_TXBUFNB, ( UBaseType_t ) ETH_TXBUFNB );
 		if( xTXDescriptorSemaphore == NULL )
 		{
-			xTXDescriptorSemaphore = xSemaphoreCreateCounting( ( UBaseType_t ) ETH_TXBUFNB, ( UBaseType_t ) ETH_TXBUFNB );
-			configASSERT( xTXDescriptorSemaphore );
+			xMacInitStatus = eMACFailed;
 		}
-
-		/* Initialise ETH */
-
-		xETH.Instance = ETH;
-		xETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
-		xETH.Init.Speed = ETH_SPEED_100M;
-		xETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
-		/* Value of PhyAddress doesn't matter, will be probed for. */
-		xETH.Init.PhyAddress = 0;
-
-		xETH.Init.MACAddr = ( uint8_t * ) FreeRTOS_GetMACAddress();
-		xETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
-
-		#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM != 0 )
+		else
 		{
-			/* using the ETH_CHECKSUM_BY_HARDWARE option:
-			both the IP and the protocol checksums will be calculated
-			by the peripheral. */
-			xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
-		}
-		#else
-		{
-			xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
-		}
-		#endif
+			/* Initialise ETH */
 
-		#if( ipconfigUSE_RMII != 0 )
-		{
-			xETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-		}
-		#else
-		{
-			xETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_MII;
-		}
-		#endif /* ipconfigUSE_RMII */
+			xETH.Instance = ETH;
+			xETH.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
+			xETH.Init.Speed = ETH_SPEED_100M;
+			xETH.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
+			/* Value of PhyAddress doesn't matter, will be probed for. */
+			xETH.Init.PhyAddress = 0;
 
-		hal_eth_init_status = HAL_ETH_Init( &xETH );
+			xETH.Init.MACAddr = ( uint8_t * ) FreeRTOS_GetMACAddress();
+			xETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
 
-		/* Only for inspection by debugger. */
-		( void ) hal_eth_init_status;
+			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM != 0 )
+			{
+				/* using the ETH_CHECKSUM_BY_HARDWARE option:
+				both the IP and the protocol checksums will be calculated
+				by the peripheral. */
+				xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
+			}
+			#else
+			{
+				xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
+			}
+			#endif
 
-		/* Set the TxDesc and RxDesc pointers. */
-		xETH.TxDesc = DMATxDscrTab;
-		xETH.RxDesc = DMARxDscrTab;
+			#if( ipconfigUSE_RMII != 0 )
+			{
+				xETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
+			}
+			#else
+			{
+				xETH.Init.MediaInterface = ETH_MEDIA_INTERFACE_MII;
+			}
+			#endif /* ipconfigUSE_RMII */
 
-		/* Make sure that all unused fields are cleared. */
-		memset( &DMATxDscrTab, '\0', sizeof( DMATxDscrTab ) );
-		memset( &DMARxDscrTab, '\0', sizeof( DMARxDscrTab ) );
+			hal_eth_init_status = HAL_ETH_Init( &xETH );
 
-		/* Initialize Tx Descriptors list: Chain Mode */
-		DMATxDescToClear = DMATxDscrTab;
+			/* Only for inspection by debugger. */
+			( void ) hal_eth_init_status;
 
-		/* Initialise TX-descriptors. */
-		prvDMATxDescListInit();
+			/* Set the TxDesc and RxDesc pointers. */
+			xETH.TxDesc = DMATxDscrTab;
+			xETH.RxDesc = DMARxDscrTab;
 
-		/* Initialise RX-descriptors. */
-		prvDMARxDescListInit();
+			/* Make sure that all unused fields are cleared. */
+			memset( &DMATxDscrTab, '\0', sizeof( DMATxDscrTab ) );
+			memset( &DMARxDscrTab, '\0', sizeof( DMARxDscrTab ) );
 
-		#if( ipconfigUSE_LLMNR != 0 )
-		{
-			/* Program the LLMNR address at index 1. */
-			prvMACAddressConfig( &xETH, ETH_MAC_ADDRESS1, ( uint8_t *) xLLMNR_MACAddress );
-		}
-		#endif
+			/* Initialize Tx Descriptors list: Chain Mode */
+			DMATxDescToClear = DMATxDscrTab;
 
-		/* Force a negotiation with the Switch or Router and wait for LS. */
-		prvEthernetUpdateConfig( pdTRUE );
+			/* Initialise TX-descriptors. */
+			prvDMATxDescListInit();
 
-		/* The deferred interrupt handler task is created at the highest
-		possible priority to ensure the interrupt handler can return directly
-		to it.  The task's handle is stored in xEMACTaskHandle so interrupts can
-		notify the task when there is something to process. */
-		xTaskCreate( prvEMACHandlerTask, "EMAC", configEMAC_TASK_STACK_SIZE, NULL, niEMAC_HANDLER_TASK_PRIORITY, &xEMACTaskHandle );
+			/* Initialise RX-descriptors. */
+			prvDMARxDescListInit();
+
+			#if( ipconfigUSE_LLMNR != 0 )
+			{
+				/* Program the LLMNR address at index 1. */
+				prvMACAddressConfig( &xETH, ETH_MAC_ADDRESS1, ( uint8_t *) xLLMNR_MACAddress );
+			}
+			#endif
+
+			/* Force a negotiation with the Switch or Router and wait for LS. */
+			prvEthernetUpdateConfig( pdTRUE );
+
+			/* The deferred interrupt handler task is created at the highest
+			possible priority to ensure the interrupt handler can return directly
+			to it.  The task's handle is stored in xEMACTaskHandle so interrupts can
+			notify the task when there is something to process. */
+			if( xTaskCreate( prvEMACHandlerTask, "EMAC", configEMAC_TASK_STACK_SIZE, NULL, niEMAC_HANDLER_TASK_PRIORITY, &xEMACTaskHandle ) == pdPASS )
+			{
+				/* The xTXDescriptorSemaphore and the task are created successfully. */
+				xMacInitStatus = eMACPass;
+			}
+			else
+			{
+				xMacInitStatus = eMACFailed;
+			}
 	} /* if( xEMACTaskHandle == NULL ) */
 
-	if( xPhyObject.ulLinkStatusMask != 0 )
+	if( xMacInitStatus != eMACPass )
 	{
-		xETH.Instance->DMAIER |= ETH_DMA_ALL_INTS;
-		xResult = pdPASS;
-		FreeRTOS_printf( ( "Link Status is high\n" ) ) ;
+		/* EMAC initialisation failed, return pdFAIL. */
+		xResult = pdFAIL;
 	}
 	else
 	{
-		/* For now pdFAIL will be returned. But prvEMACHandlerTask() is running
-		and it will keep on checking the PHY and set 'ulLinkStatusMask' when necessary. */
-		xResult = pdFAIL;
+		if( xPhyObject.ulLinkStatusMask != 0uL )
+		{
+			xETH.Instance->DMAIER |= ETH_DMA_ALL_INTS;
+			xResult = pdPASS;
+			FreeRTOS_printf( ( "Link Status is high\n" ) ) ;
+		}
+		else
+		{
+			/* For now pdFAIL will be returned. But prvEMACHandlerTask() is running
+			and it will keep on checking the PHY and set 'ulLinkStatusMask' when necessary. */
+			xResult = pdFAIL;
+		}
 	}
 	/* When returning non-zero, the stack will become active and
     start DHCP (in configured) */
@@ -855,7 +885,7 @@ NetworkBufferDescriptor_t *pxNewDescriptor = NULL;
 #endif
 BaseType_t xReceivedLength = 0;
 __IO ETH_DMADescTypeDef *pxDMARxDescriptor;
-const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
+const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( niDESCRIPTOR_WAIT_TIME_MS );
 uint8_t *pucBuffer;
 
 	pxDMARxDescriptor = xETH.RxDesc;
@@ -1147,11 +1177,9 @@ BaseType_t xReturn;
 
 /* Uncomment this in case BufferAllocation_1.c is used. */
 
-#define niBUFFER_1_PACKET_SIZE		1536
-
 void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] )
 {
-static __attribute__ ((section(".first_data"))) uint8_t ucNetworkPackets[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS * niBUFFER_1_PACKET_SIZE ] __attribute__ ( ( aligned( 32 ) ) );
+static __attribute__ ((section(".first_data"))) uint8_t ucNetworkPackets[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS * ETH_MAX_PACKET_SIZE ] __attribute__ ( ( aligned( 32 ) ) );
 uint8_t *ucRAMBuffer = ucNetworkPackets;
 uint32_t ul;
 
@@ -1159,7 +1187,7 @@ uint32_t ul;
 	{
 		pxNetworkBuffers[ ul ].pucEthernetBuffer = ucRAMBuffer + ipBUFFER_PADDING;
 		*( ( unsigned * ) ucRAMBuffer ) = ( unsigned ) ( &( pxNetworkBuffers[ ul ] ) );
-		ucRAMBuffer += niBUFFER_1_PACKET_SIZE;
+		ucRAMBuffer += ETH_MAX_PACKET_SIZE;
 	}
 }
 /*-----------------------------------------------------------*/

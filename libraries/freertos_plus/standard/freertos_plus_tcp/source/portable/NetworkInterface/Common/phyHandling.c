@@ -34,12 +34,27 @@
 #ifndef	ipconfigPHY_LS_HIGH_CHECK_TIME_MS
 	/* Check if the LinkSStatus in the PHY is still high after 15 seconds of not
 	receiving packets. */
-	#define ipconfigPHY_LS_HIGH_CHECK_TIME_MS	15000
+	#define ipconfigPHY_LS_HIGH_CHECK_TIME_MS	15000uL
 #endif
 
 #ifndef	ipconfigPHY_LS_LOW_CHECK_TIME_MS
 	/* Check if the LinkSStatus in the PHY is still low every second. */
-	#define ipconfigPHY_LS_LOW_CHECK_TIME_MS	1000
+	#define ipconfigPHY_LS_LOW_CHECK_TIME_MS	1000uL
+#endif
+
+/* As the following 3 macro's are OK in most situations, and so they're not
+included in 'FreeRTOSIPConfigDefaults.h'.
+Users can change their values in the project's 'FreeRTOSIPConfig.h'. */
+#ifndef phyPHY_MAX_RESET_TIME_MS
+	#define phyPHY_MAX_RESET_TIME_MS			1000uL
+#endif
+
+#ifndef phyPHY_MAX_NEGOTIATE_TIME_MS
+	#define phyPHY_MAX_NEGOTIATE_TIME_MS		3000uL
+#endif
+
+#ifndef phySHORT_DELAY_MS
+	#define phySHORT_DELAY_MS					50uL
 #endif
 
 /* Naming and numbering of basic PHY registers. */
@@ -97,7 +112,7 @@
 #define phyADVERTISE_ALL			( phyADVERTISE_10HALF | phyADVERTISE_10FULL | \
 									  phyADVERTISE_100HALF | phyADVERTISE_100FULL )
 
-/* Send a reset commando to a set of PHY-ports. */
+/* Send a reset command to a set of PHY-ports. */
 static uint32_t xPhyReset( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask );
 
 static BaseType_t xHas_1F_PHYSPCS( uint32_t ulPhyID )
@@ -207,7 +222,7 @@ TickType_t xRemainingTime;
 TimeOut_t xTimer;
 BaseType_t xPhyIndex;
 
-	/* A bit-mask ofPHY ports that are ready. */
+	/* A bit-mask of PHY ports that are ready. */
 	ulDoneMask = 0ul;
 
 	/* Set the RESET bits high. */
@@ -220,7 +235,7 @@ BaseType_t xPhyIndex;
 		pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig | phyBMCR_RESET );
 	}
 
-	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( 1000UL );
+	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( phyPHY_MAX_RESET_TIME_MS );
 	vTaskSetTimeOutState( &xTimer );
 
 	/* The reset should last less than a second. */
@@ -247,7 +262,7 @@ BaseType_t xPhyIndex;
 			break;
 		}
 		/* Block for a while */
-		vTaskDelay( pdMS_TO_TICKS( 50ul ) );
+		vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 	}
 
 	/* Clear the reset bits. */
@@ -259,7 +274,7 @@ BaseType_t xPhyIndex;
 		pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig & ~phyBMCR_RESET );
 	}
 
-	vTaskDelay( pdMS_TO_TICKS( 50ul ) );
+	vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 
 	return ulDoneMask;
 }
@@ -272,7 +287,7 @@ BaseType_t xPhyIndex;
 
 	if( pxPhyObject->xPortCount < 1 )
 	{
-		FreeRTOS_printf( ( "xPhyResetAll: No PHY's detected.\n" ) );
+		FreeRTOS_printf( ( "xPhyConfigure: No PHY's detected.\n" ) );
 		return -1;
 	}
 
@@ -336,7 +351,7 @@ BaseType_t xPhyIndex;
 		}
 	}
 
-	/* Send a reset commando to a set of PHY-ports. */
+	/* Send a reset command to a set of PHY-ports. */
 	xPhyReset( pxPhyObject, xPhyGetMask( pxPhyObject ) );
 
 	for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++ )
@@ -425,6 +440,10 @@ BaseType_t xPhyIndex;
 }
 /*-----------------------------------------------------------*/
 
+/* xPhyFixedValue(): this function is called in case auto-negotiation is disabled.
+The caller has set the values in 'xPhyPreferences' (ucDuplex and ucSpeed).
+The PHY register phyREG_00_BMCR will be set for every connected PHY that matches
+with ulPhyMask. */
 BaseType_t xPhyFixedValue( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 BaseType_t xPhyIndex;
@@ -455,6 +474,9 @@ uint32_t ulValue, ulBitMask = ( uint32_t )1u;
 }
 /*-----------------------------------------------------------*/
 
+/* xPhyStartAutoNegotiation() is the alternative xPhyFixedValue():
+It sets the BMCR_AN_RESTART bit and waits for the auto-negotiation completion
+( phyBMSR_AN_COMPLETE ). */
 BaseType_t xPhyStartAutoNegotiation( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 uint32_t xPhyIndex, ulDoneMask, ulBitMask;
@@ -477,7 +499,7 @@ TimeOut_t xTimer;
 			pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, pxPhyObject->ulBCRValue | phyBMCR_AN_RESTART );
 		}
 	}
-	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( 3000UL );
+	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( phyPHY_MAX_NEGOTIATE_TIME_MS );
 	vTaskSetTimeOutState( &xTimer );
 	ulDoneMask = 0;
 	/* Wait until the auto-negotiation will be completed */
@@ -506,10 +528,10 @@ TimeOut_t xTimer;
 		}
 		if( xTaskCheckForTimeOut( &xTimer, &xRemainingTime ) != pdFALSE )
 		{
-			FreeRTOS_printf( ( "xPhyReset: phyBMCR_RESET timed out ( done 0x%02lX )\n", ulDoneMask ) );
+			FreeRTOS_printf( ( "xPhyStartAutoNegotiation: phyBMCR_RESET timed out ( done 0x%02lX )\n", ulDoneMask ) );
 			break;
 		}
-		vTaskDelay( pdMS_TO_TICKS( 50 ) );
+		vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 	}
 
 	if( ulDoneMask != ( uint32_t)0u )
@@ -598,7 +620,7 @@ TimeOut_t xTimer;
 				pxPhyObject->fnPhyRead( xPhyAddress, PHYREG_10_PHYSTS, &ulRegValue);
 			}
 
-			FreeRTOS_printf( ( ">> Autonego ready: %08lx: %s duplex %u mbit %s status\n",
+			FreeRTOS_printf( ( "Autonego ready: %08lx: %s duplex %u mbit %s status\n",
 				ulRegValue,
 				( ulRegValue & phyPHYSTS_DUPLEX_STATUS ) ? "full" : "half",
 				( ulRegValue & phyPHYSTS_SPEED_STATUS ) ? 10 : 100,
@@ -651,6 +673,9 @@ BaseType_t xNeedCheck = pdFALSE;
 	}
 	else if( xTaskCheckForTimeOut( &( pxPhyObject->xLinkStatusTimer ), &( pxPhyObject->xLinkStatusRemaining ) ) != pdFALSE )
 	{
+		/* Frequent checking the PHY Link Status can affect for the performance of Ethernet controller.
+		As long as packets are received, no polling is needed.
+		Otherwise, polling will be done when the 'xLinkStatusTimer' expires. */
 		for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
 		{
 		BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
@@ -675,10 +700,12 @@ BaseType_t xNeedCheck = pdFALSE;
 		vTaskSetTimeOutState( &( pxPhyObject->xLinkStatusTimer ) );
 		if( ( pxPhyObject->ulLinkStatusMask & phyBMSR_LINK_STATUS ) != 0 )
 		{
+			/* The link status is high, so don't poll the PHY too often. */
 			pxPhyObject->xLinkStatusRemaining = pdMS_TO_TICKS( ipconfigPHY_LS_HIGH_CHECK_TIME_MS );
 		}
 		else
 		{
+			/* The link status is low, polling may be done more frequently. */
 			pxPhyObject->xLinkStatusRemaining = pdMS_TO_TICKS( ipconfigPHY_LS_LOW_CHECK_TIME_MS );
 		}
 	}
