@@ -411,7 +411,7 @@ BaseType_t GGD_JSONRequestGetFile( Socket_t * pxSocket,
                                    const uint32_t ulBufferSize,
                                    uint32_t * pulByteRead,
                                    BaseType_t * pxJSONFileRetrieveCompleted,
-                                   const uint32_t pulJSONFileSize )
+                                   const uint32_t ulJSONFileSize )
 {
     BaseType_t xStatus;
     uint32_t ulDataSizeRead;
@@ -433,11 +433,11 @@ BaseType_t GGD_JSONRequestGetFile( Socket_t * pxSocket,
         *pulByteRead += ulDataSizeRead;
 
         /* We retrieved more than expected, this is failed. */
-        if( *pulByteRead > ( pulJSONFileSize - ( uint32_t ) 1 ) )
+        if( *pulByteRead > ( ulJSONFileSize - ( uint32_t ) 1 ) )
         {
             ggdconfigPRINT( "JSON parsing - Received %ld, expected at most %ld \r\n",
                             *pulByteRead,
-                            pulJSONFileSize - ( uint32_t ) 1 );
+                            ulJSONFileSize - ( uint32_t ) 1 );
             xStatus = pdFAIL;
         }
     }
@@ -445,30 +445,29 @@ BaseType_t GGD_JSONRequestGetFile( Socket_t * pxSocket,
     if( xStatus == pdPASS )
     {
         /* We still have more to retrieve. */
-        if( *pulByteRead < ( pulJSONFileSize - ( uint32_t ) 1 ) )
+        if( *pulByteRead < ( ulJSONFileSize - ( uint32_t ) 1 ) )
         {
             *pxJSONFileRetrieveCompleted = pdFALSE;
+            ggdconfigPRINT( "JSON file retrieval incomplete, received %ld out of %ld bytes\r\n",
+                            *pulByteRead,
+                            ulJSONFileSize - ( uint32_t ) 1 );
         }
         else
         {
             /* Add the escape character. */
-            pcBuffer[ pulJSONFileSize - ( uint32_t ) 1 ] = '\0';
+            pcBuffer[ ulJSONFileSize - ( uint32_t ) 1 ] = '\0';
             *pxJSONFileRetrieveCompleted = pdTRUE;
+            ggdconfigPRINT( "JSON file retrieval completed\r\n" );
+
+            /* Close the connection. */
+            GGD_SecureConnect_Disconnect( pxSocket );
         }
     }
-
-    if( xStatus == pdFAIL )
+    else
     {
         ggdconfigPRINT( "JSON parsing - JSON file retrieval failed\r\n" );
         /* Don't forget to close the connection. */
         GGD_SecureConnect_Disconnect( pxSocket );
-    }
-    else
-    {
-        if( *pxJSONFileRetrieveCompleted == pdTRUE )
-        {
-            GGD_SecureConnect_Disconnect( pxSocket );
-        }
     }
 
     return xStatus;
