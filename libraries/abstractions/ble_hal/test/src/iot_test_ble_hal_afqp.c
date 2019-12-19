@@ -653,7 +653,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
             IotTestBleHal_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
         }
 
-        usOffset += _bletestsMTU_SIZE - 5;
+        usOffset += _bletestsMTU_SIZE - bletests_LONG_WRITE_HEADER_LEN;
 
         while( usOffset < bletests_LONG_WRITE_LEN )
         {
@@ -661,7 +661,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
                                                  true,
                                                  true,
                                                  usOffset );
-            usOffset += _bletestsMTU_SIZE - 5;
+            usOffset += _bletestsMTU_SIZE - bletests_LONG_WRITE_HEADER_LEN;
         }
 
         prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
