@@ -1760,33 +1760,6 @@ void prvRequestWriteCb( uint16_t usConnId,
  */
 }
 
-void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
-                           int32_t lhandle )
-{
-    BLEHALEventsInternals_t * pEventIndex;
-    IotLink_t * pEventListIndex;
-    void * pvPtr = NULL;
-
-    IotMutex_Lock( &threadSafetyMutex );
-
-    /* Get the event associated to the callback */
-    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
-    {
-        pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
-
-        if( ( pEventIndex->xEventTypes == xEventName ) &&
-            ( pEventIndex->lHandle == lhandle ) )
-        {
-            pvPtr = pEventIndex;
-            IotListDouble_Remove( &pEventIndex->eventList );
-            break; /* If the right event is received, exit. */
-        }
-    }
-
-    IotMutex_Unlock( &threadSafetyMutex );
-
-    return pvPtr;
-}
 
 void * checkQueueForEventWithMatch( BLEHALEventsTypes_t xEventName,
                                     int32_t lhandle,
@@ -1809,7 +1782,7 @@ void * checkQueueForEventWithMatch( BLEHALEventsTypes_t xEventName,
             pvPtr = pEventIndex;
             IotListDouble_Remove( &pEventIndex->eventList );
 
-            if( ( pvPtr != NULL ) && !pxMatch( pvPtr ) )
+            if( ( pxMatch != NULL ) && ( pvPtr != NULL ) && !pxMatch( pvPtr ) )
             {
                 pvPtr = NULL;
             }
@@ -1900,60 +1873,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              size_t xMessageLength,
                                              uint32_t timeoutMs )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-    void * pvPtr = NULL;
-
-    IotLog( IOT_LOG_DEBUG,
-            &_logHideAll,
-            "WaitEvent: %d, handle=0x%x",
-            xEventName,
-            ( uint32_t ) lhandle );
-
-    pvPtr = checkQueueForEvent( xEventName, lhandle );
-
-    /* If event is not waiting then wait for it. */
-    if( pvPtr == NULL )
-    {
-        do
-        {
-            /* TODO check event list here */
-            if( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
-            {
-                pvPtr = checkQueueForEvent( xEventName, lhandle );
-
-                if( pvPtr != NULL )
-                {
-                    break; /* If the right event is received, exit. */
-                }
-            }
-            else
-            {
-                xStatus = eBTStatusFail;
-            }
-        }
-        while( xStatus == eBTStatusSuccess ); /* If there is an error exit */
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-        IotLog( IOT_LOG_DEBUG,
-                &_logHideAll,
-                "Event Received: %d, handle=0x%x",
-                xEventName,
-                ( uint32_t ) lhandle );
-        memcpy( pxMessage, pvPtr, xMessageLength );
-        IotTest_Free( pvPtr );
-    }
-    else
-    {
-        IotLog( IOT_LOG_DEBUG,
-                &_logHideAll,
-                "WaitEvent TIMEOUT!!! %d, handle=0x%x",
-                xEventName,
-                ( uint32_t ) lhandle );
-    }
-
-    return xStatus;
+    return IotTestBleHal_WaitEventFromQueueWithMatch( xEventName, lhandle, pxMessage, xMessageLength, timeoutMs, NULL );
 }
 
 void IotTestBleHal_ClearEventQueue( void )
