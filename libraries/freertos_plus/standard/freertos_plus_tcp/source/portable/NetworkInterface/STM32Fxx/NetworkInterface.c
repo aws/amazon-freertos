@@ -85,7 +85,7 @@ expansion. */
 	#warning Consider enabling checksum offloading
 #endif
 
-#ifned niDESCRIPTOR_WAIT_TIME_MS
+#ifndef niDESCRIPTOR_WAIT_TIME_MS
 	#define niDESCRIPTOR_WAIT_TIME_MS		250uL
 #endif
 
@@ -472,6 +472,7 @@ BaseType_t xResult;
 			{
 				xMacInitStatus = eMACFailed;
 			}
+		}
 	} /* if( xEMACTaskHandle == NULL ) */
 
 	if( xMacInitStatus != eMACPass )
