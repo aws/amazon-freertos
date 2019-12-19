@@ -780,7 +780,6 @@ TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
 
 TEST( Full_BLE, BLE_Advertising_SetProperties )
 {
-    IotTestBleHal_ClearEventQueue();
     IotTestBleHal_SetAdvProperty();
 }
 
