@@ -227,8 +227,8 @@ typedef enum
     eBLEHALEventSSPrequestConfirmationCb = 22,
     eBLEHALEventPairingStateChangedCb = 23,
     eBLEHALEventRequestExecWriteCb = 24,
-    eBLENbHALEvents = 25,
-    eBLEHALEventMtuChangedCb,
+    eBLEHALEventMtuChangedCb = 25,
+    eBLENbHALEvents
 } BLEHALEventsTypes_t;
 
 typedef struct
@@ -516,8 +516,13 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              int32_t lhandle,
                                              void * pxMessage,
                                              size_t xMessageLength,
-                                             uint32_t timeoutMs,
-                                             bool ( * pxMatch )( void * pvEvent ) );
+                                             uint32_t timeoutMs );
+BTStatus_t IotTestBleHal_WaitEventFromQueueWithMatch( BLEHALEventsTypes_t xEventName,
+                                                      int32_t lhandle,
+                                                      void * pxMessage,
+                                                      size_t xMessageLength,
+                                                      uint32_t timeoutMs,
+                                                      bool ( * pxMatch )( void * pvEvent ) );
 void IotTestBleHal_ClearEventQueue( void );
 
 void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb );
