@@ -98,6 +98,9 @@ class runTest:
     SERV_UUID = "000012ef-0000-1000-8000-00805f9b34fb"
     SERV_DATA = 214
 
+    # The maximum possible attribute size is 512 bytes. Long write/read tests use 512 for data length.
+    LONG_READ_WRITE_LEN = 512
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
@@ -356,8 +359,7 @@ class runTest:
 
     @staticmethod
     def writereadLongCharacteristic():
-        # the maximum possible attribute size is 512 bytes, use 512 for long read/write test
-        long_value = "1" * 512
+        long_value = "1" * runTest.LONG_READ_WRITE_LEN
         bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
         (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(
             runTest.DUT_OPEN_CHAR_UUID)

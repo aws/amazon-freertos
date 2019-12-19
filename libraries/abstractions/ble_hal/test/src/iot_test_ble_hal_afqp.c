@@ -436,14 +436,14 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
     }
     else
     {
-        if( xWriteEvent.xLength < _bletestsMTU_SIZE - 5 )
+        if( xWriteEvent.xLength < _bletestsMTU_SIZE - bletests_LONG_WRITE_HEADER_LEN )
         {
             TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN, xWriteEvent.xLength + usOffset );
         }
 
         /* eBLEHALEventWriteAttrCb only returns first bletestsSTRINGYFIED_UUID_SIZE bytes when received data is longer than bletestsSTRINGYFIED_UUID_SIZE */
         xLength = xWriteEvent.xLength > bletestsSTRINGYFIED_UUID_SIZE ? bletestsSTRINGYFIED_UUID_SIZE : xWriteEvent.xLength;
-        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, xLength );
+        TEST_ASSERT_EACH_EQUAL_INT8( '1', xWriteEvent.ucValue, xLength );
     }
 
     return xWriteEvent;
@@ -646,7 +646,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
     if( xWriteEvent.bIsPrep == true )
     {
         TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xWriteEvent.usAttrHandle );
-        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
+        TEST_ASSERT_EACH_EQUAL_INT8( '1', xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
 
         if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
         {
@@ -670,7 +670,7 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
     else
     {
         TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN, xWriteEvent.xLength );
-        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
+        TEST_ASSERT_EACH_EQUAL_INT8( '1', xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
 
         if( xWriteEvent.bNeedRsp == true )
         {
@@ -688,8 +688,8 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     uint16_t usPayloadLength;
     uint16_t usOffset = 0;
 
-    memset( LongReadBuffer, 49, bletests_LONG_READ_LEN * sizeof( uint8_t ) );
-    usPayloadLength = _bletestsMTU_SIZE > 512 ? 512 : _bletestsMTU_SIZE - 1;
+    memset( LongReadBuffer, '1', bletests_LONG_READ_LEN * sizeof( uint8_t ) );
+    usPayloadLength = _bletestsMTU_SIZE > bletests_LONGEST_ATTR_LEN ? bletests_LONGEST_ATTR_LEN : _bletestsMTU_SIZE - 1;
 
     /* Read transaction */
     xReadEvent = IotTestBleHal_ReadReceive( bletestATTR_SRVCB_CHAR_A );
