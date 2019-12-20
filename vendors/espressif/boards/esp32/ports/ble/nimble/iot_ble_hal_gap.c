@@ -689,8 +689,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
       }
     }
 
-    xAdv_params.itvl_min = ( IOT_BLE_ADVERTISING_INTERVAL * 1000 ) / ( BLE_HCI_ADV_ITVL );
-    xAdv_params.itvl_max = ( IOT_BLE_ADVERTISING_INTERVAL * 2 * 1000 ) / ( BLE_HCI_ADV_ITVL );
+    if( pxParams->bSetScanRsp == false )
+    {
+        xAdv_params.itvl_min = ( pxParams->usMinAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
+        xAdv_params.itvl_max = ( pxParams->usMaxAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
+    }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvInd )
     {

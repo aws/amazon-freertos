@@ -189,7 +189,9 @@ typedef struct
 
 #define bletestsMTU_SIZE1                     200
 #define bletestsMTU_SIZE2                     220
-#define bletestsMAX_ADVERTISEMENT_INTERVAL    64
+
+#define bletestsMIN_ADVERTISEMENT_INTERVAL    300
+#define bletestsMAX_ADVERTISEMENT_INTERVAL    600
 
 #define bletestsMIN_CONNECTION_INTERVAL       32
 #define bletestsMAX_CONNECTION_INTERVAL       64
