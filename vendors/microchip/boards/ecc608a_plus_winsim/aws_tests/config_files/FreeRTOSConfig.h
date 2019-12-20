@@ -139,6 +139,9 @@ void vLoggingPrintf( char const * pcFormat,
 extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )    vLoggingPrint( X )
 
+/* Non-format version thread-safe print. */
+#define configPRINT_STRING( X )    vLoggingPrint( X )
+
 /* Application specific definitions follow. **********************************/
 
 /* If configINCLUDE_DEMO_DEBUG_STATS is set to one, then a few basic IP trace
