@@ -670,6 +670,7 @@
 				<option>
 					<name>AUserIncludes</name>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_tests\config_files</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>state>
 				</option>
 				<option>
 					<name>AExtraOptionsCheckV2</name>
