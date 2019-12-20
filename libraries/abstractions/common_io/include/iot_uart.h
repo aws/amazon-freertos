@@ -60,9 +60,10 @@
  */
 typedef enum
 {
-    eUartCompleted = IOT_UART_SUCCESS,            /*!< UART operation completed successfully. */
-    eUartLastWriteFailed = IOT_UART_WRITE_FAILED, /*!< UART driver returns error when performing write operation. */
-    eUartLastReadFailed = IOT_UART_READ_FAILED,   /*!< UART driver returns error when performing read operation. */
+    eUartWriteCompleted,        /*!< UART operation write completed successfully. */
+    eUartReadCompleted,         /*!< UART operation read completed successfully. */
+    eUartLastWriteFailed,       /*!< UART driver returns error when performing write operation. */
+    eUartLastReadFailed,        /*!< UART driver returns error when performing read operation. */
 } IotUARTOperationStatus_t;
 
 /**
@@ -80,8 +81,8 @@ typedef enum
  */
 typedef enum
 {
-    eUartStopBitsOne, /*!< UART stop bits is 1. */
-    eUartStopBitsTwo, /*!< UART stop bits is 2. */
+    eUartStopBitsOne, /*!< UART stop bits is 1 bit per frame. */
+    eUartStopBitsTwo, /*!< UART stop bits is 2 bit per frame. */
 } IotUARTStopBits_t;
 
 /**
@@ -159,7 +160,7 @@ typedef struct
  *  IotUARTHandle_t xOpen;
  *  int32_t lRead, lWrite, lClose;
  *  BaseType_t xCallbackReturn;
- *  uint8_t ucPort = 1; /* Each UART peripheral will be assigned an integer.
+ *  uint8_t ucPort = 1; // Each UART peripheral will be assigned an integer.
  *
  *  xOpen = iot_uart_open( ucPort );
  *  if( xOpen != NULL )
