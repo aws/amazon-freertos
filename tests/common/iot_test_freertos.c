@@ -48,7 +48,7 @@
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
     taskDISABLE_INTERRUPTS();
 
     /* Loop forever */

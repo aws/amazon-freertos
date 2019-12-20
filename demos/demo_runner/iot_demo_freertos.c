@@ -404,10 +404,11 @@ void runDemoTask( void * pArgument )
 
 /*-----------------------------------------------------------*/
 
-/* It is recommended to implement hooks that use platform specific APIs. This allows 
+/* It is recommended to implement hooks that use platform specific APIs. This allows
  * for better error messages and recovery. Should platform specific hooks be implemented,
  * add this macro to iot_config.h to avoid compiling these symbols.*/
 #ifndef iotconfigUSE_PORT_SPECIFIC_HOOKS
+
 /**
  * @brief Warn user if pvPortMalloc fails.
  *
@@ -418,16 +419,16 @@ void runDemoTask( void * pArgument )
  * configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h.
  *
  */
-void vApplicationMallocFailedHook()
-{
-    configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
-    taskDISABLE_INTERRUPTS();
-
-    /* Loop forever */
-    for( ; ; )
+    void vApplicationMallocFailedHook()
     {
+        configPRINT_STRING( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+        taskDISABLE_INTERRUPTS();
+
+        /* Loop forever */
+        for( ; ; )
+        {
+        }
     }
-}
 
 /*-----------------------------------------------------------*/
 
@@ -442,19 +443,19 @@ void vApplicationMallocFailedHook()
  * has occurred.
  *
  */
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    char * pcTaskName )
-{
-    configPRINT_STRING( ( "ERROR: stack overflow\r\n" ) );
-    portDISABLE_INTERRUPTS();
-
-    /* Unused Parameters */
-    ( void ) xTask;
-
-    /* Loop forever */
-    for( ; ; )
+    void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                        char * pcTaskName )
     {
+        configPRINT_STRING( ( "ERROR: stack overflow\r\n" ) );
+        portDISABLE_INTERRUPTS();
+
+        /* Unused Parameters */
+        ( void ) xTask;
+
+        /* Loop forever */
+        for( ; ; )
+        {
+        }
     }
-}
 #endif /* iotconfigUSE_PORT_SPECIFIC_HOOKS */
 /*-----------------------------------------------------------*/
