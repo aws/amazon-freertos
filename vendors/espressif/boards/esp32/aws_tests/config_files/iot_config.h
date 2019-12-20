@@ -42,6 +42,8 @@ extern void IotBleMqtt_CleanupSerialize( void );
 #define BLE_SUPPORTED      ( 1 )
 #define WIFI_SUPPORTED     ( 1 )
 
+#define iotconfigUSE_PORT_SPECIFIC_HOOKS
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 

@@ -72,6 +72,8 @@ typedef struct IotMqttSerializer IotMqttSerializer_t;
 extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
 #define IOT_DEMO_MQTT_SERIALIZER    demoGetMqttSerializer()
 
+#define iotconfigUSE_PORT_SPECIFIC_HOOKS 
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
