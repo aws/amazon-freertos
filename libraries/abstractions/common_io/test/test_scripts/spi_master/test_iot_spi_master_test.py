@@ -33,7 +33,10 @@ import subprocess
 import ast
 import random
 
-parentdir = os.path.dirname(os.getcwd())
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
@@ -103,7 +106,7 @@ class TestSPIMasterAssisted(test_template):
     """
     Test class for spi master tests.
     """
-    shell_script = "./test_iot_spi_master_pyb.sh"
+    shell_script = "%s/test_iot_spi_master_pyb.sh" % scriptdir
 
     def __init__(self, serial, ip, login, pwd, csv_handler):
         self._func_list = [self.test_IotSPI_WriteSyncAssisted,

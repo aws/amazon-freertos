@@ -34,7 +34,10 @@ import math
 import os
 import argparse
 
-parentdir = os.path.dirname(os.getcwd())
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 import socket
@@ -58,8 +61,8 @@ class TestPwmAssisted(test_template):
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script = "./test_iot_runonPI_pwm.sh"
-    rpi_output_file = "./pwm_rpi_res.txt"
+    shell_script = "%s/test_iot_runonPI_pwm.sh" % scriptdir
+    rpi_output_file = "%s/pwm_rpi_res.txt" % scriptdir
     port = 50007
 
     def test_IotPwmAccuracy(self):

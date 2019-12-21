@@ -28,7 +28,10 @@ import csv
 import os, sys
 import argparse
 
-parentdir = os.path.dirname(os.getcwd())
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
@@ -47,8 +50,8 @@ class TestTsensorAssisted(test_template):
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script = "./test_iot_runonPI_tsensor.sh"
-    rpi_output_file = "./tsensor_rpi_res.txt"
+    shell_script = "%s/test_iot_runonPI_tsensor.sh" % scriptdir
+    rpi_output_file = "%s/tsensor_rpi_res.txt" % scriptdir
 
     def test_IotTsensorTemp(self):
         """

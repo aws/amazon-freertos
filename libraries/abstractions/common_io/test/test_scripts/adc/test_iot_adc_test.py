@@ -31,8 +31,11 @@ import csv
 from time import sleep
 import argparse
 import os, sys
-parentdir = os.path.dirname(os.getcwd())
-sys.path.insert(0,parentdir)
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
+sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
 
@@ -55,7 +58,7 @@ class TestAdcAssisted(test_template):
         # self.platform_ref_voltage = float(input())
         self.platform_ref_voltage = 1.8
 
-    shell_script = "./test_iot_runonPI_adc.sh"
+    shell_script = "%s/test_iot_runonPI_adc.sh" % scriptdir
 
     def test_IotAdcPrintReadSample(self):
         """

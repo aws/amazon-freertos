@@ -32,7 +32,10 @@ import socket
 from time import sleep
 import threading
 
-parentdir = os.path.dirname(os.getcwd())
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
@@ -42,7 +45,7 @@ class TestUartAssisted(test_template):
     Test class for uart tests.
     """
 
-    rpi_output_file = "./uart_res.txt"
+    rpi_output_file = "%s/uart_res.txt"% scriptdir
 
     def __init__(self, serial, ip, login, pwd, csv_handler):
         self._func_list = [self.test_IotUartWriteReadAsync,
@@ -56,7 +59,7 @@ class TestUartAssisted(test_template):
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script = "./test_iot_runonPI_uart.sh"
+    shell_script = "%s/test_iot_runonPI_uart.sh"% scriptdir
     port = 50007
 
     def test_IotUartWriteReadAsync(self):
@@ -223,7 +226,7 @@ class TestUartAssisted(test_template):
         return "Pass" if pi_result and dut_result else "Fail"
 
     def clean(self):
-        os.remove("./uart_res.txt")
+        os.remove(self.rpi_output_file)
         self.run_shell_script(
             " ".join([self.shell_script, self._ip, self._login, self._pwd, "-c"])
         )

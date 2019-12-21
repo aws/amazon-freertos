@@ -25,6 +25,7 @@
 import subprocess
 import os
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 
 class test_template(ABC):
@@ -41,6 +42,11 @@ class test_template(ABC):
     shell_script = ''
     rpi_output_file = ''
 
+    def print_result(self, testcase, result, extra = None):
+        if extra == None:
+            extra = "%s %sed" % (testcase, result)
+        print("%s [INFO] %s 0  %s  :  %s" % (str(datetime.now()), testcase, result.upper(), extra))
+        self._cr.writerow({'test name': testcase, 'test result': result})
     def auto_run(self):
         # print('hardware ready? (y/n)')
         # string = str(input())
@@ -53,16 +59,14 @@ class test_template(ABC):
 
         if skip_test == True:
             for f in self._func_list:
-                print(f.__name__, ": ", 'skipped')
-                self._cr.writerow({'test name': f.__name__, 'test result': 'skipped'})
+                self.print_result(f.__name__, "Skip")
         else:
             print("tests start")
             if self.shell_script:
                 subprocess.call([self.shell_script, self._ip, self._login, self._pwd, '-p'])
             for f in self._func_list:
                 result = f()
-                print(f.__name__, ": ", result)
-                self._cr.writerow({'test name': f.__name__, 'test result': result})
+                self.print_result(f.__name__, result)
 
     def run_shell_script(self, cmd):
         cmd_l = cmd.split()

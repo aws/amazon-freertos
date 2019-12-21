@@ -25,7 +25,7 @@
 
 
 # This is a shell script to secure copy the GPIO_RP3 to RP3
-
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 IP=$1
 shift
 LOGINID=$1
@@ -35,7 +35,7 @@ shift
 if [ "$1" == "-p" ]; then
     #Secure copy the test_iot_gpio_rp3.py from Host to RP3
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
-    sshpass -p ${PASSWD} scp ./test_iot_gpio_rp3.py ${LOGINID}@${IP}:/home/pi/Tests/
+    sshpass -p ${PASSWD} scp ${DIR}/test_iot_gpio_rp3.py ${LOGINID}@${IP}:/home/pi/Tests/
 elif [ "$1" == "-w" ]; then
 
     #Open a SSH connection to RP3 and run the test_iot_gpio_rp3.py to read the GPIO pin status

@@ -24,7 +24,7 @@
 # http://www.FreeRTOS.org
 
 
-
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 IP=$1
 shift
 LOGINID=$1
@@ -35,12 +35,12 @@ shift
 if [ "$1" == "-p" ]; then
     #Secure copy test script from Host ubuntu to RP3
     sshpass -p "${PASSWD}" ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
-    sshpass -p "${PASSWD}" scp ./test_iot_tsensor_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
+    sshpass -p "${PASSWD}" scp ${DIR}/test_iot_tsensor_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
 elif [ "$1" == "-c" ]; then
     #Delete the result file on rpi
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/tsensor_rpi_res.txt"
 else
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_tsensor_rp3.py > /home/pi/Tests/tsensor_rpi_res.txt"
     #Copy back result
-    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/tsensor_rpi_res.txt .
+    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/tsensor_rpi_res.txt ${DIR}
 fi
