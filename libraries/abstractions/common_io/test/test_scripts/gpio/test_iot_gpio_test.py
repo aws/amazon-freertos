@@ -30,7 +30,10 @@ import os, sys
 import argparse
 import socket
 
-parentdir = os.path.dirname(os.getcwd())
+scriptdir = os.path.abspath(sys.path[0])
+parentdir = os.path.dirname(scriptdir)
+print("Script Dir: %s" % scriptdir)
+print("Parent Dir: %s" % parentdir)
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
@@ -55,8 +58,8 @@ class TestGpioAssisted(test_template):
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script = './test_iot_runonPI_gpio.sh'
-    rpi_output_file = "./gpio_rpi_res.txt"
+    shell_script = "%s/test_iot_runonPI_gpio.sh" % scriptdir
+    rpi_output_file = "%s/gpio_rpi_res.txt" % scriptdir
     port = 50007
 
     def test_AssistedIotGpioModeWritePushPullTrue(self):

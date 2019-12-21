@@ -24,7 +24,7 @@
 
 
 
-
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 IP=$1
 shift
 LOGINID=$1
@@ -35,7 +35,7 @@ shift
 if [ "$1" == "-p" ]; then
     #Secure copy the test_iot_uart_rp3.py from Host to RP3
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
-    sshpass -p ${PASSWD} scp ./test_iot_uart_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
+    sshpass -p ${PASSWD} scp ${DIR}/test_iot_uart_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
 elif [ "$1" == "-c" ]; then
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/uart_res.txt"
 else
