@@ -842,8 +842,8 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
                  * because nordic sdk has separate field for company_identifier.
                  *
                  * company identifier is two bytes in size stored in little endian form.
-+                * Exctract the bytes and store into a 16bit variable.
-+                */
+                 +                * Exctract the bytes and store into a 16bit variable.
+                 +                */
                 for( uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++ )
                 {
                     companyId = companyId | ( ( uint16_t ) pcManufacturerData[ i ] << ( i * 8 ) );
@@ -954,7 +954,6 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         {
             xAdvConfig.ble_adv_slow_interval = ( IOT_BLE_ADVERTISING_INTERVAL * 2 );
         }
-
 
         /* If it is an advertisement data and advertising timeout is provided, set the timeout. Else set the default timeout by vendor. */
         if( pxParams->usTimeout != 0 )
