@@ -26,12 +26,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-/* Unity includes. */
-#include "unity_internals.h"
+/* Ensure unity_internals.h is only used by the compiler, and not the assembler. */
+#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) || defined( __GNUC__)
+    /* Unity includes. */
+    #include "unity_internals.h"
 
-#ifndef UART_PRINT
-    #include "uart_term.h"
-    #define UART_PRINT    Report
+    #ifndef UART_PRINT
+        #include "uart_term.h"
+        #define UART_PRINT    Report
+    #endif
+
+/* The function that implements FreeRTOS printf style output, and the macro
+ * that maps the configPRINTF() macros to that function. */
+extern void vLoggingPrintf( const char * pcFormat,
+                            ... );
+/* Non-format version thread-safe print */
+extern void vLoggingPrint( const char * pcMessage );
 #endif
 
 /*-----------------------------------------------------------
@@ -91,14 +101,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Needed for POSIX/pthread. */
 #define configUSE_APPLICATION_TASK_TAG           1
 
-/* The function that implements FreeRTOS printf style output, and the macro
- * that maps the configPRINTF() macros to that function. */
-extern void vLoggingPrintf( const char * pcFormat,
-                            ... );
+
 #define configPRINTF( X )    vLoggingPrintf X
 
-/* Non-format version thread-safe print */
-extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
