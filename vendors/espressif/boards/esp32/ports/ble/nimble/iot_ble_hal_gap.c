@@ -689,11 +689,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
       }
     }
 
-    if( pxParams->bSetScanRsp == false )
-    {
-        xAdv_params.itvl_min = ( pxParams->usMinAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
-        xAdv_params.itvl_max = ( pxParams->usMaxAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
-    }
+    xAdv_params.itvl_min = ( pxParams->usMinAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
+    xAdv_params.itvl_max = ( pxParams->usMaxAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
 
     if( pxParams->usAdvertisingEventProperties == BTAdvInd )
     {
@@ -707,16 +704,14 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         /* fixme: set adv_params->high_duty_cycle accordingly */
     }
 
-    if( pxParams->bSetScanRsp == false )
+
+    if( pxParams->usTimeout != 0 )
     {
-        if( pxParams->usTimeout != 0 )
-        {
-            lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_MS );
-        }
-        else
-        {
-            lAdvDurationMS = BLE_HS_FOREVER;
-        }
+        lAdvDurationMS = ( int32_t ) ( pxParams->usTimeout * IOT_BLE_ADVERTISING_DURATION_MS );
+    }
+    else
+    {
+        lAdvDurationMS = BLE_HS_FOREVER;
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )

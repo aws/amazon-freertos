@@ -785,25 +785,22 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         xAdv_params.channel_map = ADV_CHNL_ALL;
         xAdv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
 
-        if( pxParams->bSetScanRsp == false )
+        if( pxParams->usMinAdvInterval != 0 )
         {
-            if( pxParams->usMinAdvInterval != 0 )
-            {
-                xAdv_params.adv_int_min = pxParams->usMinAdvInterval;
-            }
-            else
-            {
-                xAdv_params.adv_int_min = IOT_BLE_ADVERTISING_INTERVAL;
-            }
+            xAdv_params.adv_int_min = pxParams->usMinAdvInterval;
+        }
+        else
+        {
+            xAdv_params.adv_int_min = IOT_BLE_ADVERTISING_INTERVAL;
+        }
 
-            if( pxParams->usMaxAdvInterval != 0 )
-            {
-                xAdv_params.adv_int_max = pxParams->usMaxAdvInterval;
-            }
-            else
-            {
-                xAdv_params.adv_int_max = ( 2 * IOT_BLE_ADVERTISING_INTERVAL );
-            }
+        if( pxParams->usMaxAdvInterval != 0 )
+        {
+            xAdv_params.adv_int_max = pxParams->usMaxAdvInterval;
+        }
+        else
+        {
+            xAdv_params.adv_int_max = ( 2 * IOT_BLE_ADVERTISING_INTERVAL );
         }
 
         if( pxParams->usAdvertisingEventProperties == BTAdvInd )
