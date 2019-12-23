@@ -1121,6 +1121,8 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
 
     if( xStatus == eBTStatusSuccess )
     {
+        IotTestBleHal_ClearEventQueue();
+
         xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
@@ -1758,8 +1760,10 @@ void prvRequestWriteCb( uint16_t usConnId,
  */
 }
 
-void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
-                           int32_t lhandle )
+
+void * checkQueueForEventWithMatch( BLEHALEventsTypes_t xEventName,
+                                    int32_t lhandle,
+                                    bool ( * pxMatch )( void * pvEvent ) )
 {
     BLEHALEventsInternals_t * pEventIndex;
     IotLink_t * pEventListIndex;
@@ -1777,6 +1781,12 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
         {
             pvPtr = pEventIndex;
             IotListDouble_Remove( &pEventIndex->eventList );
+
+            if( ( pxMatch != NULL ) && ( pvPtr != NULL ) && !pxMatch( pvPtr ) )
+            {
+                pvPtr = NULL;
+            }
+
             break; /* If the right event is received, exit. */
         }
     }
@@ -1786,14 +1796,20 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
     return pvPtr;
 }
 
+bool IotTestBleHal_CheckBondState( void * pvEvent )
+{
+    return ( ( BLETESTPairingStateChangedCallback_t * ) pvEvent )->xBondState != eBTbondStateBonding;
+}
+
 /* This function first check if an event is waiting in the list. If not, it will go and wait on the queue.
  * When an event is received on the queue, if it is not the expected event, it goes on the waiting list.
  */
-BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                             int32_t lhandle,
-                                             void * pxMessage,
-                                             size_t xMessageLength,
-                                             uint32_t timeoutMs )
+BTStatus_t IotTestBleHal_WaitEventFromQueueWithMatch( BLEHALEventsTypes_t xEventName,
+                                                      int32_t lhandle,
+                                                      void * pxMessage,
+                                                      size_t xMessageLength,
+                                                      uint32_t timeoutMs,
+                                                      bool ( * pxMatch )( void * pvEvent ) )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     void * pvPtr = NULL;
@@ -1804,7 +1820,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
             xEventName,
             ( uint32_t ) lhandle );
 
-    pvPtr = checkQueueForEvent( xEventName, lhandle );
+    pvPtr = checkQueueForEventWithMatch( xEventName, lhandle, pxMatch );
 
     /* If event is not waiting then wait for it. */
     if( pvPtr == NULL )
@@ -1814,7 +1830,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
             /* TODO check event list here */
             if( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
             {
-                pvPtr = checkQueueForEvent( xEventName, lhandle );
+                pvPtr = checkQueueForEventWithMatch( xEventName, lhandle, pxMatch );
 
                 if( pvPtr != NULL )
                 {
@@ -1851,6 +1867,15 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
     return xStatus;
 }
 
+BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
+                                             int32_t lhandle,
+                                             void * pxMessage,
+                                             size_t xMessageLength,
+                                             uint32_t timeoutMs )
+{
+    return IotTestBleHal_WaitEventFromQueueWithMatch( xEventName, lhandle, pxMessage, xMessageLength, timeoutMs, NULL );
+}
+
 void IotTestBleHal_ClearEventQueue( void )
 {
     IotMutex_Lock( &threadSafetyMutex );
@@ -1880,12 +1905,19 @@ void prvIndicationSentCb( uint16_t usConnId,
 void prvMtuChangedCb( uint16_t usConnId,
                       uint16_t usMtu )
 {
-    IotLog( IOT_LOG_DEBUG,
-            &_logHideAll,
-            "prvMtuChangedCb conn=%d, mtu=%d",
-            usConnId,
-            usMtu );
-    _bletestsMTU_SIZE = usMtu;
+    BLETESTMtuChangedCallback_t * pxMtuChangedCallback = IotTest_Malloc( sizeof( BLETESTMtuChangedCallback_t ) );
+
+    if( pxMtuChangedCallback != NULL )
+    {
+        pxMtuChangedCallback->xEvent.xEventTypes = eBLEHALEventMtuChangedCb;
+        pxMtuChangedCallback->xEvent.lHandle = NO_HANDLE;
+        pxMtuChangedCallback->usConnId = usConnId;
+        pxMtuChangedCallback->usMtu = usMtu;
+
+        _bletestsMTU_SIZE = usMtu;
+
+        pushToQueue( &pxMtuChangedCallback->xEvent.eventList );
+    }
 }
 
 void prvResponseConfirmationCb( BTStatus_t xStatus,

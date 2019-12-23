@@ -56,6 +56,7 @@ extern BTGattAdvertismentParams_t xAdvertisementConfigB;
 extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
 extern bool bCharAddedComplete;
+extern uint16_t _bletestsMTU_SIZE;
 
 static uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
@@ -181,12 +182,40 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
         RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module );
     #endif
+    #if ENABLE_TC_INTEGRATION_CHANGE_MTU_SIZE
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Change_MTU_Size )
+    #endif
 
     /*TODO: Test sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
     /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
 
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
+
+#if ENABLE_TC_INTEGRATION_CHANGE_MTU_SIZE
+    TEST( Full_BLE_Integration_Test_Advertisement, BLE_Change_MTU_Size )
+    {
+        BTStatus_t xStatus;
+        BTProperty_t pxProperty;
+        BLETESTMtuChangedCallback_t xMtuChangedEvent;
+        uint16_t usMTUsize = bletestsMTU_SIZE2;
+
+        IotTestBleHal_SetAdvProperty();
+
+        xStatus = _pxGattServerInterface->pxConfigureMtu( _ucBLEServerIf, usMTUsize );
+
+        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventMtuChangedCb, NO_HANDLE, ( void * ) &xMtuChangedEvent, sizeof( BLETESTMtuChangedCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( _usBLEConnId, xMtuChangedEvent.usConnId );
+        TEST_ASSERT_EQUAL( usMTUsize, xMtuChangedEvent.usMtu );
+
+        IotTestBleHal_WaitConnection( false );
+    }
+#endif /* if ENABLE_TC_INTEGRATION_CHANGE_MTU_SIZE */
 
 #if ENABLE_TC_INTEGRATION_CHECK_BOND_STATE
     TEST( Full_BLE_Integration_Test_Advertisement, BLE_Check_Bond_State )

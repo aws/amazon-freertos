@@ -98,6 +98,9 @@ class runTest:
     SERV_UUID = "000012ef-0000-1000-8000-00805f9b34fb"
     SERV_DATA = 214
 
+    # The maximum possible attribute size is 512 bytes. Long write/read tests use 512 for data length.
+    LONG_READ_WRITE_LEN = 512
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
@@ -356,8 +359,7 @@ class runTest:
 
     @staticmethod
     def writereadLongCharacteristic():
-        # TODO: get correct mtu size, assume 200 for now
-        long_value = "1" * (runTest.MTU_SIZE + 10)
+        long_value = "1" * runTest.LONG_READ_WRITE_LEN
         bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
         (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(
             runTest.DUT_OPEN_CHAR_UUID)
@@ -947,6 +949,20 @@ class runTest:
         isTestSuccessFull &= bleAdapter.pair_cancelpairing()
 
         time.sleep(2)
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
+    def Change_MTU_Size(scan_filter, bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+        time.sleep(5)
+
+        isTestSuccessFull = bleAdapter.disconnect()
         testutils.removeBondedDevices()
 
         return isTestSuccessFull
