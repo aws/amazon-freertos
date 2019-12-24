@@ -267,7 +267,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigB =
 {
     .usAdvertisingEventProperties = BTAdvInd,
     .bIncludeTxPower              = true,
-    .ucName                       = { BTGattAdvNameShort,                  4},
+    .ucName                       = { BTGattAdvNameShort,              4},
     .bSetScanRsp                  = true,
     .ulAppearance                 = 0,
     .ulMinInterval                = bletestsMIN_CONNECTION_INTERVAL,
