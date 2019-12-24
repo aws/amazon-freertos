@@ -690,6 +690,10 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         }
     }
 
+    /*
+     * The advertisment raw interval values are multiplied by advetisement
+     * interval units = ( 625/1000 ) ms as per the BLE spec.
+     */
     xAdv_params.itvl_min = ( pxParams->usMinAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
     xAdv_params.itvl_max = ( pxParams->usMaxAdvInterval * BLE_HCI_ADV_ITVL ) / 1000;
 

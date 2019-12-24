@@ -840,10 +840,9 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             {
                 /* extract company_identifier from input manufacturer data
                  * because nordic sdk has separate field for company_identifier.
-                 *
-                 * company identifier is two bytes in size stored in little endian form.
-                 +                * Exctract the bytes and store into a 16bit variable.
-                 +                */
+                 * Company identifier is two bytes in size stored in little endian form.
+                 * Extract the bytes and store it into a 16bit variable.
+                 */
                 for( uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++ )
                 {
                     companyId = companyId | ( ( uint16_t ) pcManufacturerData[ i ] << ( i * 8 ) );
