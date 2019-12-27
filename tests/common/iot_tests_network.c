@@ -161,14 +161,6 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
         if( ret == true )
         {
-            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
-            {
-                ret = false;
-            }
-        }
-
-        if( ret == true )
-        {
             if( IotBle_Off() != eBTStatusSuccess )
             {
                 ret = false;

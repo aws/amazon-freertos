@@ -95,8 +95,8 @@ static IotBleDeviceInfoService_t _service =
 typedef enum
 {
     _ATTR_SERVICE,
-    _ATTR_CHAR_CLOUD_END_POINT,
     _ATTR_CHAR_VERSION,
+    _ATTR_CHAR_CLOUD_END_POINT,
     _ATTR_CHAR_MTU,
     _ATTR_CHAR_DESCR_MTU,
     _ATTR_CHAR_PLATFROM_NAME,
@@ -382,8 +382,6 @@ void _deviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam )
 
 void _deviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp;
     char mtuStr[ MAX_INTEGER_BUFFER_WIDTH ] = { 0 };
     size_t length;
 
@@ -494,4 +492,32 @@ bool IotBleDeviceInfo_Init( void )
     }
 
     return error;
+}
+
+bool IotBleDeviceInfo_Cleanup( void )
+{
+    BTStatus_t status = eBTStatusFail;
+    IotBleEventsCallbacks_t callback;
+    bool ret = true;
+
+    callback.pConnectionCb = _connectionCallback;
+    status = IotBle_UnRegisterEventCb( eBLEConnection, callback );
+
+    if( status == eBTStatusSuccess )
+    {
+        callback.pMtuChangedCb = _MTUChangedCallback;
+        status = IotBle_UnRegisterEventCb( eBLEMtuChanged, callback );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = IotBle_DeleteService( ( BTService_t * ) &_deviceInformationService );
+    }
+
+    if( status != eBTStatusSuccess )
+    {
+        ret = false;
+    }
+
+    return ret;
 }

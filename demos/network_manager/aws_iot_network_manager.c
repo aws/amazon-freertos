@@ -320,6 +320,8 @@ static IotNetworkManager_t networkManager =
         static bool bleInited = false;
         BTStatus_t status;
 
+        bleNetwork.state = eNetworkStateDisabled;
+
         if( bleInited == false )
         {
             if( IotBle_Init() == eBTStatusSuccess )
@@ -332,15 +334,10 @@ static IotNetworkManager_t networkManager =
                 ret = false;
             }
         }
-        else
+
+        if( ret == true )
         {
             status = IotBle_On();
-
-            if( status == eBTStatusSuccess )
-            {
-                status = IotBle_StartAdv( NULL );
-            }
-
             if( status != eBTStatusSuccess )
             {
                 IotLogError( "Failed to toggle BLE on." );
@@ -352,6 +349,11 @@ static IotNetworkManager_t networkManager =
         {
             /* Register BLE Connection callback */
             ret = _bleRegisterUnregisterCb( false );
+        }
+
+        if( ret == false )
+        {
+            bleNetwork.state = eNetworkStateUnknown;
         }
 
         return ret;
@@ -366,13 +368,6 @@ static IotNetworkManager_t networkManager =
         /* Unregister the callbacks */
         ret = _bleRegisterUnregisterCb( true );
 
-        if( ret == true )
-        {
-            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
-            {
-                ret = false;
-            }
-        }
 
         if( ret == true )
         {

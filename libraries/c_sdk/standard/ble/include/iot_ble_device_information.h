@@ -48,10 +48,25 @@
 /**
  * @brief Creates and starts Amazon FreeRTOS device information service
  *
- * @return pdTRUE if the service is initialized successfully, pdFALSE otherwise
+ * @return true if the service is initialized successfully, false otherwise
  */
 /* @[declare_iotbledeviceinfo_init] */
 bool IotBleDeviceInfo_Init( void );
 /* @[declare_iotbledeviceinfo_init] */
+
+/**
+ * @function_page{IotBleDeviceInfo_Cleanup,iotbledeviceinfo,cleanup}
+ * @function_snippet{iotbledeviceinfo,cleanup,this}
+ * @copydoc IotBleDeviceInfo_Cleanup
+ */
+
+/**
+ * @brief Cleanup device information service.
+ *
+ * @return true If the cleanup is successful false otherwise.
+ */
+/* @[declare_iotbledeviceinfo_cleanup] */
+bool IotBleDeviceInfo_Cleanup( void );
+/* @[declare_iotbledeviceinfo_cleanup] */
 
 #endif /* IOT_BLE_DEVICE_INFORMATION_H_ */

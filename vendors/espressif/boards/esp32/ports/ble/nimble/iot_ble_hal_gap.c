@@ -396,8 +396,10 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             uint16_t usConnId )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    esp_err_t xRet = ESP_OK;
 
-    if( ble_gap_terminate( usConnId, BLE_ERR_REM_USER_CONN_TERM ) != 0 )
+    xRet = ble_gap_terminate( usConnId, BLE_ERR_REM_USER_CONN_TERM );
+    if( ( xRet != 0 )  && ( xRet != BLE_HS_EALREADY ) )
     {
         xStatus = eBTStatusFail;
     }
