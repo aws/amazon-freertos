@@ -361,6 +361,11 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                 xGattServerCb.pxConnectionCb( p_ble_evt->evt.gap_evt.conn_handle, ulGattServerIFhandle, false, &xConnectionRemoteAddress );
             }
 
+            if( usGattConnHandle == p_ble_evt->evt.gap_evt.conn_handle )
+            {
+                usGattConnHandle = BLE_CONN_HANDLE_INVALID;
+            }
+
             break;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:

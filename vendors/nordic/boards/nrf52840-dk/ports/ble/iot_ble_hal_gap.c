@@ -61,7 +61,7 @@
 #define iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE    2
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
-uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+extern uint16_t usGattConnHandle; /**< Handle of the current connection. */
 
 #define BLE_ADVERTISING_DEF_NO_STATIC( _name )                  \
     ble_advertising_t _name;                                    \
@@ -285,6 +285,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 {
     ret_code_t xErrCode = NRF_SUCCESS;
     BTStatus_t xStatus = eBTStatusSuccess;
+    const char *error;
 
 
     memset( &prvAdvData, 0, sizeof( prvAdvData ) );
@@ -317,6 +318,10 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     }
 
     xStatus = BTNRFError( xErrCode );
+
+    error = nrf_strerror_get(xErrCode);
+
+    configPRINTF(("Error = %s\n", error));
 
     /* TODO: Add initial security */
     if( pxCallbacks != NULL )
@@ -508,12 +513,24 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             const BTBdaddr_t * pxBdAddr,
                             uint16_t usConnId )
 {
-    ret_code_t xErrCode = sd_ble_gap_disconnect( usConnHandle,
-                                                 BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION );
 
-    xLatestDesiredConnectionParams.pxBdAddr = NULL;
-    BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
-    return BTNRFError( xErrCode );
+    
+    ret_code_t xErrCode = NRF_SUCCESS;
+    
+    if( usGattConnHandle != BLE_CONN_HANDLE_INVALID )
+    {
+        xErrCode = sd_ble_gap_disconnect( usGattConnHandle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
+
+        if( xErrCode == NRF_SUCCESS )
+        {
+            usGattConnHandle = BLE_CONN_HANDLE_INVALID;
+            xLatestDesiredConnectionParams.pxBdAddr = NULL;
+        }
+        
+        BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
+     }
+     
+     return BTNRFError( xErrCode );
 }
 
 /*-----------------------------------------------------------*/
@@ -1274,7 +1291,11 @@ static void prvOnConnParamsEvt( ble_conn_params_evt_t * pxEvt )
 
     if( pxEvt->evt_type == BLE_CONN_PARAMS_EVT_FAILED )
     {
-        xErrCode = sd_ble_gap_disconnect( usConnHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE );
+        xErrCode = sd_ble_gap_disconnect( usGattConnHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE );
+        if( xErrCode == NRF_SUCCESS )
+        {
+            usGattConnHandle = BLE_CONN_HANDLE_INVALID;
+        }
         BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
     }
 }
