@@ -514,13 +514,7 @@ BTStatus_t IotBle_On( void )
     uint16_t index;
     uint32_t nbProperties = sizeof( _deviceProperties ) / sizeof( _deviceProperties[ 0 ] );
 
-
     status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
-
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-
-       IotLogError("status 1 = %d", status );
-
 
     if( status == eBTStatusSuccess )
     {
@@ -531,17 +525,10 @@ BTStatus_t IotBle_On( void )
         }
     }
 
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-
-    IotLogError("status 1 = %d", status );
-
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
     }
-
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 2 = %d", status );
 
     /* Register application. */
     if( status == eBTStatusSuccess )
@@ -554,8 +541,6 @@ BTStatus_t IotBle_On( void )
             status = _BTInterface.cbStatus;
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 3 = %d", status );
 
     /* Set GAP properties. */
     if( status == eBTStatusSuccess )
@@ -581,9 +566,6 @@ BTStatus_t IotBle_On( void )
             }
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 4 = %d", status );
-
 
     /* Initialize the GATT server. */
     if( status == eBTStatusSuccess )
@@ -604,17 +586,12 @@ BTStatus_t IotBle_On( void )
             IotLogError( "Cannot initialize GATT interface." );
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 5 = %d", status );
-
 
     /* Start GATT services. */
     if( status == eBTStatusSuccess )
     {
        status = _startGATTServices();
     }
-
-    IotLogError("status 6 = %d", status );
 
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
@@ -632,9 +609,6 @@ BTStatus_t IotBle_On( void )
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 7 = %d", status );
-
 
     /* Start advertisement. */
     if( status == eBTStatusSuccess )
@@ -646,9 +620,6 @@ BTStatus_t IotBle_On( void )
             status = _BTInterface.cbStatus;
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 8 = %d", status );
-
 
     return status;
 }
@@ -660,67 +631,44 @@ BTStatus_t IotBle_Off( void )
     BTStatus_t status = eBTStatusSuccess;
     IotLink_t * pConnectionListHead, * pConnectionListElem;
     IotBleConnectionInfoListElement_t * pConnInfo;
-    BTBdaddr_t bdAddr;
-    uint16_t connId;
 
     /* Stop the advertisement to avoid new connections to the device. */
     status = IotBle_StopAdv( &_bleStopAdvCb );
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 1 = %d", status );
+
     if( status == eBTStatusSuccess )
     {
         IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         status = _BTInterface.cbStatus;
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 2 = %d", status );
 
-
-    /* Iterate through the list of open connections and send a disconnect to the peer. */
+    /* Iterate through the list of all connections and disconnect them. */
     if( status == eBTStatusSuccess )
     {
-        /* Iterate through the connection list and trigger disconnect for each connections.
-         * Since disconnect callback gets triggered from BLE event loop and acquires lock
-         * to remove connections from the list, we need to release the lock first before
-         * invoking the disconnect API.
-         */
+        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
+
         status = IotBle_GetConnectionInfoList( &pConnectionListHead );
-        IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-        IotLogError("status 3 = %d", status );
         if( status == eBTStatusSuccess )
         {
-            do
+            /* Get the event associated to the callback */
+            IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
             {
-                pConnInfo = NULL;
-                IotMutex_Lock( &_BTInterface.threadSafetyMutex );
-                /* Get the event associated to the callback */
-                IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
+                pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
+                status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
+                        &pConnInfo->remoteBdAddr,
+                        pConnInfo->connId );
+                if( status != eBTStatusSuccess )
                 {
-                    pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
-                    memcpy( &bdAddr, &pConnInfo->remoteBdAddr, sizeof( BTBdaddr_t ) );
-                    connId = pConnInfo->connId;
-                    break;
+                    IotLogWarn( "Failed to disconnect BLE connection, error = %d", status );
                 }
+            }
 
-                IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
-
-                if( pConnInfo != NULL )
-                {
-                    status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
-                            &bdAddr,
-                            connId );
-
-                    if( status != eBTStatusSuccess )
-                    {
-                        IotLogError( "Failed to disconnect bluetooth connection, status = %u", status );
-                        break;
-                    }
-                }
-            } while( pConnInfo != NULL );
+            IotListDouble_RemoveAll( pConnectionListHead,
+                    IotBle_Free,
+                    offsetof(IotBleConnectionInfoListElement_t, connectionList ) );
         }
+
+        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 4 = %d", status );
 
     /* Stop all GATT services */
     if( status == eBTStatusSuccess )
@@ -728,9 +676,7 @@ BTStatus_t IotBle_Off( void )
         status = _stopGATTServices();
     }
 
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 5 = %d", status );
-
+    /* Disable BLE stack. */
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pGattServerInterface->pxUnregisterServer( _BTInterface.serverIf );
@@ -740,17 +686,12 @@ BTStatus_t IotBle_Off( void )
             status = _BTInterface.cbStatus;
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 6 = %d", status );
 
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTLeAdapterInterface->pxUnregisterBleApp( _BTInterface.adapterIf );
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 7 = %d", status );
 
-    /* Disable BLE stack. */
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTInterface->pxDisable();
@@ -759,17 +700,12 @@ BTStatus_t IotBle_Off( void )
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         }
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 8 = %d", status );
-
 
     /* Cleanup BLE stack. */
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTInterface->pxBtManagerCleanup();
     }
-    IotLogError(" Heap available %u, ever %u", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize() );
-    IotLogError("status 9 = %d", status );
 
     return status;
 }
