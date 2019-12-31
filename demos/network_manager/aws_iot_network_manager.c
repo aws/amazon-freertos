@@ -493,6 +493,7 @@ static IotNetworkManager_t networkManager =
 
         #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
             vWiFiConnectTaskDestroy();
+            IotBleWifiProv_Deinit();
         #endif
 
         if( WIFI_IsConnected() == pdTRUE )

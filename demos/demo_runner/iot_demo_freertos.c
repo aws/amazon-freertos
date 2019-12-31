@@ -123,6 +123,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 {
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     void * pConnectionParams = NULL, * pCredentials = NULL;
+    uint32_t disconnectedNetworks = AWSIOT_NETWORK_TYPE_NONE;
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
@@ -130,6 +131,13 @@ static void _onNetworkStateChangeCallback( uint32_t network,
     {
         demoConnectedNetwork = network;
         IotSemaphore_Post( &demoNetworkSemaphore );
+
+        /* Disable the disconnected networks to save power and reclaim any unused memory. */
+        disconnectedNetworks = configENABLED_NETWORKS & ( ~demoConnectedNetwork );
+        if( disconnectedNetworks != AWSIOT_NETWORK_TYPE_NONE )
+        {
+            AwsIotNetworkManager_DisableNetwork( disconnectedNetworks );
+        }
 
         if( pDemoContext->networkConnectedCallback != NULL )
         {
@@ -150,6 +158,13 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
             pDemoContext->networkDisconnectedCallback( pNetworkInterface );
+        }
+
+        /* Re-enable all the networks for the demo for reconnection. */
+        disconnectedNetworks = configENABLED_NETWORKS & ( ~demoConnectedNetwork );
+        if( disconnectedNetworks != AWSIOT_NETWORK_TYPE_NONE )
+        {
+            AwsIotNetworkManager_EnableNetwork( disconnectedNetworks );
         }
 
         demoConnectedNetwork = _getConnectedNetworkForDemo( pDemoContext );
@@ -256,6 +271,7 @@ static int _initialize( demoContext_t * pContext )
         }
     }
 
+
     if( status == EXIT_FAILURE )
     {
         if( semaphoreCreated == true )
@@ -279,9 +295,10 @@ static int _initialize( demoContext_t * pContext )
  */
 static void _cleanup( void )
 {
-    AwsIotNetworkManager_DisableNetwork( configENABLED_NETWORKS );
     /* Remove network manager subscription */
     AwsIotNetworkManager_RemoveSubscription( subscription );
+    /* Disable all the networks used by the demo.*/
+    AwsIotNetworkManager_DisableNetwork( configENABLED_NETWORKS );
     IotSemaphore_Destroy( &demoNetworkSemaphore );
     IotSdk_Cleanup();
 }

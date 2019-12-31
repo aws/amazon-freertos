@@ -626,11 +626,41 @@ BTStatus_t IotBle_On( void )
 
 /*-----------------------------------------------------------*/
 
+BTStatus_t _disconnectAllConnections( void )
+{
+    IotBleConnectionInfoListElement_t * pConnInfo;
+    IotLink_t * pConnection;
+    BTBdaddr_t bdAddr;
+    uint16_t connId;
+    BTStatus_t status = eBTStatusSuccess ;
+
+    while( ( status == eBTStatusSuccess ) && ( !IotListDouble_IsEmpty( &_BTInterface.connectionListHead ) ) )
+    {
+        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
+        pConnection = IotListDouble_PeekHead( &_BTInterface.connectionListHead );
+        pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnection, connectionList );
+        memcpy( &bdAddr, &pConnInfo->remoteBdAddr, sizeof( BTBdaddr_t ) );
+        connId = pConnInfo->connId;
+        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+
+        status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
+                                    &bdAddr,
+                                    connId );
+
+        if( status != eBTStatusSuccess )
+        {
+            IotLogError("Failed to disconnect BLE connection, status = %d", status );
+        }
+    }
+
+    return status;
+
+}
+
 BTStatus_t IotBle_Off( void )
 {
     BTStatus_t status = eBTStatusSuccess;
-    IotLink_t * pConnectionListHead, * pConnectionListElem;
-    IotBleConnectionInfoListElement_t * pConnInfo;
+
 
     /* Stop the advertisement to avoid new connections to the device. */
     status = IotBle_StopAdv( &_bleStopAdvCb );
@@ -641,33 +671,10 @@ BTStatus_t IotBle_Off( void )
         status = _BTInterface.cbStatus;
     }
 
-    /* Iterate through the list of all connections and disconnect them. */
+    /* Iterate through the list of all connections and disconnect each of them. */
     if( status == eBTStatusSuccess )
     {
-        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
-
-        status = IotBle_GetConnectionInfoList( &pConnectionListHead );
-        if( status == eBTStatusSuccess )
-        {
-            /* Get the event associated to the callback */
-            IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
-            {
-                pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
-                status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
-                        &pConnInfo->remoteBdAddr,
-                        pConnInfo->connId );
-                if( status != eBTStatusSuccess )
-                {
-                    IotLogWarn( "Failed to disconnect BLE connection, error = %d", status );
-                }
-            }
-
-            IotListDouble_RemoveAll( pConnectionListHead,
-                    IotBle_Free,
-                    offsetof(IotBleConnectionInfoListElement_t, connectionList ) );
-        }
-
-        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+        status = _disconnectAllConnections();
     }
 
     /* Stop all GATT services */
