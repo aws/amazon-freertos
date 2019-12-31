@@ -840,10 +840,9 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             {
                 /* extract company_identifier from input manufacturer data
                  * because nordic sdk has separate field for company_identifier.
-                 *
-                 * company identifier is two bytes in size stored in little endian form.
-+                * Exctract the bytes and store into a 16bit variable.
-+                */
+                 * Company identifier is two bytes in size stored in little endian form.
+                 * Extract the bytes and store it into a 16bit variable.
+                 */
                 for( uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++ )
                 {
                     companyId = companyId | ( ( uint16_t ) pcManufacturerData[ i ] << ( i * 8 ) );
@@ -935,16 +934,36 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     if( xErrCode == NRF_SUCCESS )
     {
         xAdvConfig.ble_adv_fast_enabled = true;
-        xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
+        xAdvConfig.ble_adv_slow_enabled = true;
+
+        if( pxParams->usMinAdvInterval != 0 )
+        {
+            xAdvConfig.ble_adv_fast_interval = pxParams->usMinAdvInterval;
+        }
+        else
+        {
+            xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
+        }
+
+        if( pxParams->usMaxAdvInterval != 0 )
+        {
+            xAdvConfig.ble_adv_slow_interval = pxParams->usMaxAdvInterval;
+        }
+        else
+        {
+            xAdvConfig.ble_adv_slow_interval = ( IOT_BLE_ADVERTISING_INTERVAL * 2 );
+        }
 
         /* If it is an advertisement data and advertising timeout is provided, set the timeout. Else set the default timeout by vendor. */
-        if( ( pxParams->bSetScanRsp == false ) && ( pxParams->usTimeout != 0 ) )
+        if( pxParams->usTimeout != 0 )
         {
             xAdvConfig.ble_adv_fast_timeout = pxParams->usTimeout;
+            xAdvConfig.ble_adv_slow_timeout = pxParams->usTimeout;
         }
         else
         {
             xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+            xAdvConfig.ble_adv_slow_timeout = aws_ble_gap_configADV_DURATION;
         }
 
         xAdvConfig.ble_adv_primary_phy = pxParams->ucPrimaryAdvertisingPhy; /* TODO: Check which values can these variable get */

@@ -396,6 +396,9 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
     pParams.ulAppearance = pAdvParams->appearance;
     pParams.ulMaxInterval = pAdvParams->maxInterval;
     pParams.ulMinInterval = pAdvParams->minInterval;
+
+    pParams.usMinAdvInterval = IOT_BLE_ADVERTISING_INTERVAL;
+    pParams.usMaxAdvInterval = ( IOT_BLE_ADVERTISING_INTERVAL * 2 );
     pParams.usAdvertisingEventProperties = BTAdvInd;
 
     pParams.xAddrType = BTAddrTypePublic;
