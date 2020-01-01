@@ -624,6 +624,18 @@ BTStatus_t IotBle_On( void )
     return status;
 }
 
+static void _disconnectCallback( BTStatus_t status,
+                                 uint16_t connectionID,
+                                 bool isConnected,
+                                 BTBdaddr_t * pRemoteAddress )
+{
+    if( !isConnected )
+    {
+         _BTInterface.cbStatus = status;
+         IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+    }
+}
+
 /*-----------------------------------------------------------*/
 
 BTStatus_t _disconnectAllConnections( void )
@@ -633,6 +645,16 @@ BTStatus_t _disconnectAllConnections( void )
     BTBdaddr_t bdAddr;
     uint16_t connId;
     BTStatus_t status = eBTStatusSuccess ;
+    IotBleEventsCallbacks_t eventCallback;
+    bool registered = false;
+
+    eventCallback.pConnectionCb = _disconnectCallback;
+
+    status = IotBle_RegisterEventCb( eBLEConnection, eventCallback );
+    if( status == eBTStatusSuccess )
+    {
+        registered = true;
+    }
 
     while( ( status == eBTStatusSuccess ) && ( !IotListDouble_IsEmpty( &_BTInterface.connectionListHead ) ) )
     {
@@ -647,10 +669,21 @@ BTStatus_t _disconnectAllConnections( void )
                                     &bdAddr,
                                     connId );
 
-        if( status != eBTStatusSuccess )
+
+        if( status == eBTStatusSuccess )
+        {
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.cbStatus;
+        }
+        else
         {
             IotLogError("Failed to disconnect BLE connection, status = %d", status );
         }
+    }
+
+    if( registered )
+    {
+         IotBle_UnRegisterEventCb( eBLEConnection, eventCallback );
     }
 
     return status;
