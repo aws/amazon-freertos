@@ -288,7 +288,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 {
     ret_code_t xErrCode = NRF_SUCCESS;
     BTStatus_t xStatus = eBTStatusSuccess;
-    const char *error;
+    const char * error;
 
 
     memset( &prvAdvData, 0, sizeof( prvAdvData ) );
@@ -327,7 +327,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 
     xStatus = BTNRFError( xErrCode );
 
-    error = nrf_strerror_get(xErrCode);
+    error = nrf_strerror_get( xErrCode );
 
     /* TODO: Add initial security */
     if( pxCallbacks != NULL )
@@ -378,19 +378,18 @@ ret_code_t prvPeerManagerInit( void )
 
 static void prvAdvertisementDataInit( void )
 {
+    /* Clear the advertisement handle with the stack. */
+    memset( &xAdvertisingHandle, 0x00, sizeof( xAdvertisingHandle ) );
 
-   /* Clear the advertisement handle with the stack. */
-   memset( &xAdvertisingHandle, 0x00, sizeof(xAdvertisingHandle) );
+    /* Clear the global variables used by the porting layer. */
+    prvAdvRestart = false;
+    memset( &prvAdvData, 0x00, sizeof( ble_advdata_t ) );
+    memset( &prvScanResponseData, 0x00, sizeof( ble_advdata_t ) );
 
-   /* Clear the global variables used by the porting layer. */
-   prvAdvRestart = false;
-   memset( &prvAdvData, 0x00, sizeof( ble_advdata_t ) );
-   memset( &prvScanResponseData, 0x00, sizeof( ble_advdata_t ) );
-
-   /* Clear the advertisment and scan response cache. Reset the index to 0. */
-   memset( prvAdvBinData, 0x00, sizeof( prvAdvBinData ) );
-   memset( prvSrBinData, 0x00, sizeof( prvSrBinData ) );
-   prvCurrentAdvBuf = 0;
+    /* Clear the advertisment and scan response cache. Reset the index to 0. */
+    memset( prvAdvBinData, 0x00, sizeof( prvAdvBinData ) );
+    memset( prvSrBinData, 0x00, sizeof( prvSrBinData ) );
+    prvCurrentAdvBuf = 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -536,9 +535,8 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             const BTBdaddr_t * pxBdAddr,
                             uint16_t usConnId )
 {
-
-    
     ret_code_t xErrCode;
+
     xErrCode = sd_ble_gap_disconnect( usConnId, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
     BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
     return BTNRFError( xErrCode );

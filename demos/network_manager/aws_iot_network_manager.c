@@ -338,6 +338,7 @@ static IotNetworkManager_t networkManager =
         if( ret == true )
         {
             status = IotBle_On();
+
             if( status != eBTStatusSuccess )
             {
                 IotLogError( "Failed to toggle BLE on." );
@@ -367,7 +368,6 @@ static IotNetworkManager_t networkManager =
 
         /* Unregister the callbacks */
         ret = _bleRegisterUnregisterCb( true );
-
 
         if( ret == true )
         {

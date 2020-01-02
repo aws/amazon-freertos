@@ -488,6 +488,7 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
     }
 
     xSem = xSemaphoreCreateBinary();
+
     if( xSem != NULL )
     {
         semInited = true;
@@ -503,13 +504,16 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
 void vESPBTGATTServerCleanup( void )
 {
     size_t index;
+
     if( serviceCnt > 0 )
     {
         ble_gatts_stop();
+
         for( index = 0; index < serviceCnt; index++ )
         {
             prvCleanupService( &espServices[ index ] );
         }
+
         serviceCnt = 0;
 
         memset( espServices, 0, sizeof( struct ble_gatt_svc_def ) * ( MAX_SERVICES + 1 ) );
@@ -521,7 +525,6 @@ void vESPBTGATTServerCleanup( void )
         vSemaphoreDelete( xSem );
         semInited = false;
     }
-
 }
 
 /*-----------------------------------------------------------*/
@@ -765,9 +768,8 @@ static uint16_t prvCountDescriptor( BTService_t * pxService,
  */
 static void prvCleanupService( struct ble_gatt_svc_def * pSvc )
 {
-
-    const struct ble_gatt_dsc_def *pDescriptor;
-    const struct ble_gatt_chr_def *pCharacteristic;
+    const struct ble_gatt_dsc_def * pDescriptor;
+    const struct ble_gatt_chr_def * pCharacteristic;
     size_t cIndex, dIndex;
 
     if( pSvc->uuid != NULL )
@@ -791,7 +793,6 @@ static void prvCleanupService( struct ble_gatt_svc_def * pSvc )
                 }
 
                 vPortFree( ( void * ) pCharacteristic->descriptors );
-
             }
         }
 
@@ -799,7 +800,6 @@ static void prvCleanupService( struct ble_gatt_svc_def * pSvc )
     }
 
     memset( pSvc, 0x00, sizeof( struct ble_gatt_svc_def ) );
-
 }
 
 /* @brief Simple function that creates a full service in one go.

@@ -134,6 +134,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
         /* Disable the disconnected networks to save power and reclaim any unused memory. */
         disconnectedNetworks = configENABLED_NETWORKS & ( ~demoConnectedNetwork );
+
         if( disconnectedNetworks != AWSIOT_NETWORK_TYPE_NONE )
         {
             AwsIotNetworkManager_DisableNetwork( disconnectedNetworks );
@@ -162,6 +163,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
         /* Re-enable all the networks for the demo for reconnection. */
         disconnectedNetworks = configENABLED_NETWORKS & ( ~demoConnectedNetwork );
+
         if( disconnectedNetworks != AWSIOT_NETWORK_TYPE_NONE )
         {
             AwsIotNetworkManager_EnableNetwork( disconnectedNetworks );
@@ -270,7 +272,6 @@ static int _initialize( demoContext_t * pContext )
             demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
         }
     }
-
 
     if( status == EXIT_FAILURE )
     {

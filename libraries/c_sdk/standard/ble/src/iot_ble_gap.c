@@ -396,20 +396,19 @@ BTStatus_t _startGATTServices()
 
 BTStatus_t _stopGATTServices()
 {
-
     BTStatus_t ret = eBTStatusSuccess;
     bool status = true;
 
-#if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
-    status = IotBleDeviceInfo_Cleanup();
-#endif
+    #if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
+        status = IotBleDeviceInfo_Cleanup();
+    #endif
 
-#if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
-    if( status == true )
-    {
-        status = IotBleDataTransfer_Cleanup();
-    }
-#endif
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        if( status == true )
+        {
+            status = IotBleDataTransfer_Cleanup();
+        }
+    #endif
 
     if( status == false )
     {
@@ -519,6 +518,7 @@ BTStatus_t IotBle_On( void )
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTInterface->pxEnable( 0 );
+
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
@@ -590,15 +590,15 @@ BTStatus_t IotBle_On( void )
     /* Start GATT services. */
     if( status == eBTStatusSuccess )
     {
-       status = _startGATTServices();
+        status = _startGATTServices();
     }
 
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
     {
-#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
-        IotBle_SetCustomAdvCb( &_advParams, &_scanRespParams );
-#endif
+        #if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
+            IotBle_SetCustomAdvCb( &_advParams, &_scanRespParams );
+        #endif
 
         status = _setAdvData( &_advParams );
         IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
@@ -614,6 +614,7 @@ BTStatus_t IotBle_On( void )
     if( status == eBTStatusSuccess )
     {
         status = IotBle_StartAdv( &_bleStartAdvCb );
+
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
@@ -631,8 +632,8 @@ static void _disconnectCallback( BTStatus_t status,
 {
     if( !isConnected )
     {
-         _BTInterface.cbStatus = status;
-         IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+        _BTInterface.cbStatus = status;
+        IotSemaphore_Post( &_BTInterface.callbackSemaphore );
     }
 }
 
@@ -644,13 +645,14 @@ BTStatus_t _disconnectAllConnections( void )
     IotLink_t * pConnection;
     BTBdaddr_t bdAddr;
     uint16_t connId;
-    BTStatus_t status = eBTStatusSuccess ;
+    BTStatus_t status = eBTStatusSuccess;
     IotBleEventsCallbacks_t eventCallback;
     bool registered = false;
 
     eventCallback.pConnectionCb = _disconnectCallback;
 
     status = IotBle_RegisterEventCb( eBLEConnection, eventCallback );
+
     if( status == eBTStatusSuccess )
     {
         registered = true;
@@ -666,9 +668,8 @@ BTStatus_t _disconnectAllConnections( void )
         IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
 
         status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
-                                    &bdAddr,
-                                    connId );
-
+                                                                   &bdAddr,
+                                                                   connId );
 
         if( status == eBTStatusSuccess )
         {
@@ -677,17 +678,16 @@ BTStatus_t _disconnectAllConnections( void )
         }
         else
         {
-            IotLogError("Failed to disconnect BLE connection, status = %d", status );
+            IotLogError( "Failed to disconnect BLE connection, status = %d", status );
         }
     }
 
     if( registered )
     {
-         IotBle_UnRegisterEventCb( eBLEConnection, eventCallback );
+        IotBle_UnRegisterEventCb( eBLEConnection, eventCallback );
     }
 
     return status;
-
 }
 
 BTStatus_t IotBle_Off( void )
@@ -720,6 +720,7 @@ BTStatus_t IotBle_Off( void )
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pGattServerInterface->pxUnregisterServer( _BTInterface.serverIf );
+
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
@@ -735,6 +736,7 @@ BTStatus_t IotBle_Off( void )
     if( status == eBTStatusSuccess )
     {
         status = _BTInterface.pBTInterface->pxDisable();
+
         if( status == eBTStatusSuccess )
         {
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
@@ -843,6 +845,7 @@ BTStatus_t IotBle_Init( void )
     if( status == eBTStatusSuccess )
     {
         _BTInterface.pBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+
         if( _BTInterface.pBTInterface == NULL )
         {
             status = eBTStatusFail;
@@ -852,6 +855,7 @@ BTStatus_t IotBle_Init( void )
     if( status == eBTStatusSuccess )
     {
         _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
+
         if( _BTInterface.pBTLeAdapterInterface == NULL )
         {
             status = eBTStatusFail;
@@ -861,7 +865,8 @@ BTStatus_t IotBle_Init( void )
     if( status == eBTStatusSuccess )
     {
         _BTInterface.pGattServerInterface = ( BTGattServerInterface_t * ) _BTInterface.pBTLeAdapterInterface->ppvGetGattServerInterface();
-        if(  _BTInterface.pGattServerInterface == NULL )
+
+        if( _BTInterface.pGattServerInterface == NULL )
         {
             status = eBTStatusFail;
         }

@@ -751,7 +751,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
     /* Create all attributes. */
     if( pService != NULL )
     {
-        memset( pService->pusHandlesBuffer, 0, pService->xNumberOfAttributes * sizeof( pService->pusHandlesBuffer[0] ) );
+        memset( pService->pusHandlesBuffer, 0, pService->xNumberOfAttributes * sizeof( pService->pusHandlesBuffer[ 0 ] ) );
         status = _addServiceToList( pService, pEventsCallbacks );
     }
 

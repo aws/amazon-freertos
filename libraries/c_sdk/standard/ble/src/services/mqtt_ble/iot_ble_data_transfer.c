@@ -964,7 +964,7 @@ static bool _initializeChannel( IotBleDataTransferChannel_t * pChannel )
     return ret;
 }
 
-static void  _cleanupChannel( IotBleDataTransferChannel_t * pChannel )
+static void _cleanupChannel( IotBleDataTransferChannel_t * pChannel )
 {
     IotBleDataTransfer_Close( pChannel );
     IotBleDataTransfer_Reset( pChannel );
@@ -977,7 +977,7 @@ static bool _cleanupService( IotBleDataTransferService_t * pService )
     bool ret = true;
 
     pService->isReady = false;
-    status = IotBle_DeleteService( &pService->gattService);
+    status = IotBle_DeleteService( &pService->gattService );
 
     if( status != eBTStatusSuccess )
     {
@@ -1038,14 +1038,14 @@ bool IotBleDataTransfer_Cleanup( void )
         for( index = 0; index < _numDataTransferServices; index++ )
         {
             _cleanupChannel( &_services[ index ].channel );
-            status = _cleanupService( &_services[index] );
+            status = _cleanupService( &_services[ index ] );
+
             if( status == false )
             {
                 break;
             }
         }
     }
-
 
     return status;
 }
