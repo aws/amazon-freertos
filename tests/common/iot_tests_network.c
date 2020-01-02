@@ -124,7 +124,6 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
         if( xStatus == eBTStatusSuccess )
         {
-            configPRINTF( ( "Setting Iot BLe to On\r\n" ) );
             xStatus = IotBle_On();
         }
 
