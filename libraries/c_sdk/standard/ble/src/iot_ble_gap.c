@@ -649,8 +649,8 @@ BTStatus_t _disconnectAllConnections( void )
     IotBleEventsCallbacks_t eventCallback;
     bool registered = false;
 
+    /* Register callback to wait for disconnect completion event from the stack. */
     eventCallback.pConnectionCb = _disconnectCallback;
-
     status = IotBle_RegisterEventCb( eBLEConnection, eventCallback );
 
     if( status == eBTStatusSuccess )
@@ -658,6 +658,10 @@ BTStatus_t _disconnectAllConnections( void )
         registered = true;
     }
 
+    /* Iterate the list of open connections and send a disconnect for each connections. Wait for the disconnect
+     * complete callback from the stack. The callback will ensure the connection is also removed from the list.
+     * If there is an error in disconnect, break the loop and return the error status.
+     */
     while( ( status == eBTStatusSuccess ) && ( !IotListDouble_IsEmpty( &_BTInterface.connectionListHead ) ) )
     {
         IotMutex_Lock( &_BTInterface.threadSafetyMutex );
@@ -673,6 +677,7 @@ BTStatus_t _disconnectAllConnections( void )
 
         if( status == eBTStatusSuccess )
         {
+            /* Block for disconnect complete callback triggered from the stack. */
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
             status = _BTInterface.cbStatus;
         }
@@ -694,7 +699,6 @@ BTStatus_t IotBle_Off( void )
 {
     BTStatus_t status = eBTStatusSuccess;
 
-
     /* Stop the advertisement to avoid new connections to the device. */
     status = IotBle_StopAdv( &_bleStopAdvCb );
 
@@ -704,7 +708,7 @@ BTStatus_t IotBle_Off( void )
         status = _BTInterface.cbStatus;
     }
 
-    /* Iterate through the list of all connections and disconnect each of them. */
+    /* Disconnect open BLE connections. */
     if( status == eBTStatusSuccess )
     {
         status = _disconnectAllConnections();
