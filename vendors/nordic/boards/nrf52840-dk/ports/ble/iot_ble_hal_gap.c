@@ -76,7 +76,6 @@ bool prvAdvRestart = false;
 
 NRF_SDH_BLE_OBSERVER( m_ble_observer, aws_ble_gap_configAPP_BLE_OBSERVER_PRIO, prvGAPeventHandler, NULL );
 
-static bool prvAdvertisingInitialized = false;
 uint8_t ucBaseUUIDindex = 0;
 BTUuid_t xAppUuid =
 {
@@ -230,6 +229,10 @@ static void prvOnAdvErr( uint32_t nrf_error );
 /** @brief Initialization of the Peer Manager module. */
 static ret_code_t prvPeerManagerInit( void );
 
+/** @brief Initialization of the advertisement parameters. */
+static void prvAdvertisementDataInit( void );
+
+
 /** @breef Frees all memory occupied with ble_advdata_t structure */
 static void prvBTFreeAdvData( ble_advdata_t * xAdvData );
 
@@ -317,6 +320,11 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
         BT_NRF_PRINT_ERROR( prvConnectionParamsInit, xErrCode );
     }
 
+    if( xErrCode == NRF_SUCCESS )
+    {
+        prvAdvertisementDataInit();
+    }
+
     xStatus = BTNRFError( xErrCode );
 
     error = nrf_strerror_get(xErrCode);
@@ -366,6 +374,23 @@ ret_code_t prvPeerManagerInit( void )
     }
 
     return xErrCode;
+}
+
+static void prvAdvertisementDataInit( void )
+{
+
+   /* Clear the advertisement handle with the stack. */
+   memset( &xAdvertisingHandle, 0x00, sizeof(xAdvertisingHandle) );
+
+   /* Clear the global variables used by the porting layer. */
+   prvAdvRestart = false;
+   memset( &prvAdvData, 0x00, sizeof( ble_advdata_t ) );
+   memset( &prvScanResponseData, 0x00, sizeof( ble_advdata_t ) );
+
+   /* Clear the advertisment and scan response cache. Reset the index to 0. */
+   memset( prvAdvBinData, 0x00, sizeof( prvAdvBinData ) );
+   memset( prvSrBinData, 0x00, sizeof( prvSrBinData ) );
+   prvCurrentAdvBuf = 0;
 }
 
 /*-----------------------------------------------------------*/
