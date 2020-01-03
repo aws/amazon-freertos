@@ -101,14 +101,14 @@ typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus,
 /**
  * @brief The UART descriptor type defined in the source file.
  */
-struct                       IotUARTDescriptor_t;
+struct                       IotUARTDescriptor;
 
 /**
  * @brief IotUARTHandle_t is the handle type returned by calling iot_uart_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotUARTDescriptor_t * IotUARTHandle_t;
+typedef struct IotUARTDescriptor * IotUARTHandle_t;
 
 /**
  * @brief Ioctl requests for UART HAL.

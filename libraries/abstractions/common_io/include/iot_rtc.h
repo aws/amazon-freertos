@@ -98,14 +98,14 @@ typedef enum IotRtcIoctlRequest
 /**
  * @brief   RTC descriptor type defined in the source file.
  */
-struct                      IotRtcDescriptor_t;
+struct                      IotRtcDescriptor;
 
 /**
  * @brief   IotRtcHandle_t type is the RTC handle returned by calling iot_rtc_open()
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotRtcDescriptor_t * IotRtcHandle_t;
+typedef struct IotRtcDescriptor * IotRtcHandle_t;
 
 /**
  * @brief   RTC notification callback type. This callback is passed
