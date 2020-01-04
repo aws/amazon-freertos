@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.6
+ * Amazon FreeRTOS Secure Sockets V1.1.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ typedef struct
 } tcptestEchoClientsTaskParams_t;
 
 /* Number of time the test goes through all the modes. */
-#define tcptestMAX_LOOPS_ECHO_TEST            ( 4 * tcptestMAX_ECHO_TEST_MODES )
+#define tcptestMAX_LOOPS_ECHO_TEST            tcptestMAX_ECHO_TEST_MODES
 
 #define tcptestECHO_TEST_LOW_PRIORITY         tskIDLE_PRIORITY
 #define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 1 )
@@ -448,6 +448,8 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
         if( SOCKETS_INVALID_SOCKET == *pxSocket )
         {
             xResult = SOCKETS_SOCKET_ERROR;
+            tcptestFAILUREPRINTF( ( "Failed to allocate Socket Descriptor \r\n" ) );
+            break;
         }
 
         /* Set the appropriate socket options for the destination. */
@@ -782,7 +784,7 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Close );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_ByteByByte );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_SendRecv_VaryLength );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_InvalidTooManySockets );
+    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_ConcurrentCount );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Send_Invalid );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_Invalid );
@@ -1348,7 +1350,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     }
     while( xResult >= 0 );
 
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
@@ -1371,7 +1373,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
      *  xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
      * }
      * while( xResult >= 0 );
-     * TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+     * TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
      */
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
@@ -1392,7 +1394,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     }
     while( xResult >= 0 );
 
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
@@ -1437,9 +1439,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     /* Close a connected socket */
     xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
@@ -1453,9 +1455,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     /* Close a shutdown socket */
     xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
@@ -1472,9 +1474,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
@@ -1744,64 +1746,80 @@ TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams )
 
 /*-----------------------------------------------------------*/
 
-static void prvSOCKETS_Socket_InvalidTooManySockets( Server_t xConn )
+/*
+ * Verify the number of sockets that can be concurrently
+ * created up to a configured maximum.  Return pdFAIL if
+ * fewer than that number are created.  If more than the
+ * maximum can be created, a warning is printed, but this
+ * is not a failure condition.  Some ports are limited only
+ * by free memory. For these ports, check that a reasonable
+ * number of sockets can be created concurrently.
+ */
+#ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS
+    #define MAX_NUM_SOCKETS    integrationtestportableMAX_NUM_UNSECURE_SOCKETS
+#else
+    #define MAX_NUM_SOCKETS    5u
+#endif
+static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
 {
-    #if !defined( WIN32 ) && !defined( PIC32MZ ) && !defined( ESP32 ) && !defined( ZYNQ7000 ) && !defined( __RX ) && !defined( MW320 ) /* Socket can be created as much as there is memory */
-        BaseType_t xResult;
-        Socket_t xCreatedSockets[ integrationtestportableMAX_NUM_UNSECURE_SOCKETS ];
-        BaseType_t xSocketsCreated;
-        Socket_t xSocket;
+    BaseType_t xResult = pdFAIL;
+    Socket_t xCreatedSockets[ MAX_NUM_SOCKETS ];
+    BaseType_t xSocketsCreated;
+    Socket_t xSocket;
 
-        tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
+    tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
-        xResult = pdPASS;
+    xResult = pdPASS;
 
-        for( xSocketsCreated = 0; xSocketsCreated < integrationtestportableMAX_NUM_UNSECURE_SOCKETS; xSocketsCreated++ )
+    for( xSocketsCreated = 0; xSocketsCreated < MAX_NUM_SOCKETS; xSocketsCreated++ )
+    {
+        xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
+
+        if( xSocket == SOCKETS_INVALID_SOCKET )
         {
-            xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
-
-            if( xSocket == SOCKETS_INVALID_SOCKET )
-            {
-                xResult = pdFAIL;
-                tcptestPRINTF( ( "%s failed creating a socket number %d \r\n", __FUNCTION__, xSocketsCreated ) );
-                break;
-            }
-            else
-            {
-                xCreatedSockets[ xSocketsCreated ] = xSocket;
-            }
+            xResult = pdFAIL;
+            tcptestPRINTF( ( "%s failed creating a socket number %d \r\n", __FUNCTION__, xSocketsCreated ) );
+            break;
         }
+        else
+        {
+            xCreatedSockets[ xSocketsCreated ] = xSocket;
+        }
+    }
 
+    #ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS
         if( xResult == pdPASS )
         {
             xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
 
             if( xSocket != SOCKETS_INVALID_SOCKET )
             {
-                xResult = pdFAIL;
                 SOCKETS_Close( xSocket );
+                tcptestPRINTF( ( "%s exceeded maximum number of sockets (%d > %d); is the value of " \
+                                 "integrationtestportableMAX_NUM_UNSECURE_SOCKETS correct?\r\n", __FUNCTION__,
+                                 ( MAX_NUM_SOCKETS + 1 ), MAX_NUM_SOCKETS ) );
             }
         }
+    #endif /* ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS */
 
-        /* Cleanup. */
-        while( xSocketsCreated > 0 )
-        {
-            --xSocketsCreated;
-            SOCKETS_Close( xCreatedSockets[ xSocketsCreated ] );
-        }
+    /* Cleanup. */
+    while( xSocketsCreated > 0 )
+    {
+        --xSocketsCreated;
+        SOCKETS_Close( xCreatedSockets[ xSocketsCreated ] );
+    }
 
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Max num sockets test failed" );
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Concurrent num sockets test failed" );
 
-        /* Report Test Results. */
-        tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
-    #endif /*ifndef WIN32 */
+    /* Report Test Results. */
+    tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidTooManySockets )
+TEST( Full_TCP, AFQP_SOCKETS_Socket_ConcurrentCount )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
-    prvSOCKETS_Socket_InvalidTooManySockets( eNonsecure );
+    prvSOCKETS_Socket_ConcurrentCount( eNonsecure );
 }
 
 TEST( Full_TCP, AFQP_SECURE_SOCKETS_Socket_InvalidTooManySockets )

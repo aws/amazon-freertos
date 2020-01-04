@@ -44,7 +44,7 @@
 #include "iot_linear_containers.h"
 
 /**
- * @functions_page{platform_metrics, Metrics}
+ * @functions_page{platform_metrics,platform metrics component,Metrics}
  * @functions_brief{platform metrics component}
  * - @function_name{platform_metrics_function_init}
  * @function_brief{platform_metrics_function_init}

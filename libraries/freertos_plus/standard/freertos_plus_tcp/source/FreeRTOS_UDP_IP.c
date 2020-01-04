@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.1.0
+ * FreeRTOS+TCP V2.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,9 +78,21 @@ UDPPacket_t *pxUDPPacket;
 IPHeader_t *pxIPHeader;
 eARPLookupResult_t eReturned;
 uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
+size_t uxPayloadSize;
 
 	/* Map the UDP packet onto the start of the frame. */
 	pxUDPPacket = ( UDPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
+
+#if ipconfigSUPPORT_OUTGOING_PINGS == 1
+	if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
+	{
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( ICMPPacket_t );
+	}
+	else
+#endif
+	{
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+	}
 
 	/* Determine the ARP cache status for the requested IP address. */
 	eReturned = eARPGetCacheEntry( &( ulIPAddress ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ) );
@@ -109,7 +121,7 @@ uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 
 				pxUDPHeader->usDestinationPort = pxNetworkBuffer->usPort;
 				pxUDPHeader->usSourcePort = pxNetworkBuffer->usBoundPort;
-				pxUDPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( UDPHeader_t ) );
+				pxUDPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( UDPHeader_t ) );
 				pxUDPHeader->usLength = FreeRTOS_htons( pxUDPHeader->usLength );
 				pxUDPHeader->usChecksum = 0u;
 			}
@@ -143,16 +155,14 @@ uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 			if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
 			{
 				pxIPHeader->ucProtocol = ipPROTOCOL_ICMP;
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) );
+				pxIPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( IPHeader_t ) + sizeof( ICMPHeader_t ) );
 			}
 			else
 		#endif /* ipconfigSUPPORT_OUTGOING_PINGS */
 			{
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
+				pxIPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
 			}
 
-			/* The total transmit size adds on the Ethernet header. */
-			pxNetworkBuffer->xDataLength = pxIPHeader->usLength + sizeof( EthernetHeader_t );
 			pxIPHeader->usLength = FreeRTOS_htons( pxIPHeader->usLength );
 			/* HT:endian: changed back to network endian */
 			pxIPHeader->ulDestinationIPAddress = pxNetworkBuffer->ulIPAddress;
@@ -270,7 +280,7 @@ UDPPacket_t *pxUDPPacket = (UDPPacket_t *) pxNetworkBuffer->pucEthernetBuffer;
 				destinationAddress.sin_port = usPort;
 				destinationAddress.sin_addr = pxUDPPacket->xIPHeader.ulDestinationIPAddress;
 
-				if( xHandler( ( Socket_t * ) pxSocket, ( void* ) pcData, ( size_t ) pxNetworkBuffer->xDataLength,
+				if( xHandler( ( Socket_t ) pxSocket, ( void* ) pcData, ( size_t ) pxNetworkBuffer->xDataLength,
 					&xSourceAddress, &destinationAddress ) )
 				{
 					xReturn = pdFAIL; /* FAIL means that we did not consume or release the buffer */
@@ -349,6 +359,19 @@ UDPPacket_t *pxUDPPacket = (UDPPacket_t *) pxNetworkBuffer->pucEthernetBuffer;
 	{
 		/* There is no socket listening to the target port, but still it might
 		be for this node. */
+
+		#if( ipconfigUSE_DNS == 1 ) && ( ipconfigDNS_USE_CALLBACKS == 1 )
+			/* A DNS reply, check for the source port.  Although the DNS client
+			does open a UDP socket to send a messages, this socket will be
+			closed after a short timeout.  Messages that come late (after the
+			socket is closed) will be treated here. */
+			if( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usSourcePort ) == ipDNS_PORT )
+			{
+				vARPRefreshCacheEntry( &( pxUDPPacket->xEthernetHeader.xSourceAddress ), pxUDPPacket->xIPHeader.ulSourceIPAddress );
+				xReturn = ( BaseType_t )ulDNSHandlePacket( pxNetworkBuffer );
+			}
+			else
+		#endif
 
 		#if( ipconfigUSE_LLMNR == 1 )
 			/* a LLMNR request, check for the destination port. */

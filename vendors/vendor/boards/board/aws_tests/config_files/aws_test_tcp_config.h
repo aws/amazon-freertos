@@ -31,10 +31,12 @@
  * @brief Port-specific variables for TCP tests. */
 
 /**
- * @brief The number of sockets that can be open at one time on a port.
- *
+ * @brief Port-specific maximum number of concurrent sockets
+ * Do not define this if the number is limited only by free memory.
  */
+#if 0
 #define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    1    /* FIX ME. */
+#endif
 
 /**
  * @brief Indicates how much longer than the specified timeout is acceptable for

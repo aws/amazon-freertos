@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.0.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,8 +42,8 @@
  * @functions_brief{https_client}
  * - @function_name{https_client_function_init}
  * @function_brief{https_client_function_init}
- * - @function_name{https_client_function_deinit}
- * @function_brief{https_client_function_deinit}
+ * - @function_name{https_client_function_cleanup}
+ * @function_brief{https_client_function_cleanup}
  * - @function_name{https_client_function_disconnect}
  * @function_brief{https_client_function_disconnect}
  * - @function_name{https_client_function_connect}
@@ -76,9 +76,9 @@
  * @page https_client_function_init IotHttpsClient_Init
  * @snippet this declare_https_client_init
  * @copydoc IotHttpsClient_Init
- * @page https_client_function_deinit IotHttpsClient_Deinit
- * @snippet this declare_https_client_deinit
- * @copydoc IotHttpsClient_Deinit
+ * @page https_client_function_cleanup IotHttpsClient_Cleanup
+ * @snippet this declare_https_client_cleanup
+ * @copydoc IotHttpsClient_Cleanup
  * @page https_client_function_disconnect IotHttpsClient_Disconnect
  * @snippet this declare_https_client_disconnect
  * @copydoc IotHttpsClient_Disconnect
@@ -131,14 +131,14 @@
  * @return One of the following:
  * - #IOT_HTTPS_OK if the HTTPS library is successfully initialized.
  *
- * @see @ref https_client_function_deinit
+ * @see @ref https_client_function_cleanup
  */
 /* @[declare_https_client_init] */
 IotHttpsReturnCode_t IotHttpsClient_Init( void );
 /* @[declare_https_client_init] */
 
 /**
- * @brief One time deinitialization of the IoT HTTPS Client library.
+ * @brief One time clean up of the IoT HTTPS Client library.
  *
  * This function frees resources taken in in @ref https_client_function_init. It should be called after
  * all HTTPS Connections have been close. HTTPS Connections are represented by #IotHttpsConnectionHandle_t and returned
@@ -147,9 +147,17 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void );
  *
  * @warning No thread safety guarantees are provided for this function.
  */
-/* @[declare_https_client_deinit] */
-void IotHttpsClient_Deinit( void );
-/* @[declare_https_client_deinit] */
+/* @[declare_https_client_cleanup] */
+void IotHttpsClient_Cleanup( void );
+/* @[declare_https_client_cleanup] */
+
+/**
+ * @cond DOXYGEN_IGNORE
+ *
+ * Backward compatibility function for one time clean up of the IoT HTTPS Client library.
+ */
+#define IotHttpsClient_Deinit    IotHttpsClient_Cleanup
+/** @endcond */
 
 /**
  * @brief Explicitly connect to the HTTPS server given the connection configuration pConnConfig.
@@ -176,7 +184,7 @@ void IotHttpsClient_Deinit( void );
  * @ref https_client_function_sendasync.
  *
  * Keep in mind that many HTTP servers will close a connection, if it does not receive any requests, after a certain
- * amount of time. Many webservers may close the connection after 30-60 seconds. The state of pConnHandle will still be
+ * amount of time. Many web servers may close the connection after 30-60 seconds. The state of pConnHandle will still be
  * in a connected state if this happens. If the server closed the connection, then the next request on the connection
  * will fail to send with a network error and the connection will move to a closed state.
  *
@@ -288,26 +296,26 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 /* @[declare_https_client_disconnect] */
 
 /**
- * @brief Initializes the request by adding a formatted Request Line to the start of HTTPS request header buffer.
+ * @brief Initializes the request by adding a formatted Request-Line to the start of HTTPS request header buffer.
  *
  * This function will initialize the HTTP request context by setting where to write the next headers to the start
  * of the configured header buffer in #IotHttpsRequestInfo_t.userBuffer.
  *
- * The request line will be added to the start of the headers space in #IotHttpsRequestInfo_t.userBuffer.
+ * The Request-Line will be added to the start of the headers space in #IotHttpsRequestInfo_t.userBuffer.
  * The header space follows the request context in the user buffer. See @ref requestUserBufferMinimumSize for more
  * information on sizing the #IotHttpsRequestInfo_t.userBuffer so that this function does not fail.
  *
- * The request line generated is of the following format:
+ * The Request-Line generated is of the following format:
  *
- * \code
+ * @code
  * method path version\r\n
- * \endcode
+ * @endcode
  *
  * Example:
  *
- * \code
+ * @code
  * GET /path/to/item.file?possible_query HTTP/1.1\r\n
- * \endcode
+ * @endcode
  *
  * The initial required headers are also added to the #IotHttpsRequestInfo_t.userBuffer. These headers are User-Agent
  * and Host. The User-Agent value is configured in iot_config.h using IOT_HTTPS_USER_AGENT. The Host value is the DNS
@@ -317,8 +325,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
  * @param[in] pReqInfo - HTTPS request information.
  *
  * @return One of the following:
- * - #IOT_HTTPS_OK if the request line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
- * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds #IotHttpsUserBuffer_t.bufferLen in #IotHttpsRequestInfo_t.userBuffer.
+ * - #IOT_HTTPS_OK if the Request-Line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the Request-Line generated exceeds #IotHttpsUserBuffer_t.bufferLen in #IotHttpsRequestInfo_t.userBuffer.
  * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
  * - #IOT_HTTPS_INTERNAL_ERROR for library internal errors.
  *
@@ -371,18 +379,18 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
  * that this function does not fail.
  *
  * Header lines are appended in the following format:
- * \code
+ * @code
  * header_field_name: header_value\r\n"
- * \endcode
+ * @endcode
  * Example:
- * \code
+ * @code
  * Range: bytes=1024-2047\r\n
- * \endcode
+ * @endcode
  * The last header line must be followed by a "\r\n" to separate the last header line from
  * the entity body. These 2 characters are accounted for in #requestUserBufferMinimumSize.
  *
  * The remaining length, after the header is added, is printed to the system configured standard debug output when
- * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h.
+ * @ref IOT_LOG_LEVEL_HTTPS is set to @ref IOT_LOG_DEBUG in iot_config.h.
  *
  * For an asynchronous request, this function can be invoked before the request is sent with
  * @ref https_client_function_sendasync, or during #IotHttpsClientCallbacks_t.appendHeaderCallback. It is
@@ -510,7 +518,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody( IotHttpsRequestHandle_t re
  * #IOT_HTTPS_MESSAGE_TOO_LARGE. To avoid this issue, the application needs to determine beforehand how large the file
  * to download is. This can be done with a HEAD request first, then extracting the "Content-Length" with
  * @ref https_client_function_readcontentlength. This could also be done with a GET request with the header
- * "Range: bytes=0-0", then extracing the "Content-Range" with @ref https_client_function_readheader. Keep in mind that
+ * "Range: bytes=0-0", then extracting the "Content-Range" with @ref https_client_function_readheader. Keep in mind that
  * not all HTTP servers support Partial Content responses.
  *
  * Once a the file size is known, the application can initialize the request with a large
@@ -522,7 +530,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody( IotHttpsRequestHandle_t re
  * to fit the headers received, then headers that don't fit will be thrown away. Please see
  * #responseUserBufferMinimumSize for information about sizing the #IotHttpsResponseInfo_t.userBuffer.
  * To receive feedback on headers discarded, debug logging must be turned on in iot_config.h by setting
- * @ref IOT_LOG_LEVEL_HTTPS to IOT_LOG_DEBUG.
+ * @ref IOT_LOG_LEVEL_HTTPS to @ref IOT_LOG_DEBUG.
  *
  * Multiple threads must not call this function for the same #IotHttpsRequestHandle_t. Multiple threads can call this
  * function for a different #IotHttpsRequestHandle_t, even on the same #IotHttpsConnectionHandle_t. An application must
@@ -587,7 +595,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync( IotHttpsConnectionHandle_t connHan
  * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
  * - #IOT_HTTPS_FATAL if there was a grave error with the last async job finishing.
  * - #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the asynchronous request.
- * - #IOT_HTTPS_INTERNAL_ERROR if there was an internal error with starting an asyncrhonous request servicing task.
+ * - #IOT_HTTPS_INTERNAL_ERROR if there was an internal error with starting an asynchronous request servicing task.
  * - #IOT_HTTPS_INVALID_PARAMETER if there were NULL parameters or the request passed in was a synchronous type.
  *
  */
@@ -612,7 +620,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync( IotHttpsConnectionHandle_t connHa
  * application wants to stop the rest of the request processing.
  *
  * If the asynchronous request stops processing, the buffers in #IotHttpsRequestInfo_t.userBuffer can be safely freed,
- * modified, or resused, only once #IotHttpsClientCallbacks_t.readReadyCallback is invoked.
+ * modified, or reused, only once #IotHttpsClientCallbacks_t.readReadyCallback is invoked.
  *
  * <b> Example Asynchronous Code </b>
  * @code{c}
@@ -688,9 +696,9 @@ IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync( IotHttpsResponseHandle_
 /**
  * @brief Retrieve the HTTPS response status.
  *
- * The HTTP response status code is contained in the status line of the response header buffer configured in
+ * The HTTP response status code is contained in the Status-Line of the response header buffer configured in
  * #IotHttpsResponseInfo_t.userBuffer. It is the first line of a standard HTTP response message. If the response
- * status line could not fit into #IotHttpsResponseInfo_t.userBuffer, then this function will return an error code.
+ * Status-Line could not fit into #IotHttpsResponseInfo_t.userBuffer, then this function will return an error code.
  * Please see #responseUserBufferMinimumSize for information about sizing the #IotHttpsResponseInfo_t.userBuffer.
  *
  * This routine can be used for both a synchronous and asynchronous response.

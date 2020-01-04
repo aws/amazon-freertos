@@ -37,7 +37,7 @@ static void *s_memblock[TEST_MEMPOOL_BLOCKS];
  *                            int block_size, void *membuf, char *name);
  *
  */
-int test_init()
+int test_init(void)
 {
     int err;
     err = ble_npl_mempool_init(NULL,
@@ -60,7 +60,7 @@ int test_init()
  *
  * bool ble_npl_mempool_is_sane(const struct ble_npl_mempool *mp);
  */
-int test_is_sane()
+int test_is_sane(void)
 {
     return (ble_npl_mempool_is_sane(&s_mempool)) ? PASS : FAIL;
 }
@@ -75,7 +75,7 @@ int test_is_sane()
  *
  * int ble_npl_memblock_from(const struct ble_npl_mempool *mp, const void *block_addr);
  */
-int test_stress()
+int test_stress(void)
 {
     int loops = 3;
     while(loops--)

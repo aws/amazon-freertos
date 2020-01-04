@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.0.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,7 +49,7 @@
  * @brief Variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
  * connection.
  *
- * @note These user buffer minumum values may change at any time in future versions, but their names will remain the
+ * @note These user buffer minimum values may change at any time in future versions, but their names will remain the
  * same.
  * - @ref requestUserBufferMinimumSize <br>
  *   @copybrief requestUserBufferMinimumSize
@@ -61,7 +61,7 @@
  * @section https_connection_flags HTTPS Client Connection Flags
  * @brief Flags that modify the behavior of the HTTPS Connection.
  *
- * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and
+ * Flags should be bitwise-ORed with each other to change the behavior of @ref https_client_function_sendasync and
  * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
  *
  * @note The values of flags may change at any time in future versions, but their names will remain the same.
@@ -103,8 +103,8 @@
  *
  * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.userBuffer.
  *
- * This buffer size is calculated to fit the HTTP request line and the default headers. It does not account for the
- * length of the path in the request line nor does it account for the length of the host name. It also does not account
+ * This buffer size is calculated to fit the HTTP Request-Line and the default headers. It does not account for the
+ * length of the path in the Request-Line nor does it account for the length of the host name. It also does not account
  * for extra headers that the application may add. These sizes need to be accounted for by the application when
  * assigning a buffer.
  *
@@ -128,10 +128,10 @@ extern const uint32_t requestUserBufferMinimumSize;
  *
  * The buffer size is calculated to fit the HTTP response context only. It does not account for the HTTP response status
  * line. It does not account for any HTTP response headers. If the buffer assigned to
- * #IotHttpsResponseInfo_t.userBuffer is of this minimum size, then the response status line and the response headers
+ * #IotHttpsResponseInfo_t.userBuffer is of this minimum size, then the response Status-Line and the response headers
  * will not be stored. These sizes need to be accounted for by the application when assigning a buffer.
  *
- * If the response status line and response headers cannot fit into #IotHttpsResponseInfo_t.userBuffer, then after a
+ * If the response Status-Line and response headers cannot fit into #IotHttpsResponseInfo_t.userBuffer, then after a
  * call to @ref https_client_function_sendsync, calls to @ref https_client_function_readresponsestatus,
  * @ref https_client_function_readcontentlength, and @ref https_client_function_readheader will return a failure code.
  *
@@ -149,7 +149,7 @@ extern const uint32_t requestUserBufferMinimumSize;
 extern const uint32_t responseUserBufferMinimumSize;
 
 /**
- * @brief The minimum user buffer size for the HTTP connection conext and headers.
+ * @brief The minimum user buffer size for the HTTP connection context and headers.
  *
  * This helps to calculate the size of the buffer needed for #IotHttpsConnectionInfo_t.userBuffer.
  *
@@ -236,7 +236,7 @@ extern const uint32_t connectionUserBufferMinimumSize;
  * returns, the connection handle should no longer be used. The application must call @ref https_client_function_connect
  * again to retrieve a new handle and a new connection.
  *
- * Typical webservers disconnect the client in around 30-60 seconds. The application needs to be aware of this, when
+ * Typical web servers disconnect the client in around 30-60 seconds. The application needs to be aware of this, when
  * taking time between requests in a persistent connection.
  *
  * A connection handle is not thread safe. Multiple threads cannot connect and disconnect with the same handle at the
@@ -450,7 +450,7 @@ typedef enum IotHttpsMethod
     IOT_HTTPS_METHOD_GET = 0, /* Client-to-server method GET */
     IOT_HTTPS_METHOD_HEAD,    /* Client-to-server method HEAD */
     IOT_HTTPS_METHOD_PUT,     /* Client-to-server method PUT */
-    IOT_HTTPS_METHOD_POST     /* Clietn-to-server method POST. */
+    IOT_HTTPS_METHOD_POST     /* Client-to-server method POST. */
 } IotHttpsMethod_t;
 
 /**
@@ -533,7 +533,7 @@ typedef struct IotHttpsClientCallbacks
      * If this is set to NULL, then it will not be invoked.
      * See @ref https_client_function_addheader for more information on adding a header in this callback.
      *
-     * Appending the header when request is in progress is good for things like time limitted authentication tokens.
+     * Appending the header when request is in progress is good for things like time limited authentication tokens.
      *
      * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] reqHandle - The handle for the current HTTP request in progress.
@@ -776,7 +776,7 @@ typedef struct IotHttpsConnectionInfo
      *
      * This contains the interface to connect, disconnect, send data, and receive data from the network.
      *
-     * In Amazon FreeRTOS this should be of the type IotNetworkInterface_t.
+     * In Amazon FreeRTOS this should be of the type @ref IotNetworkInterface_t.
      */
     IOT_HTTPS_NETWORK_INTERFACE_TYPE pNetworkInterface;
 } IotHttpsConnectionInfo_t;
@@ -794,18 +794,34 @@ typedef struct IotHttpsConnectionInfo
  */
 typedef struct IotHttpsRequestInfo
 {
-    /* The path and the method are used to generate the first request line in the HTTP request message. See
-     * @ref https_client_function_initializerequest for more information. */
-    const char * pPath;      /**< @brief URI path, e.g., "/v20160207/directives?query". If this is NULL, a "/" will be added to the request line automaticaly. */
-    uint32_t pathLen;        /**< @brief URI path length */
-    IotHttpsMethod_t method; /**< @brief HTTP method. See #IotHttpsMethod_t for the list of available methods. */
+    /**
+     * @brief The absolute path to the HTTP request object.
+     *
+     * The absolute path includes the path to the file AND the optional query.
+     * An example URI path: "/v20160207/directives?query".
+     *
+     * If this is NULL, a "/" will be added to the Request-Line automatically.
+     *
+     * This is used to generate the Request-Line in the HTTP request message, see
+     * @ref https_client_function_initializerequest for more information.
+     */
+    const char * pPath;
+    uint32_t pathLen; /**< @brief URI path length */
+
+    /**
+     * @brief On of the HTTP method tokens defined in #IotHttpsMethod_t.
+     *
+     * This is used to generate the Request-Line in the HTTP request message, see
+     * @ref https_client_function_initializerequest for more information.
+     */
+    IotHttpsMethod_t method;
 
     /**
      * @brief Host address this request is intended for, e.g., "awsamazon.com".
      *
      * This is the same as the address in #IotHttpsConnectionInfo_t.pAddress. This is here in the request structure to
      * automatically generate the "Host" header field in the header buffer space configured in
-     * #IotHttpsRequestInfo_t.userBuffer. See @ref https_client_function_initializerequest for more informaiton.
+     * #IotHttpsRequestInfo_t.userBuffer. See @ref https_client_function_initializerequest for more information.
      */
     const char * pHost;
     uint32_t hostLen; /**< @brief Host address length. */
@@ -828,7 +844,7 @@ typedef struct IotHttpsRequestInfo
     /**
      * @brief Application owned buffer for storing the request headers and internal request context.
      *
-     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
+     * For an asynchronous request, if the application owns the memory for this buffer, then it must not be modified,
      * freed, or reused until the the #IotHttpsClientCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
@@ -869,7 +885,7 @@ typedef struct IotHttpsResponseInfo
     /**
      * The application owned buffer for storing the response headers and internal response context.
      *
-     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
+     * For an asynchronous request, if the application owns the memory for this buffer, then it must not be modified,
      * freed, or reused until the the #IotHttpsClientCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.

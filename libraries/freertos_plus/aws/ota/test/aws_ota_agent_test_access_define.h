@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.3
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,20 +36,21 @@
 /*-----------------------------------------------------------*/
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
-                                            const char * pacRawMsg,
+                                            uint8_t * pcRawMsg,
                                             u32 iMsgSize,
                                             OTA_Err_t * pxCloseResult )
 {
-    return prvIngestDataBlock( C, pacRawMsg, iMsgSize, pxCloseResult );
+    return prvIngestDataBlock( C, pcRawMsg, iMsgSize, pxCloseResult );
 }
 
 
 /*-----------------------------------------------------------*/
 
 OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
-                                             u32 iMsgLen )
+                                             u32 iMsgLen,
+                                             bool_t * pbUpdateJob )
 {
-    return prvParseJobDoc( pacRawMsg, iMsgLen );
+    return prvParseJobDoc( pacRawMsg, iMsgLen, pbUpdateJob );
 }
 
 /*-----------------------------------------------------------*/
@@ -66,6 +67,13 @@ DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
                                             JSON_DocModel_t * pxDocModel )
 {
     return prvParseJSONbyModel( pcJSON, ulMsgLen, pxDocModel );
+}
+
+/*-----------------------------------------------------------*/
+
+void TEST_OTA_prvSetDataInterfaceMQTT()
+{
+    prvSetDataInterface( &xOTA_DataInterface, ( const uint8_t * ) "MQTT" );
 }
 
 #endif /* _AWS_OTA_AGENT_TEST_ACCESS_DEFINE_H_ */

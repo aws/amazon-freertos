@@ -332,8 +332,11 @@ function(afr_resolve_dependencies)
         set(exe_target aws_demos)
         set(exe_base demo_base)
     endif()
-    __search_afr_dependencies(${exe_target} dependencies)
-    afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
+    # If neither demos nor tests are enabled, then don't search the aws_demos/aws_tests targets.
+    if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+        __search_afr_dependencies(${exe_target} dependencies)
+        afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
+    endif()
 
     # Make sure kernel can be enabled first.
     __resolve_dependencies(kernel)

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Crypto V1.0.5
+ * Amazon FreeRTOS Crypto V1.0.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,13 @@
 #include "iot_crypto.h"
 
 /* mbedTLS includes. */
-#include "mbedtls/config.h"
+
+#if !defined( MBEDTLS_CONFIG_FILE )
+    #include "mbedtls/config.h"
+#else
+    #include MBEDTLS_CONFIG_FILE
+#endif
+
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha1.h"

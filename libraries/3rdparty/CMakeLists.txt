@@ -1,17 +1,17 @@
 # -------------------------------------------------------------------------------------------------
 # 3rdparty libraries
 # -------------------------------------------------------------------------------------------------
-# http-parser - HTTP message parser
-if(EXISTS "${AFR_3RDPARTY_DIR}/http-parser")
-    afr_3rdparty_module(http-parser)
+# http_parser - HTTP message parser
+if(EXISTS "${AFR_3RDPARTY_DIR}/http_parser")
+    afr_3rdparty_module(http_parser)
     target_sources(
-        3rdparty::http-parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http-parser/http_parser.h"
-        "${AFR_3RDPARTY_DIR}/http-parser/http_parser.c"
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.h"
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.c"
     )
     target_include_directories(
-        3rdparty::http-parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http-parser"
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser"
     )
 endif()
 
@@ -62,6 +62,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
             "${AFR_3RDPARTY_DIR}/lwip/src/core/pbuf.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_out.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ip.c"
+            "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/acd.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/autoip.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/dhcp.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/icmp.c"
@@ -85,14 +86,44 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
         afr_3rdparty_lwip
         PUBLIC
             "${AFR_3RDPARTY_DIR}/lwip/src/include"
-            "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-            "${AFR_3RDPARTY_DIR}/lwip/src/portable"
     )
     target_link_libraries(
         afr_3rdparty_lwip
-        PRIVATE AFR::kernel
+        PRIVATE
+            AFR::kernel
+            3rdparty::lwip_osal
     )
     add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
+endif()
+
+# lwip implementation based on FreeRTOS
+if(EXISTS "${AFR_3RDPARTY_DIR}/lwip_osal" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows")
+    add_library(
+        afr_3rdparty_lwip_osal STATIC EXCLUDE_FROM_ALL
+    )
+
+    target_include_directories(
+        afr_3rdparty_lwip_osal
+        PUBLIC
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include"
+    )
+
+    target_sources(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/lwipopts_freertos.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/cc.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/perf.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/include/arch/sys_arch.h"
+            "${AFR_3RDPARTY_DIR}/lwip_osal/src/sys_arch.c"
+    )
+    target_link_libraries(
+        afr_3rdparty_lwip_osal
+        PRIVATE
+            AFR::kernel
+            3rdparty::lwip
+    )
+    add_library(3rdparty::lwip_osal ALIAS afr_3rdparty_lwip_osal)
 endif()
 
 # mbedtls - TLS protocol implementation

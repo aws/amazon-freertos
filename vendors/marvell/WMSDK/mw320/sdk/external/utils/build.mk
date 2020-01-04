@@ -1,10 +1,12 @@
-# Copyright (C) 2008-2018, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 libs-y += libutils
 
 libutils-objs-y := \
-	           ../../../../../../../../utils/iot_system_init.c
+	           ../../../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c \
+		   ../../../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c\
+		   ../../../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c
 
 libutils-supported-toolchain-y := arm_gcc iar
 

@@ -829,10 +829,11 @@ void bta_av_rc_msg(tBTA_AV_CB *p_cb, tBTA_AV_DATA *p_data)
             if (p_data->rc_msg.msg.pass.op_id == AVRC_ID_VENDOR) {
                 p_data->rc_msg.msg.hdr.ctype = BTA_AV_RSP_NOT_IMPL;
 #if (AVRC_METADATA_INCLUDED == TRUE)
-                if (p_cb->features & BTA_AV_FEAT_METADATA)
+                if (p_cb->features & BTA_AV_FEAT_METADATA) {
                     p_data->rc_msg.msg.hdr.ctype =
                         bta_av_group_navi_supported(p_data->rc_msg.msg.pass.pass_len,
                                                     p_data->rc_msg.msg.pass.p_pass_data, is_inquiry);
+                }
 #endif
             } else {
                 p_data->rc_msg.msg.hdr.ctype = bta_av_op_supported(p_data->rc_msg.msg.pass.op_id, is_inquiry);
@@ -890,7 +891,9 @@ void bta_av_rc_msg(tBTA_AV_CB *p_cb, tBTA_AV_DATA *p_data)
                 evt = bta_av_proc_meta_cmd (&rc_rsp, &p_data->rc_msg, &ctype);
             } else
 #endif
+            {
                 evt = BTA_AV_VENDOR_CMD_EVT;
+            }
         }
         /* else if configured to support vendor specific and it's a response */
         else if ((p_cb->features & BTA_AV_FEAT_VENDOR) &&
@@ -902,7 +905,9 @@ void bta_av_rc_msg(tBTA_AV_CB *p_cb, tBTA_AV_DATA *p_data)
                 evt = BTA_AV_META_MSG_EVT;
             } else
 #endif
+            {
                 evt = BTA_AV_VENDOR_RSP_EVT;
+            }
 
         }
         /* else if not configured to support vendor specific and it's a command */
@@ -1870,8 +1875,14 @@ void bta_av_dereg_comp(tBTA_AV_DATA *p_data)
             bta_av_cb.features  = 0;
         }
 
-        /* Clear the Capturing service class bit */
-        cod.service = BTM_COD_SERVICE_CAPTURING;
+        /* Clear the Capturing/Rendering service class bit */
+        if (p_data->api_reg.tsep == AVDT_TSEP_SRC) {
+            cod.service = BTM_COD_SERVICE_CAPTURING | BTM_COD_SERVICE_AUDIO;
+        } else {
+#if (BTA_AV_SINK_INCLUDED == TRUE)
+            cod.service = BTM_COD_SERVICE_RENDERING | BTM_COD_SERVICE_AUDIO;
+#endif
+        }
         utl_set_device_class(&cod, BTA_UTL_CLR_COD_SERVICE_CLASS);
     }
 }

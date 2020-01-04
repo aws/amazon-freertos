@@ -1,3 +1,28 @@
+## Cloning
+This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in dependent components.
+
+Note: If you download the ZIP file provided by GitHub UI, you will not get the contents of the submodules. (The ZIP file is also not a valid git repository)
+
+To clone using HTTPS:
+```
+git clone https://github.com/aws/amazon-freertos.git --recurse-submodules
+```
+Using SSH:
+```
+git clone git@github.com:aws/amazon-freertos.git --recurse-submodules
+```
+
+If you have downloaded the repo without using the `--recurse-submodules` argument, you need to run:
+```
+git submodule update --init --recursive
+```
+
+## Important branches to know
+master            --> Development is done continuously on this branch  
+release           --> Fully tested released source code  
+release-candidate --> Preview of upcoming release  
+feature/*         --> Alpha/beta of an upcoming feature  
+
 ## Getting Started
 
 For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos).
@@ -7,6 +32,8 @@ To directly access the **Getting Started Guide** for supported hardware platform
 For detailed documentation on Amazon FreeRTOS, refer to the [Amazon FreeRTOS User Guide](https://aws.amazon.com/documentation/freertos).
 
 ## Supported Hardware
+
+For additional boards that are supported for Amazon FreeRTOS, please visit the [AWS Device Catalog](https://devices.amazonaws.com/search?kw=freertos)
 
 The following MCU boards are supported for Amazon FreeRTOS:
 1. **Texas Instruments** - [CC3220SF-LAUNCHXL](http://www.ti.com/tool/cc3220sf-launchxl).

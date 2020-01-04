@@ -1064,7 +1064,7 @@ void R_ETHER_LinkProcess (uint32_t channel)
         {
             /* When PHY auto-negotiation is not completed */
             transfer_enable_flag[channel] = ETHER_FLAG_OFF;
-            lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
+           	lchng_flag[channel] = ETHER_FLAG_ON_LINK_ON;
         }
 #endif
     }

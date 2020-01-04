@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 
-#include "ip4_addr.h"
+#include "lwip/ip4_addr.h"
 #include "syslog.h"
 
 /* Save client config when AP is keeping power on.

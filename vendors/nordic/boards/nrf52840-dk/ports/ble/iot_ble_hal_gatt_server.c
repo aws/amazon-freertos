@@ -239,6 +239,9 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
 static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                                      BTService_t * pxService );
 
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu );
+
 static BTGattServerInterface_t xGATTserverInterface =
 {
     .pxRegisterServer     = prvBTRegisterServer,
@@ -256,7 +259,8 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxStopService        = prvBTStopService,
     .pxDeleteService      = prvBTDeleteService,
     .pxSendIndication     = prvBTSendIndication,
-    .pxSendResponse       = prvBTSendResponse
+    .pxSendResponse       = prvBTSendResponse,
+    .pxConfigureMtu       = prvBTConfigureMtu
 };
 
 /*-----------------------------------------------------------*/
@@ -265,7 +269,11 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    if( xGattServerCb.pxRegisterServerCb != NULL )
+    {
+        xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    }
+
     return xStatus;
 }
 
@@ -276,7 +284,11 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    if( xGattServerCb.pxUnregisterServerCb != NULL )
+    {
+        xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    }
+
     return xStatus;
 }
 
@@ -936,7 +948,11 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
     }
 
     xStatus = BTNRFError( xErrCode );
-    xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+
+    if( xGattServerCb.pxServiceStartedCb != NULL )
+    {
+        xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+    }
 
     return xStatus;
 }
@@ -1216,4 +1232,17 @@ static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermition
         default:
             *pxNordicPermitions = SEC_NO_ACCESS;
     }
+}
+
+static BTStatus_t prvBTConfigureMtu( uint8_t ucServerIf,
+                                     uint16_t usMtu )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xNRFstatus = NRF_SUCCESS;
+
+    nrf_ble_gatt_t * pxGattHandler = prvGetGattHandle();
+
+    xNRFstatus = nrf_ble_gatt_att_mtu_periph_set( pxGattHandler, usMtu );
+    xStatus = BTNRFError( xNRFstatus );
+    return xStatus;
 }

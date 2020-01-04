@@ -42,6 +42,8 @@
 	"--pointer-check"
     ],
 
+    "FORWARD_SLASH": ["/"],
+
     "TYPE_HEADERS": [
         "$(FREERTOS)/freertos_kernel/queue.c"
     ]

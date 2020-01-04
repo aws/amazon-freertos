@@ -488,7 +488,9 @@ typedef struct {
 #if SMP_INCLUDED == TRUE
     tBTM_LE_KEY_TYPE    key_type;       /* bit mask of valid key types in record */
     tBTM_SEC_BLE_KEYS   keys;           /* LE device security info in slave rode */
+#if (SMP_SLAVE_CON_PARAMS_UPD_ENABLE == TRUE)
     bool skip_update_conn_param;        /* skip update connection paraams or not*/
+#endif
     UINT16 auth_mode;                   /* Authentication mode */
 #endif
 #if (BLE_PRIVACY_SPT == TRUE)
@@ -1135,6 +1137,14 @@ void  btm_acl_reset_paging (void);
 void  btm_acl_paging (BT_HDR *p, BD_ADDR dest);
 UINT8 btm_sec_clr_service_by_psm (UINT16 psm);
 void  btm_sec_clr_temp_auth_service (BD_ADDR bda);
+
+void btm_lock_init(void);
+
+void btm_sem_init(void);
+
+void btm_sem_free(void);
+
+void btm_lock_free(void);
 
 /*
 #ifdef __cplusplus

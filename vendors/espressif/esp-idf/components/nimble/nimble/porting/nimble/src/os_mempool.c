@@ -63,7 +63,7 @@ os_mempool_poison_check(void *start, int sz)
 
 os_error_t
 os_mempool_init(struct os_mempool *mp, uint16_t blocks, uint32_t block_size,
-                void *membuf, char *name)
+                void *membuf, const char *name)
 {
     int true_block_size;
     uint8_t *block_addr;
@@ -120,7 +120,7 @@ os_mempool_init(struct os_mempool *mp, uint16_t blocks, uint32_t block_size,
 
 os_error_t
 os_mempool_ext_init(struct os_mempool_ext *mpe, uint16_t blocks,
-                    uint32_t block_size, void *membuf, char *name)
+                    uint32_t block_size, void *membuf, const char *name)
 {
     int rc;
 

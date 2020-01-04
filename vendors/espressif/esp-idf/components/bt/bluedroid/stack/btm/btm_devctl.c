@@ -273,13 +273,15 @@ static void btm_decode_ext_features_page (UINT8 page_number, const UINT8 *p_feat
         btm_cb.btm_acl_pkt_types_supported = (BTM_ACL_PKT_TYPES_MASK_DH1 +
                                               BTM_ACL_PKT_TYPES_MASK_DM1);
 
-        if (HCI_3_SLOT_PACKETS_SUPPORTED(p_features))
+        if (HCI_3_SLOT_PACKETS_SUPPORTED(p_features)) {
             btm_cb.btm_acl_pkt_types_supported |= (BTM_ACL_PKT_TYPES_MASK_DH3 +
                                                    BTM_ACL_PKT_TYPES_MASK_DM3);
+        }
 
-        if (HCI_5_SLOT_PACKETS_SUPPORTED(p_features))
+        if (HCI_5_SLOT_PACKETS_SUPPORTED(p_features)) {
             btm_cb.btm_acl_pkt_types_supported |= (BTM_ACL_PKT_TYPES_MASK_DH5 +
                                                    BTM_ACL_PKT_TYPES_MASK_DM5);
+        }
 
         /* Add in EDR related ACL types */
         if (!HCI_EDR_ACL_2MPS_SUPPORTED(p_features)) {
@@ -297,13 +299,15 @@ static void btm_decode_ext_features_page (UINT8 page_number, const UINT8 *p_feat
         /* Check to see if 3 and 5 slot packets are available */
         if (HCI_EDR_ACL_2MPS_SUPPORTED(p_features) ||
                 HCI_EDR_ACL_3MPS_SUPPORTED(p_features)) {
-            if (!HCI_3_SLOT_EDR_ACL_SUPPORTED(p_features))
+            if (!HCI_3_SLOT_EDR_ACL_SUPPORTED(p_features)) {
                 btm_cb.btm_acl_pkt_types_supported |= (BTM_ACL_PKT_TYPES_MASK_NO_2_DH3 +
                                                        BTM_ACL_PKT_TYPES_MASK_NO_3_DH3);
+            }
 
-            if (!HCI_5_SLOT_EDR_ACL_SUPPORTED(p_features))
+            if (!HCI_5_SLOT_EDR_ACL_SUPPORTED(p_features)) {
                 btm_cb.btm_acl_pkt_types_supported |= (BTM_ACL_PKT_TYPES_MASK_NO_2_DH5 +
                                                        BTM_ACL_PKT_TYPES_MASK_NO_3_DH5);
+            }
         }
 
         BTM_TRACE_DEBUG("Local supported ACL packet types: 0x%04x",
@@ -689,6 +693,24 @@ tBTM_STATUS BTM_VendorSpecificCommand(UINT16 opcode, UINT8 param_len,
 void btm_vsc_complete (UINT8 *p, UINT16 opcode, UINT16 evt_len,
                        tBTM_CMPL_CB *p_vsc_cplt_cback)
 {
+    tBTM_BLE_CB *ble_cb = &btm_cb.ble_ctr_cb;
+    switch(opcode) {
+        case HCI_VENDOR_BLE_LONG_ADV_DATA:
+            BTM_TRACE_EVENT("Set long adv data complete\n");
+            break;
+        case HCI_VENDOR_BLE_UPDATE_DUPLICATE_EXCEPTIONAL_LIST: {
+            uint8_t subcode, status; uint32_t length;
+            STREAM_TO_UINT8(status, p);
+            STREAM_TO_UINT8(subcode, p);
+            STREAM_TO_UINT32(length, p);
+            if(ble_cb && ble_cb->update_exceptional_list_cmp_cb) {
+                (*ble_cb->update_exceptional_list_cmp_cb)(status, subcode, length, p);
+            }
+            break;
+        }
+        default:
+        break;
+    }
     tBTM_VSC_CMPL   vcs_cplt_params;
 
     /* If there was a callback address for vcs complete, call it */

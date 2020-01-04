@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -79,7 +79,7 @@
         #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_DEFENDER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartDefenderDemo
+    #define DEMO_entryFUNCTION              RunDefenderDemo
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
 #elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )

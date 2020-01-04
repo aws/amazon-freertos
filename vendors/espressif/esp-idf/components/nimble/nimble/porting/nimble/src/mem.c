@@ -206,7 +206,7 @@ mem_malloc_mbufpkt_pool(struct os_mempool *mempool,
 int
 mem_init_mbuf_pool(void *mem, struct os_mempool *mempool,
                    struct os_mbuf_pool *mbuf_pool, int num_blocks,
-                   int block_size, char *name)
+                   int block_size, const char *name)
 {
     int rc;
 

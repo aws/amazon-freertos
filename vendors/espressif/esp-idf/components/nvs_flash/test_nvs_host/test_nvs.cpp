@@ -21,8 +21,10 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <dirent.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <string.h>
 
 #define TEST_ESP_ERR(rc, res) CHECK((rc) == (res))
 #define TEST_ESP_OK(rc) CHECK((rc) == ESP_OK)
@@ -282,6 +284,47 @@ TEST_CASE("Page handles invalid CRC of variable length items", "[nvs][cur]")
         Page page;
         TEST_ESP_OK(page.load(0));
     }
+}
+
+class HashListTestHelper : public HashList
+{
+    public:
+        size_t getBlockCount()
+        {
+            return mBlockList.size();
+        }
+};
+
+TEST_CASE("HashList is cleaned up as soon as items are erased", "[nvs]")
+{
+    HashListTestHelper hashlist;
+    // Add items
+    const size_t count = 128;
+    for (size_t i = 0; i < count; ++i) {
+        char key[16];
+        snprintf(key, sizeof(key), "i%ld", (long int)i);
+        Item item(1, ItemType::U32, 1, key);
+        hashlist.insert(item, i);
+    }
+    INFO("Added " << count << " items, " << hashlist.getBlockCount() << " blocks");
+    // Remove them in reverse order
+    for (size_t i = count; i > 0; --i) {
+        hashlist.erase(i - 1, true);
+    }
+    CHECK(hashlist.getBlockCount() == 0);
+    // Add again
+    for (size_t i = 0; i < count; ++i) {
+        char key[16];
+        snprintf(key, sizeof(key), "i%ld", (long int)i);
+        Item item(1, ItemType::U32, 1, key);
+        hashlist.insert(item, i);
+    }
+    INFO("Added " << count << " items, " << hashlist.getBlockCount() << " blocks");
+    // Remove them in the same order
+    for (size_t i = 0; i < count; ++i) {
+        hashlist.erase(i, true);
+    }
+    CHECK(hashlist.getBlockCount() == 0);
 }
 
 TEST_CASE("can init PageManager in empty flash", "[nvs]")
@@ -784,23 +827,15 @@ TEST_CASE("nvs api tests, starting with random data in flash", "[nvs][long]")
 extern "C" void nvs_dump(const char *partName);
 
 class RandomTest {
-    
-#ifdef CONFIG_MP_BLOB_SUPPORT
+
     static const size_t nKeys = 11;
-#else
-    static const size_t nKeys = 9;
-#endif
     int32_t v1 = 0, v2 = 0;
     uint64_t v3 = 0, v4 = 0;
     static const size_t strBufLen = 1024;
-#ifdef CONFIG_MP_BLOB_SUPPORT
     static const size_t smallBlobLen = Page::CHUNK_MAX_SIZE / 3;
     static const size_t largeBlobLen = Page::CHUNK_MAX_SIZE * 3;
-#endif
     char v5[strBufLen], v6[strBufLen], v7[strBufLen], v8[strBufLen], v9[strBufLen];
-#ifdef CONFIG_MP_BLOB_SUPPORT
     uint8_t v10[smallBlobLen], v11[largeBlobLen];
-#endif
     bool written[nKeys];
 
 public:
@@ -812,18 +847,11 @@ public:
     template<typename TGen>
     esp_err_t doRandomThings(nvs_handle handle, TGen gen, size_t& count) {
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
         const char* keys[] = {"foo", "bar", "longkey_0123456", "another key", "param1", "param2", "param3", "param4", "param5", "singlepage", "multipage"};
         const ItemType types[] = {ItemType::I32, ItemType::I32, ItemType::U64, ItemType::U64, ItemType::SZ, ItemType::SZ, ItemType::SZ, ItemType::SZ, ItemType::SZ, ItemType::BLOB, ItemType::BLOB};
-        
+
         void* values[] = {&v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &v10, &v11};
-#else
-	const char* keys[] = {"foo", "bar", "longkey_0123456", "another key", "param1", "param2", "param3", "param4", "param5"};
-        const ItemType types[] = {ItemType::I32, ItemType::I32, ItemType::U64, ItemType::U64, ItemType::SZ, ItemType::SZ, ItemType::SZ, ItemType::SZ, ItemType::SZ};
-        
-        void* values[] = {&v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9};
-#endif
-        
+
         const size_t nKeys = sizeof(keys) / sizeof(keys[0]);
         static_assert(nKeys == sizeof(types) / sizeof(types[0]), "");
         static_assert(nKeys == sizeof(values) / sizeof(values[0]), "");
@@ -881,7 +909,7 @@ public:
                     }
                     break;
                 }
-#ifdef CONFIG_MP_BLOB_SUPPORT
+
                 case ItemType::BLOB:
                 {
                     uint32_t blobBufLen = 0;
@@ -908,7 +936,7 @@ public:
                     }
                     break;
                 }
-#endif
+
 
                 default:
                     assert(0);
@@ -982,7 +1010,7 @@ public:
                     strncpy(reinterpret_cast<char*>(values[index]), buf, strBufLen);
                     break;
                 }
-#ifdef CONFIG_MP_BLOB_SUPPORT
+
                 case ItemType::BLOB:
                 {
                     uint32_t blobBufLen = 0;
@@ -1012,7 +1040,7 @@ public:
                     memcpy(reinterpret_cast<char*>(values[index]), buf, blobBufLen);
                     break;
                 }
-#endif
+
                 default:
                     assert(0);
             }
@@ -1039,8 +1067,7 @@ public:
         return ESP_OK;
     }
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
-    esp_err_t handleExternalWriteAtIndex(uint8_t index, const void* value, const size_t len ) { 
+    esp_err_t handleExternalWriteAtIndex(uint8_t index, const void* value, const size_t len ) {
         if(index == 9) {  /* This is only done for small-page blobs for now*/
             if(len > smallBlobLen) {
                 return ESP_FAIL;
@@ -1051,8 +1078,7 @@ public:
         } else {
             return ESP_FAIL;
         }
-    } 
-#endif
+    }
 };
 
 TEST_CASE("monkey test", "[nvs][monkey]")
@@ -1065,7 +1091,7 @@ TEST_CASE("monkey test", "[nvs][monkey]")
     SpiFlashEmulator emu(10);
     emu.randomize(seed);
     emu.clearStats();
-    
+
     const uint32_t NVS_FLASH_SECTOR = 2;
     const uint32_t NVS_FLASH_SECTOR_COUNT_MIN = 8;
     emu.setBounds(NVS_FLASH_SECTOR, NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN);
@@ -1090,10 +1116,10 @@ TEST_CASE("test recovery from sudden poweroff", "[long][nvs][recovery][monkey]")
     const size_t iter_count = 2000;
 
     SpiFlashEmulator emu(10);
-    
+
     const uint32_t NVS_FLASH_SECTOR = 2;
     const uint32_t NVS_FLASH_SECTOR_COUNT_MIN = 8;
-    
+
     emu.setBounds(NVS_FLASH_SECTOR, NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN);
 
     size_t totalOps = 0;
@@ -1330,11 +1356,7 @@ TEST_CASE("read/write failure (TW8406)", "[nvs]")
 
 TEST_CASE("nvs_flash_init checks for an empty page", "[nvs]")
 {
-#ifdef CONFIG_MP_BLOB_SUPPORT
-    const size_t blob_size = Page::CHUNK_MAX_SIZE/2;
-#else
     const size_t blob_size = Page::CHUNK_MAX_SIZE;
-#endif
     uint8_t blob[blob_size] = {0};
     SpiFlashEmulator emu(5);
     TEST_ESP_OK( nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, 0, 5) );
@@ -1342,13 +1364,10 @@ TEST_CASE("nvs_flash_init checks for an empty page", "[nvs]")
     TEST_ESP_OK( nvs_open("test", NVS_READWRITE, &handle) );
     // Fill first page
     TEST_ESP_OK( nvs_set_blob(handle, "1a", blob, blob_size) );
-    TEST_ESP_OK( nvs_set_blob(handle, "1b", blob, blob_size) );
     // Fill second page
     TEST_ESP_OK( nvs_set_blob(handle, "2a", blob, blob_size) );
-    TEST_ESP_OK( nvs_set_blob(handle, "2b", blob, blob_size) );
     // Fill third page
     TEST_ESP_OK( nvs_set_blob(handle, "3a", blob, blob_size) );
-    TEST_ESP_OK( nvs_set_blob(handle, "3b", blob, blob_size) );
     TEST_ESP_OK( nvs_commit(handle) );
     nvs_close(handle);
     // first two pages are now full, third one is writable, last two are empty
@@ -1375,12 +1394,7 @@ TEST_CASE("multiple partitions access check", "[nvs]")
 
 TEST_CASE("nvs page selection takes into account free entries also not just erased entries", "[nvs]")
 {
-#ifdef CONFIG_MP_BLOB_SUPPORT
     const size_t blob_size = Page::CHUNK_MAX_SIZE/2;
-#else
-    const size_t blob_size = Page::CHUNK_MAX_SIZE;
-#endif
-
     uint8_t blob[blob_size] = {0};
     SpiFlashEmulator emu(3);
     TEST_ESP_OK( nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, 0, 3) );
@@ -1519,26 +1533,15 @@ TEST_CASE("calculate used and free space", "[nvs]")
     uint32_t blob[12];
     TEST_ESP_OK(nvs_set_blob(handle_3, "bl1", &blob, sizeof(blob)));
     TEST_ESP_OK(nvs_get_stats(NULL, &stat1));
-#ifdef CONFIG_MP_BLOB_SUPPORT
     CHECK(stat1.free_entries + 4 == stat2.free_entries);
-#else
-    CHECK(stat1.free_entries + 3 == stat2.free_entries);
-#endif
     CHECK(stat1.namespace_count == 3);
     CHECK(stat1.total_entries == stat2.total_entries);
-#ifdef CONFIG_MP_BLOB_SUPPORT
     CHECK(stat1.used_entries == 12);
-#else
-    CHECK(stat1.used_entries == 11);
-#endif
+
     // amount valid pair in namespace 2
     size_t h3_count_entries;
     TEST_ESP_OK(nvs_get_used_entry_count(handle_3, &h3_count_entries));
-#ifdef CONFIG_MP_BLOB_SUPPORT
     CHECK(h3_count_entries == 4);
-#else 
-    CHECK(h3_count_entries == 3);
-#endif
 
     CHECK(stat1.used_entries == (h1_count_entries + h2_count_entries + h3_count_entries + stat1.namespace_count));
 
@@ -1547,11 +1550,7 @@ TEST_CASE("calculate used and free space", "[nvs]")
 
 TEST_CASE("Recovery from power-off when the entry being erased is not on active page", "[nvs]")
 {
-#ifdef CONFIG_MP_BLOB_SUPPORT
-    const size_t blob_size = Page::CHUNK_MAX_SIZE/2;
-#else
-    const size_t blob_size = Page::CHUNK_MAX_SIZE;
-#endif
+    const size_t blob_size = Page::CHUNK_MAX_SIZE/2 ;
     size_t read_size = blob_size;
     uint8_t blob[blob_size] = {0x11};
     SpiFlashEmulator emu(3);
@@ -1560,11 +1559,7 @@ TEST_CASE("Recovery from power-off when the entry being erased is not on active 
     TEST_ESP_OK( nvs_open("test", NVS_READWRITE, &handle) );
 
     emu.clearStats();
-#ifdef CONFIG_MP_BLOB_SUPPORT
     emu.failAfter(Page::CHUNK_MAX_SIZE/4 + 75);
-#else
-    emu.failAfter(2 * Page::CHUNK_MAX_SIZE/4 + 36);
-#endif
     TEST_ESP_OK( nvs_set_blob(handle, "1a", blob, blob_size) );
     TEST_ESP_OK( nvs_set_blob(handle, "1b", blob, blob_size) );
 
@@ -1621,8 +1616,6 @@ TEST_CASE("Recovery from power-off when page is being freed.", "[nvs]")
     TEST_ESP_OK(nvs_commit(handle));
     nvs_close(handle);
 }
-
-#ifdef CONFIG_MP_BLOB_SUPPORT
 
 TEST_CASE("Multi-page blobs are supported", "[nvs]")
 {
@@ -1782,6 +1775,28 @@ TEST_CASE("Check that orphaned blobs are erased during init", "[nvs]")
     TEST_ESP_OK(storage.writeItem(1, ItemType::BLOB, "key3", blob, sizeof(blob)));
 }
 
+TEST_CASE("nvs blob fragmentation test", "[nvs]")
+{
+    SpiFlashEmulator emu(4);
+    TEST_ESP_OK(nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, 0, 4) );
+    const size_t BLOB_SIZE = 3500;
+    uint8_t *blob = (uint8_t*) malloc(BLOB_SIZE);
+    CHECK(blob != NULL);
+    memset(blob, 0xEE, BLOB_SIZE);
+    const uint32_t magic = 0xff33eaeb;
+    nvs_handle h;
+    TEST_ESP_OK( nvs_open("blob_tests", NVS_READWRITE, &h) );
+    for (int i = 0; i < 128; i++) {
+        INFO("Iteration " << i << "...\n");
+        TEST_ESP_OK( nvs_set_u32(h, "magic", magic) );
+        TEST_ESP_OK( nvs_set_blob(h, "blob", blob, BLOB_SIZE) );
+        char seq_buf[16];
+        sprintf(seq_buf, "seq%d", i);
+        TEST_ESP_OK( nvs_set_u32(h, seq_buf, i) );
+    }
+    free(blob);
+}
+
 TEST_CASE("nvs code handles errors properly when partition is near to full", "[nvs]")
 {
     const size_t blob_size = Page::CHUNK_MAX_SIZE * 0.3 ;
@@ -1789,7 +1804,7 @@ TEST_CASE("nvs code handles errors properly when partition is near to full", "[n
     SpiFlashEmulator emu(5);
     Storage storage;
     char nvs_key[16] = "";
-    
+
     TEST_ESP_OK(storage.init(0, 5));
 
     /* Four pages should fit roughly 12 blobs*/
@@ -1797,7 +1812,7 @@ TEST_CASE("nvs code handles errors properly when partition is near to full", "[n
         sprintf(nvs_key, "key:%u", count);
         TEST_ESP_OK(storage.writeItem(1, ItemType::BLOB, nvs_key, blob, sizeof(blob)));
     }
-    
+
     for(uint8_t count = 13; count <= 20; count++) {
         sprintf(nvs_key, "key:%u", count);
         TEST_ESP_ERR(storage.writeItem(1, ItemType::BLOB, nvs_key, blob, sizeof(blob)), ESP_ERR_NVS_NOT_ENOUGH_SPACE);
@@ -1824,7 +1839,7 @@ TEST_CASE("Check that NVS supports old blob format without blob index", "[nvs]")
 
     TEST_ESP_OK( nvs_flash_init_custom("test", 0, 2) );
     TEST_ESP_OK( nvs_open_from_partition("test", "dummyNamespace", NVS_READONLY, &handle));
-    
+
     char buf[64] = {0};
     size_t buflen = 64;
     uint8_t hexdata[] = {0x01, 0x02, 0x03, 0xab, 0xcd, 0xef};
@@ -1856,7 +1871,7 @@ TEST_CASE("Check that NVS supports old blob format without blob index", "[nvs]")
     TEST_ESP_OK(p2.findItem(1, ItemType::BLOB_IDX, "dummyHex2BinKey"));
 
     /* Read the blob in new format and check the contents*/
-    buflen = 64; 
+    buflen = 64;
     TEST_ESP_OK( nvs_get_blob(handle, "dummyBase64Key", buf, &buflen));
     CHECK(memcmp(buf, base64data, buflen) == 0);
 
@@ -1868,29 +1883,29 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
     std::mt19937 gen(rd());
     uint32_t seed = 3;
     gen.seed(seed);
-    
+
     SpiFlashEmulator emu(10);
     emu.randomize(seed);
     emu.clearStats();
-    
+
     const uint32_t NVS_FLASH_SECTOR = 2;
     const uint32_t NVS_FLASH_SECTOR_COUNT_MIN = 8;
     static const size_t smallBlobLen = Page::CHUNK_MAX_SIZE / 3;
 
     emu.setBounds(NVS_FLASH_SECTOR, NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN);
-    
+
     TEST_ESP_OK(nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, NVS_FLASH_SECTOR, NVS_FLASH_SECTOR_COUNT_MIN));
-    
+
     nvs_handle handle;
     TEST_ESP_OK(nvs_open("namespace1", NVS_READWRITE, &handle));
     RandomTest test;
-    
-    for ( uint8_t it = 0; it < 10; it++) { 
+
+    for ( uint8_t it = 0; it < 10; it++) {
         size_t count = 200;
-       
+
         /* Erase index and chunks for the blob with "singlepage" key */
         for (uint8_t num = NVS_FLASH_SECTOR; num < NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN; num++) {
-            Page p; 
+            Page p;
             p.load(num);
             p.eraseItem(1, ItemType::BLOB, "singlepage", Item::CHUNK_ANY, VerOffset::VER_ANY);
             p.eraseItem(1, ItemType::BLOB_IDX, "singlepage", Item::CHUNK_ANY, VerOffset::VER_ANY);
@@ -1899,7 +1914,7 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
 
         /* Now write "singlepage" blob in old format*/
         for (uint8_t num = NVS_FLASH_SECTOR; num < NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN; num++) {
-            Page p; 
+            Page p;
             p.load(num);
             if (p.state() == Page::PageState::ACTIVE) {
                 uint8_t buf[smallBlobLen];
@@ -1908,7 +1923,7 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
                 if(blobLen > p.getVarDataTailroom()) {
                     blobLen = p.getVarDataTailroom();
                 }
-                
+
                 std::generate_n(buf, blobLen, [&]() -> uint8_t {
                         return static_cast<uint8_t>(gen() % 256);
                         });
@@ -1916,14 +1931,14 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
                 TEST_ESP_OK(p.writeItem(1, ItemType::BLOB, "singlepage", buf, blobLen, Item::CHUNK_ANY));
                 TEST_ESP_OK(p.findItem(1, ItemType::BLOB, "singlepage"));
                 test.handleExternalWriteAtIndex(9, buf, blobLen); // This assumes "singlepage" is always at index 9
-                
+
                 break;
             }
         }
         /* Initialize again */
         TEST_ESP_OK(nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, NVS_FLASH_SECTOR, NVS_FLASH_SECTOR_COUNT_MIN));
         TEST_ESP_OK(nvs_open("namespace1", NVS_READWRITE, &handle));
-        
+
         /* Perform random things */
         auto res = test.doRandomThings(handle, gen, count);
         if (res != ESP_OK) {
@@ -1936,7 +1951,7 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
         bool oldVerPresent = false, newVerPresent = false;
 
         for (uint8_t num = NVS_FLASH_SECTOR; num < NVS_FLASH_SECTOR + NVS_FLASH_SECTOR_COUNT_MIN; num++) {
-            Page p; 
+            Page p;
             p.load(num);
             if(!oldVerPresent && p.findItem(1, ItemType::BLOB, "singlepage", Item::CHUNK_ANY, VerOffset::VER_ANY) == ESP_OK) {
                 oldVerPresent = true;
@@ -1948,7 +1963,7 @@ TEST_CASE("monkey test with old-format blob present", "[nvs][monkey]")
         }
         CHECK(oldVerPresent != newVerPresent);
     }
-    
+
     s_perf << "Monkey test: nErase=" << emu.getEraseOps() << " nWrite=" << emu.getWriteOps() << std::endl;
 }
 
@@ -1958,23 +1973,23 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
     std::mt19937 gen(rd());
     uint32_t seed = 3;
     gen.seed(seed);
-    
+
     SpiFlashEmulator emu(3);
     emu.clearStats();
-    
+
     TEST_ESP_OK(nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, 0, 3));
-    
+
     nvs_handle handle;
     TEST_ESP_OK(nvs_open("namespace1", NVS_READWRITE, &handle));
-    
+
     uint8_t hexdata[] = {0x01, 0x02, 0x03, 0xab, 0xcd, 0xef};
     uint8_t hexdata_old[] = {0x11, 0x12, 0x13, 0xbb, 0xcc, 0xee};
-    size_t buflen = sizeof(hexdata); 
+    size_t buflen = sizeof(hexdata);
     uint8_t buf[Page::CHUNK_MAX_SIZE];
 
     /* Power-off when blob was being written on the same page where its old version in old format
-     * was present*/ 
-    Page p; 
+     * was present*/
+    Page p;
     p.load(0);
     /* Write blob in old-format*/
     TEST_ESP_OK(p.writeItem(1, ItemType::BLOB, "singlepage", hexdata_old, sizeof(hexdata_old)));
@@ -1998,7 +2013,7 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
     TEST_ESP_OK( nvs_get_blob(handle, "singlepage", buf, &buflen));
     CHECK(memcmp(buf, hexdata, buflen) == 0);
 
-    Page p2; 
+    Page p2;
     p2.load(0);
     TEST_ESP_ERR(p2.findItem(1, ItemType::BLOB, "singlepage"), ESP_ERR_NVS_TYPE_MISMATCH);
 
@@ -2010,7 +2025,7 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
     std::mt19937 gen(rd());
     uint32_t seed = 3;
     gen.seed(seed);
-    
+
     SpiFlashEmulator emu(3);
     emu.clearStats();
 
@@ -2021,13 +2036,13 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
 
     uint8_t hexdata[] = {0x01, 0x02, 0x03, 0xab, 0xcd, 0xef};
     uint8_t hexdata_old[] = {0x11, 0x12, 0x13, 0xbb, 0xcc, 0xee};
-    size_t buflen = sizeof(hexdata); 
+    size_t buflen = sizeof(hexdata);
     uint8_t buf[Page::CHUNK_MAX_SIZE];
 
 
     /* Power-off when blob was being written on the different page where its old version in old format
-     * was present*/ 
-    Page p; 
+     * was present*/
+    Page p;
     p.load(0);
     /* Write blob in old-format*/
     TEST_ESP_OK(p.writeItem(1, ItemType::BLOB, "singlepage", hexdata_old, sizeof(hexdata_old)));
@@ -2040,7 +2055,7 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
     item.blobIndex.chunkCount = 1;
     item.blobIndex.chunkStart = VerOffset::VER_0_OFFSET;
     p.markFull();
-    Page p2; 
+    Page p2;
     p2.load(1);
     p2.setSeqNumber(1);
 
@@ -2055,37 +2070,21 @@ TEST_CASE("Recovery from power-off during modification of blob present in old-fo
     TEST_ESP_OK( nvs_get_blob(handle, "singlepage", buf, &buflen));
     CHECK(memcmp(buf, hexdata, buflen) == 0);
 
-    Page p3; 
+    Page p3;
     p3.load(0);
     TEST_ESP_ERR(p3.findItem(1, ItemType::BLOB, "singlepage"), ESP_ERR_NVS_NOT_FOUND);
 }
-#endif
 
-
-TEST_CASE("check partition generation utility with multipage blob support disabled", "[nvs_part_gen]")
+static void check_nvs_part_gen_args(char const *part_name, int size, char const *filename, bool is_encr, nvs_sec_cfg_t* xts_cfg)
 {
-    int childpid = fork();
-    if (childpid == 0) {
-        exit(execlp("python", "python",
-                "../nvs_partition_generator/nvs_partition_gen.py",
-                "../nvs_partition_generator/sample_singlepage_blob.csv",
-                "../nvs_partition_generator/partition_single_page.bin", 
-                "--version",
-                "v1",NULL));
-    } else {
-        CHECK(childpid > 0);
-        int status;
-        waitpid(childpid, &status, 0);
-        CHECK(WEXITSTATUS(status) != -1);
-    }
-}
-
-TEST_CASE("read data from partition generated via partition generation utility with multipage blob support disabled", "[nvs_part_gen]")
-{
-    SpiFlashEmulator emu("../nvs_partition_generator/partition_single_page.bin");
     nvs_handle handle;
-    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 2) );
-    TEST_ESP_OK( nvs_open_from_partition("test", "dummyNamespace", NVS_READONLY, &handle));
+
+    if (is_encr)
+        TEST_ESP_OK(nvs_flash_secure_init_custom(part_name, 0, size, xts_cfg));
+    else
+        TEST_ESP_OK( nvs_flash_init_custom(part_name, 0, size) );
+
+    TEST_ESP_OK( nvs_open_from_partition(part_name, "dummyNamespace", NVS_READONLY, &handle));
     uint8_t u8v;
     TEST_ESP_OK( nvs_get_u8(handle, "dummyU8Key", &u8v));
     CHECK(u8v == 127);
@@ -2112,7 +2111,7 @@ TEST_CASE("read data from partition generated via partition generation utility w
     int j;
     TEST_ESP_OK( nvs_get_blob(handle, "dummyHex2BinKey", buf, &buflen));
     CHECK(memcmp(buf, hexdata, buflen) == 0);
-    
+
     uint8_t base64data[] = {'1', '2', '3', 'a', 'b', 'c'};
     TEST_ESP_OK( nvs_get_blob(handle, "dummyBase64Key", buf, &buflen));
     CHECK(memcmp(buf, base64data, buflen) == 0);
@@ -2131,94 +2130,292 @@ TEST_CASE("read data from partition generated via partition generation utility w
     size_t bin_len = sizeof(bin_data);
     char binfiledata[5200];
     ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_singlepage_blob.bin");
+    file.open(filename);
     file.read(binfiledata,5200);
     TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
     CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
 
     file.close();
+
     nvs_close(handle);
 }
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
-TEST_CASE("check partition generation utility with multipage blob support enabled", "[nvs_part_gen]")
+
+TEST_CASE("check and read data from partition generated via partition generation utility with multipage blob support disabled", "[nvs_part_gen]")
 {
+    int status;
     int childpid = fork();
     if (childpid == 0) {
-        exit(execlp("python", "python",
-                "../nvs_partition_generator/nvs_partition_gen.py",
-                "../nvs_partition_generator/sample_multipage_blob.csv",
-                "../nvs_partition_generator/partition_multipage_blob.bin", 
-                "--version",
-                "v2",NULL));
+        exit(execlp("cp", " cp",
+                    "-rf",
+                    "../nvs_partition_generator/testdata",
+                    ".",NULL));
     } else {
         CHECK(childpid > 0);
-        int status;
         waitpid(childpid, &status, 0);
         CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                    "../nvs_partition_generator/nvs_partition_gen.py",
+                    "--input",
+                    "../nvs_partition_generator/sample_singlepage_blob.csv",
+                    "--output",
+                    "../nvs_partition_generator/partition_single_page.bin",
+                    "--size",
+                    "0x3000",
+                    "--version",
+                    "v1",NULL));
+        } else {
+            CHECK(childpid > 0);
+            int status;
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+        }
+    }
+
+    SpiFlashEmulator emu("../nvs_partition_generator/partition_single_page.bin");
+
+    TEST_ESP_OK(nvs_flash_deinit());
+
+    check_nvs_part_gen_args("test", 3, "../nvs_partition_generator/testdata/sample_singlepage_blob.bin", false, NULL);
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("rm", " rm",
+                    "-rf",
+                    "testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
     }
 }
 
-TEST_CASE("read data from partition generated via partition generation utility with multipage blob support enabled", "[nvs_part_gen]")
+TEST_CASE("check and read data from partition generated via partition generation utility with multipage blob support enabled", "[nvs_part_gen]")
 {
+    int status;
+    int childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("cp", " cp",
+                    "-rf",
+                    "../nvs_partition_generator/testdata",
+                    ".",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                    "../nvs_partition_generator/nvs_partition_gen.py",
+                    "--input",
+                    "../nvs_partition_generator/sample_multipage_blob.csv",
+                    "--output",
+                    "../nvs_partition_generator/partition_multipage_blob.bin",
+                    "--size",
+                    "0x4000",
+                    "--version",
+                    "v2",NULL));
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+        }
+    }
+
     SpiFlashEmulator emu("../nvs_partition_generator/partition_multipage_blob.bin");
-    nvs_handle handle;
-    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 3) );
-    TEST_ESP_OK( nvs_open_from_partition("test", "dummyNamespace", NVS_READONLY, &handle));
-    uint8_t u8v;
-    TEST_ESP_OK( nvs_get_u8(handle, "dummyU8Key", &u8v));
-    CHECK(u8v == 127);
-    int8_t i8v;
-    TEST_ESP_OK( nvs_get_i8(handle, "dummyI8Key", &i8v));
-    CHECK(i8v == -128);
-    uint16_t u16v;
-    TEST_ESP_OK( nvs_get_u16(handle, "dummyU16Key", &u16v));
-    CHECK(u16v == 32768);
-    uint32_t u32v;
-    TEST_ESP_OK( nvs_get_u32(handle, "dummyU32Key", &u32v));
-    CHECK(u32v == 4294967295);
-    int32_t i32v;
-    TEST_ESP_OK( nvs_get_i32(handle, "dummyI32Key", &i32v));
-    CHECK(i32v == -2147483648);
 
-    char buf[64] = {0};
-    size_t buflen = 64;
-    TEST_ESP_OK( nvs_get_str(handle, "dummyStringKey", buf, &buflen));
-    CHECK(strncmp(buf, "0A:0B:0C:0D:0E:0F", buflen) == 0);
+    check_nvs_part_gen_args("test", 4, "../nvs_partition_generator/testdata/sample_multipage_blob.bin",false,NULL);
 
-    uint8_t hexdata[] = {0x01, 0x02, 0x03, 0xab, 0xcd, 0xef};
-    buflen = 64;
-    int j;
-    TEST_ESP_OK( nvs_get_blob(handle, "dummyHex2BinKey", buf, &buflen));
-    CHECK(memcmp(buf, hexdata, buflen) == 0);
-    
-    uint8_t base64data[] = {'1', '2', '3', 'a', 'b', 'c'};
-    TEST_ESP_OK( nvs_get_blob(handle, "dummyBase64Key", buf, &buflen));
-    CHECK(memcmp(buf, base64data, buflen) == 0);
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("rm", " rm",
+                    "-rf",
+                    "testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
 
-    buflen = 64;
-    uint8_t hexfiledata[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef};
-    TEST_ESP_OK( nvs_get_blob(handle, "hexFileKey", buf, &buflen));
-    CHECK(memcmp(buf, hexfiledata, buflen) == 0);
+    }
+}
 
-    buflen = 64;
-    uint8_t strfiledata[64] = "abcdefghijklmnopqrstuvwxyz\0";
-    TEST_ESP_OK( nvs_get_str(handle, "stringFileKey", buf, &buflen));
-    CHECK(memcmp(buf, strfiledata, buflen) == 0);
+TEST_CASE("check and read data from partition generated via manufacturing utility with multipage blob support disabled", "[mfg_gen]")
+{
+    int childpid = fork();
+    int status;
 
-    char bin_data[5200];
-    size_t bin_len = sizeof(bin_data);
-    char binfiledata[5200];
-    ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
-    file.read(binfiledata,5200);
-    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
-    CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
+    if (childpid == 0) {
+        exit(execlp("bash", "bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    cp -rf ../../../tools/mass_mfg/testdata mfg_testdata | \
+                    cp -rf ../nvs_partition_generator/testdata . | \
+                    mkdir -p ../../../tools/mass_mfg/host_test",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
 
-    file.close();
+        childpid = fork();
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                        "../../../tools/mass_mfg/mfg_gen.py",
+                        "--conf",
+                        "../../../tools/mass_mfg/samples/sample_config.csv",
+                        "--values",
+                        "../../../tools/mass_mfg/samples/sample_values_singlepage_blob.csv",
+                        "--prefix",
+                        "Test",
+                        "--size",
+                        "0x3000",
+                        "--outdir",
+                        "../../../tools/mass_mfg/host_test",
+                        "--version",
+                        "v1",NULL));
+
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+
+            childpid = fork();
+            if (childpid == 0) {
+                exit(execlp("python", "python",
+                            "../nvs_partition_generator/nvs_partition_gen.py",
+                            "--input",
+                            "../../../tools/mass_mfg/host_test/csv/Test-1.csv",
+                            "--output",
+                            "../nvs_partition_generator/Test-1-partition.bin",
+                            "--size",
+                            "0x3000",
+                            "--version",
+                            "v1",NULL));
+
+            } else {
+                CHECK(childpid > 0);
+                waitpid(childpid, &status, 0);
+                CHECK(WEXITSTATUS(status) != -1);
+
+            }
+
+        }
+
+    }
+
+    SpiFlashEmulator emu1("../../../tools/mass_mfg/host_test/bin/Test-1.bin");
+    check_nvs_part_gen_args("test", 3, "mfg_testdata/sample_singlepage_blob.bin", false, NULL);
+
+    SpiFlashEmulator emu2("../nvs_partition_generator/Test-1-partition.bin");
+    check_nvs_part_gen_args("test", 3, "testdata/sample_singlepage_blob.bin", false, NULL);
+
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    rm -rf mfg_testdata | \
+                    rm -rf testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+    }
 
 }
-#endif
+
+TEST_CASE("check and read data from partition generated via manufacturing utility with multipage blob support enabled", "[mfg_gen]")
+{
+    int childpid = fork();
+    int status;
+
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    cp -rf ../../../tools/mass_mfg/testdata mfg_testdata | \
+                    cp -rf ../nvs_partition_generator/testdata . | \
+                    mkdir -p ../../../tools/mass_mfg/host_test",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                        "../../../tools/mass_mfg/mfg_gen.py",
+                        "--conf",
+                        "../../../tools/mass_mfg/samples/sample_config.csv",
+                        "--values",
+                        "../../../tools/mass_mfg/samples/sample_values_multipage_blob.csv",
+                        "--prefix",
+                        "Test",
+                        "--size",
+                        "0x4000",
+                        "--outdir",
+                        "../../../tools/mass_mfg/host_test",
+                        "--version",
+                        "v2",NULL));
+
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+
+            childpid = fork();
+            if (childpid == 0) {
+                exit(execlp("python", "python",
+                            "../nvs_partition_generator/nvs_partition_gen.py",
+                            "--input",
+                            "../../../tools/mass_mfg/host_test/csv/Test-1.csv",
+                            "--output",
+                            "../nvs_partition_generator/Test-1-partition.bin",
+                            "--size",
+                            "0x4000",
+                            "--version",
+                            "v2",NULL));
+
+            } else {
+                CHECK(childpid > 0);
+                waitpid(childpid, &status, 0);
+                CHECK(WEXITSTATUS(status) != -1);
+
+            }
+
+        }
+
+    }
+
+    SpiFlashEmulator emu1("../../../tools/mass_mfg/host_test/bin/Test-1.bin");
+    check_nvs_part_gen_args("test", 4, "mfg_testdata/sample_multipage_blob.bin", false, NULL);
+
+    SpiFlashEmulator emu2("../nvs_partition_generator/Test-1-partition.bin");
+    check_nvs_part_gen_args("test", 4, "testdata/sample_multipage_blob.bin", false, NULL);
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    rm -rf mfg_testdata | \
+                    rm -rf testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+    }
+
+}
 
 #if CONFIG_NVS_ENCRYPTION
 TEST_CASE("check underlying xts code for 32-byte size sector encryption", "[nvs]")
@@ -2359,100 +2556,482 @@ TEST_CASE("test nvs apis with encryption enabled", "[nvs]")
 
 }
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
 TEST_CASE("test nvs apis for nvs partition generator utility with encryption enabled", "[nvs_part_gen]")
 {
+    int status;
     int childpid = fork();
     if (childpid == 0) {
+        exit(execlp("cp", " cp",
+                    "-rf",
+                    "../nvs_partition_generator/testdata",
+                    ".",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                    "../nvs_partition_generator/nvs_partition_gen.py",
+                    "--input",
+                    "../nvs_partition_generator/sample_multipage_blob.csv",
+                    "--output",
+                    "../nvs_partition_generator/partition_encrypted.bin",
+                    "--size",
+                    "0x4000",
+                    "--encrypt",
+                    "True",
+                    "--keyfile",
+                    "../nvs_partition_generator/testdata/sample_encryption_keys.bin",NULL));
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+        }
+    }
+
+    SpiFlashEmulator emu("../nvs_partition_generator/partition_encrypted.bin");
+
+    nvs_sec_cfg_t cfg;
+    for(int count = 0; count < NVS_KEY_SIZE; count++) {
+        cfg.eky[count] = 0x11;
+        cfg.tky[count] = 0x22;
+    }
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "../nvs_partition_generator/testdata/sample_multipage_blob.bin", true, &cfg);
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("rm", " rm",
+                    "-rf",
+                    "testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+    }
+
+}
+
+
+TEST_CASE("test nvs apis for nvs partition generator utility with encryption enabled using keygen", "[nvs_part_gen]")
+{
+    int childpid = fork();
+    int status;
+
+    if (childpid == 0) {
+        exit(execlp("cp", " cp",
+                    "-rf",
+                    "../nvs_partition_generator/testdata",
+                    ".",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                        "../nvs_partition_generator/nvs_partition_gen.py",
+                        "--input",
+                        "../nvs_partition_generator/sample_multipage_blob.csv",
+                        "--output",
+                        "../nvs_partition_generator/partition_encrypted_using_keygen.bin",
+                        "--size",
+                        "0x4000",
+                        "--encrypt",
+                        "True",
+                        "--keygen",
+                        "true",NULL));
+
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+
+        }
+    }
+
+
+    DIR *dir;
+    struct dirent *file;
+    char *filename;
+    char *files;
+    char *file_ext;
+
+    dir = opendir("keys");
+    while ((file = readdir(dir)) != NULL)
+    {
+        filename = file->d_name;
+        files = strrchr(filename, '.');
+        if (files != NULL)
+        {
+            file_ext = files+1;
+            if (strncmp(file_ext,"bin",3) == 0)
+            {
+                break;
+            }
+        }
+    }
+
+    std::string encr_file = std::string("keys/") + std::string(filename);
+    SpiFlashEmulator emu("../nvs_partition_generator/partition_encrypted_using_keygen.bin");
+
+    char buffer[64];
+    FILE *fp;
+
+    fp = fopen(encr_file.c_str(),"rb");
+    fread(buffer,sizeof(buffer),1,fp);
+
+    fclose(fp);
+
+    TEST_ESP_OK(nvs_flash_deinit());
+    nvs_sec_cfg_t cfg;
+
+    for(int count = 0; count < NVS_KEY_SIZE; count++) {
+        cfg.eky[count] = buffer[count] & 255;
+        cfg.tky[count] = buffer[count+32] & 255;
+    }
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "../nvs_partition_generator/testdata/sample_multipage_blob.bin", true, &cfg);
+
+}
+
+TEST_CASE("test nvs apis for nvs partition generator utility with encryption enabled using keyfile", "[nvs_part_gen]")
+{
+    int childpid = fork();
+    int status;
+
+    DIR *dir;
+    struct dirent *file;
+    char *filename;
+    char *files;
+    char *file_ext;
+
+    dir = opendir("keys");
+    while ((file = readdir(dir)) != NULL)
+    {
+        filename = file->d_name;
+        files = strrchr(filename, '.');
+        if (files != NULL)
+        {
+            file_ext = files+1;
+            if (strncmp(file_ext,"bin",3) == 0)
+            {
+                break;
+            }
+        }
+    }
+
+    std::string encr_file = std::string("keys/") + std::string(filename);
+
+     if (childpid == 0) {
         exit(execlp("python", "python",
                 "../nvs_partition_generator/nvs_partition_gen.py",
+                "--input",
                 "../nvs_partition_generator/sample_multipage_blob.csv",
-                "../nvs_partition_generator/partition_encrypted.bin",
+                "--output",
+                "../nvs_partition_generator/partition_encrypted_using_keyfile.bin",
+                "--size",
+                "0x4000",
                 "--encrypt",
                 "True",
                 "--keyfile",
-                "../nvs_partition_generator/testdata/encryption_keys.txt",NULL));
+                encr_file.c_str(),NULL));
+
     } else {
         CHECK(childpid > 0);
-        int status;
         waitpid(childpid, &status, 0);
         CHECK(WEXITSTATUS(status) != -1);
     }
 
-    SpiFlashEmulator emu("../nvs_partition_generator/partition_encrypted.bin");
-    nvs_handle handle;
+    SpiFlashEmulator emu("../nvs_partition_generator/partition_encrypted_using_keyfile.bin");
 
-    nvs_sec_cfg_t xts_cfg;
+    char buffer[64];
+    FILE *fp;
+
+    fp = fopen(encr_file.c_str(),"rb");
+    fread(buffer,sizeof(buffer),1,fp);
+
+    fclose(fp);
+
+    TEST_ESP_OK(nvs_flash_deinit());
+    nvs_sec_cfg_t cfg;
 
     for(int count = 0; count < NVS_KEY_SIZE; count++) {
-        xts_cfg.eky[count] = 0x11;
-        xts_cfg.tky[count] = 0x22;
+        cfg.eky[count] = buffer[count] & 255;
+        cfg.tky[count] = buffer[count+32] & 255;
     }
 
-    TEST_ESP_OK(nvs_flash_secure_init_custom(NVS_DEFAULT_PART_NAME, 0, 3, &xts_cfg));
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "../nvs_partition_generator/testdata/sample_multipage_blob.bin", true, &cfg);
 
-    TEST_ESP_OK(nvs_open_from_partition(NVS_DEFAULT_PART_NAME, "dummyNamespace", NVS_READONLY, &handle));
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("rm", " rm",
+                    "-rf",
+                    "keys",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
 
-    uint8_t u8v;
-    TEST_ESP_OK( nvs_get_u8(handle, "dummyU8Key", &u8v));
-    CHECK(u8v == 127);
-    int8_t i8v;
-    TEST_ESP_OK( nvs_get_i8(handle, "dummyI8Key", &i8v));
-    CHECK(i8v == -128);
-    uint16_t u16v;
-    TEST_ESP_OK( nvs_get_u16(handle, "dummyU16Key", &u16v));
-    CHECK(u16v == 32768);
-    uint32_t u32v;
-    TEST_ESP_OK( nvs_get_u32(handle, "dummyU32Key", &u32v));
-    CHECK(u32v == 4294967295);
-    int32_t i32v;
-    TEST_ESP_OK( nvs_get_i32(handle, "dummyI32Key", &i32v));
-    CHECK(i32v == -2147483648);
+        childpid = fork();
 
-    char buf[64] = {0};
-    size_t buflen = 64;
-    TEST_ESP_OK( nvs_get_str(handle, "dummyStringKey", buf, &buflen));
-    CHECK(strncmp(buf, "0A:0B:0C:0D:0E:0F", buflen) == 0);
-
-    uint8_t hexdata[] = {0x01, 0x02, 0x03, 0xab, 0xcd, 0xef};
-    buflen = 64;
-    TEST_ESP_OK( nvs_get_blob(handle, "dummyHex2BinKey", buf, &buflen));
-    CHECK(memcmp(buf, hexdata, buflen) == 0);
-
-    uint8_t base64data[] = {'1', '2', '3', 'a', 'b', 'c'};
-    buflen = 64;
-    TEST_ESP_OK( nvs_get_blob(handle, "dummyBase64Key", buf, &buflen));
-    CHECK(memcmp(buf, base64data, buflen) == 0);
-
-    uint8_t hexfiledata[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef};
-    buflen = 64;
-    TEST_ESP_OK( nvs_get_blob(handle, "hexFileKey", buf, &buflen));
-    CHECK(memcmp(buf, hexfiledata, buflen) == 0);
-
-    uint8_t base64filedata[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xab, 0xcd, 0xef};
-    buflen = 64;
-    TEST_ESP_OK( nvs_get_blob(handle, "base64FileKey", buf, &buflen));
-    CHECK(memcmp(buf, base64filedata, buflen) == 0);
-
-    uint8_t strfiledata[64] = "abcdefghijklmnopqrstuvwxyz\0";
-    buflen = 64;
-    TEST_ESP_OK( nvs_get_str(handle, "stringFileKey", buf, &buflen));
-    CHECK(memcmp(buf, strfiledata, buflen) == 0);
-
-    char bin_data[5120];
-    size_t bin_len = sizeof(bin_data);
-    char binfiledata[5200];
-    ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
-    file.read(binfiledata,5120);
-    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
-    CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
-
-    nvs_close(handle);
-    TEST_ESP_OK(nvs_flash_deinit());
+        if (childpid == 0) {
+            exit(execlp("rm", " rm",
+                        "-rf",
+                        "testdata",NULL));
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+        }
+    }
 
 }
-#endif
+
+TEST_CASE("check and read data from partition generated via manufacturing utility with encryption enabled using sample keyfile", "[mfg_gen]")
+{
+    int childpid = fork();
+    int status;
+
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    cp -rf ../../../tools/mass_mfg/testdata mfg_testdata | \
+                    cp -rf ../nvs_partition_generator/testdata . | \
+                    mkdir -p ../../../tools/mass_mfg/host_test",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                        "../../../tools/mass_mfg/mfg_gen.py",
+                        "--conf",
+                        "../../../tools/mass_mfg/samples/sample_config.csv",
+                        "--values",
+                        "../../../tools/mass_mfg/samples/sample_values_multipage_blob.csv",
+                        "--prefix",
+                        "Test",
+                        "--size",
+                        "0x4000",
+                        "--outdir",
+                        "../../../tools/mass_mfg/host_test",
+                        "--version",
+                        "v2",
+                        "--encrypt",
+                        "true",
+                        "--keyfile",
+                        "mfg_testdata/sample_encryption_keys.bin",NULL));
+
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+
+            childpid = fork();
+            if (childpid == 0) {
+                exit(execlp("python", "python",
+                            "../nvs_partition_generator/nvs_partition_gen.py",
+                            "--input",
+                            "../../../tools/mass_mfg/host_test/csv/Test-1.csv",
+                            "--output",
+                            "../nvs_partition_generator/Test-1-partition-encrypted.bin",
+                            "--size",
+                            "0x4000",
+                            "--version",
+                            "v2",
+                            "--encrypt",
+                            "true",
+                            "--keyfile",
+                            "testdata/sample_encryption_keys.bin",NULL));
+
+            } else {
+                CHECK(childpid > 0);
+                waitpid(childpid, &status, 0);
+                CHECK(WEXITSTATUS(status) != -1);
+
+            }
+
+        }
+
+    }
+
+    SpiFlashEmulator emu1("../../../tools/mass_mfg/host_test/bin/Test-1.bin");
+
+    TEST_ESP_OK(nvs_flash_deinit());
+
+    nvs_sec_cfg_t cfg;
+    for(int count = 0; count < NVS_KEY_SIZE; count++) {
+        cfg.eky[count] = 0x11;
+        cfg.tky[count] = 0x22;
+    }
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "mfg_testdata/sample_multipage_blob.bin", true, &cfg);
+
+    SpiFlashEmulator emu2("../nvs_partition_generator/Test-1-partition-encrypted.bin");
+
+    TEST_ESP_OK(nvs_flash_deinit());
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "testdata/sample_multipage_blob.bin", true, &cfg);
+
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    rm -rf mfg_testdata | \
+                    rm -rf testdata",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+    }
+
+}
+
+TEST_CASE("check and read data from partition generated via manufacturing utility with encryption enabled using new generated key", "[mfg_gen]")
+{
+    int childpid = fork();
+    int status;
+
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf ../../../tools/mass_mfg/host_test | \
+                    cp -rf ../../../tools/mass_mfg/testdata mfg_testdata | \
+                    cp -rf ../nvs_partition_generator/testdata . | \
+                    mkdir -p ../../../tools/mass_mfg/host_test",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+        childpid = fork();
+        if (childpid == 0) {
+            exit(execlp("python", "python",
+                        "../../../tools/mass_mfg/mfg_gen.py",
+                        "--keygen",
+                        "true",
+                        "--outdir",
+                        "../../../tools/mass_mfg/host_test",
+                        "--keyfile",
+                        "encr_keys_host_test.bin",NULL));
+
+        } else {
+            CHECK(childpid > 0);
+            waitpid(childpid, &status, 0);
+            CHECK(WEXITSTATUS(status) != -1);
+
+            childpid = fork();
+            if (childpid == 0) {
+                exit(execlp("python", "python",
+                            "../../../tools/mass_mfg/mfg_gen.py",
+                            "--conf",
+                            "../../../tools/mass_mfg/samples/sample_config.csv",
+                            "--values",
+                            "../../../tools/mass_mfg/samples/sample_values_multipage_blob.csv",
+                            "--prefix",
+                            "Test",
+                            "--size",
+                            "0x4000",
+                            "--outdir",
+                            "../../../tools/mass_mfg/host_test",
+                            "--version",
+                            "v2",
+                            "--encrypt",
+                            "true",
+                            "--keyfile",
+                            "../../../tools/mass_mfg/host_test/keys/encr_keys_host_test.bin",NULL));
+
+            } else {
+                CHECK(childpid > 0);
+                waitpid(childpid, &status, 0);
+                CHECK(WEXITSTATUS(status) != -1);
+
+                childpid = fork();
+                if (childpid == 0) {
+                    exit(execlp("python", "python",
+                                "../nvs_partition_generator/nvs_partition_gen.py",
+                                "--input",
+                                "../../../tools/mass_mfg/host_test/csv/Test-1.csv",
+                                "--output",
+                                "../nvs_partition_generator/Test-1-partition-encrypted.bin",
+                                "--size",
+                                "0x4000",
+                                "--version",
+                                "v2",
+                                "--encrypt",
+                                "true",
+                                "--keyfile",
+                                "../../../tools/mass_mfg/host_test/keys/encr_keys_host_test.bin",NULL));
+
+                } else {
+                    CHECK(childpid > 0);
+                    waitpid(childpid, &status, 0);
+                    CHECK(WEXITSTATUS(status) != -1);
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    SpiFlashEmulator emu1("../../../tools/mass_mfg/host_test/bin/Test-1.bin");
+
+    char buffer[64];
+    FILE *fp;
+
+    fp = fopen("../../../tools/mass_mfg/host_test/keys/encr_keys_host_test.bin","rb");
+    fread(buffer,sizeof(buffer),1,fp);
+
+    fclose(fp);
+
+    TEST_ESP_OK(nvs_flash_deinit());
+
+    nvs_sec_cfg_t cfg;
+
+    for(int count = 0; count < NVS_KEY_SIZE; count++) {
+        cfg.eky[count] = buffer[count] & 255;
+        cfg.tky[count] = buffer[count+32] & 255;
+    }
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "mfg_testdata/sample_multipage_blob.bin", true, &cfg);
+
+    SpiFlashEmulator emu2("../nvs_partition_generator/Test-1-partition-encrypted.bin");
+
+    TEST_ESP_OK(nvs_flash_deinit());
+
+    check_nvs_part_gen_args(NVS_DEFAULT_PART_NAME, 4, "testdata/sample_multipage_blob.bin", true, &cfg);
+
+    childpid = fork();
+    if (childpid == 0) {
+        exit(execlp("bash", " bash",
+                    "-c",
+                    "rm -rf keys | \
+                    rm -rf mfg_testdata | \
+                    rm -rf testdata | \
+                    rm -rf ../../../tools/mass_mfg/host_test",NULL));
+    } else {
+        CHECK(childpid > 0);
+        waitpid(childpid, &status, 0);
+        CHECK(WEXITSTATUS(status) != -1);
+
+    }
+
+}
 #endif
 
 /* Add new tests above */

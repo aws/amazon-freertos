@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.8
+ * Amazon FreeRTOS PKCS #11 V2.0.2
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -185,7 +185,7 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL, /*C_GetSlotInfo*/
     C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
-    NULL, /*C_GetMechansimInfo */
+    C_GetMechanismInfo,
     C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
@@ -827,6 +827,55 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
     return CKR_OK;
 }
 
+/**
+ * @brief This function obtains information about a particular
+ * mechanism possibly supported by a token.
+ *
+ *  \param[in]  xSlotID         This parameter is unused in this port.
+ *  \param[in]  type            The cryptographic capability for which support
+ *                              information is being queried.
+ *  \param[out] pInfo           Algorithm sizes and flags for the requested
+ *                              mechanism, if supported.
+ *
+ * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
+ */
+CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
+                                                  CK_MECHANISM_TYPE type,
+                                                  CK_MECHANISM_INFO_PTR pInfo )
+{
+    CK_RV xResult = CKR_MECHANISM_INVALID;
+    struct CryptoMechanisms
+    {
+        CK_MECHANISM_TYPE xType;
+        CK_MECHANISM_INFO xInfo;
+    }
+    pxSupportedMechanisms[] =
+    {
+        { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
+        { CKM_RSA_X_509,       { 2048, 2048, CKF_VERIFY            } },
+        #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+            { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
+            { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        #endif
+        { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
+    };
+    uint32_t ulMech = 0;
+
+    /* Look for the requested mechanism in the above table. */
+    for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
+    {
+        if( pxSupportedMechanisms[ ulMech ].xType == type )
+        {
+            /* The mechanism is supported. Copy out the details and break
+             * out of the loop. */
+            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
+            xResult = CKR_OK;
+            break;
+        }
+    }
+
+    return xResult;
+}
 
 /**
  * @brief This function is not implemented for this port.
@@ -1040,10 +1089,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
             vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
-        if( NULL != &pxSession->xSHA256Context )
-        {
-            mbedtls_sha256_free( &pxSession->xSHA256Context );
-        }
+        mbedtls_sha256_free( &pxSession->xSHA256Context );
 
         vPortFree( pxSession );
     }
@@ -1254,7 +1300,7 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
     if( *pxPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, &xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
@@ -1570,51 +1616,54 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
             xResult = CKR_HOST_MEMORY;
         }
     }
-    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
-    {
-        /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
-        prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
-
-        if( xPalHandle == CK_INVALID_HANDLE )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+        else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
-            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
-             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
-             * the structure so that the mbedTLS structures will look the same as they would if a key
-             * had been found, minus the public key component. */
+            /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+            prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
-             * would have been malloc'ed. */
-            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
 
-            if( pxKeyPair != NULL )
+            if( xPalHandle == CK_INVALID_HANDLE )
             {
-                /* Initialize the info. */
-                xMbedContext.pk_info = &mbedtls_eckey_info;
+                /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+                 * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+                 * the structure so that the mbedTLS structures will look the same as they would if a key
+                 * had been found, minus the public key component. */
 
-                /* Initialize the context. */
-                xMbedContext.pk_ctx = pxKeyPair;
-                mbedtls_ecp_keypair_init( pxKeyPair );
-                mbedtls_ecp_group_init( &pxKeyPair->grp );
-                /*/ * At this time, only P-256 curves are supported. * / */
-                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+                 * would have been malloc'ed. */
+                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+                if( pxKeyPair != NULL )
+                {
+                    /* Initialize the info. */
+                    xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                    /* Initialize the context. */
+                    xMbedContext.pk_ctx = pxKeyPair;
+                    mbedtls_ecp_keypair_init( pxKeyPair );
+                    mbedtls_ecp_group_init( &pxKeyPair->grp );
+                    /*/ * At this time, only P-256 curves are supported. * / */
+                    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                }
+                else
+                {
+                    xResult = CKR_HOST_MEMORY;
+                }
             }
-            else
-            {
-                xResult = CKR_HOST_MEMORY;
-            }
+
+            xResult = prvCreateEcPrivateKey( &xMbedContext,
+                                             &pxLabel,
+                                             pxTemplate,
+                                             ulCount,
+                                             pxObject );
         }
-
-        xResult = prvCreateEcPrivateKey( &xMbedContext,
-                                         &pxLabel,
-                                         pxTemplate,
-                                         ulCount,
-                                         pxObject );
-    }
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
-        xResult = CKR_TEMPLATE_INCONSISTENT;
+        xResult = CKR_MECHANISM_INVALID;
     }
 
     /* Convert back to DER and save to memory. */
@@ -1816,52 +1865,56 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xKeyType == CKK_RSA )
     {
+        xResult = CKR_ATTRIBUTE_TYPE_INVALID;
     }
-    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
-    {
-        prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
-
-        if( xPalHandle == CK_INVALID_HANDLE )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+        else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
-            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
-             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
-             * the structure so that the mbedTLS structures will look the same as they would if a key
-             * had been found, minus the private key component. */
+            prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
-             * would have been malloc'ed. */
-            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
 
-            if( pxKeyPair != NULL )
+            if( xPalHandle == CK_INVALID_HANDLE )
             {
-                /* Initialize the info. */
-                xMbedContext.pk_info = &mbedtls_eckey_info;
+                /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+                 * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+                 * the structure so that the mbedTLS structures will look the same as they would if a key
+                 * had been found, minus the private key component. */
 
-                /* Initialize the context. */
-                xMbedContext.pk_ctx = pxKeyPair;
-                mbedtls_ecp_keypair_init( pxKeyPair );
-                mbedtls_ecp_group_init( &pxKeyPair->grp );
-                /*/ * At this time, only P-256 curves are supported. * / */
-                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+                 * would have been malloc'ed. */
+                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+                if( pxKeyPair != NULL )
+                {
+                    /* Initialize the info. */
+                    xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                    /* Initialize the context. */
+                    xMbedContext.pk_ctx = pxKeyPair;
+                    mbedtls_ecp_keypair_init( pxKeyPair );
+                    mbedtls_ecp_group_init( &pxKeyPair->grp );
+                    /*/ * At this time, only P-256 curves are supported. * / */
+                    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                }
+                else
+                {
+                    xResult = CKR_HOST_MEMORY;
+                }
             }
             else
             {
-                xResult = CKR_HOST_MEMORY;
+                xPrivateKeyFound = CK_TRUE;
             }
-        }
-        else
-        {
-            xPrivateKeyFound = CK_TRUE;
-        }
 
-        xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
-    }
+            xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
+        }
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
         PKCS11_PRINT( ( "Invalid key type %d \r\n", xKeyType ) );
-        xResult = CKR_TEMPLATE_INCONSISTENT;
+        xResult = CKR_MECHANISM_INVALID;
     }
 
     if( xResult == CKR_OK )
@@ -1974,7 +2027,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE_PTR pxObject )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_OBJECT_CLASS xClass;
 
     if( ( NULL == pxTemplate ) ||
@@ -2120,6 +2172,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObjectValue, &ulLength, &xIsPrivate );
         }
+        else
+        {
+            xResult = CKR_OBJECT_HANDLE_INVALID;
+        }
     }
 
     /* Determine what kind of object we are dealing with. */
@@ -2247,6 +2303,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                             memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
                         }
                     }
+
+                    break;
+
+                case CKA_PRIVATE_EXPONENT:
+
+                    xResult = CKR_ATTRIBUTE_SENSITIVE;
 
                     break;
 
@@ -2550,6 +2612,16 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
             /* According to the PKCS #11 standard, not finding an object results in a CKR_OK return value with an object count of 0. */
             *pulObjectCount = 0;
             PKCS11_WARNING_PRINT( ( "WARN: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+        }
+    }
+
+    /* Clean up memory if there was an error finding the object. */
+    if( xResult != CKR_OK )
+    {
+        if( pxSession->pxFindObjectLabel != NULL )
+        {
+            vPortFree( pxSession->pxFindObjectLabel );
+            pxSession->pxFindObjectLabel = NULL;
         }
     }
 
@@ -3658,18 +3730,31 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
 
-    if( ( pxPublicKeyTemplate == NULL ) ||
-        ( pxPrivateKeyTemplate == NULL ) ||
-        ( pxPublicKey == NULL ) ||
-        ( pxPrivateKey == NULL ) ||
-        ( pxMechanism == NULL ) )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 )
+        if( xResult == CKR_OK )
+        {
+            xResult = CKR_MECHANISM_INVALID;
+        }
+    #endif
+
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_ARGUMENTS_BAD;
+        if( ( pxPublicKeyTemplate == NULL ) ||
+            ( pxPrivateKeyTemplate == NULL ) ||
+            ( pxPublicKey == NULL ) ||
+            ( pxPrivateKey == NULL ) ||
+            ( pxMechanism == NULL ) )
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+        }
     }
 
-    if( pucDerFile == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_HOST_MEMORY;
+        if( pucDerFile == NULL )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
     }
 
     if( xResult == CKR_OK )

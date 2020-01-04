@@ -351,6 +351,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\cmsis_drivers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca\common_src\hcd</state>
@@ -387,7 +388,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
@@ -416,7 +416,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1125,7 +1125,13 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include\FreeRTOS.h</name>
 			</file>
 			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include\StackMacros.h</name>
+			</file>
+			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include\atomic.h</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include\croutine.h</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h</name>
@@ -1216,6 +1222,12 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\system_LPC54018.h</name>
 				</file>
+				<group>
+					<name>bootloader</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader\spifi_boot.c</name>
+					</file>
+				</group>
 				<group>
 					<name>drivers</name>
 					<file>
@@ -2363,6 +2375,12 @@
 					</file>
 				</group>
 				<group>
+					<name>include</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h</name>
+					</file>
+				</group>
+				<group>
 					<name>test</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c</name>
@@ -3150,12 +3168,12 @@
 				</file>
 			</group>
 			<group>
-				<name>http-parser</name>
+				<name>http_parser</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
 				</file>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
 				</file>
 			</group>
 			<group>

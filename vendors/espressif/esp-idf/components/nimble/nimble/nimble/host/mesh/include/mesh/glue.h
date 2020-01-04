@@ -35,11 +35,22 @@
 #include "../src/ble_sm_priv.h"
 #include "../src/ble_hs_hci_priv.h"
 
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
+#include "mbedtls/aes.h"
+#include "mbedtls/cipher.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/cmac.h"
+#include "mbedtls/ecdh.h"
+#include "mbedtls/ecp.h"
+
+#else
 #include "tinycrypt/aes.h"
 #include "tinycrypt/constants.h"
 #include "tinycrypt/utils.h"
 #include "tinycrypt/cmac_mode.h"
 #include "tinycrypt/ecc_dh.h"
+#endif
 
 #if MYNEWT_VAL(BLE_MESH_SETTINGS)
 #include "config/config.h"

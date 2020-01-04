@@ -207,8 +207,9 @@ BOOLEAN BTM_SecDeleteDevice (BD_ADDR bd_addr, tBT_TRANSPORT transport)
 extern void BTM_SecClearSecurityFlags (BD_ADDR bd_addr)
 {
     tBTM_SEC_DEV_REC *p_dev_rec = btm_find_dev(bd_addr);
-    if (p_dev_rec == NULL)
+    if (p_dev_rec == NULL) {
         return;
+    }
 
     p_dev_rec->sec_flags = 0;
     p_dev_rec->sec_state = BTM_SEC_STATE_IDLE;
@@ -367,6 +368,10 @@ void btm_sec_free_dev (tBTM_SEC_DEV_REC *p_dev_rec, tBT_TRANSPORT transport)
         /* Clear out any saved BLE keys */
         btm_sec_clear_ble_keys (p_dev_rec);
 #endif
+    }
+    /* No BLE keys and BT keys, clear the sec_flags */
+    if(p_dev_rec->sec_flags == BTM_SEC_IN_USE) {
+        p_dev_rec->sec_flags = 0;
     }
 }
 

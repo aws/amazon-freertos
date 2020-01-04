@@ -42,6 +42,6 @@ BaseType_t xTaskCheckForTimeOut( TimeOut_t * const pxTimeOut, TickType_t * const
 	}
 	else
 	{
-		return nondet();
+		return nondet_basetype();
 	}
 }

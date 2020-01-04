@@ -36,6 +36,7 @@
 #include "smp_int.h"
 #include "device/controller.h"
 #include "btm_int.h"
+#include "common/bte_appl.h"
 
 #define SMP_PAIRING_REQ_SIZE    7
 #define SMP_CONFIRM_CMD_SIZE    (BT_OCTET16_LEN + 1)
@@ -590,8 +591,16 @@ static BT_HDR *smp_build_id_addr_cmd(UINT8 cmd_code, tSMP_CB *p_cb)
         p = (UINT8 *)(p_buf + 1) + L2CAP_MIN_OFFSET;
 
         UINT8_TO_STREAM (p, SMP_OPCODE_ID_ADDR);
-        UINT8_TO_STREAM (p, 0);
-        BDADDR_TO_STREAM (p, controller_get_interface()->get_address()->address);
+        /* Identity Address Information is used in the Transport Specific Key Distribution phase to distribute
+        its public device address or static random address. if slave using static random address is encrypted,
+        it should distribute its static random address */
+        if(btm_cb.ble_ctr_cb.addr_mgnt_cb.own_addr_type == BLE_ADDR_RANDOM && memcmp(btm_cb.ble_ctr_cb.addr_mgnt_cb.static_rand_addr, btm_cb.ble_ctr_cb.addr_mgnt_cb.private_addr,6) == 0) {
+            UINT8_TO_STREAM (p, 0x01);
+            BDADDR_TO_STREAM (p, btm_cb.ble_ctr_cb.addr_mgnt_cb.static_rand_addr);
+        } else {
+            UINT8_TO_STREAM (p, 0);
+            BDADDR_TO_STREAM (p, controller_get_interface()->get_address()->address);
+        }
 
         p_buf->offset = L2CAP_MIN_OFFSET;
         p_buf->len = SMP_ID_ADDR_SIZE;
@@ -988,6 +997,7 @@ void smp_proc_pairing_cmpl(tSMP_CB *p_cb)
 
     memcpy (pairing_bda, p_cb->pairing_bda, BD_ADDR_LEN);
 
+#if (SMP_SLAVE_CON_PARAMS_UPD_ENABLE == TRUE)
     if (p_cb->role == HCI_ROLE_SLAVE) {
         if(p_rec && p_rec->ble.skip_update_conn_param) {
             //clear flag
@@ -996,6 +1006,7 @@ void smp_proc_pairing_cmpl(tSMP_CB *p_cb)
             L2CA_EnableUpdateBleConnParams(p_cb->pairing_bda, TRUE);
         }
     }
+#endif
     smp_reset_control_value(p_cb);
 
     if (p_callback) {
@@ -1109,9 +1120,27 @@ BOOLEAN smp_pairing_request_response_parameters_are_valid(tSMP_CB *p_cb)
         return FALSE;
     }
 
-    if ((enc_size < SMP_ENCR_KEY_SIZE_MIN) || (enc_size > SMP_ENCR_KEY_SIZE_MAX)) {
+    /* `bte_appl_cfg.ble_min_enc_key_size` will be `SMP_ENCR_KEY_SIZE_MIN` by
+     * default if not set explicitly  */
+#if (BLE_INCLUDED == TRUE)
+    if (enc_size < bte_appl_cfg.ble_min_key_size) {
         SMP_TRACE_WARNING("Rcvd from the peer cmd 0x%02x with Maximum Encryption \
-            Key value (0x%02x) out of range).\n",
+            Key value (0x%02x) less than minimum required key size).\n",
+                          p_cb->rcvd_cmd_code, enc_size);
+        return FALSE;
+    }
+#else
+    if (enc_size < SMP_ENCR_KEY_SIZE_MIN) {
+        SMP_TRACE_WARNING("Rcvd from the peer cmd 0x%02x with Maximum Encryption \
+            Key value (0x%02x) less than minimum required key size).\n",
+                          p_cb->rcvd_cmd_code, enc_size);
+        return FALSE;
+    }
+#endif
+
+    if (enc_size > SMP_ENCR_KEY_SIZE_MAX) {
+        SMP_TRACE_WARNING("Rcvd from the peer cmd 0x%02x with Maximum Encryption \
+            Key value (0x%02x) greater than supported by stack).\n",
                           p_cb->rcvd_cmd_code, enc_size);
         return FALSE;
     }

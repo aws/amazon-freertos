@@ -9,14 +9,26 @@
 #include <string.h>
 #include <stdbool.h>
 #include <errno.h>
+#include "syscfg/syscfg.h"
 
+#if (MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS))
+#include "mbedtls/aes.h"
+#include "mbedtls/cipher.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/cmac.h"
+#include "mbedtls/ecdh.h"
+#include "mbedtls/ecp.h"
+
+#else
 #include <tinycrypt/constants.h>
 #include <tinycrypt/utils.h>
 #include <tinycrypt/aes.h>
 #include <tinycrypt/cmac_mode.h>
 #include <tinycrypt/ccm_mode.h>
 
-#include "syscfg/syscfg.h"
+#endif
+
 #define BT_DBG_ENABLED (MYNEWT_VAL(BLE_MESH_DEBUG_CRYPTO))
 #include "host/ble_hs_log.h"
 
@@ -25,6 +37,49 @@
 #define NET_MIC_LEN(pdu) (((pdu)[1] & 0x80) ? 8 : 4)
 #define APP_MIC_LEN(aszmic) ((aszmic) ? 8 : 4)
 
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
+int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
+		     size_t sg_len, u8_t mac[16])
+{
+    int rc = BLE_HS_EUNKNOWN;
+    mbedtls_cipher_context_t ctx = {0};
+    const mbedtls_cipher_info_t *cipher_info;
+
+    mbedtls_cipher_init(&ctx);
+
+    cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
+    if (cipher_info == NULL) {
+        goto exit;
+    }
+
+    if (mbedtls_cipher_setup(&ctx, cipher_info) != 0) {
+        goto exit;
+    }
+
+    rc = mbedtls_cipher_cmac_starts(&ctx, key, 128);
+    if (rc != 0) {
+        goto exit;
+    }
+
+    for (; sg_len; sg_len--, sg++) {
+        if (sg->len != 0 && sg->data != NULL) {
+            if ((rc = mbedtls_cipher_cmac_update(&ctx, sg->data, sg->len)) != 0) {
+                goto exit;
+            }
+        }
+    }
+    rc = mbedtls_cipher_cmac_finish(&ctx, mac);
+
+exit:
+    mbedtls_cipher_free(&ctx);
+    if (rc != 0) {
+        return -EIO;
+    }
+
+    return 0;
+}
+
+#else
 int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
 		     size_t sg_len, u8_t mac[16])
 {
@@ -48,6 +103,7 @@ int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
 
 	return 0;
 }
+#endif
 
 int bt_mesh_k1(const u8_t *ikm, size_t ikm_len, const u8_t salt[16],
 	       const char *info, u8_t okm[16])

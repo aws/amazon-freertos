@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.0.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,16 +125,16 @@
  * This timeout encompasses the waiting time for the both sending of the request and receiving the response.
  */
 #ifndef IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**
- * @brief Timeout in milliseconds for tests asynchronously send HTTP requests.
+ * @brief Timeout in milliseconds for tests asynchronously sending HTTP requests.
  *
  * This timeout is use to wait for the asynchronous test to finish.
  */
 #ifndef IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**
@@ -550,7 +550,7 @@ TEST_SETUP( HTTPS_Client_System )
  */
 TEST_TEAR_DOWN( HTTPS_Client_System )
 {
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
     IotSdk_Cleanup();
 }
 
