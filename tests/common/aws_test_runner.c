@@ -41,6 +41,7 @@
 
 /* Application version info. */
 #include "aws_application_version.h"
+#include "../../libraries/abstractions/pkcs11/test/iot_test_pkcs11_globals.h"
 
 const AppVersion32_t xAppFirmwareVersion =
 {
@@ -140,13 +141,12 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_NoObject );
         RUN_TEST_GROUP( Full_PKCS11_RSA );
         RUN_TEST_GROUP( Full_PKCS11_EC );
-        /* Temporarily disabled */
-        /* RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine ); */
-        /* RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine ); */
-        /* RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine ); */
-        /* RUN_TEST_GROUP( Full_PKCS11_ModelBased_ObjectMachine ); */
-        /* RUN_TEST_GROUP(Full_PKCS11_ModelBased_VerifyMachine ); */
-        /* RUN_TEST_GROUP(Full_PKCS11_ModelBased_SignMachine ); */
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_ObjectMachine );
+        RUN_TEST_GROUP(Full_PKCS11_ModelBased_VerifyMachine );
+        RUN_TEST_GROUP(Full_PKCS11_ModelBased_SignMachine );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
