@@ -75,7 +75,13 @@ static bool bleInit()
 
     if( bleInitialized && !iotBleInitialized )
     {
-        iotBleInitialized = ( eBTStatusSuccess == IotBle_Init() );
+        if( IotBle_Init() == eBTStatusSuccess )
+        {
+            if( IotBle_On() == eBTStatusSuccess )
+            {
+                iotBleInitialized = true;
+            }
+        }
     }
 
     return iotBleInitialized;
@@ -103,6 +109,7 @@ TEST_TEAR_DOWN( Full_WiFi_Provisioning )
     {
         IotBleWifiProv_Deinit();
         prvRemoveSavedNetworks();
+        iotBleWifiProvisioningInitialized = false;
     }
 }
 

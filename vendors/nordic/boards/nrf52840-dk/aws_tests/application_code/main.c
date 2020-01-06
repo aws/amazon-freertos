@@ -327,7 +327,6 @@ static void prvTimersInit( void )
 
 static void prvMiscInitialization( void )
 {
-    nrf_sdh_enable_request();
     /* Initialize modules.*/
     xUARTTxComplete = xSemaphoreCreateBinary();
     prvUartInit();

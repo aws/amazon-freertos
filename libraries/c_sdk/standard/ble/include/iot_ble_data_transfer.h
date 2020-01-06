@@ -151,4 +151,12 @@ void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel );
  */
 void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel );
 
+
+/**
+ * @brief Cleanup the BLE data transfer services.
+ *
+ * @return true/false if the cleanup was successful or not.
+ */
+bool IotBleDataTransfer_Cleanup( void );
+
 #endif /* IOT_BLE_DATA_TRANSFER_H */
