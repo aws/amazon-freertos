@@ -268,6 +268,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     uint8_t ucRxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesRx;
+    int i = 0, j = 0, len = 0;
 
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
@@ -326,7 +327,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     }
 
     /* Create a string with read bytes and print it to console. */
-    for( int i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ j++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -414,6 +415,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     char cMsg[ 50 ] = { 0 };
     size_t xBytesRx;
     int32_t lLoop = 0;
+    int i = 0, j = 0, len = 0;
 
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
@@ -480,7 +482,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     }
 
     /* Create a string with read bytes and print it to console. */
-    for( int i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ j++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -552,11 +554,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     uint8_t ucTxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesTx;
+    int i = 0, j = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ j++ ] = ',';
@@ -691,11 +694,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     uint8_t ucTxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesTx;
+    int i = 0, j = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ j++ ] = ',';
@@ -847,11 +851,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     char cMsg[ 50 ] = { 0 };
     int32_t lLoop = 0;
     size_t xBytesTx, xBytesRx;
+    int i = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ lLoop++ ] = ',';
@@ -921,7 +926,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     }
 
     /* Append read bytes to string. */
-    for( int i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ lLoop++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -1006,11 +1011,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     uint8_t ucTxBuf[ 8 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     int32_t lLoop = 0;
+    int i = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ lLoop++ ] = ',';
@@ -1080,7 +1086,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     }
 
     /* Append read bytes to string. */
-    for( int i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ lLoop++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
