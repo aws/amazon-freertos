@@ -464,6 +464,11 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         return SOCKETS_EINVAL;
     }
 
+    if( ( ctx->status & SS_STATUS_CONNECTED ) != SS_STATUS_CONNECTED )
+    {
+        return SOCKETS_ENOTCONN;
+    }
+
     ctx = ( ss_ctx_t * ) xSocket;
     ctx->send_flag = ulFlags;
 
