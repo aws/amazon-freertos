@@ -128,19 +128,27 @@ endif()
 
 # mbedtls - TLS protocol implementation
 if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
-    afr_glob_src(mbedtls_src DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls" RECURSE)
+    afr_glob_src(mbedtls_library DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/library" RECURSE)
+    afr_glob_src(mbedtls_include DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/include" RECURSE)
+
     # Build to static library to save some time.
     add_library(
         afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
-        ${mbedtls_src}
+        ${mbedtls_library}
+        ${mbedtls_include}
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/test/mbedtls_utils.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
+    # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
     target_include_directories(
-        afr_3rdparty_mbedtls
-        PUBLIC
-            "${AFR_3RDPARTY_DIR}/mbedtls/include"
-            "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        afr_3rdparty_mbedtls PUBLIC 
+        "${AFR_3RDPARTY_DIR}/pkcs11"
+    )
+    target_include_directories(
+        afr_3rdparty_mbedtls PUBLIC
+        "${AFR_3RDPARTY_DIR}/mbedtls/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
     )
     target_link_libraries(
         afr_3rdparty_mbedtls
@@ -151,17 +159,18 @@ endif()
 
 # pkcs11 standard header
 if(EXISTS "${AFR_3RDPARTY_DIR}/pkcs11")
-    afr_3rdparty_module(pkcs11)
+    add_library(afr_3rdparty_pkcs11 INTERFACE)
     target_sources(
-        3rdparty::pkcs11 INTERFACE
+        afr_3rdparty_pkcs11 INTERFACE
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11.h"
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11f.h"
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11t.h"
     )
     target_include_directories(
-        3rdparty::pkcs11 INTERFACE
+        afr_3rdparty_pkcs11 INTERFACE
         "${AFR_3RDPARTY_DIR}/pkcs11"
     )
+    add_library(3rdparty::pkcs11 ALIAS afr_3rdparty_pkcs11)
 endif()
 
 # tinycbor - CBOR implementation

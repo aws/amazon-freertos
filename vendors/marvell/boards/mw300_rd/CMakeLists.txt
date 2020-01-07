@@ -179,8 +179,9 @@ set(
     "${mw320_dir}/sdk/src/boards"
     "${mw320_dir}/sdk/src/incl/platform/net/freertos-plus-tcp"
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
-    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include/"
-    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include/mbedtls/"
+    "${AFR_ROOT_DIR}/libraries/3rdparty/pkcs11"
+    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include"
+    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include/mbedtls"
     "${mw320_dir}/sdk/src/incl/platform/os/freertos"
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
@@ -233,19 +234,13 @@ target_sources(
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
+    INTERFACE 
+        AFR::secure_sockets_freertos_plus_tcp
+        AFR::pkcs11_mbedtls
 )
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c"
-)
-
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-       "${AFR_3RDPARTY_DIR}/pkcs11"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
 
 # -------------------------------------------------------------------------------------------------
