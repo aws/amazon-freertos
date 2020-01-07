@@ -215,10 +215,8 @@
 					<state>XIP_IMAGE</state>
 					<state>CPU_LPC54018</state>
 					<state>SDK_DEBUGCONSOLE=1</state>
-					<state>BOARD_USE_VIRTUALCOM</state>
 					<state>USB_STACK_FREERTOS</state>
 					<state>USB_STACK_USE_DEDICATED_RAM=1</state>
-					<state>BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_USBCDC</state>
 					<state>CPU_LPC54018JET180=1</state>
 					<state>USE_RTOS=1</state>
 					<state>FSL_RTOS_FREE_RTOS</state>
@@ -992,7 +990,7 @@
 				</option>
 				<option>
 					<name>IlinkOptInline</name>
-					<state>0</state>
+					<state>1</state>
 				</option>
 				<option>
 					<name>IlinkOptExceptionsAllow</name>
@@ -1008,7 +1006,7 @@
 				</option>
 				<option>
 					<name>IlinkOptMergeDuplSections</name>
-					<state>0</state>
+					<state>1</state>
 				</option>
 				<option>
 					<name>IlinkOptUseVfe</name>
