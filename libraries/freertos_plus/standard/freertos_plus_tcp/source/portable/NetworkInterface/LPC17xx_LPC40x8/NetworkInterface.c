@@ -41,6 +41,14 @@
  * software may be used under the same terms and conditions as the FreeRTOS-TCP software.
  */
 
+/**
+ * Ulysses Fonseca January 2020
+ * Inclusion of the FreeRTOSConfig.h to get the defines of lpc.
+ * Changed the way to check the PHY and set FreeRTOS_NetworkDown or FreeRTOS_NetworkUp, for do this faster.
+ * Inclusion of the create the task ethernet by configSUPPORT_DYNAMIC_ALLOCATION too.
+ * Enabled broadcast frames on driver for DHCP.
+ */
+
 /* Standard includes. */
 #include <stdint.h>
 #include <string.h>
@@ -56,6 +64,7 @@
 #include "FreeRTOS_DHCP.h"
 #include "NetworkBufferManagement.h"
 #include "NetworkInterface.h"
+#include "FreeRTOSConfig.h"
 
 /* LPCOpen includes. */
 #include "chip.h"
@@ -208,6 +217,7 @@ static void prvEMACDeferredInterruptHandlerTask(void *pvParameters)
    uint16_t ConsumeIdx;
    BaseType_t PhyLinkStatus;
    size_t xBytesReceived;
+   char *buffer;
 
    /* Just to prevent compiler warnings about unused parameters. */
    (void) pvParameters;
@@ -306,25 +316,27 @@ static void prvEMACDeferredInterruptHandlerTask(void *pvParameters)
           * However, it could be that when +TCP calls xNetworkInterfaceInitialise(),
           * the status will change and cause this task to call FreeRTOS_NetworkDown() again.
           * One to watch out for perhaps. */
-         if ((PhyLinkStatus & PHY_LINK_CHANGED) || !(PhyLinkStatus & PHY_LINK_CONNECTED))
-         {
-            /* Guard using LinkUp state. */
-            if (LinkUp == pdTRUE)
-            {
-               LinkUp = pdFALSE;
-               /* FreeRTOS_NetworkDown() will:
-                * a) Call vApplicationIPNetworkEventHook(eNetworkDown)
-                * b) Call xNetworkInterfaceInitialise() */
-               FreeRTOS_NetworkDown();
-            }
-            /*  Decrease the polling rate (semaphore timeout) now we know the link is down */
-            xPollPeriod = iplpcLINK_RECEIVE_PERIOD;
-         }
-         else
-         {
-            /* Increase the polling rate (semaphore timeout) to speed things up
-             * until we either receive a packet or the link is confirmed as down */
-            xPollPeriod = iplpcLINK_POLL_PERIOD;
+         if((PhyLinkStatus & PHY_LINK_CHANGED)){
+        	 if (!(PhyLinkStatus & PHY_LINK_CONNECTED))
+        	 {
+        		 /* Guard using LinkUp state. */
+        		 if (LinkUp == pdTRUE)
+        		 {
+        			 LinkUp = pdFALSE;
+        			 /* FreeRTOS_NetworkDown() will:
+        			  * a) Call vApplicationIPNetworkEventHook(eNetworkDown)
+        			  * b) Call xNetworkInterfaceInitialise() */
+        			 FreeRTOS_NetworkDown();
+        		 }
+        		 /*  Decrease the polling rate (semaphore timeout) now we know the link is down */
+        		 xPollPeriod = iplpcLINK_RECEIVE_PERIOD;
+        	 }
+        	 else
+        	 {
+        		 /* Increase the polling rate (semaphore timeout) to speed things up
+        		  * until we either receive a packet or the link is confirmed as down */
+        		 xPollPeriod = iplpcLINK_POLL_PERIOD;
+        	 }
          }
       }   // End if (xSemaphoreTake ...)
    }   // End while (1)
@@ -604,7 +616,7 @@ BaseType_t xNetworkInterfaceInitialise(void)
           * multi- and unicast frames */
          if ((LPC_ETHERNET->RXFILTER.HashFilterH != 0) || (LPC_ETHERNET->RXFILTER.HashFilterL != 0))
          {
-            RxFilterControl |= ENET_RXFILTERCTRL_AMHE | ENET_RXFILTERCTRL_AUHE;
+            RxFilterControl |= ENET_RXFILTERCTRL_AMHE | ENET_RXFILTERCTRL_AUHE | ENET_RXFILTERCTRL_ABE;
          }
 
 #if (ipconfigUSE_LLMNR)
@@ -627,12 +639,15 @@ BaseType_t xNetworkInterfaceInitialise(void)
        *  if it hasn't already been started */
       if (RxTaskCreated != pdTRUE)
       {
+#if (configSUPPORT_STATIC_ALLOCATION==1)
          static StackType_t xStack[configMINIMAL_STACK_SIZE];
          static StaticTask_t xTaskBuffer;
+#endif
 
          EthernetRxSem = xSemaphoreCreateCounting(iplpcNUM_RX_DESCRIPTORS, 0);
          vQueueAddToRegistry(EthernetRxSem, "EnetRx");
 
+#if (configSUPPORT_STATIC_ALLOCATION==1)
          xTaskCreateStatic(prvEMACDeferredInterruptHandlerTask,
                            "Eth_Rx",
                            configMINIMAL_STACK_SIZE,
@@ -640,6 +655,15 @@ BaseType_t xNetworkInterfaceInitialise(void)
                            iplpcETH_RX_TASK_PRIORITY,
                            xStack,
                            &xTaskBuffer);
+#elif (configSUPPORT_DYNAMIC_ALLOCATION==1)
+         xTaskCreate(prvEMACDeferredInterruptHandlerTask,
+                                    "Eth_Rx",
+                                    configMINIMAL_STACK_SIZE,
+                                    NULL,
+                                    iplpcETH_RX_TASK_PRIORITY,
+                                    NULL);
+#endif
+
          RxTaskCreated = pdTRUE;
 
          EthernetTxDoneSem = xSemaphoreCreateCounting(iplpcNUM_TX_DESCRIPTORS, 0);
@@ -655,7 +679,7 @@ BaseType_t xNetworkInterfaceInitialise(void)
 
       /* Enable Ethernet interrupts once the tasks and semaphores have been created.
        * This function is called from the +TCP IP_Task, so that should be ready. */
-      NVIC_SetPriority(ETHERNET_IRQn, configETHERNET_INTERRUPT_PRIORITY);
+      NVIC_SetPriority(ETHERNET_IRQn, config_ETHERNET_INTERRUPT_PRIORITY);
       NVIC_EnableIRQ(ETHERNET_IRQn);
 
       /* Initialisation over, loop, polling for the link status until it is "up",
