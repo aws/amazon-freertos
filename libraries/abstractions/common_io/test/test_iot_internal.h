@@ -33,6 +33,190 @@
 
 #pragma once
 
+
+/*
+ * Test iteration count macros that platforms should set
+ * in their repective "test_iot_config.h" file. If not set
+ * there, the default value of 1 is set here.
+ */
+
+#ifndef IOT_TEST_COMMON_IO_UART_SUPPORTED
+ #define IOT_TEST_COMMON_IO_UART_SUPPORTED  1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_FLASH_SUPPORTED
+ #define IOT_TEST_COMMON_IO_FLASH_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_WATCHDOG_SUPPORTED
+ #define IOT_TEST_COMMON_IO_WATCHDOG_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_GPIO_SUPPORTED
+ #define IOT_TEST_COMMON_IO_GPIO_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_RTC_SUPPORTED
+ #define IOT_TEST_COMMON_IO_RTC_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_TIMER_SUPPORTED
+ #define IOT_TEST_COMMON_IO_TIMER_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_ADC_SUPPORTED
+ #define IOT_TEST_COMMON_IO_ADC_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_RESET_SUPPORTED
+ #define IOT_TEST_COMMON_IO_RESET_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED
+ #define IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_PWM_SUPPORTED
+ #define IOT_TEST_COMMON_IO_PWM_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_I2C_SUPPORTED
+ #define IOT_TEST_COMMON_IO_I2C_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_TEMP_SENSOR_SUPPORTED
+ #define IOT_TEST_COMMON_IO_TEMP_SENSOR_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_POWER_SUPPORTED
+ #define IOT_TEST_COMMON_IO_POWER_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_BATTERY_SUPPORTED
+ #define IOT_TEST_COMMON_IO_BATTERY_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_EFUSE_SUPPORTED
+ #define IOT_TEST_COMMON_IO_EFUSE_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_SPI_SUPPORTED
+ #define IOT_TEST_COMMON_IO_SPI_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_USB_DEVICE_SUPPORTED
+ #define IOT_TEST_COMMON_IO_USB_DEVICE_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_USB_HOST_SUPPORTED
+ #define IOT_TEST_COMMON_IO_USB_HOST_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_SDIO_SUPPORTED
+ #define IOT_TEST_COMMON_IO_SDIO_SUPPORTED 1
+#endif
+
+#ifndef IOT_TEST_COMMON_IO_I2S_SUPPORTED
+ #define IOT_TEST_COMMON_IO_I2S_SUPPORTED 1
+#endif
+
+
+/*
+ * The variables below are used in the tests. Generally. they should be
+ * set in SET_TEST_IOT_RESET_CONFIG() defined in the respective platform
+ * directory. If not set, the default value set at the variable
+ * definition is used.
+ */
+
+/* Uart */
+extern uint8_t ustestIotUartPort;                       /* the index of the UART that will be tested */
+
+/* Flash */
+extern uint32_t ultestIotFlashStartOffset;              /* the Flash offset at which the flash operations in the test will take place */
+
+/* GPIO */
+extern int32_t ltestIotGpioPortA;                       /* The 1st GPIO port used in the loop back test */
+extern int32_t ltestIotGpioPortB;                       /* The 2nd GPIO port used in the loop back test */
+extern uint16_t ustestIotGpioConfig;                    /* ustestIotGpioConfig is used for configuring GPIO test
+                                                         * user must set this variable for testing different GPIOs
+                                                         *
+                                                         * default ustestIotGpioConfig = 0 means reading logic GPIO# 0
+                                                         *
+                                                         * bit[7:0] for port
+                                                         * bit[8] for direction (Read:0, Write: 1)
+                                                         * bit[9] for IRQ (disable: 0, enable: 1)
+                                                         * bit[10] for write value (0 or 1)
+                                                         */
+extern uint32_t ultestIotGpioWaitTime;                  /* Wait time for GPIO port A to receive GPIO interrupt from port B during the test
+                                                         * This is needed to avoid indefinite wait during the test */
+extern uint32_t ultestIotGpioSlowSpeed;                 /* Based on the underlying HW, set the slow speed setting of GPIO */
+extern uint32_t ultestIotGpioFastSpeed;                 /* Based on the underlying HW, set the high speed setting of GPIO */
+extern uint32_t ultestIotGpioFunction;                  /* Alt Function for GPIO for the pin */
+
+
+/* Timer */
+extern int32_t ltestIotTimerInstance;                   /* HW timer instance to use */
+
+/* SPI */
+extern uint32_t ultestIotSpiInstance;                   /* SPI instance that we plan to test */
+extern uint32_t ulAssistedTestIotSpiInstance;           /* SPI assisted tests */
+extern uint32_t ultestIotSpiSlave;                      /* SPI assisted tests */
+extern uint32_t ulAssistedTestIotSpiSlave;              /* SPI assisted tests */
+
+/* ADC */
+extern uint8_t uctestIotAdcChListLen;                   /* Length of ADC chains used in the test. The chains are ADC channels
+                                                         * that would be sampled with a single trigger */
+extern uint8_t * puctestIotAdcChList;                   /* The ADC chains used in the tests */
+extern uint8_t assistedTestIotAdcChannel;               /* Assisted Tests: ADC Channel list */
+
+/* PWM */
+extern uint32_t ultestIotPwmGpioInputPin;               /* GPIO used to measure PWM accuracy */
+extern uint32_t ultestIotPwmInstance;                   /* PWM instance */
+extern uint32_t ultestIotPwmFrequency;                  /* PWM freq */
+extern uint32_t ultestIotPwmDutyCycle;                  /* PWM duty cycle */
+extern int32_t ultestIotPwmChannel;                     /* PWM Channel */
+extern uint32_t assistedTestIotPwmGpioInputPin;         /* PWM assisted tests only */
+
+/* I2C */
+extern uint8_t uctestIotI2CSlaveAddr;                   /* Address of Slave I2C (7-bit address) connected to the bus */
+extern uint8_t xtestIotI2CDeviceRegister;               /* Slave I2C register address used in read/write tests */
+extern uint8_t uctestIotI2CWriteVal;                    /* Write value that will be used in the register write test */
+extern uint8_t uctestIotI2CInstanceIdx;                 /* I2C instance used in the test */
+extern uint8_t uctestIotI2CInstanceNum;                 /* The total number of I2C instances on the device */
+
+/* I2S */
+extern int32_t ltestIotI2sInputInstance;                /* used in assisted tests */
+extern int32_t ltestIotI2sOutputInstance;               /* used in assisted tests */
+extern int32_t ltestIotI2SReadSize;                     /* used in assisted tests */
+
+/* EFUSE */
+extern uint32_t uctestIotEfuse16BitWordValidIdx;        /* Efuse index for valid 16-bit R/W operations */
+extern uint32_t uctestIotEfuse16BitWordInvalidIdx;      /* Efuse index that is not valid for 16-bit R/W operations */
+extern uint32_t uctestIotEfuse16BitWordWriteVal;        /* 16-bit value to write to eFuse at index uctestIotEfuse16BitWordValidIdx */
+extern uint32_t uctestIotEfuse32BitWordValidIdx;        /* Efuse index for valid 32-bit R/W operations */
+extern uint32_t uctestIotEfuse32BitWordInvalidIdx;      /* Efuse index that is not valid for 32-bit R/W operations */
+extern uint32_t uctestIotEfuse32BitWordWriteVal;        /* 32-bit value to write to eFuse at index uctestIotEfuse32BitWordValidIdx */
+
+/* TSensor */
+extern uint8_t uctestIotTsensorInstance;                /* I2C instance used in the test */
+
+/* Power */
+extern uint32_t ultestIotPowerDelay;                    /* Delay used to wait for the DUT enter idle */
+
+extern uint32_t ultestIotPowerPcWakeThreshold;          /* Threshold (minimum idle Time required to enter PC Idle Mode */
+extern uint32_t ultestIotPowerClkSrcOffThreshold;       /* Threshold (minimum idle Time required to enter ClkSrc Off Idle Mode */
+extern uint32_t ultestIotPowerVddOffThreshold;          /* Threshold (minimum idle Time required to enter Vdd Off Idle Mode */
+
+extern uint32_t ultestIotPowerInterruptConfig1;         /* ARM-only: NVIC interrupt mask to disable, for interrupts 0-31 */
+extern uint32_t ultestIotPowerInterruptConfig2;         /* ARM-only: NVIC interrupt mask to disable, for interrupts 32-63 */
+
+extern uint16_t ustestIotPowerWakeupSourcesLength;      /* Number of wakeup source listed in puctestIotPowerWakeupSources */
+extern uint8_t * puctestIotPowerWakeupSources;          /* Array of wakeup sources, HW-dependent */
+
+/* USB Device */
+extern uint8_t uctestIotUsbDeviceControllerId;          /* USB Device controller ID used */
+
+
 /**
  * Board specific UART config set
  *
@@ -154,9 +338,25 @@ void SET_TEST_IOT_SDIO_CONFIG( int testSet );
 void SET_TEST_IOT_TEMP_SENSOR_CONFIG( int testSet );
 
 /**
+ * Board specific efuse config set
+ *
+ * @param: testSet: number of config set to be test
+ * @return None
+ */
+void SET_TEST_IOT_EFUSE_CONFIG(int testSet);
+
+/**
  * Board specific I2S config set
  *
  * @param: testSet: number of config set to be test
  * @return None
  */
 void SET_TEST_IOT_I2S_CONFIG( int testSet );
+
+/**
+ * Board specific USB Device config set
+ *
+ * @param: testSet: number of config set to be test
+ * @return None
+ */
+void SET_TEST_IOT_USB_DEVICE_CONFIG(int testSet);
