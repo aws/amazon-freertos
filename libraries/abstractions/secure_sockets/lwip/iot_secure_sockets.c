@@ -412,11 +412,6 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
 {
     ss_ctx_t * ctx = ( ss_ctx_t * ) xSocket;
 
-    if( ( ctx->status & SS_STATUS_CONNECTED ) != SS_STATUS_CONNECTED )
-    {
-        return SOCKETS_ENOTCONN;
-    }
-
     if( SOCKETS_INVALID_SOCKET == xSocket )
     {
         return SOCKETS_SOCKET_ERROR;
@@ -425,6 +420,11 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
     if( ( NULL == pvBuffer ) || ( 0 == xBufferLength ) )
     {
         return SOCKETS_EINVAL;
+    }
+
+    if( ( ctx->status & SS_STATUS_CONNECTED ) != SS_STATUS_CONNECTED )
+    {
+        return SOCKETS_ENOTCONN;
     }
 
     ctx->recv_flag = ulFlags;
