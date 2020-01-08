@@ -41,6 +41,11 @@
 /* Common IO config includes. */
 #include "test_iot_config.h"
 
+/* Max allowed length of data to write. */
+#ifndef IOT_TEST_COMMON_IO_I2C_MAX_WRITE_LENGTH
+    #define IOT_TEST_COMMON_IO_I2C_MAX_WRITE_LENGTH    ( 10 )
+#endif
+
 /*-----------------------------------------------------------*/
 #define testIotI2C_BAUDRATE               IOT_I2C_FAST_MODE_BPS
 #define testIotI2C_BAUDRATE_LOW_SPEED     IOT_I2C_STANDARD_MODE_BPS
