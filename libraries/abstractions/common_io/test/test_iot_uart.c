@@ -471,7 +471,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
     int32_t lRead, lWrite, lClose;
     BaseType_t xCallbackReturn;
     uint8_t ucPort = ustestIotUartPort;
-    volatile IotUARTOperationStatus_t xCallbackStatus = eUartCompleted;
+    volatile IotUARTOperationStatus_t xCallbackStatus = eUartLastWriteFailed;
 
     xUartHandle = iot_uart_open( ucPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
@@ -483,13 +483,18 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
         lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
+        xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
+
+        TEST_ASSERT_EQUAL( eUartWriteCompleted, xCallbackStatus );
+
         lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
         xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
-        TEST_ASSERT_EQUAL( eUartCompleted, xCallbackStatus );
+        TEST_ASSERT_EQUAL( eUartReadCompleted, xCallbackStatus );
 
         TEST_ASSERT_EQUAL( 0, strncmp( ( char * ) cpBuffer, ( char * ) cpBufferRead, testIotUART_BUFFER_LENGTH ) );
     }
@@ -510,7 +515,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
     IotUARTHandle_t xUartHandle;
     int32_t lWrite, lClose, lCancel;
     BaseType_t xCallbackReturn;
-    volatile IotUARTOperationStatus_t xCallbackStatus = eUartCompleted;
+    volatile IotUARTOperationStatus_t xCallbackStatus = eUartLastWriteFailed;
 
     uint8_t cSmallBuf[ 2 ] = { 'H', 'I' };
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };

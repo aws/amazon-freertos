@@ -53,6 +53,7 @@
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 uint32_t ultestIotSpiInstance = 0;                                /* Test SPI Instance */
+uint32_t ulAssistedTestIotSpiInstance = 0;                        /* Assisted Test SPI Instance */
 uint32_t ultestIotSPIFrequency = 500000U;                         /* Test SPI Frequency */
 uint32_t ultestIotSPIDummyValue = 0;                              /* Test SPI Dummy Value */
 IotSPIMode_t xtestIotSPIDefaultConfigMode = eSPIMode0;            /* Default SPI eSPIMode0 */
@@ -267,13 +268,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     uint8_t ucRxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesRx;
+    int i = 0, j = 0, len = 0;
 
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -281,7 +283,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -318,12 +320,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     /* Create a string with read bytes and print it to console. */
-    for( int i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ j++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -411,13 +415,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     char cMsg[ 50 ] = { 0 };
     size_t xBytesRx;
     int32_t lLoop = 0;
+    int i = 0, j = 0, len = 0;
 
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -425,7 +430,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -470,12 +475,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     /* Create a string with read bytes and print it to console. */
-    for( int i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ j++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -547,11 +554,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     uint8_t ucTxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesTx;
+    int i = 0, j = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ j++ ] = ',';
@@ -564,8 +572,8 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -573,7 +581,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -609,8 +617,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     TEST_IGNORE_MESSAGE( cMsg );
@@ -684,11 +694,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     uint8_t ucTxBuf[ 16 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     size_t xBytesTx;
+    int i = 0, j = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, j = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ j++ ] = ',';
@@ -701,8 +712,8 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -710,7 +721,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -755,8 +766,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     TEST_IGNORE_MESSAGE( cMsg );
@@ -838,11 +851,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     char cMsg[ 50 ] = { 0 };
     int32_t lLoop = 0;
     size_t xBytesTx, xBytesRx;
+    int i = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ lLoop++ ] = ',';
@@ -855,8 +869,8 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -864,7 +878,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -905,12 +919,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     /* Append read bytes to string. */
-    for( int i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ lLoop++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
@@ -995,11 +1011,12 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     uint8_t ucTxBuf[ 8 ] = { 0 };
     char cMsg[ 50 ] = { 0 };
     int32_t lLoop = 0;
+    int i = 0, len = 0;
 
     srand( xTaskGetTickCount() );
 
     /* Generate random tx bytes and load them to a string to print later. */
-    for( int i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucTxBuf ); i < len; i++ )
     {
         ucTxBuf[ i ] = ( uint8_t ) rand();
         cMsg[ lLoop++ ] = ',';
@@ -1012,8 +1029,8 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        #ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
-            lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
             TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
         #else
             TEST_ASSERT_MESSAGE( 0, "Assisted test has a different salve, but slave select is not supported." );
@@ -1021,7 +1038,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     }
 
     /* Open SPI handle */
-    xSPIHandle = iot_spi_open( ultestIotSpiInstance );
+    xSPIHandle = iot_spi_open( ulAssistedTestIotSpiInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xSPIHandle );
 
     /* save original configuration */
@@ -1062,12 +1079,14 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave != ultestIotSpiSlave )
     {
-        lRetVal = iot_spi_select_slave( ultestIotSpiInstance, ulAssistedTestIotSpiSlave );
-        TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
+            lRetVal = iot_spi_select_slave( ulAssistedTestIotSpiInstance, ulAssistedTestIotSpiSlave );
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        #endif
     }
 
     /* Append read bytes to string. */
-    for( int i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
+    for( i = 0, len = sizeof( ucRxBuf ); i < len; i++ )
     {
         cMsg[ lLoop++ ] = ',';
         uint8_t upp = ucRxBuf[ i ] >> 4, low = ucRxBuf[ i ] & 0xF;
