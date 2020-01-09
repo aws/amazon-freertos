@@ -17,3 +17,6 @@
 [submodule "lwip"]
 	path = libraries/3rdparty/lwip
 	url = https://github.com/lwip-tcpip/lwip.git
+[submodule "libraries/3rdparty/CMock"]
+	path = libraries/3rdparty/CMock
+	url = git@github.com:ThrowTheSwitch/CMock.git
