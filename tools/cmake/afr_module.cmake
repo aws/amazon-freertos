@@ -61,6 +61,9 @@ function(afr_module)
     endif()
 
     # All modules implicitly depends on kernel unless INTERFACE or KERNEL is provided.
+    if (NOT AFR_ENABLE_IUNIT_TESTS)
+    endif()
+
     if(NOT (ARG_INTERFACE OR ARG_KERNEL))
         afr_module_dependencies(
             ${module_name}
@@ -335,13 +338,19 @@ function(afr_resolve_dependencies)
     # If neither demos nor tests are enabled, then don't search the aws_demos/aws_tests targets.
     if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         __search_afr_dependencies(${exe_target} dependencies)
-        afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
+	afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
     endif()
 
-    # Make sure kernel can be enabled first.
-    __resolve_dependencies(kernel)
-    if("kernel" IN_LIST __dg_disabled)
-        message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
+    if (AFR_ENABLE_UNIT_TESTS)
+	return()
+    endif()
+
+    if (NOT AFR_ENABLE_UNIT_TESTS)
+	# Make sure kernel can be enabled first.
+	__resolve_dependencies(kernel)
+	if("kernel" IN_LIST __dg_disabled)
+	    message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
+	endif()
     endif()
     afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
 

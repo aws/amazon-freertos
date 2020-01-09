@@ -471,7 +471,7 @@ typedef struct AwsIotShadowDocumentInfo
              * This only needs to be set if #AWS_IOT_SHADOW_FLAG_WAITABLE is passed to
              * @ref shadow_function_get.
              */
-            void *( *mallocDocument )( size_t );
+            void * ( *mallocDocument )( size_t );
         } get; /**< @brief Valid members for @ref shadow_function_get. */
 
         /* Valid for Shadow update. */
