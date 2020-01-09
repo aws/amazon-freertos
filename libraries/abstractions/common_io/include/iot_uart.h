@@ -60,10 +60,10 @@
  */
 typedef enum
 {
-    eUartWriteCompleted,        /*!< UART operation write completed successfully. */
-    eUartReadCompleted,         /*!< UART operation read completed successfully. */
-    eUartLastWriteFailed,       /*!< UART driver returns error when performing write operation. */
-    eUartLastReadFailed,        /*!< UART driver returns error when performing read operation. */
+    eUartWriteCompleted,  /*!< UART operation write completed successfully. */
+    eUartReadCompleted,   /*!< UART operation read completed successfully. */
+    eUartLastWriteFailed, /*!< UART driver returns error when performing write operation. */
+    eUartLastReadFailed,  /*!< UART driver returns error when performing read operation. */
 } IotUARTOperationStatus_t;
 
 /**
