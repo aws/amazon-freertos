@@ -327,14 +327,14 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                                  &ulCount );
     }
 
-    if( ( CKR_OK == xResult ) && ( CK_TRUE == xFindInit ) )
+    if( CK_TRUE == xFindInit )
     {
         /* Indicate to the module that the we're done looking for the indicated
          * type of object. */
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ( CKR_ARGUMENTS_BAD != xResult ) && ( ulCount == 0 ) )
+    if( ulCount == 0 )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
