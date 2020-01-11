@@ -648,22 +648,14 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Ping_ZeroParameters );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword );
 
     /* Stability tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
 
     #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
         RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
@@ -672,9 +664,6 @@ TEST_GROUP_RUNNER( Full_WiFi )
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
     #endif
 
     prvFinishWiFiTesting();
@@ -1101,21 +1090,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
 }
 
 /**
- * @brief Call WIFI_Scan() to scan for zero total networks and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
-{
-    WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ];
-
-    if( TEST_PROTECT() )
-    {
-        /* Ports are allowed to decide to return success or failure depending on
-         * their driver for a scan number of zero. */
-        WIFI_Scan( xScanResults, 0 );
-    }
-}
-
-/**
  * @brief Single test of adding a Wi-Fi network, getting it, then delete it;
  * verify the return status.
  */
@@ -1389,23 +1363,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
 }
 
 /**
- * @brief Call WIFI_NetworkDelete over the maximum network save number. This
- * verifies stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
-{
-    uint16_t usIndex;
-
-    if( TEST_PROTECT() )
-    {
-        for( usIndex = 0; usIndex < testwifiMAX_NETWORK_SAVE_NUMBER; usIndex++ )
-        {
-            WIFI_NetworkDelete( usIndex );
-        }
-    }
-}
-
-/**
  * @brief Exercise the WIFI_SetPMMode() and WIFI_GetPMMode() APIs for each of
  * the available modes and verify the return status.
  */
@@ -1653,66 +1610,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 }
 
 /**
- * @brief Configure the SoftAP with a zero length SSID and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Set the network parameters with valid parameters */
-    prvSetSoftAPNetworkParameters( &xNetworkParams );
-
-    /* Set a zero length SSID */
-    xNetworkParams.ucSSIDLength = 0;
-
-    if( TEST_PROTECT() )
-    {
-        WIFI_ConfigureAP( &xNetworkParams );
-    }
-}
-
-/**
- * @brief Configure the SoftAP with a zero length password and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Set the network parameters with valid parameters */
-    prvSetSoftAPNetworkParameters( &xNetworkParams );
-
-    /* Set zero length password parameter */
-    xNetworkParams.ucPasswordLength = 0;
-
-    if( TEST_PROTECT() )
-    {
-        WIFI_ConfigureAP( &xNetworkParams );
-    }
-}
-
-/**
- * @brief Configure the SoftAP over all channels specified in
- * testwifiMAX_CHANNEL_NUMBER and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-    uint32_t ulIndex;
-
-    /* Set the network parameters with valid parameters */
-    prvSetSoftAPNetworkParameters( &xNetworkParams );
-
-    if( TEST_PROTECT() )
-    {
-        for( ulIndex = 0; ulIndex < testwifiMAX_CHANNEL_NUMBER; ulIndex++ )
-        {
-            xNetworkParams.cChannel = ulIndex;
-            WIFI_ConfigureAP( &xNetworkParams );
-        }
-    }
-}
-
-/**
  * @brief Exercise WIFI_Reset and verify a success.
  */
 TEST( Full_WiFi, AFQP_WiFiReset )
@@ -1751,27 +1648,6 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
     {
         xWiFiStatus = WIFI_Ping( NULL, testwifiPING_COUNT, testwifiPING_INTERVAL_MS );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    }
-}
-
-/**
- * @brief Call WIFI_Ping() with zero for the ping interval and zero for the ping
- * count and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_Ping_ZeroParameters )
-{
-    uint32_t ulPingAddress = testwifiPING_ADDRESS;
-
-    TEST_ASSERT( prvConnectAPTest() == pdPASS );
-
-    if( TEST_PROTECT() )
-    {
-        WIFI_Ping( ( uint8_t * ) &ulPingAddress, testwifiPING_COUNT, 0 );
-    }
-
-    if( TEST_PROTECT() )
-    {
-        WIFI_Ping( ( uint8_t * ) &ulPingAddress, 0, testwifiPING_INTERVAL_MS );
     }
 }
 
@@ -1932,60 +1808,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
 }
 
 /**
- * @brief Call WIFI_ConnectAP() with invalid security types and verify
- * stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Get valid client parameters. */
-    prvSetClientNetworkParameters( &xNetworkParams );
-
-    /* Set the user defined invalid security type. */
-    xNetworkParams.xSecurity = testwifiINVALID_WIFI_SECURITY;
-
-    if( TEST_PROTECT() )
-    {
-        /* It is allowed that some ports will infer the security type from the Wi-Fi
-         * scan. */
-        WIFI_ConnectAP( &xNetworkParams );
-    }
-
-    /* Truly invalid security type. */
-    xNetworkParams.xSecurity = eWiFiSecurityNotSupported;
-
-    if( TEST_PROTECT() )
-    {
-        /* It is allowed that some ports will infer the security type from the Wi-Fi
-         * scan. */
-        WIFI_ConnectAP( &xNetworkParams );
-    }
-}
-
-/**
- * @brief Call WIFI_ConnectAP() with valid credentials over all channels and
- * verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-    uint32_t ulIndex;
-
-    /* Set the valid client parameters. */
-    prvSetClientNetworkParameters( &xNetworkParams );
-
-    if( TEST_PROTECT() )
-    {
-        for( ulIndex = 0; ulIndex < testwifiMAX_CHANNEL_NUMBER; ulIndex++ )
-        {
-            xNetworkParams.cChannel = ulIndex;
-            WIFI_ConnectAP( &xNetworkParams );
-        }
-    }
-}
-
-/**
  * @brief Call WIFI_ConnectAP() with an SSID that exceeds the maximum SSID
  * length and verify failure.
  */
@@ -2059,69 +1881,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
 
     TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
     TEST_WIFI_ASSERT_REQUIRED_API( pdFALSE == xIsConnected, xIsConnected );
-}
-
-/**
- * @brief Attempt to connect to an AP with a valid SSID and with a specified
- * length of zero and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Set the valid client parameters. */
-    prvSetClientNetworkParameters( &xNetworkParams );
-
-    xNetworkParams.ucSSIDLength = 0;
-
-    if( TEST_PROTECT() )
-    {
-        /* This may not return failure if the max SSID length is copied in the port.
-         */
-        WIFI_ConnectAP( &xNetworkParams );
-    }
-}
-
-/**
- * @brief Attempt to connect to an AP with a valid password and with a specified
- * length of zero and verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Set the valid client parameters. */
-    prvSetClientNetworkParameters( &xNetworkParams );
-
-    xNetworkParams.ucPasswordLength = 0;
-
-    if( TEST_PROTECT() )
-    {
-        /* This may not return failure if the max passphrase length is copied in the
-         * port. */
-        WIFI_ConnectAP( &xNetworkParams );
-    }
-}
-
-/**
- * @brief Attempt to connect to an AP with a valid password and the specified
- * password length is less; verify stability.
- */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
-{
-    WIFINetworkParams_t xNetworkParams = { 0 };
-
-    /* Set the network parameters with valid parameters. */
-    prvSetClientNetworkParameters( &xNetworkParams );
-
-    /* Set a password less. */
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD ) - 1;
-
-    if( TEST_PROTECT() )
-    {
-        /* May not return false. */
-        WIFI_ConnectAP( &xNetworkParams );
-    }
 }
 
 /**
