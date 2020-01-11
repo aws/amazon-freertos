@@ -109,7 +109,7 @@ BaseType_t xPhyCheckLinkStatus( EthernetPhy_t *pxPhyObject, BaseType_t xHadRecep
 
 /* Get the bitmask of a given 'EthernetPhy_t'. */
 #define xPhyGetMask( pxPhyObject ) \
-	( ( ( ( uint32_t ) 1u ) << ( pxPhyObject )->xPortCount ) - 1 )
+	( ( ( ( uint32_t ) 1u ) << ( pxPhyObject )->xPortCount ) - 1u )
 
 #ifdef __cplusplus
 } /* extern "C" */
