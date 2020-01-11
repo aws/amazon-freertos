@@ -32,13 +32,13 @@
 #endif
 
 #ifndef	ipconfigPHY_LS_HIGH_CHECK_TIME_MS
-	/* Check if the LinkSStatus in the PHY is still high after 15 seconds of not
+	/* Check if the LinkStatus in the PHY is still high after 15 seconds of not
 	receiving packets. */
 	#define ipconfigPHY_LS_HIGH_CHECK_TIME_MS	15000uL
 #endif
 
 #ifndef	ipconfigPHY_LS_LOW_CHECK_TIME_MS
-	/* Check if the LinkSStatus in the PHY is still low every second. */
+	/* Check if the LinkStatus in the PHY is still low every second. */
 	#define ipconfigPHY_LS_LOW_CHECK_TIME_MS	1000uL
 #endif
 
@@ -103,14 +103,16 @@ Users can change their values in the project's 'FreeRTOSIPConfig.h'. */
  * Description of all capabilities that can be advertised to
  * the peer (usually a switch or router).
  */
-#define phyADVERTISE_CSMA			0x0001u	/* Only selector supported. */
+
+#define phyADVERTISE_CSMA			0x0001u	/* Supports IEEE 802.3u: Fast Ethernet at 100 Mbit/s */
 #define phyADVERTISE_10HALF			0x0020u	/* Try for 10mbps half-duplex. */
 #define phyADVERTISE_10FULL			0x0040u	/* Try for 10mbps full-duplex. */
 #define phyADVERTISE_100HALF		0x0080u	/* Try for 100mbps half-duplex. */
 #define phyADVERTISE_100FULL		0x0100u	/* Try for 100mbps full-duplex. */
 
 #define phyADVERTISE_ALL			( phyADVERTISE_10HALF | phyADVERTISE_10FULL | \
-									  phyADVERTISE_100HALF | phyADVERTISE_100FULL )
+									  phyADVERTISE_100HALF | phyADVERTISE_100FULL | \
+									  phyADVERTISE_CSMA )
 
 /* Send a reset command to a set of PHY-ports. */
 static uint32_t xPhyReset( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask );
@@ -214,7 +216,7 @@ BaseType_t xPhyAddress;
 }
 /*-----------------------------------------------------------*/
 
-/* Send a reset commando to a set of PHY-ports. */
+/* Send a reset command to a set of PHY-ports. */
 static uint32_t xPhyReset( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 uint32_t ulDoneMask, ulConfig;
@@ -268,10 +270,14 @@ BaseType_t xPhyIndex;
 	/* Clear the reset bits. */
 	for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++ )
 	{
-	BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
+		if( ( ulDoneMask & ( 1ul << xPhyIndex ) ) == 0uL )
+		{
+		BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
 
-		pxPhyObject->fnPhyRead( xPhyAddress, phyREG_00_BMCR, &ulConfig );
-		pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig & ~phyBMCR_RESET );
+			/* The reset operation timed out, clear the bit manually. */
+			pxPhyObject->fnPhyRead( xPhyAddress, phyREG_00_BMCR, &ulConfig );
+			pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig & ~phyBMCR_RESET );
+		}
 	}
 
 	vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
@@ -298,11 +304,12 @@ BaseType_t xPhyIndex;
     /* Set advertise register. */
 	if( ( pxPhyProperties->ucSpeed == ( uint8_t )PHY_SPEED_AUTO ) && ( pxPhyProperties->ucDuplex == ( uint8_t )PHY_DUPLEX_AUTO ) )
 	{
-		ulAdvertise = phyADVERTISE_CSMA | phyADVERTISE_ALL;
+		ulAdvertise = phyADVERTISE_ALL;
 		/* Reset auto-negotiation capability. */
 	}
 	else
 	{
+		/* Always select protocol 802.3u. */
 		ulAdvertise = phyADVERTISE_CSMA;
 
 		if( pxPhyProperties->ucSpeed == ( uint8_t )PHY_SPEED_AUTO )

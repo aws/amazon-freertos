@@ -22,11 +22,11 @@ extern "C" {
 #endif
 
 /* A generic user-provided function that reads from the PHY-port at 'xAddress'( 0-based ). A 16-bit value shall be stored in
-  '*pusValue'. xRegister is the register number ( 0 .. 31 ). In fact all PHY registers are 16-bit.
+  '*pulValue'. xRegister is the register number ( 0 .. 31 ). In fact all PHY registers are 16-bit.
   Return non-zero in case the action failed. */
 typedef BaseType_t ( *xApplicationPhyReadHook_t )( BaseType_t xAddress, BaseType_t xRegister, uint32_t *pulValue );
 
-/* A generic user-provided function that writes 'usValue' to the
+/* A generic user-provided function that writes 'ulValue' to the
    PHY-port at 'xAddress' ( 0-based ). xRegister is the register number ( 0 .. 31 ).
    Return non-zero in case the action failed. */
 typedef BaseType_t ( *xApplicationPhyWriteHook_t )( BaseType_t xAddress, BaseType_t xRegister, uint32_t ulValue );
@@ -93,10 +93,10 @@ void vPhyInitialise( EthernetPhy_t *pxPhyObject, xApplicationPhyReadHook_t fnPhy
 /* Discover all PHY's connected by polling 32 indexes ( zero-based ) */
 BaseType_t xPhyDiscover( EthernetPhy_t *pxPhyObject );
 
-/* Send a reset commando to the connected PHY ports and send configuration. */
+/* Send a reset command to the connected PHY ports and send configuration. */
 BaseType_t xPhyConfigure( EthernetPhy_t *pxPhyObject, const PhyProperties_t *pxPhyProperties );
 
-/* Give a commando to start auto negotiation on a set of PHY port's. */
+/* Give a command to start auto negotiation on a set of PHY port's. */
 BaseType_t xPhyStartAutoNegotiation( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask );
 
 /* Do not use auto negotiation but use predefined values from 'pxPhyObject->xPhyPreferences'. */
@@ -107,10 +107,9 @@ BaseType_t xPhyFixedValue( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask );
 last call to this function. */
 BaseType_t xPhyCheckLinkStatus( EthernetPhy_t *pxPhyObject, BaseType_t xHadReception );
 
-static __inline uint32_t xPhyGetMask( EthernetPhy_t *pxPhyObject )
-{
-	return ( ( ( uint32_t ) 1u ) << pxPhyObject-> xPortCount ) - 1;
-}
+/* Get the bitmask of a given 'EthernetPhy_t'. */
+#define xPhyGetMask( pxPhyObject ) \
+	( ( ( ( uint32_t ) 1u ) << ( pxPhyObject )->xPortCount ) - 1 )
 
 #ifdef __cplusplus
 } /* extern "C" */
