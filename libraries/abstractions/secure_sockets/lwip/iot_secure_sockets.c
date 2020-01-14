@@ -761,8 +761,9 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             }
             else
             {
-                ctx->ppcAlpnProtocols[
-                    ctx->ulAlpnProtocolsCount - 1 ] = NULL;
+                memset( ctx->ppcAlpnProtocols,
+                        0x00,
+                        ctx->ulAlpnProtocolsCount * sizeof( char * ) );
             }
 
             /* Copy each protocol string. */
