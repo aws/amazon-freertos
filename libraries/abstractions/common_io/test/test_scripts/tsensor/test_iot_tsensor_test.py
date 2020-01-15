@@ -28,11 +28,12 @@ import csv
 import os, sys
 import argparse
 
-scriptdir = os.path.abspath(sys.path[0])
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 
 
@@ -72,11 +73,11 @@ class TestTsensorAssisted(test_template):
 
             self._serial.write('\r\n'.encode('utf-8'))
 
-            res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+            res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
             # print(res)
             temp = []
             # Extract temperature readings from all of on board sensors.
-            for x in res.split('\\n\\r'):
+            for x in res.split('\n'):
                 # Look for the line with ADC reading.
                 if x.find('TEST(TEST_IOT_TSENSOR, AFQP_IotTsensorTemp)') != -1:
                     for s in x.split():
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     rpi_login = args.login_name[0]
     rpi_pwd = args.password[0]
 
-    with open('test_result.csv', 'w', newline='') as csvfile:
+    with open(scriptdir + '/test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
