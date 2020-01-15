@@ -807,7 +807,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess )
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
     uint8_t writeVal1[] = { xtestIotI2CDeviceRegister, uctestIotI2CWriteVal };
-    uint8_t writeVal2[ IOT_TEST_COMMON_IO_I2C_MAX_WRITE_LENGTH ] = { xtestIotI2CDeviceRegister, uctestIotI2CWriteVal, uctestIotI2CWriteVal };
+    uint8_t writeVal2[ IOT_TEST_COMMON_IO_I2C_MAX_WRITE_LENGTH ] = { xtestIotI2CDeviceRegister, uctestIotI2CWriteVal };
 
     uint16_t writeBytes;
 
@@ -855,7 +855,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess )
 
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetTxNoOfbytes, &writeBytes );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being written is 4. */
+        /* Assert the number of written bytes. */
         TEST_ASSERT_EQUAL( sizeof( writeVal2 ), writeBytes );
     }
 
