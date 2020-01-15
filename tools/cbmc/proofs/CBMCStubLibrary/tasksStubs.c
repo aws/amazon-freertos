@@ -34,14 +34,18 @@ void vInitTaskCheckForTimeOut(BaseType_t maxCounter, BaseType_t maxCounter_limit
 /* This is mostly called in a loop. For CBMC, we have to bound the loop
    to a max limits of calls. Therefore this Stub models a nondet timeout in
    max TASK_STUB_COUNTER_LIMIT iterations.*/
+uint8_t time;
+
 BaseType_t xTaskCheckForTimeOut( TimeOut_t * const pxTimeOut, TickType_t * const pxTicksToWait ) {
-	++xCounter;
-	if(xCounter == xCounterLimit)
-	{
-		return pdTRUE;
-	}
-	else
-	{
-		return nondet_basetype();
-	}
+	
+	(void *) pxTimeOut;
+	(void *) pxTicksToWait;
+
+	uint8_t increment;
+
+	__CPROVER_assume(increment > 0 && increment < 10);
+
+	time += increment;
+
+	return time > 2 ? pdTRUE : pdFALSE;
 }
