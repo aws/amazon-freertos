@@ -51,6 +51,8 @@ const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WA
 static TaskHandle_t xTaskToNotify = NULL;
 static BaseType_t xIsWiFiInitialized = pdFALSE;
 
+static char pcLastAttemptedSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
+
 espr_t esp_callback_func(esp_cb_t* cb)
 {
   switch (cb->type) {
@@ -127,7 +129,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
   uint32_t ulNotifiedValue;
   WIFIReturnCode_t status = eWiFiFailure;
 
-  if ((pxNetworkParams == NULL) || (pxNetworkParams->pcSSID == NULL))
+  if ((pxNetworkParams == NULL) || (pxNetworkParams->ucSSIDLength == 0))
   {
 	return eWiFiFailure;
   }
@@ -157,7 +159,17 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 	  }
 	}
 
-    if (esp_sta_join(pxNetworkParams->pcSSID, pxNetworkParams->pcPassword, NULL, 0, 1) == espOK)
+    char pcSSID[pxNetworkParams->ucSSIDLength + 1];
+    memcpy(pcSSID, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength);
+    pcSSID[pxNetworkParams->ucSSIDLength] = '\0';
+
+    char pcPassword[pxNetworkParams->xPassword.xWPA.ucLength + 1];
+    memcpy(pcPassword, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength);
+    pcPassword[pxNetworkParams->xPassword.xWPA.ucLength] = '\0';
+
+    strncpy(pcLastAttemptedSSID, (char *)pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength + 1);
+
+    if (esp_sta_join(pcSSID, pcPassword, NULL, 0, 1) == espOK)
     {
       xResult = xTaskNotifyWait( pdFALSE,    /* Don't clear bits on entry. */
                                  ULONG_MAX,        /* Clear all bits on exit. */
@@ -280,11 +292,11 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     {
    	  for (int32_t i = 0; i < ucNumNetworks; ++i)
    	  {
-   		memcpy(pxBuffer[i].cSSID, APs[i].ssid, wificonfigMAX_SSID_LEN);
+   		memcpy(pxBuffer[i].ucSSID, APs[i].ssid, wificonfigMAX_SSID_LEN);
    	    memcpy(pxBuffer[i].ucBSSID, APs[i].mac.mac, wificonfigMAX_BSSID_LEN);
    	    pxBuffer[i].cRSSI = APs[i].rssi;
    	    pxBuffer[i].xSecurity = APs[i].ecn;
-   	    pxBuffer[i].cChannel = APs[i].ch;
+   	    pxBuffer[i].ucChannel = APs[i].ch;
    	  }
 
       status = eWiFiSuccess;
@@ -414,13 +426,12 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
   {
     for (int32_t i = 0; i < usCount; ++i)
     {
-	  uint32_t time;
-
+      uint32_t time;
       ret = esp_ping(host_name, &time, 1);
-      if (ret != espOK)
+      if ( ret != espOK )
       {
-            ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
   	    status = eWiFiFailure;
+            ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
   	    break;
       }
 
@@ -435,26 +446,29 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     status = eWiFiTimeout;
   }
 
+
   return status;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
   esp_ip_t gw;
   esp_ip_t nm;
 
   WIFIReturnCode_t status = eWiFiFailure;
 
-  if (pucIPAddr == NULL)
+  if (xIPConfig == NULL)
   {
 	return eWiFiFailure;
   }
 
+  memset(xIPConfig, 0, sizeof(WIFIIPConfiguration_t));
+
   /* Acquire semaphore */
   if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
   {
-    if (esp_sta_getip((esp_ip_t *)pucIPAddr, &gw, &nm, 0, 1) == espOK)
+    if (esp_sta_getip((esp_ip_t *)&xIPConfig->xIPAddress.ulAddress[0], &gw, &nm, 0, 1) == espOK)
     {
       status = eWiFiSuccess;
     }
@@ -562,23 +576,38 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected(const WIFINetworkParams_t * const pxNetworkParams)
 {
-  BaseType_t status = 0;
+	BaseType_t status = pdFALSE;
 
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-	status = esp_sta_has_ip();
+	/* Acquire semaphore */
+	if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
+	{
 
-	/* Release semaphore */
-	xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
+		if (esp_sta_has_ip())
+		{
+			if (pxNetworkParams && pxNetworkParams->ucSSIDLength > 0)
+			{
+				if (pxNetworkParams->ucSSIDLength == strnlen(pcLastAttemptedSSID, wificonfigMAX_SSID_LEN)
+					&& (0 == memcmp(pxNetworkParams->ucSSID, pcLastAttemptedSSID, pxNetworkParams->ucSSIDLength)))
+				{
+					status = pdTRUE;
+				}
+			}
+			else
+			{
+				status = pdTRUE;
+			}
+		}
 
-  return status;
+		/* Release semaphore */
+		xSemaphoreGive(xWiFiSemaphoreHandle);
+	}
+
+	return status;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;

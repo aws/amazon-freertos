@@ -499,8 +499,7 @@ static uint8_t _do_WIFI_Scan( uint8_t len, char *param[] )
                                                                p->ucBSSID[ 5 ] );
         printf( "security   %s\n", _security_to_str( p->xSecurity ) );
         printf( "rssi       %d\n", (int)p->cRSSI );
-        printf( "channel    %d\n", (int)p->cChannel );
-        printf( "visibility %s\n", (int)p->ucHidden ? "hidden" : "visible" );
+        printf( "channel    %d\n", (int)p->ucChannel );
     }
 
     vPortFree( xScanResults );
@@ -546,7 +545,7 @@ static uint8_t _do_WIFI_ConfigureAP( uint8_t len, char *param[] )
         return 2;
     }
 
-    xNetworkParams.cChannel = (int8_t)val;
+    xNetworkParams.ucChannel = (int8_t)val;
 
     if( _parse_aws_net_params( &xNetworkParams, len - 1, &param[1] ) )
     {

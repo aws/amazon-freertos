@@ -84,7 +84,7 @@ typedef struct IotBleDeleteNetworkRequest
  */
 typedef struct IotBleWifiNetworkInfo
 {
-    const char * pSSID;      /**< @brief The SSID of the WiFi network. */
+    const uint8_t * pSSID;      /**< @brief The SSID of the WiFi network. */
     size_t SSIDLength;       /**< @brief The SSID length in bytes. */
     const uint8_t * pBSSID;  /**< BSSID of the Wi-Fi network. */
     size_t BSSIDLength;      /**< BSSID of the Wi-Fi network. */

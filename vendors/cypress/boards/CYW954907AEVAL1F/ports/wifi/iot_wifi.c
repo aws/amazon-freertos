@@ -51,6 +51,7 @@
 #include "rtos.h"
 #include "lwip/netdb.h"
 BaseType_t isConnected;
+static char pcConnectedSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
 wiced_mutex_t serializeWifi; /**< Mutex used to serialize all the operations on the Wi-Fi module. */
 
 #define configPRINTF( X ) //printf X
@@ -101,6 +102,38 @@ static wiced_security_t prvConvertSecurityFromAbstractedToCY( WIFISecurity_t xSe
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
+ *        Null terminator is guaranteed so long as xLen > 0. A maximum of xCap - 1 pucSrc bytes will be copied into pcDest,
+ *        therefore truncation is possible.
+ *
+ * @param[in] pcDest The string to copy pucSrc contents into
+ *
+ * @param[in] pucSrc The byte array to copy into pcDest
+ *
+ * @param[in] xLen The queried number of byte to copy from pucSrc to pcDest
+ *
+ * @param[in] xCap Capacity of pcDest i.e. max characters it can store
+ *
+ */
+static size_t prvByteArrayToString( char *pcDest, const uint8_t *pucSrc, size_t xLen, size_t xCap )
+{
+    configASSERT( pcDest );
+    configASSERT( pucSrc );
+
+    if ( xLen > ( xCap - 1 ) )
+    {
+        xLen = xCap - 1;
+    }
+
+    memcpy( pcDest, pucSrc, xLen );
+    pcDest[ xLen ] = '\0';
+
+    return xLen;
+}
+
+/*-----------------------------------------------------------*/
+
 WIFIReturnCode_t WIFI_On( void )
 {
     /* FIX ME. */
@@ -128,13 +161,14 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     wiced_result_t      result;
     wiced_scan_result_t ap_info;
     wiced_ap_info_t     ap;
+    char pcSSID[ pxNetworkParams->ucSSIDLength + 1 ];
 
-    if( (pxNetworkParams == NULL) || (pxNetworkParams->pcSSID == NULL) )
+    if( (pxNetworkParams == NULL) || (pxNetworkParams->ucSSIDLength == 0 ) )
     {
         return eWiFiFailure;
     }
 
-    if( (pxNetworkParams->xSecurity != eWiFiSecurityOpen) && (pxNetworkParams->pcPassword == NULL) )
+    if( (pxNetworkParams->xSecurity != eWiFiSecurityOpen) && (pxNetworkParams->xPassword.xWPA.ucLength == 0) )
     {
         return eWiFiFailure;
     }
@@ -156,7 +190,11 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         isConnected = 0;
     }
 
-    result = wiced_wifi_find_ap( pxNetworkParams->pcSSID, &ap_info, NULL );
+    prvByteArrayToString( pcSSID,
+                          pxNetworkParams->ucSSID,
+                          pxNetworkParams->ucSSIDLength,
+                          wificonfigMAX_SSID_LEN );
+    result = wiced_wifi_find_ap( pcSSID, &ap_info, NULL );
     if( result != WICED_SUCCESS)
     {
         configPRINTF( ( "wifi_utils_join failed %d...\r\n", result ) );
@@ -166,7 +204,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     memcpy( &ap, &ap_info, sizeof(wiced_ap_info_t) );
     ap.next = NULL;
 
-    result = wiced_join_ap_specific( &ap, pxNetworkParams->ucPasswordLength, pxNetworkParams->pcPassword );
+    result = wiced_join_ap_specific( &ap, pxNetworkParams->xPassword.xWPA.ucLength, pxNetworkParams->xPassword.xWPA.cPassphrase);
     if( result != WICED_SUCCESS)
     {
         configPRINTF( ( "wifi_utils_join failed %d...\r\n", result ) );
@@ -181,6 +219,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     }
 
     isConnected = 1;
+    memcpy( pcConnectedSSID, pcSSID, strlen(pcSSID) + 1 );
 
     /* Unlock the mutex. */
     wiced_rtos_unlock_mutex( &serializeWifi );
@@ -250,7 +289,8 @@ wiced_result_t scan_result_handler( wiced_scan_handler_result_t* malloced_scan_r
                 return WICED_SUCCESS;
             }
 
-            memcpy( scan_data->pxBuffer[i].cSSID, record->SSID.value, record->SSID.length );
+            scan_data->pxBuffer[ i ].ucSSIDLength = record->SSID.length > wificonfigMAX_SSID_LEN ? wificonfigMAX_SSID_LEN : record->SSID.length;
+            memcpy( scan_data->pxBuffer[i].ucSSID, record->SSID.value, scan_data->pxBuffer[ i ].ucSSIDLength );
             memcpy( scan_data->pxBuffer[i].ucBSSID, (uint8_t*)&record->BSSID, sizeof(scan_data->pxBuffer[i].ucBSSID) );
 
             if( (record->security && WEP_ENABLED ) )
@@ -275,8 +315,7 @@ wiced_result_t scan_result_handler( wiced_scan_handler_result_t* malloced_scan_r
             }
 
             scan_data->pxBuffer[i].cRSSI = (int8_t)record->signal_strength;
-            scan_data->pxBuffer[i].cChannel = (int8_t)record->channel;
-            scan_data->pxBuffer[i].ucHidden = 0;
+            scan_data->pxBuffer[i].ucChannel = (int8_t)record->channel;
             i++;
 
             //print_scan_result(record);
@@ -374,12 +413,12 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
 {
     wiced_ip_address_t ip_address;
     wiced_result_t result;
     configPRINTF( ( "WIFI_GetIP...\r\n") );
-    if( pucIPAddr == NULL )
+    if( pxIPConfig == NULL )
     {
         return eWiFiFailure;
     }
@@ -389,7 +428,9 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
         configPRINTF( ( "wiced_ip_get_ipv4_address failed %d...\r\n", result ) );
         return eWiFiFailure;
     }
-    memcpy( pucIPAddr, &ip_address.ip.v4, 4);
+    
+    memcpy( &pxIPConfig->xIPAddress.ulAddress[ 0 ], &ip_address.ip.v4, 4 );
+
     return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
@@ -492,14 +533,35 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
     /* FIX ME. */
     configPRINTF( ( "WIFI_IsConnected...\r\n") );
+
+    BaseType_t xIsConnected = pdFALSE;
+
+    if ( isConnected )
+    {
+        if ( pxNetworkParams )
+        {
+            if ( pxNetworkParams->ucSSIDLength > 0
+                 && pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+                 && memcmp( pxNetworkParams->ucSSID, pcConnectedSSID, pxNetworkParams->ucSSIDLength)
+                 && pxNetworkParams->ucSSIDLength == strlen( pcConnectedSSID ) )
+            {
+                xIsConnected = pdTRUE;
+            }
+        }
+        else
+        {
+            xIsConnected = pdTRUE;
+        }
+    }
+
     return isConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;

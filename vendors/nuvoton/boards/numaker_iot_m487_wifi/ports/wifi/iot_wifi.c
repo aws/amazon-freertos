@@ -58,6 +58,41 @@ NuWiFiModule_t xNuWiFi;
 
 static BaseType_t xWIFI_IsInitialized;
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS(wificonfigMAX_SEMAPHORE_WAIT_TIME_MS);
+static char pcConnectedSSID[ wificonfigMAX_SSID_LEN + 1 ] = { 0 };
+
+/*-----------------------------------------------------------*/
+
+
+/**
+ * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
+ * 		  Null terminator is guaranteed so long as xLen > 0. A maximum of xCap - 1 pucSrc bytes will be copied into pcDest,
+ * 		  therefore truncation is possible.
+ *
+ * @param[in] pcDest The string to copy pucSrc contents into
+ *
+ * @param[in] pucSrc The byte array to copy into pcDest
+ *
+ * @param[in] xLen The queried number of byte to copy from pucSrc to pcDest
+ *
+ * @param[in] xCap Capacity of pcDest i.e. max characters it can store
+ *
+ */
+static size_t prvByteArrayToString( char *pcDest, const uint8_t *pucSrc, size_t xLen, size_t xCap )
+{
+	configASSERT( pcDest );
+	configASSERT( pucSrc );
+
+	if ( xLen > ( xCap - 1 ) )
+	{
+		xLen = xCap - 1;
+	}
+
+	memcpy( pcDest, pucSrc, xLen );
+	pcDest[ xLen ] = '\0';
+
+	return xLen;
+}
+
 
 /*-----------------------------------------------------------*/
 
@@ -108,8 +143,8 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
     uint32_t i;
 
-    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL || 
-        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
+    if (pxNetworkParams == NULL || pxNetworkParams->ucSSIDLength == 0 || 
+        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->xPassword.xWPA.ucLength == 0)) {
         return xWiFiRet;
     }
 
@@ -127,12 +162,22 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         if (xWiFiRet == eWiFiSuccess) {
             xWiFiRet = eWiFiFailure;
 
+						char pcSSID[ pxNetworkParams->ucSSIDLength + 1];
+						char pcPassword [ pxNetworkParams->xPassword.xWPA.ucLength + 1 ];
+						prvByteArrayToString( pcSSID, 
+																	pxNetworkParams->ucSSID, 
+																	pxNetworkParams->ucSSIDLength, 
+																	wificonfigMAX_SSID_LEN );
+						prvByteArrayToString( pcPassword, 
+																	pxNetworkParams->xPassword.xWPA.cPassphrase, 
+																	pxNetworkParams->xPassword.xWPA.ucLength, 
+																	wificonfigMAX_PASSPHRASE_LEN );
             for (i = 0 ; i < wificonfigNUM_CONNECTION_RETRY ; i++) {
                 /* Connect to AP */
-                if (ESP_WIFI_Connect(&xNuWiFi.xWifiObject, pxNetworkParams->pcSSID,
-                                     pxNetworkParams->pcPassword) == ESP_WIFI_STATUS_OK) {
+                if (ESP_WIFI_Connect(&xNuWiFi.xWifiObject, pcSSID, pcPassword) == ESP_WIFI_STATUS_OK) {
                     /* Store network settings. */
                     if (ESP_WIFI_GetNetStatus(&xNuWiFi.xWifiObject) == ESP_WIFI_STATUS_OK) {
+												memcpy( pcConnectedSSID, pcSSID, strlen( pcSSID ) + 1);
                         xWiFiRet = eWiFiSuccess;
                         break;
                     }
@@ -271,17 +316,17 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr, uint16_t usCount, uint32_t ulIn
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPConfig )
 {
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
 
-    if (pucIPAddr == NULL) {
+    if ( pxIPConfig == NULL) {
         return xWiFiRet;
     }
 
     if (xSemaphoreTake(xNuWiFi.xWifiSem, xSemaphoreWaitTicks) == pdTRUE) {
         if (xNuWiFi.xWifiObject.IsConnected == pdTRUE) {
-            memcpy(pucIPAddr, xNuWiFi.xWifiObject.StaIpAddr, 4);
+            memcpy( &pxIPConfig->xIPAddress.ulAddress[ 0 ], &xNuWiFi.xWifiObject.StaIpAddr[ 0 ], 4 );
             xWiFiRet = eWiFiSuccess;
         }
         xSemaphoreGive(xNuWiFi.xWifiSem);
@@ -376,13 +421,26 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType, void * pvOptionVal
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected( void )
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
     BaseType_t xIsConnected = pdFALSE;
 
     if (xSemaphoreTake(xNuWiFi.xWifiSem, xSemaphoreWaitTicks) == pdTRUE) {
         if (ESP_WIFI_IsConnected(&xNuWiFi.xWifiObject) == pdTRUE) {
-            xIsConnected = pdTRUE;
+						if ( pxNetworkParams )
+						{
+								if( pxNetworkParams->ucSSIDLength > 0 
+										&& pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+										&& 0 == memcmp( pxNetworkParams->ucSSID, pcConnectedSSID, pxNetworkParams->ucSSIDLength )
+										&& pxNetworkParams->ucSSIDLength == strlen( pcConnectedSSID ) ) 
+								{
+										xIsConnected = pdTRUE;
+								}
+						}
+						else
+						{            
+								xIsConnected = pdTRUE;
+						}
         }
         xSemaphoreGive(xNuWiFi.xWifiSem);
     }
@@ -390,7 +448,7 @@ BaseType_t WIFI_IsConnected( void )
     return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;

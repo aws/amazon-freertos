@@ -295,6 +295,37 @@ static WIFIReturnCode_t conv_mode_to_qcom(WIFIDeviceMode_t xDeviceMode, QCOM_WLA
 }
 
 /**
+ * @brief Copies byte array into char array, appending '\0'. Assumes char array can hold length of byte array + 1.
+ * 		  Null terminator is guaranteed so long as xLen > 0. A maximum of xCap - 1 pucSrc bytes will be copied into pcDest,
+ * 		  therefore truncation is possible.
+ *
+ * @param[in] pcDest The string to copy pucSrc contents into
+ *
+ * @param[in] pucSrc The byte array to copy into pcDest
+ *
+ * @param[in] xLen The queried number of byte to copy from pucSrc to pcDest
+ *
+ * @param[in] xCap Capacity of pcDest i.e. max characters it can store
+ *
+ */
+static size_t prvByteArrayToString( char * pcDest, const uint8_t * const pucSrc, size_t xLen, size_t xCap )
+{
+	configASSERT( pcDest );
+	configASSERT( pucSrc );
+
+	if ( xLen > ( xCap - 1 ) )
+	{
+		xLen = xCap - 1;
+	}
+
+	memcpy( pcDest, pucSrc, xLen );
+	pcDest[ xLen ] = '\0';
+
+	return xLen;
+}
+
+
+/**
  * @brief Initializes the Wi-Fi module.
  *
  * This function must be called exactly once before any other
@@ -376,7 +407,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         return eWiFiFailure;
 
     /* Check params */
-    if (NULL == pxNetworkParams || NULL == pxNetworkParams->pcSSID || NULL == pxNetworkParams->pcPassword)
+    if (NULL == pxNetworkParams || 0 == pxNetworkParams->ucSSIDLength )
         return eWiFiFailure;
 
     /* Acquire semaphore */
@@ -422,7 +453,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             }
 
             /* Set SSID, must be done before auth, cipher and passphrase */
-            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid.ssid));
+            prvByteArrayToString( g_ssid.ssid,
+								  pxNetworkParams->ucSSID,
+								  pxNetworkParams->ucSSIDLength,
+								  wificonfigMAX_SSID_LEN );
             if (A_OK != (A_STATUS)qcom_set_ssid(g_devid, &g_ssid))
             {
                 break;
@@ -448,16 +482,19 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             }
 
             /* Set passphrase */
-            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr.passphrase));
+            prvByteArrayToString( g_passphr.passphrase,
+            					  pxNetworkParams->xPassword.xWPA.cPassphrase,
+								  pxNetworkParams->xPassword.xWPA.ucLength,
+								  wificonfigMAX_PASSPHRASE_LEN );
             if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
             {
                 break;
             }
 
             /* Set channel */
-            if (0 != pxNetworkParams->cChannel)
+            if (0 != pxNetworkParams->ucChannel)
             {
-                if (A_OK != qcom_set_channel(g_devid, pxNetworkParams->cChannel))
+                if (A_OK != qcom_set_channel(g_devid, pxNetworkParams->ucChannel))
                 {
                     break;
                 }
@@ -791,17 +828,17 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
  *
  * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * xIPConfig )
 {
     /* Check initialization */
     if (!g_wifi_is_on)
         return eWiFiFailure;
 
     /* Check params */
-    if (NULL == pxIPAddr)
+    if ( NULL == xIPConfig )
         return eWiFiFailure;
 
-    ip_to_pxIPAddr(g_ip4_addr, pxIPAddr);
+    ip_to_pxIPAddr(g_ip4_addr, &xIPConfig->xIPAddress.ulAddress[ 0 ] );    
 
     return g_ip4_addr == 0 ? eWiFiFailure : eWiFiSuccess;
 }
@@ -969,11 +1006,11 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 scan_result_num = (int16_t)uxNumNetworks;
             for (int16_t i  = 0 ; i < scan_result_num; i++)
             {
-                strncpy((char*)pxBuffer->cSSID, (char const*)scan_result[i].ssid, wificonfigMAX_SSID_LEN);
+            	pxBuffer->ucSSIDLength = strnlen( (char const*)scan_result[i].ssid, wificonfigMAX_SSID_LEN );
+                memcpy( pxBuffer->ucSSID, (char const*)scan_result[i].ssid, pxBuffer->ucSSIDLength );
                 strncpy((char*)pxBuffer->ucBSSID, (char const*)scan_result[i].bssid, wificonfigMAX_BSSID_LEN);
                 pxBuffer->cRSSI = scan_result[i].rssi;
-                pxBuffer->cChannel = scan_result[i].channel;
-                pxBuffer->ucHidden = 0;
+                pxBuffer->ucChannel = scan_result[i].channel;
                 if (!scan_result[i].security_enabled)
                 {
                     pxBuffer->xSecurity = eWiFiSecurityOpen;
@@ -1046,7 +1083,7 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
         return eWiFiFailure;
 
     /* Check params */
-    if (NULL == pxNetworkParams || NULL == pxNetworkParams->pcSSID || NULL == pxNetworkParams->pcPassword)
+    if (NULL == pxNetworkParams || 0 == pxNetworkParams->ucSSIDLength )
         return eWiFiFailure;
 
     /* Acquire semaphore */
@@ -1058,7 +1095,10 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
                 break;
 
             /* Set SSID, must be done before auth, cipher and passphrase */
-            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid.ssid));
+            prvByteArrayToString( g_ssid.ssid,
+								  pxNetworkParams->ucSSID,
+								  pxNetworkParams->ucSSIDLength,
+								  wificonfigMAX_SSID_LEN );
             if (A_OK != (A_STATUS)qcom_set_ssid(g_devid, &g_ssid))
                 break;
 
@@ -1075,7 +1115,10 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
                 break;
 
             /* Set passphrase */
-            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr.passphrase));
+            prvByteArrayToString( g_passphr.passphrase,
+								  pxNetworkParams->xPassword.xWPA.cPassphrase,
+								  pxNetworkParams->xPassword.xWPA.ucLength,
+								  wificonfigMAX_PASSPHRASE_LEN );
             if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
                 break;
 
@@ -1105,7 +1148,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
     return eWiFiNotSupported;
 }
 
-BaseType_t WIFI_IsConnected( void )
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
 //    uint32_t ip4_addr = 0, ip4_mask = 0, ip4_gw = 0;
     BaseType_t xIsConnected = pdFALSE;
@@ -1113,13 +1156,25 @@ BaseType_t WIFI_IsConnected( void )
 //    if (A_OK == qcom_ipconfig( g_devid, QCOM_IPCONFIG_DHCP, &ip4_addr, &ip4_mask, &ip4_gw ) )
     if (1 == g_connected)
     {
-        xIsConnected = pdTRUE;
+    	if ( pxNetworkParams )
+    	{
+    		if ( pxNetworkParams->ucSSIDLength > 0
+    			 && pxNetworkParams->ucSSIDLength <= wificonfigMAX_SSID_LEN
+				 && 0 == memcmp( pxNetworkParams->ucSSID, ( uint8_t * )g_ssid.ssid, pxNetworkParams->ucSSIDLength ) )
+    		{
+    			xIsConnected = pdTRUE;
+    		}
+    	}
+    	else
+    	{
+            xIsConnected = pdTRUE;
+    	}
     }
 
     return xIsConnected;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;

@@ -71,7 +71,7 @@ typedef struct StorageRegistry
 } StorageRegistry_t;
 static BaseType_t xIsRegistryInit = pdFALSE;
 static StorageRegistry_t xRegistry = { 0 };
-static IotNetworkStateChangeEventCallback_t xEventCallback = NULL;
+static WIFINetworkParams_t xConnectedAP;
 
 /**
  * @brief Semaphore for WiFI module.
@@ -84,10 +84,49 @@ static SemaphoreHandle_t xWiFiSem; /**< WiFi module semaphore. */
  */
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );
 
+static WIFIEventHandler_t xWifiEventHandlers[ eWiFiEventMax ]; 
+
+static WIFIReason_t convertReasonCode( uint8_t reasonCode )
+{
+    WIFIReason_t retCode;
+    switch( reasonCode )
+    {
+        case WIFI_REASON_AUTH_EXPIRE:
+            retCode = eWiFiReasonAuthExpired;
+            break;
+        case WIFI_REASON_ASSOC_EXPIRE:
+            retCode = eWiFiReasonAssocExpired;
+            break;
+        case WIFI_REASON_AUTH_LEAVE:
+            retCode = eWiFiReasonAuthLeaveBSS;
+            break;
+        case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
+            retCode = eWiFiReason4WayTimeout;
+            break;
+        case WIFI_REASON_BEACON_TIMEOUT:
+            retCode = eWiFiReasonBeaconTimeout;
+            break;
+        case WIFI_REASON_AUTH_FAIL:
+            retCode = eWiFiReasonAuthFailed;
+            break;
+        case WIFI_REASON_ASSOC_FAIL:
+            retCode = eWiFiReasonAssocFailed;
+            break;
+        case WIFI_REASON_NO_AP_FOUND:
+            retCode = eWiFiReasonAPNotFound;
+            break;
+        default:
+            retCode = eWiFiReasonUnspecified;
+            break;
+    }
+    return retCode;
+} 
+
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     /* For accessing reason codes in case of disconnection */
     system_event_info_t *info = &event->event_info;
+    WIFIEvent_t eventInfo = { 0 };
 
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
@@ -102,9 +141,11 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = true;
             xEventGroupClearBits(wifi_event_group, DISCONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
-            if( xEventCallback != NULL )
+            if( xWifiEventHandlers[ eWiFiEventIPReady ] != NULL )
             {
-            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled );
+                eventInfo.xEventType = eWiFiEventIPReady;
+                eventInfo.xInfo.xIPReady.xIPAddress.ulAddress[ 0 ] = info->got_ip.ip_info.ip.addr;
+                xWifiEventHandlers[ eWiFiEventIPReady ]( &eventInfo );
             }
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -135,9 +176,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = false;
             xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
-            if( xEventCallback != NULL )
+
+            if( xWifiEventHandlers[ eWiFiEventDisconnected ] != NULL )
             {
-            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled );
+                eventInfo.xEventType = eWiFiEventDisconnected;
+                eventInfo.xInfo.xDisconnected.xReason = convertReasonCode( info->disconnected.reason );
+                xWifiEventHandlers[ eWiFiEventDisconnected ]( &eventInfo );
             }
             break;
         case SYSTEM_EVENT_AP_START:
@@ -246,20 +290,23 @@ WIFIReturnCode_t WIFI_Provision()
 
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected( void )
+BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 {
     BaseType_t xRetVal = pdFALSE;
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
-        if (wifi_conn_state == true)
+        if( ( wifi_conn_state == true) && 
+            ( ( pxNetworkParams == NULL ) ||
+              ( memcmp( pxNetworkParams->ucSSID, xConnectedAP.ucSSID, pxNetworkParams->ucSSIDLength ) == 0 ) ) )
         {
             xRetVal = pdTRUE;
         }
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
     }
+
     return xRetVal;
 }
 
@@ -367,13 +414,23 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     esp_err_t ret;
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
 
-    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL
-            || (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
+    if( pxNetworkParams == NULL )
+    {
         return wifi_ret;
     }
 
-    if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||
-        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->ucPasswordLength))) {
+    if( !CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) )
+    {
+        return wifi_ret;
+    }
+
+    if( pxNetworkParams->xSecurity == eWiFiSecurityWEP )
+    {
+        return eWiFiNotSupported;
+    }
+
+    if( pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->xPassword.xWPA.ucLength))
+    {
         return wifi_ret;
     }
 
@@ -391,9 +448,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         }
 
         /* Security is wildcard, only ssid/password is required */
-        strlcpy((char *) &wifi_config.sta.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength + 1);
+        strlcpy((char *) &wifi_config.sta.ssid, (char *) pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength + 1);
+
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
+            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
         }
 
         ret = esp_wifi_get_mode( &xCurMode );
@@ -437,6 +495,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         // Wait for wifi connected or disconnected event
         xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
         if (wifi_conn_state == true) {
+            xConnectedAP = *pxNetworkParams;
             wifi_ret = eWiFiSuccess;
         }
         /* Return the semaphore. */
@@ -564,10 +623,10 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 uint16_t num_aps = ucNumNetworks;
                 esp_wifi_scan_get_ap_records(&num_aps, ap_info);
                 for (int i = 0; i < num_aps; i++) {
-                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN + 1);
+                    pxBuffer[i].ucSSIDLength = strlcpy((char *)pxBuffer[i].ucSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN + 1);
                     memcpy(pxBuffer[i].ucBSSID, ap_info[i].bssid, wificonfigMAX_BSSID_LEN);
                     pxBuffer[i].cRSSI = ap_info[i].rssi;
-                    pxBuffer[i].cChannel = ap_info[i].primary;
+                    pxBuffer[i].ucChannel = ap_info[i].primary;
                     switch(ap_info[i].authmode)
                     {
                     case WIFI_AUTH_OPEN:
@@ -688,8 +747,11 @@ esp_err_t prxSerializeWifiNetworkProfile( const WIFINetworkProfile_t * const pxN
 
 	if( pucBuffer == NULL )
 	{
-		ulSize = pxNetwork->ucSSIDLength;
-		ulSize += pxNetwork->ucPasswordLength;
+        /**
+         * Add size with null termination in the flash.
+         */
+		ulSize = pxNetwork->ucSSIDLength + 1;
+		ulSize += pxNetwork->ucPasswordLength + 1;
 		ulSize += wificonfigMAX_BSSID_LEN;
 		ulSize += MAX_SECURITY_MODE_LEN;
 
@@ -701,9 +763,9 @@ esp_err_t prxSerializeWifiNetworkProfile( const WIFINetworkProfile_t * const pxN
 		memset(pucBuffer, 0x00, ulSize);
 		if( pxNetwork->ucSSIDLength < ulSize )
 		{
-			memcpy(pucBuffer, pxNetwork->cSSID, pxNetwork->ucSSIDLength );
-			pucBuffer += pxNetwork->ucSSIDLength;
-			ulSize -= pxNetwork->ucSSIDLength;
+			memcpy(pucBuffer, pxNetwork->ucSSID, pxNetwork->ucSSIDLength );
+			pucBuffer += ( pxNetwork->ucSSIDLength + 1 );
+			ulSize -= ( pxNetwork->ucSSIDLength + 1 );
 		}
 		else
 		{
@@ -715,8 +777,8 @@ esp_err_t prxSerializeWifiNetworkProfile( const WIFINetworkProfile_t * const pxN
 			if( pxNetwork->ucPasswordLength < ulSize )
 			{
 				memcpy(pucBuffer, pxNetwork->cPassword, pxNetwork->ucPasswordLength );
-				pucBuffer += pxNetwork->ucPasswordLength;
-				ulSize -= pxNetwork->ucPasswordLength;
+				pucBuffer += (pxNetwork->ucPasswordLength+1);
+				ulSize -= (pxNetwork->ucPasswordLength+1);
 			}
 			else
 			{
@@ -766,9 +828,8 @@ esp_err_t prxDeSerializeWifiNetworkProfile( WIFINetworkProfile_t * const pxNetwo
 	ulLen = strlen( ( char * )pucBuffer );
 	if( ulLen <= wificonfigMAX_SSID_LEN )
 	{
-		memcpy(pxNetwork->cSSID, pucBuffer, ulLen );
-		pxNetwork->cSSID[ulLen] = '\0';
-		pxNetwork->ucSSIDLength = ( ulLen + 1 );
+		memcpy(pxNetwork->ucSSID, pucBuffer, ulLen );
+		pxNetwork->ucSSIDLength = ulLen;
 		pucBuffer += ( ulLen + 1 );
 	}
 	else
@@ -782,8 +843,7 @@ esp_err_t prxDeSerializeWifiNetworkProfile( WIFINetworkProfile_t * const pxNetwo
 		if( ulLen <= wificonfigMAX_PASSPHRASE_LEN )
 		{
 			memcpy(pxNetwork->cPassword, pucBuffer, ulLen );
-			pxNetwork->cPassword[ulLen] = '\0';
-			pxNetwork->ucPasswordLength = ( ulLen + 1 );
+			pxNetwork->ucPasswordLength = ulLen;
 			pucBuffer += ( ulLen + 1 );
 		}
 		else
@@ -1074,18 +1134,22 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
+WIFIReturnCode_t WIFI_GetIPInfo( WIFIIPConfiguration_t * pxIPInfo )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+    uint8_t *pucIPAddr;
 
-    if (pucIPAddr == NULL) {
+    if (pxIPInfo == NULL) {
         return xRetVal;
     }
+
+    memset( pxIPInfo, 0x00, sizeof( WIFIIPConfiguration_t ) );
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
 #if !AFR_ESP_LWIP
-        *( ( uint32_t * ) pucIPAddr ) = FreeRTOS_GetIPAddress();
+        pxIPInfo->xIPAddress.ulAddress[0] = FreeRTOS_GetIPAddress();
+        pucIPAddr = ( uint8_t * ) ( &pxIPInfo->xIPAddress.ulAddress[0] );
         xRetVal = eWiFiSuccess;
         configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
                      __FUNCTION__,
@@ -1101,7 +1165,8 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
         if (ret == ESP_OK)
         {
             xRetVal = eWiFiSuccess;
-            memcpy( pucIPAddr, &ipInfo.ip.addr, sizeof( ipInfo.ip.addr ) );
+            pxIPInfo->xIPAddress.ulAddress[0] = ipInfo.ip.addr;
+            pucIPAddr = ( uint8_t * ) ( &pxIPInfo->xIPAddress.ulAddress[0] );
             configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
                           __FUNCTION__,
                           pucIPAddr[0],
@@ -1299,13 +1364,23 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     esp_err_t ret;
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
 
-    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL
-            || (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
+    if (pxNetworkParams == NULL )
+    {
         return wifi_ret;
     }
 
-    if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||
-        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->ucPasswordLength))) {
+    if (pxNetworkParams->xSecurity == eWiFiSecurityWEP )
+    {
+        return eWiFiSecurityNotSupported;
+    }
+
+    if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength))
+    {
+        return wifi_ret;
+    }
+
+    if( pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->xPassword.xWPA.ucLength))
+    {
         return wifi_ret;
     }
 
@@ -1325,10 +1400,10 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         /* SSID can be a non NULL terminated string if ssid_len is specified.
          * Hence, memcpy is used to support 32 character long SSID name.
          */
-        memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->ucSSID, pxNetworkParams->ucSSIDLength);
         wifi_config.ap.ssid_len = pxNetworkParams->ucSSIDLength;
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->xPassword.xWPA.cPassphrase, pxNetworkParams->xPassword.xWPA.ucLength + 1);
         }
 
         ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);
@@ -1449,10 +1524,24 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
     return wifi_ret;
 }
 /*-----------------------------------------------------------*/
-
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType,
+                                     WIFIEventHandler_t xHandler )
 {
-    xEventCallback = xCallback;
-    return eWiFiSuccess;
+    WIFIReturnCode_t xWiFiRet;
+
+    switch( xEventType )
+    {
+        case eWiFiEventIPReady:
+        case eWiFiEventDisconnected:
+            xWifiEventHandlers[ xEventType ] = xHandler;
+            xWiFiRet = eWiFiSuccess;
+            break;
+        default:
+            xWiFiRet = eWiFiNotSupported;
+            break;
+    }
+
+
+    return xWiFiRet;
 }
 /*-----------------------------------------------------------*/
