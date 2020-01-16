@@ -870,6 +870,10 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             IotLogError( "Invalid params in advertisement/scan response: either min connection interval or max connection interval is zero" );
             xErrCode = NRF_ERROR_INVALID_PARAM;
         }
+        else
+        {
+            /* Do nothing. User have set min interval and max interval to 0 to not include this in advertisment. */
+        }
 
         /* Set manufacturer specific data only when its length is atleast equal to iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE */
         if( ( pcManufacturerData != NULL ) && ( usManufacturerLen >= iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE ) )
