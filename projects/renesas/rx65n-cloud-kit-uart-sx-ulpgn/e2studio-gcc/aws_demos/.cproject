@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101" moduleId="org.eclipse.cdt.core.settings" name="HardwareDebug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="com.renesas.cdt.managedbuild.core.toolchainInfo">
+				<option id="toolchain.id" value="RENESAS_GCC_RX"/>
+				<option id="toolchain.version" value="8.3.0.201904"/>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf *.lst *.lis *.lpp *.map" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser" id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101" name="HardwareDebug" parent="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug">
+					<folderInfo id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101." name="/" resourcePath="">
+						<toolChain id="com.renesas.cdt.managedbuild.gcc.rx.toolchain.debug.494187638" name="GCC for Renesas RX" superClass="com.renesas.cdt.managedbuild.gcc.rx.toolchain.debug">
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.optimization.optimizationLevel.980032974" name="Optimization Level" superClass="com.renesas.cdt.managedbuild.gcc.core.option.optimization.optimizationLevel" useByScannerDiscovery="true" value="com.renesas.cdt.managedbuild.gcc.core.option.optimization.optimizationLevel.none" valueType="enumerated"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.optimization.fdatasections.1295496210" name="Data sections (-fdata-sections)" superClass="com.renesas.cdt.managedbuild.gcc.core.option.optimization.fdatasections" useByScannerDiscovery="true" value="true" valueType="boolean"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.debug.debugFormat.2073902853" name="Debug format" superClass="com.renesas.cdt.managedbuild.gcc.core.option.debug.debugFormat" useByScannerDiscovery="true" value="com.renesas.cdt.managedbuild.gcc.core.option.debug.debugFormat.Default" valueType="enumerated"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.410641569" name="Architecture" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.gcc.rx.architecture.v2" valueType="enumerated"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.applicability.770672445" name="Architecture Applicability" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.applicability" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.1514098829" name="CPU Type" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.rx64m" valueType="enumerated"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName.601267252" name="DeviceName" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName" useByScannerDiscovery="false" value="R5F565NEDxFP" valueType="string"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand.559501360" name="DeviceCommand" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand" useByScannerDiscovery="false" value="R5F565NE" valueType="string"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.optimization.functionsections.751677932" name="Function sections (-ffunction-sections)" superClass="com.renesas.cdt.managedbuild.gcc.core.option.optimization.functionsections" useByScannerDiscovery="true" value="true" valueType="boolean"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.debug.warnStackSize.779562330" name="Warn if stack size exceeds the limit, in bytes (-Wstack-usage)" superClass="com.renesas.cdt.managedbuild.gcc.core.option.debug.warnStackSize" useByScannerDiscovery="false" value="100" valueType="string"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.renesas.cdt.managedbuild.gcc.core.targetPlatform.1382326663" isAbstract="false" osList="all" superClass="com.renesas.cdt.managedbuild.gcc.core.targetPlatform"/>
+							<builder buildPath="${workspace_loc:/aws_demos}/HardwareDebug" id="com.renesas.cdt.managedbuild.gcc.core.builder.1207395609" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GCC for Renesas Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.renesas.cdt.managedbuild.gcc.core.builder"/>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.libgen.2006086602" name="Library Generator" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.libgen">
+								<option id="com.renesas.cdt.managedbuild.gcc.rx.option.selectlibrary.804533842" name="Select Library" superClass="com.renesas.cdt.managedbuild.gcc.rx.option.selectlibrary" useByScannerDiscovery="true" value="com.renesas.cdt.managedbuild.gcc.core.option.librarygenerator.settings.selectLibrary.newLib" valueType="enumerated"/>
+								<option id="com.renesas.cdt.managedbuild.gcc.rx.option.libraryType.1102007675" name="Library type" superClass="com.renesas.cdt.managedbuild.gcc.rx.option.libraryType" useByScannerDiscovery="true" value="com.renesas.cdt.managedbuild.gcc.core.option.librarygenerator.settings.libraryType.preBuilt" valueType="enumerated"/>
+								<option id="com.renesas.cdt.managedbuild.gcc.core.option.libgen.libstd.applicability.1698992180" superClass="com.renesas.cdt.managedbuild.gcc.core.option.libgen.libstd.applicability" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.compiler.1872763123" name="Compiler" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.compiler">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.gcc.core.option.compiler.includes.includeFileDir.326049454" name="Include file directories" superClass="com.renesas.cdt.managedbuild.gcc.core.option.compiler.includes.includeFileDir" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/include"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_bsp&quot;"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_bsp"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_s12ad_rx"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_3"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_4"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_flash_rx/src/targets"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_sci_rx"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_sci_rx/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_byteq"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v122/r_byteq/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/amazon_freertos_common"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/amazon_freertos_common/compiler_support/gnuc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/RX600v2"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/config_files"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/application_code/renesas_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/network_manager"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/freertos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/dev_mode_key_provisioning/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/serializer/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_byteq}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_byteq/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_s12ad_rx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_s12ad_rx/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx/src/flash_type_1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx/src/flash_type_3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx/src/flash_type_4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_flash_rx/src/targets}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_sci_rx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_sci_rx/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_wifi_sx_ulpgn}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_wifi_sx_ulpgn/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/general}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_pincfg}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_config&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_byteq&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_byteq/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_s12ad_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_s12ad_rx/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx/src/flash_type_1&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx/src/flash_type_3&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx/src/flash_type_4&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_flash_rx/src/targets&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_sci_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_sci_rx/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_wifi_sx_ulpgn&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_wifi_sx_ulpgn/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/general&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_pincfg&quot;"/>
+								</option>
+								<option id="com.renesas.cdt.managedbuild.gcc.core.option.compiler.source.std.1595177266" name="Language standard" superClass="com.renesas.cdt.managedbuild.gcc.core.option.compiler.source.std" useByScannerDiscovery="true" value="com.renesas.cdt.managedbuild.gcc.core.option.compiler.common.gnu99" valueType="enumerated"/>
+								<inputType id="com.renesas.cdt.managedbuild.gcc.core.inputType.compiler.c.1905218375" superClass="com.renesas.cdt.managedbuild.gcc.core.inputType.compiler.c"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.cpp.compiler.667193203" name="Compiler CPP" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.cpp.compiler">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.renesas.cdt.managedbuild.gcc.core.option.compiler.includes.includeFileDir.758072046" name="Include file directories" superClass="com.renesas.cdt.managedbuild.gcc.core.option.compiler.includes.includeFileDir" useByScannerDiscovery="false" valueType="includePath"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.assembler.877124168" name="Assembler" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.assembler">
+								<option id="com.renesas.cdt.managedbuild.gcc.core.option.assembler.source.usepreprocessor.1034012805" name="Use preprocessor" superClass="com.renesas.cdt.managedbuild.gcc.core.option.assembler.source.usepreprocessor" useByScannerDiscovery="false"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.gcc.core.option.assembler.includes.includeFileDirectories.428977536" name="Include file directories" superClass="com.renesas.cdt.managedbuild.gcc.core.option.assembler.includes.includeFileDirectories" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/general}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/smc_gen/r_pincfg}&quot;"/>
+								</option>
+								<inputType id="com.renesas.cdt.managedbuild.gcc.core.inputType.assembler.733988614" superClass="com.renesas.cdt.managedbuild.gcc.core.inputType.assembler"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.linker.756033658" name="Linker" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.linker">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.gcc.core.option.linker.source.linkerScript.1676173542" name="Linker script" superClass="com.renesas.cdt.managedbuild.gcc.core.option.linker.source.linkerScript" useByScannerDiscovery="false" valueType="stringList">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/linker_script.ld}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.renesas.cdt.managedbuild.gcc.rx.option.linker.archives.archiveSearchDirectories.594075926" name="Standard archive search directories" superClass="com.renesas.cdt.managedbuild.gcc.rx.option.linker.archives.archiveSearchDirectories" useByScannerDiscovery="false" valueType="stringList"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.gcc.core.option.linker.source.linkOrderList.614990394" name="Linkage Order List" superClass="com.renesas.cdt.managedbuild.gcc.core.option.linker.source.linkOrderList" useByScannerDiscovery="false" valueType="stringList">
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/ports/wifi\iot_wifi.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/ports/secure_sockets\iot_secure_sockets.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/ports/pkcs11\iot_pkcs11_pal.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_pincfg\Pin.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_pincfg\r_sci_rx_pinset.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/general\r_cg_hardware_setup.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/general\r_smc_cgc.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/general\r_smc_cgc_user.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/general\r_smc_interrupt.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common/network_support/uart_sx_ulpgn\sx_ulpgn_driver.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common/compiler_support/gnuc\assert.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common/compiler_support/gnuc\fprintf.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common\entropy_hardware_poll.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common\freertos_start.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/amazon_freertos_common\serial_term_uart.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_sci_rx/src/targets/rx65n\r_sci_rx65n.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_sci_rx/src/targets/rx65n\r_sci_rx65n_data.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_sci_rx/src\r_sci_rx.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_s12ad_rx/src/targets/rx65n\r_s12ad_rx65n.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_s12ad_rx/src\r_s12ad_rx.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_4\r_flash_type4.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_3\r_flash_type3.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_1\r_codeflash.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_1\r_codeflash_extra.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_1\r_dataflash.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_1\r_flash_type1.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src/flash_type_1\r_flash_utils.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src\r_flash_fcu.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src\r_flash_group.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_flash_rx/src\r_flash_rx.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_byteq/src\r_byteq.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/rx65n\mcu_clocks.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/rx65n\mcu_init.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/rx65n\mcu_interrupts.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/rx65n\mcu_mapped_interrupts.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/rx65n\vecttbl.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\dbsct.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\lowlvl.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\lowsrc.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\mcu_locks.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_bsp_common.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_bsp_cpu.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_bsp_interrupts.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_bsp_locking.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_bsp_mcu_startup.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\r_rx_intrinsic_functions.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\reset_program.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\resetprg.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/mcu/all\sbrk.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\vendors/renesas/FIT/v120/r_bsp/board/generic_rx65n\hwsetup.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/standard/utils/src\iot_pki_utils.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/standard/utils/src\iot_system_init.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/standard/tls/src\iot_tls.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/standard/pkcs11/src\iot_pkcs11.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/standard/crypto/src\iot_crypto.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/aws/greengrass/src\aws_greengrass_discovery.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/freertos_plus/aws/greengrass/src\aws_helper_secure_connect.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src/json\iot_serializer_json_decoder.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src/json\iot_serializer_json_encoder.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src/cbor\iot_serializer_tinycbor_decoder.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src/cbor\iot_serializer_tinycbor_encoder.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src\iot_json_utils.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/serializer/src\iot_serializer_static_memory.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_agent.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_api.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_network.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_operation.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_serialize.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_static_memory.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_subscription.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/mqtt/src\iot_mqtt_validate.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common/taskpool\iot_taskpool.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common/taskpool\iot_taskpool_static_memory.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common/logging\iot_logging.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common/logging\iot_logging_task_dynamic_buffers.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common\iot_device_metrics.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common\iot_init.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/standard/common\iot_static_memory_common.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_iot_shadow_api.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_iot_shadow_operation.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_iot_shadow_parser.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_iot_shadow_static_memory.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_iot_shadow_subscription.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/shadow/src\aws_shadow.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/defender/src\aws_iot_defender_api.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/defender/src\aws_iot_defender_collector.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/defender/src\aws_iot_defender_mqtt.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/c_sdk/aws/defender/src\aws_iot_defender_v1.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/abstractions/platform/freertos\iot_clock_freertos.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/abstractions/platform/freertos\iot_metrics.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/abstractions/platform/freertos\iot_network_freertos.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/abstractions/platform/freertos\iot_threads_freertos.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/abstractions/pkcs11/mbedtls\iot_pkcs11_mbedtls.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborencoder.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborencoder_close_container_checked.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborerrorstrings.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborparser.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborparser_dup_string.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/tinycbor\cborpretty.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/utils\mbedtls_utils.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\aes.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\aesni.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\arc4.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\asn1parse.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\asn1write.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\base64.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\bignum.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\blowfish.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\camellia.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ccm.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\certs.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\cipher.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\cipher_wrap.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\cmac.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ctr_drbg.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\debug.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\des.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\dhm.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ecdh.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ecdsa.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ecjpake.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ecp.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ecp_curves.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\entropy.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\entropy_poll.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\error.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\gcm.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\havege.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\hmac_drbg.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\md.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\md2.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\md4.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\md5.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\md_wrap.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\memory_buffer_alloc.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\net_sockets.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\oid.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\padlock.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pem.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pk.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pk_wrap.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pkcs12.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pkcs5.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pkparse.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\pkwrite.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\platform.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\platform_util.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ripemd160.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\rsa.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\rsa_internal.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\sha1.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\sha256.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\sha512.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_cache.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_ciphersuites.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_cli.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_cookie.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_srv.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_ticket.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\ssl_tls.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\threading.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\timing.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\version.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\version_features.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509_create.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509_crl.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509_crt.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509_csr.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509write_crt.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\x509write_csr.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/mbedtls/library\xtea.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\libraries/3rdparty/jsmn\jsmn.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel/portable/MemMang\heap_4.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel/portable/GCC/RX600v2\port.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\event_groups.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\list.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\queue.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\stream_buffer.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\tasks.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\freertos_kernel\timers.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/tcp\aws_tcp_echo_client_single_task.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/shadow\aws_iot_demo_shadow.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/network_manager\aws_iot_demo_network.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/network_manager\aws_iot_network_manager.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/mqtt\iot_demo_mqtt.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/greengrass_connectivity\aws_greengrass_discovery_demo.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/dev_mode_key_provisioning/src\aws_dev_mode_key_provisioning.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/demo_runner\aws_demo.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/demo_runner\aws_demo_version.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/demo_runner\iot_demo_freertos.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/demo_runner\iot_demo_runner.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\demos/defender\aws_iot_demo_defender.o&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\application_code\main.o&quot;"/>
+								</option>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.cpp.linker.98451696" name="Linker CPP" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.cpp.linker">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.renesas.cdt.managedbuild.gcc.rx.option.linker.cpp.archives.archiveSearchDirectories.1365088079" name="Standard archive search directories" superClass="com.renesas.cdt.managedbuild.gcc.rx.option.linker.cpp.archives.archiveSearchDirectories" useByScannerDiscovery="false" valueType="stringList"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.objcopy.1750331264" name="Objcopy" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.objcopy"/>
+							<tool id="com.renesas.cdt.managedbuild.gcc.rx.tool.archiver.1154486108" name="Archiver" superClass="com.renesas.cdt.managedbuild.gcc.rx.tool.archiver"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="application_code|config_files|demos|freertos_kernel|libraries|vendors" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="application_code"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="config_files"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="demos"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="freertos_kernel"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libraries"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="vendors"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="aws_demos.com.renesas.cdt.managedbuild.gcc.rx.projectType.Id.984843944" name="Executable" projectType="com.renesas.cdt.managedbuild.gcc.rx.projectType.Id"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101;com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.501166101.;com.renesas.cdt.managedbuild.gcc.rx.tool.compiler.1872763123;com.renesas.cdt.managedbuild.gcc.core.inputType.compiler.c.1905218375">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope"/>
+</cproject>

@@ -456,7 +456,7 @@ wifi_err_t R_WIFI_SX_ULPGN_Open(void)
 			/* Multiple Connection */
 	        /* Change HSUART1 baudrate and flow control. */
 #if (WIFI_CFG_SCI_USE_FLOW_CONTROL == 1)
-//	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,h\r",WIFI_CFG_SCI_BAUDRATE);
+	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,h\r",WIFI_CFG_SCI_BAUDRATE);
 #else
 	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,\r",WIFI_CFG_SCI_BAUDRATE);
 #endif
@@ -532,7 +532,7 @@ wifi_err_t R_WIFI_SX_ULPGN_Open(void)
 
 	        /* Change HSUART1 baudrate and flow control. */
 #if (WIFI_CFG_SCI_USE_FLOW_CONTROL == 1)
-//	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,h\r",WIFI_CFG_SCI_BAUDRATE);
+	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,h\r",WIFI_CFG_SCI_BAUDRATE);
 #else
 	        sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATBX1=%d,,,,\r",WIFI_CFG_SCI_BAUDRATE);
 #endif
@@ -667,9 +667,9 @@ wifi_err_t R_WIFI_SX_ULPGN_SetDnsServerAddress(uint32_t dnsaddress1, uint32_t dn
 		wifi_change_command_mode();
 		if(dnsaddress1 != 0)
 		{
-//			sprintf((char *)pcbuff,"ATNDNSSVR1=%d.%d.%d.%d\r",
-//					WIFI_ULONG_TO_IPV4BYTE_1(dnsaddress1), WIFI_ULONG_TO_IPV4BYTE_2(dnsaddress1),
-//					WIFI_ULONG_TO_IPV4BYTE_3(dnsaddress1), WIFI_ULONG_TO_IPV4BYTE_4(dnsaddress1));
+			sprintf((char *)pcbuff,"ATNDNSSVR1=%d.%d.%d.%d\r",
+					WIFI_ULONG_TO_IPV4BYTE_1(dnsaddress1), WIFI_ULONG_TO_IPV4BYTE_2(dnsaddress1),
+					WIFI_ULONG_TO_IPV4BYTE_3(dnsaddress1), WIFI_ULONG_TO_IPV4BYTE_4(dnsaddress1));
 			ret = wifi_execute_at_command(wifi_command_port, pcbuff, 10000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_DNS_SRV_ADDRESS, 0xff);
 			if(ret != 0)
 			{
@@ -681,9 +681,9 @@ wifi_err_t R_WIFI_SX_ULPGN_SetDnsServerAddress(uint32_t dnsaddress1, uint32_t dn
 	{
 		if(dnsaddress2 != 0)
 		{
-//			sprintf((char *)pcbuff,"ATNDNSSVR2=%d.%d.%d.%d\r",
-//					WIFI_ULONG_TO_IPV4BYTE_1(dnsaddress2), WIFI_ULONG_TO_IPV4BYTE_2(dnsaddress2),
-//					WIFI_ULONG_TO_IPV4BYTE_3(dnsaddress2), WIFI_ULONG_TO_IPV4BYTE_4(dnsaddress2));
+			sprintf((char *)pcbuff,"ATNDNSSVR2=%d.%d.%d.%d\r",
+					WIFI_ULONG_TO_IPV4BYTE_1(dnsaddress2), WIFI_ULONG_TO_IPV4BYTE_2(dnsaddress2),
+					WIFI_ULONG_TO_IPV4BYTE_3(dnsaddress2), WIFI_ULONG_TO_IPV4BYTE_4(dnsaddress2));
 			ret = wifi_execute_at_command(wifi_command_port, pcbuff, 10000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_DNS_SRV_ADDRESS, 0xff);
 			if(ret != 0)
 			{
@@ -744,13 +744,13 @@ wifi_err_t R_WIFI_SX_ULPGN_Connect (uint8_t *pssid, uint8_t *ppass, uint32_t sec
 			}
 			if(WIFI_SUCCESS == api_ret)
 			{
-//				sprintf((char *)pcbuff,"ATNSET=%d.%d.%d.%d,%d.%d.%d.%d,%d.%d.%d.%d\r\n",
-//						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->ipaddress), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->ipaddress),
-//						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->ipaddress), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->ipaddress),
-//						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->subnetmask), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->subnetmask),
-//						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->subnetmask), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->subnetmask),
-//						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->gateway), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->gateway),
-//						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->gateway), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->gateway));
+				sprintf((char *)pcbuff,"ATNSET=%d.%d.%d.%d,%d.%d.%d.%d,%d.%d.%d.%d\r\n",
+						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->ipaddress), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->ipaddress),
+						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->ipaddress), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->ipaddress),
+						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->subnetmask), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->subnetmask),
+						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->subnetmask), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->subnetmask),
+						WIFI_ULONG_TO_IPV4BYTE_1(pipconfig->gateway), WIFI_ULONG_TO_IPV4BYTE_2(pipconfig->gateway),
+						WIFI_ULONG_TO_IPV4BYTE_3(pipconfig->gateway), WIFI_ULONG_TO_IPV4BYTE_4(pipconfig->gateway));
 
 				/* Set Static IP address */
 				ret = wifi_execute_at_command(wifi_command_port, pcbuff, 10000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_STATIC_IP, 0xff);
@@ -804,7 +804,7 @@ wifi_err_t R_WIFI_SX_ULPGN_Connect (uint8_t *pssid, uint8_t *ppass, uint32_t sec
 
 		for(retry_count = 0;retry_count < 3;retry_count++)
 		{
-//			sprintf((char *)pcbuff,"ATWAWPA=%s,%d,1,1,%s\r",pssid,security_type,ppass);
+			sprintf((char *)pcbuff,"ATWAWPA=%s,%d,1,1,%s\r",pssid,security_type,ppass);
 			ret = wifi_execute_at_command(wifi_command_port, pcbuff, 20000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_WIFI_CONNECT, 0xff);
 			if((0 == ret) || (-2 == ret))
 			{
@@ -1159,7 +1159,7 @@ wifi_err_t R_WIFI_SX_ULPGN_SocketConnect(int32_t socket_no, uint32_t ipaddr, uin
 	}
 	if(WIFI_SUCCESS == api_ret)
 	{
-//		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCK=%d,%d\r", 0, 4);
+		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCK=%d,%d\r", 0, 4);
 		ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, 10000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_SOCKET_CREATE, 0xff);
 		if(ret != 0)
 		{
@@ -1169,10 +1169,10 @@ wifi_err_t R_WIFI_SX_ULPGN_SocketConnect(int32_t socket_no, uint32_t ipaddr, uin
 
 	if(WIFI_SUCCESS == api_ret)
 	{
-//		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff,"ATNCTCP=%d.%d.%d.%d,%d\r",
-//				WIFI_ULONG_TO_IPV4BYTE_1(ipaddr), WIFI_ULONG_TO_IPV4BYTE_2(ipaddr),
-//				WIFI_ULONG_TO_IPV4BYTE_3(ipaddr), WIFI_ULONG_TO_IPV4BYTE_4(ipaddr),
-//				port);
+		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff,"ATNCTCP=%d.%d.%d.%d,%d\r",
+				WIFI_ULONG_TO_IPV4BYTE_1(ipaddr), WIFI_ULONG_TO_IPV4BYTE_2(ipaddr),
+				WIFI_ULONG_TO_IPV4BYTE_3(ipaddr), WIFI_ULONG_TO_IPV4BYTE_4(ipaddr),
+				port);
 		if(ULPGN_USE_UART_NUM == 2)
 		{
 			ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, 15000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_SOCKET_CONNECT, socket_no);
@@ -1574,7 +1574,7 @@ wifi_err_t R_WIFI_SX_ULPGN_DnsQuery (uint8_t *pdomain_name, uint32_t *pipaddress
 	if(WIFI_SUCCESS == api_ret)
 	{
 		g_wifi_dnsquery_subcount = 0;
-//		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNDNSQUERY=%s\r", pdomain_name);
+		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNDNSQUERY=%s\r", pdomain_name);
 
 		func_ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, 3000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_DNSQUERY, 0xff);
 		if(func_ret != 0)
@@ -1625,11 +1625,11 @@ wifi_err_t R_WIFI_SX_ULPGN_Ping (uint32_t ipaddr, uint16_t count, uint32_t inter
 			}
 			if(WIFI_SUCCESS == api_ret)
 			{
-//				sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNPING=%d.%d.%d.%d\r", \
-//						WIFI_ULONG_TO_IPV4BYTE_1(ipaddr),
-//						WIFI_ULONG_TO_IPV4BYTE_2(ipaddr),
-//						WIFI_ULONG_TO_IPV4BYTE_3(ipaddr),
-//						WIFI_ULONG_TO_IPV4BYTE_4(ipaddr));
+				sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNPING=%d.%d.%d.%d\r", \
+						WIFI_ULONG_TO_IPV4BYTE_1(ipaddr),
+						WIFI_ULONG_TO_IPV4BYTE_2(ipaddr),
+						WIFI_ULONG_TO_IPV4BYTE_3(ipaddr),
+						WIFI_ULONG_TO_IPV4BYTE_4(ipaddr));
 				func_ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, 20000, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_PING, 0xff);
 				if(func_ret != 0)
 				{
@@ -1769,7 +1769,7 @@ static int32_t wifi_change_socket_index(uint8_t socket_no)
             stored_data_size = 0;
             zero_cnt = 0;
 
-//            sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCKINDEX=%d\r", socket_no);
+            sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCKINDEX=%d\r", socket_no);
 
             ret = wifi_check_uart_state(&atustat_recv, &previous_atustat_sent);
             if(ret != 0)

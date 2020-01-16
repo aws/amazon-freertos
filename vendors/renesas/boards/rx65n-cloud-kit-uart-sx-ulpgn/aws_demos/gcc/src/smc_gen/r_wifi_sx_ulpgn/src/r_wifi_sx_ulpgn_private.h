@@ -43,9 +43,9 @@
 #define WIFI_UART_BAUDRATE_DEFAULT      115200
 
 
-//#define DEBUGLOG 0
+#define DEBUGLOG 0
 //#define DEBUGLOG 1
-#define DEBUGLOG 2
+//#define DEBUGLOG 2
 
 
 typedef enum
