@@ -39,7 +39,11 @@ if (AFR_ENABLE_UNIT_TESTS)
     # add unit test subdirectories here
     add_subdirectory("libraries")
 
-    add_custom_target(genhtml
+    add_custom_target(coverage
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmock/coverage.cmake
+            DEPENDS secure_sockets_utest
+            DEPENDS libcmock
+            DEPENDS libunity
         )
+#add_dependencies(coverage secure_sockets_utest libcmock libunity)
 endif ()

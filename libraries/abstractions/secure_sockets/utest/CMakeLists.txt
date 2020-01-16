@@ -17,6 +17,7 @@
                 "${3rdparty_dir}/lwip/src/include/lwip/sockets.h"
             )
     create_mock_list(secure_sockets_mock "${mock_list}")
+    add_dependencies(secure_sockets_mock libcmock libunity)
 
     target_include_directories(secure_sockets_mock PUBLIC
                     "${3rdparty_dir}/lwip/src/include"
