@@ -850,8 +850,26 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     {
         /* The first two UUID go to the initial advertisement packet */
         xAdvData->uuids_complete = xCompleteUUIDS;
-        xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
-        xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
+
+        if( ( pxParams->ulMaxInterval != 0 ) && ( pxParams->ulMinInterval != 0 ) )
+        {
+            xAdvData->p_slave_conn_int = IotBle_Malloc( sizeof( ble_advdata_conn_int_t ) );
+
+            if( xAdvData->p_slave_conn_int != NULL )
+            {
+                xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
+                xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
+            }
+            else
+            {
+                xErrCode = NRF_ERROR_NO_MEM;
+            }
+        }
+        else if( ( pxParams->ulMinInterval != 0 ) || ( pxParams->ulMaxInterval != 0 ) )
+        {
+            IotLogError( "Invalid params in advertisement/scan response: either min connection interval or max connection interval is zero" );
+            xErrCode = NRF_ERROR_INVALID_PARAM;
+        }
 
         /* Set manufacturer specific data only when its length is atleast equal to iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE */
         if( ( pcManufacturerData != NULL ) && ( usManufacturerLen >= iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE ) )
