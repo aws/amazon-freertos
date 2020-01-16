@@ -116,13 +116,16 @@ static int8_t sockets_allocated = socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS;
 #define TICK_TO_US( _t_ )    ( ( _t_ ) * 1000 / configTICK_RATE_HZ * 1000 )
 
 /*-----------------------------------------------------------*/
+
 /*
  * @brief Sockets close
  */
-static void prvSocketsClose( ss_ctx_t *ctx )
+static void prvSocketsClose( ss_ctx_t * ctx )
 {
     uint32_t ulProtocol;
+
     sockets_allocated++;
+
     /* Clean-up application protocol array. */
     if( NULL != ctx->ppcAlpnProtocols )
     {
@@ -161,16 +164,18 @@ static void prvSocketsClose( ss_ctx_t *ctx )
  * @brief Decrement ctx refcount and call release function if the count is 1 (
  *        last user of the ctx)
  */
-static void prvDecrementRefCount( ss_ctx_t *ctx )
+static void prvDecrementRefCount( ss_ctx_t * ctx )
 {
-    if( Atomic_Decrement_u32( &ctx->ulRefcount) == 1 )
+    if( Atomic_Decrement_u32( &ctx->ulRefcount ) == 1 )
+    {
         prvSocketsClose( ctx );
+    }
 }
 
 /*
  * @brief Increment ctx refcount
  */
-static void prvIncrementRefCount( ss_ctx_t *ctx )
+static void prvIncrementRefCount( ss_ctx_t * ctx )
 {
     Atomic_Increment_u32( &ctx->ulRefcount );
 }
@@ -291,6 +296,7 @@ static void vTaskRxSelect( void * param )
             /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
+
     prvDecrementRefCount( ctx );
     vTaskDelete( NULL );
 }
