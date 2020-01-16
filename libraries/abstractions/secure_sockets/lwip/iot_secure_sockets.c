@@ -158,7 +158,7 @@ static void prvSocketsClose( ss_ctx_t *ctx )
 }
 
 /*
- * @brief Decrement ctx refcount and call release function if the count is 1(
+ * @brief Decrement ctx refcount and call release function if the count is 1 (
  *        last user of the ctx)
  */
 static void prvDecrementRefCount( ss_ctx_t *ctx )
