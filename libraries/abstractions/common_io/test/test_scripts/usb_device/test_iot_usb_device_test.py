@@ -33,11 +33,12 @@ import re
 import threading
 import random
 
-scriptdir = os.path.abspath(sys.path[0])
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 
 
@@ -75,7 +76,7 @@ class TestUSBDeviceAssisted(test_template):
         self._serial.write('\r\n'.encode('utf-8'))
         self._serial.write("iot_tests test 17 11".encode('utf-8'))
         self._serial.write('\r\n'.encode('utf-8'))
-        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
 
         # Grab vendor id and product id.
         self.vid, self.pid = map(lambda x: int(x, 16), re.findall(r'[vid|pid]:(\w+)', res))
@@ -130,20 +131,20 @@ class TestUSBDeviceAssisted(test_template):
         self._serial.write(cmd.encode('utf-8'))
         self._serial.write('\r\n'.encode('utf-8'))
         sleep(1)
-        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
-        print(res)
+        res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
+        print(repr(res))
         t_host.join()
 
-        assert res.find('Ignored \\n\\r') is not -1
+        assert res.find('Ignored ') is not -1
 
         dut_bytes = []
-        for x in res.split('\\n\\r'):
+        for x in re.sub('\r', '', res).split('\n'):
             if x.find('IGNORE') != -1:
                 dut_bytes = [int(s, 16) for s in x.split(',') if len(s) == 2]
                 break
 
         if self.compare_host_dut_result(self.host_bytes, dut_bytes) == -1:
-            print(res)
+            print(repr(res))
             return "Fail"
 
         return "Pass"
@@ -193,10 +194,10 @@ class TestUSBDeviceAssisted(test_template):
         self._serial.write('\r\n'.encode('utf-8'))
         self._serial.write("iot_tests test 17 2".encode('utf-8'))
         self._serial.write('\r\n'.encode('utf-8'))
-        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
-        print(res)
+        res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
+        print(repr(res))
 
-        assert res.find('Ignored \\n\\r') is not -1
+        assert res.find('Ignored ') is not -1
         sleep(5)
         # Make sure device is detached.
         self.dev = usb.core.find(idVendor=self.vid, idProduct=self.pid)
@@ -229,7 +230,7 @@ if __name__ == "__main__":
     rpi_login = args.login_name[0]
     rpi_pwd = args.password[0]
 
-    with open('test_result.csv', 'w', newline='') as csvfile:
+    with open(scriptdir + '/test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
