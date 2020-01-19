@@ -59,7 +59,7 @@ uint8_t uctestIotAdcChListLen = 1;
 /* ADC Channel list used for testing, the list is defined by board specific test code */
 uint8_t * puctestIotAdcChList = NULL;
 /* ADC module instance for assisted test, need to be configured to the channel with external access */
-uint8_t assistedTestIotAdcChannel = 0;
+uint8_t ucAssistedTestIotAdcChannel = 0;
 
 /* ADC Channel Scan Wait time in ms */
 uint32_t ltestIotAdcTestChWaitTime = 1000;
@@ -224,6 +224,12 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
     lRetVal = iot_adc_stop( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 
+    /* consume all semaphores given due to Async read callbacks which the test didn't care about */
+    while( pdTRUE == xSemaphoreTake( xtestIotAdcTestSemaphore, 0 ) )
+    {
+        ;
+    }
+
     /* query channel state for channel x */
     xAdcChStatus.ucAdcChannel = ucChX;
     lRetVal = iot_adc_ioctl( xUserCntx.xAdcHandle, eGetChStatus, &xAdcChStatus );
@@ -283,7 +289,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcPrintReadSample )
     TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     /* read sample from ADC channels */
-    lRetVal = iot_adc_read_sample( xAdcHandle, assistedTestIotAdcChannel, &usSample );
+    lRetVal = iot_adc_read_sample( xAdcHandle, ucAssistedTestIotAdcChannel, &usSample );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 
     lRetVal = iot_adc_close( xAdcHandle );
@@ -602,7 +608,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
 }
 
 /*-----------------------------------------------------------*/
-void xAdcCallbackTmp( uint16_t * pusConvertedData,
+void static xAdcCallbackTmp( uint16_t * pusConvertedData,
                       void * pvUserContext )
 {
 }

@@ -56,7 +56,7 @@ TEST_GROUP_RUNNER( Common_IO )
 {
     size_t i = 0;
 
-    #if ( IOT_TEST_COMMON_IO_UART_SUPPORTED == 1 )
+    #ifdef IOT_TEST_COMMON_IO_UART_SUPPORTED
         for( i = 0; i < IOT_TEST_COMMON_IO_UART_SUPPORTED; i++ )
         {
             SET_TEST_IOT_UART_CONFIG( i );
@@ -64,7 +64,7 @@ TEST_GROUP_RUNNER( Common_IO )
         }
     #endif
 
-    #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED == 1 )
+    #ifdef IOT_TEST_COMMON_IO_I2C_SUPPORTED
         for( i = 0; i < IOT_TEST_COMMON_IO_I2C_SUPPORTED; i++ )
         {
             SET_TEST_IOT_I2C_CONFIG( i );
@@ -72,7 +72,7 @@ TEST_GROUP_RUNNER( Common_IO )
         }
     #endif
 
-    #if ( IOT_TEST_COMMON_IO_SPI_SUPPORTED == 1 )
+    #ifdef IOT_TEST_COMMON_IO_SPI_SUPPORTED
         for( i = 0; i < IOT_TEST_COMMON_IO_SPI_SUPPORTED; i++ )
         {
             SET_TEST_IOT_SPI_CONFIG( i );

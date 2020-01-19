@@ -129,7 +129,7 @@
  */
 
 /* Uart */
-extern uint8_t ustestIotUartPort;                       /* the index of the UART that will be tested */
+extern uint8_t uctestIotUartPort;                       /* the index of the UART that will be tested */
 
 /* Flash */
 extern uint32_t ultestIotFlashStartOffset;              /* the Flash offset at which the flash operations in the test will take place */
@@ -137,16 +137,8 @@ extern uint32_t ultestIotFlashStartOffset;              /* the Flash offset at w
 /* GPIO */
 extern int32_t ltestIotGpioPortA;                       /* The 1st GPIO port used in the loop back test */
 extern int32_t ltestIotGpioPortB;                       /* The 2nd GPIO port used in the loop back test */
-extern uint16_t ustestIotGpioConfig;                    /* ustestIotGpioConfig is used for configuring GPIO test
-                                                         * user must set this variable for testing different GPIOs
-                                                         *
-                                                         * default ustestIotGpioConfig = 0 means reading logic GPIO# 0
-                                                         *
-                                                         * bit[7:0] for port
-                                                         * bit[8] for direction (Read:0, Write: 1)
-                                                         * bit[9] for IRQ (disable: 0, enable: 1)
-                                                         * bit[10] for write value (0 or 1)
-                                                         */
+extern uint16_t ustestIotGpioConfig;                    /* The configuration of GPIO in the test (port, direction, irq, write value)
+                                                         * Check test_iot_gpio.c for its bit assignment */
 extern uint32_t ultestIotGpioWaitTime;                  /* Wait time for GPIO port A to receive GPIO interrupt from port B during the test
                                                          * This is needed to avoid indefinite wait during the test */
 extern uint32_t ultestIotGpioSlowSpeed;                 /* Based on the underlying HW, set the slow speed setting of GPIO */
@@ -167,19 +159,19 @@ extern uint32_t ulAssistedTestIotSpiSlave;              /* SPI assisted tests */
 extern uint8_t uctestIotAdcChListLen;                   /* Length of ADC chains used in the test. The chains are ADC channels
                                                          * that would be sampled with a single trigger */
 extern uint8_t * puctestIotAdcChList;                   /* The ADC chains used in the tests */
-extern uint8_t assistedTestIotAdcChannel;               /* Assisted Tests: ADC Channel list */
+extern uint8_t ucAssistedTestIotAdcChannel;             /* Assisted Tests: ADC Channel list */
 
 /* PWM */
 extern uint32_t ultestIotPwmGpioInputPin;               /* GPIO used to measure PWM accuracy */
 extern uint32_t ultestIotPwmInstance;                   /* PWM instance */
 extern uint32_t ultestIotPwmFrequency;                  /* PWM freq */
 extern uint32_t ultestIotPwmDutyCycle;                  /* PWM duty cycle */
-extern int32_t ultestIotPwmChannel;                     /* PWM Channel */
-extern uint32_t assistedTestIotPwmGpioInputPin;         /* PWM assisted tests only */
+extern uint32_t ultestIotPwmChannel;                    /* PWM Channel */
+extern uint32_t ulAssistedTestIotPwmGpioInputPin;       /* PWM assisted tests only */
 
 /* I2C */
 extern uint8_t uctestIotI2CSlaveAddr;                   /* Address of Slave I2C (7-bit address) connected to the bus */
-extern uint8_t xtestIotI2CDeviceRegister;               /* Slave I2C register address used in read/write tests */
+extern uint8_t uctestIotI2CDeviceRegister;              /* Slave I2C register address used in read/write tests */
 extern uint8_t uctestIotI2CWriteVal;                    /* Write value that will be used in the register write test */
 extern uint8_t uctestIotI2CInstanceIdx;                 /* I2C instance used in the test */
 extern uint8_t uctestIotI2CInstanceNum;                 /* The total number of I2C instances on the device */
@@ -190,12 +182,12 @@ extern int32_t ltestIotI2sOutputInstance;               /* used in assisted test
 extern int32_t ltestIotI2SReadSize;                     /* used in assisted tests */
 
 /* EFUSE */
-extern uint32_t uctestIotEfuse16BitWordValidIdx;        /* Efuse index for valid 16-bit R/W operations */
-extern uint32_t uctestIotEfuse16BitWordInvalidIdx;      /* Efuse index that is not valid for 16-bit R/W operations */
-extern uint32_t uctestIotEfuse16BitWordWriteVal;        /* 16-bit value to write to eFuse at index uctestIotEfuse16BitWordValidIdx */
-extern uint32_t uctestIotEfuse32BitWordValidIdx;        /* Efuse index for valid 32-bit R/W operations */
-extern uint32_t uctestIotEfuse32BitWordInvalidIdx;      /* Efuse index that is not valid for 32-bit R/W operations */
-extern uint32_t uctestIotEfuse32BitWordWriteVal;        /* 32-bit value to write to eFuse at index uctestIotEfuse32BitWordValidIdx */
+extern uint32_t ultestIotEfuse16BitWordValidIdx;        /* Efuse index for valid 16-bit R/W operations */
+extern uint32_t ultestIotEfuse16BitWordInvalidIdx;      /* Efuse index that is not valid for 16-bit R/W operations */
+extern uint32_t ustestIotEfuse16BitWordWriteVal;        /* 16-bit value to write to eFuse at index uctestIotEfuse16BitWordValidIdx */
+extern uint32_t ultestIotEfuse32BitWordValidIdx;        /* Efuse index for valid 32-bit R/W operations */
+extern uint32_t ultestIotEfuse32BitWordInvalidIdx;      /* Efuse index that is not valid for 32-bit R/W operations */
+extern uint32_t ultestIotEfuse32BitWordWriteVal;        /* 32-bit value to write to eFuse at index uctestIotEfuse32BitWordValidIdx */
 
 /* TSensor */
 extern uint8_t uctestIotTsensorInstance;                /* I2C instance used in the test */

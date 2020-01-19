@@ -53,7 +53,7 @@
 uint32_t ultestIotPwmGpioOutputPin = 14;
 uint32_t ultestIotPwmGpioInputPin = 18;
 uint32_t ultestIotPwmGpioFunction = 0x4U; //IOPCTL_PIO_FUNC4;
-uint32_t assistedTestIotPwmGpioInputPin = 17;
+uint32_t ulAssistedTestIotPwmGpioInputPin = 17;
 
 uint32_t ultestIotPwmInstance = 2;          /* Use PWM instance 2 */
 uint32_t ultestIotPwmFrequency = 2000UL;    /* 2KHz frequency */
@@ -484,7 +484,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
     IotGpioInterrupt_t    xGpioInterruptB      = eGpioInterruptRising;
 
     /* set up port B for interrupt */
-    xtestIotGpioHandleB = iot_gpio_open( assistedTestIotPwmGpioInputPin );
+    xtestIotGpioHandleB = iot_gpio_open( ulAssistedTestIotPwmGpioInputPin );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
     lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
