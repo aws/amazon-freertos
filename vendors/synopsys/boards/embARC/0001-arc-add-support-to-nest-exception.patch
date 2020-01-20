@@ -1,0 +1,158 @@
+From 23721a0cf153e5a2b9e975a7586a48ad2184f4fb Mon Sep 17 00:00:00 2001
+From: Yuguo Zou <yuguo.zou@synopsys.com>
+Date: Mon, 20 Jan 2020 10:44:54 +0800
+Subject: [PATCH] arc: add support to nest exception
+
+add a nest count
+add nest check in exception asm code
+
+Signed-off-by: Yuguo Zou <yuguo.zou@synopsys.com>
+---
+ arc/arc_exc_asm.s           | 36 ++++++++++++++++++++++++++++++++++++
+ arc/arc_exception.c         |  9 +++++++++
+ include/arc/arc_exception.h | 13 +++++++++++++
+ 3 files changed, 58 insertions(+)
+
+diff --git a/arc/arc_exc_asm.s b/arc/arc_exc_asm.s
+index 3334c2e..54b4bd6 100644
+--- a/arc/arc_exc_asm.s
++++ b/arc/arc_exc_asm.s
+@@ -71,6 +71,11 @@ exc_entry_cpu:
+ 
+ 	EXCEPTION_PROLOGUE
+ 
++/* exc_nest_count +1 */
++	ld	r0, [exc_nest_count]
++	add	r0, r0, 1
++	st	r0, [exc_nest_count]
++
+ /* find the exception cause */
+ 	lr	r0, [AUX_ECR]
+ 	lsr	r0, r0, 16
+@@ -83,6 +88,11 @@ exc_entry_cpu:
+ 	jl	[r2]
+ exc_return:
+ 
++/* exc_nest_count -1 */
++	ld	r0, [exc_nest_count]
++	sub	r0, r0, 1
++	st	r0, [exc_nest_count]
++
+ 	EXCEPTION_EPILOGUE
+ 	rtie
+ 
+@@ -109,6 +119,13 @@ exc_entry_int:
+ 	INTERRUPT_PROLOGUE
+ 
+ /* critical area */
++/* exc_nest_count is designed to record the nest interrupts */
++	clri
++	ld	r0, [exc_nest_count]
++	add	r0, r0, 1
++	st	r0, [exc_nest_count]
++	seti
++
+ 	lr	r0, [AUX_IRQ_CAUSE]
+ 	mov	r1, exc_int_handler_table
+ /* r2 = _kernel_exc_tbl + irqno *4 */
+@@ -126,6 +143,14 @@ irq_hint_handled:
+ 	mov	r0, sp
+ 	jl	[r2]
+ int_return:
++/* critical area */
++/* exc_nest_count is designed to record the nest interrupts */
++	clri
++	ld	r0, [exc_nest_count]
++	sub	r0, r0, 1
++	st	r0, [exc_nest_count]
++	seti
++
+ 	INTERRUPT_EPILOGUE
+ 	rtie
+ 
+@@ -136,6 +161,11 @@ int_return:
+ exc_entry_firq:
+ 	SAVE_FIQ_EXC_REGS
+ 
++/* firq's priority is the highest */
++	ld	r0, [exc_nest_count]
++	add	r0, r0, 1
++	st	r0, [exc_nest_count]
++
+ 	lr	r0, [AUX_IRQ_CAUSE]
+ 	mov	r1, exc_int_handler_table
+ /* r2 = _kernel_exc_tbl + irqno *4 */
+@@ -153,6 +183,12 @@ firq_hint_handled:
+ 	jl	[r2]
+ 
+ firq_return:
++
++/* exc_nest_count -1 */
++	ld	r0, [exc_nest_count]
++	sub	r0, r0, 1
++	st	r0, [exc_nest_count]
++
+ 	RESTORE_FIQ_EXC_REGS
+ 	rtie
+ 
+diff --git a/arc/arc_exception.c b/arc/arc_exception.c
+index 7292b02..bb79648 100644
+--- a/arc/arc_exception.c
++++ b/arc/arc_exception.c
+@@ -361,6 +361,14 @@ EXC_HANDLER_T exc_int_handler_table[NUM_EXC_ALL] = {
+ 	[NUM_EXC_CPU ... NUM_EXC_ALL - 1] = int_handler_default
+ };
+ 
++/**
++ * \var exc_nest_count
++ * \brief the counter for exc/int processing, =0 no int/exc
++ * >1 in int/exc processing
++ * @}
++ */
++uint32_t exc_nest_count;
++
+ /**
+  * @endcond
+  */
+@@ -693,6 +701,7 @@ int32_t int_level_config(const uint32_t intno, const uint32_t level)
+  * \brief Get interrupt request mode
+  *
+  * @param intno Interrupt number
++ * @param level 0-level triggered, 1-pulse triggered
+  */
+ int32_t int_level_get(const uint32_t intno)
+ {
+diff --git a/include/arc/arc_exception.h b/include/arc/arc_exception.h
+index 6ffd521..bf61c94 100644
+--- a/include/arc/arc_exception.h
++++ b/include/arc/arc_exception.h
+@@ -208,6 +208,8 @@ typedef struct {
+ #define ARC_INT_EXC_FRAME_T_SIZE      (sizeof(INT_EXC_FRAME_T) / sizeof(uint32_t))
+ #define ARC_CALLEE_FRAME_T_SIZE       (sizeof(CALLEE_FRAME_T) / sizeof(uint32_t))
+ 
++extern uint32_t exc_nest_count;
++
+ /**
+  * @fn void arc_vector_base_write(uint32_t vec_base)
+  * @brief Write exception vector base
+@@ -231,6 +233,17 @@ Inline uint32_t arc_vector_base_read(void)
+ }
+ /** @}*/
+ 
++/**
++ * \brief  sense whether in exc/interrupt processing
++ *
++ * \retval 0	not in exc/interrupt processing
++ * \retval 1	in exc/interrupt processing
++ */
++Inline uint32_t exc_sense(void)
++{
++	return (exc_nest_count > 0U);
++}
++
+ /**
+  * @addtogroup ARC_HAL_EXCEPTION_INTERRUPT
+  * @{
+-- 
+2.15.0.windows.1
+
