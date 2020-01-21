@@ -32,7 +32,9 @@
 #include "soc/spi_reg.h"
 #include "soc/sens_reg.h"
 #include "soc/dport_reg.h"
+#include "soc/rtc_wdt.h"
 #include "driver/rtc_io.h"
+#include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
@@ -79,6 +81,10 @@ static sleep_config_t s_config = {
     .wakeup_triggers = 0
 };
 
+/* Internal variable used to track if light sleep wakeup sources are to be
+   expected when determining wakeup cause. */
+static bool s_light_sleep_wakeup = false;
+
 /* Updating RTC_MEMORY_CRC_REG register via set_rtc_memory_crc()
    is not thread-safe. */
 static _lock_t lock_rtc_memory_crc;
@@ -102,11 +108,14 @@ esp_deep_sleep_wake_stub_fn_t esp_get_deep_sleep_wake_stub(void)
     REG_WRITE(RTC_MEMORY_CRC_REG, stored_crc);
     _lock_release(&lock_rtc_memory_crc);
 
-    if(stored_crc == calc_crc) {
-        return (esp_deep_sleep_wake_stub_fn_t)REG_READ(RTC_ENTRY_ADDR_REG);
-    } else {
+    if(stored_crc != calc_crc) {
         return NULL;
     }
+    esp_deep_sleep_wake_stub_fn_t stub_ptr = (esp_deep_sleep_wake_stub_fn_t) REG_READ(RTC_ENTRY_ADDR_REG);
+    if (!esp_ptr_executable(stub_ptr)) {
+        return NULL;
+    }
+    return stub_ptr;
 }
 
 void esp_set_deep_sleep_wake_stub(esp_deep_sleep_wake_stub_fn_t new_stub)
@@ -152,7 +161,9 @@ static void IRAM_ATTR suspend_uarts()
 {
     for (int i = 0; i < 3; ++i) {
         REG_SET_BIT(UART_FLOW_CONF_REG(i), UART_FORCE_XOFF);
-        uart_tx_wait_idle(i);
+        while (REG_GET_FIELD(UART_STATUS_REG(i), UART_ST_UTX_OUT) != 0) {
+            ;
+        }
     }
 }
 
@@ -177,8 +188,9 @@ static uint32_t IRAM_ATTR esp_sleep_start(uint32_t pd_flags)
     }
 
     // Save current frequency and switch to XTAL
-    rtc_cpu_freq_t cpu_freq = rtc_clk_cpu_freq_get();
-    rtc_clk_cpu_freq_set(RTC_CPU_FREQ_XTAL);
+    rtc_cpu_freq_config_t cpu_freq_config;
+    rtc_clk_cpu_freq_get_config(&cpu_freq_config);
+    rtc_clk_cpu_freq_set_xtal();
 
     // Configure pins for external wakeup
     if (s_config.wakeup_triggers & RTC_EXT0_TRIG_EN) {
@@ -204,7 +216,7 @@ static uint32_t IRAM_ATTR esp_sleep_start(uint32_t pd_flags)
     uint32_t result = rtc_sleep_start(s_config.wakeup_triggers, 0);
 
     // Restore CPU frequency
-    rtc_clk_cpu_freq_set(cpu_freq);
+    rtc_clk_cpu_freq_set_config(&cpu_freq_config);
 
     // re-enable UART output
     resume_uarts();
@@ -236,27 +248,6 @@ void IRAM_ATTR esp_deep_sleep_start()
     while (1) {
         ;
     }
-}
-
-static void rtc_wdt_enable(int time_ms)
-{
-    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, RTC_CNTL_WDT_WKEY_VALUE);
-    WRITE_PERI_REG(RTC_CNTL_WDTFEED_REG, 1);
-    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_SYS_RESET_LENGTH, 7);
-    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_CPU_RESET_LENGTH, 7);
-    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_STG0, RTC_WDT_STG_SEL_RESET_RTC);
-    WRITE_PERI_REG(RTC_CNTL_WDTCONFIG1_REG, rtc_clk_slow_freq_get_hz() * time_ms / 1000);
-    SET_PERI_REG_MASK(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_EN | RTC_CNTL_WDT_PAUSE_IN_SLP);
-    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, 0);
-}
-
-static void rtc_wdt_disable()
-{
-    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, RTC_CNTL_WDT_WKEY_VALUE);
-    WRITE_PERI_REG(RTC_CNTL_WDTFEED_REG, 1);
-    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_STG0, RTC_WDT_STG_SEL_OFF);
-    REG_CLR_BIT(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_EN);
-    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, 0);
 }
 
 /**
@@ -326,11 +317,23 @@ esp_err_t esp_light_sleep_start()
     rtc_vddsdio_config_t vddsdio_config = rtc_vddsdio_get_config();
 
     // Safety net: enable WDT in case exit from light sleep fails
-    rtc_wdt_enable(1000);
+    bool wdt_was_enabled = rtc_wdt_is_on(); // If WDT was enabled in the user code, then do not change it here.
+    if (!wdt_was_enabled) {
+        rtc_wdt_protect_off();
+        rtc_wdt_disable();
+        rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+        rtc_wdt_set_length_of_reset_signal(RTC_WDT_CPU_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+        rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
+        rtc_wdt_set_time(RTC_WDT_STAGE0, 1000);
+        rtc_wdt_enable();
+        rtc_wdt_protect_on();
+    }
 
     // Enter sleep, then wait for flash to be ready on wakeup
     esp_err_t err = esp_light_sleep_inner(pd_flags,
             flash_enable_time_us, vddsdio_config);
+
+    s_light_sleep_wakeup = true;
 
     // FRC1 has been clock gated for the duration of the sleep, correct for that.
     uint64_t rtc_ticks_at_end = rtc_time_get();
@@ -352,7 +355,9 @@ esp_err_t esp_light_sleep_start()
 
     esp_timer_impl_unlock();
     DPORT_STALL_OTHER_CPU_END();
-    rtc_wdt_disable();
+    if (!wdt_was_enabled) {
+        rtc_wdt_disable();
+    }
     portEXIT_CRITICAL(&light_sleep_lock);
     return err;
 }
@@ -364,22 +369,25 @@ esp_err_t esp_sleep_disable_wakeup_source(esp_sleep_source_t source)
     // For most of sources it is enough to set trigger mask in local
     // configuration structure. The actual RTC wake up options
     // will be updated by esp_sleep_start().
-    if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_TIMER, RTC_TIMER_TRIG_EN)) {
+    if (source == ESP_SLEEP_WAKEUP_ALL) {
+        s_config.wakeup_triggers = 0;
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_TIMER, RTC_TIMER_TRIG_EN)) {
         s_config.wakeup_triggers &= ~RTC_TIMER_TRIG_EN;
         s_config.sleep_duration = 0;
-    }
-    else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_EXT0, RTC_EXT0_TRIG_EN)) {
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_EXT0, RTC_EXT0_TRIG_EN)) {
         s_config.ext0_rtc_gpio_num = 0;
         s_config.ext0_trigger_level = 0;
         s_config.wakeup_triggers &= ~RTC_EXT0_TRIG_EN;
-    }
-    else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_EXT1, RTC_EXT1_TRIG_EN)) {
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_EXT1, RTC_EXT1_TRIG_EN)) {
         s_config.ext1_rtc_gpio_mask = 0;
         s_config.ext1_trigger_mode = 0;
         s_config.wakeup_triggers &= ~RTC_EXT1_TRIG_EN;
-    }
-    else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_TOUCHPAD, RTC_TOUCH_TRIG_EN)) {
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_TOUCHPAD, RTC_TOUCH_TRIG_EN)) {
         s_config.wakeup_triggers &= ~RTC_TOUCH_TRIG_EN;
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_GPIO, RTC_GPIO_TRIG_EN)) {
+        s_config.wakeup_triggers &= ~RTC_GPIO_TRIG_EN;
+    } else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_UART, (RTC_UART0_TRIG_EN | RTC_UART1_TRIG_EN))) {
+        s_config.wakeup_triggers &= ~(RTC_UART0_TRIG_EN | RTC_UART1_TRIG_EN);
     }
 #ifdef CONFIG_ULP_COPROC_ENABLED
     else if (CHECK_SOURCE(source, ESP_SLEEP_WAKEUP_ULP, RTC_ULP_TRIG_EN)) {
@@ -571,9 +579,32 @@ uint64_t esp_sleep_get_ext1_wakeup_status()
     return gpio_mask;
 }
 
+esp_err_t esp_sleep_enable_gpio_wakeup()
+{
+    if (s_config.wakeup_triggers & (RTC_TOUCH_TRIG_EN | RTC_ULP_TRIG_EN)) {
+        ESP_LOGE(TAG, "Conflicting wake-up triggers: touch / ULP");
+        return ESP_ERR_INVALID_STATE;
+    }
+    s_config.wakeup_triggers |= RTC_GPIO_TRIG_EN;
+    return ESP_OK;
+}
+
+esp_err_t esp_sleep_enable_uart_wakeup(int uart_num)
+{
+    if (uart_num == UART_NUM_0) {
+        s_config.wakeup_triggers |= RTC_UART0_TRIG_EN;
+    } else if (uart_num == UART_NUM_1) {
+        s_config.wakeup_triggers |= RTC_UART1_TRIG_EN;
+    } else {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    return ESP_OK;
+}
+
 esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause()
 {
-    if (rtc_get_reset_reason(0) != DEEPSLEEP_RESET) {
+    if (rtc_get_reset_reason(0) != DEEPSLEEP_RESET && !s_light_sleep_wakeup) {
         return ESP_SLEEP_WAKEUP_UNDEFINED;
     }
 
@@ -588,6 +619,10 @@ esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause()
         return ESP_SLEEP_WAKEUP_TOUCHPAD;
     } else if (wakeup_cause & RTC_ULP_TRIG_EN) {
         return ESP_SLEEP_WAKEUP_ULP;
+    } else if (wakeup_cause & RTC_GPIO_TRIG_EN) {
+        return ESP_SLEEP_WAKEUP_GPIO;
+    } else if (wakeup_cause & (RTC_UART0_TRIG_EN | RTC_UART1_TRIG_EN)) {
+        return ESP_SLEEP_WAKEUP_UART;
     } else {
         return ESP_SLEEP_WAKEUP_UNDEFINED;
     }
@@ -612,15 +647,11 @@ static uint32_t get_power_down_flags()
     // If there is any data placed into .rtc.data or .rtc.bss segments, and
     // RTC_SLOW_MEM is Auto, keep it powered up as well.
 
-    // These labels are defined in the linker script:
-    extern int _rtc_data_start, _rtc_data_end,
-               _rtc_bss_start, _rtc_bss_end,
-               _rtc_noinit_start, _rtc_noinit_end;
+    // Labels are defined in the linker script, see esp32.ld.
+    extern int _rtc_slow_length;
 
     if ((s_config.pd_options[ESP_PD_DOMAIN_RTC_SLOW_MEM] == ESP_PD_OPTION_AUTO) &&
-            (&_rtc_data_end > &_rtc_data_start ||
-             &_rtc_bss_end > &_rtc_bss_start ||
-             &_rtc_noinit_end > &_rtc_noinit_start ||
+            ((size_t) &_rtc_slow_length > 0 ||
              (s_config.wakeup_triggers & RTC_ULP_TRIG_EN))) {
         s_config.pd_options[ESP_PD_DOMAIN_RTC_SLOW_MEM] = ESP_PD_OPTION_ON;
     }
@@ -634,10 +665,10 @@ static uint32_t get_power_down_flags()
         s_config.pd_options[ESP_PD_DOMAIN_RTC_FAST_MEM] = ESP_PD_OPTION_ON;
     }
 
-    // RTC_PERIPH is needed for EXT0 wakeup.
-    // If RTC_PERIPH is auto, and EXT0 isn't enabled, power down RTC_PERIPH.
+    // RTC_PERIPH is needed for EXT0 wakeup and GPIO wakeup.
+    // If RTC_PERIPH is auto, and EXT0/GPIO aren't enabled, power down RTC_PERIPH.
     if (s_config.pd_options[ESP_PD_DOMAIN_RTC_PERIPH] == ESP_PD_OPTION_AUTO) {
-        if (s_config.wakeup_triggers & RTC_EXT0_TRIG_EN) {
+        if (s_config.wakeup_triggers & (RTC_EXT0_TRIG_EN | RTC_GPIO_TRIG_EN)) {
             s_config.pd_options[ESP_PD_DOMAIN_RTC_PERIPH] = ESP_PD_OPTION_ON;
         } else if (s_config.wakeup_triggers & (RTC_TOUCH_TRIG_EN | RTC_ULP_TRIG_EN)) {
             // In both rev. 0 and rev. 1 of ESP32, forcing power up of RTC_PERIPH
@@ -678,4 +709,14 @@ static uint32_t get_power_down_flags()
 #endif
     }
     return pd_flags;
+}
+
+void esp_deep_sleep_disable_rom_logging(void)
+{
+    /* To disable logging in the ROM, only the least significant bit of the register is used,
+     * but since this register is also used to store the frequency of the main crystal (RTC_XTAL_FREQ_REG),
+     * you need to write to this register in the same format.
+     * Namely, the upper 16 bits and lower should be the same.
+     */
+    REG_SET_BIT(RTC_CNTL_STORE4_REG, RTC_DISABLE_ROM_LOG);
 }

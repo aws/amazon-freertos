@@ -1,28 +1,28 @@
 /**
-* MIT License
-*
-* Copyright (c) 2018 Infineon Technologies AG
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE
-*
-* OPTIGA(TM) Trust X - based PKCS#11 V1.0.0
-*/
+ * MIT License
+ *
+ * Copyright (c) 2018 Infineon Technologies AG
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE
+ *
+ * OPTIGA(TM) Trust X - based PKCS#11 V1.0.0
+ */
 
 
 /**
@@ -37,7 +37,7 @@
 #include "semphr.h"
 #include "iot_pkcs11_config.h"
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-#include "iot_test_pkcs11_config.h"
+    #include "iot_test_pkcs11_config.h"
 #endif
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
@@ -77,8 +77,8 @@
 typedef struct P11Object_t
 {
     CK_OBJECT_HANDLE xHandle;
-    // If Label is associated with a private key slot.
-    // This flag is used to mark it active/non-active, as we can't remove the private key
+    /* If Label is associated with a private key slot. */
+    /* This flag is used to mark it active/non-active, as we can't remove the private key */
     CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ]; /* Plus 1 for the null terminator. */
 } P11Object_t;
 
@@ -101,9 +101,9 @@ static P11Struct_t xP11Context;
 
 typedef struct OptigaSha256Ctx_t
 {
-    uint8_t pubHashCtxBuf [130];
+    uint8_t pubHashCtxBuf[ 130 ];
     optiga_hash_context_t xHashCtx;
-}OptigaSha256Ctx_t;
+} OptigaSha256Ctx_t;
 
 /**
  * @brief Session structure.
@@ -128,7 +128,7 @@ typedef struct P11Session
 /**
  * @brief Cryptoki module attribute definitions.
  */
-#define pkcs11SLOT_ID               1
+#define pkcs11SLOT_ID    1
 
 
 /**
@@ -150,147 +150,164 @@ enum eObjectHandles
 {
     eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
     eAwsDevicePrivateKey = 1,
-	eAwsTestPrivateKey,
+    eAwsTestPrivateKey,
     eAwsDevicePublicKey,
-	eAwsTestPublicKey,
+    eAwsTestPublicKey,
     eAwsDeviceCertificate,
-	eAwsTestCertificate,
+    eAwsTestCertificate,
     eAwsCodeSigningKey
 };
 
 
 /* The communication context `ifx_i2c_context_0` is declared in the header file ifx_i2c_config.h */
-optiga_comms_t optiga_comms = {(void*)&ifx_i2c_context_0,NULL,NULL, OPTIGA_COMMS_SUCCESS};
+optiga_comms_t optiga_comms = { ( void * ) &ifx_i2c_context_0, NULL, NULL, OPTIGA_COMMS_SUCCESS };
 
 /*-----------------------------------------------------------*/
 
-static uint8_t prvAppendOptigaCertTags (uint16_t xCertWithoutTagsLength, 
-                                        uint8_t* pxCertTags, uint16_t xCertTagsLength)
+static uint8_t prvAppendOptigaCertTags( uint16_t xCertWithoutTagsLength,
+                                        uint8_t * pxCertTags,
+                                        uint16_t xCertTagsLength )
 {
-        char t1[3], t2[3], t3[3];
+    char t1[ 3 ], t2[ 3 ], t3[ 3 ];
 
-        int xCalc = xCertWithoutTagsLength,
-            xCalc1 = 0,
-            xCalc2 = 0;
+    int xCalc = xCertWithoutTagsLength,
+        xCalc1 = 0,
+        xCalc2 = 0;
 
-        uint8_t ret = 0;
-        do
+    uint8_t ret = 0;
+
+    do
+    {
+        if( ( pxCertTags == NULL ) || ( xCertWithoutTagsLength == 0 ) ||
+            ( xCertTagsLength != 9 ) )
         {
-            if ((pxCertTags == NULL) || (xCertWithoutTagsLength == 0) ||
-                (xCertTagsLength != 9))
-            {
-                break;
-            }
+            break;
+        }
 
-            if (xCalc > 0xFF)
-            {
-                xCalc1 = xCalc >> 8;
-                xCalc = xCalc%0x100;
-                if (xCalc1 > 0xFF)
-                {
-                    xCalc2 = xCalc1 >> 8;
-                    xCalc1 = xCalc1%0x100;
-                }
-            }
-            t3[0] = xCalc2;
-            t3[1] = xCalc1;
-            t3[2] = xCalc;
-            xCalc = xCertWithoutTagsLength + 3;
-            if (xCalc > 0xFF)
-            {
-                xCalc1 = xCalc >> 8;
-                xCalc = xCalc%0x100;
-                if (xCalc1 > 0xFF)
-                {
-                    xCalc2 = xCalc1 >> 8;
-                    xCalc1 = xCalc1%0x100;
-                }
-            }
-            t2[0] = xCalc2;
-            t2[1] = xCalc1;
-            t2[2] = xCalc;
-            xCalc = xCertWithoutTagsLength + 6;
-            if (xCalc > 0xFF)
-            {
-                xCalc1 = xCalc >> 8;
-                xCalc = xCalc%0x100;
-                if (xCalc1 > 0xFF)
-                {
-                    xCalc2 = xCalc1 >> 8;
-                    xCalc1 = xCalc1%0x100;
-                }
-            }
-            t1[0] = 0xC0;
-            t1[1] = xCalc1;
-            t1[2] = xCalc;
+        if( xCalc > 0xFF )
+        {
+            xCalc1 = xCalc >> 8;
+            xCalc = xCalc % 0x100;
 
-            for (int i = 0; i < 3; i++) {
-                pxCertTags[i] = t1[i];
-            }
-            for (int i = 0; i < 3; i++)
+            if( xCalc1 > 0xFF )
             {
-                pxCertTags[i+3] = t2[i];
+                xCalc2 = xCalc1 >> 8;
+                xCalc1 = xCalc1 % 0x100;
             }
-            for (int i = 0; i < 3; i++) {
-                pxCertTags[i+6] = t3[i];
+        }
+
+        t3[ 0 ] = xCalc2;
+        t3[ 1 ] = xCalc1;
+        t3[ 2 ] = xCalc;
+        xCalc = xCertWithoutTagsLength + 3;
+
+        if( xCalc > 0xFF )
+        {
+            xCalc1 = xCalc >> 8;
+            xCalc = xCalc % 0x100;
+
+            if( xCalc1 > 0xFF )
+            {
+                xCalc2 = xCalc1 >> 8;
+                xCalc1 = xCalc1 % 0x100;
             }
+        }
 
-            ret = 1;
+        t2[ 0 ] = xCalc2;
+        t2[ 1 ] = xCalc1;
+        t2[ 2 ] = xCalc;
+        xCalc = xCertWithoutTagsLength + 6;
 
-        }while(0);
+        if( xCalc > 0xFF )
+        {
+            xCalc1 = xCalc >> 8;
+            xCalc = xCalc % 0x100;
 
-        return ret;
+            if( xCalc1 > 0xFF )
+            {
+                xCalc2 = xCalc1 >> 8;
+                xCalc1 = xCalc1 % 0x100;
+            }
+        }
+
+        t1[ 0 ] = 0xC0;
+        t1[ 1 ] = xCalc1;
+        t1[ 2 ] = xCalc;
+
+        for( int i = 0; i < 3; i++ )
+        {
+            pxCertTags[ i ] = t1[ i ];
+        }
+
+        for( int i = 0; i < 3; i++ )
+        {
+            pxCertTags[ i + 3 ] = t2[ i ];
+        }
+
+        for( int i = 0; i < 3; i++ )
+        {
+            pxCertTags[ i + 6 ] = t3[ i ];
+        }
+
+        ret = 1;
+    } while( 0 );
+
+    return ret;
 }
 
-static int32_t prvUploadCertificate(char * pucLabel, uint8_t * pucData, uint32_t ulDataSize)
+static int32_t prvUploadCertificate( char * pucLabel,
+                                     uint8_t * pucData,
+                                     uint32_t ulDataSize )
 {
-    long     lOptigaOid = 0;
-    const 	 uint8_t xTagsLength = 9;
-    uint8_t  pxCertTags[xTagsLength];
+    long lOptigaOid = 0;
+    const uint8_t xTagsLength = 9;
+    uint8_t pxCertTags[ xTagsLength ];
     optiga_lib_status_t xReturn;
-    char*    xEnd = NULL;
+    char * xEnd = NULL;
 
-	/**
-	 * Write a certificate to a given cert object (e.g. E0E8)
-	 * using optiga_util_write_data.
-	 *
-	 * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
-	 * to clear the remaining data in the object
-	 */
+    /**
+     * Write a certificate to a given cert object (e.g. E0E8)
+     * using optiga_util_write_data.
+     *
+     * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
+     * to clear the remaining data in the object
+     */
 
-	lOptigaOid = strtol(pucLabel, &xEnd, 16);
+    lOptigaOid = strtol( pucLabel, &xEnd, 16 );
 
-	if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (USHRT_MAX > ulDataSize))
-	{
-		// Certificates on OPTIGA Trust SE are stored with certitficate identifiers -> tags,
-		// which are 9 bytes long
-		if (prvAppendOptigaCertTags(ulDataSize, pxCertTags, xTagsLength))
-		{
-			xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-											 OPTIGA_UTIL_ERASE_AND_WRITE,
-											 0,
-											 pxCertTags,
-											 9);
+    if( ( 0 != lOptigaOid ) && ( USHRT_MAX > lOptigaOid ) && ( USHRT_MAX > ulDataSize ) )
+    {
+        /* Certificates on OPTIGA Trust SE are stored with certitficate identifiers -> tags, */
+        /* which are 9 bytes long */
+        if( prvAppendOptigaCertTags( ulDataSize, pxCertTags, xTagsLength ) )
+        {
+            xReturn = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                              OPTIGA_UTIL_ERASE_AND_WRITE,
+                                              0,
+                                              pxCertTags,
+                                              9 );
 
-			if (OPTIGA_LIB_SUCCESS == xReturn)
-			{
-				xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-												 OPTIGA_UTIL_WRITE_ONLY,
-												 xTagsLength,
-												 pucData,
-												 ulDataSize);
-			}
-		}
-	}
+            if( OPTIGA_LIB_SUCCESS == xReturn )
+            {
+                xReturn = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                                  OPTIGA_UTIL_WRITE_ONLY,
+                                                  xTagsLength,
+                                                  pucData,
+                                                  ulDataSize );
+            }
+        }
+    }
 
-	return xReturn;
+    return xReturn;
 }
 
-static int32_t prvUploadPublicKey(char * pucLabel, uint8_t * pucData, uint32_t ulDataSize)
+static int32_t prvUploadPublicKey( char * pucLabel,
+                                   uint8_t * pucData,
+                                   uint32_t ulDataSize )
 {
-    long     lOptigaOid = 0;
+    long lOptigaOid = 0;
     optiga_lib_status_t xReturn;
-    char*    xEnd = NULL;
+    char * xEnd = NULL;
 
     /**
      * Write a public key to an arbitrary data object
@@ -299,18 +316,18 @@ static int32_t prvUploadPublicKey(char * pucLabel, uint8_t * pucData, uint32_t u
      * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
      * to clear the remaining data in the object
      */
-    lOptigaOid = strtol(pucLabel, &xEnd, 16);
+    lOptigaOid = strtol( pucLabel, &xEnd, 16 );
 
-    if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) && (USHRT_MAX >= ulDataSize))
+    if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) && ( USHRT_MAX >= ulDataSize ) )
     {
-        xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-                                         OPTIGA_UTIL_ERASE_AND_WRITE,
-                                         0,
-                                         pucData,
-                                         ulDataSize);
+        xReturn = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                          OPTIGA_UTIL_ERASE_AND_WRITE,
+                                          0,
+                                          pucData,
+                                          ulDataSize );
     }
 
-	return xReturn;
+    return xReturn;
 }
 
 /**
@@ -331,9 +348,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
-    long     lOptigaOid = 0;
-    uint8_t  bOffset = 0;
-    char*    xEnd = NULL;
+    long lOptigaOid = 0;
+    uint8_t bOffset = 0;
+    char * xEnd = NULL;
 
     optiga_lib_status_t xReturn;
 
@@ -345,59 +362,60 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                          &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                          sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
         {
-        	if ( prvUploadCertificate(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
-        	{
-        		xHandle = eAwsDeviceCertificate;
-        	}
+            if( prvUploadCertificate( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize ) == OPTIGA_LIB_SUCCESS )
+            {
+                xHandle = eAwsDeviceCertificate;
+            }
         }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+
+        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+            else if( 0 == memcmp( pxLabel->pValue,
+                                  &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                  sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+            {
+                if( prvUploadCertificate( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize ) == OPTIGA_LIB_SUCCESS )
+                {
+                    xHandle = eAwsTestCertificate;
+                }
+            }
+        #endif
         else if( 0 == memcmp( pxLabel->pValue,
-                              &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                              sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-		{
-        	if ( prvUploadCertificate(pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
-        	{
-        		xHandle = eAwsTestCertificate;
-        	}
-		}
-#endif
-        else if( 0 == memcmp( pxLabel->pValue,
-                               &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                               sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
         {
             /* This operation isn't supported for the OPTIGA(TM) Trust X due to a security considerations
              * You can only generate a keypair and export a private component if you like */
             /* We do assign a handle though, as the AWS can#t handle the lables without having a handle*/
             xHandle = eAwsDevicePrivateKey;
         }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-        else if( 0 == memcmp( pxLabel->pValue,
-                		               &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                		               sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
-		{
-        	xHandle = eAwsTestPrivateKey;
-		}
-#endif
+        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+            else if( 0 == memcmp( pxLabel->pValue,
+                                  &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                  sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+            {
+                xHandle = eAwsTestPrivateKey;
+            }
+        #endif
         else if( 0 == memcmp( pxLabel->pValue,
                               &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
-        	if ( prvUploadPublicKey(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
-        	{
-                    xHandle = eAwsDevicePublicKey;
+            if( prvUploadPublicKey( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize ) == OPTIGA_LIB_SUCCESS )
+            {
+                xHandle = eAwsDevicePublicKey;
             }
         }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-        else if( 0 == memcmp( pxLabel->pValue,
-                              &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                              sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
-        {
-        	if ( prvUploadPublicKey(pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
-        	{
+        #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+            else if( 0 == memcmp( pxLabel->pValue,
+                                  &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                  sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+            {
+                if( prvUploadPublicKey( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize ) == OPTIGA_LIB_SUCCESS )
+                {
                     xHandle = eAwsTestPublicKey;
+                }
             }
-        }
-#endif
+        #endif
         else if( 0 == memcmp( pxLabel->pValue,
                               &pkcs11configLABEL_CODE_VERIFICATION_KEY,
                               sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
@@ -409,21 +427,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
              * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
              * to clear the remaining data in the object
              */
-            lOptigaOid = strtol(pkcs11configLABEL_CODE_VERIFICATION_KEY, &xEnd, 16);
+            lOptigaOid = strtol( pkcs11configLABEL_CODE_VERIFICATION_KEY, &xEnd, 16 );
 
-            if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (USHRT_MAX > ulDataSize))
+            if( ( 0 != lOptigaOid ) && ( USHRT_MAX > lOptigaOid ) && ( USHRT_MAX > ulDataSize ) )
             {
-                xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-                                                 OPTIGA_UTIL_ERASE_AND_WRITE,
-                                                 bOffset,
-                                                 pucData,
-                                                 ulDataSize);
+                xReturn = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                                  OPTIGA_UTIL_ERASE_AND_WRITE,
+                                                  bOffset,
+                                                  pucData,
+                                                  ulDataSize );
 
-                if (OPTIGA_LIB_SUCCESS == xReturn)
+                if( OPTIGA_LIB_SUCCESS == xReturn )
+                {
                     xHandle = eAwsCodeSigningKey;
+                }
             }
         }
-
     }
 
     return xHandle;
@@ -457,14 +476,15 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     {
         xHandle = eAwsDeviceCertificate;
     }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    else if( 0 == memcmp( pLabel,
-                          &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                          sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-    {
-        xHandle = eAwsTestCertificate;
-    }
-#endif
+
+    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        else if( 0 == memcmp( pLabel,
+                              &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                              sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            xHandle = eAwsTestCertificate;
+        }
+    #endif
     else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
@@ -474,28 +494,28 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
         /* We do assign a handle though, as the AWS can#t handle the lables without having a handle*/
         xHandle = eAwsDevicePrivateKey;
     }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    else if( 0 == memcmp( pLabel,
-                          &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                          sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
-    {
-        xHandle = eAwsTestPrivateKey;
-    }
-#endif
+    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        else if( 0 == memcmp( pLabel,
+                              &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            xHandle = eAwsTestPrivateKey;
+        }
+    #endif
     else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
     {
         xHandle = eAwsDevicePublicKey;
     }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    else if( 0 == memcmp( pLabel,
-                          &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                          sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
-    {
-        xHandle = eAwsTestPublicKey;
-    }
-#endif
+    #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        else if( 0 == memcmp( pLabel,
+                              &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+        {
+            xHandle = eAwsTestPublicKey;
+        }
+    #endif
     else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_CODE_VERIFICATION_KEY,
                           sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
@@ -532,63 +552,69 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * error.
  */
 BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                 uint8_t ** ppucData,
-                                 uint32_t * pulDataSize,
-                                 CK_BBOOL * pIsPrivate )
+                                      uint8_t ** ppucData,
+                                      uint32_t * pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
-    BaseType_t           ulReturn = CKR_OK;
-    optiga_lib_status_t  xReturn;
-    long                 lOptigaOid = 0;
-    char*                xEnd = NULL;
-    uint8_t              xOffset = 0;
+    BaseType_t ulReturn = CKR_OK;
+    optiga_lib_status_t xReturn;
+    long lOptigaOid = 0;
+    char * xEnd = NULL;
+    uint8_t xOffset = 0;
 
     *pIsPrivate = CK_FALSE;
 
-    switch (xHandle) {
-    case eAwsDeviceCertificate:
-        lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
-        xOffset = 9;
-        break;
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    case eAwsTestCertificate:
-        lOptigaOid = strtol(pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
-        xOffset = 9;
-        break;
-#endif
-    case eAwsDevicePublicKey:
-        lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
-        break;
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    case eAwsTestPublicKey:
-        lOptigaOid = strtol(pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
-        break;
-#endif
-    case eAwsCodeSigningKey:
-        lOptigaOid = strtol(pkcs11configLABEL_CODE_VERIFICATION_KEY, &xEnd, 16);
-        break;
-    case eAwsDevicePrivateKey:
-    case eAwsTestPrivateKey:
+    switch( xHandle )
+    {
+        case eAwsDeviceCertificate:
+            lOptigaOid = strtol( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16 );
+            xOffset = 9;
+            break;
+
+            #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                case eAwsTestCertificate:
+                    lOptigaOid = strtol( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16 );
+                    xOffset = 9;
+                    break;
+            #endif
+        case eAwsDevicePublicKey:
+            lOptigaOid = strtol( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16 );
+            break;
+
+            #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                case eAwsTestPublicKey:
+                    lOptigaOid = strtol( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16 );
+                    break;
+            #endif
+        case eAwsCodeSigningKey:
+            lOptigaOid = strtol( pkcs11configLABEL_CODE_VERIFICATION_KEY, &xEnd, 16 );
+            break;
+
+        case eAwsDevicePrivateKey:
+        case eAwsTestPrivateKey:
+
         /*
          * This operation isn't supported for the OPTIGA(TM) Trust X due to a security considerations
          * You can only generate a keypair and export a private component if you like
          */
-    default:
-        ulReturn = CKR_KEY_HANDLE_INVALID;
-        break;
+        default:
+            ulReturn = CKR_KEY_HANDLE_INVALID;
+            break;
     }
 
-    // We need to allocate a buffer for a certificate/certificate chain
-    // This data is later should be freed with PKCS11_PAL_GetObjectValueCleanup
+    /* We need to allocate a buffer for a certificate/certificate chain */
+    /* This data is later should be freed with PKCS11_PAL_GetObjectValueCleanup */
     *ppucData = pvPortMalloc( pkcs11OBJECT_CERTIFICATE_MAX_SIZE );
-    if (NULL != *ppucData)
+
+    if( NULL != *ppucData )
     {
         *pulDataSize = pkcs11OBJECT_CERTIFICATE_MAX_SIZE;
 
-        if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (NULL != pulDataSize))
+        if( ( 0 != lOptigaOid ) && ( USHRT_MAX > lOptigaOid ) && ( NULL != pulDataSize ) )
         {
-            xReturn = optiga_util_read_data(lOptigaOid, xOffset, *ppucData, (uint16_t*)pulDataSize);
+            xReturn = optiga_util_read_data( lOptigaOid, xOffset, *ppucData, ( uint16_t * ) pulDataSize );
 
-            if (OPTIGA_LIB_SUCCESS != xReturn)
+            if( OPTIGA_LIB_SUCCESS != xReturn )
             {
                 *ppucData = NULL;
                 *pulDataSize = 0;
@@ -596,7 +622,6 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
             }
         }
     }
-
 
     return ulReturn;
 }
@@ -648,13 +673,13 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL, /*C_GetInfo */
     C_GetFunctionList,
     C_GetSlotList,
-    NULL, /*C_GetSlotInfo*/
+    NULL,               /*C_GetSlotInfo*/
     C_GetTokenInfo,
-    NULL, /*C_GetMechanismList*/
+    NULL,               /*C_GetMechanismList*/
     C_GetMechanismInfo, /*C_GetMechanismInfo */
     C_InitToken,
-    NULL, /*C_InitPIN*/
-    NULL, /*C_SetPIN*/
+    NULL,               /*C_InitPIN*/
+    NULL,               /*C_SetPIN*/
     C_OpenSession,
     C_CloseSession,
     NULL,    /*C_CloseAllSessions*/
@@ -732,26 +757,26 @@ CK_RV prvOPTIGATrustX_Initialize( void )
         memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
-//        CRYPTO_Init();
+/*        CRYPTO_Init(); */
 
         pal_os_event_init();
 
-        xResult = optiga_util_open_application(&optiga_comms);
+        xResult = optiga_util_open_application( &optiga_comms );
 
-        //status = example_authenticate_chip();
+        /*status = example_authenticate_chip(); */
 
-        if (OPTIGA_LIB_SUCCESS == xResult )
+        if( OPTIGA_LIB_SUCCESS == xResult )
         {
             xP11Context.xIsInitialized = CK_TRUE;
             xResult = CKR_OK;
 
             optiga_oid = eCURRENT_LIMITATION;
-            // Maximum Power, Minimum Current limitation
+            /* Maximum Power, Minimum Current limitation */
             uint8_t current_limit = 15;
-            optiga_util_write_data(optiga_oid, OPTIGA_UTIL_WRITE_ONLY,
-                                   0, //offset
-                                   &current_limit,
-                                   1);
+            optiga_util_write_data( optiga_oid, OPTIGA_UTIL_WRITE_ONLY,
+                                    0, /*offset */
+                                    &current_limit,
+                                    1 );
         }
         else
         {
@@ -841,7 +866,7 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
     *ppcLabel = NULL;
     *pxLabelLength = 0;
 
-    if (pkcs11configMAX_NUM_OBJECTS >= lIndex)
+    if( pkcs11configMAX_NUM_OBJECTS >= lIndex )
     {
         if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
         {
@@ -850,7 +875,8 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
             *pxPalHandle = xP11Context.xObjectList.xObjects[ lIndex ].xHandle;
         }
     }
-    else{
+    else
+    {
         *ppcLabel = NULL;
         *pxLabelLength = 0;
         pxPalHandle = NULL;
@@ -958,7 +984,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         {
             if( NULL != keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM )
             {
-                *ppucCertData = (uint8_t *)keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+                *ppucCertData = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
             }
             else
             {
@@ -1011,18 +1037,18 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_OBJECT_HANDLE xPalHandle;
         CK_OBJECT_HANDLE xAppHandle2;
         CK_LONG lOptigaOid = 0;
-        char* xEnd = NULL;
+        char * xEnd = NULL;
 
         prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
 
         if( pcLabel != NULL )
         {
-            if( (0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ))
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-            	||
-                (0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ))
-#endif
-              )
+            if( ( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                    ||
+                    ( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+                #endif
+                )
             {
                 prvFindObjectInListByLabel( ( uint8_t * ) pcLabel, strlen( ( char * ) pcLabel ), &xPalHandle, &xAppHandle2 );
 
@@ -1031,17 +1057,17 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     xResult = prvDeleteObjectFromList( xAppHandle2 );
                 }
 
-                lOptigaOid = strtol(pcLabel, &xEnd, 16);
+                lOptigaOid = strtol( ( char * ) pcLabel, &xEnd, 16 );
 
-                CK_BYTE pucDumbData[68];
+                CK_BYTE pucDumbData[ 68 ];
                 uint16_t ucDumbDataLength = 68;
 
-                if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair(OPTIGA_ECC_NIST_P_256,
-                                                                             (uint8_t)OPTIGA_KEY_USAGE_SIGN,
+                if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair( OPTIGA_ECC_NIST_P_256,
+                                                                             ( uint8_t ) OPTIGA_KEY_USAGE_SIGN,
                                                                              FALSE,
                                                                              &lOptigaOid,
                                                                              pucDumbData,
-                                                                             &ucDumbDataLength))
+                                                                             &ucDumbDataLength ) )
                 {
                     PKCS11_PRINT( ( "ERROR: Failed to invalidate a keypair \r\n" ) );
                     xResult = CKR_FUNCTION_FAILED;
@@ -1053,43 +1079,43 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                 {
                     pcTempLabel = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
                 }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
-                {
-                    pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
-                }
-#endif
+
+                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                    else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
+                    {
+                        pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+                    }
+                #endif
                 else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
                 {
                     pcTempLabel = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
                 }
-#if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
-				{
-					pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
-				}
-#endif
+                #if AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+                    else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
+                    {
+                        pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+                    }
+                #endif
                 else if( 0 == memcmp( pcLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, xLabelLength ) )
                 {
                     pcTempLabel = pkcs11configLABEL_CODE_VERIFICATION_KEY;
                 }
 
-                if (pcTempLabel != NULL)
+                if( pcTempLabel != NULL )
                 {
-                    lOptigaOid = strtol(pcTempLabel, &xEnd, 16);
+                    lOptigaOid = strtol( pcTempLabel, &xEnd, 16 );
 
-                    if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) )
+                    if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
                     {
+                        /* Erase the object */
+                        CK_BYTE pucData[] = { 0 };
+                        xResult = optiga_util_write_data( ( uint16_t ) lOptigaOid,
+                                                          OPTIGA_UTIL_ERASE_AND_WRITE,
+                                                          0, /* Offset */
+                                                          pucData,
+                                                          1 );
 
-                        // Erase the object
-                        CK_BYTE pucData[] = {0};
-                        xResult = optiga_util_write_data((uint16_t)lOptigaOid,
-                                                         OPTIGA_UTIL_ERASE_AND_WRITE,
-                                                         0, // Offset
-                                                         pucData,
-                                                         1);
-
-                        if (OPTIGA_LIB_SUCCESS == xResult)
+                        if( OPTIGA_LIB_SUCCESS == xResult )
                         {
                             prvFindObjectInListByLabel( ( uint8_t * ) pcTempLabel, strlen( ( char * ) pcTempLabel ), &xPalHandle, &xAppHandle2 );
 
@@ -1098,16 +1124,18 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                                 xResult = prvDeleteObjectFromList( xAppHandle2 );
                             }
                         }
-
                     }
-                } else
+                }
+                else
                 {
                     xResult = CKR_KEY_HANDLE_INVALID;
                 }
             }
 
-            if (xAppHandle2 != xAppHandle)
+            if( xAppHandle2 != xAppHandle )
+            {
                 xResult = prvDeleteObjectFromList( xAppHandle );
+            }
         }
         else
         {
@@ -1128,22 +1156,22 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 #if !defined( pkcs11configC_INITIALIZE_ALT )
 
-    /**
-     * @brief Initialize the Cryptoki module for use.
-     *
-     * Overrides the implementation of C_Initialize in
-     * aws_pkcs11_trustx.c when pkcs11configC_INITIALIZE_ALT
-     * is defined.
-     */
+/**
+ * @brief Initialize the Cryptoki module for use.
+ *
+ * Overrides the implementation of C_Initialize in
+ * aws_pkcs11_trustx.c when pkcs11configC_INITIALIZE_ALT
+ * is defined.
+ */
 
     CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-    {   /*lint !e9072 It's OK to have different parameter name. */
+    { /*lint !e9072 It's OK to have different parameter name. */
         ( void ) ( pvInitArgs );
 
         CK_RV xResult = CKR_OK;
 
         /* Ensure that the FreeRTOS heap is used. */
-//        CRYPTO_ConfigureHeap();
+/*        CRYPTO_ConfigureHeap(); */
 
         if( xP11Context.xIsInitialized != CK_TRUE )
         {
@@ -1153,8 +1181,8 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             xResult = prvOPTIGATrustX_Initialize();
 
             CK_OBJECT_HANDLE xObject;
-            CK_OBJECT_HANDLE xPalHandle = PKCS11_PAL_FindObject((uint8_t *)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ));
-            xResult = prvAddObjectToList( xPalHandle, &xObject, (uint8_t *)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ));
+            CK_OBJECT_HANDLE xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+            xResult = prvAddObjectToList( xPalHandle, &xObject, ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
         }
         else
         {
@@ -1185,7 +1213,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 
     if( xResult == CKR_OK )
     {
-
         vSemaphoreDelete( xP11Context.xObjectList.xMutex );
 
         xP11Context.xIsInitialized = CK_FALSE;
@@ -1198,7 +1225,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
  * @brief Query the list of interface function pointers.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     if( NULL == ppxFunctionList )
@@ -1219,7 +1246,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
 CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
                                             CK_SLOT_ID_PTR pxSlotList,
                                             CK_ULONG_PTR pulCount )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     /* Since the implementation of PKCS#11 does not depend
@@ -1262,7 +1289,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
     /* Avoid compiler warnings about unused variables. */
     ( void ) slotID;
 
-    if (pInfo != NULL)
+    if( pInfo != NULL )
     {
         pInfo->firmwareVersion.major = 0x11;
         pInfo->firmwareVersion.minor = 0x18;
@@ -1270,8 +1297,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
         pInfo->hardwareVersion.major = 1;
         pInfo->hardwareVersion.minor = 0;
 
-        sprintf((char *)pInfo->manufacturerID, "Infineon Technologies AG");
-        sprintf((char *)pInfo->model, "OPTIGA Trust X");
+        sprintf( ( char * ) pInfo->manufacturerID, "Infineon Technologies AG" );
+        sprintf( ( char * ) pInfo->model, "OPTIGA Trust X" );
         pInfo->ulMaxSessionCount = 4;
     }
 
@@ -1302,9 +1329,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     }
     pxSupportedMechanisms[] =
     {
-        { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
-        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
-        { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
+        { CKM_ECDSA,           { 256, 256, CKF_SIGN | CKF_VERIFY } },
+        { CKM_EC_KEY_PAIR_GEN, { 256, 256, CKF_GENERATE_KEY_PAIR } },
+        { CKM_SHA256,          { 0,   0,   CKF_DIGEST            } }
     };
     uint32_t ulMech = 0;
 
@@ -1356,7 +1383,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
                                             CK_VOID_PTR pvApplication,
                                             CK_NOTIFY xNotify,
                                             CK_SESSION_HANDLE_PTR pxSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
 
@@ -1401,7 +1428,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         {
             memset( pxSessionObj, 0, sizeof( P11Session_t ) );
         }
-
     }
 
     if( CKR_OK == xResult )
@@ -1441,11 +1467,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
  * @brief Terminate a session and release resources.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+{ /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    if( (xResult == CKR_OK) && (NULL != pxSession) )
+    if( ( xResult == CKR_OK ) && ( NULL != pxSession ) )
     {
         vPortFree( pxSession );
     }
@@ -1599,7 +1625,9 @@ void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
 }
 
 
-CK_RV prvGetExistingKeyComponent( CK_ATTRIBUTE_PTR pxLabel, uint8_t* pxPublicKey, uint32_t ulKeySize )
+CK_RV prvGetExistingKeyComponent( CK_ATTRIBUTE_PTR pxLabel,
+                                  uint8_t * pxPublicKey,
+                                  uint32_t ulKeySize )
 {
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint8_t * pucData = NULL;
@@ -1619,7 +1647,7 @@ CK_RV prvGetExistingKeyComponent( CK_ATTRIBUTE_PTR pxLabel, uint8_t* pxPublicKey
 
     if( xPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pucData, (uint32_t*)&xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
@@ -1627,9 +1655,9 @@ CK_RV prvGetExistingKeyComponent( CK_ATTRIBUTE_PTR pxLabel, uint8_t* pxPublicKey
         }
     }
 
-    if( xResult == CKR_OK && NULL != pxPublicKey)
+    if( ( xResult == CKR_OK ) && ( NULL != pxPublicKey ) )
     {
-        memcpy(pxPublicKey, pucData, xDataLength);
+        memcpy( pxPublicKey, pucData, xDataLength );
     }
 
     if( xNeedToFreeMem == CK_TRUE )
@@ -1641,8 +1669,8 @@ CK_RV prvGetExistingKeyComponent( CK_ATTRIBUTE_PTR pxLabel, uint8_t* pxPublicKey
 }
 
 
-CK_RV prvCreateECPublicKey( uint8_t* pxPublicKey,
-                            uint32_t* pulKeySize,
+CK_RV prvCreateECPublicKey( uint8_t * pxPublicKey,
+                            uint32_t * pulKeySize,
                             CK_ATTRIBUTE_PTR * ppxLabel,
                             CK_ATTRIBUTE_PTR pxTemplate,
                             CK_ULONG ulCount,
@@ -1703,10 +1731,11 @@ CK_RV prvCreateECPublicKey( uint8_t* pxPublicKey,
                 break;
 
             case ( CKA_EC_POINT ):
-                if (*pulKeySize > (xAttribute.ulValueLen - 2))
+
+                if( *pulKeySize > ( xAttribute.ulValueLen - 2 ) )
                 {
                     /* The first 2 bytes are for ASN1 type/length encoding. */
-                    memcpy(pxPublicKey,  ( ( uint8_t * ) ( xAttribute.pValue ) + 2 ),  ( xAttribute.ulValueLen - 2 ));
+                    memcpy( pxPublicKey, ( ( uint8_t * ) ( xAttribute.pValue ) + 2 ), ( xAttribute.ulValueLen - 2 ) );
                     *pulKeySize = xAttribute.ulValueLen - 2;
                 }
                 else
@@ -1735,7 +1764,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
 
-    uint8_t pxPublicKey[MAX_PUBLIC_KEY_SIZE];
+    uint8_t pxPublicKey[ MAX_PUBLIC_KEY_SIZE ];
     uint32_t ulKeySize = MAX_PUBLIC_KEY_SIZE;
 
     xKeyType = prvGetKeyType( pxTemplate, ulCount );
@@ -1771,15 +1800,15 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 }
 
 CK_RV prvActivatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
-                          CK_ULONG ulCount,
-                          CK_OBJECT_HANDLE_PTR pxObject )
+                             CK_ULONG ulCount,
+                             CK_OBJECT_HANDLE_PTR pxObject )
 {
     CK_KEY_TYPE xKeyType;
     CK_RV xResult = CKR_OK;
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
 
-    uint8_t pxPublicKey[MAX_PUBLIC_KEY_SIZE];
+    uint8_t pxPublicKey[ MAX_PUBLIC_KEY_SIZE ];
     uint32_t ulKeySize = MAX_PUBLIC_KEY_SIZE;
 
     xKeyType = prvGetKeyType( pxTemplate, ulCount );
@@ -1822,8 +1851,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulCount,
                                              CK_OBJECT_HANDLE_PTR pxObject )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+{ /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_OBJECT_CLASS xClass;
 
     /* Avoid warnings about unused parameters. */
@@ -1834,7 +1863,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
      */
     if( ( NULL == pxTemplate ) ||
         ( NULL == pxObject ) ||
-        (CKR_OK != xResult))
+        ( CKR_OK != xResult ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
@@ -1897,7 +1926,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                                   CK_ULONG ulCount )
 {
     /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_ULONG iAttrib;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0;
@@ -1912,7 +1941,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
 
-    if( (CKR_OK != xResult) || ( NULL == pxTemplate ) || ( 0 == ulCount ) )
+    if( ( CKR_OK != xResult ) || ( NULL == pxTemplate ) || ( 0 == ulCount ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
@@ -1924,37 +1953,42 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
         prvFindObjectInListByHandle( xObject, &xPalHandle, &pcLabel, &xSize ); /*pcLabel and xSize are ignored. */
 
-        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey && xPalHandle != eAwsTestPrivateKey)
+        if( ( xPalHandle != CK_INVALID_HANDLE ) && ( xPalHandle != eAwsDevicePrivateKey ) && ( xPalHandle != eAwsTestPrivateKey ) )
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObjectValue, &ulLength, &xIsPrivate );
         }
-        else if (xPalHandle == CK_INVALID_HANDLE)
+        else if( xPalHandle == CK_INVALID_HANDLE )
         {
             xResult = CKR_DATA_INVALID;
         }
     }
 
-    if ( CKR_OK != xResult)
+    if( CKR_OK != xResult )
     {
         xResult = CKR_DATA_INVALID;
     }
-    else {
-        switch (xPalHandle) {
-        case eAwsDevicePrivateKey:
-        case eAwsTestPrivateKey:
-            xClass = CKO_PRIVATE_KEY;
-            break;
-        case eAwsDevicePublicKey:
-        case eAwsTestPublicKey:
-            xClass = CKO_PUBLIC_KEY;
-            break;
-        case eAwsDeviceCertificate:
-        case eAwsTestCertificate:
-            xClass = CKO_CERTIFICATE;
-            break;
-        default:
-            xResult = CKR_DATA_INVALID;
-            break;
+    else
+    {
+        switch( xPalHandle )
+        {
+            case eAwsDevicePrivateKey:
+            case eAwsTestPrivateKey:
+                xClass = CKO_PRIVATE_KEY;
+                break;
+
+            case eAwsDevicePublicKey:
+            case eAwsTestPublicKey:
+                xClass = CKO_PUBLIC_KEY;
+                break;
+
+            case eAwsDeviceCertificate:
+            case eAwsTestCertificate:
+                xClass = CKO_CERTIFICATE;
+                break;
+
+            default:
+                xResult = CKR_DATA_INVALID;
+                break;
         }
     }
 
@@ -1999,6 +2033,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                         }
                         else if( pxTemplate[ iAttrib ].ulValueLen < ulLength )
                         {
+                            pxTemplate[ iAttrib ].ulValueLen = ulLength;
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                         else
@@ -2065,13 +2100,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                     }
                     else
                     {
-                        if (pxTemplate[ iAttrib ].ulValueLen < ulLength )
+                        if( pxTemplate[ iAttrib ].ulValueLen < ulLength )
                         {
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                         else
                         {
-                            memcpy( ( uint8_t * ) pxTemplate[ iAttrib ].pValue,  ( uint8_t * ) pxObjectValue, ulLength);
+                            memcpy( ( uint8_t * ) pxTemplate[ iAttrib ].pValue, ( uint8_t * ) pxObjectValue, ulLength );
                             pxTemplate[ iAttrib ].ulValueLen = ulLength;
                         }
                     }
@@ -2098,7 +2133,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
                                                 CK_ULONG ulCount )
 {
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BYTE * pxFindObjectLabel = NULL;
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
@@ -2183,15 +2218,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                             CK_OBJECT_HANDLE_PTR pxObject,
                                             CK_ULONG ulMaxObjectCount,
                                             CK_ULONG_PTR pulObjectCount )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+{ /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     BaseType_t xDone = pdFALSE;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     CK_BYTE_PTR pcObjectValue = NULL;
     uint32_t xObjectLength = 0;
     CK_BBOOL xIsPrivate = CK_TRUE;
-    CK_BYTE xByte = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint32_t ulIndex;
 
@@ -2241,18 +2275,26 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
             xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
         }
 
-        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey && xPalHandle != eAwsTestPrivateKey)
+        /* Query for the object contents, but only if it's not a private key. */
+        if( ( xPalHandle != CK_INVALID_HANDLE ) &&
+            ( xPalHandle != eAwsDevicePrivateKey ) &&
+            ( xPalHandle != eAwsTestPrivateKey ) )
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
 
             if( xResult == CKR_OK )
             {
+                /* Deleted objects are overwritten with zero. Assume that a
+                 * non-zero byte implies a valid object. */
                 for( ulIndex = 0; ulIndex < xObjectLength; ulIndex++ )
                 {
-                    xByte |= pcObjectValue[ ulIndex ];
+                    if( 0 != pcObjectValue[ ulIndex ] )
+                    {
+                        break;
+                    }
                 }
 
-                if( xObjectLength == 1 ) /* Deleted objects are overwritten completely w/ zero. */
+                if( xObjectLength == ulIndex )
                 {
                     *pxObject = CK_INVALID_HANDLE;
                 }
@@ -2264,17 +2306,24 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
                 PKCS11_PAL_GetObjectValueCleanup( pcObjectValue, xObjectLength );
             }
+            else
+            {
+                /* The object handle is recognized but its contents don't exist
+                 * in storage. */
+                *pxObject = CK_INVALID_HANDLE;
+                xResult = CKR_OK;
+            }
         }
-        else if (xPalHandle == eAwsDevicePrivateKey || xPalHandle == eAwsTestPrivateKey)
+        else if( ( xPalHandle == eAwsDevicePrivateKey ) || ( xPalHandle == eAwsTestPrivateKey ) )
         {
             *pulObjectCount = 1;
             xResult = CKR_OK;
         }
         else
         {
-            /*xIsObjectWithNoNvmStorage(pxSession->pxFindObjectLabel, strlen(pxSession->pxFindObjectLabel), ) */
-            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
-            xResult = CKR_FUNCTION_FAILED;
+            /* If FindObject doesn't see an object, return CKR_OK with an invalid handle and an object count of 0. */
+            PKCS11_WARNING_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+            *pxObject = CK_INVALID_HANDLE;
         }
     }
 
@@ -2285,8 +2334,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
  * @brief Terminate object enumeration.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+{ /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     /*
@@ -2317,7 +2366,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
                                            CK_MECHANISM_PTR pMechanism )
 {
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     if( pxSession == NULL )
@@ -2336,11 +2385,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         pxSession->xSHA256Context.xHashCtx.context_buffer = pxSession->xSHA256Context.pubHashCtxBuf;
-        pxSession->xSHA256Context.xHashCtx.context_buffer_length = sizeof(pxSession->xSHA256Context.pubHashCtxBuf);
+        pxSession->xSHA256Context.xHashCtx.context_buffer_length = sizeof( pxSession->xSHA256Context.pubHashCtxBuf );
         pxSession->xSHA256Context.xHashCtx.hash_algo = OPTIGA_HASH_TYPE_SHA_256;
 
-        //Hash start
-        if(OPTIGA_LIB_SUCCESS != optiga_crypt_hash_start(&pxSession->xSHA256Context.xHashCtx))
+        /*Hash start */
+        if( OPTIGA_LIB_SUCCESS != optiga_crypt_hash_start( &pxSession->xSHA256Context.xHashCtx ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -2357,7 +2406,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
                                              CK_BYTE_PTR pPart,
                                              CK_ULONG ulPartLen )
 {
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     hash_data_from_host_t xHashDataHost;
 
@@ -2375,14 +2424,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
         xHashDataHost.buffer = pPart;
         xHashDataHost.length = ulPartLen;
 
-        if (OPTIGA_LIB_SUCCESS != optiga_crypt_hash_update(&pxSession->xSHA256Context.xHashCtx,
-                                                           OPTIGA_CRYPT_HOST_DATA,
-                                                           &xHashDataHost))
+        if( OPTIGA_LIB_SUCCESS != optiga_crypt_hash_update( &pxSession->xSHA256Context.xHashCtx,
+                                                            OPTIGA_CRYPT_HOST_DATA,
+                                                            &xHashDataHost ) )
         {
             xResult = CKR_FUNCTION_FAILED;
             pxSession->xOperationInProgress = pkcs11NO_OPERATION;
         }
-
     }
 
     return xResult;
@@ -2392,7 +2440,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                                             CK_BYTE_PTR pDigest,
                                             CK_ULONG_PTR pulDigestLen )
 {
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     if( pxSession == NULL )
@@ -2420,10 +2468,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
             }
             else
             {
-                // hash finalize
-                if (OPTIGA_LIB_SUCCESS != optiga_crypt_hash_finalize(
-                                          &pxSession->xSHA256Context.xHashCtx,
-                                          pDigest))
+                /* hash finalize */
+                if( OPTIGA_LIB_SUCCESS != optiga_crypt_hash_finalize(
+                        &pxSession->xSHA256Context.xHashCtx,
+                        pDigest ) )
                 {
                     xResult = CKR_FUNCTION_FAILED;
                 }
@@ -2464,15 +2512,15 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                                          CK_MECHANISM_PTR pxMechanism,
                                          CK_OBJECT_HANDLE xKey )
 {
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_OBJECT_HANDLE xPalHandle;
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
 
     /*lint !e9072 It's OK to have different parameter name. */
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
-    long     lOptigaOid = 0;
-    char*    xEnd = NULL;
+    long lOptigaOid = 0;
+    char * xEnd = NULL;
 
     if( NULL == pxMechanism )
     {
@@ -2490,11 +2538,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
         if( xPalHandle != CK_INVALID_HANDLE )
         {
-            lOptigaOid = strtol((char*)pxLabel, &xEnd, 16);
+            lOptigaOid = strtol( ( char * ) pxLabel, &xEnd, 16 );
 
-            if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid))
+            if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
             {
-                pxSession->usSignKeyOid = (uint16_t) lOptigaOid;
+                pxSession->usSignKeyOid = ( uint16_t ) lOptigaOid;
             }
             else
             {
@@ -2560,14 +2608,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                      CK_ULONG ulDataLen,
                                      CK_BYTE_PTR pucSignature,
                                      CK_ULONG_PTR pulSignatureLen )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED(xSession);
+{ /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_ULONG xSignatureLength = 0;
     CK_ULONG xExpectedInputLength = 0;
     /* Signature Length + 3x2 bytes reserved for DER tags */
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 3 + 3 ];
-    uint16_t ecSignatureLength = sizeof(ecSignature);
+    uint16_t ecSignatureLength = sizeof( ecSignature );
 
     if( NULL == pulSignatureLen )
     {
@@ -2608,7 +2656,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
             /* Sign the data.*/
             if( CKR_OK == xResult )
             {
-                if (0 != pxSession->usSignKeyOid)
+                if( 0 != pxSession->usSignKeyOid )
                 {
                     /*
                      * An example of a returned signature
@@ -2618,11 +2666,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                      * 0x000030: 0d 7d 46 5b 44 72 40 06 a5 7b 06 84 0f d7 6e 0f .}F[Dr@..{....n.
                      * 0x000040: 4b 45 7f 50                                     KE.P
                      */
-                    if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_sign(pucData,
+                    if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_sign( pucData,
                                                                        xExpectedInputLength,
                                                                        pxSession->usSignKeyOid,
                                                                        ecSignature,
-                                                                       &ecSignatureLength))
+                                                                       &ecSignatureLength ) )
                     {
                         xResult = CKR_FUNCTION_FAILED;
                     }
@@ -2634,7 +2682,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         /* Reformat from DER encoded to 64-byte R & S components */
-        asn1_to_ecdsa_rs(ecSignature, ecSignatureLength, pucSignature, 64);
+        asn1_to_ecdsa_rs( ecSignature, ecSignatureLength, pucSignature, 64 );
     }
 
     if( ( xResult == CKR_OK ) || ( xResult == CKR_BUFFER_TOO_SMALL ) )
@@ -2683,7 +2731,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
     CK_LONG lOptigaOid = 0;
-    char* xEnd = NULL;
+    char * xEnd = NULL;
 
     /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( xSession );
@@ -2702,11 +2750,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
         if( xPalHandle != CK_INVALID_HANDLE )
         {
-            lOptigaOid = strtol((char*)pxLabel, &xEnd, 16);
+            lOptigaOid = strtol( ( char * ) pxLabel, &xEnd, 16 );
 
-            if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid))
+            if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
             {
-                pxSession->usVerifyKeyOid = (uint16_t) lOptigaOid;
+                pxSession->usVerifyKeyOid = ( uint16_t ) lOptigaOid;
             }
             else
             {
@@ -2763,8 +2811,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSession;
     /* (R component 32 bytes) + (S component 32 bytes) + DER tags 3 bytes max each*/
-    CK_BYTE pubASN1Signature[0x40 + 0x03 + 0x03];
-    CK_ULONG pubASN1SignatureLength = sizeof(pubASN1Signature);
+    CK_BYTE pubASN1Signature[ 0x40 + 0x03 + 0x03 ];
+    CK_ULONG pubASN1SignatureLength = sizeof( pubASN1Signature );
 
     pxSession = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
@@ -2801,8 +2849,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         /* Perform an ECDSA verification. */
-        if ( !ecdsa_rs_to_asn1_integers(&pucSignature[ 0 ], &pucSignature[ 32 ], 32,
-                                        pubASN1Signature, (size_t*)&pubASN1SignatureLength))
+        if( !ecdsa_rs_to_asn1_integers( &pucSignature[ 0 ], &pucSignature[ 32 ], 32,
+                                        pubASN1Signature, ( size_t * ) &pubASN1SignatureLength ) )
         {
             xResult = CKR_SIGNATURE_INVALID;
             PKCS11_PRINT( ( "Failed to parse EC signature \r\n" ) );
@@ -2810,29 +2858,31 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 
         if( xResult == CKR_OK )
         {
-            uint8_t temp[100];
+            uint8_t temp[ 100 ];
             uint16_t tempLen = 100;
 
-            if ( OPTIGA_LIB_SUCCESS != optiga_util_read_data(pxSession->usVerifyKeyOid, 2, &temp[3], &tempLen))
+            if( OPTIGA_LIB_SUCCESS != optiga_util_read_data( pxSession->usVerifyKeyOid, 2, &temp[ 3 ], &tempLen ) )
             {
                 xResult = CKR_SIGNATURE_INVALID;
                 PKCS11_PRINT( ( "Failed to extract the Public Key from the SE\r\n" ) );
             }
-            // Return tags (e.g. 0x03, 0x42, 0x00) to the public key buffer
-            temp[0] = 0x03;
-            temp[1] = 0x42;
-            temp[2] = 0x00;
-            tempLen +=3;
 
-            public_key_from_host_t xPublicKeyDetails = {
-                                                            temp,
-                                                            tempLen,
-                                                            OPTIGA_ECC_NIST_P_256
-                                                        };
+            /* Return tags (e.g. 0x03, 0x42, 0x00) to the public key buffer */
+            temp[ 0 ] = 0x03;
+            temp[ 1 ] = 0x42;
+            temp[ 2 ] = 0x00;
+            tempLen += 3;
 
-            if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_verify ( pucData, ulDataLen,
-                                                                    pubASN1Signature, pubASN1SignatureLength,
-                                                                    OPTIGA_CRYPT_HOST_DATA, &xPublicKeyDetails ))
+            public_key_from_host_t xPublicKeyDetails =
+            {
+                temp,
+                tempLen,
+                OPTIGA_ECC_NIST_P_256
+            };
+
+            if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_verify( pucData, ulDataLen,
+                                                                 pubASN1Signature, pubASN1SignatureLength,
+                                                                 OPTIGA_CRYPT_HOST_DATA, &xPublicKeyDetails ) )
             {
                 xResult = CKR_SIGNATURE_INVALID;
                 PKCS11_PRINT( ( "Failed to verify the EC signature\r\n" ) );
@@ -3097,11 +3147,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     CK_ATTRIBUTE_PTR pxPublicLabel = NULL;
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
-    char* xEnd = NULL;
+    char * xEnd = NULL;
     long lOptigaOid = 0;
-#define ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH 65
-    uint8_t pucEcPointPrefix[] = {0x04, 0x41};
-    uint8_t pucUnusedKeyTag[] = {0x03, 0x42, 0x00};
+
+#define ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH    65
+    uint8_t pucEcPointPrefix[] = { 0x04, 0x41 };
+    uint8_t pucUnusedKeyTag[] = { 0x03, 0x42, 0x00 };
 
     if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism )
     {
@@ -3124,10 +3175,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        ucPublicKeyDerLength = ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH + sizeof(pucUnusedKeyTag);
-        pucPublicKeyDer = pvPortMalloc(ucPublicKeyDerLength);
+        ucPublicKeyDerLength = ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH + sizeof( pucUnusedKeyTag );
+        pucPublicKeyDer = pvPortMalloc( ucPublicKeyDerLength );
 
-        if (pucPublicKeyDer == NULL)
+        if( pucPublicKeyDer == NULL )
         {
             xResult = CKR_HOST_MEMORY;
         }
@@ -3135,19 +3186,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( ( xResult == CKR_OK ) )
     {
-        lOptigaOid = strtol((char*)pxPrivateLabel->pValue, &xEnd, 16);
+        lOptigaOid = strtol( ( char * ) pxPrivateLabel->pValue, &xEnd, 16 );
 
-        if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid))
+        if( ( 0 != lOptigaOid ) && ( USHRT_MAX >= lOptigaOid ) )
         {
-            /* For the public key, the OPTIGA library will return the standard 65 
-            bytes of uncompressed curve points plus a 3-byte tag. The latter will 
-            be intentionally overwritten below. */
-            if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair(OPTIGA_ECC_NIST_P_256,
-                                                                         (uint8_t)OPTIGA_KEY_USAGE_SIGN,
+            /* For the public key, the OPTIGA library will return the standard 65
+             * bytes of uncompressed curve points plus a 3-byte tag. The latter will
+             * be intentionally overwritten below. */
+            if( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair( OPTIGA_ECC_NIST_P_256,
+                                                                         ( uint8_t ) OPTIGA_KEY_USAGE_SIGN,
                                                                          FALSE,
                                                                          &lOptigaOid,
                                                                          pucPublicKeyDer,
-                                                                         &ucPublicKeyDerLength))
+                                                                         &ucPublicKeyDerLength ) )
             {
                 PKCS11_PRINT( ( "ERROR: Failed to generate a keypair \r\n" ) );
                 xResult = CKR_FUNCTION_FAILED;
@@ -3159,13 +3210,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    if( xResult == CKR_OK)
+    if( xResult == CKR_OK )
     {
         /* Complete the encoding of the public key. */
-        memcpy(pucPublicKeyDer + 1, pucEcPointPrefix, sizeof(pucEcPointPrefix));
-        xPalPublic = PKCS11_PAL_SaveObject(pxPublicLabel,
-                                            (unsigned char *)pucPublicKeyDer + 1,
-                                            ucPublicKeyDerLength - 1);
+        memcpy( pucPublicKeyDer + 1, pucEcPointPrefix, sizeof( pucEcPointPrefix ) );
+        xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel,
+                                            ( unsigned char * ) pucPublicKeyDer + 1,
+                                            ucPublicKeyDerLength - 1 );
     }
     else
     {
@@ -3175,7 +3226,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         /* This is a trick to have a handle to store */
-        xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, NULL, 0);
+        xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, NULL, 0 );
     }
     else
     {
@@ -3227,9 +3278,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                CK_ULONG ulRandomLen )
 {
     CK_RV xResult = CKR_OK;
-    // this is to truncate random numbers to the required length, as OPTIGA(TM) Trust can generate
-    // values starting from 8 bytes
-    CK_BYTE xRandomBuf4SmallLengths[8];
+    /* this is to truncate random numbers to the required length, as OPTIGA(TM) Trust can generate */
+    /* values starting from 8 bytes */
+    CK_BYTE xRandomBuf4SmallLengths[ 8 ];
     CK_ULONG xBuferSwitcherLength = ulRandomLen;
     CK_BYTE_PTR pxBufferSwitcher = pucRandomData;
 
@@ -3244,23 +3295,23 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            if (xBuferSwitcherLength < 8) {
+            if( xBuferSwitcherLength < 8 )
+            {
                 pxBufferSwitcher = xRandomBuf4SmallLengths;
                 xBuferSwitcherLength = 8;
             }
 
-
-            if ( OPTIGA_LIB_SUCCESS != optiga_crypt_random(OPTIGA_RNG_TYPE_TRNG,
+            if( OPTIGA_LIB_SUCCESS != optiga_crypt_random( OPTIGA_RNG_TYPE_TRNG,
                                                            pxBufferSwitcher,
-                                                           xBuferSwitcherLength))
+                                                           xBuferSwitcherLength ) )
             {
                 PKCS11_PRINT( ( "ERROR: Failed to generate a random value \r\n" ) );
                 xResult = CKR_FUNCTION_FAILED;
             }
 
-            if (pxBufferSwitcher == xRandomBuf4SmallLengths)
+            if( pxBufferSwitcher == xRandomBuf4SmallLengths )
             {
-                memcpy(pucRandomData, xRandomBuf4SmallLengths, ulRandomLen);
+                memcpy( pucRandomData, xRandomBuf4SmallLengths, ulRandomLen );
             }
         }
     }

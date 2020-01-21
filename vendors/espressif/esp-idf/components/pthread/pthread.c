@@ -18,6 +18,7 @@
 
 #include <time.h>
 #include <errno.h>
+#include <pthread.h>
 #include <string.h>
 #include "esp_err.h"
 #include "esp_attr.h"
@@ -28,7 +29,6 @@
 
 #include "pthread_internal.h"
 #include "esp_pthread.h"
-#include <pthread.h>
 
 #define LOG_LOCAL_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include "esp_log.h"
@@ -57,6 +57,13 @@ typedef struct {
     void *arg;              ///< user task argument
     esp_pthread_cfg_t cfg;  ///< pthread configuration
 } esp_pthread_task_arg_t;
+
+/** pthread mutex FreeRTOS wrapper */
+typedef struct {
+    SemaphoreHandle_t   sem;        ///< Handle of the task waiting to join
+    int                 type;       ///< Mutex type. Currently supported PTHREAD_MUTEX_NORMAL and PTHREAD_MUTEX_RECURSIVE
+} esp_pthread_mutex_t;
+
 
 static SemaphoreHandle_t s_threads_mux  = NULL;
 static portMUX_TYPE s_mutex_init_lock   = portMUX_INITIALIZER_UNLOCKED;
@@ -129,10 +136,13 @@ static void pthread_delete(esp_pthread_t *pthread)
     free(pthread);
 }
 
-
 /* Call this function to configure pthread stacks in Pthreads */
 esp_err_t esp_pthread_set_cfg(const esp_pthread_cfg_t *cfg)
 {
+    if (cfg->stack_size < PTHREAD_STACK_MIN) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
     /* If a value is already set, update that value */
     esp_pthread_cfg_t *p = pthread_getspecific(s_pthread_cfg_key);
     if (!p) {
@@ -157,6 +167,24 @@ esp_err_t esp_pthread_get_cfg(esp_pthread_cfg_t *p)
     return ESP_ERR_NOT_FOUND;
 }
 
+static int get_default_pthread_core()
+{
+    return CONFIG_ESP32_PTHREAD_TASK_CORE_DEFAULT == -1 ? tskNO_AFFINITY : CONFIG_ESP32_PTHREAD_TASK_CORE_DEFAULT;
+}
+
+esp_pthread_cfg_t esp_pthread_get_default_config()
+{
+    esp_pthread_cfg_t cfg = {
+        .stack_size = CONFIG_ESP32_PTHREAD_TASK_STACK_SIZE_DEFAULT,
+        .prio = CONFIG_ESP32_PTHREAD_TASK_PRIO_DEFAULT,
+        .inherit_cfg = false,
+        .thread_name = NULL,
+        .pin_to_core = get_default_pthread_core()
+    };
+
+    return cfg;
+}
+
 static void pthread_task_func(void *arg)
 {
     void *rval = NULL;
@@ -168,8 +196,13 @@ static void pthread_task_func(void *arg)
     xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
 
     if (task_arg->cfg.inherit_cfg) {
-        /* If inherit option is set, then do a set_cfg() ourselves for future forks */
-        esp_pthread_set_cfg(&task_arg->cfg);
+        /* If inherit option is set, then do a set_cfg() ourselves for future forks,
+        but first set thread_name to NULL to enable inheritance of the name too.
+        (This also to prevents dangling pointers to name of tasks that might
+        possibly have been deleted when we use the configuration).*/
+        esp_pthread_cfg_t *cfg = &task_arg->cfg;
+        cfg->thread_name = NULL;
+        esp_pthread_set_cfg(cfg);
     }
     ESP_LOGV(TAG, "%s START %p", __FUNCTION__, task_arg->func);
     rval = task_arg->func(task_arg->arg);
@@ -201,6 +234,8 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     uint32_t stack_size = CONFIG_ESP32_PTHREAD_TASK_STACK_SIZE_DEFAULT;
     BaseType_t prio = CONFIG_ESP32_PTHREAD_TASK_PRIO_DEFAULT;
+    BaseType_t core_id = get_default_pthread_core();
+    const char *task_name = CONFIG_ESP32_PTHREAD_TASK_NAME_DEFAULT;
 
     esp_pthread_cfg_t *pthread_cfg = pthread_getspecific(s_pthread_cfg_key);
     if (pthread_cfg) {
@@ -210,6 +245,25 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         if (pthread_cfg->prio && pthread_cfg->prio < configMAX_PRIORITIES) {
             prio = pthread_cfg->prio;
         }
+
+        if (pthread_cfg->inherit_cfg) {
+            if (pthread_cfg->thread_name == NULL) {
+                // Inherit task name from current task.
+                task_name = pcTaskGetTaskName(NULL);
+            } else {
+                // Inheriting, but new task name.
+                task_name = pthread_cfg->thread_name;
+            }
+        } else if (pthread_cfg->thread_name == NULL) {
+            task_name = CONFIG_ESP32_PTHREAD_TASK_NAME_DEFAULT;
+        } else {
+            task_name = pthread_cfg->thread_name;
+        }
+
+        if (pthread_cfg->pin_to_core >= 0 && pthread_cfg->pin_to_core < portNUM_PROCESSORS) {
+            core_id = pthread_cfg->pin_to_core;
+        }
+
         task_arg->cfg = *pthread_cfg;
     }
 
@@ -230,9 +284,19 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     task_arg->func = start_routine;
     task_arg->arg = arg;
     pthread->task_arg = task_arg;
-    BaseType_t res = xTaskCreate(&pthread_task_func, "pthread", stack_size,
-                                 task_arg, prio, &xHandle);
-    if(res != pdPASS) {
+    BaseType_t res = xTaskCreatePinnedToCore(&pthread_task_func,
+                                             task_name,
+                                             // stack_size is in bytes. This transformation ensures that the units are
+                                             // transformed to the units used in FreeRTOS.
+                                             // Note: float division of ceil(m / n) ==
+                                             //       integer division of (m + n - 1) / n
+                                             (stack_size + sizeof(StackType_t) - 1) / sizeof(StackType_t),
+                                             task_arg,
+                                             prio,
+                                             &xHandle,
+                                             core_id);
+
+    if (res != pdPASS) {
         ESP_LOGE(TAG, "Failed to create task!");
         free(pthread);
         free(task_arg);
@@ -335,8 +399,19 @@ int pthread_detach(pthread_t thread)
     TaskHandle_t handle = pthread_find_handle(thread);
     if (!handle) {
         ret = ESRCH;
-    } else {
+    } else if (pthread->detached) {
+        // already detached
+        ret = EINVAL;
+    } else if (pthread->join_task) {
+        // already have waiting task to join
+        ret = EINVAL;
+    } else if (pthread->state == PTHREAD_TASK_STATE_RUN) {
+        // pthread still running
         pthread->detached = true;
+    } else {
+        // pthread already stopped
+        pthread_delete(pthread);
+        vTaskDelete(handle);
     }
     xSemaphoreGive(s_threads_mux);
     ESP_LOGV(TAG, "%s %p EXIT %d", __FUNCTION__, pthread, ret);
@@ -549,20 +624,13 @@ static int IRAM_ATTR pthread_mutex_lock_internal(esp_pthread_mutex_t *mux, TickT
 static int pthread_mutex_init_if_static(pthread_mutex_t *mutex)
 {
     int res = 0;
-#if ((!defined(__cplusplus)) && (CONFIG_SUPPORT_STATIC_ALLOCATION == 1))
-    esp_pthread_mutex_t *mux = (esp_pthread_mutex_t *)*mutex;
-    if ((mux->sem == NULL) && (mux->type == PTHREAD_MUTEX_NORMAL)) {
-        portENTER_CRITICAL(&s_mutex_init_lock);
-        mux->sem = xSemaphoreCreateMutexStatic(&mux->sembuf);
-        portEXIT_CRITICAL(&s_mutex_init_lock);
-    }
-#else
     if ((intptr_t) *mutex == PTHREAD_MUTEX_INITIALIZER) {
         portENTER_CRITICAL(&s_mutex_init_lock);
-        res = pthread_mutex_init(mutex, NULL);
+        if ((intptr_t) *mutex == PTHREAD_MUTEX_INITIALIZER) {
+            res = pthread_mutex_init(mutex, NULL);
+        }
         portEXIT_CRITICAL(&s_mutex_init_lock);
     }
-#endif
     return res;
 }
 
@@ -578,7 +646,6 @@ int IRAM_ATTR pthread_mutex_lock(pthread_mutex_t *mutex)
     return pthread_mutex_lock_internal((esp_pthread_mutex_t *)*mutex, portMAX_DELAY);
 }
 
-#if CONFIG_PTHREAD_MUTEX_TIMEDLOCK
 int IRAM_ATTR pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *timeout)
 {
     if (!mutex) {
@@ -592,7 +659,7 @@ int IRAM_ATTR pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct times
     struct timespec currtime;
     clock_gettime(CLOCK_REALTIME, &currtime);
     TickType_t tmo = ((timeout->tv_sec - currtime.tv_sec)*1000 +
-                     (timeout->tv_nsec - currtime.tv_nsec)*1e-6)/portTICK_PERIOD_MS;
+                     (timeout->tv_nsec - currtime.tv_nsec)/1000000)/portTICK_PERIOD_MS;
 
     res = pthread_mutex_lock_internal((esp_pthread_mutex_t *)*mutex, tmo);
     if (res == EBUSY) {
@@ -600,7 +667,6 @@ int IRAM_ATTR pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct times
     }
     return res;
 }
-#endif /* CONFIG_PTHREAD_MUTEX_TIMEDLOCK */
 
 int IRAM_ATTR pthread_mutex_trylock(pthread_mutex_t *mutex)
 {

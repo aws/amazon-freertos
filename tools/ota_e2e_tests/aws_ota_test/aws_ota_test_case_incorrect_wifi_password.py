@@ -23,20 +23,11 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 
-class OtaTestIncorrectWifiPassword( OtaTestCase ):
-    NAME = "OtaTestIncorrectWifiPassword"
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestIncorrectWifiPassword, self).__init__(
-            OtaTestIncorrectWifiPassword.NAME,
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestIncorrectWifiPassword(OtaTestCase):
+    is_positive = False
 
     def run(self):
         # Increase the version of the OTA image.
@@ -46,7 +37,7 @@ class OtaTestIncorrectWifiPassword( OtaTestCase ):
         # Build the project
         self._otaProject.buildProject()
         # Start an OTA Update.
-        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
         # Reset the Wifi credentials to valid values.
         self._otaProject.setClientCredentialsForWifi(self._boardConfig['wifi_ssid'],
                                                      self._boardConfig['wifi_password'],

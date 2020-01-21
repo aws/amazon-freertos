@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -184,7 +184,7 @@ void IotHttpsClient_Cleanup( void );
  * @ref https_client_function_sendasync.
  *
  * Keep in mind that many HTTP servers will close a connection, if it does not receive any requests, after a certain
- * amount of time. Many webservers may close the connection after 30-60 seconds. The state of pConnHandle will still be
+ * amount of time. Many web servers may close the connection after 30-60 seconds. The state of pConnHandle will still be
  * in a connected state if this happens. If the server closed the connection, then the next request on the connection
  * will fail to send with a network error and the connection will move to a closed state.
  *
@@ -390,7 +390,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
  * the entity body. These 2 characters are accounted for in #requestUserBufferMinimumSize.
  *
  * The remaining length, after the header is added, is printed to the system configured standard debug output when
- * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h.
+ * @ref IOT_LOG_LEVEL_HTTPS is set to @ref IOT_LOG_DEBUG in iot_config.h.
  *
  * For an asynchronous request, this function can be invoked before the request is sent with
  * @ref https_client_function_sendasync, or during #IotHttpsClientCallbacks_t.appendHeaderCallback. It is
@@ -518,7 +518,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody( IotHttpsRequestHandle_t re
  * #IOT_HTTPS_MESSAGE_TOO_LARGE. To avoid this issue, the application needs to determine beforehand how large the file
  * to download is. This can be done with a HEAD request first, then extracting the "Content-Length" with
  * @ref https_client_function_readcontentlength. This could also be done with a GET request with the header
- * "Range: bytes=0-0", then extracing the "Content-Range" with @ref https_client_function_readheader. Keep in mind that
+ * "Range: bytes=0-0", then extracting the "Content-Range" with @ref https_client_function_readheader. Keep in mind that
  * not all HTTP servers support Partial Content responses.
  *
  * Once a the file size is known, the application can initialize the request with a large
@@ -530,7 +530,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody( IotHttpsRequestHandle_t re
  * to fit the headers received, then headers that don't fit will be thrown away. Please see
  * #responseUserBufferMinimumSize for information about sizing the #IotHttpsResponseInfo_t.userBuffer.
  * To receive feedback on headers discarded, debug logging must be turned on in iot_config.h by setting
- * @ref IOT_LOG_LEVEL_HTTPS to IOT_LOG_DEBUG.
+ * @ref IOT_LOG_LEVEL_HTTPS to @ref IOT_LOG_DEBUG.
  *
  * Multiple threads must not call this function for the same #IotHttpsRequestHandle_t. Multiple threads can call this
  * function for a different #IotHttpsRequestHandle_t, even on the same #IotHttpsConnectionHandle_t. An application must
@@ -595,7 +595,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync( IotHttpsConnectionHandle_t connHan
  * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
  * - #IOT_HTTPS_FATAL if there was a grave error with the last async job finishing.
  * - #IOT_HTTPS_ASYNC_SCHEDULING_ERROR if there was an error scheduling the asynchronous request.
- * - #IOT_HTTPS_INTERNAL_ERROR if there was an internal error with starting an asyncrhonous request servicing task.
+ * - #IOT_HTTPS_INTERNAL_ERROR if there was an internal error with starting an asynchronous request servicing task.
  * - #IOT_HTTPS_INVALID_PARAMETER if there were NULL parameters or the request passed in was a synchronous type.
  *
  */
@@ -620,7 +620,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync( IotHttpsConnectionHandle_t connHa
  * application wants to stop the rest of the request processing.
  *
  * If the asynchronous request stops processing, the buffers in #IotHttpsRequestInfo_t.userBuffer can be safely freed,
- * modified, or resused, only once #IotHttpsClientCallbacks_t.readReadyCallback is invoked.
+ * modified, or reused, only once #IotHttpsClientCallbacks_t.readReadyCallback is invoked.
  *
  * <b> Example Asynchronous Code </b>
  * @code{c}

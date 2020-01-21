@@ -30,7 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define _AWS_NVM_H_
 
 #include <stdint.h>
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 #include "FreeRTOS.h"
 
 #define AWS_NVM_QUAD_SIZE       16U

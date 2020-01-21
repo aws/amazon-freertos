@@ -86,6 +86,7 @@ static int vfs_fat_mkdir(void* ctx, const char* name, mode_t mode);
 static int vfs_fat_rmdir(void* ctx, const char* name);
 static int vfs_fat_access(void* ctx, const char *path, int amode);
 static int vfs_fat_truncate(void* ctx, const char *path, off_t length);
+static int vfs_fat_utime(void* ctx, const char *path, const struct utimbuf *times);
 
 static vfs_fat_ctx_t* s_fat_ctxs[FF_VOLUMES] = { NULL, NULL };
 //backwards-compatibility with esp_vfs_fat_unregister()
@@ -146,13 +147,14 @@ esp_err_t esp_vfs_fat_register(const char* base_path, const char* fat_drive, siz
         .rmdir_p = &vfs_fat_rmdir,
         .access_p = &vfs_fat_access,
         .truncate_p = &vfs_fat_truncate,
+        .utime_p = &vfs_fat_utime,
     };
     size_t ctx_size = sizeof(vfs_fat_ctx_t) + max_files * sizeof(FIL);
-    vfs_fat_ctx_t* fat_ctx = (vfs_fat_ctx_t*) calloc(1, ctx_size);
+    vfs_fat_ctx_t* fat_ctx = (vfs_fat_ctx_t*) ff_memcalloc(1, ctx_size);
     if (fat_ctx == NULL) {
         return ESP_ERR_NO_MEM;
     }
-    fat_ctx->o_append = malloc(max_files * sizeof(bool));
+    fat_ctx->o_append = ff_memalloc(max_files * sizeof(bool));
     if (fat_ctx->o_append == NULL) {
         free(fat_ctx);
         return ESP_ERR_NO_MEM;
@@ -510,9 +512,9 @@ static int vfs_fat_link(void* ctx, const char* n1, const char* n2)
     prepend_drive_to_path(fat_ctx, &n1, &n2);
     const size_t copy_buf_size = fat_ctx->fs.csize;
     FRESULT res;
-    FIL* pf1 = calloc(1, sizeof(FIL));
-    FIL* pf2 = calloc(1, sizeof(FIL));
-    void* buf = malloc(copy_buf_size);
+    FIL* pf1 = ff_memcalloc(1, sizeof(FIL));
+    FIL* pf2 = ff_memcalloc(1, sizeof(FIL));
+    void* buf = ff_memalloc(copy_buf_size);
     if (buf == NULL || pf1 == NULL || pf2 == NULL) {
         _lock_release(&fat_ctx->lock);
         ESP_LOGD(TAG, "alloc failed, pf1=%p, pf2=%p, buf=%p", pf1, pf2, buf);
@@ -589,7 +591,7 @@ static DIR* vfs_fat_opendir(void* ctx, const char* name)
     vfs_fat_ctx_t* fat_ctx = (vfs_fat_ctx_t*) ctx;
     _lock_acquire(&fat_ctx->lock);
     prepend_drive_to_path(fat_ctx, &name, NULL);
-    vfs_fat_dir_t* fat_dir = calloc(1, sizeof(vfs_fat_dir_t));
+    vfs_fat_dir_t* fat_dir = ff_memcalloc(1, sizeof(vfs_fat_dir_t));
     if (!fat_dir) {
         _lock_release(&fat_ctx->lock);
         errno = ENOMEM;
@@ -764,7 +766,7 @@ static int vfs_fat_truncate(void* ctx, const char *path, off_t length)
     _lock_acquire(&fat_ctx->lock);
     prepend_drive_to_path(fat_ctx, &path, NULL);
 
-    file = (FIL*) calloc(1, sizeof(FIL));
+    file = (FIL*) ff_memcalloc(1, sizeof(FIL));
     if (file == NULL) {
         _lock_release(&fat_ctx->lock);
         ESP_LOGD(TAG, "truncate alloc failed");
@@ -825,4 +827,56 @@ close:
 out:
     free(file);
     return ret;
+}
+
+static int vfs_fat_utime(void *ctx, const char *path, const struct utimbuf *times)
+{
+    FILINFO filinfo_time;
+
+    {
+        struct tm tm_time;
+
+        if (times) {
+            localtime_r(&times->modtime, &tm_time);
+        } else {
+            // use current time
+            struct timeval tv;
+            gettimeofday(&tv, NULL);
+            localtime_r(&tv.tv_sec, &tm_time);
+        }
+
+        if (tm_time.tm_year < 80) {
+            // FATFS cannot handle years before 1980
+            errno = EINVAL;
+            return -1;
+        }
+
+        fat_date_t fdate;
+        fat_time_t ftime;
+
+        // this time transformation is esentially the reverse of the one in vfs_fat_stat()
+        fdate.mday = tm_time.tm_mday;
+        fdate.mon = tm_time.tm_mon + 1;     // January in fdate.mon is 1, and 0 in tm_time.tm_mon
+        fdate.year = tm_time.tm_year - 80;  // tm_time.tm_year=0 is 1900, tm_time.tm_year=0 is 1980
+        ftime.sec = tm_time.tm_sec / 2,     // ftime.sec counts seconds by 2
+        ftime.min = tm_time.tm_min;
+        ftime.hour = tm_time.tm_hour;
+
+        filinfo_time.fdate = fdate.as_int;
+        filinfo_time.ftime = ftime.as_int;
+    }
+
+    vfs_fat_ctx_t *fat_ctx = (vfs_fat_ctx_t *) ctx;
+    _lock_acquire(&fat_ctx->lock);
+    prepend_drive_to_path(fat_ctx, &path, NULL);
+    FRESULT res = f_utime(path, &filinfo_time);
+    _lock_release(&fat_ctx->lock);
+
+    if (res != FR_OK) {
+        ESP_LOGD(TAG, "%s: fresult=%d", __func__, res);
+        errno = fresult_to_errno(res);
+        return -1;
+    }
+
+    return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +41,7 @@
 #include "aws_ota_agent_test_access_declare.h"
 #include "aws_iot_ota_agent.h"
 #include "aws_clientcredential.h"
-#include "aws_ota_agent_internal.h"
+#include "aws_iot_ota_agent_internal.h"
 
 /* Test network header include. */
 #include IOT_TEST_NETWORK_HEADER
@@ -53,7 +53,7 @@
  * @brief Configuration for this test group.
  */
 #define otatestMAX_LOOP_MEM_LEAK_CHECK    ( 1 )
-#define otatestSHUTDOWN_WAIT              10000
+#define otatestSHUTDOWN_WAIT              pdMS_TO_TICKS( 10000 )
 #define otatestAGENT_INIT_WAIT            10000
 #define otatestGARBAGE_JSON               "{sioudgoijergijoijosdigjoeiwgoiew893752379\"}"
 
@@ -86,12 +86,12 @@ static const uint8_t ucOtatestSIGNATURE[] =
 /**
  * @brief Job document, with all required fields, that is expected to parse.
  */
-#define otatestLASER_JSON                        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestLASER_JSON                        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"protocols\":[\"MQTT\"],\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Job document that is missing a required field.
  */
-#define otatestBAD_LASER_JSON                    "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestBAD_LASER_JSON                    "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"protocols\":[\"MQTT\"],\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Has a duplicate JSON field, but otherwise valid.
@@ -119,10 +119,40 @@ static const uint8_t ucOtatestSIGNATURE[] =
 static IotMqttConnection_t xMQTTClientHandle = NULL;
 
 /**
- * @brief Application-defined callback for the OTA agent.
+ * @brief Connection context for OTA agent.
  */
-static void vOTACompleteCallback( OTA_JobEvent_t eResult )
+static OTA_ConnectionContext_t xOTAConnContext = { NULL, NULL, NULL };
+
+/**
+ * @brief Initialize OTA agent. Some tests don't use an initialized OTA Agent, so this isn't done in SETUP.
+ */
+static OTA_State_t prvOTAAgentInit()
 {
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+    TickType_t xTicksToWait = pdMS_TO_TICKS( otatestAGENT_INIT_WAIT );
+
+    eOtaStatus = OTA_AgentInit(
+        &xOTAConnContext,
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+        NULL,
+        xTicksToWait );
+
+    if( eOtaStatus != eOTA_AgentState_Ready )
+    {
+        configPRINTF( ( "Failed to initialize OTA agent" ) );
+    }
+    else
+    {
+        /* Wait for OTA agent to transit to eOTA_AgentState_WaitingForJob state.*/
+        while( ( xTicksToWait > 0U ) && ( eOtaStatus != eOTA_AgentState_WaitingForJob ) )
+        {
+            eOtaStatus = OTA_GetAgentState();
+            vTaskDelay( 1 );
+            xTicksToWait--;
+        }
+    }
+
+    return eOtaStatus;
 }
 
 /**
@@ -141,8 +171,8 @@ TEST_SETUP( Full_OTA_AGENT )
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
-    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( true, IotSdk_Init(), "Failed to initialize IoT SDK in TEST_SETUP." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, IotMqtt_Init(), "Failed to initialize MQTT in TEST_SETUP." );
 
     /* Set the parameters for MQTT connect. */
     networkInfo.createNetworkConnection = true;
@@ -160,9 +190,11 @@ TEST_SETUP( Full_OTA_AGENT )
                                      otatestAGENT_INIT_WAIT,
                                      &xMQTTClientHandle );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, connectStatus,
-                                   "Failed to connect to the MQTT broker during "
-                                   "TEST_SETUP." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(
+        IOT_MQTT_SUCCESS, connectStatus,
+        "Failed to connect to the MQTT broker in TEST_SETUP." );
+
+    xOTAConnContext.pvControlClient = xMQTTClientHandle;
 }
 
 /**
@@ -185,18 +217,44 @@ TEST_TEAR_DOWN( Full_OTA_AGENT )
 
 TEST_GROUP_RUNNER( Full_OTA_AGENT )
 {
-    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_InvalidParams );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_BadState );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_GetAgentState_InitAndStop );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_Shutdown_BeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_AgentInit_BackToBack );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJSONbyModel_Errors );
 }
 
-TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
+TEST( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit )
+{
+    /* Attempt to set image state aborted without initializing the OTA Agent. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
+{
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+
+    /* Initialize the Agent. */
+    eOtaStatus = prvOTAAgentInit();
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
+
+    /* Shutdown the OTA agent. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
+
+    /* Attempt to set image state aborted. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_SetImageState_BadState )
 {
     /* Initial OTA image state. */
     OTA_ImageState_t xOTAImageState = OTA_GetImageState();
-
-    /* Attempt to set image state aborted without initializing the OTA Agent. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
 
     /* Attempt to set bad image states. */
     TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
@@ -206,21 +264,72 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
     TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );
 }
 
+TEST( Full_OTA_AGENT, OTA_GetAgentState_InitAndStop )
+{
+    /* OTA Agent should be in stopped state when not initialized. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_GetAgentState() );
+
+    /* Initialize the Agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
+
+    /* Shutdown the OTA agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+
+    /* Calling shutdown again after the agent stops should do nothing. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_Shutdown_BeforeInit )
+{
+    /* Attempt to stop the agent before initializing. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_AgentInit_BackToBack )
+{
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+    TickType_t xTicksToWait = pdMS_TO_TICKS( otatestAGENT_INIT_WAIT );
+
+    /* Initialize the Agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
+
+    /* Call init again should do nothing and only reset statistics. */
+    eOtaStatus = OTA_AgentInit(
+        &xOTAConnContext,
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+        NULL,
+        xTicksToWait );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
+
+    /* Shutdown the OTA agent. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
+}
+
+TEST( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit )
+{
+    /* Attempt to call OTA_CheckForUpdate without initializing the agent. */
+    TEST_ASSERT_EQUAL( kOTA_Err_EventQueueSendFailed, OTA_CheckForUpdate() );
+}
+
+TEST( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit )
+{
+    /* Attempt to get statistics without initializing the agent. */
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsDropped() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsQueued() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsProcessed() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsReceived() );
+}
+
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 {
-    OTA_State_t eOtaStatus;
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
     OTA_FileContext_t * pxUpdateFile = NULL;
-    uint32_t ulLoopIndex;
+    uint32_t ulLoopIndex = 0;
+    bool_t bUpdateJob = false;
 
-    /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
-     * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
-     * this test exits if OTA_AgentInit fails. */
-    eOtaStatus = OTA_AgentInit(
-        xMQTTClientHandle,
-        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        vOTACompleteCallback,
-        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
+    eOtaStatus = prvOTAAgentInit();
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
 
     /* Test:
      * 1. That in ideal scenario, the JSON gets correctly processed.
@@ -229,13 +338,9 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
      */
     if( TEST_PROTECT() )
     {
-        /* Check OTA agent status. */
-        eOtaStatus = OTA_GetAgentState();
-        TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
-
         for( ulLoopIndex = 0; ulLoopIndex < otatestMAX_LOOP_MEM_LEAK_CHECK; ulLoopIndex++ )
         {
-            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ), &bUpdateJob );
             TEST_ASSERT_TRUE( pxUpdateFile != NULL );
 
             /* Check the various document field conversions. */
@@ -272,7 +377,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     {
         if( TEST_PROTECT() )
         {
-            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ), &bUpdateJob );
             TEST_ASSERT_TRUE( pxUpdateFile == NULL );
         }
 
@@ -288,21 +393,21 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     /* Test that null is returned if JSON file with incorrect length is passed in parameter.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2, &bUpdateJob );
     TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that null is returned if corrupted JSON file is passed in parameter.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ), &bUpdateJob );
     TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that prvOTA_Close doesn't try to free already freed memory.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ), &bUpdateJob );
 
     if( pxUpdateFile != NULL )
     {
@@ -318,23 +423,18 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     }
 
     /* Shutdown the OTA agent. */
-    eOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_NotReady, eOtaStatus );
-
-    /* End test. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
 }
 
 TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 {
     JSON_DocModel_t xDocModel = { 0 };
     JSON_DocParam_t xDocParam = { 0 };
+    bool_t bUpdateJob = false;
 
     /* Initialize the OTA Agent for the following tests. */
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
-                               xMQTTClientHandle,
-                               ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-                               vOTACompleteCallback,
-                               pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
 
     /* Ensure that NULL parameters are rejected. */
     TEST_ASSERT_EQUAL( eDocParseErr_NullModelPointer,
@@ -366,20 +466,23 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 
     /* Ensure that a JSON document containing duplicate keys is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_DUPLICATE,
-                                                      sizeof( otatestLASER_JSON_WITH_DUPLICATE ) ) );
+                                                      sizeof( otatestLASER_JSON_WITH_DUPLICATE ),
+                                                      &bUpdateJob ) );
 
     /* Ensure that a JSON document containing a mismatched field is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_FIELD_MISMATCH,
-                                                      sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ) ) );
+                                                      sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ),
+                                                      &bUpdateJob ) );
 
     /* The OTA Agent must be shut down if these tests fail, so a TEST_PROTECT is necessary. */
     if( TEST_PROTECT() )
     {
         /* Ensure that a JSON document containing bad base64 character is rejected. */
         TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_BAD_BASE64,
-                                                          sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ) ) );
+                                                          sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ),
+                                                          &bUpdateJob ) );
     }
 
     /* Shut down the OTA Agent. */
-    ( void ) OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
+    ( void ) OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
 }

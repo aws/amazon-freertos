@@ -38,8 +38,11 @@
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "nvs_flash.h"
+#if !AFR_ESP_LWIP
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#endif
+#include "tcpip_adapter.h"
 #include "aws_test_utils.h"
 #include "esp_bt.h"
 #include "esp_system.h"
@@ -151,11 +154,17 @@ int app_main( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
+#if AFR_ESP_LWIP
+    configPRINTF( ("Initializing lwIP TCP stack\r\n") );
+    tcpip_adapter_init();
+#else /* AFR_ESP_LWIP */
+    configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
                      ucGatewayAddress,
                      ucDNSServerAddress,
                      ucMACAddress );
+#endif /* !AFR_ESP_LWIP */
 
     if( SYSTEM_Init() == pdPASS )
     {
@@ -202,6 +211,7 @@ static void prvMiscInitialization( void )
         /* Release BT memory as it is not used. */
         ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
     #endif
+
     ESP_ERROR_CHECK( ret );
 }
 /*-----------------------------------------------------------*/
@@ -296,6 +306,8 @@ void prvWifiConnect( void )
     }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
+
+#if !AFR_ESP_LWIP
 /*-----------------------------------------------------------*/
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
@@ -320,68 +332,71 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send( &evt );
     }
 }
+#endif /* !AFR_ESP_LWIP */
+
 #if CONFIG_NIMBLE_ENABLED == 1
     BTStatus_t bleStackInit( void )
     {
-        /* Initialize BLE */
-        esp_err_t xRet = ESP_OK;
-        BTStatus_t status = eBTStatusFail;
-
-        xRet = esp_nimble_hci_and_controller_init();
-
-        if( xRet == ESP_OK )
-        {
-            status = eBTStatusSuccess;
-        }
-
-        return status;
+        return eBTStatusSuccess;
     }
 
-#else  /* if CONFIG_NIMBLE_ENABLED == 1 */
+    esp_err_t bleStackTeardown( void )
+    {
+        esp_err_t xRet;
+
+        xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
+
+        return xRet;
+    }
+
+
+#else /* if CONFIG_NIMBLE_ENABLED == 1 */
 
 /*
  * Return on success
  */
     BTStatus_t bleStackInit( void )
     {
-        /* Initialize BLE */
+        return eBTStatusSuccess;
+    }
+
+    esp_err_t bleStackTeardown( void )
+    {
         esp_err_t xRet = ESP_OK;
-        esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-        BTStatus_t status = eBTStatusFail;
 
-        configPRINTF( ( "Initializing BLE stack.\n" ) );
-
-
-        xRet = esp_bt_controller_init( &xBtCfg );
-
-        if( xRet == ESP_OK )
+        if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
         {
-            xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
+            xRet = esp_bluedroid_disable();
         }
 
         if( xRet == ESP_OK )
         {
-            xRet = esp_bluedroid_init();
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
+            xRet = esp_bluedroid_deinit();
         }
 
         if( xRet == ESP_OK )
         {
-            xRet = esp_bluedroid_enable();
+            if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
+            {
+                xRet = esp_bt_controller_disable();
+            }
         }
 
         if( xRet == ESP_OK )
         {
-            status = eBTStatusSuccess;
+            xRet = esp_bt_controller_deinit();
         }
 
-        return status;
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
+        }
+
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
+        }
+
+        return xRet;
     }
 #endif /* if CONFIG_NIMBLE_ENABLED == 1 */

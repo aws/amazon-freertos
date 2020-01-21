@@ -16,11 +16,6 @@ ifndef CONFIG_SPI_FLASH_ROM_DRIVER_PATCH
 LINKER_SCRIPTS += $(IDF_PATH)/components/esp32/ld/esp32.rom.spiflash.ld
 endif
 
-ifdef CONFIG_SECURE_BOOT_ENABLED
-CFLAGS := $(filter-out -Og%, $(CFLAGS))
-CFLAGS += -Os
-endif
-
 COMPONENT_ADD_LDFLAGS += -L $(COMPONENT_PATH) $(addprefix -T ,$(LINKER_SCRIPTS))
 
 COMPONENT_ADD_LINKER_DEPS := $(LINKER_SCRIPTS)

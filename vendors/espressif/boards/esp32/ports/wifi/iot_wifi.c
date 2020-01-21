@@ -31,8 +31,13 @@
 #include "esp_log.h"
 #include "esp_event_loop.h"
 #include "event_groups.h"
+#if AFR_ESP_LWIP
+#include "lwip/dns.h"
+#include "lwip/netdb.h"
+#else
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#endif
 #include "semphr.h"
 #include "esp_smartconfig.h"
 #include "nvs_flash.h"
@@ -1028,12 +1033,12 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
-    WIFIReturnCode_t xRetVal;
+    WIFIReturnCode_t xRetVal = eWiFiFailure;
 
     if (pucIPAddr == NULL) {
-        return eWiFiFailure;
+        return xRetVal;
     }
-
+#if !AFR_ESP_LWIP
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
@@ -1046,6 +1051,7 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     {
         xRetVal = eWiFiTimeout;
     }
+#endif
 
     return xRetVal;
 }
@@ -1096,7 +1102,6 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
                                  uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
-    uint32_t IPAddr;
 
     if (pcHost == NULL || pucIPAddr == NULL) {
         return xRetVal;
@@ -1105,12 +1110,24 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+#if AFR_ESP_LWIP
+        struct hostent *he;
+        struct in_addr **addr_list;
+        he = gethostbyname(pcHost);
+        if (he != NULL) {
+            addr_list = (struct in_addr **)he->h_addr_list;
+            memcpy(pucIPAddr, addr_list[0], sizeof(uint32_t));
+            xRetVal = eWiFiSuccess;
+        }
+#else
+        uint32_t IPAddr;
         IPAddr = FreeRTOS_gethostbyname( pcHost );
         if (IPAddr != 0UL)
         {
             *( ( uint32_t * ) pucIPAddr ) = IPAddr;
             xRetVal = eWiFiSuccess;
         }
+#endif
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
     }
@@ -1193,9 +1210,8 @@ static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t
         case eWiFiSecurityWPA2:
             *authmode = WIFI_AUTH_WPA2_PSK;
             break;
-        case eWiFiSecurityNotSupported:
+        default:
             return ESP_FAIL;
-            break;
     }
     return ESP_OK;
 }

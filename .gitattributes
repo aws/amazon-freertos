@@ -27,6 +27,8 @@
 *.tab text
 *.tsv text
 *.sql text
+*.html text
+*.css text
 
 # Graphics
 *.png binary

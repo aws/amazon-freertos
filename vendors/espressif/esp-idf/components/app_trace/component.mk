@@ -27,3 +27,5 @@ COMPONENT_SRCDIRS += \
 else
 COMPONENT_SRCDIRS += gcov
 endif
+
+COMPONENT_ADD_LDFRAGMENTS += linker.lf

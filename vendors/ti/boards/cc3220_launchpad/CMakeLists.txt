@@ -85,6 +85,7 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
+        "${CMAKE_CURRENT_LIST_DIR}/CC3220SF.ccxml"
         "${simplelink_dir}/kernel/freertos/dpl/ClockP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/DebugP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/HwiPCC32XX_freertos.c"
@@ -167,6 +168,12 @@ afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::ota_mqtt
+        AFR::ota_http
 )
 
 # -------------------------------------------------------------------------------------------------

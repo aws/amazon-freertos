@@ -9,7 +9,7 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2",
+    "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2,IotListDouble_Count.0:2",
 
     # uninitialized global variables have arbitrary values
     "--nondet-static",

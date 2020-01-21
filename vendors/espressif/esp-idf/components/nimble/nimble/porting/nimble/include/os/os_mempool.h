@@ -70,7 +70,7 @@ struct os_mempool {
     STAILQ_ENTRY(os_mempool) mp_list;
     SLIST_HEAD(,os_memblock);
     /** Name for memory block */
-    char *name;
+    const char *name;
 };
 
 /**
@@ -171,7 +171,7 @@ typedef uint64_t os_membuf_t;
  * @return os_error_t
  */
 os_error_t os_mempool_init(struct os_mempool *mp, uint16_t blocks,
-                           uint32_t block_size, void *membuf, char *name);
+                           uint32_t block_size, void *membuf, const char *name);
 
 /**
  * Initializes an extended memory pool.  Extended attributes (e.g., callbacks)
@@ -187,7 +187,7 @@ os_error_t os_mempool_init(struct os_mempool *mp, uint16_t blocks,
  * @return os_error_t
  */
 os_error_t os_mempool_ext_init(struct os_mempool_ext *mpe, uint16_t blocks,
-                               uint32_t block_size, void *membuf, char *name);
+                               uint32_t block_size, void *membuf, const char *name);
 
 /**
  * Clears a memory pool.

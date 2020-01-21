@@ -125,10 +125,29 @@ free:
     os_mbuf_free_chain(om);
 }
 
+#if MYNEWT_VAL(BLE_CRYPTO_STACK_MBEDTLS)
 int
 bt_encrypt_be(const uint8_t *key, const uint8_t *plaintext, uint8_t *enc_data)
 {
-    struct tc_aes_key_sched_struct s;
+    mbedtls_aes_context s = {0};
+    mbedtls_aes_init(&s);
+
+    if (mbedtls_aes_setkey_enc(&s, key, 128) != 0) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    if (mbedtls_aes_crypt_ecb(&s, MBEDTLS_AES_ENCRYPT, plaintext, enc_data) != 0) {
+        return BLE_HS_EUNKNOWN;
+    }
+
+    return 0;
+}
+
+#else
+int
+bt_encrypt_be(const uint8_t *key, const uint8_t *plaintext, uint8_t *enc_data)
+{
+    struct tc_aes_key_sched_struct s = {0};
 
     if (tc_aes128_set_encrypt_key(&s, key) == TC_CRYPTO_FAIL) {
         return BLE_HS_EUNKNOWN;
@@ -140,6 +159,7 @@ bt_encrypt_be(const uint8_t *key, const uint8_t *plaintext, uint8_t *enc_data)
 
     return 0;
 }
+#endif
 
 uint16_t
 net_buf_simple_pull_le16(struct os_mbuf *om)

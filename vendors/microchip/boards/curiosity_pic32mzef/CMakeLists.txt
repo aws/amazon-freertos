@@ -251,7 +251,10 @@ target_sources(
 )
 target_link_libraries(
     AFR::ota::mcu_port
-    INTERFACE AFR::pkcs11
+    INTERFACE
+        AFR::pkcs11
+        AFR::ota_mqtt
+        AFR::ota_http
 )
 
 # -------------------------------------------------------------------------------------------------

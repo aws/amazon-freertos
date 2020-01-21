@@ -83,6 +83,15 @@ macro(project name)
     # Now the configuration is loaded, set the toolchain appropriately
     idf_set_toolchain()
 
+    # Enable ccache if it's on the path
+    if(NOT CCACHE_DISABLE)
+        find_program(CCACHE_FOUND ccache)
+        if(CCACHE_FOUND)
+            message(STATUS "ccache will be used for faster builds")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        endif()
+    endif()
+
     __project(${name} C CXX ASM)
 
     set(IDF_BUILD_ARTIFACTS ON)
@@ -133,6 +142,31 @@ macro(project name)
     function(project)
         set(project_ARGV ARGV)
         __project(${${project_ARGV}})
+
+        # Set the variables that project() normally sets, documented in the
+        # command's docs.
+        #
+        # https://cmake.org/cmake/help/v3.5/command/project.html
+        #
+        # There is some nuance when it comes to setting version variables in terms of whether
+        # CMP0048 is set to OLD or NEW. However, the proper behavior should have bee already handled by the original
+        # project call, and we're just echoing the values those variables were set to.
+        set(PROJECT_NAME "${PROJECT_NAME}" PARENT_SCOPE)
+        set(PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR}" PARENT_SCOPE)
+        set(PROJECT_SOURCE_DIR "${PROJECT_SOURCE_DIR}" PARENT_SCOPE)
+        set(PROJECT_VERSION "${PROJECT_VERSION}" PARENT_SCOPE)
+        set(PROJECT_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" PARENT_SCOPE)
+        set(PROJECT_VERSION_MINOR "${PROJECT_VERSION_MINOR}" PARENT_SCOPE)
+        set(PROJECT_VERSION_PATCH "${PROJECT_VERSION_PATCH}" PARENT_SCOPE)
+        set(PROJECT_VERSION_TWEAK "${PROJECT_VERSION_TWEAK}" PARENT_SCOPE)
+
+        set(${PROJECT_NAME}_BINARY_DIR "${${PROJECT_NAME}_BINARY_DIR}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_SOURCE_DIR "${${PROJECT_NAME}_SOURCE_DIR}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_VERSION_PATCH "${${PROJECT_NAME}_VERSION_PATCH}" PARENT_SCOPE)
+        set(${PROJECT_NAME}_VERSION_TWEAK "${${PROJECT_NAME}_VERSION_TWEAK}" PARENT_SCOPE)
     endfunction()
 
     # Finally, add the rest of the components to the build.

@@ -1336,7 +1336,7 @@ fail:
 		   BTP_STATUS_FAILED);
 }
 
-static void read_destroy()
+static void read_destroy(void)
 {
 	gatt_buf_clear();
 }

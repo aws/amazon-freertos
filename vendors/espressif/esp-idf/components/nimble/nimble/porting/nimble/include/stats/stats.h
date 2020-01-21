@@ -67,7 +67,7 @@ stats_register(void *a, void *b)
 }
 
 static inline int
-stats_init_and_reg(void *a, uint8_t b, uint8_t c, void *d, uint8_t e, void *f)
+stats_init_and_reg(void *a, uint8_t b, uint8_t c, void *d, uint8_t e, const char *f)
 {
     /* dummy */
     return 0;

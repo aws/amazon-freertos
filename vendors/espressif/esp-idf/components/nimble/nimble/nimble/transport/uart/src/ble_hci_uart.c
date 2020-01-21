@@ -591,7 +591,7 @@ ble_hci_uart_rx_skip_cmd(uint8_t data)
 
 #if MYNEWT_VAL(BLE_HOST)
 static inline void
-ble_hci_uart_rx_evt_cb()
+ble_hci_uart_rx_evt_cb(void)
 {
     int rc;
 

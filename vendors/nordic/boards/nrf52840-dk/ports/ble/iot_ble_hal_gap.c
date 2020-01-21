@@ -49,15 +49,16 @@
 #include "nrf_log.h"
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
-    #define LIBRARY_LOG_LEVEL                     IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL                         IOT_LOG_LEVEL_GLOBAL
 #else
-    #define LIBRARY_LOG_LEVEL                     IOT_LOG_NONE
+    #define LIBRARY_LOG_LEVEL                         IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME                          ( "BLE_HAL" )
+#define LIBRARY_LOG_NAME                              ( "BLE_HAL" )
 #include "iot_logging_setup.h"
 
-#define iot_ble_hal_gapADVERTISING_BUFFER_SIZE    31
+#define iot_ble_hal_gapADVERTISING_BUFFER_SIZE        31
+#define iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE    2
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
@@ -557,7 +558,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, true );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, true );
     }
 
     if( xStatus != eBTStatusSuccess )
@@ -593,8 +594,9 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb )
     {
-        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, false );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, 0, false );
     }
+
     return xStatus;
 }
 
@@ -736,6 +738,8 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     prvBTFreeAdvData( xAdvData );
     ret_code_t xErrCode = NRF_SUCCESS;
 
+    uint16_t companyId = 0;
+
     ble_advdata_uuid_list_t xCompleteUUIDS;
 
     memset( &xCompleteUUIDS, 0, sizeof( xCompleteUUIDS ) );
@@ -823,7 +827,8 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
         xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
         xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
 
-        if( ( pcManufacturerData != NULL ) && ( usManufacturerLen != 0 ) )
+        /* Set manufacturer specific data only when its length is atleast equal to iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE */
+        if( ( pcManufacturerData != NULL ) && ( usManufacturerLen >= iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE ) )
         {
             xAdvData->p_manuf_specific_data = IotBle_Malloc( sizeof( ble_advdata_manuf_data_t ) );
 
@@ -833,16 +838,31 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             }
             else
             {
-                xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen );
+                /* extract company_identifier from input manufacturer data
+                 * because nordic sdk has separate field for company_identifier.
+                 *
+                 * company identifier is two bytes in size stored in little endian form.
++                * Exctract the bytes and store into a 16bit variable.
++                */
+                for( uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++ )
+                {
+                    companyId = companyId | ( ( uint16_t ) pcManufacturerData[ i ] << ( i * 8 ) );
+                }
 
-                if( xAdvData->p_manuf_specific_data->data.p_data )
+                xAdvData->p_manuf_specific_data->company_identifier = companyId;
+
+                /* allocate memory for rest of the data in pcManufacturerData i.e. (usManufacturerLen - first 2 octets) */
+                xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen - iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE );
+
+                if( xAdvData->p_manuf_specific_data->data.p_data == NULL )
                 {
                     xErrCode = NRF_ERROR_NO_MEM;
                 }
                 else
                 {
-                    memcpy( xAdvData->p_manuf_specific_data->data.p_data, pcManufacturerData, usManufacturerLen );
-                    xAdvData->p_manuf_specific_data->data.size = usManufacturerLen;
+                    /* copy data left after extracting company_identifier (first 2 octets) */
+                    memcpy( xAdvData->p_manuf_specific_data->data.p_data, pcManufacturerData + iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE, usManufacturerLen );
+                    xAdvData->p_manuf_specific_data->data.size = usManufacturerLen - iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE;
                 }
             }
         }
@@ -916,7 +936,17 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xAdvConfig.ble_adv_fast_enabled = true;
         xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
-        xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+
+        /* If it is an advertisement data and advertising timeout is provided, set the timeout. Else set the default timeout by vendor. */
+        if( ( pxParams->bSetScanRsp == false ) && ( pxParams->usTimeout != 0 ) )
+        {
+            xAdvConfig.ble_adv_fast_timeout = pxParams->usTimeout;
+        }
+        else
+        {
+            xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+        }
+
         xAdvConfig.ble_adv_primary_phy = pxParams->ucPrimaryAdvertisingPhy; /* TODO: Check which values can these variable get */
         xAdvConfig.ble_adv_secondary_phy = pxParams->ucSecondaryAdvertisingPhy;
         xAdvConfig.ble_adv_on_disconnect_disabled = true;
@@ -981,7 +1011,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     xStatus = BTNRFError( xErrCode );
 
-    xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    }
+
     return xStatus;
 }
 

@@ -147,7 +147,7 @@ blecsc_advertise(void)
  *                         10^6 * speed [kph]
  */
 static void
-blecsc_simulate_speed_and_cadence()
+blecsc_simulate_speed_and_cadence(void)
 {
     uint16_t wheel_rev_period;
     uint16_t crank_rev_period;

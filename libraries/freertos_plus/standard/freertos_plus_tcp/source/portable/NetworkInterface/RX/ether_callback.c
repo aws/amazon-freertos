@@ -46,6 +46,11 @@ volatile uint8_t  link_detect[ETHER_CHANNEL_MAX];
 
 void EINT_Trig_isr(void *);
 
+/*
+ * When that Link Status changes, the following function will be called:
+ */
+void prvLinkStatusChange( BaseType_t xStatus );
+
 /***********************************************************************************************************************
 * Function Name: callback_ether
 * Description  : Regist of callback function
@@ -147,6 +152,7 @@ static void callback_link_on(uint32_t channel)
         link_detect[channel] = ETHER_FLAG_ON_LINK_ON;
 
         /* Please add necessary processing when becoming Link up. */
+		prvLinkStatusChange( 1 );
     }
 } /* End of function callback_link_on() */
 
@@ -164,6 +170,7 @@ static void callback_link_off(uint32_t channel)
         link_detect[channel] = ETHER_FLAG_ON_LINK_OFF;
 
         /* Please add necessary processing when becoming Link down. */
+		prvLinkStatusChange( 0 );
     }
 } /* End of function ether_cb_link_off() */
 

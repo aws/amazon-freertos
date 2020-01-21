@@ -43,7 +43,7 @@
 #include "types/iot_platform_types.h"
 
 /**
- * @functions_page{platform_clock, Clock}
+ * @functions_page{platform_clock,platform clock component,Clock}
  * @functions_brief{platform clock component}
  * - @function_name{platform_clock_function_gettimestring}
  * @function_brief{platform_clock_function_gettimestring}

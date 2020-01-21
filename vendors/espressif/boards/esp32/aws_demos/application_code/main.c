@@ -40,8 +40,10 @@
 #include "iot_logging_task.h"
 
 #include "nvs_flash.h"
-
+#if !AFR_ESP_LWIP
+#include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#endif
 
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -56,6 +58,7 @@
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
+#include "tcpip_adapter.h"
 
 #include "iot_network_manager_private.h"
 
@@ -90,6 +93,8 @@ static void prvMiscInitialization( void );
 #if BLE_ENABLED
 /* Initializes bluetooth */
     static esp_err_t prvBLEStackInit( void );
+    /** Helper function to teardown BLE stack. **/
+    esp_err_t xBLEStackTeardown( void );
     static void spp_uart_init( void );
 #endif
 
@@ -163,7 +168,13 @@ static void prvMiscInitialization( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
+#if AFR_ESP_LWIP
+    configPRINTF( ("Initializing lwIP TCP stack\r\n") );
+    tcpip_adapter_init();
+#else
+    configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     vApplicationIPInit();
+#endif
 }
 
 /*-----------------------------------------------------------*/
@@ -173,10 +184,15 @@ static void prvMiscInitialization( void )
     #if CONFIG_NIMBLE_ENABLED == 1
         esp_err_t prvBLEStackInit( void )
         {
-            /* Initialize BLE */
-            esp_err_t xRet = ESP_OK;
+            return ESP_OK;
+        }
 
-            xRet = esp_nimble_hci_and_controller_init();
+
+        esp_err_t xBLEStackTeardown( void )
+        {
+            esp_err_t xRet;
+
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
 
             return xRet;
         }
@@ -185,36 +201,44 @@ static void prvMiscInitialization( void )
 
         static esp_err_t prvBLEStackInit( void )
         {
-            /* Initialize BLE */
+            return ESP_OK;
+        }
+
+        esp_err_t xBLEStackTeardown( void )
+        {
             esp_err_t xRet = ESP_OK;
-            esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
-
-            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-
-            xRet = esp_bt_controller_init( &xBtCfg );
-
-            if( xRet == ESP_OK )
+            if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
             {
-                xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-            }
-            else
-            {
-                configPRINTF( ( "Failed to initialize bt controller, err = %d", xRet ) );
+                xRet = esp_bluedroid_disable();
             }
 
             if( xRet == ESP_OK )
             {
-                xRet = esp_bluedroid_init();
-            }
-            else
-            {
-                configPRINTF( ( "Failed to initialize bluedroid stack, err = %d", xRet ) );
+                xRet = esp_bluedroid_deinit();
             }
 
             if( xRet == ESP_OK )
             {
-                xRet = esp_bluedroid_enable();
+                if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
+                {
+                    xRet = esp_bt_controller_disable();
+                }
+            }
+
+            if( xRet == ESP_OK )
+            {
+                xRet = esp_bt_controller_deinit();
+            }
+
+            if( xRet == ESP_OK )
+            {
+                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
+            }
+
+            if( xRet == ESP_OK )
+            {
+                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
             }
 
             return xRet;
@@ -308,8 +332,8 @@ void vApplicationDaemonTaskStartupHook( void )
 {
 }
 
+#if !AFR_ESP_LWIP
 /*-----------------------------------------------------------*/
-
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
@@ -333,3 +357,4 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send( &evt );
     }
 }
+#endif

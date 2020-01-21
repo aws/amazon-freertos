@@ -58,7 +58,7 @@ void on_event(struct ble_npl_event *ev)
     s_tests_running = false;
 }
 
-int test_init()
+int test_init(void)
 {
     //VerifyOrQuit(!ble_npl_eventq_inited(&s_eventq), "eventq: empty q initialized");
     ble_npl_eventq_init(&s_eventq);
@@ -67,7 +67,7 @@ int test_init()
     return PASS;
 }
 
-int test_run()
+int test_run(void)
 {
     while (s_tests_running)
     {
@@ -77,7 +77,7 @@ int test_run()
     return PASS;
 }
 
-int test_put()
+int test_put(void)
 {
     s_event.ev_cb = on_event;
     s_event.ev_arg = &s_event_args;
@@ -85,13 +85,13 @@ int test_put()
     return PASS;
 }
 
-int test_get_no_wait()
+int test_get_no_wait(void)
 {
     //struct ble_npl_event *ev = ble_npl_eventq_get_no_wait(&s_eventq);
     return FAIL;
 }
 
-int test_get()
+int test_get(void)
 {
     struct ble_npl_event *ev = ble_npl_eventq_get(&s_eventq,
 						  BLE_NPL_WAIT_FOREVER);

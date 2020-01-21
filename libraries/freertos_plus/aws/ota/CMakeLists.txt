@@ -14,14 +14,13 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_iot_ota_agent.c"
-        "${src_dir}/aws_ota_cbor.c"
-        "${src_dir}/aws_ota_cbor.h"
-        "${src_dir}/aws_ota_pal.h"
-        "${src_dir}/aws_ota_agent_internal.h"
-        "${src_dir}/aws_ota_cbor_internal.h"
         "${inc_dir}/aws_iot_ota_agent.h"
-        "${inc_dir}/aws_ota_types.h"
+        "${inc_dir}/aws_iot_ota_types.h"
+        "${src_dir}/aws_iot_ota_agent_internal.h"
+        "${src_dir}/aws_iot_ota_agent.c"
+        "${src_dir}/aws_iot_ota_interface.c"
+        "${src_dir}/aws_iot_ota_interface.h"
+        "${src_dir}/aws_iot_ota_pal.h"
 )
 
 afr_module_include_dirs(
@@ -39,8 +38,6 @@ afr_module_dependencies(
         AFR::common
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
-        AFR::mqtt
-        3rdparty::tinycbor
         3rdparty::jsmn
 )
 
@@ -61,6 +58,38 @@ if(AFR_IS_TESTING)
         PRIVATE "${test_dir}"
     )
 endif()
+
+# Link to this INTERFACE target to enable the MQTT backend.
+afr_module(NAME ota_mqtt INTERFACE)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${src_dir}/mqtt/aws_iot_ota_cbor_internal.h"
+        "${src_dir}/mqtt/aws_iot_ota_cbor.c"
+        "${src_dir}/mqtt/aws_iot_ota_cbor.h"
+        "${src_dir}/mqtt/aws_iot_ota_mqtt.c"
+        "${src_dir}/mqtt/aws_iot_ota_mqtt.h"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::mqtt
+        3rdparty::tinycbor
+)
+
+# Link to this INTERFACE target to enable the HTTP backend.
+afr_module(NAME ota_http INTERFACE)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${src_dir}/http/aws_iot_ota_http.c"
+        "${src_dir}/http/aws_iot_ota_http.h"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::https
+)
 
 # OTA test
 afr_test_module()

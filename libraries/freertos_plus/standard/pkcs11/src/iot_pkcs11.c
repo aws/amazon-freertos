@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 V1.0.1
+ * Amazon FreeRTOS PKCS #11 V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -310,27 +310,31 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* Get the certificate handle. */
-    if( 0 == xResult )
+    /* Initialize the FindObject state in the underlying PKCS #11 module based
+     * on the search template provided by the caller. */
+    if( CKR_OK == xResult )
     {
         xResult = pxFunctionList->C_FindObjectsInit( xSession, xTemplate, sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xFindInit = CK_TRUE;
+        /* Find the first matching object, if any. */
         xResult = pxFunctionList->C_FindObjects( xSession,
                                                  pxHandle,
                                                  1,
                                                  &ulCount );
     }
 
-    if( CK_TRUE == xFindInit )
+    if( ( CKR_OK == xResult ) && ( CK_TRUE == xFindInit ) )
     {
+        /* Indicate to the module that the we're done looking for the indicated
+         * type of object. */
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ulCount == 0 )
+    if( ( CKR_ARGUMENTS_BAD != xResult ) && ( ulCount == 0 ) )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
@@ -351,8 +355,11 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
-    memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
+    if( xResult == CKR_OK )
+    {
+        memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
+        memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
+    }
 
     return xResult;
 }

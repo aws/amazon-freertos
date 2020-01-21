@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.4
+ * Amazon FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
 #include "unity_fixture.h"
 #include "unity.h"
 #include "aws_ota_pal_test_access_declare.h"
-#include "aws_ota_pal.h"
+#include "aws_iot_ota_pal.h"
 #include "aws_iot_ota_agent.h"
 
 

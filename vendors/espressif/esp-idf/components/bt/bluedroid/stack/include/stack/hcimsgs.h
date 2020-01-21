@@ -277,7 +277,7 @@ BOOLEAN btsnd_hcic_hold_mode(UINT16 handle, UINT16 max_hold_period,
 
 /**
  * Sniff Mode
- * sniff_attempt more than 0xFF is not supported
+ * sniff_attempt should no more than 0xFF
  */
 BOOLEAN btsnd_hcic_sniff_mode(UINT16 handle,
                               UINT16 max_sniff_period,
