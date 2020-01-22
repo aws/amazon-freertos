@@ -64,25 +64,19 @@ void vTaskInternalSetTimeOutState( TimeOut_t * const pxTimeOut ){
 }
 
 void harness(){
-	vInitTaskCheckForTimeOut(0, QUEUE_RECEIVE_BOUND - 1);
-
 	xQueue = xUnconstrainedQueueBoundedItemSize(MAX_ITEM_SIZE);
+	__CPROVER_assume( xQueue );
 
+	void *pvBuffer = pvPortMalloc( xQueue->uxItemSize );
+	__CPROVER_assume( pvBuffer || xQueue->uxItemSize == 0 );
 
 	TickType_t xTicksToWait;
-	if(xState == taskSCHEDULER_SUSPENDED){
-		xTicksToWait = 0;
-	}
+	__CPROVER_assume( xState != taskSCHEDULER_SUSPENDED || xTicksToWait == 0 );
 
-    if(xQueue){
-		xQueue->cTxLock = LOCK_BOUND - 1;
-		xQueue->cRxLock = LOCK_BOUND - 1;
+	/* This is for loop unwinding. */
+	__CPROVER_assume( xQueue->cTxLock = LOCK_BOUND - 1 );
+	__CPROVER_assume( xQueue->cRxLock = LOCK_BOUND - 1 );
 
-    	void *pvBuffer = pvPortMalloc(xQueue->uxItemSize);
-    	if(!pvBuffer){
-    		xQueue->uxItemSize = 0;
-    	}
-    	xQueueReceive( xQueue, pvBuffer, xTicksToWait );
-    }
+	xQueueReceive( xQueue, pvBuffer, xTicksToWait );
 
 }
