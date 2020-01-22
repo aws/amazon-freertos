@@ -120,10 +120,12 @@ static int8_t sockets_allocated = socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS;
 /*
  * @brief Sockets close
  */
-static void prvSocketsClose(ss_ctx_t *ctx)
+static void prvSocketsClose( ss_ctx_t * ctx )
 {
     uint32_t ulProtocol;
+
     sockets_allocated++;
+
     /* Clean-up application protocol array. */
     if( NULL != ctx->ppcAlpnProtocols )
     {
@@ -158,7 +160,7 @@ static void prvSocketsClose(ss_ctx_t *ctx)
     vPortFree( ctx );
 }
 
-static void prvDecrementRefCount(ss_ctx_t *ctx)
+static void prvDecrementRefCount( ss_ctx_t * ctx )
 {
     if( Atomic_Decrement_u32( &ctx->refcount ) == 1 )
     {
@@ -166,7 +168,7 @@ static void prvDecrementRefCount(ss_ctx_t *ctx)
     }
 }
 
-static void prvIncrementRefCount(ss_ctx_t *ctx)
+static void prvIncrementRefCount( ss_ctx_t * ctx )
 {
     Atomic_Increment_u32( &ctx->refcount );
 }
@@ -261,7 +263,7 @@ static void vTaskRxSelect( void * param )
         if( ctx->state == SST_RX_CLOSING )
         {
             ctx->state = SST_RX_CLOSED;
-            //vTaskDelete( NULL );
+            /*vTaskDelete( NULL ); */
             break;
         }
 
@@ -273,7 +275,7 @@ static void vTaskRxSelect( void * param )
             /*ctx->rx_callback = NULL; */
 
             /*vTaskDelete( rx_handle ); */
-            //vTaskDelete( NULL );
+            /*vTaskDelete( NULL ); */
             ctx->state = SST_RX_CLOSED;
             break;
         }
@@ -285,8 +287,9 @@ static void vTaskRxSelect( void * param )
             /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
-    prvDecrementRefCount(ctx);
-    vTaskDelete(NULL);
+
+    prvDecrementRefCount( ctx );
+    vTaskDelete( NULL );
 }
 
 
@@ -301,7 +304,7 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 
     ctx->rx_callback = ( void ( * )( Socket_t ) )pvOptionValue;
 
-    prvIncrementRefCount(ctx);
+    prvIncrementRefCount( ctx );
     xReturned = xTaskCreate( vTaskRxSelect, /* pvTaskCode */
                              "rxs",         /* pcName */
                              xStackDepth,   /* usStackDepth */
@@ -451,6 +454,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     {
         configPRINTF( ( "LwIP connect fail %d %d\n", ret, errno ) );
     }
+
     return SOCKETS_SOCKET_ERROR;
 }
 
@@ -571,7 +575,7 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     ctx->state = SST_RX_CLOSING;
     lwip_close( ctx->ip_socket );
 
-    prvDecrementRefCount(ctx);
+    prvDecrementRefCount( ctx );
 
     return SOCKETS_ERROR_NONE;
 }
@@ -614,7 +618,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                ret = lwip_setsockopt( ctx->ip_socket,
                                       SOL_SOCKET,
                                       lOptionName == SOCKETS_SO_RCVTIMEO ?
-                                                      SO_RCVTIMEO : SO_SNDTIMEO,
+                                      SO_RCVTIMEO : SO_SNDTIMEO,
                                       ( struct timeval * ) &tv,
                                       sizeof( tv ) );
 
@@ -742,8 +746,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             ctx->ulAlpnProtocolsCount = 1 + xOptionLength;
 
             if( NULL == ( ctx->ppcAlpnProtocols =
-                    ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount *
-                                               sizeof( char * ) ) ) )
+                              ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount *
+                                                        sizeof( char * ) ) ) )
             {
                 return SOCKETS_ENOMEM;
             }
@@ -756,7 +760,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
             /* Copy each protocol string. */
             for( ulProtocol = 0; ( ulProtocol < ctx->ulAlpnProtocolsCount - 1 );
-                        ulProtocol++ )
+                 ulProtocol++ )
             {
                 xLength = strlen( ppcAlpnIn[ ulProtocol ] );
 
