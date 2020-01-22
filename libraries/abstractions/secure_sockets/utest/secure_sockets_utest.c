@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <pthread.h>
 
 #include "unity.h"
 
@@ -13,7 +14,10 @@
 #include "mock_iot_logging_task.h"
 #include "mock_iot_wifi.h"
 
+#include "wait_for_event.h"
+
 #include "iot_secure_sockets.h"
+
 
 #define BUFFER_LEN 100
 
@@ -26,20 +30,16 @@ static void initCallbacks();
 static uint16_t malloc_free_calls = 0;
 
 /* ==========================  CALLBACK FUNCTIONS =========================== */
-void* malloc_cb(size_t size, int numCalls)
+/*@null@*/void* malloc_cb(size_t size, int numCalls)
 {
     malloc_free_calls++;
-    return malloc(size);
+    return ( void * )malloc( size );
 }
 
 void free_cb(void* ptr, int numCalls)
 {
     malloc_free_calls--;
     free(ptr);
-}
-void sleep_cb(int time, int numCalls)
-{
-    /* do nothing... we should not sleep */
 }
 /* ============================   UNITY FIXTURES ============================ */
 void setUp(void)
@@ -51,7 +51,7 @@ void setUp(void)
 /* called before each testcase */
 void tearDown(void)
 {
-    TEST_ASSERT_EQUAL_INT_MESSAGE(malloc_free_calls, 0,
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, malloc_free_calls,
            "free is not called the same number of times as malloc, \
             you might have a memory leak!!");
 }
@@ -64,6 +64,7 @@ void suiteSetUp()
 /* called at the end of the whole suite */
 int suiteTearDown(int numFailures)
 {
+    return (numFailures > 0);
 }
 /* ==========================  Helper functions  ============================ */
 static Socket_t initSocket()
@@ -84,27 +85,29 @@ static Socket_t initSocket()
     return so;
 }
 
+/* helper function to close an open socket */
 static void deinitSocket(Socket_t so)
 {
     uint32_t ret;
-    vPortFree_StubWithCallback(free_cb);
-    vTaskDelay_Ignore();
+    vPortFree_Stub(free_cb);
     lwip_close_IgnoreAndReturn(0);
     ret = SOCKETS_Close(so);
     TEST_ASSERT_EQUAL_INT_MESSAGE(SOCKETS_ERROR_NONE, ret,
             "ERROR: Could not close socket");
 }
 
+/* helper function to initialized commonly used callbacks */
 static void initCallbacks(void)
 {
     pvPortMalloc_Stub(malloc_cb);
-    vPortFree_StubWithCallback(free_cb);
+    vPortFree_Stub(free_cb);
 }
 
+/* helper function to uninitialize the commonly used callbacks */
 static void uninitCallbacks(void)
 {
     pvPortMalloc_Stub(NULL);
-    vPortFree_StubWithCallback(NULL);
+    vPortFree_Stub(NULL);
 }
 
 /* enforce tls, this is a one way option */
@@ -666,7 +669,6 @@ void test27_SecureSockets_GetHostByName_suceessful(void)
 void test28_SecureSockets_GetHostByName_longHostname(void)
 {
     int32_t ret;
-    uint8_t addr = 0;
     int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH + 5;
     char hostname[hostnameMaxLen];
 
@@ -788,10 +790,12 @@ void test34_SecureSockets_SetsockOpt_nonblock_success(void)
 
     deinitSocket(so);
 }
+
 /*!
- * @brief 
+ * @brief SOCKETS_SetSockOpt various error conditions
+ *          socket not connected and lwip_ioctl error
  */
-void test35_SecureSockets_SetsockOpt_nonblock_Error(void)
+void test35_SecureSockets_SetsockOpt_nonblock_error(void)
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -810,23 +814,27 @@ void test35_SecureSockets_SetsockOpt_nonblock_Error(void)
 
     deinitSocket(so);
 }
+
 static TaskHandle_t handle;
 static Socket_t s_so;
-static bool userCallback_called = 0;
+static bool userCallback_called;
+static struct event * callback_event;
+static pthread_t tid;
+
 static void taskComplete_cb(Socket_t ctx)
 {
     userCallback_called = true;
+    event_signal( callback_event );
 }
-static int lwip_select_cb(int s, fd_set *read_set,
-                     fd_set *write_set, fd_set *err_set, struct timeval *tv,
-                     int call_num)
+
+/* helper function to delete the thread created and free the handle */
+static void vTaskDelete_cb(TaskHandle_t task_handle, int num_calls)
 {
-    if (call_num == 0) {
-        return 0;
-    } else  {
-        deinitSocket(s_so);
-    }
+    free_cb(handle, 1);
+    pthread_exit(NULL);
 }
+
+/* helper function to create a fake implementation of xTaskCreate */
 static long int xTaskCreate_cb2(TaskFunction_t pxTaskCode,
                             const char * const pcName,
                             const configSTACK_DEPTH_TYPE usStackDepth,
@@ -835,37 +843,48 @@ static long int xTaskCreate_cb2(TaskFunction_t pxTaskCode,
                             TaskHandle_t * const pxCreatedTask,
                             int num_of_calls)
 {
-    handle = malloc(sizeof (TaskHandle_t));
+    lwip_select_IgnoreAndReturn(1);
+    vTaskDelete_Stub(vTaskDelete_cb);
+
+    handle = malloc_cb( sizeof ( TaskHandle_t ), 1 );
     *pxCreatedTask = handle;
 
-    lwip_select_Stub(lwip_select_cb);
-    vTaskDelete_Ignore();
-    pxTaskCode(pvParameters); /* pvParameters the socket_t/ss_ctx */
+    if( pthread_create( &tid, NULL, (void*(*)(void*))pxTaskCode, pvParameters ) != 0 )
+    {
+        TEST_FAIL();
+        return pdFAIL;
+    }
     return pdPASS;
 }
+
 /*!
- * @brief 
+ * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
+ *        making sure it got called when an actifity occured on the socket
  */
 void test36_SecureSockets_SetSockOpt_wakeup_callback_socket_close(void)
 {
-    s_so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
     void* option = &taskComplete_cb; /* user callback for socket event */
 
-    xTaskCreate_StubWithCallback(xTaskCreate_cb2);
+    s_so = SOCKETS_INVALID_SOCKET;
+    callback_event = event_create();
+
     s_so = initSocket();
 
+    xTaskCreate_Stub(xTaskCreate_cb2);
     ret = SOCKETS_SetSockOpt(s_so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
                              option, sizeof(void*));
-    TEST_ASSERT_EQUAL(SOCKETS_ERROR_NONE, ret);
-    TEST_ASSERT_TRUE(userCallback_called);
-    userCallback_called = false;
-    free(handle);
+    TEST_ASSERT_EQUAL_MESSAGE(SOCKETS_ERROR_NONE, ret,
+            "set sock opt return error");
+
+    // wait for the callback ...to  deinitialize the socket
+    event_wait( callback_event);
+    deinitSocket(s_so);
+    pthread_join(tid, NULL);
+
+    event_delete( callback_event );
 }
 
-/*!
- * @brief 
- */
 static long int xTaskCreate_cb(TaskFunction_t pxTaskCode,
                             const char * const pcName,
                             const configSTACK_DEPTH_TYPE usStackDepth,
@@ -874,23 +893,29 @@ static long int xTaskCreate_cb(TaskFunction_t pxTaskCode,
                             TaskHandle_t * const pxCreatedTask,
                             int num_of_calls)
 {
-    handle = malloc(sizeof (TaskHandle_t));
+    handle = malloc_cb(sizeof (TaskHandle_t), 1);
     *pxCreatedTask = handle;
 
-    lwip_select_IgnoreAndReturn(0);
+    lwip_select_IgnoreAndReturn(1);
     lwip_select_IgnoreAndReturn(-1);
-    lwip_select_IgnoreAndReturn(0);
+    lwip_select_IgnoreAndReturn(1);
+
     vTaskDelete_Ignore();
     pxTaskCode(pvParameters); /* pvParameters the socket_t/ss_ctx */
     return pdPASS;
 }
+/*!
+ * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
+ *        making sure it got called when an actifity occured on the socket
+ */
 void test37_SecureSockets_SetSockOpt_wakeup_callback(void)
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
     void* option = &taskComplete_cb; /* user callback for socket event */
+    callback_event = event_create();
 
-    xTaskCreate_StubWithCallback(xTaskCreate_cb);
+    xTaskCreate_Stub(xTaskCreate_cb);
     so = initSocket();
 
     ret = SOCKETS_SetSockOpt(so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
@@ -900,7 +925,8 @@ void test37_SecureSockets_SetSockOpt_wakeup_callback(void)
     deinitSocket(so);
     TEST_ASSERT_TRUE(userCallback_called);
     userCallback_called = false;
-    free(handle);
+    event_delete( callback_event );
+    free_cb(handle, 1);
 }
 /*!
  * @brief SetSockOpt SOCKETS_SO_WAKEUP_CALLBACK currently the clean
@@ -911,7 +937,6 @@ void test38_SecureSockets_SetSockOpt_wakeup_callback_clear(void)
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
-    void* option = &taskComplete_cb;
 
     so = initSocket();
 
@@ -929,8 +954,7 @@ void test38_SecureSockets_SetSockOpt_wakeup_callback_clear(void)
 static void* malloc_cb2(size_t size, int numCalls)
 {
     if (numCalls == 1) {
-        malloc_free_calls++;
-        return malloc(size);
+        return malloc_cb(size, numCalls);
     }
     return NULL;
 }
@@ -943,7 +967,6 @@ void test39_SecureSockets_SetSockOpt_alpn_no_mem(void)
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT , socketsAWS_IOT_ALPN_MQTT};
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
-    void* option = &taskComplete_cb;
 
     so = initSocket();
 

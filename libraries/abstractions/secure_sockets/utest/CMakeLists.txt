@@ -55,10 +55,16 @@
             )
 
     set_target_properties(secure_sockets_real PROPERTIES
-                    COMPILE_FLAGS "-fPIC -ggdb3 -O0 \
-                            -fprofile-arcs -ftest-coverage -fprofile-generate"
+                    COMPILE_FLAGS "-Wall -fPIC -ggdb3 -O0 \
+                        -fprofile-arcs -ftest-coverage -fprofile-generate \
+                        -fsanitize=address -fsanitize=pointer-compare \
+                        -fsanitize=pointer-subtract -fsanitize=leak"
                     LINK_FLAGS "-fPIC -fprofile-arcs -ftest-coverage \
-                            -fprofile-generate -ggdb3"
+                        -fprofile-generate -ggdb3 \
+                        -fsanitize=address \
+                        -fsanitize=address -fsanitize=pointer-compare \
+                        -fsanitize=pointer-subtract -fsanitize=leak"
+                    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
 
     add_dependencies(secure_sockets_real secure_sockets_mock)
@@ -67,7 +73,8 @@
                           -lgcov
             )
 
-    list(APPEND link_list -lsecure_sockets_mock libsecure_sockets_real.a)
+    list(APPEND link_list -lsecure_sockets_mock libsecure_sockets_real.a
+            libutils.a)
     list(APPEND dep_list secure_sockets_real)
     create_test(secure_sockets_utest
                 secure_sockets_utest.c

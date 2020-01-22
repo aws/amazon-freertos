@@ -160,13 +160,15 @@ static void prvSocketsClose(ss_ctx_t *ctx)
 
 static void prvDecrementRefCount(ss_ctx_t *ctx)
 {
-    if (Atomic_Decrement_u32(&ctx->refcount) == 1)
-        prvSocketsClose(ctx);
+    if( Atomic_Decrement_u32( &ctx->refcount ) == 1 )
+    {
+        prvSocketsClose( ctx );
+    }
 }
 
 static void prvIncrementRefCount(ss_ctx_t *ctx)
 {
-    Atomic_Increment_u32(&ctx->refcount);
+    Atomic_Increment_u32( &ctx->refcount );
 }
 
 /*
@@ -272,9 +274,9 @@ static void vTaskRxSelect( void * param )
 
             /*vTaskDelete( rx_handle ); */
             //vTaskDelete( NULL );
+            ctx->state = SST_RX_CLOSED;
             break;
         }
-        int val = 0;
 
         if( FD_ISSET( s, &read_fds ) )
         {
@@ -558,7 +560,6 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 int32_t SOCKETS_Close( Socket_t xSocket )
 {
     ss_ctx_t * ctx;
-
 
     if( SOCKETS_INVALID_SOCKET == xSocket )
     {
