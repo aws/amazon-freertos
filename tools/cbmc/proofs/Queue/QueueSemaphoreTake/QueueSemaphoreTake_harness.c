@@ -60,8 +60,8 @@ void harness()
 	__CPROVER_assume( xState != taskSCHEDULER_SUSPENDED || xTicksToWait == 0 );
 
 	/* This is for loop unwinding. */
-	__CPROVER_assume( xQueue->cTxLock < LOCK_BOUND - 1 );
-	__CPROVER_assume( xQueue->cRxLock < LOCK_BOUND - 1 );
+	__CPROVER_assume( xQueue->cTxLock = LOCK_BOUND - 1 );
+	__CPROVER_assume( xQueue->cRxLock = LOCK_BOUND - 1 );
 	
 
 	((&(xQueue->xTasksWaitingToReceive))->xListEnd).pxNext->xItemValue = nondet_ticktype();
