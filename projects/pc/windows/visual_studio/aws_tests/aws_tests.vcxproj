@@ -5,28 +5,18 @@
 			<Configuration>Debug</Configuration>
 			<Platform>Win32</Platform>
 		</ProjectConfiguration>
-		<ProjectConfiguration Include="Debug|x64">
-			<Configuration>Debug</Configuration>
-			<Platform>x64</Platform>
-		</ProjectConfiguration>
 	</ItemGroup>
 	<PropertyGroup Label="Globals">
 		<VCProjectVersion>15.0</VCProjectVersion>
-		<ProjectGuid>{D2737FCB-E8AB-49CA-86AD-D6AB594D428E}</ProjectGuid>
+		<ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
 		<Keyword>Win32Proj</Keyword>
-		<RootNamespace>aws_IoT_MCU_Full_Tests</RootNamespace>
 		<ProjectName>aws_tests</ProjectName>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="Configuration">
 		<ConfigurationType>Application</ConfigurationType>
 		<UseDebuglib>true</UseDebuglib>
-		<PlatformToolset>v141</PlatformToolset>
-		<CharacterSet>Unicode</CharacterSet>
-	</PropertyGroup>
-	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
-		<ConfigurationType>Application</ConfigurationType>
-		<UseDebuglib>true</UseDebuglib>
+		<UseOfMfc>false</UseOfMfc>
 		<PlatformToolset>v141</PlatformToolset>
 		<CharacterSet>Unicode</CharacterSet>
 	</PropertyGroup>
@@ -35,51 +25,72 @@
 	<ImportGroup Label="Shared"/>
 	<ImportGroup Label="PropertySheets" Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">
 		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" Label="LocalAppDataPlatform"/>
-	</ImportGroup>
-	<ImportGroup Label="PropertySheets" Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" Label="LocalAppDataPlatform"/>
+		<Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props"/>
 	</ImportGroup>
 	<PropertyGroup Label="UserMacros"/>
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">
+		<OutDir>.\Debug\</OutDir>
+		<IntDir>.\Debug\</IntDir>
 		<LinkIncremental>true</LinkIncremental>
 		<LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;</LibraryPath>
 		<IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-	</PropertyGroup>
-	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
-		<LinkIncremental>true</LinkIncremental>
+		<CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 	<ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">
+		<Midl>
+			<TypeLibraryName>.\Debug/WIN32.tlb</TypeLibraryName>
+			<HeaderFileName/>
+		</Midl>
 		<ClCompile>
 			<PrecompiledHeader>NotUsing</PrecompiledHeader>
 			<WarningLevel>Level3</WarningLevel>
 			<Optimization>Disabled</Optimization>
-			<PreprocessorDefinitions>WIN32;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0500;WINVER=0x400;__PRETTY_FUNCTION__=__FUNCTION__;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<AdditionalUsingDirectories/>
 			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code;..\..\..\..\..\tests\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\test;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\src;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\src;..\..\..\..\..\libraries\c_sdk\standard\https\test\access;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\c_sdk\standard\https\src;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\c_sdk\aws\defender\src\private;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\unity\src;..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\http_parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
 			<UndefinePreprocessorDefinitions/>
+			<MinimalRebuild/>
+			<BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
 			<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<PrecompiledHeaderOutputFile/>
+			<AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+			<ObjectFileName>.\Debug/</ObjectFileName>
+			<ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+			<WarningLevel>Level4</WarningLevel>
+			<SuppressStartupBanner>true</SuppressStartupBanner>
+			<DisableLanguageExtensions>false</DisableLanguageExtensions>
+			<DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+			<AdditionalOptions>/wd4127 /wd4200 /wd4204 /wd4210 %(AdditionalOptions)</AdditionalOptions>
+			<BrowseInformation>true</BrowseInformation>
+			<PrecompiledHeader>NotUsing</PrecompiledHeader>
+			<ExceptionHandling>false</ExceptionHandling>
+			<SDLCheck>true</SDLCheck>			
 			<CompileAs>CompileAsC</CompileAs>
 		</ClCompile>
+		<ResourceCompile>
+			<PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<Culture>0x0c09</Culture>
+		</ResourceCompile>
 		<Link>
+			<OutputFile>.\Debug/aws_tests.exe</OutputFile>
+			<SuppressStartupBanner>true</SuppressStartupBanner>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+			<ProgramDatabaseFile>.\Debug/WIN32.pdb</ProgramDatabaseFile>
 			<SubSystem>Console</SubSystem>
+			<TargetMachine>MachineX86</TargetMachine>
 			<AdditionalDependencies>wpcap.lib;%(AdditionalDependencies)</AdditionalDependencies>
 			<AdditionalLibraryDirectories>..\..\..\..\..\libraries\3rdparty\win_pcap</AdditionalLibraryDirectories>
+			<Profile>false</Profile>
+			<ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
 		</Link>
 		<PostBuildEvent>
 			<Command>copy $(SolutionDir)..\..\..\..\..\libraries\freertos_plus\aws\ota\test\test_files\*.* $(TEMP)</Command>
 		</PostBuildEvent>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
-		<ClCompile>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<WarningLevel>Level3</WarningLevel>
-			<Optimization>Disabled</Optimization>
-			<PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-		</ClCompile>
-		<Link>
-			<SubSystem>Console</SubSystem>
-		</Link>
+		<Bscmake>
+			<SuppressStartupBanner>true</SuppressStartupBanner>
+			<OutputFile>.\Debug/WIN32.bsc</OutputFile>
+		</Bscmake>
 	</ItemDefinitionGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
 	<ImportGroup Label="ExtensionTargets"/>
