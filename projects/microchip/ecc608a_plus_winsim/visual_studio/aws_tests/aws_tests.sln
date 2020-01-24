@@ -17,7 +17,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = aws_demos.vsmdi
+		CategoryFile = aws_tests.vsmdi
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6476D9ED-B6B7-4561-8CFC-BE0A82679141}
