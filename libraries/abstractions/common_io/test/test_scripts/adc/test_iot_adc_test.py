@@ -29,6 +29,7 @@ import csv
 from time import sleep
 import argparse
 import os, sys
+import re
 
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
@@ -85,9 +86,9 @@ class TestAdcAssisted(test_template):
 
                 self._serial.write('\r\n'.encode('utf-8'))
 
-                res = str(self._serial.read(200))
+                res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
 
-                for x in res.split('\\n\\r'):
+                for x in re.sub('\r', '', res).split('\n'):
                     # Look for the line with ADC reading.
                     if x.find('Expected -1') != -1:
                         adc.append(int(x.split()[-1]))
