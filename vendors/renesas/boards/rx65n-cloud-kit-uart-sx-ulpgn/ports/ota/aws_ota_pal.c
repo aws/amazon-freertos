@@ -98,14 +98,14 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 #define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_SMALL 8
 #define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_MEDIUM 6
 
-#define FLASH_INTERRUPT_PRIORITY 15	/* 0(low) - 15(high) */
+#define FLASH_INTERRUPT_PRIORITY 4	/* 0(low) - 15(high) */
 /*------------------------------------------ firmware update configuration (end) --------------------------------------------*/
 
 #define BOOT_LOADER_UPDATE_TEMPORARY_AREA_LOW_ADDRESS FLASH_CF_LO_BANK_LO_ADDR
 #define BOOT_LOADER_UPDATE_EXECUTE_AREA_LOW_ADDRESS FLASH_CF_HI_BANK_LO_ADDR
 #define BOOT_LOADER_UPDATE_TARGET_BLOCK_NUMBER (FLASH_NUM_BLOCKS_CF - BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_SMALL - BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_MEDIUM)
 
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        	128U	/* this value will be appeared after 201908.00 in aws_ota_agent_config.h */
+//#define otaconfigMAX_NUM_BLOCKS_REQUEST        	128U	/* this value will be appeared after 201908.00 in aws_ota_agent_config.h */
 
 #define BOOT_LOADER_USER_FIRMWARE_HEADER_LENGTH 0x200
 #define BOOT_LOADER_USER_FIRMWARE_DESCRIPTOR_LENGTH 0x100
@@ -178,8 +178,8 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
 
 static QueueHandle_t xQueue;
 static TaskHandle_t xTask;
-static xSemaphoreHandle xSemaphoreFlashig;
-static xSemaphoreHandle xSemaphoreWriteBlock;
+xSemaphoreHandle xSemaphoreFlashig;
+xSemaphoreHandle xSemaphoreWriteBlock;
 static volatile LOAD_FIRMWARE_CONTROL_BLOCK load_firmware_control_block;
 static PACKET_BLOCK_FOR_QUEUE packet_block_for_queue1;
 static PACKET_BLOCK_FOR_QUEUE packet_block_for_queue2;
@@ -210,7 +210,10 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 			xQueue = xQueueCreate(otaconfigMAX_NUM_BLOCKS_REQUEST, sizeof(PACKET_BLOCK_FOR_QUEUE));
 			xTaskCreate(ota_flashing_task, "OTA_FLASHING_TASK", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES, &xTask);
 			xSemaphoreFlashig = xSemaphoreCreateMutex();
+
 			xSemaphoreWriteBlock = xSemaphoreCreateMutex();
+//		    xSemaphoreGive(xSemaphoreFlashig);
+//			xSemaphoreGive(xSemaphoreWriteBlock);
 
 			flash_err = R_FLASH_Open();
 			cb_func_info.pcallback = ota_flashing_callback;
@@ -299,7 +302,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
 
     DEFINE_OTA_METHOD_NAME( "prvPAL_WriteBlock" );
 	OTA_LOG_L1("[%s] is called.\r\n", OTA_METHOD_NAME);
-
+//	xSemaphoreGive(xSemaphoreFlashig);
 	xSemaphoreTake(xSemaphoreWriteBlock, portMAX_DELAY);
 
 	packet_buffer = pvPortMalloc(ulBlockSize);
@@ -781,7 +784,7 @@ static int32_t ota_context_update_user_firmware_header( OTA_FileContext_t * C )
 		flash_err = R_FLASH_Write((uint32_t)block, (uint32_t)BOOT_LOADER_UPDATE_TEMPORARY_AREA_LOW_ADDRESS, length);
 		if(flash_err != FLASH_SUCCESS)
 		{
-			nop();
+			R_BSP_NOP();
 		}
 		while (OTA_FLASHING_IN_PROGRESS == gs_header_flashing_task);
 	}
@@ -807,7 +810,11 @@ static void ota_flashing_task( void * pvParameters )
 
 	while(1)
 	{
+
 		xQueueReceive(xQueue, &packet_block_for_queue2, portMAX_DELAY);
+		DEFINE_OTA_METHOD_NAME( "ota_flashing_task" );
+		OTA_LOG_L1("[%s] is called.\r\n", OTA_METHOD_NAME);
+//		xSemaphoreGive(xSemaphoreWriteBlock);
 		xSemaphoreTake(xSemaphoreFlashig, portMAX_DELAY);
 		memcpy(block, packet_block_for_queue2.p_packet, sizeof(block));
 		ulOffset = packet_block_for_queue2.ulOffset;
@@ -815,13 +822,14 @@ static void ota_flashing_task( void * pvParameters )
 		flash_err = R_FLASH_Write((uint32_t)block, ulOffset + (uint32_t)BOOT_LOADER_UPDATE_TEMPORARY_AREA_LOW_ADDRESS, length);
 		if(packet_block_for_queue2.length != 1024)
 		{
-			nop();
+			R_BSP_NOP();
 		}
 		if(flash_err != FLASH_SUCCESS)
 		{
-			nop();
+			R_BSP_NOP();
 		}
 		vPortFree(packet_block_for_queue2.p_packet);
+
 	}
 }
 
@@ -832,7 +840,7 @@ static void ota_flashing_callback(void *event)
 
     if((event_code != FLASH_INT_EVENT_WRITE_COMPLETE) || (event_code == FLASH_INT_EVENT_ERASE_COMPLETE))
     {
-    	nop(); /* trap */
+    	R_BSP_NOP(); /* trap */
     }
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xSemaphoreGiveFromISR(xSemaphoreFlashig, &xHigherPriorityTaskWoken);
@@ -847,7 +855,7 @@ static void ota_header_flashing_callback(void *event)
 
     if((event_code != FLASH_INT_EVENT_WRITE_COMPLETE) || (event_code == FLASH_INT_EVENT_ERASE_COMPLETE))
     {
-    	nop(); /* trap */
+    	R_BSP_NOP(); /* trap */
     }
 	static portBASE_TYPE xHigherPriorityTaskWoken;
 	xSemaphoreGiveFromISR(xSemaphoreFlashig, &xHigherPriorityTaskWoken);

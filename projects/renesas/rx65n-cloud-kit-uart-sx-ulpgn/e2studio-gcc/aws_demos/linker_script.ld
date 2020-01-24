@@ -1,6 +1,6 @@
 MEMORY
 {
-	RAM : ORIGIN = 0x6, LENGTH = 262138
+	RAM : ORIGIN = 0x8, LENGTH = 262136
 	RAM2 : ORIGIN = 0x00800000, LENGTH = 393216
     DATAFLASH (!rx) : ORIGIN = 0x100000, LENGTH = 32768 
 	ROM : ORIGIN = 0xFFF00000, LENGTH = 1048576
@@ -8,17 +8,17 @@ MEMORY
 }
 SECTIONS
 {
-	.exvectors 0xFFFFFF80 : AT(0xFFFFFF80)
+	.exvectors 0xFFFBFF80 : AT(0xFFFBFF80)
 	{
 		"_exvectors_start" = .;
 		KEEP(*(.exvectors))
 		"_exvectors_end" = .;
 	} >ROM
-	.fvectors 0xFFFFFFFC : AT(0xFFFFFFFC)
+	.fvectors 0xFFFBFFFC : AT(0xFFFBFFFC)
 	{
 		KEEP(*(.fvectors))
 	} >ROM
-	.text 0xFFF00000 : AT(0xFFF00000)
+	.text 0xFFF20000 : AT(0xFFF20000)
 	{
 		*(.text)
 		*(.text.*)
@@ -55,7 +55,7 @@ SECTIONS
 		*(.got)
 		*(.got.plt)
 	} >ROM
-	.rodata :
+	.rodata 0xFFF00300 : AT(0xFFF00300)
 	{
 		*(.rodata)
 		*(.rodata.*)
@@ -92,6 +92,8 @@ SECTIONS
 		. = ALIGN(2);
 		_mdata = .;
 	} >ROM
+	
+	
 	.data : AT(_mdata)
 	{
 		_data = .;
@@ -107,6 +109,8 @@ SECTIONS
 		_PFRAM_end = LOADADDR(.data) + (_RPFRAM_end - ADDR(.data));
 		_edata = .;
 	} >RAM
+	
+	
 	.gcc_exc :
 	{
 		*(.gcc_exc)
@@ -144,6 +148,15 @@ SECTIONS
 	*(PFRAM2)
 	_PFRAM2_end = .;
 	} >ROM
+	
+	
+	
+	FRAM2  (NOLOAD) : 
+{
+	_FRAM2_start = .;
+	*(FRAM2)
+	_FRAM2_end = .;
+	} >RAM2
 	
 	C_PKCS11_STORAGE_1 :
 	{

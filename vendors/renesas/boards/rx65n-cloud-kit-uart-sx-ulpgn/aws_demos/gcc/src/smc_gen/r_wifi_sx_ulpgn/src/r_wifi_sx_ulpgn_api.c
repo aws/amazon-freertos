@@ -1426,7 +1426,7 @@ int32_t R_WIFI_SX_ULPGN_SocketRecv (int32_t socket_no, uint8_t *pdata, int32_t l
 				{
 	#if DEBUGLOG == 1
 					R_BSP_CpuInterruptLevelWrite (13);
-//		                printf("recv timeout.%d received. requestsize=%d,lastdata=%02x,data1=%02x\r\n",recvcnt,length,*(pdata + (recvcnt-1)),data1);
+					printf("recv timeout.%d received. requestsize=%d,lastdata=%02x,data1=%02x\r\n",recvcnt,length,*(pdata + (recvcnt-1)),data1);
 					R_BSP_CpuInterruptLevelWrite (0);
 	#endif
 					R_BSP_NOP();
