@@ -17,7 +17,6 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 	- cd $ROOT_AFR_DIR
 - Run generate_doc.sh to generate the documents. All warnings will go to $ROOT_AFR_DIR/doxygen_warnings.txt. 
   ```
-  $ chmod +x ./doc/generate_doc.sh
   $ ./doc/generate_doc.sh .
   ```
   This script runs on macOS, Linux, and Windows Subsystem for Linux (WSL).
