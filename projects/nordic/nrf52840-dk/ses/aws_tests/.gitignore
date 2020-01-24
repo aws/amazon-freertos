@@ -1,5 +1,4 @@
-# Ignore project 
-*.emSession
 Output/*
+*.emSession
 bootloader/Output/*
 bootloader/bootloader.emSession
