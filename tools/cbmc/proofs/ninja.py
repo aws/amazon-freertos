@@ -90,32 +90,30 @@ pool goto_pool
 # proof target rules
 
 rule build_goto
-  command = make -C ${{folder}} goto
+  command = make -C ${folder} goto
   pool = goto_pool
 
 rule build_cbmc
-  command = make -C ${{folder}} cbmc
+  command = make -C ${folder} cbmc
 
 rule build_coverage
-  command = make -C ${{folder}} coverage
+  command = make -C ${folder} coverage
 
 rule build_property
-  command = make -C ${{folder}} property
+  command = make -C ${folder} property
 
 rule build_report
-  command = make -C ${{folder}} report
+  command = make -C ${folder} report
 
 rule clean_folder
-  command = make -C ${{folder}} clean
+  command = make -C ${folder} clean
 
 rule veryclean_folder
-  command = make -C ${{folder}} veryclean
+  command = make -C ${folder} veryclean
 
-################################################################
-# global target rules
+rule open_proof
+  command = open ${folder}/html/index.html
 
-rule open_proofs
-  command = for folder in {folders}; do open $${{folder}}/html/index.html; done
 """
 
 NINJA_BUILDS = """
@@ -143,6 +141,9 @@ build clean_{folder}: clean_folder
 build veryclean_{folder}: veryclean_folder
   folder={folder}
 
+build open_{folder}: open_proof
+  folder={folder}
+
 build {folder}: phony {folder}/html/index.html
 
 default {folder}
@@ -157,7 +158,7 @@ build clean: phony {clean_targets}
 
 build veryclean: phony {veryclean_targets}
 
-build open: open_proofs
+build open: phony {open_targets}
 """
 
 ################################################################
@@ -185,7 +186,7 @@ def write_ninja_build_file():
               find_proofs_in_filesystem())
 
     with open('build.ninja', 'w') as ninja:
-        ninja.write(NINJA_RULES.format(folders=' '.join(proofs)))
+        ninja.write(NINJA_RULES)
         for proof in proofs:
             entry = get_entry(proof)
             ninja.write(NINJA_BUILDS.format(folder=proof, entry=entry))
@@ -194,7 +195,8 @@ def write_ninja_build_file():
         )
         ninja.write(NINJA_GLOBALS.format(
             clean_targets=targets('clean', proofs),
-            veryclean_targets=targets('veryclean', proofs)
+            veryclean_targets=targets('veryclean', proofs),
+            open_targets=targets('open', proofs)
         ))
 
 ################################################################
