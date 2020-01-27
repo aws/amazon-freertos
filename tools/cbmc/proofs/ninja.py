@@ -11,7 +11,9 @@ system.
 
 # Add task pool
 
+import sys
 import os
+import platform
 import argparse
 import json
 
@@ -25,9 +27,13 @@ def argument_parser():
         description='Generate ninja build file for cbmc proofs.',
         epilog="""
             Folders containing cbmc proofs may be specified on the command line,
-            in a file containing a json dict mapping the key "proofs" to a list of folders,
+            in a file containing a json dict mapping the key "proofs" to a
+            list of folders,
             or in the file system as all folders under the current directory
             containing a file named 'cbmc-batch.yaml'.
+            This script assumes that the proof is driven by a Makefile
+            with targets goto, cbmc, coverage, property, and report.
+            This script does not work with Windows and Visual Studio.
         """
     )
     parser.add_argument('folders', metavar='PROOF', nargs='*',
@@ -177,6 +183,10 @@ def get_entry(folder):
 
 def write_ninja_build_file():
     """Write a ninja build file to generate proof results."""
+
+    if platform.system().lower() == 'windows':
+        print("This script does not run on Windows.")
+        sys.exit()
 
     args = argument_parser().parse_args()
 
