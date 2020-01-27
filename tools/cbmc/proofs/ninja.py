@@ -26,11 +26,15 @@ def argument_parser():
     parser = argparse.ArgumentParser(
         description='Generate ninja build file for cbmc proofs.',
         epilog="""
-            Folders containing cbmc proofs may be specified on the command line,
-            in a file containing a json dict mapping the key "proofs" to a
-            list of folders,
-            or in the file system as all folders under the current directory
-            containing a file named 'cbmc-batch.yaml'.
+            Given a list of folders containing cbmc proofs, write a ninja build
+            file the generate reports for these proofs.  The list of folders may
+            be given on the command line, in a json file, or found in the file
+            system.
+            In the json file, there should be a dict mapping the key "proofs"
+            to a list of folders containing proofs.
+            The file system, all folders folders under the current directory
+            containing a file named 'cbmc-batch.yaml' is considered a
+            proof folder.
             This script assumes that the proof is driven by a Makefile
             with targets goto, cbmc, coverage, property, and report.
             This script does not work with Windows and Visual Studio.
@@ -74,7 +78,7 @@ def find_proofs_in_json_file(filename):
         raise UserWarning("Can't parse json file {}".format(filename))
 
 def find_proofs_in_filesystem():
-    """Construct the list of folders in the filesystem containing proofs."""
+    """Locate the folders containing proofs in the filesystem."""
 
     proofs = []
     for root, _, files in os.walk('.'):
