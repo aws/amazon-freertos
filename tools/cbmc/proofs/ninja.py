@@ -71,7 +71,7 @@ def find_proofs_in_filesystem():
     """Construct the list of folders in the filesystem containing proofs."""
 
     proofs = []
-    for (root, _, files) in os.walk('.'):
+    for root, _, files in os.walk('.'):
         if FS_KEY in files:
             proofs.append(os.path.normpath(root))
     return proofs
@@ -105,14 +105,14 @@ rule build_property
 rule build_report
   command = make -C ${{folder}} report
 
+rule clean_folder
+  command = make -C ${{folder}} clean
+
+rule veryclean_folder
+  command = make -C ${{folder}} veryclean
+
 ################################################################
 # global target rules
-
-rule clean_proofs
-  command = for folder in {folders}; do make -C $${{folder}} clean; done
-
-rule veryclean_proofs
-  command = for folder in {folders}; do make -C $${{folder}} veryclean; done
 
 rule open_proofs
   command = for folder in {folders}; do open $${{folder}}/html/index.html; done
@@ -137,18 +137,25 @@ build {folder}/property.xml: build_property {folder}/{entry}.goto
 build {folder}/html/index.html: build_report {folder}/{entry}.goto {folder}/cbmc.txt {folder}/coverage.xml {folder}/property.xml
   folder={folder}
 
+build clean_{folder}: clean_folder
+  folder={folder}
+
+build veryclean_{folder}: veryclean_folder
+  folder={folder}
+
 build {folder}: phony {folder}/html/index.html
 
 default {folder}
+
 """
 
 NINJA_GLOBALS = """
 ################################################################
 # global targets
 
-build clean_: clean_proofs
+build clean: phony {clean_targets}
 
-build veryclean_: veryclean_proofs
+build veryclean: phony {veryclean_targets}
 
 build open: open_proofs
 """
@@ -182,7 +189,13 @@ def write_ninja_build_file():
         for proof in proofs:
             entry = get_entry(proof)
             ninja.write(NINJA_BUILDS.format(folder=proof, entry=entry))
-        ninja.write(NINJA_GLOBALS)
+        targets = lambda kind, folders: ' '.join(
+            ['{}_{}'.format(kind, folder) for folder in folders]
+        )
+        ninja.write(NINJA_GLOBALS.format(
+            clean_targets=targets('clean', proofs),
+            veryclean_targets=targets('veryclean', proofs)
+        ))
 
 ################################################################
 
