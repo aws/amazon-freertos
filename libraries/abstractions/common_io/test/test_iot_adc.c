@@ -608,7 +608,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
 }
 
 /*-----------------------------------------------------------*/
-void static xAdcCallbackTmp( uint16_t * pusConvertedData,
+static void xAdcCallbackTmp( uint16_t * pusConvertedData,
                       void * pvUserContext )
 {
 }

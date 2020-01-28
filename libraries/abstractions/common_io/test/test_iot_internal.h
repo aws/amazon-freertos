@@ -129,10 +129,10 @@
  */
 
 /* Uart */
-extern uint8_t uctestIotUartPort;                       /* the index of the UART that will be tested */
+extern uint8_t uctestIotUartPort;                       /* The index of the UART that will be tested */
 
 /* Flash */
-extern uint32_t ultestIotFlashStartOffset;              /* the Flash offset at which the flash operations in the test will take place */
+extern uint32_t ultestIotFlashStartOffset;              /* The Flash offset at which the flash operations in the test will take place */
 
 /* GPIO */
 extern int32_t ltestIotGpioPortA;                       /* The 1st GPIO port used in the loop back test */
