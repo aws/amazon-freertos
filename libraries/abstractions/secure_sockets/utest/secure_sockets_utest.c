@@ -887,7 +887,7 @@ static long int xTaskCreate_cb2( TaskFunction_t pxTaskCode,
     handle = malloc_cb( sizeof( TaskHandle_t ), 1 );
     *pxCreatedTask = handle;
 
-    if( pthread_create( &tid, NULL, ( void *( * )( void * ) )pxTaskCode,
+    if( pthread_create( &tid, NULL, ( void * ( * )( void * ) )pxTaskCode,
                         pvParameters ) != 0 )
     {
         TEST_FAIL();

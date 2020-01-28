@@ -243,7 +243,7 @@ int pthread_barrier_wait( pthread_barrier_t * barrier );
  */
 int pthread_create( pthread_t * thread,
                     const pthread_attr_t * attr,
-                    void *( *startroutine )( void * ),
+                    void * ( *startroutine )( void * ),
                     void * arg );
 
 /**
