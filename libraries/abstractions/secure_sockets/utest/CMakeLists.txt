@@ -57,13 +57,13 @@
     set_target_properties(secure_sockets_real PROPERTIES
                     COMPILE_FLAGS "-Wall -fPIC -ggdb3 -O0  -pg \
                         -fprofile-arcs -ftest-coverage -fprofile-generate \
-                        -fsanitize=address -fsanitize=pointer-compare \
-                        -fsanitize=pointer-subtract -fsanitize=leak"
+                        -fsanitize=address \
+                        -fsanitize=leak"
                     LINK_FLAGS "-fPIC -fprofile-arcs -ftest-coverage \
                         -fprofile-generate -ggdb3 -pg \
                         -fsanitize=address \
-                        -fsanitize=address -fsanitize=pointer-compare \
-                        -fsanitize=pointer-subtract -fsanitize=leak"
+                        -fsanitize=address \
+                        -fsanitize=leak"
                     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
 
