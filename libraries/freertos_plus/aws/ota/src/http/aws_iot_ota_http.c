@@ -27,6 +27,7 @@
 /* Standard library include. */
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Error handling from C-SDK. */
 #include "private/iot_error.h"
@@ -188,6 +189,7 @@ typedef enum
 /* Struct for OTA HTTP downloader. */
 typedef struct _httpDownloader
 {
+    OTA_AgentContext_t * pAgentCtx;       /* OTA agent context. */
     _httpState state;                     /* HTTP downloader state. */
     _httpErr err;                         /* HTTP downloader error status. */
     _httpUrlInfo_t httpUrlInfo;           /* HTTP url of the file to download. */
@@ -197,7 +199,6 @@ typedef struct _httpDownloader
     _httpCallbackData_t httpCallbackData; /* Data used in the HTTP callback. */
     uint32_t currBlock;                   /* Current requesting block in bitmap. */
     uint32_t currBlockSize;               /* Size of current requesting block. */
-    OTA_AgentContext_t * pAgentCtx;       /* OTA agent context. */
 } _httpDownloader_t;
 
 /* Global HTTP downloader instance. */
@@ -209,6 +210,9 @@ uint8_t * pRequestUserBuffer = NULL;    /* Buffer to store the HTTP request cont
 uint8_t * pResponseUserBuffer = NULL;   /* Buffer to store the HTTP response context and header. */
 uint8_t * pResponseBodyBuffer = NULL;   /* Buffer to store the HTTP response body. */
 
+/* We need to use this function defined in iot_logging_task_dynamic_buffers.c to print HTTP message
+ * without appending the task name and tick count. */
+void vLoggingPrint( const char * pcMessage );
 
 /*-----------------------------------------------------------*/
 
@@ -718,7 +722,7 @@ static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetwork
 static _httpErr _httpGetFileSize( uint32_t * pFileSize )
 {
     /* Return status. */
-    int status = OTA_HTTP_ERR_NONE;
+    _httpErr status = OTA_HTTP_ERR_NONE;
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
 
     /* HTTP response code. */

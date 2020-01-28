@@ -275,8 +275,8 @@ typedef struct
 
 typedef struct
 {
-    OTA_Event_t xEventId;
     OTA_EventData_t * pxEventData;
+    OTA_Event_t xEventId;
 } OTA_EventMsg_t;
 
 /*
