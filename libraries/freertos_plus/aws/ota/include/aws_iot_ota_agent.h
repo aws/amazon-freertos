@@ -53,21 +53,27 @@ extern const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
  */
 #define OTA_DEBUG_LOG_LEVEL    1
 #if OTA_DEBUG_LOG_LEVEL >= 1
-    #define DEFINE_OTA_METHOD_NAME( name )    static const char OTA_METHOD_NAME[] = name;
+    #define DEFINE_OTA_METHOD_NAME( name )      \
+    static const char OTA_METHOD_NAME[] = name; \
+    ( void ) OTA_METHOD_NAME;
     #define OTA_LOG_L1         vLoggingPrintf
 #else
     #define DEFINE_OTA_METHOD_NAME( name )
     #define OTA_LOG_L1( ... )
 #endif
 #if OTA_DEBUG_LOG_LEVEL >= 2
-    #define DEFINE_OTA_METHOD_NAME_L2( name )    static const char OTA_METHOD_NAME[] = name;
+    #define DEFINE_OTA_METHOD_NAME_L2( name )   \
+    static const char OTA_METHOD_NAME[] = name; \
+    ( void ) OTA_METHOD_NAME;
     #define OTA_LOG_L2    vLoggingPrintf
 #else
     #define DEFINE_OTA_METHOD_NAME_L2( name )
     #define OTA_LOG_L2( ... )
 #endif
 #if OTA_DEBUG_LOG_LEVEL >= 3
-    #define DEFINE_OTA_METHOD_NAME_L3( name )    static const char OTA_METHOD_NAME[] = name;
+    #define DEFINE_OTA_METHOD_NAME_L3( name )   \
+    static const char OTA_METHOD_NAME[] = name; \
+    ( void ) OTA_METHOD_NAME;
     #define OTA_LOG_L3    vLoggingPrintf
 #else
     #define DEFINE_OTA_METHOD_NAME_L3( name )
