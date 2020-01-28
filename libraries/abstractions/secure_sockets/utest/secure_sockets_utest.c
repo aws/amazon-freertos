@@ -774,7 +774,7 @@ void test31_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
 /*!
  * @brief SetSockOp lwip_setsockopt error
  */
-void test32SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
+void test32_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;

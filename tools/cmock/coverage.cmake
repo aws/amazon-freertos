@@ -17,19 +17,24 @@ cmake_minimum_required(VERSION 3.13)
     message("output base_Coverage .info")
     file(GLOB files "${CMAKE_BINARY_DIR}/bin/*")
 
+    set(OUT_FILE ${CMAKE_BINARY_DIR}/utest_report.txt)
     foreach(testname ${files})
-
         get_filename_component(test
                                ${testname}
                                NAME_WLE
-                        )
+                )
         message("Running ${testname}")
         execute_process(COMMAND ${testname} OUTPUT_FILE ${CMAKE_BINARY_DIR}/${test}_out.txt)
-        execute_process(COMMAND ruby
-                ${CMAKE_SOURCE_DIR}/../libraries/3rdparty/CMock/vendor/unity/auto/parse_output.rb -xml ${CMAKE_BINARY_DIR}/${test}_out.txt
-                OUTPUT_FILE ${CMAKE_BINARY_DIR}/${test}_out.xml
-                )
+
+        file(READ ${CMAKE_BINARY_DIR}/${test}_out.txt CONTENTS)
+        file(APPEND ${OUT_FILE} "${CONTENTS}")
     endforeach()
+
+# generage Junit style xml output
+    execute_process(COMMAND ruby
+        ${CMAKE_SOURCE_DIR}/../libraries/3rdparty/CMock/vendor/unity/auto/parse_output.rb
+                        -xml ${OUT_FILE}
+                )
 
     execute_process(
                 COMMAND lcov --capture
