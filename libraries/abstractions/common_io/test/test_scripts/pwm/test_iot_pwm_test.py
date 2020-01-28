@@ -24,7 +24,6 @@
 # http://www.FreeRTOS.org
 
 
-
 import serial
 import csv
 import threading
@@ -33,12 +32,14 @@ import sys
 import math
 import os
 import argparse
+import re
 
-scriptdir = os.path.abspath(sys.path[0])
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 import socket
 
@@ -103,9 +104,9 @@ class TestPwmAssisted(test_template):
         # wait the script on rpi to finish.
         t_shell.join()
         s.close()
-        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
 
-        if res.find('PASS\\n') == -1:
+        if re.sub('\r', '', res).find('PASS\n') == -1:
             print(sys._getframe().f_code.co_name, ": device under test pwm capture failed")
             return 'Fail'
 
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     rpi_login = args.login_name[0]
     rpi_pwd = args.password[0]
 
-    with open('test_result.csv', 'w', newline='') as csvfile:
+    with open(scriptdir + '/test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()

@@ -32,12 +32,14 @@ import argparse
 import subprocess
 import ast
 import random
+import re
 
-scriptdir = os.path.abspath(sys.path[0])
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 
 
@@ -140,7 +142,7 @@ class TestSPIMasterAssisted(test_template):
         self._serial.write('\r\n'.encode('utf-8'))
 
         pyb_res = self._pyb._serial.read_until(terminator=b']').decode("utf-8").splitlines()
-        dut_res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        dut_res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
 
         for line in pyb_res:
             try:
@@ -153,7 +155,7 @@ class TestSPIMasterAssisted(test_template):
         self._pyb.deinit()
 
         w_bytes = []
-        for x in dut_res.split('\\n\\r'):
+        for x in re.sub('\r', '',dut_res).split('\n'):
             if x.find('IGNORE') != -1:
                 w_bytes = [int(s, 16) for s in x.split(',') if len(s) == 2]
                 break
@@ -164,7 +166,7 @@ class TestSPIMasterAssisted(test_template):
             return "Fail"
 
         if self.compare_host_dut_result(w_bytes, r_bytes) == -1:
-            print(pyb_res, '\n', dut_res)
+            print(repr(pyb_res), '\n', repr(dut_res))
             return "Fail"
 
         return "Pass"
@@ -188,17 +190,17 @@ class TestSPIMasterAssisted(test_template):
         self._serial.write(cmd.encode('utf-8'))
         self._serial.write('\r\n'.encode('utf-8'))
 
-        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
         self._pyb.deinit()
 
         r_bytes = []
-        for x in res.split('\\n\\r'):
+        for x in re.sub('\r', '', res).split('\n'):
             if x.find('IGNORE') != -1:
                 r_bytes = [int(s, 16) for s in x.split(',') if len(s) == 2]
                 break
 
         if self.compare_host_dut_result(w_bytes, r_bytes) == -1:
-            print(res)
+            print(repr(res))
             return "Fail"
 
         return "Pass"
@@ -222,7 +224,7 @@ class TestSPIMasterAssisted(test_template):
         self._serial.write(cmd.encode('utf-8'))
         self._serial.write('\r\n'.encode('utf-8'))
 
-        dut_res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        dut_res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode("utf-8")
         pyb_res = self._pyb._serial.read_until(terminator=b']\r\n').decode("utf-8").splitlines()
 
         self._pyb.deinit()
@@ -236,7 +238,7 @@ class TestSPIMasterAssisted(test_template):
                 pass
 
         dut_wbytes = []
-        for x in dut_res.split('\\n\\r'):
+        for x in re.sub('\r', '',dut_res).split('\n'):
             if x.find('IGNORE') != -1:
                 dut_wbytes = [int(s, 16) for s in x.split(',') if len(s) == 2]
                 break
@@ -245,7 +247,7 @@ class TestSPIMasterAssisted(test_template):
         dut_wbytes = dut_wbytes[:len(dut_wbytes) // 2]
 
         if 'pyb_rbytes' not in locals() or not isinstance(pyb_rbytes, list):
-            print("No data is received by spi slave.\n{}\n{}".format(pyb_res, dut_res))
+            print("No data is received by spi slave.\n{}\n{}".format(repr(pyb_res), repr(dut_res)))
             self._pyb.kill()
             return "Fail"
 
@@ -254,7 +256,7 @@ class TestSPIMasterAssisted(test_template):
             print("dut_wbytes:{}\npyb_rbytes:{}\n{}\n{}".format(dut_wbytes, pyb_rbytes, pyb_res, dut_res))
             return "Fail"
 
-        # Compare bytes dur read and pyb write.
+        # Compare bytes dut read and pyb write.
         if self.compare_host_dut_result(pyb_wbytes, dut_rbytes) == -1:
             print("pyb_wbytes:{}\ndut_rbytes:{}\n{}\n{}".format(pyb_wbytes, dut_rbytes, pyb_res, dut_res))
             return "Fail"
@@ -289,7 +291,7 @@ if __name__ == "__main__":
     rpi_login = args.login_name[0]
     rpi_pwd = args.password[0]
 
-    with open('test_result.csv', 'w', newline='') as csvfile:
+    with open(scriptdir+'/test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()

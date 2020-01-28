@@ -24,18 +24,19 @@
 # http://www.FreeRTOS.org
 
 
-
-
 import serial
 import csv
 from time import sleep
 import argparse
 import os, sys
-scriptdir = os.path.abspath(sys.path[0])
+import re
+
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 
 
@@ -85,9 +86,9 @@ class TestAdcAssisted(test_template):
 
                 self._serial.write('\r\n'.encode('utf-8'))
 
-                res = str(self._serial.read(200))
+                res = self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])).decode('utf-8')
 
-                for x in res.split('\\n\\r'):
+                for x in re.sub('\r', '', res).split('\n'):
                     # Look for the line with ADC reading.
                     if x.find('Expected -1') != -1:
                         adc.append(int(x.split()[-1]))
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     rpi_login = args.login_name[0]
     rpi_pwd = args.password[0]
 
-    with open('test_result.csv', 'w', newline='') as csvfile:
+    with open(scriptdir + '/test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()

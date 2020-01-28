@@ -110,16 +110,16 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseOpenClose )
     xEfuseHandle = iot_efuse_open();
     TEST_ASSERT_NOT_EQUAL( NULL, xEfuseHandle );
 
-    /* Open again should get the same handle. */
+    /* Open again should get NULL. */
     xEfuseHandle2 = iot_efuse_open();
-    TEST_ASSERT_EQUAL( xEfuseHandle, xEfuseHandle2 );
+    TEST_ASSERT_EQUAL( NULL, xEfuseHandle2 );
 
     /* Close efuse to deinit hardware. */
     lRetVal = iot_efuse_close( xEfuseHandle );
     TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal);
 
     /* Close again should get IOT_EFUSE_INVALID_VALUE */
-    lRetVal = iot_efuse_close( xEfuseHandle2 );
+    lRetVal = iot_efuse_close( xEfuseHandle );
     TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal);
 }
 
