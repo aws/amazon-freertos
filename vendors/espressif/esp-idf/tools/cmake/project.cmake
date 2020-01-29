@@ -94,8 +94,10 @@ macro(project name)
 
     __project(${name} C CXX ASM)
 
+    set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+
     set(IDF_BUILD_ARTIFACTS ON)
-    set(IDF_PROJECT_EXECUTABLE ${CMAKE_PROJECT_NAME}.elf)
+    set(IDF_PROJECT_EXECUTABLE ${CMAKE_PROJECT_NAME})
     set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
     if(MAIN_SRCS)

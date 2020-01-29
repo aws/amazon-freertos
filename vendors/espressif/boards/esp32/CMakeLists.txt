@@ -1,3 +1,5 @@
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
@@ -62,6 +64,8 @@ target_link_options(
     AFR::compiler::mcu_port
     INTERFACE ${linker_flags}
 )
+
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers

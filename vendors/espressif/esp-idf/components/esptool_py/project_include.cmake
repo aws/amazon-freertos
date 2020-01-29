@@ -84,7 +84,7 @@ endif()
 #
 add_custom_command(OUTPUT "${IDF_BUILD_ARTIFACTS_DIR}/${unsigned_project_binary}"
     COMMAND ${ESPTOOLPY} elf2image ${ESPTOOLPY_ELF2IMAGE_FLASH_OPTIONS} ${ESPTOOLPY_ELF2IMAGE_OPTIONS}
-        -o "${IDF_BUILD_ARTIFACTS_DIR}/${unsigned_project_binary}" "${IDF_PROJECT_EXECUTABLE}"
+        -o "${IDF_BUILD_ARTIFACTS_DIR}/${unsigned_project_binary}" "$<TARGET_FILE:${IDF_PROJECT_EXECUTABLE}>"
     DEPENDS ${IDF_PROJECT_EXECUTABLE}
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -106,11 +106,7 @@ if(NOT BOOTLOADER_BUILD AND
         )
 endif()
 
-if(NOT BOOTLOADER_BUILD)
-    add_custom_target(app ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
-else()
-    add_custom_target(bootloader ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
-endif()
+add_custom_target(app ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
 
 if(NOT BOOTLOADER_BUILD AND
     CONFIG_SECURE_BOOT_ENABLED AND

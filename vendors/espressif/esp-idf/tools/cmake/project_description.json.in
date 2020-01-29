@@ -4,7 +4,7 @@
     "build_dir":          "${IDF_BUILD_ARTIFACTS_DIR}",
     "config_file":        "${SDKCONFIG}",
     "config_defaults":    "${IDF_SDKCONFIG_DEFAULTS}",
-    "app_elf":            "${IDF_PROJECT_EXECUTABLE}",
+    "app_elf":            "$<TARGET_FILE_NAME:${IDF_PROJECT_EXECUTABLE}>",
     "app_bin":            "${IDF_PROJECT_BIN}",
     "git_revision":       "${IDF_VER}",
     "phy_data_partition": "${CONFIG_ESP32_PHY_INIT_DATA_IN_PARTITION}",
