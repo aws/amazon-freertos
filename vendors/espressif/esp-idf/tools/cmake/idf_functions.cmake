@@ -408,8 +408,18 @@ macro(idf_import_components var idf_path build_path)
         # Write project description JSON file
         make_json_list("${BUILD_COMPONENTS}" build_components_json)
         make_json_list("${BUILD_COMPONENT_PATHS}" build_component_paths_json)
+
         configure_file("${IDF_PATH}/tools/cmake/project_description.json.in"
+            "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json.in")
+
+        file(GENERATE OUTPUT "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json"
+            INPUT "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json.in")
+
+        set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND PROPERTY
+            ADDITIONAL_MAKE_CLEAN_FILES
+            "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json.in"
             "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json")
+
         unset(build_components_json)
         unset(build_component_paths_json)
     endif()

@@ -106,11 +106,7 @@ if(NOT BOOTLOADER_BUILD AND
         )
 endif()
 
-if(NOT BOOTLOADER_BUILD)
-    add_custom_target(app ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
-else()
-    add_custom_target(bootloader ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
-endif()
+add_custom_target(app ALL DEPENDS "${IDF_BUILD_ARTIFACTS_DIR}/${IDF_PROJECT_BIN}")
 
 if(NOT BOOTLOADER_BUILD AND
     CONFIG_SECURE_BOOT_ENABLED AND
