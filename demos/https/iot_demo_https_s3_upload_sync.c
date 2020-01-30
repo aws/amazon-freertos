@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -227,7 +227,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
      * IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
-    /* Handle identifying the HTTP response. This is valid after the reponse has been received with
+    /* Handle identifying the HTTP response. This is valid after the response has been received with
      * IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
@@ -250,7 +250,8 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Synchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
-    /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
+     * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
                                                    strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                    &pPath,
@@ -367,7 +368,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IotLogError( "Failed to connect to the server. Error code: %d.", httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
@@ -479,8 +480,8 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
         IotHttpsClient_Disconnect( connHandle );
     }
 
-    /* Deinitialize the library because we are done using it. */
-    IotHttpsClient_Deinit();
+    /* Clean up the library because we are done using it. */
+    IotHttpsClient_Cleanup();
 
     IOT_FUNCTION_CLEANUP_END();
 }

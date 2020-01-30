@@ -18,9 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "rom/queue.h"
 #include "esp_err.h"
-#include "esp_interface.h"
+#include "esp_private/esp_wifi_types_private.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +48,7 @@ typedef struct {
     char                  cc[3];   /**< country code string */
     uint8_t               schan;   /**< start channel */
     uint8_t               nchan;   /**< total channel number */
-    int8_t                max_tx_power;   /**< maximum tx power */
+    int8_t                max_tx_power;   /**< This field is used for getting WiFi maximum transmitting power, call esp_wifi_set_max_tx_power to set the maximum transmitting power. */
     wifi_country_policy_t policy;  /**< country policy */
 } wifi_country_t;
 
@@ -93,6 +92,7 @@ typedef enum {
     WIFI_REASON_AUTH_FAIL                = 202,
     WIFI_REASON_ASSOC_FAIL               = 203,
     WIFI_REASON_HANDSHAKE_TIMEOUT        = 204,
+    WIFI_REASON_CONNECTION_FAIL          = 205,
 } wifi_err_reason_t;
 
 typedef enum {
@@ -449,6 +449,75 @@ typedef struct {
     uint8_t         enabled_ant0: 4,      /**< Index (in antenna GPIO configuration) of enabled WIFI_ANT_MODE_ANT0 */
                     enabled_ant1: 4;      /**< Index (in antenna GPIO configuration) of enabled WIFI_ANT_MODE_ANT1 */
 } wifi_ant_config_t;
+
+/**
+  * @brief WiFi PHY rate encodings
+  *
+  */
+typedef enum {
+    WIFI_PHY_RATE_1M_L      = 0x00, /**< 1 Mbps with long preamble */
+    WIFI_PHY_RATE_2M_L      = 0x01, /**< 2 Mbps with long preamble */
+    WIFI_PHY_RATE_5M_L      = 0x02, /**< 5.5 Mbps with long preamble */
+    WIFI_PHY_RATE_11M_L     = 0x03, /**< 11 Mbps with long preamble */
+    WIFI_PHY_RATE_2M_S      = 0x05, /**< 2 Mbps with short preamble */
+    WIFI_PHY_RATE_5M_S      = 0x06, /**< 5.5 Mbps with short preamble */
+    WIFI_PHY_RATE_11M_S     = 0x07, /**< 11 Mbps with short preamble */
+    WIFI_PHY_RATE_48M       = 0x08, /**< 48 Mbps */
+    WIFI_PHY_RATE_24M       = 0x09, /**< 24 Mbps */
+    WIFI_PHY_RATE_12M       = 0x0A, /**< 12 Mbps */
+    WIFI_PHY_RATE_6M        = 0x0B, /**< 6 Mbps */
+    WIFI_PHY_RATE_54M       = 0x0C, /**< 54 Mbps */
+    WIFI_PHY_RATE_36M       = 0x0D, /**< 36 Mbps */
+    WIFI_PHY_RATE_18M       = 0x0E, /**< 18 Mbps */
+    WIFI_PHY_RATE_9M        = 0x0F, /**< 9 Mbps */
+    WIFI_PHY_RATE_MCS0_LGI  = 0x10, /**< MCS0 with long GI, 6.5 Mbps for 20MHz, 13.5 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS1_LGI  = 0x11, /**< MCS1 with long GI, 13 Mbps for 20MHz, 27 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS2_LGI  = 0x12, /**< MCS2 with long GI, 19.5 Mbps for 20MHz, 40.5 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS3_LGI  = 0x13, /**< MCS3 with long GI, 26 Mbps for 20MHz, 54 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS4_LGI  = 0x14, /**< MCS4 with long GI, 39 Mbps for 20MHz, 81 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS5_LGI  = 0x15, /**< MCS5 with long GI, 52 Mbps for 20MHz, 108 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS6_LGI  = 0x16, /**< MCS6 with long GI, 58.5 Mbps for 20MHz, 121.5 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS7_LGI  = 0x17, /**< MCS7 with long GI, 65 Mbps for 20MHz, 135 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS0_SGI  = 0x18, /**< MCS0 with short GI, 7.2 Mbps for 20MHz, 15 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS1_SGI  = 0x19, /**< MCS1 with short GI, 14.4 Mbps for 20MHz, 30 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS2_SGI  = 0x1A, /**< MCS2 with short GI, 21.7 Mbps for 20MHz, 45 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS3_SGI  = 0x1B, /**< MCS3 with short GI, 28.9 Mbps for 20MHz, 60 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS4_SGI  = 0x1C, /**< MCS4 with short GI, 43.3 Mbps for 20MHz, 90 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS5_SGI  = 0x1D, /**< MCS5 with short GI, 57.8 Mbps for 20MHz, 120 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS6_SGI  = 0x1E, /**< MCS6 with short GI, 65 Mbps for 20MHz, 135 Mbps for 40MHz */
+    WIFI_PHY_RATE_MCS7_SGI  = 0x1F, /**< MCS7 with short GI, 72.2 Mbps for 20MHz, 150 Mbps for 40MHz */
+    WIFI_PHY_RATE_LORA_250K = 0x29, /**< 250 Kbps */
+    WIFI_PHY_RATE_LORA_500K = 0x2A, /**< 500 Kbps */
+    WIFI_PHY_RATE_MAX,
+} wifi_phy_rate_t;
+
+/** 
+  * @brief WiFi ioctl command type
+  *
+  */
+typedef enum {
+    WIFI_IOCTL_SET_STA_HT2040_COEX = 1, /**< Set the configuration of STA's HT2040 coexist management */
+    WIFI_IOCTL_GET_STA_HT2040_COEX,     /**< Get the configuration of STA's HT2040 coexist management */
+    WIFI_IOCTL_MAX,
+} wifi_ioctl_cmd_t;
+
+/** 
+ * @brief Configuration for STA's HT2040 coexist management
+ *
+ */
+typedef struct {
+    int enable;                         /**< Indicate whether STA's HT2040 coexist management is enabled or not */
+} wifi_ht2040_coex_t;
+
+/** 
+  * @brief Configuration for WiFi ioctl
+  *
+  */
+typedef struct {
+    union {
+        wifi_ht2040_coex_t ht2040_coex; /**< Configuration of STA's HT2040 coexist management */
+    } data;                             /**< Configuration of ioctl command */
+} wifi_ioctl_config_t;
 
 #ifdef __cplusplus
 }

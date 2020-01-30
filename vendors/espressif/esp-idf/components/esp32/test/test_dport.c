@@ -1,21 +1,29 @@
-
-#include <esp_types.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "xtensa/core-macros.h"
+#include "xtensa/hal.h"
+#include "esp_types.h"
+#include "esp_clk.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "freertos/xtensa_timer.h"
 #include "soc/cpu.h"
 #include "unity.h"
+#include "test_utils.h"
 #include "rom/uart.h"
 #include "soc/uart_reg.h"
 #include "soc/dport_reg.h"
 #include "soc/rtc.h"
+#include "esp_intr_alloc.h"
+#include "driver/timer.h"
+
 #define MHZ (1000000)
 static volatile bool exit_flag;
 static bool dport_test_result;
 static bool apb_test_result;
+uint32_t volatile apb_intr_test_result;
 
 static void accessDPORT(void *pvParameters)
 {
@@ -57,6 +65,7 @@ static void accessAPB(void *pvParameters)
 
 void run_tasks(const char *task1_description, void (* task1_func)(void *), const char *task2_description, void (* task2_func)(void *), uint32_t delay_ms)
 {
+    apb_intr_test_result = 1;
     int i;
     TaskHandle_t th[2];
     xSemaphoreHandle exit_sema[2];
@@ -92,56 +101,59 @@ void run_tasks(const char *task1_description, void (* task1_func)(void *), const
             vSemaphoreDelete(exit_sema[i]);
         }
     }
-    TEST_ASSERT(dport_test_result == true && apb_test_result == true);
+    TEST_ASSERT(dport_test_result == true && apb_test_result == true && apb_intr_test_result == 1);
 }
 
 TEST_CASE("access DPORT and APB at same time", "[esp32]")
 {
     dport_test_result   = false;
     apb_test_result     = false;
-    printf("CPU_FREQ = %d MHz\n", rtc_clk_cpu_freq_value(rtc_clk_cpu_freq_get()) / MHZ);
+    printf("CPU_FREQ = %d MHz\n", esp_clk_cpu_freq());
     run_tasks("accessDPORT", accessDPORT, "accessAPB", accessAPB, 10000);
 }
 
-void run_tasks_with_change_freq_cpu (rtc_cpu_freq_t cpu_freq)
+void run_tasks_with_change_freq_cpu(int cpu_freq_mhz)
 {
-    dport_test_result   = false;
-    apb_test_result     = false;
-    rtc_cpu_freq_t cur_freq = rtc_clk_cpu_freq_get();
-    uint32_t freq_before_changed = rtc_clk_cpu_freq_value(cur_freq) / MHZ;
-    uint32_t freq_changed = freq_before_changed;
-    printf("CPU_FREQ = %d MHz\n", freq_before_changed);
-
-    if (cur_freq != cpu_freq) {
-        uart_tx_wait_idle(CONFIG_CONSOLE_UART_NUM);
-
-        rtc_clk_cpu_freq_set(cpu_freq);
-
-        const int uart_num = CONFIG_CONSOLE_UART_NUM;
-        const int uart_baud = CONFIG_CONSOLE_UART_BAUDRATE;
-        uart_div_modify(uart_num, (rtc_clk_apb_freq_get() << 4) / uart_baud);
-
-        freq_changed = rtc_clk_cpu_freq_value(rtc_clk_cpu_freq_get()) / MHZ;
-        printf("CPU_FREQ switching to %d MHz\n", freq_changed);
-    }
-    run_tasks("accessDPORT", accessDPORT, "accessAPB", accessAPB, 10000 / ((freq_before_changed <= freq_changed) ? 1 : (freq_before_changed / freq_changed)));
-
-    // return old freq.
-    uart_tx_wait_idle(CONFIG_CONSOLE_UART_NUM);
-    rtc_clk_cpu_freq_set(cur_freq);
     const int uart_num = CONFIG_CONSOLE_UART_NUM;
     const int uart_baud = CONFIG_CONSOLE_UART_BAUDRATE;
+    dport_test_result = false;
+    apb_test_result = false;
+    rtc_cpu_freq_config_t old_config;
+    rtc_clk_cpu_freq_get_config(&old_config);
+
+    printf("CPU_FREQ = %d MHz\n", old_config.freq_mhz);
+
+    if (cpu_freq_mhz != old_config.freq_mhz) {
+        rtc_cpu_freq_config_t new_config;
+        bool res = rtc_clk_cpu_freq_mhz_to_config(cpu_freq_mhz, &new_config);
+        assert(res && "invalid frequency value");
+
+        uart_tx_wait_idle(uart_num);
+        rtc_clk_cpu_freq_set_config(&new_config);
+        uart_div_modify(uart_num, (rtc_clk_apb_freq_get() << 4) / uart_baud);
+        /* adjust RTOS ticks */
+        _xt_tick_divisor = cpu_freq_mhz * 1000000 / XT_TICK_PER_SEC;
+        vTaskDelay(2);
+
+        printf("CPU_FREQ switched to %d MHz\n", cpu_freq_mhz);
+    }
+    run_tasks("accessDPORT", accessDPORT, "accessAPB", accessAPB, 10000);
+
+    // return old freq.
+    uart_tx_wait_idle(uart_num);
+    rtc_clk_cpu_freq_set_config(&old_config);
     uart_div_modify(uart_num, (rtc_clk_apb_freq_get() << 4) / uart_baud);
+    _xt_tick_divisor = old_config.freq_mhz * 1000000 / XT_TICK_PER_SEC;
 }
 
 TEST_CASE("access DPORT and APB at same time (Freq CPU and APB = 80 MHz)", "[esp32] [ignore]")
 {
-    run_tasks_with_change_freq_cpu(RTC_CPU_FREQ_80M);
+    run_tasks_with_change_freq_cpu(80);
 }
 
 TEST_CASE("access DPORT and APB at same time (Freq CPU and APB = 40 MHz (XTAL))", "[esp32]")
 {
-    run_tasks_with_change_freq_cpu(RTC_CPU_FREQ_XTAL);
+    run_tasks_with_change_freq_cpu((int) rtc_clk_xtal_freq_get());
 }
 
 static uint32_t stall_other_cpu_counter;
@@ -319,3 +331,90 @@ TEST_CASE("BENCHMARK for DPORT access performance", "[freertos]")
     }
     BENCHMARK_END("_DPORT_REG_READ");
 }
+
+uint32_t xt_highint5_read_apb;
+
+#ifndef CONFIG_FREERTOS_UNICORE
+timer_isr_handle_t inth;
+xSemaphoreHandle sync_sema;
+
+static void init_hi_interrupt(void *arg)
+{
+    printf("init hi_interrupt on CPU%d \n", xPortGetCoreID());
+    TEST_ESP_OK(esp_intr_alloc(ETS_INTERNAL_TIMER2_INTR_SOURCE, ESP_INTR_FLAG_LEVEL5 | ESP_INTR_FLAG_IRAM, NULL, NULL, &inth));
+    while (exit_flag == false);
+    esp_intr_free(inth);
+    printf("disable hi_interrupt on CPU%d \n", xPortGetCoreID());
+    vTaskDelete(NULL);
+}
+
+static void accessDPORT2_stall_other_cpu(void *pvParameters)
+{
+    xSemaphoreHandle *sema = (xSemaphoreHandle *) pvParameters;
+    dport_test_result = true;
+    while (exit_flag == false) {
+        DPORT_STALL_OTHER_CPU_START();
+        XTHAL_SET_CCOMPARE(2, XTHAL_GET_CCOUNT());
+        xt_highint5_read_apb = 1;
+        for (int i = 0; i < 200; ++i) {
+            if (_DPORT_REG_READ(DPORT_DATE_REG) != _DPORT_REG_READ(DPORT_DATE_REG)) {
+                apb_test_result = false;
+                break;
+            }
+        }
+        xt_highint5_read_apb = 0;
+        DPORT_STALL_OTHER_CPU_END();
+    }
+    printf("accessDPORT2_stall_other_cpu finish\n");
+
+    xSemaphoreGive(*sema);
+    vTaskDelete(NULL);
+}
+
+TEST_CASE("Check stall workaround DPORT and Hi-interrupt", "[esp32]")
+{
+    xt_highint5_read_apb = 0;
+    dport_test_result    = false;
+    apb_test_result      = true;
+    TEST_ASSERT(xTaskCreatePinnedToCore(&init_hi_interrupt, "init_hi_intr", 2048, NULL, 6, NULL, 1) == pdTRUE);
+    // Access DPORT(stall other cpu method) - CPU0
+    // STALL                                - CPU1
+    // Hi-interrupt                         - CPU1
+    run_tasks("accessDPORT2_stall_other_cpu", accessDPORT2_stall_other_cpu, " - ", NULL, 10000);
+}
+
+static void accessDPORT2(void *pvParameters)
+{
+    xSemaphoreHandle *sema = (xSemaphoreHandle *) pvParameters;
+    dport_test_result = true;
+
+    TEST_ESP_OK(esp_intr_alloc(ETS_INTERNAL_TIMER2_INTR_SOURCE, ESP_INTR_FLAG_LEVEL5 | ESP_INTR_FLAG_IRAM, NULL, NULL, &inth));
+
+    XTHAL_SET_CCOMPARE(2, XTHAL_GET_CCOUNT() + 21);
+    int sync = 0;
+    while (exit_flag == false) {
+        ets_delay_us(++sync % 10);
+        for (int i = 0; i < 200; ++i) {
+            if (DPORT_REG_READ(DPORT_DATE_REG) != DPORT_REG_READ(DPORT_DATE_REG)) {
+                dport_test_result = false;
+                break;
+            }
+        }
+    }
+    esp_intr_free(inth);
+    printf("accessDPORT2 finish\n");
+
+    xSemaphoreGive(*sema);
+    vTaskDelete(NULL);
+}
+
+TEST_CASE("Check pre-read workaround DPORT and Hi-interrupt", "[esp32]")
+{
+    xt_highint5_read_apb = 0;
+    dport_test_result    = false;
+    apb_test_result      = true;
+    // Access DPORT(pre-read method) - CPU1
+    // Hi-interrupt                  - CPU1
+    run_tasks("accessAPB", accessAPB, "accessDPORT2", accessDPORT2, 10000);
+}
+#endif // CONFIG_FREERTOS_UNICORE

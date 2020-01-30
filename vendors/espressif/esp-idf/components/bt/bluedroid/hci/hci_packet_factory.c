@@ -20,14 +20,12 @@
 
 #include "osi/allocator.h"
 #include "stack/bt_types.h"
-#include "hci/buffer_allocator.h"
 #include "stack/hcidefs.h"
 #include "stack/hcimsgs.h"
 #include "hci/hci_internals.h"
 #include "hci/hci_layer.h"
 #include "hci/hci_packet_factory.h"
 
-static const allocator_t *buffer_allocator;
 
 static BT_HDR *make_packet(size_t data_size);
 static BT_HDR *make_command_no_params(uint16_t opcode);
@@ -52,6 +50,18 @@ static BT_HDR *make_set_c2h_flow_control(uint8_t enable)
     BT_HDR *packet = make_command(HCI_SET_HC_TO_HOST_FLOW_CTRL, parameter_size, &stream);
 
     UINT8_TO_STREAM(stream, enable);
+    return packet;
+}
+
+static BT_HDR *make_set_adv_report_flow_control(uint8_t enable, uint16_t num, uint16_t lost_threshold)
+{
+    uint8_t *stream;
+    const uint8_t parameter_size = 1 + 2 + 2;
+    BT_HDR *packet = make_command(HCI_VENDOR_BLE_SET_ADV_FLOW_CONTROL, parameter_size, &stream);
+
+    UINT8_TO_STREAM(stream, enable);
+    UINT16_TO_STREAM(stream, num);
+    UINT16_TO_STREAM(stream, lost_threshold);
     return packet;
 }
 
@@ -228,7 +238,7 @@ static BT_HDR *make_command(uint16_t opcode, size_t parameter_size, uint8_t **st
 
 static BT_HDR *make_packet(size_t data_size)
 {
-    BT_HDR *ret = (BT_HDR *)buffer_allocator->alloc(sizeof(BT_HDR) + data_size);
+    BT_HDR *ret = (BT_HDR *)osi_calloc(sizeof(BT_HDR) + data_size);
     assert(ret);
     ret->event = 0;
     ret->offset = 0;
@@ -241,6 +251,7 @@ static const hci_packet_factory_t interface = {
     make_reset,
     make_read_buffer_size,
     make_set_c2h_flow_control,
+    make_set_adv_report_flow_control,
     make_host_buffer_size,
     make_read_local_version_info,
     make_read_bd_addr,
@@ -264,6 +275,5 @@ static const hci_packet_factory_t interface = {
 
 const hci_packet_factory_t *hci_packet_factory_get_interface()
 {
-    buffer_allocator = buffer_allocator_get_interface();
     return &interface;
 }

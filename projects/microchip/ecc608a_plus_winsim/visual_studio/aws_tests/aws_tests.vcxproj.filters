@@ -1,0 +1,1745 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<Filter Include="freertos_kernel"/>
+		<Filter Include="freertos_kernel\include"/>
+		<Filter Include="freertos_kernel\portable\MSVC-MingW"/>
+		<Filter Include="freertos_kernel\portable"/>
+		<Filter Include="freertos_kernel\portable\MemMang"/>
+		<Filter Include="vendors\microchip\secure_elements\lib"/>
+		<Filter Include="vendors\microchip\secure_elements"/>
+		<Filter Include="vendors\microchip"/>
+		<Filter Include="vendors"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\atcacert"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\basic"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\crypto"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\crypto\hashes"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\hal"/>
+		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi\windows"/>
+		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi"/>
+		<Filter Include="vendors\microchip\secure_elements\third_party"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\host"/>
+		<Filter Include="tests\common"/>
+		<Filter Include="tests"/>
+		<Filter Include="tests\include"/>
+		<Filter Include="libraries\c_sdk\standard\common"/>
+		<Filter Include="libraries\c_sdk\standard"/>
+		<Filter Include="libraries\c_sdk"/>
+		<Filter Include="libraries"/>
+		<Filter Include="libraries\c_sdk\standard\common\include"/>
+		<Filter Include="libraries\c_sdk\standard\common\logging"/>
+		<Filter Include="libraries\c_sdk\standard\common\include\private"/>
+		<Filter Include="libraries\c_sdk\standard\common\include\types"/>
+		<Filter Include="libraries\c_sdk\standard\common\taskpool"/>
+		<Filter Include="libraries\abstractions\platform\include\platform"/>
+		<Filter Include="libraries\abstractions\platform\include"/>
+		<Filter Include="libraries\abstractions\platform"/>
+		<Filter Include="libraries\abstractions"/>
+		<Filter Include="libraries\abstractions\platform\include\types"/>
+		<Filter Include="libraries\abstractions\platform\freertos"/>
+		<Filter Include="libraries\abstractions\platform\freertos\include\platform"/>
+		<Filter Include="libraries\abstractions\platform\freertos\include"/>
+		<Filter Include="libraries\abstractions\secure_sockets\include"/>
+		<Filter Include="libraries\abstractions\secure_sockets"/>
+		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
+		<Filter Include="libraries\freertos_plus\standard"/>
+		<Filter Include="libraries\freertos_plus"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface"/>
+		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
+		<Filter Include="libraries\freertos_plus\standard\tls"/>
+		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
+		<Filter Include="libraries\freertos_plus\standard\pkcs11\include"/>
+		<Filter Include="libraries\freertos_plus\standard\pkcs11"/>
+		<Filter Include="libraries\freertos_plus\standard\pkcs11\src"/>
+		<Filter Include="vendors\microchip\secure_elements\lib\pkcs11"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\pkcs11"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim"/>
+		<Filter Include="vendors\microchip\boards"/>
+		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
+		<Filter Include="libraries\freertos_plus\standard\utils"/>
+		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
+		<Filter Include="demos\dev_mode_key_provisioning\src"/>
+		<Filter Include="demos\dev_mode_key_provisioning"/>
+		<Filter Include="demos"/>
+		<Filter Include="demos\dev_mode_key_provisioning\include"/>
+		<Filter Include="libraries\c_sdk\aws\defender\src"/>
+		<Filter Include="libraries\c_sdk\aws\defender"/>
+		<Filter Include="libraries\c_sdk\aws"/>
+		<Filter Include="libraries\c_sdk\aws\defender\src\private"/>
+		<Filter Include="libraries\c_sdk\aws\defender\include"/>
+		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
+		<Filter Include="libraries\c_sdk\standard\mqtt"/>
+		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
+		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
+		<Filter Include="libraries\c_sdk\standard\serializer"/>
+		<Filter Include="libraries\c_sdk\standard\serializer\src\json"/>
+		<Filter Include="libraries\c_sdk\standard\serializer\include"/>
+		<Filter Include="libraries\c_sdk\aws\shadow\src"/>
+		<Filter Include="libraries\c_sdk\aws\shadow"/>
+		<Filter Include="libraries\c_sdk\aws\shadow\include"/>
+		<Filter Include="libraries\c_sdk\standard\https\src"/>
+		<Filter Include="libraries\c_sdk\standard\https"/>
+		<Filter Include="libraries\freertos_plus\aws\greengrass\src"/>
+		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
+		<Filter Include="libraries\freertos_plus\aws"/>
+		<Filter Include="libraries\freertos_plus\aws\greengrass\include"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\include"/>
+		<Filter Include="libraries\freertos_plus\aws\ota"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
+		<Filter Include="libraries\3rdparty\mbedtls\library"/>
+		<Filter Include="libraries\3rdparty\mbedtls"/>
+		<Filter Include="libraries\3rdparty"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota"/>
+		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
+		<Filter Include="libraries\abstractions\posix\include"/>
+		<Filter Include="libraries\abstractions\posix"/>
+		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX\sys"/>
+		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\posix"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\c_sdk\aws\defender\test"/>
+		<Filter Include="libraries\c_sdk\aws\shadow\test\unit"/>
+		<Filter Include="libraries\c_sdk\aws\shadow\test"/>
+		<Filter Include="libraries\c_sdk\aws\shadow\test\system"/>
+		<Filter Include="libraries\c_sdk\standard\common\test"/>
+		<Filter Include="libraries\c_sdk\standard\https\test\unit"/>
+		<Filter Include="libraries\c_sdk\standard\https\test"/>
+		<Filter Include="libraries\c_sdk\standard\https\test\system"/>
+		<Filter Include="libraries\c_sdk\standard\mqtt\test\unit"/>
+		<Filter Include="libraries\c_sdk\standard\mqtt\test"/>
+		<Filter Include="libraries\c_sdk\standard\mqtt\test\system"/>
+		<Filter Include="libraries\c_sdk\standard\serializer\test"/>
+		<Filter Include="libraries\freertos_plus\aws\greengrass\test"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\test"/>
+		<Filter Include="libraries\freertos_plus\standard\crypto\test"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\test"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\test"/>
+		<Filter Include="libraries\freertos_plus\standard\tls\test"/>
+		<Filter Include="libraries\abstractions\pkcs11\test"/>
+		<Filter Include="libraries\abstractions\pkcs11"/>
+		<Filter Include="libraries\abstractions\platform\test"/>
+		<Filter Include="libraries\abstractions\secure_sockets\test"/>
+		<Filter Include="application_code"/>
+		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
+		<Filter Include="libraries\3rdparty\mbedtls\utils"/>
+		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
+		<Filter Include="libraries\3rdparty\mbedtls\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
+		<Filter Include="libraries\3rdparty\pkcs11"/>
+		<Filter Include="libraries\3rdparty\unity\src"/>
+		<Filter Include="libraries\3rdparty\unity"/>
+		<Filter Include="libraries\3rdparty\unity\extras\fixture\src"/>
+		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
+		<Filter Include="libraries\3rdparty\unity\extras"/>
+		<Filter Include="libraries\3rdparty\tinycbor"/>
+		<Filter Include="libraries\3rdparty\http_parser"/>
+		<Filter Include="libraries\3rdparty\jsmn"/>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\event_groups.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\list.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\message_buffer.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_prototypes.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\portable.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\projdefs.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\queue.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\semphr.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\stack_macros.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\stream_buffer.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\task.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\timers.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h">
+			<Filter>freertos_kernel\portable\MSVC-MingW</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_bool.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_compiler.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_devtypes.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_status.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_client.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_date.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_def.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_der.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_hw.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_sw.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.h">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.h">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.h">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.h">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_rand.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha1.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha2.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha1_routines.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto\hashes</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha2_routines.h">
+			<Filter>vendors\microchip\secure_elements\lib\crypto\hashes</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.h">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_phy.h">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_protocol.h">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\host\atca_host.h">
+			<Filter>vendors\microchip\secure_elements\lib\host</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential_keys.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_test_runner.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_test_framework.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_test_tcp.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_test_utils.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\aws_unity_config.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h">
+			<Filter>tests\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
+			<Filter>libraries\c_sdk\standard\common\include\private</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h">
+			<Filter>libraries\c_sdk\standard\common\include\types</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h">
+			<Filter>libraries\c_sdk\standard\common\include\types</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h">
+			<Filter>libraries\c_sdk\standard\common\include\private</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_clock.h">
+			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_network.h">
+			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
+			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
+			<Filter>libraries\abstractions\platform\include\types</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h">
+			<Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h">
+			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h">
+			<Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h">
+			<Filter>libraries\abstractions\secure_sockets\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h">
+			<Filter>libraries\abstractions\secure_sockets\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h">
+			<Filter>libraries\abstractions\secure_sockets\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP_Private.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Sockets.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Stream_Buffer.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_WIN.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkBufferManagement.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h">
+			<Filter>libraries\freertos_plus\standard\tls\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
+			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
+			<Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\cryptoki.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_attrib.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_cert.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_debug.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_digest.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_find.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_info.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_init.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_key.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_mech.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_object.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_os.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_session.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_signature.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11f.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
+			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
+			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
+			<Filter>demos\dev_mode_key_provisioning\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h">
+			<Filter>libraries\c_sdk\aws\defender\src\private</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
+			<Filter>libraries\c_sdk\aws\defender\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
+			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h">
+			<Filter>libraries\c_sdk\standard\serializer\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h">
+			<Filter>libraries\c_sdk\aws\shadow\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h">
+			<Filter>libraries\c_sdk\aws\shadow\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
+			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
+			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h">
+			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\pthread.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sched.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\semaphore.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\signal.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sys\types.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX\sys</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\time.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\unistd.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h">
+			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix\FreeRTOS_POSIX_portable.h">
+			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\posix</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\base64.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\debug.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\des.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\error.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md2.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md4.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md5.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pem.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\threading.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\timing.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\version.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
+			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
+			<Filter>libraries\3rdparty\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h">
+			<Filter>libraries\3rdparty\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
+			<Filter>libraries\3rdparty\pkcs11</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.h">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\3rdparty\http_parser</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
+			<Filter>libraries\3rdparty\jsmn</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\list.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\queue.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\stream_buffer.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\tasks.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\timers.c">
+			<Filter>freertos_kernel</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c">
+			<Filter>freertos_kernel\portable\MSVC-MingW</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c">
+			<Filter>freertos_kernel\portable\MemMang</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_iface.c">
+			<Filter>vendors\microchip\secure_elements\lib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_client.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_date.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_def.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_der.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_hw.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_host_sw.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_pem.c">
+			<Filter>vendors\microchip\secure_elements\lib\atcacert</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cbc.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_cmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_ctr.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_aes_gcm.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_checkmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_counter.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_derivekey.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_ecdh.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_gendig.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_genkey.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_hmac.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_info.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_kdf.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_lock.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_mac.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_nonce.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_privwrite.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_random.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_read.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_secureboot.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_selftest.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sha.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_sign.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_updateextra.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_verify.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_basic_write.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\basic\atca_helpers.c">
+			<Filter>vendors\microchip\secure_elements\lib\basic</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_ecdsa.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_rand.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha1.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\atca_crypto_sw_sha2.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha1_routines.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto\hashes</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha2_routines.c">
+			<Filter>vendors\microchip\secure_elements\lib\crypto\hashes</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.c">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_freertos.c">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_windows.c">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\kit_protocol.c">
+			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\windows\hid.c">
+			<Filter>vendors\microchip\secure_elements\third_party\hidapi\windows</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\host\atca_host.c">
+			<Filter>vendors\microchip\secure_elements\lib\host</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\common\aws_test_framework.c">
+			<Filter>tests\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\common\aws_test_runner.c">
+			<Filter>tests\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\common\aws_test.c">
+			<Filter>tests\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\common\iot_test_freertos.c">
+			<Filter>tests\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\tests\common\iot_tests_network.c">
+			<Filter>tests\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c">
+			<Filter>libraries\c_sdk\standard\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c">
+			<Filter>libraries\c_sdk\standard\common\logging</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c">
+			<Filter>libraries\c_sdk\standard\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
+			<Filter>libraries\c_sdk\standard\common</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool.c">
+			<Filter>libraries\c_sdk\standard\common\taskpool</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool_static_memory.c">
+			<Filter>libraries\c_sdk\standard\common\taskpool</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c">
+			<Filter>libraries\abstractions\platform\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_freertos.c">
+			<Filter>libraries\abstractions\platform\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c">
+			<Filter>libraries\abstractions\platform\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c">
+			<Filter>libraries\abstractions\platform\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c">
+			<Filter>libraries\abstractions\secure_sockets\freertos_plus_tcp</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c">
+			<Filter>libraries\freertos_plus\standard\tls\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
+			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
+			<Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_attrib.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_cert.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_config.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_debug.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_digest.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_find.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_info.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_init.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_key.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_main.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_mech.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_object.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_os.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_session.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_signature.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c">
+			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\pkcs11\iot_pkcs11_secure_element.c">
+			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\pkcs11</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
+			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
+			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
+			<Filter>demos\dev_mode_key_provisioning\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
+			<Filter>libraries\c_sdk\aws\defender\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c">
+			<Filter>libraries\c_sdk\aws\defender\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
+			<Filter>libraries\c_sdk\aws\defender\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c">
+			<Filter>libraries\c_sdk\aws\defender\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
+			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c">
+			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_decoder.c">
+			<Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_encoder.c">
+			<Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_serializer_static_memory.c">
+			<Filter>libraries\c_sdk\standard\serializer\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c">
+			<Filter>libraries\c_sdk\standard\serializer\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c">
+			<Filter>libraries\c_sdk\aws\shadow\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c">
+			<Filter>libraries\c_sdk\standard\https\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
+			<Filter>libraries\c_sdk\standard\https\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota\aws_ota_pal.c">
+			<Filter>vendors\microchip\boards\ecc608a_plus_winsim\ports\ota</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c">
+			<Filter>libraries\c_sdk\aws\defender\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c">
+			<Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c">
+			<Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c">
+			<Filter>libraries\c_sdk\aws\shadow\test\system</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c">
+			<Filter>libraries\c_sdk\aws\shadow\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_memory_leak.c">
+			<Filter>libraries\c_sdk\standard\common\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c">
+			<Filter>libraries\c_sdk\standard\common\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_client.c">
+			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_utils.c">
+			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c">
+			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c">
+			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c">
+			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c">
+			<Filter>libraries\c_sdk\standard\https\test\system</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test\system</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c">
+			<Filter>libraries\c_sdk\standard\mqtt\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
+			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c">
+			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
+			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c">
+			<Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_cbor.c">
+			<Filter>libraries\freertos_plus\aws\ota\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c">
+			<Filter>libraries\freertos_plus\aws\ota\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c">
+			<Filter>libraries\freertos_plus\aws\ota\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c">
+			<Filter>libraries\freertos_plus\standard\crypto\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_clock.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_mqueue.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_pthread.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_semaphore.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_stress.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_timer.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_unistd.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\iot_test_freertos_tcp.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c">
+			<Filter>libraries\freertos_plus\standard\tls\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c">
+			<Filter>libraries\abstractions\platform\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c">
+			<Filter>libraries\abstractions\platform\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c">
+			<Filter>libraries\abstractions\secure_sockets\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_tests\application_code\main.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\atca_cert_chain.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_demo_logging.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_entropy_hardware_poll.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_run-time-stats-utils.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcKernelPort.c">
+			<Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c">
+			<Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aesni.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\blowfish.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\camellia.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ccm.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher_wrap.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cmac.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ctr_drbg.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\debug.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\des.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\dhm.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdh.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdsa.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecjpake.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_curves.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy_poll.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md2.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md4.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md5.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md_wrap.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\padlock.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pem.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs5.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkparse.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkwrite.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa_internal.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha1.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha256.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha512.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cache.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cli.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cookie.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_srv.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ticket.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\threading.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\timing.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version_features.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_create.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crl.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crt.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_csr.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_crt.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
+			<Filter>libraries\3rdparty\mbedtls\utils</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
+			<Filter>libraries\3rdparty\unity\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
+			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\3rdparty\http_parser</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
+			<Filter>libraries\3rdparty\jsmn</Filter>
+		</ClCompile>
+	</ItemGroup>
+</Project>

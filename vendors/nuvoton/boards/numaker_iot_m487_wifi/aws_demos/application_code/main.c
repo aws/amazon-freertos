@@ -32,11 +32,19 @@
 
 /* Demo includes */
 #include "aws_demo.h"
+#include "types/iot_network_types.h"
+#include "aws_iot_network_config.h"
 
 /* AWS library includes. */
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH)
+#include "FreeRTOS_IP.h"
+#include "FreeRTOS_Sockets.h"
+#endif
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI)
 #include "iot_wifi.h"
+#endif
 #include "aws_clientcredential.h"
 #include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
@@ -54,6 +62,9 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 25 )
 
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+extern uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ];
+#endif
 
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
@@ -89,30 +100,19 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
-/* Default MAC address configuration.  The demo creates a virtual network
- * connection that uses this MAC address by accessing the raw Ethernet data
- * to and from a real network connection on the host PC.  See the
- * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
- * the real network connection to use. */
-const uint8_t ucMACAddress[ 6 ] =
-{
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-};
 
 /**
  * @brief Application task startup hook.
  */
 void vApplicationDaemonTaskStartupHook( void );
 
+
 /**
  * @brief Connects to Wi-Fi.
  */
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI)
 static void prvWifiConnect( void );
+#endif
 
 /**
  * @brief Initializes the board.
@@ -156,6 +156,7 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
+    configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
 
@@ -163,11 +164,19 @@ int main( void )
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
     vDevModeKeyProvisioning();       
-  
+
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+    FreeRTOS_IPInit( ucIPAddress,
+                     ucNetMask,
+                     ucGatewayAddress,
+                     ucDNSServerAddress,
+                     ucMACAddress );
+#endif
+    
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
-	  configPRINTF( ( "vTaskStartScheduler\n" ) );
+	configPRINTF( ( "vTaskStartScheduler\n" ) );
     vTaskStartScheduler();
 
     return 0;
@@ -249,6 +258,7 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
     if( SYSTEM_Init() == pdPASS )
     {
         /* Connect to the Wi-Fi before running the tests. */
@@ -257,10 +267,12 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Start the demo tasks. */
         DEMO_RUNNER_RunDemos();
     }
+#endif
+    ;
 }
 /*-----------------------------------------------------------*/
 
-
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
 void prvWifiConnect( void )
 {
     WIFINetworkParams_t  xNetworkParams;
@@ -331,6 +343,55 @@ void prvWifiConnect( void )
 #endif
     }
 }
+#endif
+
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
+{
+    uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
+    char cBuffer[ 16 ];
+    static BaseType_t xTasksAlreadyCreated = pdFALSE;
+
+    /* If the network has just come up...*/
+    if( eNetworkEvent == eNetworkUp )
+    {
+        /* The network is up so we can run. */
+			  
+        if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
+        {
+          /* A simple example to demonstrate key and certificate provisioning in
+            * microcontroller flash using PKCS#11 interface. This should be replaced
+            * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+          
+            /* Run all demos. */
+            DEMO_RUNNER_RunDemos();
+            xTasksAlreadyCreated = pdTRUE;
+        }
+
+        /* Print out the network configuration, which may have come from a DHCP
+         * server. */
+        FreeRTOS_GetAddressConfiguration(
+            &ulIPAddress,
+            &ulNetMask,
+            &ulGatewayAddress,
+            &ulDNSServerAddress );
+        FreeRTOS_inet_ntoa( ulIPAddress, cBuffer );
+        FreeRTOS_printf( ( "\r\n\r\nIP Address: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulNetMask, cBuffer );
+        FreeRTOS_printf( ( "Subnet Mask: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulGatewayAddress, cBuffer );
+        FreeRTOS_printf( ( "Gateway Address: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulDNSServerAddress, cBuffer );
+        FreeRTOS_printf( ( "DNS Server Address: %s\r\n\r\n\r\n", cBuffer ) );
+    }
+
+}
+
+#endif
 /*-----------------------------------------------------------*/
 
 void vAssertCalled( const char * pcFile,
@@ -360,17 +421,6 @@ void vAssertCalled( const char * pcFile,
 
 /*-----------------------------------------------------------*/
 
-#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
-
-    const char * pcApplicationHostnameHook( void )
-    {
-        /* This function will be called during the DHCP: the machine will be registered 
-         * with an IP address plus this name. */
-        return clientcredentialIOT_THING_NAME;
-    }
-
-#endif
-/*-----------------------------------------------------------*/
 
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 

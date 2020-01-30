@@ -72,11 +72,14 @@ enum {
 #if (SMP_INCLUDED == TRUE)
     /* simple pairing events */
     BTA_DM_API_CONFIRM_EVT,
-
+#if (BT_SSP_INCLUDED == TRUE)
+    BTA_DM_API_KEY_REQ_EVT,
+#endif ///BT_SSP_INCLUDED == TRUE
     BTA_DM_API_SET_ENCRYPTION_EVT,
 #endif  ///SMP_INCLUDED == TRUE
 #if (BTM_OOB_INCLUDED == TRUE && SMP_INCLUDED == TRUE)
     BTA_DM_API_LOC_OOB_EVT,
+    BTA_DM_API_OOB_REPLY_EVT,
     BTA_DM_CI_IO_REQ_EVT,
     BTA_DM_CI_RMT_OOB_EVT,
 #endif /* BTM_OOB_INCLUDED */
@@ -104,6 +107,7 @@ enum {
     /*******This event added by Yulong at 2016/9/9 to
     support the random address setting for the APP******/
     BTA_DM_API_SET_RAND_ADDR_EVT,
+    BTA_DM_API_CLEAR_RAND_ADDR_EVT,
     /*******This event added by Yulong at 2016/10/19 to
     support stop the ble advertising setting by the APP******/
     BTA_DM_API_BLE_STOP_ADV_EVT,
@@ -124,7 +128,7 @@ enum {
     BTA_DM_API_BLE_SET_SCAN_RSP_RAW_EVT,
     BTA_DM_API_BLE_BROADCAST_EVT,
     BTA_DM_API_SET_DATA_LENGTH_EVT,
-
+    BTA_DM_API_BLE_SET_LONG_ADV_EVT,
 #if BLE_ANDROID_CONTROLLER_SCAN_FILTER == TRUE
     BTA_DM_API_CFG_FILTER_COND_EVT,
     BTA_DM_API_SCAN_FILTER_SETUP_EVT,
@@ -152,6 +156,7 @@ enum {
     BTA_DM_API_UPDATE_WHITE_LIST_EVT,
     BTA_DM_API_BLE_READ_ADV_TX_POWER_EVT,
     BTA_DM_API_BLE_READ_RSSI_EVT,
+    BTA_DM_API_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_EVT,
     BTA_DM_MAX_EVT
 };
 
@@ -189,6 +194,14 @@ typedef struct {
     BD_ADDR   remote_addr;
     tBTA_ADD_WHITELIST_CBACK *add_wl_cb;
 }tBTA_DM_API_UPDATE_WHITE_LIST;
+
+typedef struct {
+    BT_HDR    hdr;
+    UINT8     subcode;
+    UINT32    type;
+    BD_ADDR   device_info;
+    tBTA_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_CMPL_CBACK *exceptional_list_cb;
+}tBTA_DM_API_UPDATE_DUPLICATE_EXCEPTIONAL_LIST;
 
 typedef struct {
     BT_HDR       hdr;
@@ -295,12 +308,28 @@ typedef struct {
     BT_HDR      hdr;
 } tBTA_DM_API_LOC_OOB;
 
+/* data type for BTA_DM_API_OOB_REPLY_EVT */
+typedef struct {
+    BT_HDR      hdr;
+    BD_ADDR bd_addr;
+    UINT8       len;
+    UINT8       value[BT_OCTET16_LEN];
+} tBTA_DM_API_OOB_REPLY;
+
 /* data type for BTA_DM_API_CONFIRM_EVT */
 typedef struct {
     BT_HDR      hdr;
     BD_ADDR     bd_addr;
     BOOLEAN     accept;
 } tBTA_DM_API_CONFIRM;
+
+/* data type for BTA_DM_API_KEY_REQ_EVT */
+typedef struct {
+    BT_HDR      hdr;
+    BD_ADDR     bd_addr;
+    BOOLEAN     accept;
+    UINT32      passkey;
+} tBTA_DM_API_KEY_REQ;
 
 /* data type for BTA_DM_CI_IO_REQ_EVT */
 typedef struct {
@@ -562,6 +591,10 @@ typedef struct {
     tBTA_SET_RAND_ADDR_CBACK *p_set_rand_addr_cback;
 } tBTA_DM_APT_SET_DEV_ADDR;
 
+typedef struct {
+    BT_HDR      hdr;
+} tBTA_DM_APT_CLEAR_ADDR;
+
 /* set adv parameter for BLE advertising */
 typedef struct {
     BT_HDR                  hdr;
@@ -632,6 +665,13 @@ typedef struct {
     UINT32                  raw_adv_len;
     tBTA_SET_ADV_DATA_CMPL_CBACK    *p_adv_data_cback;
 } tBTA_DM_API_SET_ADV_CONFIG_RAW;
+
+typedef struct {
+    BT_HDR                  hdr;
+    UINT8                   *adv_data;
+    UINT8                   adv_data_len;
+    tBTA_SET_ADV_DATA_CMPL_CBACK    *p_adv_data_cback;
+} tBTA_DM_API_SET_LONG_ADV;
 
 typedef struct {
     BT_HDR                  hdr;
@@ -765,7 +805,9 @@ typedef union {
     tBTA_DM_API_PIN_REPLY pin_reply;
 
     tBTA_DM_API_LOC_OOB     loc_oob;
+    tBTA_DM_API_OOB_REPLY   oob_reply;
     tBTA_DM_API_CONFIRM     confirm;
+    tBTA_DM_API_KEY_REQ     key_req;
     tBTA_DM_CI_IO_REQ       ci_io_req;
     tBTA_DM_CI_RMT_OOB      ci_rmt_oob;
 
@@ -811,6 +853,7 @@ typedef union {
     tBTA_DM_API_BLE_ADV_PARAMS_ALL      ble_set_adv_params_all;
     tBTA_DM_API_SET_ADV_CONFIG          ble_set_adv_data;
     tBTA_DM_API_SET_ADV_CONFIG_RAW      ble_set_adv_data_raw;
+    tBTA_DM_API_SET_LONG_ADV            ble_set_long_adv_data;
 #if BLE_ANDROID_CONTROLLER_SCAN_FILTER == TRUE
     tBTA_DM_API_SCAN_FILTER_PARAM_SETUP ble_scan_filt_param_setup;
     tBTA_DM_API_CFG_FILTER_COND         ble_cfg_filter_cond;
@@ -819,6 +862,7 @@ typedef union {
     tBTA_DM_API_UPDATE_CONN_PARAM       ble_update_conn_params;
     tBTA_DM_API_BLE_SET_DATA_LENGTH     ble_set_data_length;
     tBTA_DM_APT_SET_DEV_ADDR            set_addr;
+    tBTA_DM_APT_CLEAR_ADDR              clear_addr;
     tBTA_DM_API_BLE_MULTI_ADV_ENB       ble_multi_adv_enb;
     tBTA_DM_API_BLE_MULTI_ADV_PARAM     ble_multi_adv_param;
     tBTA_DM_API_BLE_MULTI_ADV_DATA      ble_multi_adv_data;
@@ -831,6 +875,7 @@ typedef union {
     tBTA_DM_API_TRACK_ADVERTISER        ble_track_advert;
     tBTA_DM_API_ENERGY_INFO             ble_energy_info;
     tBTA_DM_API_BLE_DISCONNECT          ble_disconnect;
+    tBTA_DM_API_UPDATE_DUPLICATE_EXCEPTIONAL_LIST ble_duplicate_exceptional_list;
 #endif
 
     tBTA_DM_API_REMOVE_ACL              remove_acl;
@@ -1214,18 +1259,20 @@ extern void bta_dm_ble_scan (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_update_conn_params (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_disconnect (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_rand_address(tBTA_DM_MSG *p_data);
+extern void bta_dm_ble_clear_rand_address(tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_stop_advertising(tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_config_local_privacy (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_config_local_icon (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_adv_params (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_adv_params_all(tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_adv_config (tBTA_DM_MSG *p_data);
+extern void bta_dm_ble_set_long_adv (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_adv_config_raw (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_scan_rsp (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_scan_rsp_raw (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_broadcast (tBTA_DM_MSG *p_data);
 extern void bta_dm_ble_set_data_length(tBTA_DM_MSG *p_data);
-
+extern void bta_dm_ble_update_duplicate_exceptional_list(tBTA_DM_MSG *p_data);
 #if BLE_ANDROID_CONTROLLER_SCAN_FILTER == TRUE
 extern void bta_dm_cfg_filter_cond (tBTA_DM_MSG *p_data);
 extern void bta_dm_scan_filter_param_setup (tBTA_DM_MSG *p_data);
@@ -1246,8 +1293,10 @@ extern void bta_dm_ble_get_energy_info(tBTA_DM_MSG *p_data);
 #endif
 extern void bta_dm_set_encryption(tBTA_DM_MSG *p_data);
 extern void bta_dm_confirm(tBTA_DM_MSG *p_data);
+extern void bta_dm_key_req(tBTA_DM_MSG *p_data);
 #if (BTM_OOB_INCLUDED == TRUE)
 extern void bta_dm_loc_oob(tBTA_DM_MSG *p_data);
+extern void bta_dm_oob_reply(tBTA_DM_MSG *p_data);
 extern void bta_dm_ci_io_req_act(tBTA_DM_MSG *p_data);
 extern void bta_dm_ci_rmt_oob_act(tBTA_DM_MSG *p_data);
 #endif /* BTM_OOB_INCLUDED */

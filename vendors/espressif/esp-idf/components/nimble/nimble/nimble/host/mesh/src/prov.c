@@ -16,8 +16,6 @@
 #include "mesh/mesh.h"
 #include "mesh_priv.h"
 
-#include <tinycrypt/ecc.h>
-
 #include "crypto.h"
 #include "atomic.h"
 #include "adv.h"
@@ -1391,7 +1389,7 @@ static void gen_prov_start(struct prov_rx *rx, struct os_mbuf *buf)
 		gen_prov_ack_send(rx->xact_id);
 		return;
 	}
-	
+
 	trailing_space = OS_MBUF_TRAILINGSPACE(link.rx.buf);
 
 	link.rx.buf->om_len = net_buf_simple_pull_be16(buf);

@@ -47,7 +47,12 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE                       ( configMINIMAL_STACK_SIZE * 20 )
 #define democonfigDEMO_PRIORITY                        ( tskIDLE_PRIORITY + 5 )
+
+#ifndef M487_ETH_DEMO
 #define democonfigNETWORK_TYPES                        ( AWSIOT_NETWORK_TYPE_WIFI )
+#else
+#define democonfigNETWORK_TYPES                         (AWSIOT_NETWORK_TYPE_ETH)
+#endif
 
 
 #define democonfigSHADOW_DEMO_NUM_TASKS                ( 2 )
@@ -80,5 +85,18 @@
 
 /* Send AWS IoT MQTT traffic encrypted. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS    ( mqttagentREQUIRE_TLS )
+
+#define democonfigMEMORY_ANALYSIS
+
+#ifdef democonfigMEMORY_ANALYSIS
+    #define democonfigMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
+    #define democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
+    #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+        /* Convert from stack words to bytes */
+        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x ) * ( uint32_t ) sizeof( StackType_t ); /*lint !e961 Casting is not redundant on smaller architectures. */
+    #else
+        #define democonfigMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
+    #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
+#endif /* democonfigMEMORY_ANALYSIS */
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

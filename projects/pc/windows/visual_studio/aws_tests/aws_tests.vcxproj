@@ -21,13 +21,13 @@
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="Configuration">
 		<ConfigurationType>Application</ConfigurationType>
 		<UseDebuglib>true</UseDebuglib>
-		<PlatformToolset>v142</PlatformToolset>
+		<PlatformToolset>v141</PlatformToolset>
 		<CharacterSet>Unicode</CharacterSet>
 	</PropertyGroup>
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
 		<ConfigurationType>Application</ConfigurationType>
 		<UseDebuglib>true</UseDebuglib>
-		<PlatformToolset>v142</PlatformToolset>
+		<PlatformToolset>v141</PlatformToolset>
 		<CharacterSet>Unicode</CharacterSet>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
@@ -55,7 +55,7 @@
 			<Optimization>Disabled</Optimization>
 			<PreprocessorDefinitions>WIN32;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<AdditionalUsingDirectories/>
-			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code;..\..\..\..\..\tests\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\test;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\src;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\src;..\..\..\..\..\libraries\c_sdk\standard\https\test\access;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\c_sdk\standard\https\src;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\c_sdk\aws\defender\src\private;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\unity\src;..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\http-parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code;..\..\..\..\..\tests\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\test;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\src;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\src;..\..\..\..\..\libraries\c_sdk\standard\https\test\access;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\c_sdk\standard\https\src;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\c_sdk\aws\defender\src\private;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\unity\src;..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\http_parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
 			<UndefinePreprocessorDefinitions/>
 			<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -85,7 +85,9 @@
 	<ImportGroup Label="ExtensionTargets"/>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h"/>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h"/>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\event_groups.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\list.h"/>
@@ -149,13 +151,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h"/>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h" />
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h" />
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h"/>
@@ -169,12 +165,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h"/>
@@ -191,6 +190,13 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h"/>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h"/>
@@ -271,7 +277,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -347,9 +353,12 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c"/>
@@ -401,30 +410,30 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\iot_test_freertos_tcp.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c"/>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestFinal.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestInit.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestUpdate.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsFinal.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsInit.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjects.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateKeyPair.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateRandom.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GetAttributeValue.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Sign.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_SignInit.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Verify.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_VerifyInit.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c" />
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c" />
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestFinal.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestInit.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestUpdate.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjects.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsFinal.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsInit.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateKeyPair.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateRandom.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GetAttributeValue.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Sign.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_SignInit.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Verify.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_VerifyInit.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c"/>
@@ -514,7 +523,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c"/>
 	</ItemGroup>
 </Project>

@@ -104,9 +104,9 @@ bool IotBleMqtt_InitSerialize( void );
 void IotBleMqtt_CleanupSerialize( void );
 
 /**
- * @brief Serialize the CONNECT message sent towards MQTT BLE proxy.
+ * @brief Serialize the MQTT CONNECT message sent over BLE connection.
  *
- * Serialize the CONNECT message parameters into a JSON structure
+ * Serialize the CONNECT message parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[in] pConnectInfo MQTT CONNECT parameters.
  * @param[in] pWillInfo Will Message parameters.
@@ -120,9 +120,9 @@ IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const p
                                             size_t * const pPacketSize );
 
 /**
- * @brief Deserialize a CONNACK message received from MQTT BLE Proxy.
+ * @brief Deserialize MQTT CONNACK message received over BLE connection.
  *
- * Deserialize the CONNACK parameters from JSON structure format received from MQTT BLE proxy.
+ * Deserialize CONNACK parameters from a CBOR map received over BLE connection.
  *
  * @param[in] pConnackStart Pointer to start of the CONNACK message within a buffer.
  * @param[in] dataLength Length of buffer containing the CONNACK message.
@@ -136,9 +136,9 @@ IotMqttError_t IotBleMqtt_DeserializeConnack( struct _mqttPacket * pConnack );
 
 
 /**
- * @brief Serialize the PUBLISH message sent to MQTT BLE Proxy.
+ * @brief Serialize MQTT PUBLISH message sent over BLE connection.
  *
- * Serialize the PUBLISH message parameters into JSON structure format read by MQTT BLE Proxy.
+ * Serialize PUBLISH message parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[in] pPublishInfo Pointer to the structure containing PUBLISH message parameters.
  * @param[out] pPublishPacket Pointer to the serialized PUBLISH message.
@@ -168,9 +168,9 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
 
 
 /**
- * @brief Deserialize the PUBLISH message from MQTT BLE Proxy.
+ * @brief Deserialize MQTT PUBLISH message received over BLE connection.
  *
- * Deserializes the PUBLISH parameters from JSON format structure format received from MQTT BLE proxy.
+ * Deserializes the PUBLISH parameters from a CBOR map received over BLE connection.
  *
  * @param[in] pPublishStart Pointer to start of the PUBLISH message within a buffer.
  * @param[in] dataLength Length of buffer containing the PUBLISH message.
@@ -185,9 +185,9 @@ IotMqttError_t IotBleMqtt_DeserializePublish( struct _mqttPacket * pConnack );
 
 
 /**
- * @brief Serialize the PUBACK message sent to MQTT BLE Proxy.
+ * @brief Serialize MQTT PUBACK message sent over BLE connection.
  *
- * Serializes the PUBACK parameters into a JSON structure format read by MQTT BLE proxy.
+ * Serializes the PUBACK parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[in] packetIdentifier Identifier to be included in the PUBACK message.
  * @param[out] pPubackPacket Pointer to the start of the PUBACK message.
@@ -201,9 +201,9 @@ IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
                                            size_t * const pPacketSize );
 
 /**
- * @brief Deserialize the PUBACK message from MQTT BLE Proxy.
+ * @brief Deserialize MQTT PUBACK message received from a BLE connection.
  *
- * Deserializes the PUBACK parameters from JSON format structure format received from MQTT BLE proxy.
+ * Deserializes the PUBACK parameters from a CBOR map received over BLE connection.
  *
  * @param[in] pPubackStart Pointer to start of the PUBACK message within a buffer.
  * @param[in] dataLength Length of buffer containing the PUBACK message.
@@ -216,9 +216,9 @@ IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
 IotMqttError_t IotBleMqtt_DeserializePuback( struct _mqttPacket * pConnack );
 
 /**
- * @brief Serialize the SUBSCRIBE message sent to MQTT BLE Proxy.
+ * @brief Serialize MQTT SUBSCRIBE message sent over BLE connection.
  *
- * Serialize the SUBSCRIBE message parameters into JSON structure format read by MQTT BLE Proxy.
+ * Serialize the SUBSCRIBE message parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[in] pSubscriptionList Pointer to a array of subscriptions.
  * @param[out] subscriptionCount Number of subscriptions.
@@ -236,9 +236,9 @@ IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * cons
                                               uint16_t * const pPacketIdentifier );
 
 /**
- * @brief Deserialize the SUBACK message from MQTT BLE Proxy.
+ * @brief Deserialize MQTT SUBACK message received over BLE connection.
  *
- * Deserializes the SUBACK parameters from JSON format structure format received from MQTT BLE proxy.
+ * Deserializes MQTT SUBACK parameters from a CBOR map received over BLE connection.
  * Removes the subscription callback from the connection, if it received an error response for a subscription
  *
  * @param[in] mqttConnection The MQTT connection used.
@@ -253,9 +253,9 @@ IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * cons
 IotMqttError_t IotBleMqtt_DeserializeSuback( struct _mqttPacket * pConnack );
 
 /**
- * @brief Serialize the UNSUBSCRIBE message sent to MQTT BLE Proxy.
+ * @brief Serialize MQTT UNSUBSCRIBE message sent over BLE connection.
  *
- * Serialize the UNSUBSCRIBE message parameters into JSON structure format read by MQTT BLE Proxy.
+ * Serialize the UNSUBSCRIBE message parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[in] pSubscriptionList Pointer to a array of subscriptions.
  * @param[out] subscriptionCount Number of subscriptions.
@@ -274,9 +274,9 @@ IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * co
 
 
 /**
- * @brief Deserialize the UNSUBACK message from MQTT BLE Proxy.
+ * @brief Deserialize MQTT UNSUBACK message received over BLE connection.
  *
- * Deserializes the UNSUBACK parameters from JSON format structure format received from MQTT BLE proxy.
+ * Deserializes the UNSUBACK parameters from a CBOR map received over BLE connection.
  *
  * @param[in] pUnsubackStart Start of the UNSUBACK message within a buffer.
  * @param[in] dataLength Length of the buffer containing UNSUBACK message
@@ -289,9 +289,9 @@ IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * co
 IotMqttError_t IotBleMqtt_DeserializeUnsuback( struct _mqttPacket * pConnack );
 
 /**
- * @brief Serialize the DISCONNECT message sent to MQTT BLE Proxy.
+ * @brief Serialize MQTT DISCONNECT message sent over BLE connection.
  *
- * Serialize the DISCONNECT message parameters into JSON structure format read by MQTT BLE Proxy.
+ * Serialize the DISCONNECT message parameters into a CBOR map to be sent over BLE connection.
  *
  * @param[out] pDisconnectPacket Pointer to the DISCONNECT message
  * @param[out] pPacketSize Length of the DISCONNECT message.
@@ -303,7 +303,9 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
                                                size_t * const pPacketSize );
 
 /**
- * @brief Serializes the PING request message.
+ * @brief Serializes MQTT PING request message sent over BLE connection.
+ *
+ * Serializes PING request message parameters into a cbor map to be sent over BLE connection.
  *
  * @param[out]  pPingreqPacket Pointer to the PING request packet
  * @param[out]  pPacketSize Size of the PING request packet
@@ -315,7 +317,9 @@ IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
 
 /**
  *
- * @brief Deserializes the PING response  message.
+ * @brief Deserializes MQTT PINGRESP received over BLE connection.
+ *
+ * Deserializes PINGRESP parameters from a CBOR map received over BLE connection.
  *
  * @param[in] pPingrespStart Pointer to start of buffer containing PING response
  * @param[in] dataLength Length of the buffer containing PING response
@@ -325,9 +329,10 @@ IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
 IotMqttError_t IotBleMqtt_DeserializePingresp( struct _mqttPacket * pConnack );
 
 /**
- * @brief Gets the packet type from the packet
+ * @brief Gets the packet type for the MQTT message.
  *
- * Parses the JSON packet received and gets the packet type.
+ * Parses the CBOR message received and gets the packet type.
+ *
  * @param[in] pPacket Pointer to the start of the packet
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
@@ -336,9 +341,10 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
                                   const IotNetworkInterface_t * pNetworkInterface );
 
 /**
- * @brief Gets the payload length
+ * @brief Gets the payload length for the MQTT message.
  *
- * Parses the JSON packet received and gets the packet type.
+ * Parses the CBOR message received and gets the remaining payload length.
+ *
  * @param[in] pPacket Pointer to the start of the packet
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet

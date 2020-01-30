@@ -180,6 +180,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     return xHandle;
 }
 
+
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+    uint8_t ** ppucData,
+    uint32_t * pulDataSize,
+    CK_BBOOL * pIsPrivate );
 /**
 * @brief Translates a PKCS #11 label into an object handle.
 *
@@ -198,9 +203,24 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
+    uint8_t * pucData = NULL;
+    uint32_t xDataSize = 0;
+    CK_BBOOL xIsPrivate = CK_FALSE;
+    CK_RV xResult = CKR_OK;
 
     /* Translate from the PKCS#11 label to local storage file name. */
     prvLabelToFilenameHandle( pLabel, &pcFileName, &xHandle );
+
+    if (xHandle != CK_INVALID_HANDLE)
+    {
+        /* Attempt to read the object to see if something valid is there. */
+        xResult = PKCS11_PAL_GetObjectValue(xHandle, &pucData, &xDataSize, &xIsPrivate );
+
+        if (xResult != CK_INVALID_HANDLE)
+        {
+            xHandle = 0;
+        }
+    }
 
     return xHandle;
 }

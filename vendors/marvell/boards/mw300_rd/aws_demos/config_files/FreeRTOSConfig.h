@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
 */
 /*
- * Copyright (C) 2011-2018, Marvell International Ltd.
+ * Copyright (C) 2011-2019, Marvell International Ltd.
  * All Rights Reserved.
  */
 
@@ -159,11 +159,11 @@ to exclude the API function. */
  * configNETWORK_INTERFACE_TO_USE definition above for information on how to
  * configure the real network connection to use. */
 #define configMAC_ADDR0                      0x00
-#define configMAC_ADDR1                      0x50
-#define configMAC_ADDR2                      0x43
-#define configMAC_ADDR3                      0x21
-#define configMAC_ADDR4                      0xe5
-#define configMAC_ADDR5                      0xc7
+#define configMAC_ADDR1                      0x00
+#define configMAC_ADDR2                      0x00
+#define configMAC_ADDR3                      0x00
+#define configMAC_ADDR4                      0x00
+#define configMAC_ADDR5                      0x00
 
 /* Default IP address configuration.  Used in ipconfigUSE_DHCP is set to 0, or
  * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */

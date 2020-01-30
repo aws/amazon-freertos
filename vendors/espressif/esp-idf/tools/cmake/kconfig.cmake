@@ -48,12 +48,12 @@ endif()
 if(NOT MCONF)
     # Use the existing Makefile to build mconf (out of tree) when needed
     #
-    set(MCONF ${CMAKE_CURRENT_BINARY_DIR}/kconfig_bin/mconf-idf)
+    set(MCONF ${CMAKE_BINARY_DIR}/kconfig_bin/mconf-idf)
 
     externalproject_add(mconf-idf
         SOURCE_DIR ${IDF_PATH}/tools/kconfig
         CONFIGURE_COMMAND ""
-        BINARY_DIR "kconfig_bin"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/kconfig_bin"
         BUILD_COMMAND make -f ${IDF_PATH}/tools/kconfig/Makefile mconf-idf
         BUILD_BYPRODUCTS ${MCONF}
         INSTALL_COMMAND ""
@@ -77,9 +77,20 @@ function(kconfig_process_config)
     set(kconfigs)
     set(kconfigs_projbuild)
 
+    # Components are usually sorted (somewhat) topologically via their dependencies. This extends to the component
+    # paths list. Obtain an alphabetical list in order to present menus also in the same order.
+    set(components ${BUILD_COMPONENTS})
+    list(SORT components)
+
+    foreach(component ${components})
+        list(FIND BUILD_COMPONENTS ${component} idx)
+        list(GET BUILD_COMPONENT_PATHS ${idx} component_path)
+        list(APPEND component_paths ${component_path})
+    endforeach()
+
     # Find Kconfig and Kconfig.projbuild for each component as applicable
     # if any of these change, cmake should rerun
-    foreach(dir ${BUILD_COMPONENT_PATHS})
+    foreach(dir ${component_paths})
         file(GLOB kconfig "${dir}/Kconfig")
         if(kconfig)
             set(kconfigs "${kconfigs} ${kconfig}")
@@ -96,8 +107,8 @@ function(kconfig_process_config)
         set(defaults_arg --defaults "${IDF_SDKCONFIG_DEFAULTS}")
     endif()
 
-    if(EXISTS "${SDKCONFIG_DEFAULTS}.${IDF_TARGET}")
-        list(APPEND defaults_arg --defaults "${SDKCONFIG_DEFAULTS}.${IDF_TARGET}")
+    if(EXISTS "${IDF_SDKCONFIG_DEFAULTS}.${IDF_TARGET}")
+        list(APPEND defaults_arg --defaults "${IDF_SDKCONFIG_DEFAULTS}.${IDF_TARGET}")
     endif()
 
     # Set these in the parent scope, so that they can be written to project_description.json
@@ -110,7 +121,6 @@ function(kconfig_process_config)
         --kconfig ${ROOT_KCONFIG}
         --config ${SDKCONFIG}
         ${defaults_arg}
-        --create-config-if-missing
         --env "COMPONENT_KCONFIGS=${kconfigs}"
         --env "COMPONENT_KCONFIGS_PROJBUILD=${kconfigs_projbuild}"
         --env "IDF_CMAKE=y")
@@ -135,7 +145,7 @@ function(kconfig_process_config)
         COMMAND ${CMAKE_COMMAND} -E env
         "COMPONENT_KCONFIGS=${kconfigs}"
         "COMPONENT_KCONFIGS_PROJBUILD=${kconfigs_projbuild}"
-        ${IDF_PATH}/tools/kconfig_new/confserver.py --kconfig ${IDF_PATH}/Kconfig --config ${SDKCONFIG}
+        ${PYTHON} ${IDF_PATH}/tools/kconfig_new/confserver.py --kconfig ${IDF_PATH}/Kconfig --config ${SDKCONFIG}
         VERBATIM
         USES_TERMINAL)
 
@@ -143,12 +153,24 @@ function(kconfig_process_config)
     # makes sdkconfig.h and skdconfig.cmake
     #
     # This happens during the cmake run not during the build
-    execute_process(COMMAND ${confgen_basecommand}
-        --output header ${SDKCONFIG_HEADER}
-        --output cmake ${SDKCONFIG_CMAKE}
-        --output json ${SDKCONFIG_JSON}
-        --output json_menus ${KCONFIG_JSON_MENUS}
-        RESULT_VARIABLE config_result)
+    if(NOT BOOTLOADER_BUILD)
+        execute_process(
+            COMMAND ${confgen_basecommand}
+            --output header ${SDKCONFIG_HEADER}
+            --output cmake ${SDKCONFIG_CMAKE}
+            --output json ${SDKCONFIG_JSON}
+            --output json_menus ${KCONFIG_JSON_MENUS}
+            --output config ${SDKCONFIG} # only generate config at the top-level project
+            RESULT_VARIABLE config_result)
+    else()
+        execute_process(
+            COMMAND ${confgen_basecommand}
+            --output header ${SDKCONFIG_HEADER}
+            --output cmake ${SDKCONFIG_CMAKE}
+            --output json ${SDKCONFIG_JSON}
+            --output json_menus ${KCONFIG_JSON_MENUS}
+            RESULT_VARIABLE config_result)
+    endif()
     if(config_result)
         message(FATAL_ERROR "Failed to run confgen.py (${confgen_basecommand}). Error ${config_result}")
     endif()

@@ -1,14 +1,10 @@
 {
   "ENTRY": "IotHttpsClient_AddHeader",
 
-  # This is the length of the user data after the header in a buffer.
-  # This can be set to any size.
-  "USER_DATA_SIZE": "1000",
-
-  # A CBMC pointer is an object id followed by an offest into the object.
+  # A CBMC pointer is an object id followed by an offset into the object.
   # The size of the offset is limited by the size of the object id.
   "CBMC_OBJECTID_BITS": "7",
-  "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\"",
+  "CBMC_MAX_OBJECT_SIZE": "\"((UINT32_MAX>>CBMC_OBJECTID_BITS)>>1)\"",
 
   "CBMCFLAGS":
   [
@@ -40,7 +36,7 @@
   [
     "$(FREERTOS)/libraries/c_sdk/standard/https/include",
     "$(FREERTOS)/libraries/c_sdk/standard/https/src/private",
-    "$(FREERTOS)/libraries/3rdparty/http-parser",
+    "$(FREERTOS)/libraries/3rdparty/http_parser",
     "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
     "$(FREERTOS)/libraries/abstractions/platform/include/",
     "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
@@ -48,7 +44,6 @@
   ],
   "DEF":
   [
-    "USER_DATA_SIZE={USER_DATA_SIZE}",
     "CBMC_OBJECTID_BITS={CBMC_OBJECTID_BITS}",
     "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
   ]

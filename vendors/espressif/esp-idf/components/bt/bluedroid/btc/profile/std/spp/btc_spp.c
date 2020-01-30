@@ -204,6 +204,7 @@ static void *btc_spp_rfcomm_inter_cb(tBTA_JV_EVT event, tBTA_JV *p_data, void *u
         slot->connected = TRUE;
         slot->rfc_handle = p_data->rfc_srv_open.handle;
         slot->rfc_port_handle = BTA_JvRfcommGetPortHdl(p_data->rfc_srv_open.handle);
+        BTA_JvSetPmProfile(p_data->rfc_srv_open.handle, BTA_JV_PM_ALL, BTA_JV_CONN_OPEN);
         break;
     case BTA_JV_RFCOMM_OPEN_EVT:
         slot = spp_find_slot_by_id(id);
@@ -214,6 +215,7 @@ static void *btc_spp_rfcomm_inter_cb(tBTA_JV_EVT event, tBTA_JV *p_data, void *u
         slot->connected = TRUE;
         slot->rfc_handle = p_data->rfc_open.handle;
         slot->rfc_port_handle = BTA_JvRfcommGetPortHdl(p_data->rfc_open.handle);
+        BTA_JvSetPmProfile(p_data->rfc_open.handle, BTA_JV_PM_ID_1, BTA_JV_CONN_OPEN);
         break;
     case BTA_JV_RFCOMM_CLOSE_EVT:
         slot = spp_find_slot_by_id(id);
@@ -313,6 +315,7 @@ static void btc_spp_init(btc_spp_args_t *arg)
 {
     if (osi_mutex_new(&spp_local_param.spp_slot_mutex) != 0) {
         BTC_TRACE_ERROR("%s osi_mutex_new failed\n", __func__);
+        return;
     }
     spp_local_param.spp_mode = arg->init.mode;
     spp_local_param.spp_slot_id = 0;
@@ -321,6 +324,10 @@ static void btc_spp_init(btc_spp_args_t *arg)
 
 static void btc_spp_uninit(void)
 {
+    if (!spp_local_param.spp_slot_mutex) {
+        BTC_TRACE_ERROR("%s SPP have not been init\n", __func__);
+        return;
+    }
     osi_mutex_lock(&spp_local_param.spp_slot_mutex, OSI_MUTEX_MAX_TIMEOUT);
     for (size_t i = 1; i <= BTA_JV_MAX_RFC_SR_SESSION; i++) {
         if (spp_local_param.spp_slots[i] != NULL && spp_local_param.spp_slots[i]->connected) {

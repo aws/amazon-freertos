@@ -2,6 +2,14 @@
 #include "queue.h"
 #include "queue_datastructure.h"
 
+#ifndef CBMC_OBJECT_BITS
+#define CBMC_OBJECT_BITS 7
+#endif
+
+#ifndef CBMC_OBJECT_MAX_SIZE
+#define CBMC_OBJECT_MAX_SIZE (UINT32_MAX>>(CBMC_OBJECT_BITS+1))
+#endif
+
 /* Using prvCopyDataToQueue together with prvNotifyQueueSetContainer
    leads to a problem space explosion. Therefore, we use this stub
    and a sepearted proof on prvCopyDataToQueue to deal with it.
@@ -55,11 +63,12 @@ QueueHandle_t xUnconstrainedQueueBoundedItemSize( UBaseType_t uxItemSizeBound ) 
 	uint8_t ucQueueType;
 	__CPROVER_assume(uxQueueLength > 0);
 	__CPROVER_assume(uxItemSize < uxItemSizeBound);
-	/* The implicit assumption for the QueueGenericCreate method is,
-	   that there are no overflows in the computation and the inputs are safe.
-	   There is no check for this in the code base */
-	UBaseType_t upper_bound = portMAX_DELAY - sizeof(Queue_t);
-	__CPROVER_assume(uxItemSize < (upper_bound)/uxQueueLength);
+
+	// QueueGenericCreate method does not check for multiplication overflow
+	size_t uxQueueStorageSize;
+	__CPROVER_assume(uxQueueStorageSize < CBMC_OBJECT_MAX_SIZE);
+	__CPROVER_assume(uxItemSize < uxQueueStorageSize/uxQueueLength);
+
 	QueueHandle_t xQueue =
 		xQueueGenericCreate(uxQueueLength, uxItemSize, ucQueueType);
 	if(xQueue){
@@ -83,14 +92,17 @@ QueueHandle_t xUnconstrainedQueue( void ) {
 	UBaseType_t uxQueueLength;
 	UBaseType_t uxItemSize;
 	uint8_t ucQueueType;
+
 	__CPROVER_assume(uxQueueLength > 0);
-	/* The implicit assumption for the QueueGenericCreate method is,
-	   that there are no overflows in the computation and the inputs are safe.
-	   There is no check for this in the code base */
-	UBaseType_t upper_bound = portMAX_DELAY - sizeof(Queue_t);
-	__CPROVER_assume(uxItemSize < (upper_bound)/uxQueueLength);
+
+	// QueueGenericCreate method does not check for multiplication overflow
+	size_t uxQueueStorageSize;
+	__CPROVER_assume(uxQueueStorageSize < CBMC_OBJECT_MAX_SIZE);
+	__CPROVER_assume(uxItemSize < uxQueueStorageSize/uxQueueLength);
+
 	QueueHandle_t xQueue =
 		xQueueGenericCreate(uxQueueLength, uxItemSize, ucQueueType);
+
 	if(xQueue){
 		xQueue->cTxLock = nondet_int8_t();
 		xQueue->cRxLock = nondet_int8_t();

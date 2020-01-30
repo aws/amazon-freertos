@@ -88,6 +88,10 @@
 #endif
 #endif  /* CONFIG_HFP_HF_ENABLE */
 
+#if CONFIG_BT_SSP_ENABLED
+#define BT_SSP_INCLUDED             TRUE
+#endif /* CONFIG_BT_SSP_ENABLED */
+
 #endif /* #if CONFIG_CLASSIC_BT_ENABLED */
 
 #ifndef CLASSIC_BT_INCLUDED
@@ -129,10 +133,44 @@
 #define BLE_PRIVACY_SPT           FALSE
 #endif  /* CONFIG_SMP_ENABLE */
 
+#ifdef CONFIG_SMP_SLAVE_CON_PARAMS_UPD_ENABLE
+#if(CONFIG_SMP_SLAVE_CON_PARAMS_UPD_ENABLE)
+#define SMP_SLAVE_CON_PARAMS_UPD_ENABLE  TRUE
+#else
+#define SMP_SLAVE_CON_PARAMS_UPD_ENABLE  FALSE
+#endif
+#else
+#define SMP_SLAVE_CON_PARAMS_UPD_ENABLE  FALSE
+#endif
+
+#ifndef CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_SUPPORTED
+#define BLE_ADV_REPORT_FLOW_CONTROL  FALSE
+#else
+#define BLE_ADV_REPORT_FLOW_CONTROL  CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_SUPPORTED
+#endif /* CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_SUPPORTED */
+
+#ifndef CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_NUM
+#define BLE_ADV_REPORT_FLOW_CONTROL_NUM   100
+#else 
+#define BLE_ADV_REPORT_FLOW_CONTROL_NUM     CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_NUM
+#endif /* CONFIG_BLE_ADV_REPORT_FLOW_CONTROL_NUM */
+
+#ifndef CONFIG_BLE_ADV_REPORT_DISCARD_THRSHOLD
+#define BLE_ADV_REPORT_DISCARD_THRSHOLD  20
+#else 
+#define BLE_ADV_REPORT_DISCARD_THRSHOLD  CONFIG_BLE_ADV_REPORT_DISCARD_THRSHOLD
+#endif /* CONFIG_BLE_ADV_REPORT_DISCARD_THRSHOLD */
+
 #if (CONFIG_BT_ACL_CONNECTIONS)
 #define MAX_ACL_CONNECTIONS  CONFIG_BT_ACL_CONNECTIONS
 #define GATT_MAX_PHY_CHANNEL CONFIG_BT_ACL_CONNECTIONS
 #endif  /* CONFIG_BT_ACL_CONNECTIONS */
+
+#if(CONFIG_BLE_ESTABLISH_LINK_CONNECTION_TIMEOUT)
+#define BLE_ESTABLISH_LINK_CONNECTION_TIMEOUT CONFIG_BLE_ESTABLISH_LINK_CONNECTION_TIMEOUT
+#else
+#define BLE_ESTABLISH_LINK_CONNECTION_TIMEOUT 30
+#endif
 
 //------------------Added from bdroid_buildcfg.h---------------------
 #ifndef L2CAP_EXTFEA_SUPPORTED_MASK
@@ -317,6 +355,12 @@
 #define SCAN_QUEUE_CONGEST_CHECK  CONFIG_BLE_HOST_QUEUE_CONGESTION_CHECK
 #endif
 
+#ifndef CONFIG_GATTS_SEND_SERVICE_CHANGE_MODE
+#define GATTS_SEND_SERVICE_CHANGE_MODE GATTS_SEND_SERVICE_CHANGE_AUTO
+#else
+#define GATTS_SEND_SERVICE_CHANGE_MODE CONFIG_GATTS_SEND_SERVICE_CHANGE_MODE
+#endif
+
 #ifndef CONFIG_BLE_ACTIVE_SCAN_REPORT_ADV_SCAN_RSP_INDIVIDUALLY
 #define BTM_BLE_ACTIVE_SCAN_REPORT_ADV_SCAN_RSP_INDIVIDUALLY    FALSE
 #else
@@ -360,6 +404,9 @@
 // idle state for FTS, OPS connections
 #ifndef BTA_FTS_OPS_IDLE_TO_SNIFF_DELAY_MS
 #define BTA_FTS_OPS_IDLE_TO_SNIFF_DELAY_MS 7000
+#endif
+#ifndef BTA_FTC_OPS_IDLE_TO_SNIFF_DELAY_MS
+#define BTA_FTC_OPS_IDLE_TO_SNIFF_DELAY_MS 5000
 #endif
 
 //------------------End added from bdroid_buildcfg.h---------------------
@@ -616,9 +663,18 @@
 */
 #define BTA_DM_COD_LOUDSPEAKER {0x2C, 0x04, 0x14}
 
+/*
+* {SERVICE_CLASS, MAJOR_CLASS, MINOR_CLASS}
+*
+* SERVICE_CLASS:0x00 None
+* MAJOR_CLASS:0x1f - Uncategorized: device code not specified
+* MINOR_CLASS:0x00 - None
+*/
+#define BTA_DM_COD_UNCLASSIFIED {0x00, 0x1f, 0x00}
+
 /* Default class of device */
 #ifndef BTA_DM_COD
-#define BTA_DM_COD BTA_DM_COD_LOUDSPEAKER
+#define BTA_DM_COD BTA_DM_COD_UNCLASSIFIED
 #endif
 
 /* The number of SCO links. */
@@ -1161,6 +1217,20 @@
 #define SMP_LINK_TOUT_MIN               2
 #endif
 #endif
+
+/******************************************************************************
+**
+** BT_SSP
+**
+******************************************************************************/
+#ifndef BT_SSP_INCLUDED
+#define BT_SSP_INCLUDED         FALSE
+#endif
+
+#if BT_SSP_INCLUDED == TRUE && CLASSIC_BT_INCLUDED == FALSE
+#error "Can't have SSP without CLASSIC BT"
+#endif
+
 /******************************************************************************
 **
 ** SDP

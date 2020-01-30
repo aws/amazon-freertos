@@ -22,12 +22,17 @@
 #include <stdint.h>
 #include <string.h>
 #include "aws_iot_ota_agent.h"
-#include "aws_ota_pal.h"
+#include "aws_iot_ota_pal.h"
+#include "aws_iot_ota_interface.h"
+#include "aws_ota_agent_config.h"
+#include "types/iot_network_types.h"
+#include "aws_iot_network_config.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"
+#include "soc/rtc_wdt.h"
 #include "aws_ota_codesigner_certificate.h"
 
 #include "esp_partition.h"
@@ -41,6 +46,10 @@
 
 #define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
+
+#if (configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP) && (configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_BLE)
+    #error "Cannot enable OTA data over HTTP together with BLE because of not enough heap."
+#endif
 
 /*
  * Includes 4 bytes of version field, followed by 64 bytes of signature
@@ -85,7 +94,8 @@ static OTA_Err_t asn1_to_raw_ecdsa( uint8_t * signature,
     int ret = 0;
     const unsigned char * end = signature + sig_len;
     size_t len;
-    mbedtls_mpi r, s;
+    mbedtls_mpi r = { 0 };
+    mbedtls_mpi s = { 0 };
 
     if( out_signature == NULL )
     {
@@ -260,7 +270,7 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint32_t * pulDataSize )
 {
     /* Find the certificate */
-    CK_OBJECT_HANDLE xHandle;
+    CK_OBJECT_HANDLE xHandle = 0;
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR xFunctionList;
     CK_SLOT_ID xSlotId;
@@ -614,11 +624,7 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState()
 static void disable_rtc_wdt()
 {
     ESP_LOGI( TAG, "Disabling RTC hardware watchdog timer" );
-    WRITE_PERI_REG( RTC_CNTL_WDTWPROTECT_REG, RTC_CNTL_WDT_WKEY_VALUE );
-    WRITE_PERI_REG( RTC_CNTL_WDTFEED_REG, 1 );
-    REG_SET_FIELD( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_STG0, RTC_WDT_STG_SEL_OFF );
-    REG_CLR_BIT( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_EN );
-    WRITE_PERI_REG( RTC_CNTL_WDTWPROTECT_REG, 0 );
+    rtc_wdt_disable();
 }
 
 OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )

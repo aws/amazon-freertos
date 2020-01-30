@@ -72,7 +72,7 @@ typedef enum {
 #define HCI_H4_QUEUE_LEN                1
 
 #define BTU_TASK_PINNED_TO_CORE         (TASK_PINNED_TO_CORE)
-#define BTU_TASK_STACK_SIZE             (4096 + BT_TASK_EXTRA_STACK_SIZE)
+#define BTU_TASK_STACK_SIZE             (CONFIG_BTU_TASK_STACK_SIZE + BT_TASK_EXTRA_STACK_SIZE)
 #define BTU_TASK_PRIO                   (configMAX_PRIORITIES - 5)
 #define BTU_TASK_NAME                   "btuT"
 #define BTU_QUEUE_LEN                   50
@@ -95,7 +95,7 @@ typedef enum {
 #define BTC_A2DP_SOURCE_TASK_STACK_SIZE       (CONFIG_A2DP_SOURCE_TASK_STACK_SIZE + BT_TASK_EXTRA_STACK_SIZE) // by menuconfig
 #define BTC_A2DP_SOURCE_TASK_NAME             "BtA2dSourceT"
 #define BTC_A2DP_SOURCE_TASK_PRIO             (configMAX_PRIORITIES - 3)
-#define BTC_A2DP_SOURCE_DATA_QUEUE_LEN        (3)
+#define BTC_A2DP_SOURCE_DATA_QUEUE_LEN        (1)
 #define BTC_A2DP_SOURCE_CTRL_QUEUE_LEN        (5)
 #define BTC_A2DP_SOURCE_TASK_QUEUE_SET_LEN    (BTC_A2DP_SOURCE_DATA_QUEUE_LEN + BTC_A2DP_SOURCE_CTRL_QUEUE_LEN)
 

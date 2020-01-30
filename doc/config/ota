@@ -1,0 +1,19 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "OTA"
+PROJECT_BRIEF = "Over the Air Update library"
+
+# Library documentation output directory.
+HTML_OUTPUT = ota
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/output/ota.tag
+
+# Directories containing library source code.
+INPUT = libraries/freertos_plus/aws/ota/include
+
+# Library file names.
+FILE_PATTERNS = aws_iot_ota_agent.h

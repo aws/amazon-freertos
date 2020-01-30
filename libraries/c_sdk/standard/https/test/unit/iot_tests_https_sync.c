@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.0.0
+ * Amazon FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -446,7 +446,7 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
 {
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
     IotSdk_Cleanup();
 }
 

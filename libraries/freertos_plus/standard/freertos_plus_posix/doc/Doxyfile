@@ -32,8 +32,8 @@ ENABLE_PREPROCESSING = YES
 MACRO_EXPANSION      = YES
 EXPAND_ONLY_PREDEF   = YES
 PREDEFINED = "DOXYGEN=1" \
-             "_LIBRARY_LOG_LEVEL=AWS_IOT_LOG_DEBUG" \
-             "_LIBRARY_LOG_NAME=\"DOXYGEN\"" 
+             "LIBRARY_LOG_LEVEL=AWS_IOT_LOG_DEBUG" \
+             "LIBRARY_LOG_NAME=\"DOXYGEN\"" 
         
 # Do not document private functions and utility functions     
 EXCLUDE_SYMBOLS = "prv*" \

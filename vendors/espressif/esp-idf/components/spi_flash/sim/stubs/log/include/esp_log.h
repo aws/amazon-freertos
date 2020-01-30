@@ -3,11 +3,20 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "sdkconfig.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define LOG_LOCAL_LEVEL         ESP_LOG_DEBUG
+#define strlcpy(a, b, c)
+#define strlcat(a, b, c)
+
+#define heap_caps_malloc(a, b)  NULL
+#define MALLOC_CAP_INTERNAL     0
+#define MALLOC_CAP_8BIT         0
+
+#define LOG_LOCAL_LEVEL         CONFIG_LOG_DEFAULT_LEVEL
 
 typedef enum {
     ESP_LOG_NONE,       /*!< No log output */
@@ -25,6 +34,9 @@ typedef enum {
 #define LOG_COLOR_V
 #define LOG_RESET_COLOR
 
+#undef _Static_assert
+#define _Static_assert(cond, message)
+
 uint32_t esp_log_timestamp(void);
 void esp_log_write(esp_log_level_t level, const char* tag, const char* format, ...) __attribute__ ((format (printf, 3, 4)));
 
@@ -32,11 +44,13 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 
 #define ESP_LOGE( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_ERROR)   { esp_log_write(ESP_LOG_ERROR,   tag, LOG_FORMAT(E, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 
-#define ESP_LOGV( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_VERBOSE) { esp_log_write(ESP_LOG_VERBOSE, tag, LOG_FORMAT(V, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
+#define ESP_LOGW( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_WARN)    { esp_log_write(ESP_LOG_WARN,    tag, LOG_FORMAT(W, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
+
+#define ESP_LOGI( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_INFO)    { esp_log_write(ESP_LOG_INFO,    tag, LOG_FORMAT(E, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 
 #define ESP_LOGD( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_DEBUG)   { esp_log_write(ESP_LOG_DEBUG,   tag, LOG_FORMAT(D, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 
-#define ESP_LOGW( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_WARN)    { esp_log_write(ESP_LOG_WARN,    tag, LOG_FORMAT(W, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
+#define ESP_LOGV( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_VERBOSE) { esp_log_write(ESP_LOG_VERBOSE, tag, LOG_FORMAT(V, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 
 // Assume that flash encryption is not enabled. Put here since in partition.c
 // esp_log.h is included later than esp_flash_encrypt.h.
@@ -45,4 +59,3 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 #ifdef __cplusplus
 }
 #endif
-

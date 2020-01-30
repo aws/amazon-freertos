@@ -46,7 +46,7 @@ static struct os_mempool os_msys_init_2_mempool;
 static void
 os_msys_init_once(void *data, struct os_mempool *mempool,
                   struct os_mbuf_pool *mbuf_pool,
-                  int block_count, int block_size, char *name)
+                  int block_count, int block_size, const char *name)
 {
     int rc;
 

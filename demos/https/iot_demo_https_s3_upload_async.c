@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -236,6 +236,8 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
+    ( void ) rc;
+
     bool * pUploadSuccess = ( bool * ) pPrivData;
 
     /* When the remote server response with 200 OK, the file was successfully uploaded. */
@@ -317,7 +319,8 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Asynchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
-    /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
+     * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
                                                    strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                    &pPath,
@@ -434,7 +437,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IotLogError( "Failed to connect to the server. Error code: %d.", httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
@@ -532,8 +535,8 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     /* Disconnect from the server even if it is already disconnected. */
     IotHttpsClient_Disconnect( connHandle );
-    /* De-initialize the library because we are done using it. */
-    IotHttpsClient_Deinit();
+    /* Clean up the library because we are done using it. */
+    IotHttpsClient_Cleanup();
 
     IOT_FUNCTION_CLEANUP_END();
 }

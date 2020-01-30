@@ -26,9 +26,12 @@ typedef enum {
     BTC_GAP_BT_SEARCH_DEVICES_EVT = 0,
     BTC_GAP_BT_SEARCH_SERVICES_EVT,
     BTC_GAP_BT_SEARCH_SERVICE_RECORD_EVT,
-    BTC_GAP_BT_READ_RSSI_DELTA_EVT,
     BTC_GAP_BT_AUTH_CMPL_EVT,
     BTC_GAP_BT_PIN_REQ_EVT,
+    BTC_GAP_BT_CFM_REQ_EVT,
+    BTC_GAP_BT_KEY_NOTIF_EVT,
+    BTC_GAP_BT_KEY_REQ_EVT,
+    BTC_GAP_BT_READ_RSSI_DELTA_EVT,
 }btc_gap_bt_evt_t;
 
 typedef enum {
@@ -42,6 +45,9 @@ typedef enum {
     BTC_GAP_BT_ACT_REMOVE_BOND_DEVICE,
     BTC_GAP_BT_ACT_SET_PIN_TYPE,
     BTC_GAP_BT_ACT_PIN_REPLY,
+    BTC_GAP_BT_ACT_SET_SECURITY_PARAM,
+    BTC_GAP_BT_ACT_PASSKEY_REPLY,
+    BTC_GAP_BT_ACT_CONFIRM_REPLY,
 } btc_gap_bt_act_t;
 
 /* btc_bt_gap_args_t */
@@ -98,11 +104,30 @@ typedef union {
         esp_bt_pin_code_t pin_code;
     } pin_reply;
 
+    // BTC_GAP_BT_ACT_SET_SECURITY_PARAM
+    struct set_sec_param_args {
+        esp_bt_sp_param_t param_type;
+        uint8_t len;
+        uint8_t *value;
+    } set_security_param;
+
+    // BTC_GAP_BT_ACT_PASSKEY_REPLY
+    struct passkey_reply_args {
+       bt_bdaddr_t bda;
+       bool accept;
+       uint32_t passkey;
+    } passkey_reply;
+
+    // BTC_GAP_BT_ACT_CONFIRM_REPLY
+    struct confirm_reply_args {
+       bt_bdaddr_t bda;
+       bool accept;
+    } confirm_reply;
 } btc_gap_bt_args_t;
 
 void btc_gap_bt_call_handler(btc_msg_t *msg);
 void btc_gap_bt_cb_handler(btc_msg_t *msg);
-
+void btc_gap_bt_arg_deep_copy(btc_msg_t *msg, void *p_dest, void *p_src);
 void btc_gap_bt_busy_level_updated(uint8_t bl_flags);
 
 esp_err_t btc_gap_bt_get_cod(esp_bt_cod_t *cod);

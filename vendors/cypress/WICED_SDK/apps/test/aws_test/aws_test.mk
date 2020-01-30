@@ -1,7 +1,7 @@
 #
 # Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  # Cypress Semiconductor Corporation. All Rights Reserved.
- # 
+ #
  # This software, associated documentation and materials ("Software")
  # is owned by Cypress Semiconductor Corporation,
  # or one of its subsidiaries ("Cypress") and is protected by and subject to
@@ -109,7 +109,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/src \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/access \
                     $(AFR_C_SDK_STANDARD_PATH)https/test/unit \
-                    $(AFR_THIRDPARTY_PATH)http-parser \
+                    $(AFR_THIRDPARTY_PATH)http_parser \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/application_code/main.c \
@@ -192,7 +192,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/test/system/iot_tests_https_system.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
-                      $(AFR_THIRDPARTY_PATH)http-parser/http_parser.c \
+                      $(AFR_THIRDPARTY_PATH)http_parser/http_parser.c \
 
 
 $(NAME)_COMPONENTS += utilities/wifi

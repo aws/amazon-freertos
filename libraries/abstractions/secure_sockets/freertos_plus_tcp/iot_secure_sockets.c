@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.6
+ * Amazon FreeRTOS Secure Sockets V1.1.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -159,7 +159,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     struct freertos_sockaddr xTempAddress = { 0 };
 
-    if( ( pxContext != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
+    if( ( pxContext != ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
     {
         /* A connection was attempted. If this function fails, then the socket is invalid and the user
          * must call SOCKETS_Close(), on this socket, and SOCKETS_Socket() to get a new socket. */
@@ -509,7 +509,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
         {
             /* Need to close socket. */
             ( void ) FreeRTOS_closesocket( xSocket );
-            pxContext = SOCKETS_INVALID_SOCKET;
+            pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
         }
         else
         {
@@ -519,10 +519,10 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     }
     else
     {
-        pxContext = SOCKETS_INVALID_SOCKET;
+        pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
     }
 
-    return pxContext;
+    return ( Socket_t ) pxContext;
 }
 /*-----------------------------------------------------------*/
 
@@ -578,11 +578,11 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 
         if( CKR_OK == xResult )
         {
-            xResult = xInitializePKCS11();
+            xResult = xInitializePkcs11Token();
         }
 
         /* Get the crypto token slot count. */
-        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        if( CKR_OK == xResult )
         {
             xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
                                                            NULL,
@@ -632,13 +632,41 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 }
 /*-----------------------------------------------------------*/
 
-uint32_t ulRand( void )
+/*uint32_t ulRand( void ) __attribute__ ((deprecated)) */
+#if 0
+
+/* Why is this function between #if 0? Because the function ulRand()
+ * is now reprecated. The function is still shown here for users who
+ * are looking for it.
+ * It is deprecated because a return value of 0 would mean that the
+ * RND module is broken. This was confusing because 0 is also a
+ * possible valid random number. */
+    uint32_t ulRand( void )
+    {
+        uint32_t ulNumber = 0uL;
+        BaseType_t xResult = xApplicationGetRandomNumber( &( ulNumber ) );
+
+        if( xResult == pdFALSE )
+        {
+            ulNumber = 0uL;
+        }
+        else
+        {
+            /* Function succeeded, a random number will be returned. */
+        }
+
+        return ulNumber;
+    }
+#endif /* 0 */
+
+BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
     CK_RV xResult = 0;
     SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
+    BaseType_t xReturn; /* Return pdTRUE if successful */
 
     xResult = prvSocketsGetCryptoSession( &xSessionLock,
                                           &xPkcs11Session,
@@ -654,12 +682,18 @@ uint32_t ulRand( void )
     }
 
     /* Check if any of the API calls failed. */
-    if( 0 != xResult )
+    if( 0 == xResult )
     {
-        ulRandomValue = 0;
+        xReturn = pdTRUE;
+        *( pulNumber ) = ulRandomValue;
+    }
+    else
+    {
+        xReturn = pdFALSE;
+        *( pulNumber ) = 0uL;
     }
 
-    return ulRandomValue;
+    return xReturn;
 }
 /*-----------------------------------------------------------*/
 

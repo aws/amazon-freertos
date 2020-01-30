@@ -52,7 +52,7 @@ static void level_one_isr(void *arg)
     recursive_func(RECUR_DEPTH, SW_ISR_LEVEL_3);    //Trigger nested interrupt max recursive depth
 }
 
-TEST_CASE("Test backtrace from abort", "[reset_reason][reset=SW_CPU_RESET]")
+TEST_CASE("Test backtrace from abort", "[reset_reason][reset=abort,SW_CPU_RESET]")
 {
     //Allocate level one and three SW interrupts
     esp_intr_alloc(ETS_INTERNAL_SW0_INTR_SOURCE, 0, level_one_isr, NULL, NULL);     //Level 1 SW intr

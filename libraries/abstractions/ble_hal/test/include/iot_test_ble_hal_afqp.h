@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V4.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,27 +33,12 @@
 
 #include "iot_test_ble_hal_common.h"
 
-typedef struct
-{
-    size_t xLength;
-    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
-} response_t;
-
-void prvBLESetUp( void );
-void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp,
-                               bool IsPrep,
-                               uint16_t usOffset );
-void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
-void pushToQueue( IotLink_t * pEventList );
-void prvSetGetProperty( BTProperty_t * pxProperty,
-                        bool bIsSet );
 void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                           uint16_t usServiceDataLen,
                           char * pcServiceData,
                           BTUuid_t * pxServiceUuid,
-                          size_t xNbServices );
-void prvStartStopAdvCheck( bool start );
-BTStatus_t bleStackInit( void );
+                          size_t xNbServices,
+                          uint16_t usManufacturerLen,
+                          char * pcManufacturerData );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */

@@ -46,22 +46,14 @@ public:
     static const size_t ENTRY_COUNT = 126;
     static const uint32_t INVALID_ENTRY = 0xffffffff;
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
     static const size_t CHUNK_MAX_SIZE = ENTRY_SIZE * (ENTRY_COUNT - 1);
-#else
-    static const size_t CHUNK_MAX_SIZE = ENTRY_SIZE * (ENTRY_COUNT/2 - 1);
-#endif
 
     static const uint8_t NS_INDEX = 0;
     static const uint8_t NS_ANY = 255;
 
-#ifdef CONFIG_MP_BLOB_SUPPORT
-    static const uint8_t NVS_VERSION = 0xfe; // Decrement to upgrade
-#else
-    static const uint8_t NVS_VERSION = 0xff; // Decrement to upgrade
-#endif
-
     static const uint8_t CHUNK_ANY = Item::CHUNK_ANY;
+
+    static const uint8_t NVS_VERSION = 0xfe; // Decrement to upgrade
 
     enum class PageState : uint32_t {
         // All bits set, default state after flash erase. Page has not been initialized yet.

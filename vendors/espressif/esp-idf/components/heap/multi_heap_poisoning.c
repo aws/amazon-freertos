@@ -147,6 +147,12 @@ static bool verify_fill_pattern(void *data, size_t size, bool print_errors, bool
                     MULTI_HEAP_STDERR_PRINTF("CORRUPT HEAP: Invalid data at %p. Expected 0x%08x got 0x%08x\n", p, EXPECT_WORD, *p);
                 }
                 valid = false;
+#ifndef NDEBUG
+                /* If an assertion is going to fail as soon as we're done verifying the pattern, leave the rest of the
+                   buffer contents as-is for better post-mortem analysis
+                */
+                swap_pattern = false;
+#endif
             }
             if (swap_pattern) {
                 *p = REPLACE_WORD;
@@ -164,6 +170,9 @@ static bool verify_fill_pattern(void *data, size_t size, bool print_errors, bool
                 MULTI_HEAP_STDERR_PRINTF("CORRUPT HEAP: Invalid data at %p. Expected 0x%02x got 0x%02x\n", p, (uint8_t)EXPECT_WORD, *p);
             }
             valid = false;
+#ifndef NDEBUG
+            swap_pattern = false; // same as above
+#endif
         }
         if (swap_pattern) {
             p[i] = (uint8_t)REPLACE_WORD;
@@ -175,6 +184,9 @@ static bool verify_fill_pattern(void *data, size_t size, bool print_errors, bool
 
 void *multi_heap_malloc(multi_heap_handle_t heap, size_t size)
 {
+    if(size > SIZE_MAX - POISON_OVERHEAD) {
+        return NULL;
+    }
     multi_heap_internal_lock(heap);
     poison_head_t *head = multi_heap_malloc_impl(heap, size + POISON_OVERHEAD);
     uint8_t *data = NULL;
@@ -217,6 +229,9 @@ void *multi_heap_realloc(multi_heap_handle_t heap, void *p, size_t size)
     poison_head_t *new_head;
     void *result = NULL;
 
+    if(size > SIZE_MAX - POISON_OVERHEAD) {
+        return NULL;
+    }
     if (p == NULL) {
         return multi_heap_malloc(heap, size);
     }

@@ -463,6 +463,7 @@ static void _appendData( _jsonContainer_t * pContainer,
 
         case IOT_SERIALIZER_SCALAR_NULL:
             strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
+            pContainer->offset += _JSON_NULL_VALUE_LENGTH;
             break;
 
         default:

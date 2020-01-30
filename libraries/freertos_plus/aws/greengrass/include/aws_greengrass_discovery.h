@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass V1.0.5
+ * Amazon FreeRTOS Greengrass V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,6 @@
 #ifndef _AWS_GREENGRASS_DISCOVERY_H_
 #define _AWS_GREENGRASS_DISCOVERY_H_
 #include "FreeRTOS.h"
-#include "aws_clientcredential.h"
 #include "iot_secure_sockets.h"
 
 /**
@@ -50,9 +49,9 @@ typedef struct
 } HostParameters_t;
 
 /**
- * @brief Green Grass Core connection parameters.
+ * @brief Greengrass Core connection parameters.
  *
- * Green Grass Core connection parameters extracted from the JSON file
+ * Greengrass Core connection parameters extracted from the JSON file
  * returned from the local discovery or from the Cloud.
  * This is the return parameter from the discovery.
  */
@@ -65,7 +64,7 @@ typedef struct
 } GGD_HostAddressData_t;
 
 /*
- * @brief Connect directly to the green grass core.
+ * @brief Connect directly to the Greengrass core.
  *
  * @note: In most case only calling this function is needed!
  * This function will perform in series:
@@ -76,6 +75,12 @@ typedef struct
  * The buffer size of pcBuffer need to be big enough to hold the complete
  * JSON file.
  *
+ * @param [in] pcHostAddress: Endpoint for Greengrass Discovery.
+ *
+ * @param [in] usGGDPort: Port number for Greengrass Discovery.
+ *
+ * @param [in] pcThingName: The Thing Name of the client.
+ *
  * @param [in] pcBuffer: Memory buffer provided by the user.
  *
  * @param [in] ulBufferSize: Size of the memory buffer.
@@ -85,7 +90,10 @@ typedef struct
  * @return If connection was successful then pdPASS is
  * returned.  Otherwise pdFAIL is returned.
  */
-BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer,
+BaseType_t GGD_GetGGCIPandCertificate( const char * pcHostAddress,
+                                       uint16_t usGGDPort,
+                                       const char * pcThingName,
+                                       char * pcBuffer,
                                        const uint32_t ulBufferSize,
                                        GGD_HostAddressData_t * pxHostAddressData );
 
@@ -95,12 +103,21 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer,
  * @note: This call will open a socket. Socket will need to be closed
  * by either calling GGD_JSONRequestGetFile or GGD_JSONRequestAbort
  *
+ * @param [in] pcHostAddress: Endpoint for Greengrass Discovery.
+ *
+ * @param [in] usGGDPort: Port number for Greengrass Discovery.
+ *
+ * @param [in] pcThingName: The Thing Name of the client.
+ *
  * @param [out] pxSocket: Socket for the cloud connection.
  *
  * @return If the JSON request was performed successfully
  * then pdPASS is returned.  Otherwise pdFAIL is returned.
  */
-BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket );
+BaseType_t GGD_JSONRequestStart( const char * pcHostAddress,
+                                 uint16_t usGGDPort,
+                                 const char * pcThingName,
+                                 Socket_t * pxSocket );
 
 /*
  * @brief Get the size of the requested JSON file.
@@ -178,7 +195,7 @@ void GGD_JSONRequestAbort( Socket_t * pxSocket );
 /*
  * @brief  Get host IP and certificate
  *
- * Get host IP and certificate with the JSON file given the greengrass group
+ * Get host IP and certificate with the JSON file given the Greengrass group
  * and cloud core address the user wants to connect.
  *
  * @note:  The JSON file contains the certificate that is going to be used to

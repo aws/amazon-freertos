@@ -55,6 +55,7 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11"/>
+		<Filter Include="libraries\abstractions\pkcs11\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -83,13 +84,15 @@
 		<Filter Include="libraries\freertos_plus\aws\greengrass"/>
 		<Filter Include="libraries\freertos_plus\aws"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\include"/>
-		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
-		<Filter Include="libraries\freertos_plus\aws\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\include"/>
+		<Filter Include="libraries\freertos_plus\aws\ota"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="vendors\pc\boards\windows\ports\ota"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
 		<Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX"/>
 		<Filter Include="libraries\abstractions\posix\include"/>
 		<Filter Include="libraries\abstractions\posix"/>
@@ -131,14 +134,20 @@
 		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
 		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http-parser"/>
+		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h">
@@ -330,33 +339,15 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
 			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
-                <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
 			<Filter>demos\dev_mode_key_provisioning\include</Filter>
 		</ClInclude>
@@ -390,23 +381,32 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
 			<Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h">
-			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
-		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
 			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h">
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h">
 			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
 			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -455,6 +455,27 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
 			<Filter>application_code</Filter>
@@ -696,8 +717,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
@@ -830,78 +851,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
 		</ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_SignInit.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Sign.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_VerifyInit.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Verify.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestInit.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestUpdate.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestFinal.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateKeyPair.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsInit.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjects.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsFinal.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GetAttributeValue.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
-                <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateRandom.c">
-                        <Filter>libraries\abstractions\pkcs11\test</Filter>
-                </ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
 			<Filter>demos\dev_mode_key_provisioning\src</Filter>
 		</ClCompile>
@@ -992,7 +941,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c">
 			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c">
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c">
 			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
@@ -1000,6 +949,15 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c">
 			<Filter>vendors\pc\boards\windows\ports\ota</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
@@ -1152,6 +1110,78 @@
 			<Filter>libraries\freertos_plus\standard\tls\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestFinal.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestInit.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestUpdate.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjects.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsFinal.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsInit.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateKeyPair.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateRandom.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GetAttributeValue.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Sign.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_SignInit.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Verify.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_VerifyInit.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c">
 			<Filter>libraries\abstractions\pkcs11\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c">
@@ -1421,8 +1451,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

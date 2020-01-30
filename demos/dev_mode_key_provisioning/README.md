@@ -11,8 +11,17 @@ If your device does not allow the import of private keys, or if your solution ca
 ### Initial Configuration ###
 First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not. 
 
+### Demo Project Configuration ###
+Open the Hello World MQTT demo as described in the [Getting Started guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-guides.html) for your board. In the project, open the file *aws_dev_mode_key_provisioning.c* and find the definition keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR, which is set to zero by default. Set it to one:
+
+```
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 1
+```
+
+Then build and run the demo project and continue to the next section.
+
 ### Public Key Extraction ###
-Continue by running the Hello World MQTT demo as described in the [Getting Started guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-guides.html) for your board. Since the device has not yet been provisioned with a private key and client certificate, the demo will fail to authenticate to AWS IoT. However, the Hello World MQTT demo starts by running developer-mode key provisioning, resulting in the creation of a private key if one was not already present. You should see something like the following near the beginning of the serial console output:
+Since the device has not yet been provisioned with a private key and client certificate, the demo will fail to authenticate to AWS IoT. However, the Hello World MQTT demo starts by running developer-mode key provisioning, resulting in the creation of a private key if one was not already present. You should see something like the following near the beginning of the serial console output:
 
 ```
 7 910 [IP-task] Device public key, 91 bytes:
@@ -34,6 +43,12 @@ Use openssl to format the binary encoded (DER) device public key as PEM:
 
 ```
 openssl ec -inform der -in DevicePublicKeyDer.bin -pubin -pubout -outform pem -out DevicePublicKey.pem
+```
+
+Don't forget to disable the temporary key generation setting you enabled above. Otherwise, the device will create yet another key pair, and you will have to repeat the previous steps:
+
+```
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 0
 ```
 
 ### Public Key Infrastructure Setup ###
