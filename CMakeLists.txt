@@ -14,7 +14,9 @@ set(PROJECT_VERSION_MINOR "00")
 include("tools/cmake/afr.cmake")
 
 # Add 3rdparty modules.
-add_subdirectory("libraries/3rdparty")
+if (NOT AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory("libraries/3rdparty")
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Configure target board
@@ -53,6 +55,10 @@ include("${AFR_BOARD_PATH}/CMakeLists.txt")
 # -------------------------------------------------------------------------------------------------
 # Do not prefix the output library file.
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
+
+if (AFR_ENABLE_UNIT_TESTS)
+    return()
+endif()
 
 # Initialize all modules.
 add_subdirectory("libraries")

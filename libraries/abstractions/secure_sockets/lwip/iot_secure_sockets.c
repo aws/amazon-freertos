@@ -43,6 +43,8 @@
 
 #include "iot_tls.h"
 
+#include "iot_atomic.h"
+
 #include "FreeRTOSConfig.h"
 
 #include "task.h"
@@ -88,6 +90,7 @@ typedef struct _ss_ctx_t
 
     char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
+    uint32_t refcount;
 } ss_ctx_t;
 
 /*-----------------------------------------------------------*/
@@ -113,6 +116,62 @@ static int8_t sockets_allocated = socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS;
 #define TICK_TO_US( _t_ )    ( ( _t_ ) * 1000 / configTICK_RATE_HZ * 1000 )
 
 /*-----------------------------------------------------------*/
+
+/*
+ * @brief Sockets close
+ */
+static void prvSocketsClose( ss_ctx_t * ctx )
+{
+    uint32_t ulProtocol;
+
+    sockets_allocated++;
+
+    /* Clean-up application protocol array. */
+    if( NULL != ctx->ppcAlpnProtocols )
+    {
+        for( ulProtocol = 0;
+             ulProtocol < ctx->ulAlpnProtocolsCount;
+             ulProtocol++ )
+        {
+            if( NULL != ctx->ppcAlpnProtocols[ ulProtocol ] )
+            {
+                vPortFree( ctx->ppcAlpnProtocols[ ulProtocol ] );
+            }
+        }
+
+        vPortFree( ctx->ppcAlpnProtocols );
+    }
+
+    if( true == ctx->enforce_tls )
+    {
+        TLS_Cleanup( ctx->tls_ctx );
+    }
+
+    if( ctx->server_cert )
+    {
+        vPortFree( ctx->server_cert );
+    }
+
+    if( ctx->destination )
+    {
+        vPortFree( ctx->destination );
+    }
+
+    vPortFree( ctx );
+}
+
+static void prvDecrementRefCount( ss_ctx_t * ctx )
+{
+    if( Atomic_Decrement_u32( &ctx->refcount ) == 1 )
+    {
+        prvSocketsClose( ctx );
+    }
+}
+
+static void prvIncrementRefCount( ss_ctx_t * ctx )
+{
+    Atomic_Increment_u32( &ctx->refcount );
+}
 
 /*
  * @brief Network send callback.
@@ -143,11 +202,6 @@ static BaseType_t prvNetworkRecv( void * pvContext,
     ss_ctx_t * ctx;
 
     ctx = ( ss_ctx_t * ) pvContext;
-
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
 
     int ret = lwip_recv( ctx->ip_socket,
                          pucReceiveBuffer,
@@ -209,7 +263,8 @@ static void vTaskRxSelect( void * param )
         if( ctx->state == SST_RX_CLOSING )
         {
             ctx->state = SST_RX_CLOSED;
-            vTaskDelete( NULL );
+            /*vTaskDelete( NULL ); */
+            break;
         }
 
         if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, NULL ) == -1 )
@@ -220,7 +275,9 @@ static void vTaskRxSelect( void * param )
             /*ctx->rx_callback = NULL; */
 
             /*vTaskDelete( rx_handle ); */
-            vTaskDelete( NULL );
+            /*vTaskDelete( NULL ); */
+            ctx->state = SST_RX_CLOSED;
+            break;
         }
 
         if( FD_ISSET( s, &read_fds ) )
@@ -230,7 +287,11 @@ static void vTaskRxSelect( void * param )
             /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
+
+    prvDecrementRefCount( ctx );
+    vTaskDelete( NULL );
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -243,6 +304,7 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 
     ctx->rx_callback = ( void ( * )( Socket_t ) )pvOptionValue;
 
+    prvIncrementRefCount( ctx );
     xReturned = xTaskCreate( vTaskRxSelect, /* pvTaskCode */
                              "rxs",         /* pcName */
                              xStackDepth,   /* usStackDepth */
@@ -294,6 +356,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
         if( ctx->ip_socket >= 0 )
         {
+            ctx->refcount = 1;
             sockets_allocated--;
             return ( Socket_t ) ctx;
         }
@@ -334,70 +397,62 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     pxAddress->ucSocketDomain = SOCKETS_AF_INET;
 
     ctx = ( ss_ctx_t * ) xSocket;
+    struct sockaddr_in sa_addr = { 0 };
+    int ret;
 
-    if( 0 <= ctx->ip_socket )
+    sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
+    sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
+    sa_addr.sin_port = pxAddress->usPort;
+
+    ret = lwip_connect( ctx->ip_socket,
+                        ( struct sockaddr * ) &sa_addr,
+                        sizeof( sa_addr ) );
+
+    if( 0 == ret )
     {
-        struct sockaddr_in sa_addr = { 0 };
-        int ret;
+        TLSParams_t tls_params = { 0 };
+        BaseType_t status;
 
-        sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
-        sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
-        sa_addr.sin_port = pxAddress->usPort;
+        ctx->status |= SS_STATUS_CONNECTED;
 
-        ret = lwip_connect( ctx->ip_socket,
-                            ( struct sockaddr * ) &sa_addr,
-                            sizeof( sa_addr ) );
-
-        if( 0 == ret )
+        if( !ctx->enforce_tls )
         {
-            TLSParams_t tls_params = { 0 };
-            BaseType_t status;
+            return SOCKETS_ERROR_NONE;
+        }
 
-            ctx->status |= SS_STATUS_CONNECTED;
+        tls_params.ulSize = sizeof( tls_params );
+        tls_params.pcDestination = ctx->destination;
+        tls_params.pcServerCertificate = ctx->server_cert;
+        tls_params.ulServerCertificateLength = ctx->server_cert_len;
+        tls_params.pvCallerContext = ctx;
+        tls_params.pxNetworkRecv = prvNetworkRecv;
+        tls_params.pxNetworkSend = prvNetworkSend;
+        tls_params.ppcAlpnProtocols = ( const char ** ) ctx->ppcAlpnProtocols;
+        tls_params.ulAlpnProtocolsCount = ctx->ulAlpnProtocolsCount;
 
-            if( !ctx->enforce_tls )
-            {
-                return SOCKETS_ERROR_NONE;
-            }
+        status = TLS_Init( &ctx->tls_ctx, &tls_params );
 
-            tls_params.ulSize = sizeof( tls_params );
-            tls_params.pcDestination = ctx->destination;
-            tls_params.pcServerCertificate = ctx->server_cert;
-            tls_params.ulServerCertificateLength = ctx->server_cert_len;
-            tls_params.pvCallerContext = ctx;
-            tls_params.pxNetworkRecv = prvNetworkRecv;
-            tls_params.pxNetworkSend = prvNetworkSend;
-            tls_params.ppcAlpnProtocols = ( const char ** ) ctx->ppcAlpnProtocols;
-            tls_params.ulAlpnProtocolsCount = ctx->ulAlpnProtocolsCount;
+        if( pdFREERTOS_ERRNO_NONE != status )
+        {
+            configPRINTF( ( "TLS_Init fail\n" ) );
+            return SOCKETS_SOCKET_ERROR;
+        }
 
-            status = TLS_Init( &ctx->tls_ctx, &tls_params );
+        status = TLS_Connect( ctx->tls_ctx );
 
-            if( pdFREERTOS_ERRNO_NONE != status )
-            {
-                configPRINTF( ( "TLS_Init fail\n" ) );
-                return SOCKETS_SOCKET_ERROR;
-            }
-
-            status = TLS_Connect( ctx->tls_ctx );
-
-            if( pdFREERTOS_ERRNO_NONE == status )
-            {
-                ctx->status |= SS_STATUS_SECURED;
-                return SOCKETS_ERROR_NONE;
-            }
-            else
-            {
-                configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n", ( unsigned int ) -status, ctx->destination ? ctx->destination : "NULL" ) );
-            }
+        if( pdFREERTOS_ERRNO_NONE == status )
+        {
+            ctx->status |= SS_STATUS_SECURED;
+            return SOCKETS_ERROR_NONE;
         }
         else
         {
-            configPRINTF( ( "LwIP connect fail %d %d\n", ret, errno ) );
+            configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n", ( unsigned int ) -status, ctx->destination ? ctx->destination : "NULL" ) );
         }
     }
     else
     {
-        configPRINTF( ( "Invalid ip socket\n" ) );
+        configPRINTF( ( "LwIP connect fail %d %d\n", ret, errno ) );
     }
 
     return SOCKETS_SOCKET_ERROR;
@@ -428,11 +483,6 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
     }
 
     ctx->recv_flag = ulFlags;
-
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
 
     if( ctx->enforce_tls )
     {
@@ -471,11 +521,6 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         return SOCKETS_ENOTCONN;
     }
 
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-
     ctx->send_flag = ulFlags;
 
     if( ctx->enforce_tls )
@@ -504,11 +549,6 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-
     ret = lwip_shutdown( ctx->ip_socket, ( int ) ulHow );
 
     if( 0 > ret )
@@ -525,8 +565,6 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 {
     ss_ctx_t * ctx;
 
-    uint32_t ulProtocol;
-
     if( SOCKETS_INVALID_SOCKET == xSocket )
     {
         return SOCKETS_EINVAL;
@@ -534,57 +572,14 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 
     ctx = ( ss_ctx_t * ) xSocket;
 
-    /* Clean-up application protocol array. */
-    if( NULL != ctx->ppcAlpnProtocols )
-    {
-        for( ulProtocol = 0;
-             ulProtocol < ctx->ulAlpnProtocolsCount;
-             ulProtocol++ )
-        {
-            if( NULL != ctx->ppcAlpnProtocols[ ulProtocol ] )
-            {
-                vPortFree( ctx->ppcAlpnProtocols[ ulProtocol ] );
-            }
-        }
+    ctx->state = SST_RX_CLOSING;
+    lwip_close( ctx->ip_socket );
 
-        vPortFree( ctx->ppcAlpnProtocols );
-    }
-
-    if( true == ctx->enforce_tls )
-    {
-        TLS_Cleanup( ctx->tls_ctx );
-    }
-
-    if( 0 <= ctx->ip_socket )
-    {
-        int cnt = 0;
-        ctx->state = SST_RX_CLOSING;
-
-        while( ( ctx->state != SST_RX_CLOSED ) && ( cnt < 30 ) )
-        {
-            cnt++;
-            vTaskDelay( 10 );
-        }
-
-        lwip_close( ctx->ip_socket );
-
-        sockets_allocated++;
-    }
-
-    if( ctx->server_cert )
-    {
-        vPortFree( ctx->server_cert );
-    }
-
-    if( ctx->destination )
-    {
-        vPortFree( ctx->destination );
-    }
-
-    vPortFree( ctx );
+    prvDecrementRefCount( ctx );
 
     return SOCKETS_ERROR_NONE;
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -607,11 +602,6 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-
     switch( lOptionName )
     {
         case SOCKETS_SO_RCVTIMEO:
@@ -627,7 +617,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
                ret = lwip_setsockopt( ctx->ip_socket,
                                       SOL_SOCKET,
-                                      lOptionName == SOCKETS_SO_RCVTIMEO ? SO_RCVTIMEO : SO_SNDTIMEO,
+                                      lOptionName == SOCKETS_SO_RCVTIMEO ?
+                                      SO_RCVTIMEO : SO_SNDTIMEO,
                                       ( struct timeval * ) &tv,
                                       sizeof( tv ) );
 
@@ -755,7 +746,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             ctx->ulAlpnProtocolsCount = 1 + xOptionLength;
 
             if( NULL == ( ctx->ppcAlpnProtocols =
-                              ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount * sizeof( char * ) ) ) )
+                              ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount *
+                                                        sizeof( char * ) ) ) )
             {
                 return SOCKETS_ENOMEM;
             }
@@ -767,13 +759,15 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             }
 
             /* Copy each protocol string. */
-            for( ulProtocol = 0; ( ulProtocol < ctx->ulAlpnProtocolsCount - 1 ); ulProtocol++ )
+            for( ulProtocol = 0; ( ulProtocol < ctx->ulAlpnProtocolsCount - 1 );
+                 ulProtocol++ )
             {
                 xLength = strlen( ppcAlpnIn[ ulProtocol ] );
 
                 if( NULL == ( ctx->ppcAlpnProtocols[ ulProtocol ] =
                                   ( char * ) pvPortMalloc( 1 + xLength ) ) )
                 {
+                    ctx->ppcAlpnProtocols[ ulProtocol ] = NULL;
                     return SOCKETS_ENOMEM;
                 }
                 else
