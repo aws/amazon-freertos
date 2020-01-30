@@ -383,13 +383,36 @@ void test10_SecureSockets_Recv_successful( void )
     char buffer[ BUFFER_LEN ];
     Socket_t so = create_normal_connection();
 
-    lwip_recv_IgnoreAndReturn( BUFFER_LEN );
+    //lwip_recv_IgnoreAndReturn( BUFFER_LEN );
+    lwip_recv_ExpectAnyArgsAndReturn(BUFFER_LEN);
     /* api call in test */
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
 
     TEST_ASSERT_EQUAL_INT( BUFFER_LEN, ret );
     deinitSocket( so );
 }
+
+/*
+void test11_SecureSockets_Recv_lwip_error( void )
+{
+    int32_t ret;
+    char buffer[ BUFFER_LEN ];
+    Socket_t so = create_normal_connection();
+
+    //lwip_recv_IgnoreAndReturn( BUFFER_LEN );
+    lwip_recv_ExpectAnyArgsAndReturn(-1);
+    printf("hello worls\n");
+    ret = errno;
+    errno = 2;
+    printf("errno is %d\n", ret);
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ECLOSED, ret );
+    deinitSocket( so );
+}
+*/
+
+
 
 /*!
  * @brief A happy path for TLS socket receive

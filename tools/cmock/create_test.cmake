@@ -17,7 +17,7 @@ function(create_test test_name test_src link_list dep_list)
             COMPILE_FLAGS "-ggdb3 -O0 -Wall -fsanitize=address -pg"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             INSTALL_RPATH_USE_LINK_PATH TRUE
-            LINK_FLAGS "-fsanitize=address -pg \
+            LINK_FLAGS "-fsanitize=address -pg  -O0\
                 -Wl,-rpath,${CMAKE_CURRENT_BINARY_DIR}/lib"
         )
     target_include_directories(${test_name} PUBLIC
@@ -79,7 +79,7 @@ function(create_mock_list mock_name mock_list)
             )
     set_target_properties(${mock_name} PROPERTIES
                         COMPILE_FLAGS "-ggdb3 -O0 -fPIC"
-                        LINK_FLAGS "-ggdb3 -fPIC"
+                        LINK_FLAGS "-ggdb3 -fPIC -O0"
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
             )
