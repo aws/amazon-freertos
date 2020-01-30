@@ -11,6 +11,7 @@ class Thing():
 
     def create(self):
         assert self.exists() == False, "Thing already exists"
+        print("Creating a Thing in AWS IoT Core.")
         result = self.client.create_thing(thingName=self.name)
         self.arn = result['thingArn']
 
@@ -19,6 +20,7 @@ class Thing():
         principals = self.list_principals()
         for principal in principals:
             self.detach_principal(principal)
+        print("Deleting a Thing in AWS IoT Core named {}.".format(self.name))
         self.client.delete_thing(thingName=self.name)
 
     def exists(self):
@@ -30,12 +32,14 @@ class Thing():
 
     def attach_principal(self, arn):
         assert self.exists() == True, "Thing does not exist"
+        print("Attaching principal with ARN {} to Thing named {}.".format(arn, self.name))
         self.client.attach_thing_principal(thingName=self.name,
             principal=arn)
 
 
     def detach_principal(self, arn):
         assert self.exists() == True, "Thing does not exist"
+        print("Detaching principal with ARN {} to Thing named {}.".format(arn, self.name))
         self.client.detach_thing_principal(thingName=self.name,
             principal=arn)
 

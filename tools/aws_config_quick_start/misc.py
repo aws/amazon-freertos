@@ -66,6 +66,7 @@ def update_client_credentials(afr_source_dir, thing_name, wifi_ssid, wifi_passwd
         header_file = open(str(file_to_modify),'w')
         header_file.write(new_text)
         header_file.close()
+    print("Updated aws_clientcredential.h")
 
 def update_client_credential_keys(afr_source_dir, client_certificate_pem, client_private_key_pem):
     file_to_modify = os.path.join(
@@ -81,6 +82,7 @@ def update_client_credential_keys(afr_source_dir, client_certificate_pem, client
         header_file = open(str(file_to_modify),'w')
         header_file.write(new_text)
         header_file.close()
+    print("Updated aws_clientcredential_keys.h")
 
 def cleanup_client_credential_file(afr_source_dir):
     client_credential_file = os.path.join(
@@ -108,7 +110,7 @@ def cleanup_client_credential_file(afr_source_dir):
         header_file = open(str(client_credential_file),'w')
         header_file.write(new_text)
         header_file.close()
-
+    print("Cleaned up aws_clientcredential.h")
 
 def cleanup_client_credential_keys_file(afr_source_dir):
     client_credential_keys_file = os.path.join(
@@ -127,3 +129,4 @@ def cleanup_client_credential_keys_file(afr_source_dir):
         header_file = open(str(client_credential_keys_file),'w')
         header_file.write(new_text)
         header_file.close()
+    print("Cleaned up aws_clientcredential_keys.h")
