@@ -230,6 +230,7 @@ TEST(Full_PKCS11_ModelBased_VerifyMachine, path_18)
 	C_Verify_exceptional_behavior_0();
 	C_VerifyInit_normal_behavior();
 	C_Verify_exceptional_behavior_1();
+	C_Verify_normal_behavior();
 	C_Verify_exceptional_behavior_0();
 }
 
@@ -238,6 +239,7 @@ TEST(Full_PKCS11_ModelBased_VerifyMachine, path_19)
 	C_Verify_exceptional_behavior_0();
 	C_VerifyInit_normal_behavior();
 	C_Verify_exceptional_behavior_1();
+	C_Verify_normal_behavior();
 	C_VerifyInit_normal_behavior();
 	C_Verify_normal_behavior();
 	C_Verify_exceptional_behavior_0();

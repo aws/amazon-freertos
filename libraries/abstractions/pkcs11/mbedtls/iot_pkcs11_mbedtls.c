@@ -1023,6 +1023,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
     if( CKR_OK == xResult )
     {
         pxSessionObj->xOperationInProgress = pkcs11NO_OPERATION;
+        pxSessionObj->xVerifyMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xSignMechanism = pkcs11NO_OPERATION;
     }
 
     if( CKR_OK != xResult )
@@ -2929,6 +2931,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
+    if ( xResult == CKR_OK )
+    {
+        if ( pxSession->xSignMechanism != pkcs11NO_OPERATION )
+        {
+            xResult = CKR_OPERATION_ACTIVE;
+        }
+    }
+
     /* Retrieve key value from storage. */
     if( xResult == CKR_OK )
     {
@@ -3182,7 +3192,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     }
 
     /* Complete the operation in the context. */
-    if( xResult != CKR_BUFFER_TOO_SMALL )
+    if( xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
     {
         pxSessionObj->xSignMechanism = pkcs11NO_OPERATION;
     }
@@ -3234,6 +3244,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     {
         PKCS11_PRINT( ( "ERROR: Null verification mechanism provided. \r\n" ) );
         xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    if ( xResult == CKR_OK )
+    {
+        if ( pxSession->xVerifyMechanism != pkcs11NO_OPERATION )
+        {
+            xResult = CKR_OPERATION_ACTIVE;
+        }
     }
 
     /* Retrieve key value from storage. */
@@ -3492,6 +3510,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             mbedtls_mpi_free( &xR );
             mbedtls_mpi_free( &xS );
         }
+
+    if( xResult != CKR_SESSION_HANDLE_INVALID )
+    {
+        pxSessionObj->xVerifyMechanism = pkcs11NO_OPERATION;
     }
 
     /* Return the signature verification result. */
