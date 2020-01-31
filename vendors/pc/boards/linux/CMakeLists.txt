@@ -4,6 +4,7 @@ if (AFR_ENABLE_UNIT_TESTS)
     set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/tools/cmock)
 
+    enable_testing()
     include(create_test)
     include_directories("${CMAKE_CURRENT_LIST_DIR}/unit_test/config_files"
             "${CMAKE_CURRENT_LIST_DIR}/unit_test/utils"
