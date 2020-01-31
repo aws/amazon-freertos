@@ -30,7 +30,7 @@
 
 /* Build using a config header, if provided. */
 #include "iot_config.h"
-#include "iot_ble_config.h"
+#include "config/iot_ble_config.h"
 
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
@@ -1191,7 +1191,7 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel,
 {
     size_t remainingLength = messageLength;
 
-    if( pChannel->isOpen )
+    if( pChannel && pChannel->isOpen )
     {
         if( messageLength < transmitLength )
         {
