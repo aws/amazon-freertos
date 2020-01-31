@@ -3246,9 +3246,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
-        if ( pxSession->xVerifyMechanism != pkcs11NO_OPERATION )
+        if( pxSession->xVerifyMechanism != pkcs11NO_OPERATION )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -3510,6 +3510,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             mbedtls_mpi_free( &xR );
             mbedtls_mpi_free( &xS );
         }
+    }
 
     if( xResult != CKR_SESSION_HANDLE_INVALID )
     {
