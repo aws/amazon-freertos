@@ -1,23 +1,28 @@
 cmake_minimum_required(VERSION 3.13)
 
     message("base binary dir is ${CMAKE_BINARY_DIR}")
+# zero coverage counters
     execute_process(
                 COMMAND lcov --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
+                             --base-directory ${CMAKE_BINARY_DIR}
                              --zerocounters
 
                 COMMAND mkdir -p  ${CMAKE_BINARY_DIR}/coverage
             )
+# make the initial/baseline capture a zeroed out files
     execute_process( COMMAND lcov --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
+                             --base-directory ${CMAKE_BINARY_DIR}
                              --initial
                              --capture
+                             --rc lcov_branch_coverage=1
+                             --rc genhtml_branch_coverage=1
                              --output-file=${CMAKE_BINARY_DIR}/base_coverage.info
             )
     message("output base_Coverage .info")
     file(GLOB files "${CMAKE_BINARY_DIR}/bin/*")
 
-    set(OUT_FILE ${CMAKE_BINARY_DIR}/utest_report.txt)
+    set(REPORT_FILE ${CMAKE_BINARY_DIR}/utest_report.txt)
+# execute all files in bin directory, gathering the output to show it in CI
     foreach(testname ${files})
         get_filename_component(test
                                ${testname}
@@ -27,31 +32,36 @@ cmake_minimum_required(VERSION 3.13)
         execute_process(COMMAND ${testname} OUTPUT_FILE ${CMAKE_BINARY_DIR}/${test}_out.txt)
 
         file(READ ${CMAKE_BINARY_DIR}/${test}_out.txt CONTENTS)
-        file(APPEND ${OUT_FILE} "${CONTENTS}")
+        file(APPEND ${REPORT_FILE} "${CONTENTS}")
     endforeach()
 
 # generage Junit style xml output
     execute_process(COMMAND ruby
         ${CMAKE_SOURCE_DIR}/../libraries/3rdparty/CMock/vendor/unity/auto/parse_output.rb
-                        -xml ${OUT_FILE}
+                        -xml ${REPORT_FILE}
                 )
 
+# capture data after running the tests
     execute_process(
                 COMMAND lcov --capture
-                             -b ${CMAKE_BINARY_DIR}
+                             --rc lcov_branch_coverage=1
+                             --rc genhtml_branch_coverage=1
+                             --base-directory ${CMAKE_BINARY_DIR}
                              --directory ${CMAKE_BINARY_DIR}
                              --output-file ${CMAKE_BINARY_DIR}/second_coverage.info
             )
+# combile baseline results (zeros) with the one after running the tests
     execute_process(
-                COMMAND lcov -b ${CMAKE_BINARY_DIR}
+                COMMAND lcov --base-directory ${CMAKE_BINARY_DIR}
                              --directory ${CMAKE_BINARY_DIR}
                              --add-tracefile ${CMAKE_BINARY_DIR}/base_coverage.info
                              --add-tracefile ${CMAKE_BINARY_DIR}/second_coverage.info
                              --output-file ${CMAKE_BINARY_DIR}/coverage.info
                              --no-external
+                             --rc lcov_branch_coverage=1
             )
     execute_process(
-                COMMAND genhtml -o ${CMAKE_BINARY_DIR}/coverage
+                COMMAND genhtml --rc lcov_branch_coverage=1 --branch-coverage -o ${CMAKE_BINARY_DIR}/coverage
                                     ${CMAKE_BINARY_DIR}/coverage.info  
             )
 

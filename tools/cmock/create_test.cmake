@@ -25,9 +25,12 @@ function(create_test test_name test_src link_list dep_list)
         )
     target_link_directories(${test_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+# link all libraries sent through parameters
     foreach(link IN LISTS link_list)
         target_link_libraries(${test_name} ${link})
     endforeach()
+
+# add dependency to all the dep_list parameter
     foreach(dependency IN LISTS dep_list)
         add_dependencies(${test_name} ${dependency})
     endforeach()
@@ -36,9 +39,11 @@ function(create_test test_name test_src link_list dep_list)
     target_link_directories(secure_sockets_utest  PUBLIC
                             ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
-    add_test(NAME ${test_name} 
-             COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name}
-        )
+    add_test(NAME ${test_name}
+             COMMAND ${CMAKE_BINARY_DIR}/bin/${test_name}
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+#add_test(${test_name} ${CMAKE_BINARY_DIR}/bin/${test_name})
 endfunction()
 
 # Generates a mock library based on a module's header file
@@ -84,66 +89,4 @@ function(create_mock_list mock_name mock_list)
                         POSITION_INDEPENDENT_CODE ON
             )
     target_link_libraries(${mock_name} libcmock.a libunity.a)
-endfunction()
-
-function(create_coverage testname)
-    add_custom_target(gen_coverage ALL DEPENDS ${testname})
-    if (NOT EXISTS "${CMAKE_BINARY_DIR}/coverage.info") #first ut executed
-        add_custom_command(TARGET gen_coverage POST_BUILD
-                COMMAND mkdir -p  ${CMAKE_BINARY_DIR}/coverage
-                COMMAND ${LCOV} --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
-                             --zerocounters
-                COMMAND ${LCOV} --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
-                             --initial
-                             --capture
-                             --output-file=base_coverage.info
-                COMMAND ${CMAKE_BINARY_DIR}/bin/${testname}# run ut
-                COMMAND ${LCOV} --capture
-                             -b ${CMAKE_BINARY_DIR}
-                             --directory ${CMAKE_BINARY_DIR}
-                             --output-file second_coverage.info
-                COMMAND ${LCOV} -b ${CMAKE_BINARY_DIR}
-                             --directory ${CMAKE_BINARY_DIR}
-                             --add-tracefile base_coverage.info
-                             --add-tracefile second_coverage.info
-                             --output-file coverage.info
-                             --no-external
-                COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/coverage.info 
-                            ${CMAKE_BINARY_DIR}
-                COMMENT "Generating Code Coverage files"
-                VERBATIM
-        )
-    else() # not the first ut being executed
-        add_custom_command(TARGET gen_coverage POST_BUILD
-                COMMAND mkdir -p  ${CMAKE_BINARY_DIR}/coverage
-                COMMAND ${LCOV} --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
-                             --zerocounters
-                COMMAND ${LCOV} --directory ${CMAKE_BINARY_DIR}
-                             -b ${CMAKE_BINARY_DIR}
-                             --initial
-                             --capture
-                             --output-file=base_coverage.info
-                COMMAND ${CMAKE_BINARY_DIR}/bin/${testname}# run ut
-                COMMAND ${LCOV} --capture
-                             -b ${CMAKE_BINARY_DIR}
-                             --directory ${CMAKE_BINARY_DIR}
-                             --output-file second_coverage.info
-                COMMAND ${LCOV} -b ${CMAKE_BINARY_DIR}
-                             --add-tracefile base_coverage.info
-                             --add-tracefile second_coverage.info
-                             --output-file coverage.info
-                             --no-external
-                COMMAND ${LCOV} -b ${CMAKE_BINARY_DIR}
-                    --add-tracefile ${CMAKE_CURRENT_BINARY_DIR}/coverage.info
-                    --add-tracefile ${CMAKE_BINARY_DIR}/coverage.info
-                    --output-file ${CMAKE_BINARY_DIR}/coverage.info
-                    --ignore-errors source,graph,gcov
-                             --no-external
-                COMMENT "Generating Code Coverage files"
-                VERBATIM
-        )
-    endif()
 endfunction()

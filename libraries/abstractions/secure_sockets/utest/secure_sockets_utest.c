@@ -383,8 +383,8 @@ void test10_SecureSockets_Recv_successful( void )
     char buffer[ BUFFER_LEN ];
     Socket_t so = create_normal_connection();
 
-    //lwip_recv_IgnoreAndReturn( BUFFER_LEN );
-    lwip_recv_ExpectAnyArgsAndReturn(BUFFER_LEN);
+    /*lwip_recv_IgnoreAndReturn( BUFFER_LEN ); */
+    lwip_recv_ExpectAnyArgsAndReturn( BUFFER_LEN );
     /* api call in test */
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
 
@@ -392,27 +392,38 @@ void test10_SecureSockets_Recv_successful( void )
     deinitSocket( so );
 }
 
-/*
+
+/*!
+ * @brief  various error scenarios with Sockets recieve
+ */
 void test11_SecureSockets_Recv_lwip_error( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
     Socket_t so = create_normal_connection();
 
-    //lwip_recv_IgnoreAndReturn( BUFFER_LEN );
-    lwip_recv_ExpectAnyArgsAndReturn(-1);
-    printf("hello worls\n");
-    ret = errno;
-    errno = 2;
-    printf("errno is %d\n", ret);
+    lwip_recv_ExpectAnyArgsAndReturn( -1 );
+    errno = EWOULDBLOCK;
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
 
+    lwip_recv_ExpectAnyArgsAndReturn( -1 );
+    errno = EAGAIN;
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
+
+    lwip_recv_ExpectAnyArgsAndReturn( -1 );
+    errno = EBADF;
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
     TEST_ASSERT_EQUAL_INT( SOCKETS_ECLOSED, ret );
+
+    lwip_recv_ExpectAnyArgsAndReturn( 0 );
+    errno = ENOTCONN;
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ECLOSED, ret );
+
     deinitSocket( so );
 }
-*/
-
-
 
 /*!
  * @brief A happy path for TLS socket receive
