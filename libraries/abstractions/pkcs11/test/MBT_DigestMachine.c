@@ -188,7 +188,7 @@ TEST(Full_PKCS11_ModelBased_DigestMachine, path_15)
 	C_DigestUpdate_normal_behavior();
 	C_DigestFinal_exceptional_behavior_3();
 	C_DigestFinal_exceptional_behavior_2();
-	C_DigestFinal_exceptional_behavior_0();
+	C_DigestFinal_normal_behavior();
 }
 
 TEST(Full_PKCS11_ModelBased_DigestMachine, path_16)
@@ -225,7 +225,7 @@ TEST(Full_PKCS11_ModelBased_DigestMachine, path_19)
 {
 	C_DigestInit_normal_behavior();
 	C_DigestUpdate_exceptional_behavior_1();
-	C_DigestInit_normal_behavior();
+	C_DigestInit_exceptional_behavior_1();
 	C_DigestUpdate_normal_behavior();
 	C_DigestFinal_normal_behavior();
 }
@@ -251,23 +251,36 @@ TEST(Full_PKCS11_ModelBased_DigestMachine, path_22)
 {
 	C_DigestInit_normal_behavior();
 	C_DigestUpdate_exceptional_behavior_1();
-	C_DigestUpdate_exceptional_behavior_0();
+	C_DigestUpdate_normal_behavior();
 }
 
 TEST(Full_PKCS11_ModelBased_DigestMachine, path_23)
 {
 	C_DigestInit_normal_behavior();
 	C_DigestUpdate_exceptional_behavior_1();
-	C_DigestUpdate_exceptional_behavior_0();
-	C_DigestFinal_exceptional_behavior_0();
+	C_DigestUpdate_normal_behavior();
+	C_DigestFinal_normal_behavior();
 }
 
 TEST(Full_PKCS11_ModelBased_DigestMachine, path_24)
 {
 	C_DigestInit_normal_behavior();
-	C_DigestUpdate_exceptional_behavior_1();
+	C_DigestUpdate_exceptional_behavior_2();
 	C_DigestUpdate_exceptional_behavior_0();
 	C_DigestFinal_exceptional_behavior_0();
+	C_DigestInit_normal_behavior();
+	C_DigestUpdate_normal_behavior();
+	C_DigestFinal_normal_behavior();
+}
+
+TEST(Full_PKCS11_ModelBased_DigestMachine, path_25)
+{
+	C_DigestInit_normal_behavior();
+	C_DigestUpdate_normal_behavior();
+	C_DigestFinal_normal_behavior();
+	C_DigestInit_normal_behavior();
+	C_DigestUpdate_normal_behavior();
+	C_DigestFinal_exceptional_behavior_1();
 	C_DigestInit_normal_behavior();
 	C_DigestUpdate_normal_behavior();
 	C_DigestFinal_normal_behavior();

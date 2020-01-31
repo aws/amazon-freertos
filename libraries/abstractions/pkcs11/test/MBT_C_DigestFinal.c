@@ -34,6 +34,12 @@
 
 #include "iot_test_pkcs11_globals.h"
 
+static CK_BYTE sha256HashOfDigestInput[] =
+{
+	0xcf, 0x5b, 0x16, 0xa7, 0x78, 0xaf, 0x83, 0x80, 0x03, 0x6c, 0xe5, 0x9e, 0x7b, 0x04, 0x92, 0x37,
+	0x0b, 0x24, 0x9b, 0x11, 0xe8, 0xf0, 0x7a, 0x51, 0xaf, 0xac, 0x45, 0x03, 0x7a, 0xfe, 0xe9, 0xd1
+};
+
 void C_DigestFinal_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
@@ -49,6 +55,7 @@ void C_DigestFinal_normal_behavior()
 
 	rv = pxGlobalFunctionList->C_DigestFinal(hSession, pDigest, pulDigestLen);
 	TEST_ASSERT_EQUAL(CKR_OK, rv);
+	TEST_ASSERT_EQUAL_INT8_ARRAY(sha256HashOfDigestInput, pDigest, pulDigestLen_val);
 }
 
 void C_DigestFinal_exceptional_behavior_0()

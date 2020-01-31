@@ -2703,6 +2703,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
+    if ( xResult == CKR_OK )
+    {
+        if ( pxSession->xOperationInProgress != pkcs11NO_OPERATION )
+        {
+            xResult = CKR_OPERATION_ACTIVE;
+        }
+    }
+
     if( xResult == CKR_OK )
     {
         if( pMechanism->mechanism != CKM_SHA256 )
@@ -2778,6 +2786,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
             xResult = CKR_FUNCTION_FAILED;
             pxSession->xOperationInProgress = pkcs11NO_OPERATION;
         }
+    }
+
+    if ( xResult != CKR_OK && xResult != CKR_SESSION_HANDLE_INVALID )
+    {
+        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        mbedtls_sha256_free( &pxSession->xSHA256Context );
     }
 
     return xResult;
@@ -2856,6 +2870,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                 pxSession->xOperationInProgress = pkcs11NO_OPERATION;
             }
         }
+    }
+
+    if ( xResult != CKR_OK && xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
+    {
+        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        mbedtls_sha256_free( &pxSession->xSHA256Context );
     }
 
     return xResult;
