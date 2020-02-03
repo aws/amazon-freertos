@@ -705,7 +705,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress)
     /* Erase a Block minus sector size starting at block boundry plus sector size */
     lRetVal = iot_flash_erase_sectors(xFlashHandle,
                                             ultestIotFlashStartOffset + pxFlashInfo->ulSectorSize,
-                                            pxFlashInfo->ulBlockSize);
+                                            pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize );
     TEST_ASSERT_EQUAL(IOT_FLASH_SUCCESS, lRetVal);
 
     if ( pxFlashInfo->ucAsyncSupported )
