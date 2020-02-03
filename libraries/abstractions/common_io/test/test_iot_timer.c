@@ -40,8 +40,8 @@
 #include "semphr.h"
 #include "task.h"
 
-#define testIotTIMER_DEFAULT_DELAY_US 500 //500 usec
-#define testIotTIMER_SLEEP_DELAY_MS 1 //1 msec
+#define testIotTIMER_DEFAULT_DELAY_US 500
+#define testIotTIMER_SLEEP_DELAY_MS 1
 
 
 /*-----------------------------------------------------------*/
