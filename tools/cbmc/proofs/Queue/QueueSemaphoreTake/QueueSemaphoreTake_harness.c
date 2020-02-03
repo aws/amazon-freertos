@@ -54,7 +54,6 @@ void vTaskInternalSetTimeOutState( TimeOut_t * const pxTimeOut )
 void harness()
 {
 	xQueue = xUnconstrainedMutex();
-	__CPROVER_assume( xQueue );
 
 	TickType_t xTicksToWait;	
 	__CPROVER_assume( xState != taskSCHEDULER_SUSPENDED || xTicksToWait == 0 );
@@ -63,7 +62,7 @@ void harness()
 	__CPROVER_assume( xQueue->cTxLock = LOCK_BOUND - 1 );
 	__CPROVER_assume( xQueue->cRxLock = LOCK_BOUND - 1 );
 	
-
+	/* Volatile member. */
 	((&(xQueue->xTasksWaitingToReceive))->xListEnd).pxNext->xItemValue = nondet_ticktype();
 
 	/* This assumptions is required to prevent an overflow in l. 2057 of queue.c
