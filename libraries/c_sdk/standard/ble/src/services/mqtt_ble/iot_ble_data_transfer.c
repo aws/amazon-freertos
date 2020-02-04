@@ -1187,7 +1187,7 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel,
 {
     size_t remainingLength = messageLength;
 
-    if( pChannel->isOpen )
+    if( pChannel && pChannel->isOpen )
     {
         if( messageLength < transmitLength )
         {

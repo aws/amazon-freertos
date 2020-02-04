@@ -12,7 +12,10 @@ set(common_dir "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common")
 
 # Mock library
 list(APPEND mock_list
+        ${kernel_dir}/include/portable.h
         ${c_sdk_dir}/standard/ble/include/iot_ble.h
+        ${common_dir}/include/private/iot_logging.h
+        ${abstraction_dir}/platform/include/platform/iot_threads.h
         )
 create_mock_list(iot_ble_data_transfer_mock
         "${mock_list}"
@@ -26,6 +29,8 @@ target_include_directories(iot_ble_data_transfer_mock PUBLIC
         ${abstraction_dir}/ble_hal/include
         ${AFR_ROOT_DIR}/tests/include
         ${abstraction_dir}/platform/freertos/include
+        ${abstraction_dir}/platform/include
+        ${abstraction_dir}/platform/include/types
         ${c_sdk_dir}/standard/common/include
         )
 
@@ -92,5 +97,11 @@ set_target_properties(iot_ble_data_transfer_utest PROPERTIES
         )
 target_include_directories(iot_ble_data_transfer_utest PUBLIC
         ../include
-        "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
+        config
+        ${AFR_ROOT_DIR}/tests/include
+        ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include
+        ${abstraction_dir}/ble_hal/include
+        ${abstraction_dir}/platform/freertos/include
+        ${abstraction_dir}/platform/include
+        ${abstraction_dir}/platform/include/platform
         )
