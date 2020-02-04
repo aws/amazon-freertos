@@ -46,12 +46,12 @@
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
-uint32_t uctestIotEfuse16BitWordValidIdx = 151;              /**< A valid 16-bit word fuse index. */
-uint32_t uctestIotEfuse16BitWordInvalidIdx = 159;            /**< An invalid 16-bit word fuse index. */
-uint16_t uctestIotEfuse16BitWordWriteVal = 0x5a5a;           /**< test value to write into a 16-bit efuse word */
-uint32_t uctestIotEfuse32BitWordValidIdx = 159;              /**< A valid 32-bit word fuse index. */
-uint32_t uctestIotEfuse32BitWordInvalidIdx = 151;            /**< An invalid 32-bit word fuse index. */
-uint32_t uctestIotEfuse32BitWordWriteVal = 0x5a5a5a5a;       /**< test value to write into a 32-bit efuse word */
+uint32_t ultestIotEfuse16BitWordValidIdx = 151;              /**< A valid 16-bit word fuse index. */
+uint32_t ultestIotEfuse16BitWordInvalidIdx = 159;            /**< An invalid 16-bit word fuse index. */
+uint16_t ustestIotEfuse16BitWordWriteVal = 0x5a5a;           /**< test value to write into a 16-bit efuse word */
+uint32_t ultestIotEfuse32BitWordValidIdx = 159;              /**< A valid 32-bit word fuse index. */
+uint32_t ultestIotEfuse32BitWordInvalidIdx = 151;            /**< An invalid 32-bit word fuse index. */
+uint32_t ultestIotEfuse32BitWordWriteVal = 0x5a5a5a5a;       /**< test value to write into a 32-bit efuse word */
 
 
 /*-----------------------------------------------------------*/
@@ -132,9 +132,9 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead32BitWord )
 {
     IotEfuseHandle_t xEfuseHandle = NULL;
     int32_t lRetVal;
-    uint32_t ulInvalidIndex = uctestIotEfuse32BitWordInvalidIdx;
-    uint32_t ulValidIndex = uctestIotEfuse32BitWordValidIdx;
-    uint32_t ulWriteVal = uctestIotEfuse32BitWordWriteVal;
+    uint32_t ulInvalidIndex = ultestIotEfuse32BitWordInvalidIdx;
+    uint32_t ulValidIndex = ultestIotEfuse32BitWordValidIdx;
+    uint32_t ulWriteVal = ultestIotEfuse32BitWordWriteVal;
     uint32_t ulReadVal;
 
     /* Write to 32-bit wide efuse word using a NULL handle */
@@ -205,13 +205,13 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
 {
     IotEfuseHandle_t xEfuseHandle = NULL;
     int32_t lRetVal;
-    uint32_t ulInvalidIndex = uctestIotEfuse16BitWordInvalidIdx;
-    uint32_t ulValidIndex = uctestIotEfuse16BitWordValidIdx;
-    uint16_t ulWriteVal = uctestIotEfuse16BitWordWriteVal;
+    uint32_t ulInvalidIndex = ultestIotEfuse16BitWordInvalidIdx;
+    uint32_t ulValidIndex = ultestIotEfuse16BitWordValidIdx;
+    uint16_t usWriteVal = ustestIotEfuse16BitWordWriteVal;
     uint16_t ulReadVal;
 
     /* Write to 16-bit wide efuse word using a NULL handle*/
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, ulWriteVal);
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal);
     if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
@@ -229,7 +229,7 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     TEST_ASSERT_NOT_EQUAL( NULL, xEfuseHandle );
 
     /* Write to 16-bit wide efuse word using an invalid index */
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulInvalidIndex, ulWriteVal);
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulInvalidIndex, usWriteVal);
     if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
@@ -243,7 +243,7 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     }
 
     /* Write a 16-bit wide efuse word using a valid index */
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, ulWriteVal);
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal);
     if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
@@ -254,7 +254,7 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( ulWriteVal, ulReadVal );
+        TEST_ASSERT_EQUAL( usWriteVal, ulReadVal );
     }
 
     /* Read a 16-bit wide efuse word using a NULL receive buffer */
