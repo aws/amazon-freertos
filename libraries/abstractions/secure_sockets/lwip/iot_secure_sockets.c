@@ -280,12 +280,6 @@ static void vTaskRxSelect( void * param )
 
         if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, NULL ) == -1 )
         {
-            /*TaskHandle_t rx_handle = ctx->rx_handle; */
-
-            /*ctx->rx_handle   = NULL; */
-            /*ctx->rx_callback = NULL; */
-
-            /*vTaskDelete( rx_handle ); */
             break;
         }
 
@@ -293,7 +287,6 @@ static void vTaskRxSelect( void * param )
         {
             configASSERT( ctx->rx_callback );
             ctx->rx_callback( ( Socket_t ) ctx );
-            /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
 
