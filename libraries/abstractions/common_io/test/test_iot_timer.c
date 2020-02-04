@@ -40,8 +40,8 @@
 #include "semphr.h"
 #include "task.h"
 
-#define testIotTIMER_DEFAULT_DELAY_US 500 //500 usec
-#define testIotTIMER_SLEEP_DELAY_MS 5 //5 msec
+#define testIotTIMER_DEFAULT_DELAY_US 500
+#define testIotTIMER_SLEEP_DELAY_MS 1
 
 
 /*-----------------------------------------------------------*/
@@ -171,6 +171,9 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running)
     lRetVal = iot_timer_start(xTimerHandle);
     TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
 
+    /* Delay for 1 msec. */
+    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+
     /* Get the time in micro seconds */
     lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds1);
     TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
@@ -179,7 +182,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running)
     TEST_ASSERT_NOT_EQUAL(0, ulMicroSeconds1);
 
     /* Delay for 5 msec. */
-    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+    vTaskDelay( (testIotTIMER_SLEEP_DELAY_MS * 5) / portTICK_PERIOD_MS);
 
     /* Get the time in micro seconds */
     lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds2);
@@ -218,6 +221,9 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop)
     lRetVal = iot_timer_start(xTimerHandle);
     TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
 
+    /* Delay for 1 msec. */
+    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+
     /* Get the time in micro seconds */
     lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds1);
     TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
@@ -226,7 +232,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop)
     TEST_ASSERT_NOT_EQUAL(0, ulMicroSeconds1);
 
     /* Delay for 5 msec. */
-    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+    vTaskDelay( (testIotTIMER_SLEEP_DELAY_MS * 5) / portTICK_PERIOD_MS);
 
     /* Get the time in micro seconds */
     lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds2);
