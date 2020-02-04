@@ -52,14 +52,14 @@
 /*-----------------------------------------------------------*/
 
 /* Define Test Group. */
-TEST_GROUP( TEST_IOT_RTC );
+TEST_GROUP( TEST_IOT_BATTERY );
 
 /*-----------------------------------------------------------*/
 
 /**
  * @brief Setup function called before each test in this group is executed.
  */
-TEST_SETUP( TEST_IOT_RTC )
+TEST_SETUP( TEST_IOT_BATTERY )
 {
 }
 
@@ -68,7 +68,7 @@ TEST_SETUP( TEST_IOT_RTC )
 /**
  * @brief Tear down function called after each test in this group is executed.
  */
-TEST_TEAR_DOWN( TEST_IOT_RTC )
+TEST_TEAR_DOWN( TEST_IOT_BATTERY )
 {
 }
 
@@ -79,13 +79,13 @@ TEST_TEAR_DOWN( TEST_IOT_RTC )
  */
 TEST_GROUP_RUNNER( TEST_IOT_BATTERY )
 {
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryOpenClose );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryVoltage );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryLevel );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryCapacity );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryVoltageFuzz );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryLevelFuzz );
-    RUN_TEST_CASE( TEST_IOT_RTC, AFQP_IotBatteryCapacityFuzz );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryOpenClose );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryVoltage );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryLevel );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryCapacity );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryVoltageFuzz );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryLevelFuzz );
+    RUN_TEST_CASE( TEST_IOT_BATTERY, AFQP_IotBatteryCapacityFuzz );
 }
 
 /*-----------------------------------------------------------*/
@@ -94,7 +94,7 @@ TEST_GROUP_RUNNER( TEST_IOT_BATTERY )
  * @brief Test Function to test iot_battery_open and iot_battery_close.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryOpenClose )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryOpenClose )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -112,7 +112,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryOpenClose )
  * @brief Test Function to test iot_battery_voltage.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryVoltage )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryVoltage )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -139,7 +139,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryVoltage )
  * @brief Test Function to test iot_battery_level.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryLevel )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryLevel )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -165,7 +165,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryLevel )
  * @brief Test Function to test iot_battery_capacity.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryCapacity )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryCapacity )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -191,7 +191,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryCapacity )
  * @brief Test Function to test fuzzing iot_battery_voltage.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryVoltageFuzz )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryVoltageFuzz )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -218,7 +218,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryVoltageFuzz )
  * @brief Test Function to test fuzzing iot_battery_level.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryLevelFuzz )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryLevelFuzz )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
@@ -244,7 +244,7 @@ TEST( TEST_IOT_RTC, AFQP_IotBatteryLevelFuzz )
  * @brief Test Function to test fuzzing iot_battery_capacity.
  *
  */
-TEST( TEST_IOT_RTC, AFQP_IotBatteryCapacityFuzz )
+TEST( TEST_IOT_BATTERY, AFQP_IotBatteryCapacityFuzz )
 {
     IotBatteryHandle_t xBatteryHandle;
     int32_t lRetVal;
