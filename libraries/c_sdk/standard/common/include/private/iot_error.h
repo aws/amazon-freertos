@@ -102,7 +102,7 @@
  */
 #define IOT_SET_AND_GOTO_CLEANUP_IF_FALSE( statusValue, condition ) \
     if( ( condition ) == false )                                    \
-    IOT_SET_AND_GOTO_CLEANUP( statusValue )
+        IOT_SET_AND_GOTO_CLEANUP( statusValue )
 
 /**
  * @brief Check a condition; if `false`, assign the "Bad parameter" status value

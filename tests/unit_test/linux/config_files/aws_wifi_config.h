@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,10 +38,11 @@
  * Settings for WiFi scan operation
  */
 
-#define wificonfigSCAN_INTERVAL_SEC             ( 10 )
-#define wificonfigSCAN_DURATION_SEC             ( 3 )
-#define wificonfigSCAN_HIDDEN_CHANNEL           ( 1 ) /* 1 - Enable Hidden Channel Scan
+#define wificonfigSCAN_INTERVAL_SEC      ( 10 )
+#define wificonfigSCAN_DURATION_SEC      ( 3 )
+#define wificonfigSCAN_HIDDEN_CHANNEL    ( 1 )        /* 1 - Enable Hidden Channel Scan
                                                        * 0 - Disable Hidden Channel Scan.*/
+
 /**
  * @brief Simple link Task Config
  *
@@ -85,10 +86,13 @@
 
 /**
  * @brief Soft Access point Channel
- *
- * @note The range in the US is from 1 to 11.
  */
 #define wificonfigACCESS_POINT_CHANNEL          ( 11 )
+
+/**
+ * @brief Maximum number of network profiles stored.
+ */
+#define wificonfigMAX_NETWORK_PROFILES          ( 7 )
 
 /**
  * @brief WiFi semaphore timeout
@@ -96,7 +100,7 @@
 #define wificonfigMAX_SEMAPHORE_WAIT_TIME_MS    ( 60000 )
 
 /**
- * @brief Soft Access point security
+ * @brief Soft Access security
  * WPA2 Security, see WIFISecurity_t
  * other values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA
  */
