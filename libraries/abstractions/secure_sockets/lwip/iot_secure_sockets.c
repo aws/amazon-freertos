@@ -210,11 +210,6 @@ static BaseType_t prvNetworkRecv( void * pvContext,
 
     ctx = ( ss_ctx_t * ) pvContext;
 
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-
     int ret = lwip_recv( ctx->ip_socket,
                          pucReceiveBuffer,
                          xReceiveLength,
@@ -399,64 +394,57 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
-    if( 0 <= ctx->ip_socket )
+    struct sockaddr_in sa_addr = { 0 };
+    int ret;
+
+    sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
+    sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
+    sa_addr.sin_port = pxAddress->usPort;
+
+    ret = lwip_connect( ctx->ip_socket,
+                        ( struct sockaddr * ) &sa_addr,
+                        sizeof( sa_addr ) );
+
+    if( 0 == ret )
     {
-        struct sockaddr_in sa_addr = { 0 };
-        int ret;
+        TLSParams_t tls_params = { 0 };
+        BaseType_t status;
 
-        sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
-        sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
-        sa_addr.sin_port = pxAddress->usPort;
+        ctx->status |= SS_STATUS_CONNECTED;
 
-        ret = lwip_connect( ctx->ip_socket,
-                            ( struct sockaddr * ) &sa_addr,
-                            sizeof( sa_addr ) );
-
-        if( 0 == ret )
+        if( !ctx->enforce_tls )
         {
-            TLSParams_t tls_params = { 0 };
-            BaseType_t status;
+            return SOCKETS_ERROR_NONE;
+        }
 
-            ctx->status |= SS_STATUS_CONNECTED;
+        tls_params.ulSize = sizeof( tls_params );
+        tls_params.pcDestination = ctx->destination;
+        tls_params.pcServerCertificate = ctx->server_cert;
+        tls_params.ulServerCertificateLength = ctx->server_cert_len;
+        tls_params.pvCallerContext = ctx;
+        tls_params.pxNetworkRecv = prvNetworkRecv;
+        tls_params.pxNetworkSend = prvNetworkSend;
+        tls_params.ppcAlpnProtocols = ( const char ** ) ctx->ppcAlpnProtocols;
+        tls_params.ulAlpnProtocolsCount = ctx->ulAlpnProtocolsCount;
 
-            if( !ctx->enforce_tls )
-            {
-                return SOCKETS_ERROR_NONE;
-            }
+        status = TLS_Init( &ctx->tls_ctx, &tls_params );
 
-            tls_params.ulSize = sizeof( tls_params );
-            tls_params.pcDestination = ctx->destination;
-            tls_params.pcServerCertificate = ctx->server_cert;
-            tls_params.ulServerCertificateLength = ctx->server_cert_len;
-            tls_params.pvCallerContext = ctx;
-            tls_params.pxNetworkRecv = prvNetworkRecv;
-            tls_params.pxNetworkSend = prvNetworkSend;
-            tls_params.ppcAlpnProtocols = ( const char ** ) ctx->ppcAlpnProtocols;
-            tls_params.ulAlpnProtocolsCount = ctx->ulAlpnProtocolsCount;
+        if( pdFREERTOS_ERRNO_NONE != status )
+        {
+            configPRINTF( ( "TLS_Init fail\n" ) );
+            return SOCKETS_SOCKET_ERROR;
+        }
 
-            status = TLS_Init( &ctx->tls_ctx, &tls_params );
+        status = TLS_Connect( ctx->tls_ctx );
 
-            if( pdFREERTOS_ERRNO_NONE != status )
-            {
-                configPRINTF( ( "TLS_Init fail\n" ) );
-                return SOCKETS_SOCKET_ERROR;
-            }
-
-            status = TLS_Connect( ctx->tls_ctx );
-
-            if( pdFREERTOS_ERRNO_NONE == status )
-            {
-                ctx->status |= SS_STATUS_SECURED;
-                return SOCKETS_ERROR_NONE;
-            }
-            else
-            {
-                configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n", ( unsigned int ) -status, ctx->destination ? ctx->destination : "NULL" ) );
-            }
+        if( pdFREERTOS_ERRNO_NONE == status )
+        {
+            ctx->status |= SS_STATUS_SECURED;
+            return SOCKETS_ERROR_NONE;
         }
         else
         {
-            configPRINTF( ( "LwIP connect fail %d %d\n", ret, errno ) );
+            configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n", ( unsigned int ) -status, ctx->destination ? ctx->destination : "NULL" ) );
         }
     }
     else
@@ -492,11 +480,6 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
     }
 
     ctx->recv_flag = ulFlags;
-
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
 
     if( ctx->enforce_tls )
     {
@@ -535,11 +518,6 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         return SOCKETS_ENOTCONN;
     }
 
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-
     ctx->send_flag = ulFlags;
 
     if( ctx->enforce_tls )
@@ -567,11 +545,6 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
-
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
 
     ret = lwip_shutdown( ctx->ip_socket, ( int ) ulHow );
 
@@ -626,11 +599,6 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
-
-    if( 0 > ctx->ip_socket )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
 
     switch( lOptionName )
     {
