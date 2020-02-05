@@ -43,6 +43,8 @@
 
 #include "iot_tls.h"
 
+#include "iot_atomic.h"
+
 #include "FreeRTOSConfig.h"
 
 #include "task.h"
@@ -88,6 +90,7 @@ typedef struct _ss_ctx_t
 
     char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
+    uint32_t ulRefcount;
 } ss_ctx_t;
 
 /*-----------------------------------------------------------*/
@@ -113,6 +116,69 @@ static int8_t sockets_allocated = socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS;
 #define TICK_TO_US( _t_ )    ( ( _t_ ) * 1000 / configTICK_RATE_HZ * 1000 )
 
 /*-----------------------------------------------------------*/
+
+/*
+ * @brief Sockets close
+ */
+static void prvSocketsClose( ss_ctx_t * ctx )
+{
+    uint32_t ulProtocol;
+
+    sockets_allocated++;
+
+    /* Clean-up application protocol array. */
+    if( NULL != ctx->ppcAlpnProtocols )
+    {
+        for( ulProtocol = 0;
+             ulProtocol < ctx->ulAlpnProtocolsCount;
+             ulProtocol++ )
+        {
+            if( NULL != ctx->ppcAlpnProtocols[ ulProtocol ] )
+            {
+                vPortFree( ctx->ppcAlpnProtocols[ ulProtocol ] );
+            }
+        }
+
+        vPortFree( ctx->ppcAlpnProtocols );
+    }
+
+    if( true == ctx->enforce_tls )
+    {
+        TLS_Cleanup( ctx->tls_ctx );
+    }
+
+    if( ctx->server_cert )
+    {
+        vPortFree( ctx->server_cert );
+    }
+
+    if( ctx->destination )
+    {
+        vPortFree( ctx->destination );
+    }
+
+    vPortFree( ctx );
+}
+
+/*
+ * @brief Decrement ctx refcount and call release function if the count is 1 (
+ *        last user of the ctx)
+ */
+static void prvDecrementRefCount( ss_ctx_t * ctx )
+{
+    if( Atomic_Decrement_u32( &ctx->ulRefcount ) == 1 )
+    {
+        prvSocketsClose( ctx );
+    }
+}
+
+/*
+ * @brief Increment ctx refcount
+ */
+static void prvIncrementRefCount( ss_ctx_t * ctx )
+{
+    Atomic_Increment_u32( &ctx->ulRefcount );
+}
 
 /*
  * @brief Network send callback.
@@ -209,27 +275,23 @@ static void vTaskRxSelect( void * param )
         if( ctx->state == SST_RX_CLOSING )
         {
             ctx->state = SST_RX_CLOSED;
-            vTaskDelete( NULL );
+            break;
         }
 
         if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, NULL ) == -1 )
         {
-            /*TaskHandle_t rx_handle = ctx->rx_handle; */
-
-            /*ctx->rx_handle   = NULL; */
-            /*ctx->rx_callback = NULL; */
-
-            /*vTaskDelete( rx_handle ); */
-            vTaskDelete( NULL );
+            break;
         }
 
         if( FD_ISSET( s, &read_fds ) )
         {
             configASSERT( ctx->rx_callback );
             ctx->rx_callback( ( Socket_t ) ctx );
-            /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
+
+    prvDecrementRefCount( ctx );
+    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -243,6 +305,7 @@ static void prvRxSelectSet( ss_ctx_t * ctx,
 
     ctx->rx_callback = ( void ( * )( Socket_t ) )pvOptionValue;
 
+    prvIncrementRefCount( ctx );
     xReturned = xTaskCreate( vTaskRxSelect, /* pvTaskCode */
                              "rxs",         /* pcName */
                              xStackDepth,   /* usStackDepth */
@@ -294,6 +357,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
         if( ctx->ip_socket >= 0 )
         {
+            ctx->ulRefcount = 1;
             sockets_allocated--;
             return ( Socket_t ) ctx;
         }
@@ -525,7 +589,6 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 {
     ss_ctx_t * ctx;
 
-    uint32_t ulProtocol;
 
     if( SOCKETS_INVALID_SOCKET == xSocket )
     {
@@ -533,58 +596,15 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
+    ctx->state = SST_RX_CLOSING;
 
-    /* Clean-up application protocol array. */
-    if( NULL != ctx->ppcAlpnProtocols )
-    {
-        for( ulProtocol = 0;
-             ulProtocol < ctx->ulAlpnProtocolsCount;
-             ulProtocol++ )
-        {
-            if( NULL != ctx->ppcAlpnProtocols[ ulProtocol ] )
-            {
-                vPortFree( ctx->ppcAlpnProtocols[ ulProtocol ] );
-            }
-        }
+    lwip_close( ctx->ip_socket );
 
-        vPortFree( ctx->ppcAlpnProtocols );
-    }
-
-    if( true == ctx->enforce_tls )
-    {
-        TLS_Cleanup( ctx->tls_ctx );
-    }
-
-    if( 0 <= ctx->ip_socket )
-    {
-        int cnt = 0;
-        ctx->state = SST_RX_CLOSING;
-
-        while( ( ctx->state != SST_RX_CLOSED ) && ( cnt < 30 ) )
-        {
-            cnt++;
-            vTaskDelay( 10 );
-        }
-
-        lwip_close( ctx->ip_socket );
-
-        sockets_allocated++;
-    }
-
-    if( ctx->server_cert )
-    {
-        vPortFree( ctx->server_cert );
-    }
-
-    if( ctx->destination )
-    {
-        vPortFree( ctx->destination );
-    }
-
-    vPortFree( ctx );
+    prvDecrementRefCount( ctx );
 
     return SOCKETS_ERROR_NONE;
 }
+
 
 /*-----------------------------------------------------------*/
 
