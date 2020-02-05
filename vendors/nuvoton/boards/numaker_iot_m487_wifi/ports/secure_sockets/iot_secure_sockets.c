@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for Nuvoton NuMaker-IoT-M487 V1.0.0
+ * FreeRTOS Secure Sockets for Nuvoton NuMaker-IoT-M487 V1.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,7 +50,7 @@
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /**
- * @brief A Flag to indicate whether or not a socket is secure 
+ * @brief A Flag to indicate whether or not a socket is secure
  * i.e. it uses TLS or not.
  */
 #define securesocketsSOCKET_SECURE_FLAG                 ( 1UL << 0 )
@@ -218,9 +218,9 @@ static BaseType_t prvNetworkRecv( void * pvContext,
         if (xSemaphoreTake(xNuWiFi.xWifiSem, xTickTimeout) == pdTRUE) {
             usReceivedBytes = 0;
             /* Receive the data */
-            xWiFiRet = ESP_WIFI_Recv(&xNuWiFi.xWifiObject, &(pxSecureSocket->xWiFiConn), 
+            xWiFiRet = ESP_WIFI_Recv(&xNuWiFi.xWifiObject, &(pxSecureSocket->xWiFiConn),
                                      (uint8_t *)pucReceiveBuffer + usTotalReceivedBytes,
-                                     (uint16_t)xReceiveBufferLength - usTotalReceivedBytes, 
+                                     (uint16_t)xReceiveBufferLength - usTotalReceivedBytes,
                                      &usReceivedBytes, pdMS_TO_TICKS(ESP_WIFI_SHORT_RECV_TO));
 
             xSemaphoreGive(xNuWiFi.xWifiSem);

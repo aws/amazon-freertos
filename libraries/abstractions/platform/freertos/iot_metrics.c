@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.1.0
+ * FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,7 +24,7 @@
  */
 
 /*
- * The implementation is Amazon Freertos specific. It depends on aws_secure_sockets library.
+ * The implementation is FreeRTOS specific. It depends on aws_secure_sockets library.
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions

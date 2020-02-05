@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "MCHP-Curiosity-PIC32MZEF")
 afr_set_board_metadata(DISPLAY_NAME "Curiosity PIC32MZEF")
@@ -9,7 +9,7 @@ afr_set_board_metadata(FAMILY_NAME "PIC32MZ")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(DATA_RAM_MEMORY "512KB")
 afr_set_board_metadata(PROGRAM_MEMORY "2MB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "FreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "MPLABX")
 afr_set_board_metadata(RECOMMENDED_IDE "MPLABX")
 afr_set_board_metadata(IDE_MPLABX_NAME "MPLAB X")

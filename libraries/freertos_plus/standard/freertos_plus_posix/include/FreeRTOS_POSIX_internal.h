@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.2
+ * FreeRTOS POSIX V1.1.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@
  * @brief Internal structs and initializers for FreeRTOS+POSIX.
  */
 
-/* Amazon FreeRTOS includes. */
+/* FreeRTOS includes. */
 #include "iot_doubly_linked_list.h"
 
 /**

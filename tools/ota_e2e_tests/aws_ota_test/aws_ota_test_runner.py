@@ -1,5 +1,5 @@
 """
-Amazon FreeRTOS
+FreeRTOS
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,7 +40,7 @@ class OtaTestRunner:
         stage(dict): What development environment stage the AWS service stack is in to run OTA tests.
     Attributes:
         _flashComm(obj:FlashSerialComm): MCU flash and serial communication resource.
-        _otaProject(obj:OtaAfrProject): Amazon FreeRTOS code resource.
+        _otaProject(obj:OtaAfrProject): FreeRTOS code resource.
         _otaAwsAgent(obj:OtaAwsAgent): Interface to AWS CLI resource.
         _otaTestCases(list(obj:OtaTestCase)): All of the OTA test cases in this run.
     Methods:

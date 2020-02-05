@@ -1,6 +1,6 @@
 // Copyright 2018 Espressif Systems (Shanghai) PTE LTD
 //
-// Amazon FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+// FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
 // Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -448,7 +448,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     wifi_config_t wifi_config = { 0 };
     esp_err_t ret;
     wifi_mode_t xCurMode;
- 
+
     if (pxBuffer == NULL || ucNumNetworks == 0) {
         return eWiFiFailure;
     }

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.3
+ * FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -778,7 +778,7 @@ WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t * pucBuffer )
 
 
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
-{ 
+{
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;
 }

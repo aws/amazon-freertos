@@ -1,7 +1,7 @@
 /*
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  * Cypress Semiconductor Corporation. All Rights Reserved.
- * 
+ *
  * This software, associated documentation and materials ("Software")
  * is owned by Cypress Semiconductor Corporation,
  * or one of its subsidiaries ("Cypress") and is protected by and subject to
@@ -252,7 +252,7 @@ extern "C"
 /************************************************************************
  * Uncomment both to disable TLS completely*/
 
-/* for AmazonFreeRTOS SDK aws tls is used instead of wiced tls */
+/* for FreeRTOS SDK aws tls is used instead of wiced tls */
 #ifdef WICED_AMAZON_FREERTOS_SDK
 #define WICED_DISABLE_TLS
 #define WICED_CONFIG_DISABLE_DTLS

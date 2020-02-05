@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201912.00
+ * FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,7 +54,7 @@
 /* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
 
-/* Amazon FreeRTOS OTA agent includes. */
+/* FreeRTOS OTA agent includes. */
 #include "aws_iot_ota_agent.h"
 
 #include "iot_network_manager_private.h"

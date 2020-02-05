@@ -1,7 +1,7 @@
 /*
  * Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
  *
- * Amazon FreeRTOS PKCS #11 PAL for Curiosity PIC32MZEF V1.0.4
+ * FreeRTOS PKCS #11 PAL for Curiosity PIC32MZEF V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@
 
 /**
  * @file iot_pkcs11_pal.c
- * @brief Amazon FreeRTOS device-specific code for mbedTLS based PKCS#11 
- * implementation with software keys. This file deviates from the FreeRTOS 
+ * @brief FreeRTOS device-specific code for mbedTLS based PKCS#11
+ * implementation with software keys. This file deviates from the FreeRTOS
  * style standard for some function names and data types in order to
  * maintain compliance with the PKCS#11 standard.
  */
@@ -168,9 +168,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             pCertFlash = &P11ConfigFlashPtr->xCodeVerificationKey;
             xHandle = eAwsCodeSigningKey;
         }
-        
-        
-        
+
+
+
         if( pCertSave != 0 )
         {                                           /* can proceed with the write */
             *P11ConfigSavePtr = *P11ConfigFlashPtr; /* copy the (whole) existent data before erasing flash */
@@ -205,7 +205,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             }
         }
     }
-    
+
     return xHandle;
 }
 
@@ -259,8 +259,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                 pCertFlash = &P11ConfigFlashPtr->xCodeVerificationKey;
 
     }
-    
-    
+
+
     if(!( ( pCertFlash != 0 ) && ( pCertFlash->ulCertificatePresent == pkcs11OBJECT_FLASH_CERT_PRESENT ) ))
     {
         xHandle = eInvalidHandle;

@@ -6,9 +6,9 @@ This is a copy of [intel/tinycbor](https://github.com/intel/tinycbor), except fo
 
 ## Excluded "Cbor To Json"
 
-Three files are excluded: cborjson.h, cbortojson.c, open_memstream.c. 
+Three files are excluded: cborjson.h, cbortojson.c, open_memstream.c.
 
-- They are not required by Amazon FreeRTOS.
+- They are not required by FreeRTOS.
 - They don't compile with "make" in the Espressif build environment.
 - Not every compiler defines "FILE" data type.
 

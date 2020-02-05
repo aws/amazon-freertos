@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.8
+ * FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -323,8 +323,8 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
 
         if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xFormatted != pdFALSE ) )
         {
-            xLength = snprintf( cPrintString, 
-                                dlMAX_PRINT_STRING_LENGTH, 
+            xLength = snprintf( cPrintString,
+                                dlMAX_PRINT_STRING_LENGTH,
                                 "%lu %lu [%s] ",
                                 xMessageNumber++,
                                 ( unsigned long )xTaskGetTickCount(),
@@ -386,7 +386,7 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
                 }
 
                 sscanf( pcTarget, "%8X", &ulIPAddress );
-                rc = sprintf( pcTarget, 
+                rc = sprintf( pcTarget,
                               "%lu.%lu.%lu.%lu",
                               ( unsigned long )( ulIPAddress >> 24UL ),
                               ( unsigned long )( ( ulIPAddress >> 16UL ) & 0xffUL ),

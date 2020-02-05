@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.2
+ * FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,5 +54,5 @@ int asn1_getBigInteger( uint8_t * pucInt,
 int asn1_decodeSignature( uint8_t * pucSignature,
                                  uint8_t * pucStart,
                                  uint8_t * pucEnd );
-						  
+
 #endif

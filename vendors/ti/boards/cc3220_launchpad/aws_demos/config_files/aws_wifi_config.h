@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.8
+ * FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,7 +68,7 @@
 
 /**
  * @brief Max passphrase length
- * 
+ *
  * This is the max Passphrase length expected by sl_WlanSet().
  */
 #define wificonfigMAX_PASSPHRASE_LEN          ( 63 )

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.1.0
+ * FreeRTOS OTA V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@
 /* Platform layer includes. */
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
-/* Amazon FreeRTOS OTA agent includes. */
+/* FreeRTOS OTA agent includes. */
 #include "aws_iot_ota_agent.h"
 
 /* Test network header include. */

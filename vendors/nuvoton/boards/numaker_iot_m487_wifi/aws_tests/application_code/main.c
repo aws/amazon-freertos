@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -144,17 +144,17 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
-    configPRINTF( ( "FreeRTOS_IPInit\n") );	
+    configPRINTF( ( "FreeRTOS_IPInit\n") );
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
-     * startup hook. */ 
-         
+     * startup hook. */
+
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();     
-    configPRINTF( ( "vTaskStartScheduler\n" ) );  
+    vDevModeKeyProvisioning();
+    configPRINTF( ( "vTaskStartScheduler\n" ) );
     vTaskStartScheduler();
 
     return 0;
@@ -240,7 +240,7 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
-        
+
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
                      "TestRunner",
@@ -268,7 +268,7 @@ void prvWifiConnect( void )
     {
         configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
-        /* Delay to allow the lower priority logging task to print the above status. 
+        /* Delay to allow the lower priority logging task to print the above status.
          * The while loop below will block the above printing. */
         Sleep( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -292,7 +292,7 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
         xWifiStatus = WIFI_GetIP( ucIpAddr );
-        if ( eWiFiSuccess == xWifiStatus ) 
+        if ( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
@@ -354,7 +354,7 @@ void vAssertCalled( const char * pcFile,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
@@ -426,7 +426,7 @@ void vApplicationIdleHook( void )
 
 void vApplicationTickHook( void )
 {
-	static uint32_t tickHookCnt=0; 
+	static uint32_t tickHookCnt=0;
 	tickHookCnt++;
 }
 /*-----------------------------------------------------------*/

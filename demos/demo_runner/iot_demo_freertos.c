@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201912.00
+ * FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file iot_demo_freertos.c
- * @brief Generic demo runner for C SDK libraries on Amazon FreeRTOS.
+ * @brief Generic demo runner for C SDK libraries on FreeRTOS.
  */
 
 /* The config header is always included first. */
@@ -290,7 +290,7 @@ static void _cleanup( void )
 
 void runDemoTask( void * pArgument )
 {
-    /* On Amazon FreeRTOS, credentials and server info are defined in a header
+    /* On FreeRTOS, credentials and server info are defined in a header
      * and set by the initializers. */
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;

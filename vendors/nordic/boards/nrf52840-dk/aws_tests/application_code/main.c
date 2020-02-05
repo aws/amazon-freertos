@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -181,7 +181,7 @@ static void conn_params_error_handler( uint32_t nrf_error )
 /**@brief   Function for handling uart events.
  *
  * /**@snippet [Handling the data received over UART] */
- 
+
 void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
     /* Declared as static so it can be pushed into the queue from the ISR. */
@@ -194,7 +194,7 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
             app_uart_put( ucRxByte );
 
        //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
-    
+
             break;
 
         case APP_UART_COMMUNICATION_ERROR:

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS WiFi V1.4.7
+ * FreeRTOS WiFi V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -109,9 +109,9 @@ static const char *_device_mode_to_str( WIFIDeviceMode_t xDeviceMode )
 {
     switch( xDeviceMode )
     {
-    case eWiFiModeStation:      return "station";  
-    case eWiFiModeAP:           return "ap";       
-    case eWiFiModeP2P:          return "p2p";      
+    case eWiFiModeStation:      return "station";
+    case eWiFiModeAP:           return "ap";
+    case eWiFiModeP2P:          return "p2p";
     case eWiFiModeNotSupported: return "not-supported-mode";
     default:
         return "unknown-mode";
@@ -454,10 +454,10 @@ static const char * _security_to_str(WIFISecurity_t security)
 {
     switch( security )
     {
-    case eWiFiSecurityOpen:         return "open"; 
-    case eWiFiSecurityWEP:          return "wep";  
-    case eWiFiSecurityWPA:          return "wpa";  
-    case eWiFiSecurityWPA2:         return "wpa2"; 
+    case eWiFiSecurityOpen:         return "open";
+    case eWiFiSecurityWEP:          return "wep";
+    case eWiFiSecurityWPA:          return "wpa";
+    case eWiFiSecurityWPA2:         return "wpa2";
     case eWiFiSecurityNotSupported: return "not-supported";
     default:
         return "unknown-security";

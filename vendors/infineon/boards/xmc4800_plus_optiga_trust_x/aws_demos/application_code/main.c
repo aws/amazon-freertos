@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * FreeRTOS V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,7 +46,7 @@
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
@@ -54,9 +54,9 @@
 #define mainDEVICE_NICK_NAME                "XMC4800_IoTKit_Demo"
 
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting 
+ * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
@@ -236,7 +236,7 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
+
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -281,7 +281,7 @@ void vAssertCalled(const char * pcFile,
     {
         /* FIX ME: If necessary, update to applicable registration name. */
 
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }

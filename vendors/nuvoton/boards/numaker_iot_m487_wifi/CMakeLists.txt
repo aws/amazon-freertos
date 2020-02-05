@@ -21,7 +21,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "NuMaker-IoT-M487")
 afr_set_board_metadata(DISPLAY_NAME "NuMaker-IoT-M487")
@@ -48,19 +48,19 @@ target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -D__MICROLIB
-    -D_REENT_SMALL 
-    -DPRODUCT_VERSION=m487 
-    -DCONFIG_REPEATER 
-    -DSUPPORT_MBEDTLS 
-    -DHAL_DFS_MODULE_ENABLED 
-    -DLWIP_NO_STDINT_H=1 
+    -D_REENT_SMALL
+    -DPRODUCT_VERSION=m487
+    -DCONFIG_REPEATER
+    -DSUPPORT_MBEDTLS
+    -DHAL_DFS_MODULE_ENABLED
+    -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
     -D__little_endian__=1
     -DNDEBUG
-    -DUNITY_INCLUDE_CONFIG_H 
-    -DRVDS_ARMCM4_NUC4xx 
-    -D__LITTLE_ENDIAN__ 
-    -DM487 
+    -DUNITY_INCLUDE_CONFIG_H
+    -DRVDS_ARMCM4_NUC4xx
+    -D__LITTLE_ENDIAN__
+    -DM487
     ${extra_define}
 )
 target_compile_definitions(
@@ -99,14 +99,14 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        # Nuvoton SDK sources (driver)		
+        # Nuvoton SDK sources (driver)
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/clk.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/crypto.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/fmc.c"
@@ -124,7 +124,7 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/RVDS/ARM_CM4F"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/CMSIS/Include"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include"
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
@@ -177,7 +177,7 @@ else()
     afr_mcu_port(wifi)
     target_sources(
         AFR::wifi::mcu_port
-        INTERFACE 
+        INTERFACE
             "${afr_ports_dir}/wifi/iot_wifi.c"
             "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
     )
@@ -185,7 +185,7 @@ else()
     target_include_directories(
         AFR::wifi::mcu_port
         INTERFACE
-            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"
     )
 
     # Secure sockets for WiFi
@@ -193,7 +193,7 @@ else()
 
     target_sources(
         AFR::secure_sockets::mcu_port
-        INTERFACE 
+        INTERFACE
             "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
     )
 
@@ -207,7 +207,7 @@ endif()
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
 

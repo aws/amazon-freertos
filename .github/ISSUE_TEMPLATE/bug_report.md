@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a bug report for Amazon FreeRTOS
+about: Create a bug report for FreeRTOS
 labels: bug
 
 ---
@@ -12,15 +12,15 @@ A clear and concise description of what the bug is.
 - Which hardware board or part numbers?
 - IDE used
 - Operating System [Windows|Linux|MacOS]
-- Version of Amazon FreeRTOS (run ``git describe --tags`` to find it)
+- Version of FreeRTOS (run ``git describe --tags`` to find it)
 - Project [Custom Application|MQTT|Shadow|Greengrass|OTA|Device Defender|TCP Echo|Sub pub Demo|Simple TCP Server]
-- If your project is a Custom Application, please add the relevant code snippet in the section `Code to reproduce the bug`. 
+- If your project is a Custom Application, please add the relevant code snippet in the section `Code to reproduce the bug`.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
 **Screenshots or console output**
-If appropriate, please cut-and-paste the console output to explain the issue. If possible, include the call stack. 
+If appropriate, please cut-and-paste the console output to explain the issue. If possible, include the call stack.
 
 **To reproduce**
 Steps to reproduce the behavior:

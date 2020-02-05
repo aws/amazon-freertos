@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.4
+ * FreeRTOS V1.4.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,7 +51,7 @@
  * in the "username" field of MQTT connect messages.
  */
 /** @{ */
-#define mqttconfigMETRIC_SDK         "SDK=AmazonFreeRTOS"               /**< The SDK used by this device. */
+#define mqttconfigMETRIC_SDK         "SDK=FreeRTOS"               /**< The SDK used by this device. */
 #define mqttconfigMETRIC_VERSION     "Version="tskKERNEL_VERSION_NUMBER /**< The version number of this SDK. */
 #define mqttconfigMETRIC_PLATFORM    "Platform=EspressifESP32"          /**< The platform that this SDK is running on. */
 /** @} */

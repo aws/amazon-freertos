@@ -39,7 +39,7 @@
 #include "optiga/optiga_crypt.h"
 #include "optiga/optiga_util.h"
 
-// this is a workaround to take the correct label for the private key handle in Amazon FreeRTOS
+// this is a workaround to take the correct label for the private key handle in FreeRTOS
 #include "iot_pkcs11_config.h"
 
 #if defined(MBEDTLS_ECDSA_SIGN_ALT)
@@ -56,22 +56,22 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     const unsigned char *end = der_signature + dslen;
 	long lOptigaOid = 0;
 	char* xEnd = NULL;
-			
+
 	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, &xEnd, 16);
 
 	//printf("-> ecdsa_sign \n");
-	
+
     if(optiga_crypt_ecdsa_sign((unsigned char *)buf, blen, lOptigaOid, der_signature, &dslen) != OPTIGA_LIB_SUCCESS)
     {
 		ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
 		goto cleanup;
     }
-	
+
 	MBEDTLS_MPI_CHK( mbedtls_asn1_get_mpi( &p, end, r ) );
 	MBEDTLS_MPI_CHK( mbedtls_asn1_get_mpi( &p, end, s ) );
-	
+
 	//printf("<- ecdsa_sign \n");
-	
+
 cleanup:
     return ret;
 }
@@ -91,12 +91,12 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
 	size_t  signature_len = 0;
 	size_t public_key_len = 0;
 	uint8_t truncated_hash_length;
-	
+
 	//printf("-> ecdsa_verify \n");
-	
+
 	signature_len = mbedtls_asn1_write_mpi( &p, signature, s );
     signature_len+= mbedtls_asn1_write_mpi( &p, signature, r );
-	
+
     public_key.public_key = public_key_out;
 	public_key.length     = sizeof( public_key_out );
 
@@ -107,7 +107,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
         return 1;
     }
 
-    if ( ( grp->id !=  MBEDTLS_ECP_DP_SECP256R1 ) && 
+    if ( ( grp->id !=  MBEDTLS_ECP_DP_SECP256R1 ) &&
          ( grp->id  != MBEDTLS_ECP_DP_SECP384R1 ) )
     {
         return 1;
@@ -130,7 +130,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
         truncated_hash_length = 48; //maximum bytes of hash length for the curve
     }
 
-    // If the length of the digest is larger than 
+    // If the length of the digest is larger than
     // key length of the group order, then truncate the digest to key length.
     if ( blen > truncated_hash_length )
     {
@@ -144,9 +144,9 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
     {
     	status = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
     }
-	
+
 	//printf("<- ecdsa_verify \n");
-	
+
     return status;
 }
 #endif
@@ -161,9 +161,9 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
     optiga_ecc_curve_t curve_id;
 	mbedtls_ecp_group *grp = &ctx->grp;
 	uint16_t privkey_oid = OPTIGA_KEY_STORE_ID_E0F3;
- 
+
 	mbedtls_ecp_group_load( &ctx->grp, gid );
- 
+
     //checking group against the supported curves of Optiga Trust X
     if ( ( grp->id != MBEDTLS_ECP_DP_SECP256R1 ) &&
 		 ( grp->id != MBEDTLS_ECP_DP_SECP384R1 ) )
@@ -171,7 +171,7 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
 		return 1;
 	}
 	grp->id == MBEDTLS_ECP_DP_SECP256R1 ? ( curve_id = OPTIGA_ECC_NIST_P_256 )
-                                                : ( curve_id = OPTIGA_ECC_NIST_P_384 ); 
+                                                : ( curve_id = OPTIGA_ECC_NIST_P_384 );
     //invoke optiga command to generate a key pair.
 	status = optiga_crypt_ecc_generate_keypair( curve_id,
                                                 (optiga_key_usage_t)( OPTIGA_KEY_USAGE_KEY_AGREEMENT | OPTIGA_KEY_USAGE_AUTHENTICATION ),
@@ -191,7 +191,7 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
 	}
 
     return status;
-}					  
+}
 #endif
 
 #endif

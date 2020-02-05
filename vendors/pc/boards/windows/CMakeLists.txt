@@ -8,7 +8,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "Windows-Simulator")
@@ -16,7 +16,7 @@ afr_set_board_metadata(DISPLAY_NAME "Windows Simulator")
 afr_set_board_metadata(DESCRIPTION "Simulation environment for a generic IoT device")
 afr_set_board_metadata(VENDOR_NAME "Simulator")
 afr_set_board_metadata(FAMILY_NAME "Simulator")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "FreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "VisualStudio")
 afr_set_board_metadata(RECOMMENDED_IDE "VisualStudio")
 afr_set_board_metadata(IDE_VisualStudio_NAME "Visual Studio")
@@ -46,7 +46,7 @@ target_compile_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
@@ -135,7 +135,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 

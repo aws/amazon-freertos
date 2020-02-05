@@ -27,7 +27,7 @@ set(link_dependent_libs
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
 set(compiler_specific_src
@@ -42,10 +42,10 @@ set(compiler_specific_include
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 
-set(link_extra_flags 
+set(link_extra_flags
     --xml_link_info="${exe_target}_linkInfo.xml"
     "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )

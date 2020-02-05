@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201912.00
+ * FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -164,7 +164,7 @@
 
 /* Platform and SDK name for AWS IoT MQTT metrics. Only used when
  * AWS_IOT_MQTT_ENABLE_METRICS is 1. */
-#define IOT_SDK_NAME             "AmazonFreeRTOS"
+#define IOT_SDK_NAME             "FreeRTOS"
 #ifdef configPLATFORM_NAME
     #define IOT_PLATFORM_NAME    configPLATFORM_NAME
 #else

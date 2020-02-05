@@ -11,7 +11,7 @@ endif()
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS disabled libraries
+# FreeRTOS disabled libraries
 # -------------------------------------------------------------------------------------------------
 set(AFR_MODULE_defender 0 CACHE INTERNAL "")
 # HTTPS is not supported for Nordic as this board does not have WiFi/Ethernet.
@@ -19,7 +19,7 @@ set(AFR_MODULE_https 0 CACHE INTERNAL "")
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "nrf52840-dk")
@@ -27,7 +27,7 @@ afr_set_board_metadata(DISPLAY_NAME "nRF52840 DK")
 afr_set_board_metadata(DESCRIPTION "Nordic nrf52840-dk Development Kit")
 afr_set_board_metadata(VENDOR_NAME "Nordic")
 afr_set_board_metadata(FAMILY_NAME "NRF52")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "FreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "SeggerStudio")
 afr_set_board_metadata(RECOMMENDED_IDE "SeggerStudio")
 afr_set_board_metadata(IDE_SeggerStudio_NAME "SEGGER Embedded Studio")
@@ -172,7 +172,7 @@ target_link_libraries(
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Kernel
 afr_mcu_port(kernel)
@@ -450,7 +450,7 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".hex")
 

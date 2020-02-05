@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.8
+ * FreeRTOS PKCS#11 V1.0.8
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -220,7 +220,7 @@ ATCAIfaceCfg cfg_ateccx08a_kithid_default = {
 };
 
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-/* This configuration is only suitable for testing of a device and does not enforce good 
+/* This configuration is only suitable for testing of a device and does not enforce good
 security policies that should be practiced in production */
 const uint8_t atecc608_config[] = {
     0x01, 0x23, 0x00, 0x00,  /* SN03 */
@@ -254,15 +254,15 @@ const uint8_t atecc608_config[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,  /* Counter1 */
     0x00,    /* Use Lock */
     0x00,    /* Volatile Key Permission */
-    0x03, 0xF7, 
-    0x00, 
+    0x03, 0xF7,
+    0x00,
     0x69, 0x76,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  /* Reserve3 */
     0x00,  // User Extra
     0x00,  // UserExtraAdd
-    0x55,  // Lock Value 
+    0x55,  // Lock Value
     0x55,  // Lock Config
-    0xFF, 0xFF,  /* Slot locked. */ 
+    0xFF, 0xFF,  /* Slot locked. */
     0x0E,0x60,  /* Chip options */
     0x00, 0x00, 0x00, 0x00, /* X509 Format */
     0x53, 0x00,  /* KeyConfig[0] */
@@ -281,7 +281,7 @@ const uint8_t atecc608_config[] = {
     0x30, 0x00, //13
     0x12, 0x00, //14
     0x30, 0x00  //15
-};   
+};
 #else
 /** Standard Configuration Structure for ATECC608A devices */
 const uint8_t atecc608_config[] = {
@@ -302,7 +302,7 @@ CK_RV pkcs11_config_cert(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, 
 {
     CK_RV rv = CKR_OK;
 	size_t len;
-    
+
     (void)pLibCtx;
     (void)pSlot;
 
@@ -365,7 +365,7 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
 {
     CK_RV rv = CKR_OK;
 	size_t len;
-    
+
     (void)pLibCtx;
 
     if (!pObject || !pLabel || !pSlot)
@@ -444,7 +444,7 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr pSlot)
 			pkcs11_config_key(NULL, pSlot, pObject, &xLabel );
 		}
 	}
-    
+
 	if (CKR_OK == rv)
 	{
 		rv = pkcs11_object_alloc(&pObject);
@@ -470,7 +470,7 @@ CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr pSlot)
 			pkcs11_config_cert(NULL, pSlot, pObject, &xLabel );
 		}
 	}
-    
+
 	if (CKR_OK == rv)
 	{
 		rv = pkcs11_object_alloc(&pObject);

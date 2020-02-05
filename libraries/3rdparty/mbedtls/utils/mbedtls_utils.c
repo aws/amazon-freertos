@@ -125,8 +125,8 @@ int convert_pem_to_der( const unsigned char * pucInput,
 
 
 /* This function is a modified version of the static function
-rsa_rsassa_pkcs1_v15_encode() inside of rsa.c in mbedTLS.  It has been extracted 
-so that Amazon FreeRTOS PKCS #11 libraries and testing may use it. */
+rsa_rsassa_pkcs1_v15_encode() inside of rsa.c in mbedTLS.  It has been extracted
+so that FreeRTOS PKCS #11 libraries and testing may use it. */
 
 /* Construct a PKCS v1.5 encoding of a hashed message
  *
@@ -147,10 +147,10 @@ so that Amazon FreeRTOS PKCS #11 libraries and testing may use it. */
  *
  */
 
-/* \brief Formats cryptographically hashed data for RSA signing in accordance 
+/* \brief Formats cryptographically hashed data for RSA signing in accordance
  * with PKCS #1 version 1.5.
  *
- * Currently assumes SHA-256. 
+ * Currently assumes SHA-256.
  */
 int PKI_RSA_RSASSA_PKCS1_v15_Encode( const unsigned char *hash,
                                      size_t dst_len,

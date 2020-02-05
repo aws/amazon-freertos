@@ -1,10 +1,10 @@
-{ 
-    // Delete all comments before running the script (including this one). Please follow https://docs.aws.amazon.com/freertos/latest/userguide/ota-prereqs.html 
+{
+    // Delete all comments before running the script (including this one). Please follow https://docs.aws.amazon.com/freertos/latest/userguide/ota-prereqs.html
     // Before running this script to get the necessary configurations.
     "name": "board", // FIXME: Your board's name.
     "exclude": true, // FIXME: Set to 'false' to use this board configuration.
-    "afr_root": "../..", //FIXME: The root path of Amazon FreeRTOS.
-    "demos_or_tests": "tests", //FIXME: The type of project in Amazon FreeRTOS (under the /tests or /demos directory)
+    "afr_root": "../..", //FIXME: The root path of FreeRTOS.
+    "demos_or_tests": "tests", //FIXME: The type of project in FreeRTOS (under the /tests or /demos directory)
     "vendor_board_path":"vendor/board", // FIXME: The project board portable path defined by vendor/board under all portable source directories.
     "wifi_ssid":"Paste Wi-Fi SSID.", // FIXME
     "wifi_password":"Paste Wi-Fi Password.", // FIXME
@@ -24,8 +24,8 @@
             // FIXME: Some header files are changed and the project is rebuilt for each test. Here are commands needed to build the project. You should also
             // clean before each build if your build tool does not pick up header file changes on an incremental build.
         ],
-        "use_reference_bootloader": true, // FIXME: Set to 'true' if the Amazon FreeRTOS Reference Bootloader is use in your OTA project. If this is set to false the bottom three configurations will be ignored.
-        "bootloader_hardware_platform": "board-name", // FIXME: Set to the name of the platform assigned when porting the Amazon FreeRTOS Reference Bootloader.
+        "use_reference_bootloader": true, // FIXME: Set to 'true' if the FreeRTOS Reference Bootloader is use in your OTA project. If this is set to false the bottom three configurations will be ignored.
+        "bootloader_hardware_platform": "board-name", // FIXME: Set to the name of the platform assigned when porting the FreeRTOS Reference Bootloader.
         "bootloader_private_key_path": "system/path/to/private_key.pem", // FIXME: The path on your system to the private key use for OTA code signing.
         "bootloader_output": "{afr_root}/{demos_or_tests}/path/to/bootloader/project.hex" // FIXME: The path to the bootloader project hex formatted firmware output.
     },
@@ -35,7 +35,7 @@
         "ota_firmware_file_path": "{afr_root}/{demos_or_tests}/{vendor_board_path}/ide/Build/aws_{demos_or_tests}.bin",// FIXME: The full path to the OTA firmware located on your system.
         "device_firmware_file_name": "device_fs_dir/aws_{demos_or_tests}.bin", // FIXME: The full file path on the MCU device where the OTA firmware will download; some devices do not need this field, but it cannot be blank.
         "ota_timeout_sec":600, // FIXME: The maximum time in seconds for an OTA on your MCU device.
-        "aws_signer_platform": "AmazonFreeRTOS-Default", //FIXME: The name of code signing platformId in the AWS Signer service (AmazonFreeRTOS-Default uses SHA256 with ECDSA). You may need to run in your terminal "aws signer list-signing-platforms" to get the latest list.
+        "aws_signer_platform": "FreeRTOS-Default", //FIXME: The name of code signing platformId in the AWS Signer service (FreeRTOS-Default uses SHA256 with ECDSA). You may need to run in your terminal "aws signer list-signing-platforms" to get the latest list.
         "aws_signer_certificate_arn": "arn:aws:acm:us-west-2:123123123123:certificate/paste-your-arn-here", //FIXME: The ARN (Amazon Resource Name) for the certificate uploaded to ACM (AWS Certificate Manager) when following: https://docs.aws.amazon.com/freertos/latest/userguide/ota-prereqs.html
         "aws_untrusted_signer_certificate_arn": "arn:aws:acm:us-west-2:123123123123:certificate/paste-your-arn-here", //FIXME: The ARN (Amazon Resource Name) for a certificate uploaded to ACM which your device should not trust - used to test invalid certificate cases
         "aws_signer_certificate_file_name": "ecdsa-sha256-signer.crt.pem", // FIXME: The full path on the MCU device where the OTA code signer certificate lives. Some devices do not need this field, but it cannot be blank.
@@ -58,7 +58,7 @@
     },
     "flash_config": {
         "project_dir":"{afr_root}/{demos_or_tests}/{vendor_board_path}/ide", // FIXME: The path to the project directory of the board.
-        "output": "{project_dir}/Build/aws_{demos_or_tests}.out", //FIXME: The file path to the build to flash. This should be a .hex file if you are using the Amazon FreeRTOS Reference Bootloader.
+        "output": "{project_dir}/Build/aws_{demos_or_tests}.out", //FIXME: The file path to the build to flash. This should be a .hex file if you are using the FreeRTOS Reference Bootloader.
         "tool_paths": [
             "/absolute_path/to/flash_tools_needed_for_commands/bin",
             "/another_absolute_path/to/flash_tools_needed_for_commands/bin"
@@ -73,8 +73,8 @@
         ],
         "flash_delay_sec": 3, // FIXME: The number of seconds to delay after flashing.
         "flash_num_retry": 3, // FIXME: The number of times to retry if flash fails.
-        "flash_after_serial_open": true, // FIXME: Set this to 'true' if you can flash after opening the serial port for reading. 
-                                         // Some devices use the same serial port for flashing and reading so this would need to be set to 'false'. 
+        "flash_after_serial_open": true, // FIXME: Set this to 'true' if you can flash after opening the serial port for reading.
+                                         // Some devices use the same serial port for flashing and reading so this would need to be set to 'false'.
         "serial_port": "FIXME: The serial port of the device. In Windows these are of the format COMx, in MAC and Linux these will be '/dev/xxx'.",
         "serial_baudrate": 115200, // FIXME: The BAUD rate (bps) of the serial communication.
         "serial_timeout_sec": 30 // FIXME: The timeout in reading from the serial port of the device.

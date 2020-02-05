@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -150,20 +150,20 @@ static void vCheckTask( void *pvParameters )
 			  Sleep( 1 );
     }
 }
- 
+
 int main( void )
 {
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
-    configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
-    configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
-    xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
+    configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));
+    configPRINTF( ( "FreeRTOS_IPInit\n" ) );
+    xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );
 
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();       
+    vDevModeKeyProvisioning();
 
 #if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
     FreeRTOS_IPInit( ucIPAddress,
@@ -172,7 +172,7 @@ int main( void )
                      ucDNSServerAddress,
                      ucMACAddress );
 #endif
-    
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -289,7 +289,7 @@ void prvWifiConnect( void )
     {
         configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
-        /* Delay to allow the lower priority logging task to print the above status. 
+        /* Delay to allow the lower priority logging task to print the above status.
          * The while loop below will block the above printing. */
         Sleep( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -313,7 +313,7 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
         xWifiStatus = WIFI_GetIP( ucIpAddr );
-        if ( eWiFiSuccess == xWifiStatus ) 
+        if ( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
@@ -356,14 +356,14 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     if( eNetworkEvent == eNetworkUp )
     {
         /* The network is up so we can run. */
-			  
+
         if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
         {
           /* A simple example to demonstrate key and certificate provisioning in
             * microcontroller flash using PKCS#11 interface. This should be replaced
             * by production ready key provisioning mechanism. */
             vDevModeKeyProvisioning();
-          
+
             /* Run all demos. */
             DEMO_RUNNER_RunDemos();
             xTasksAlreadyCreated = pdTRUE;
@@ -486,7 +486,7 @@ void vApplicationIdleHook( void )
 
 void vApplicationTickHook( void )
 {
-	static uint32_t tickHookCnt=0; 
+	static uint32_t tickHookCnt=0;
 	tickHookCnt++;
 }
 /*-----------------------------------------------------------*/

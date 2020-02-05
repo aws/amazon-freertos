@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V2.0.0
+ * FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file aws_device_information.c
- * @brief BLE GATT service to expose Amazon FreeRTOS device information.
+ * @brief BLE GATT service to expose FreeRTOS device information.
  */
 
 #include <string.h>

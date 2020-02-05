@@ -25,20 +25,20 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html.
 
 The first step is to setup a certificate chain of trust that resembles a production IoT ecosystem. For lab testing purposes, we'll create a self-signed root certificate authority and an intermediate certificate authority.
 
-Your Root CA will be self-signed at the top of your chain of trust.  
+Your Root CA will be self-signed at the top of your chain of trust.
 
 Your Signing Certificate is an intermediate CA and will be issued by your Root CA.  It will be used to issue your device certificate.
 
 Your Device Certificate will be unique per device, and is issued by your Signing Certificate.
 
 ### Create the Root CA
-First, create your Root CA.  
+First, create your Root CA.
 ```
->python ca_create_root.py 
+>python ca_create_root.py
 ```
 
 ### Create the Signing CA
-Next, create your Signing CA.  This CA will be registered with your AWS IoT account.  
+Next, create your Signing CA.  This CA will be registered with your AWS IoT account.
 In order to prove your ownership of the Signing CA, obtain a registration code from AWS.
 This registration code will be used to generate a verification certificate (by placing the code into the issued certificate as its subject name).
 
@@ -61,8 +61,8 @@ aws iot register-ca-certificate --ca-certificate file://signer-ca.crt --verifica
 
 This API returns the certificate ID for your new CA certificate (this is the 64 charcter hex value that follows arn:aws:iot:`<region>`:`<account>`:cacert/`<ca-certificate-id>`).
 
-Your signing CA certificate is now "inactive", meaning that it cannot yet be used.  Activate it by 
-calling 
+Your signing CA certificate is now "inactive", meaning that it cannot yet be used.  Activate it by
+calling
 
 ```
 aws iot update-ca-certificate --certificate-id <ca-certificate-id> --new-status ACTIVE
@@ -75,10 +75,10 @@ You have now created your Signing CA, and registered it with your AWS account.
 For each device that you want to register with AWS, you will need to generate
 unique keys, and a corresponding certificate.
 
-1) Go to the Amazon FreeRTOS code, and open the demo project, located at <amazon-freertos-root>\projects\microchip\ecc608a_plus_winsim\visual_studio\aws_demos.
+1) Go to the FreeRTOS code, and open the demo project, located at <amazon-freertos-root>\projects\microchip\ecc608a_plus_winsim\visual_studio\aws_demos.
 
-In the demo, navigate to 
-demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c.  
+In the demo, navigate to
+demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c.
 Ensure that a fresh keypair will be generated for this process.
 ```
 #define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR   1
@@ -86,7 +86,7 @@ Ensure that a fresh keypair will be generated for this process.
 2) Build the demo application and run the code.
 
 3) When the device boots it will generate a private key (which never leaves the device),
-as well as a public key. The public key and device serial number are exported from the 
+as well as a public key. The public key and device serial number are exported from the
 ECC608a and printed to the console.
 
 ```
@@ -106,7 +106,7 @@ that keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR is set to 1.
 The 18 characters following the "CN" will become your device's `<thing-name>`.  The 91
 bytes contain your device public key.
 
-4) Copy the six lines of public key bytes into a file called *DevicePublicKeyAsciiHex.txt*. 
+4) Copy the six lines of public key bytes into a file called *DevicePublicKeyAsciiHex.txt*.
 Then use the command-line tool xxd to parse the hex bytes into binary:
 
 ```
@@ -119,13 +119,13 @@ xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
 openssl ec -inform der -in DevicePublicKeyDer.bin -pubin -pubout -outform pem -out public_key.pem
 ```
 
-6) Don't forget to disable the temporary key generation setting you enabled above. 
+6) Don't forget to disable the temporary key generation setting you enabled above.
 Otherwise, the device will create yet another key pair, and you will have to repeat the previous steps:
 
 ```
 #define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 0
 ```
-7) Create your device certificate using the ca_create_device script. 
+7) Create your device certificate using the ca_create_device script.
 Use the 18 characters following CN= for the thing name, and the public_key.pem file
 that you formatted step 5 as your public key.
 
@@ -138,7 +138,7 @@ You now have a device certificate called device.crt.
 
 ### Register with AWS IoT
 
-1) Register your device certificate with AWS IoT.  
+1) Register your device certificate with AWS IoT.
 ```
 aws iot register-certificate --certificate-pem file://device.crt --ca-certificate-pem file://signer-ca.crt
 ```
@@ -148,7 +148,7 @@ you previously created is above your device certificate in the chain of trust.
 The output is the certificate ID of your device certificate.  Take note of your certificate
 ID, as it will be used later in the instructions when we attach a policy to it.
 
-2) Activate your certificate 
+2) Activate your certificate
 ```
 aws iot update-certificate --certificate-id <device-certificate-id> --new-status ACTIVE
 ```
@@ -188,15 +188,15 @@ in your demo project.
 >python ca_write_header.py
 ```
 
-This creates the aws_clientcredential_keys.h file that is used by 
-Amazon FreeRTOS to save the generated certificates into the secure element. 
-This file needs to be copied to the demos/common/include directory of the 
+This creates the aws_clientcredential_keys.h file that is used by
+FreeRTOS to save the generated certificates into the secure element.
+This file needs to be copied to the demos/common/include directory of the
 demo project to replace the existing blank file.
 
 ### Update aws_clientcredential.h file
 Update clientcredentialMQTT_BROKER_ENDPOINT[] and clientcredentialIOT_THING_NAME
 
-Use the Thing Name from earlier in the instructions.  You can find your endpoint 
+Use the Thing Name from earlier in the instructions.  You can find your endpoint
 by calling
 ```
 aws iot describe-endpoint
@@ -205,12 +205,12 @@ aws iot describe-endpoint
 
 ### Run the demos again
 
-With the aws_clientcredential.h and aws_clientcredential_keys.h file now 
+With the aws_clientcredential.h and aws_clientcredential_keys.h file now
 saved build and load the firmware to the target device. Upon boot the call to
-vDevModeKeyProvisioning will correctly provision the secure element. 
+vDevModeKeyProvisioning will correctly provision the secure element.
 
 Once a connection has been established and proven
-the call to vDevModeKeyProvisioning and the aws_dev_mode_key_provisioning.c 
+the call to vDevModeKeyProvisioning and the aws_dev_mode_key_provisioning.c
 source file can be safely removed from the project. This will save code space
 and speed up the boot process reflecting the production configuration loading
 credentials directly from the provisioned secure element.

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA PAL V1.0.0
+ * FreeRTOS OTA PAL V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Amazon FreeRTOS include. */
+/* FreeRTOS include. */
 #include "FreeRTOS.h"
 #include "aws_iot_ota_pal.h"
 #include "aws_iot_ota_agent_internal.h"

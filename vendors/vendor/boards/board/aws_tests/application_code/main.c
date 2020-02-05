@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,16 +45,16 @@
 /* Unit test defines. */
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
 #define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
 
-/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network 
- * connections are declared below. If you are using an Ethernet connection on your MCU 
- * device it is recommended to use the FreeRTOS+TCP stack. The default values are 
+/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
+ * connections are declared below. If you are using an Ethernet connection on your MCU
+ * device it is recommended to use the FreeRTOS+TCP stack. The default values are
  * defined in FreeRTOSConfig.h. */
 
 /* Default MAC address configuration.  The application creates a virtual network
@@ -106,9 +106,9 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 };
 
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting 
+ * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
@@ -167,7 +167,7 @@ int main( void )
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
+    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be
      * running, here.
      */
 }
@@ -177,11 +177,11 @@ void vApplicationDaemonTaskStartupHook( void )
 {
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
-    
 
-    /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to 
-     * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries 
-     * have been imported into the project. If you are not using Wi-Fi, see the 
+
+    /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
+     * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
+     * have been imported into the project. If you are not using Wi-Fi, see the
      * vApplicationIPNetworkEventHook function. */
     #if 0
         if( SYSTEM_Init() == pdPASS )
@@ -206,10 +206,10 @@ void vApplicationDaemonTaskStartupHook( void )
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
-    /* FIX ME: If your application is using Ethernet network connections and the 
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the 
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been 
-     * imported into the project. If you are not using Ethernet see the 
+    /* FIX ME: If your application is using Ethernet network connections and the
+     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
+     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
+     * imported into the project. If you are not using Ethernet see the
      * vApplicationDaemonTaskStartupHook function. */
     #if 0
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
@@ -250,7 +250,7 @@ void prvWifiConnect( void )
         {
             configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
-            /* Delay to allow the lower priority logging task to print the above status. 
+            /* Delay to allow the lower priority logging task to print the above status.
              * The while loop below will block the above printing. */
             TaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -272,9 +272,9 @@ void prvWifiConnect( void )
         if( xWifiStatus == eWiFiSuccess )
         {
             configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-            
+
             xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus ) 
+            if ( eWiFiSuccess == xWifiStatus )
             {
                 configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                                 ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
@@ -284,7 +284,7 @@ void prvWifiConnect( void )
         {
             configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
 
-            /* Delay to allow the lower priority logging task to print the above status. 
+            /* Delay to allow the lower priority logging task to print the above status.
              * The while loop below will block the above printing. */
             TaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -449,7 +449,7 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
+
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -494,7 +494,7 @@ void vAssertCalled(const char * pcFile,
     {
         /* FIX ME: If necessary, update to applicable registration name. */
 
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }

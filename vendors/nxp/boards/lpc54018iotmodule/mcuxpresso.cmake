@@ -58,14 +58,14 @@ set(link_dependent_libs
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
 set(compiler_specific_src
     ${lpc54018_dir}/mcuxpresso/startup_lpc54018.c
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
-    # Add two auxiliary link scripts 
+    # Add two auxiliary link scripts
     ${lpc54018_dir}/mcuxpresso/linkscripts/data.ldt
     ${lpc54018_dir}/mcuxpresso/linkscripts/main_text.ldt
 )
@@ -75,7 +75,7 @@ set(compiler_specific_include
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 
 set(executable_suffix ".axf")

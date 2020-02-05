@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -106,7 +106,7 @@ file (xLogToFile), and to a UDP port (xLogToUDP).  If xLogToUDP is set to pdTRUE
 then UDP messages are sent to the IP address configured as the echo server
 address (see the configECHO_SERVER_ADDR0 definitions in FreeRTOSConfig.h) and
 the port number set by configPRINT_PORT in FreeRTOSConfig.h. */
-/* PIC32 note: xLogToFile is NOT supported! */ 
+/* PIC32 note: xLogToFile is NOT supported! */
 const BaseType_t xLogToStdout = pdTRUE, xLogToFile = pdFALSE, xLogToUDP = pdFALSE;
 
 /**
@@ -162,7 +162,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     char cBuffer[ 16 ];
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
-    
+
     /* If the network has just come up...*/
     if( eNetworkEvent == eNetworkUp )
     {
@@ -172,14 +172,14 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
              * microcontroller flash using PKCS#11 interface. This should be replaced
              * by production ready key provisioning mechanism. */
             vDevModeKeyProvisioning();
-            
+
             /* If the network has just come up...*/
             xTaskCreate( TEST_RUNNER_RunTests_task,
                          "TestRunner",
                          mainTEST_RUNNER_TASK_STACK_SIZE,
                          NULL,
                          tskIDLE_PRIORITY, NULL );
-                         
+
             xTasksAlreadyCreated = pdTRUE;
         }
 
@@ -263,7 +263,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }

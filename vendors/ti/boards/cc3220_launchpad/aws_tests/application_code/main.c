@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -153,9 +153,9 @@ void vApplicationDaemonTaskStartupHook( void )
 
         prvWifiConnect();
 
-        /* Show the possible security alerts that will affect re-flashing the device. 
-         * When the number of security alerts reaches the threshold, the device file system is locked and 
-         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
+        /* Show the possible security alerts that will affect re-flashing the device.
+         * When the number of security alerts reaches the threshold, the device file system is locked and
+         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed
          * here for debugging purposes. */
         prvShowTiCc3220SecurityAlertCounts();
 
@@ -184,7 +184,7 @@ CK_RV prvProvisionRootCA( void )
     CK_SESSION_HANDLE xSessionHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
 
-    /* Use either Verisign or Starfield root CA 
+    /* Use either Verisign or Starfield root CA
      * depending on whether this is an ATS endpoint. */
     if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
     {

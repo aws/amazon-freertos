@@ -1,5 +1,5 @@
 """
-Amazon FreeRTOS
+FreeRTOS
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ class OtaTestIncorrectPlatform(OtaTestCase):
     is_positive = False
 
     def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
-        if boardConfig['ota_config']['aws_signer_platform'] == 'AmazonFreeRTOS-TI-CC3220SF':
+        if boardConfig['ota_config']['aws_signer_platform'] == 'FreeRTOS-TI-CC3220SF':
             self._signingAlgorithm = 'ECDSA'
             self._hashingAlgorithm = 'SHA256'
         else:

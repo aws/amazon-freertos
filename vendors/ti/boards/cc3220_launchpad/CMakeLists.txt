@@ -23,7 +23,7 @@ elseif(NOT AFR_METADATA_MODE)
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "TI-CC3220SF-LAUNCHXL")
 afr_set_board_metadata(DISPLAY_NAME "CC3220SF-LAUNCHXL")
@@ -32,7 +32,7 @@ afr_set_board_metadata(VENDOR_NAME "Texas Instruments")
 afr_set_board_metadata(FAMILY_NAME "CC3220")
 afr_set_board_metadata(DATA_RAM_MEMORY "256KB")
 afr_set_board_metadata(PROGRAM_MEMORY "1MB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-TI-CC3220SF")
+afr_set_board_metadata(CODE_SIGNER "FreeRTOS-TI-CC3220SF")
 afr_set_board_metadata(SUPPORTED_IDE "CCS;IAR")
 afr_set_board_metadata(RECOMMENDED_IDE "CCS")
 afr_set_board_metadata(IDE_CCS_NAME "Code Composer Studio")
@@ -78,7 +78,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
@@ -177,7 +177,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".out")
 

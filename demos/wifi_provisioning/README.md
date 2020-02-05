@@ -1,6 +1,6 @@
 ## WiFi provisioning
-WiFi provisioning is a BLE service that allows to safely send credential from phone to device over Bluetooth low energy. 
-The source code for the service can be found in the Amazon FreeRTOS repo under folder ```lib/bluetooth_low_energy/services/wifi_provisioning```. 
+WiFi provisioning is a BLE service that allows to safely send credential from phone to device over Bluetooth low energy.
+The source code for the service can be found in the FreeRTOS repo under folder ```lib/bluetooth_low_energy/services/wifi_provisioning```.
 
 This directory is a placeholder, WiFi provisioning really take place in the main loop:
 
@@ -46,7 +46,7 @@ Through the custom mobile application developed using the [IOS sdk] (https://git
 - Delete saved networks from flash
 - Switch connections between the saved WiFi networks
 
-Once the device restarts it automatically connects to one of the provisioned WiFi networks in the order it was saved. Maximum number of saved networks at any time in flash 
+Once the device restarts it automatically connects to one of the provisioned WiFi networks in the order it was saved. Maximum number of saved networks at any time in flash
 is currently set to 8
 
 MQTT demos like the hello world demo are designed to use the WIFI network as the preferred transport by default. If during WiFi provisioning we delete the WiFi network or

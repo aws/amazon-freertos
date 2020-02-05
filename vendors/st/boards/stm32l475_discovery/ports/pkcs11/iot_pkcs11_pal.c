@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for STM32L4 Discovery kit IoT node V1.0.3
+ * FreeRTOS PKCS #11 PAL for STM32L4 Discovery kit IoT node V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 
 /**
  * @file iot_pkcs11_pal.c
- * @brief Amazon FreeRTOS device specific helper functions for
+ * @brief FreeRTOS device specific helper functions for
  * PKCS#11 implementation based on mbedTLS.  This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS#11 standard.

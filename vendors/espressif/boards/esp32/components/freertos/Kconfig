@@ -2,10 +2,10 @@ menu "FreeRTOS"
 
 config FREERTOS_UNICORE
     bool
-    # Only single core mode is supported in Amazon FreeRTOS
+    # Only single core mode is supported in FreeRTOS
     default y
     help
-        This version of FreeRTOS normally takes control of all cores of 
+        This version of FreeRTOS normally takes control of all cores of
         the CPU. Select this if you only want to start it on the first core.
         This is needed when e.g. another process needs complete control
         over the second core.
@@ -24,7 +24,7 @@ choice FREERTOS_CORETIMER
         FreeRTOS needs a timer with an associated interrupt to use as
         the main tick source to increase counters, run timers and do
         pre-emptive multitasking with. There are multiple timers available
-        to do this, with different interrupt priorities. Check 
+        to do this, with different interrupt priorities. Check
 
 config FREERTOS_CORETIMER_0
     bool "Timer 0 (int 6, level 1)"
@@ -76,7 +76,7 @@ config FREERTOS_CHECK_STACKOVERFLOW_PTRVAL
 config FREERTOS_CHECK_STACKOVERFLOW_CANARY
     bool "Check using canary bytes"
     help
-        Places some magic bytes at the end of the stack area and on each 
+        Places some magic bytes at the end of the stack area and on each
         context switch, check if these bytes are still intact. More thorough
         than just checking the pointer, but also slightly slower.
         (configCHECK_FOR_STACK_OVERFLOW=2)
@@ -163,7 +163,7 @@ config FREERTOS_ISR_STACKSIZE
     range 1536 32768
     default 1536
     help
-        The interrupt handlers have their own stack. The size of the stack can be defined here. 
+        The interrupt handlers have their own stack. The size of the stack can be defined here.
         Each processor has its own stack, so the total size occupied will be twice this.
 
 config FREERTOS_LEGACY_HOOKS
@@ -305,7 +305,7 @@ config FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
     default n
     help
         If enabled, configUSE_STATS_FORMATTING_FUNCTIONS will be defined as 1 in
-        FreeRTOS. This will allow the usage of stats formatting functions such 
+        FreeRTOS. This will allow the usage of stats formatting functions such
         as vTaskList().
 
 config FREERTOS_GENERATE_RUN_TIME_STATS
@@ -314,48 +314,48 @@ config FREERTOS_GENERATE_RUN_TIME_STATS
     select FREERTOS_USE_TRACE_FACILITY
     select FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
     help
-        If enabled, configGENERATE_RUN_TIME_STATS will be defined as 1 in 
-        FreeRTOS. This will allow FreeRTOS to collect information regarding the 
-        usage of processor time amongst FreeRTOS tasks. Run time stats are 
-        generated using either the ESP Timer or the CPU Clock as the clock 
-        source (Note that run time stats are only valid until the clock source 
-        overflows). The function vTaskGetRunTimeStats() will also be available 
-        if FREERTOS_USE_STATS_FORMATTING_FUNCTIONS and 
-        FREERTOS_USE_TRACE_FACILITY are enabled. vTaskGetRunTimeStats() will 
-        display the run time of each task as a % of the total run time of all 
+        If enabled, configGENERATE_RUN_TIME_STATS will be defined as 1 in
+        FreeRTOS. This will allow FreeRTOS to collect information regarding the
+        usage of processor time amongst FreeRTOS tasks. Run time stats are
+        generated using either the ESP Timer or the CPU Clock as the clock
+        source (Note that run time stats are only valid until the clock source
+        overflows). The function vTaskGetRunTimeStats() will also be available
+        if FREERTOS_USE_STATS_FORMATTING_FUNCTIONS and
+        FREERTOS_USE_TRACE_FACILITY are enabled. vTaskGetRunTimeStats() will
+        display the run time of each task as a % of the total run time of all
         CPUs (task run time / no of CPUs) / (total run time / 100 )
-        
-        
+
+
 choice FREERTOS_RUN_TIME_STATS_CLK
     prompt "Choose the clock source for run time stats"
     depends on FREERTOS_GENERATE_RUN_TIME_STATS
     default FREERTOS_RUN_TIME_STATS_USING_ESP_TIMER
     help
-        Choose the clock source for FreeRTOS run time stats. Options are CPU0's 
-        CPU Clock or the ESP Timer. Both clock sources are 32 bits. The CPU 
-        Clock can run at a higher frequency hence provide a finer resolution 
-        but will overflow much quicker. Note that run time stats are only valid 
+        Choose the clock source for FreeRTOS run time stats. Options are CPU0's
+        CPU Clock or the ESP Timer. Both clock sources are 32 bits. The CPU
+        Clock can run at a higher frequency hence provide a finer resolution
+        but will overflow much quicker. Note that run time stats are only valid
         until the clock source overflows.
-        
+
 config FREERTOS_RUN_TIME_STATS_USING_ESP_TIMER
     bool "Use ESP TIMER for run time stats"
     help
-        ESP Timer will be used as the clock source for FreeRTOS run time stats. 
+        ESP Timer will be used as the clock source for FreeRTOS run time stats.
         The ESP Timer runs at a frequency of 1MHz regardless of Dynamic
-        Frequency Scaling. Therefore the ESP Timer will overflow in 
+        Frequency Scaling. Therefore the ESP Timer will overflow in
         approximately 4290 seconds.
 
 config FREERTOS_RUN_TIME_STATS_USING_CPU_CLK
     bool "Use CPU Clock for run time stats"
     help
         CPU Clock will be used as the clock source for the generation of run
-        time stats. The CPU Clock has a frequency dependent on 
+        time stats. The CPU Clock has a frequency dependent on
         ESP32_DEFAULT_CPU_FREQ_MHZ and Dynamic Frequency Scaling (DFS).
-        Therefore the CPU Clock frequency can fluctuate between 80 to 240MHz. 
-        Run time stats generated using the CPU Clock represents the number of 
-        CPU cycles each task is allocated and DOES NOT reflect the amount of 
-        time each task runs for (as CPU clock frequency can change). If the CPU 
-        clock consistently runs at the maximum frequency of 240MHz, it will 
+        Therefore the CPU Clock frequency can fluctuate between 80 to 240MHz.
+        Run time stats generated using the CPU Clock represents the number of
+        CPU cycles each task is allocated and DOES NOT reflect the amount of
+        time each task runs for (as CPU clock frequency can change). If the CPU
+        clock consistently runs at the maximum frequency of 240MHz, it will
         overflow in approximately 17 seconds.
 
 endchoice

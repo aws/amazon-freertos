@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.8
+ * FreeRTOS V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,7 +62,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 /* Startup defines. */
 #define mainSTARTUP_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
@@ -127,7 +127,7 @@ void wm_printf(const char *format, ...)
     UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
 }
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
  * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
@@ -221,7 +221,7 @@ int os_init()
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
+    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be
      * running, here
      */
     int ret;
@@ -341,10 +341,10 @@ eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
-    /* FIX ME: If your application is using Ethernet network connections and the 
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the 
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been 
-     * imported into the project. If you are not using Ethernet see the 
+    /* FIX ME: If your application is using Ethernet network connections and the
+     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
+     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
+     * imported into the project. If you are not using Ethernet see the
      * vApplicationDaemonTaskStartupHook function. */
     if (eNetworkEvent == eNetworkUp) {
         configPRINT("\r\nNetwork connection successful.\r\n");
@@ -434,7 +434,7 @@ void prvWifiConnect( void )
 void vApplicationIdleHook( void )
 {
     /* FIX ME. If necessary, update to application idle periodic actions. */
-    
+
     static TickType_t xLastPrint = 0;
     TickType_t xTimeNow;
     const TickType_t xPrintFrequency = pdMS_TO_TICKS( 5000 );
@@ -477,7 +477,7 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
+
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 

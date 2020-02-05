@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201912.00
+ * FreeRTOS V201912.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@
 /* Common header. */
 #include "iot_demo_https_common.h"
 
-/* Amazon FreeRTOS includes. */
+/* FreeRTOS includes. */
 #include "iot_https_utils.h"
 #include "iot_demo_logging.h"
 

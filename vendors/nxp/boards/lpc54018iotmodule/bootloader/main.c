@@ -28,7 +28,7 @@
  */
 
 /*
- * Amazon FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -148,7 +148,7 @@ void USB_DeviceIsrEnable( void )
 /*-----------------------------------------------------------*/
 
 int main( void )
-{ 
+{
     /* attach 12 MHz clock to FLEXCOMM0 (debug console) */
     CLOCK_AttachClk( BOARD_DEBUG_UART_CLK_ATTACH );
 

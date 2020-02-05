@@ -37,12 +37,12 @@ set(assembler_flags "-s+" "-M{}" "-w-" "-j" "-DDEBUG" "-DMXL12835F" "--cpu" "Cor
 set(linker_flags
     "--config_def" "XIP_IMAGE=1"
     "--config" "${lpc54018_dir}/iar/LPC54018_spifi_flash_data.icf"
-    "--semihosting" "--entry" "__iar_program_start" "--vfe" 
+    "--semihosting" "--entry" "__iar_program_start" "--vfe"
     "--text_out" "locale"
 )
 
 set(link_directories
-    "${lpc54018_dir}/iar" 
+    "${lpc54018_dir}/iar"
 )
 
 set(link_dependent_libs
@@ -50,7 +50,7 @@ set(link_dependent_libs
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
 set(compiler_specific_src
@@ -65,7 +65,7 @@ set(compiler_specific_include
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 
 set(executable_suffix ".out")

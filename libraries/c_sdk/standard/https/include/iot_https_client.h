@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.1
+ * FreeRTOS HTTPS Client V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file iot_https_client.h
- * @brief User-facing functions of the Amazon FreeRTOS HTTPS Client library.
+ * @brief User-facing functions of the FreeRTOS HTTPS Client library.
  */
 
 #ifndef IOT_HTTPS_CLIENT_H_

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.3
+ * FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@
 #define posixconfigENABLE_MODE_T            0
 
 /*
- * Following POSIX config overrides are required for older GCC versions. 
+ * Following POSIX config overrides are required for older GCC versions.
  */
 #ifdef __clockid_t_defined
 #define posixconfigENABLE_CLOCKID_T         0

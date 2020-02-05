@@ -1,15 +1,15 @@
 # Developer-Mode Key Provisioning #
 ## Introduction ##
-The purpose of the Amazon FreeRTOS developer-mode key provisioning demo is to provide embedded developers with options for getting a trusted X.509 client certificate onto an IoT device for lab testing. Depending on the capabilities of the device, various provisioning-related operations may or may not be supported, including onboard ECDSA key generation, private key import, and X.509 certificate enrollment. In addition, different use cases call for different levels of key protection, ranging from onboard flash storage to the use of dedicated crypto hardware. This demo provides logic for working within the cryptographic capabilities of your device.
+The purpose of the FreeRTOS developer-mode key provisioning demo is to provide embedded developers with options for getting a trusted X.509 client certificate onto an IoT device for lab testing. Depending on the capabilities of the device, various provisioning-related operations may or may not be supported, including onboard ECDSA key generation, private key import, and X.509 certificate enrollment. In addition, different use cases call for different levels of key protection, ranging from onboard flash storage to the use of dedicated crypto hardware. This demo provides logic for working within the cryptographic capabilities of your device.
 
 ## Option #1: Private Key Import from AWS IoT ##
-For lab testing purposes, if your device allows the import of private keys, you can follow the instructions in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html). 
+For lab testing purposes, if your device allows the import of private keys, you can follow the instructions in [Configuring the FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html).
 
 ## Option #2: Onboard Private Key Generation ##
 If your device does not allow the import of private keys, or if your solution calls for the use of [Just-in-Time Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html) (JITP), you can follow the instructions below.
 
 ### Initial Configuration ###
-First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not. 
+First, perform the steps in [Configuring the FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not.
 
 ### Demo Project Configuration ###
 Open the Hello World MQTT demo as described in the [Getting Started guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-guides.html) for your board. In the project, open the file *aws_dev_mode_key_provisioning.c* and find the definition keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR, which is set to zero by default. Set it to one:
@@ -66,11 +66,11 @@ openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreates
 ```
 
 ### Certificate Import ###
-With the certificate issued, the next step is to import it into your device. You will also need to import your Certificate Authority (CA) certificate, since it is required in order for first-time authentication to AWS IoT to succeed when using JITP. In the *aws_clientcredential_keys.h* file in your project, set the `keyCLIENT_CERTIFICATE_PEM` macro to be the contents of *deviceCert.pem* and set the `keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM` macro to be the contents of *rootCA.pem*. 
+With the certificate issued, the next step is to import it into your device. You will also need to import your Certificate Authority (CA) certificate, since it is required in order for first-time authentication to AWS IoT to succeed when using JITP. In the *aws_clientcredential_keys.h* file in your project, set the `keyCLIENT_CERTIFICATE_PEM` macro to be the contents of *deviceCert.pem* and set the `keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM` macro to be the contents of *rootCA.pem*.
 
 Recompile your project after the header change described above. Then re-run the MQTT Hello World demo in order to connect to AWS IoT with your new certificate and private key. Please note that the authentication attempt will again fail - see the next section.
 
 ### Device Authorization ###
-The *Enable Automatic Registration* section of [Use Your Own Certificate](https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html) describes how to create a Lambda that will automatically mark your new device certificate as ACTIVE in the AWS IoT registry. If you are not using a Lambda, you must create a new Thing, attach the PENDING certificate and a policy to your Thing, and then mark the certificate as ACTIVE. All of those steps can be performed manually in the AWS IoT console. 
+The *Enable Automatic Registration* section of [Use Your Own Certificate](https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html) describes how to create a Lambda that will automatically mark your new device certificate as ACTIVE in the AWS IoT registry. If you are not using a Lambda, you must create a new Thing, attach the PENDING certificate and a policy to your Thing, and then mark the certificate as ACTIVE. All of those steps can be performed manually in the AWS IoT console.
 
 Once the new client certificate is ACTIVE and associated with a Thing and policy, run the MQTT Hello World demo again. This time, the connection to the AWS IoT MQTT broker will succeed.

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,12 +51,12 @@
 /**
  * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
  */
-#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           0 
+#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           0
 
 /**
  * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
  */
-#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    0 
+#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    0
 
 /**
  * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
@@ -75,4 +75,4 @@
 #define otatestVALID_SIG_METHOD                         "sig-sha1-rsa"
 #define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"
 
-#endif 
+#endif

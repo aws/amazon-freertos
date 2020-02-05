@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -74,7 +74,7 @@ CK_RV C_GetFunctionList( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
   *ppxFunctionList = &xFunctionList;
   xFunctionList.C_Initialize = prvC_Initialize;
-  xFunctionList.C_GetSlotList = prvC_GetSlotList; 
+  xFunctionList.C_GetSlotList = prvC_GetSlotList;
   xFunctionList.C_OpenSession = prvC_OpenSession;
   xFunctionList.C_CloseSession = prvC_CloseSession;
   return CKR_OK;

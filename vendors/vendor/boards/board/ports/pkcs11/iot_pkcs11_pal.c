@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL V1.0.0
+ * FreeRTOS PKCS #11 PAL V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
-/* Amazon FreeRTOS Includes. */
+/* FreeRTOS Includes. */
 #include "iot_pkcs11.h"
 #include "FreeRTOS.h"
 
@@ -120,7 +120,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
     uint32_t ulDataSize )
 {
-    
+
 }
 
 /*-----------------------------------------------------------*/

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
- 
+
 #ifndef AWS_INTEGRATION_TEST_TCP_CONFIG_H
 #define AWS_INTEGRATION_TEST_TCP_CONFIG_H
 

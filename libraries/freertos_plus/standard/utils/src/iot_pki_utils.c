@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Utils V1.1.1
+ * FreeRTOS Utils V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
-/* Amazon FreeRTOS includes. */
+/* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "iot_pki_utils.h"
 

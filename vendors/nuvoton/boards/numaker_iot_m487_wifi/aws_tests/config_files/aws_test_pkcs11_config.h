@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file aws_test_pkcs11_config.h
- * @brief Port-specific variables for PKCS11 tests. 
+ * @brief Port-specific variables for PKCS11 tests.
  */
 
 #ifndef _AWS_TEST_PKCS11_CONFIG_H_
@@ -35,7 +35,7 @@
  * @brief Number of simultaneous tasks for SignVerifyRoundTrip_MultitaskLoop test.
  *
  * Each task consumes both stack and heap space, which may cause memory allocation
- * failures if too many tasks are created. 
+ * failures if too many tasks are created.
  */
 #define pkcs11testSIGN_VERIFY_TASK_COUNT    ( 2 )
 

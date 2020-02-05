@@ -23,7 +23,7 @@ The [OPTIGA™ Trust X](https://www.infineon.com/dgdl/Infineon-DPS310-DS-v01_00-
 * Standard & extended temperature ranges
 * Full system integration support
 * Common Criteria Certified EAL6+ (high) hardware
-* Cryptographic Tool Box based on ECC NIST P256, P384 and SHA256 (sign, verify, key generation, ECDH, session key derivation)   
+* Cryptographic Tool Box based on ECC NIST P256, P384 and SHA256 (sign, verify, key generation, ECDH, session key derivation)
 
 ## Overview
 
@@ -48,7 +48,7 @@ Infineon's GitHub offers various application notes for OPTIGA™ Trust X securit
 
 ## Porting Guide
 You might find a list of supported Platforms [here](https://github.com/Infineon/optiga-trust-x/tree/master/pal). These are:
-* Espressif ESP32 with Amazon freeRTOS
+* Espressif ESP32 with FreeRTOS
 * Espressif ESP32 with freeRTOS
 * Nordic NRF52
 * Raspberry Pi (Embedded Linux)

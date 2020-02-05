@@ -12,7 +12,7 @@
 *  File Name:  pic32_NetworkInterface.c
 *  Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
 *
-*  Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.4
+*  FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.4
 *  Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy of

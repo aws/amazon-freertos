@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.2
+ * FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,14 +35,14 @@
 #include "aws_ota_pal_settings.h"
 
  /*-----------------------------------------------------------*/
- 
+
 int asn1_getBigInteger( uint8_t * pucInt,
                                 uint8_t ** ppucStart,
                                 uint8_t * pucEnd )
 {
-    int xReturn = 1; 
+    int xReturn = 1;
     size_t xLength;
-    
+
     /* Clear destination buffer for integer component. */
     memset(pucInt, 0, ECC_NUM_BYTES_PER_SIG_COMPONENT );
 
@@ -52,21 +52,21 @@ int asn1_getBigInteger( uint8_t * pucInt,
 
         if( xLength > ECC_NUM_BYTES_PER_SIG_COMPONENT )
         {
-            /* If length is greater than ECC_NUM_BYTES_PER_SIG_COMPONENT we probably have 
+            /* If length is greater than ECC_NUM_BYTES_PER_SIG_COMPONENT we probably have
              * signed byte so copy last ECC_NUM_BYTES_PER_SIG_COMPONENT. */
             memcpy( pucInt, *ppucStart + xLength - ECC_NUM_BYTES_PER_SIG_COMPONENT, ECC_NUM_BYTES_PER_SIG_COMPONENT );
         }
         else
         {
-            /* If length is less than ECC_NUM_BYTES_PER_SIG_COMPONENT copy the length 
+            /* If length is less than ECC_NUM_BYTES_PER_SIG_COMPONENT copy the length
              bytes to buffer. */
             memcpy( pucInt + ECC_NUM_BYTES_PER_SIG_COMPONENT - xLength, *ppucStart, xLength );
         }
-        
+
         /* Move the buffer pointer to next element*/
         *ppucStart += xLength;
-        
-         xReturn = 0; 
+
+         xReturn = 0;
     }
 
     return xReturn;
@@ -79,12 +79,12 @@ int asn1_decodeSignature( uint8_t * pucSignature,
                                  uint8_t * pucEnd )
 {
     size_t xLength = 0;
-    int xReturn = 1; 
-        
+    int xReturn = 1;
+
     /* Get ASN.1 sequence tag. */
-    if( 0 == mbedtls_asn1_get_tag( &pucStart, 
-                               pucEnd, 
-                               &xLength, 
+    if( 0 == mbedtls_asn1_get_tag( &pucStart,
+                               pucEnd,
+                               &xLength,
                                MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ))
     {
         /* Sanity check length. */
@@ -92,7 +92,7 @@ int asn1_decodeSignature( uint8_t * pucSignature,
         {
             return 1;
         }
-        
+
         /* Get the first big integer. */
         xReturn = asn1_getBigInteger( pucSignature, &pucStart, pucEnd );
 
@@ -104,6 +104,6 @@ int asn1_decodeSignature( uint8_t * pucSignature,
         }
 
     }
-    
+
     return xReturn;
 }

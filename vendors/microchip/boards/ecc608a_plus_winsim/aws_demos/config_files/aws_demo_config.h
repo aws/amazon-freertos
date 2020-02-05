@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-/* To run a particular demo you need to define one of these. 
+/* To run a particular demo you need to define one of these.
    Only one demo can be configured at a time
 
             CONFIG_MQTT_DEMO_ENABLED
@@ -36,7 +36,7 @@
             CONFIG_DEFENDER_DEMO_ENABLED
             CONFIG_POSIX_DEMO_ENABLED
             CONFIG_OTA_UPDATE_DEMO_ENABLED
-            
+
     These defines are used in iot_demo_runner.h for demo selection */
 
 #define CONFIG_MQTT_DEMO_ENABLED

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * FreeRTOS V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@
 #define testwifiTASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 8 )
 
 /**
- * @brief The task priority used in all Wi-Fi mulit-task tests. 
+ * @brief The task priority used in all Wi-Fi mulit-task tests.
  */
 #define testwifiTASK_PRIORITY               ( tskIDLE_PRIORITY + 2)
 

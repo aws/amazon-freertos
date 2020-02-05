@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for for Nuvoton NuMaker-IoT-M487 V1.0.0
+ * FreeRTOS Wi-Fi for for Nuvoton NuMaker-IoT-M487 V1.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -108,7 +108,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
     uint32_t i;
 
-    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL || 
+    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL ||
         (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
         return xWiFiRet;
     }

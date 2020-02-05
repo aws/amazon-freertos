@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Numaker_PFM_M487 V1.0.0
+ * FreeRTOS PKCS #11 PAL for Numaker_PFM_M487 V1.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 
 /**
  * @file aws_pkcs11_pal.c
- * @brief Amazon FreeRTOS device specific helper functions for
+ * @brief FreeRTOS device specific helper functions for
  * PKCS#11 implementation based on mbedTLS.  This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS#11 standard.
@@ -91,13 +91,13 @@ typedef struct
 #define NVT_STORE_BASE             ( 0x7B000UL )      /* local storage start address in APROM  */
 
 /* Set last 4 pages for certification storage, FMC_FLASH_PAGE_SIZE=4KB */
-static P11KeyConfig_t P11KeyConfig ={ NVT_STORE_BASE, 
+static P11KeyConfig_t P11KeyConfig ={ NVT_STORE_BASE,
                                       NVT_STORE_BASE + FMC_FLASH_PAGE_SIZE,
                                       NVT_STORE_BASE + FMC_FLASH_PAGE_SIZE*2,
                                       NVT_STORE_BASE + FMC_FLASH_PAGE_SIZE*3};
 
 static P11CertData_t P11CertDataSave;
-                                
+
 /*-----------------------------------------------------------*/
 
 
@@ -105,12 +105,12 @@ static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
 {
     uint32_t    u32Addr;               /* flash address */
     uint32_t    u32data;               /* flash data    */
-    uint32_t    *pDataSrc;             /* flash data    */    
+    uint32_t    *pDataSrc;             /* flash data    */
     uint32_t    u32EndAddr = (u32StartAddr + sizeof(P11CertData_t));
     uint32_t    u32Pattern = 0xFFFFFFFF;
 
-    
-    FMC_Erase(u32StartAddr);    
+
+    FMC_Erase(u32StartAddr);
      /* Verify if each data word from flash u32StartAddr to u32EndAddr be 0xFFFFFFFF.  */
     for (u32Addr = u32StartAddr; u32Addr < u32EndAddr; u32Addr += 4)
     {
@@ -122,7 +122,7 @@ static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
             return -1;                 /* data verify failed */
         }
     }
-    
+
     memcpy( P11CertDataSave.cCertificateData, pucData, ulDataSize );
     P11CertDataSave.ulDeviceCertificateMark = pkcs11OBJECT_FLASH_CERT_PRESENT;
     P11CertDataSave.ulCertificateSize = ulDataSize;
@@ -132,10 +132,10 @@ static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
     {
         FMC_Write(u32Addr, *pDataSrc);          /* Program flash */
         pDataSrc++;
-    }    
-    
+    }
+
     return ulDataSize;
-    
+
 }
 
 
@@ -206,13 +206,13 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
     CK_ULONG ulFlashMark = pkcs11OBJECT_FLASH_CERT_PRESENT;
     const P11CertData_t * pCertFlash;
     P11CertData_t * pCertSave = 0;
-    
+
     /* enough room to store the certificate */
     if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
     {
-        return xResult;   
+        return xResult;
     }
-    
+
     /*
      * write client certificate.
      */
@@ -244,11 +244,11 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
         {
             xResult = pdTRUE;
         }
-    }            
+    }
 
     FMC_DISABLE_AP_UPDATE();           /* Disable APROM update. */
-    SYS_LockReg();                     /* Lock protected registers */   
-    
+    SYS_LockReg();                     /* Lock protected registers */
+
     return xResult;
 }
 /*-----------------------------------------------------------*/
@@ -286,7 +286,7 @@ static BaseType_t prvFLASH_ReadFile( char * pcFileName,
     }
     else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
     {
-        pCertFlash = (P11CertData_t *)P11KeyConfig.CodeSignKey;        
+        pCertFlash = (P11CertData_t *)P11KeyConfig.CodeSignKey;
     }
 
     if( ( pCertFlash !=0 ) && ( pCertFlash->ulDeviceCertificateMark == pkcs11OBJECT_FLASH_CERT_PRESENT ) )
@@ -295,10 +295,10 @@ static BaseType_t prvFLASH_ReadFile( char * pcFileName,
         certSize = pCertFlash->ulCertificateSize;
         xResult = pdTRUE;
     }
-    
+
     *pulDataSize = certSize;
-    *ppucData = pCertData;    
-    
+    *ppucData = pCertData;
+
     return xResult;
 }
 
@@ -354,10 +354,10 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     uint8_t usLength )
 {
     uint8_t     *pucData = NULL;
-    uint32_t    dataSize = 0;  
+    uint32_t    dataSize = 0;
     /* Avoid compiler warnings about unused variables. */
     ( void ) usLength;
-  
+
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
 
@@ -468,5 +468,5 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
     ( void ) ulDataSize;
 
     /* Since no buffer was allocated on heap, there is no cleanup
-     * to be done. */    
+     * to be done. */
 }

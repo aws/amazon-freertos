@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file iot_test_pkcs11_config.h
- * @brief Port-specific variables for PKCS11 tests. 
+ * @brief Port-specific variables for PKCS11 tests.
  */
 #ifndef _AWS_TEST_PKCS11_CONFIG_H_
 #define _AWS_TEST_PKCS11_CONFIG_H_

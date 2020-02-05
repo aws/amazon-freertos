@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,7 +64,7 @@
 
 /**
  * @brief Max passphrase length
- * 
+ *
  * This length is designated by the Wi-Fi driver as both the WPA PSK and
  * Passphrase length.
  */
