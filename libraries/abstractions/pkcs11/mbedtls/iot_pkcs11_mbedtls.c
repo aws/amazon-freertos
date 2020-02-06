@@ -128,20 +128,20 @@ static P11Struct_t xP11Context;
  */
 typedef struct P11Session
 {
-    CK_ULONG ulState;                       /* Stores the session flags. */
-    CK_BBOOL xOpened;                       /* Set to CK_TRUE upon opening PKCS #11 session. */
-    CK_MECHANISM_TYPE xOperationInProgress; /* Indicates if a digest operation is in progress. */
+    CK_ULONG ulState;                            /* Stores the session flags. */
+    CK_BBOOL xOpened;                            /* Set to CK_TRUE upon opening PKCS #11 session. */
+    CK_MECHANISM_TYPE xOperationDigestMechanism; /* Indicates if a digest operation is in progress. */
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
-    CK_BYTE * pxFindObjectLabel;           /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
+    CK_BYTE * pxFindObjectLabel;                 /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;
-    CK_MECHANISM_TYPE xVerifyMechanism;    /* The mechanism of verify operation in progress. Set during C_VerifyInit. */
-    SemaphoreHandle_t xVerifyMutex;        /* Protects the verification key from being modified while in use. */
-    mbedtls_pk_context xVerifyKey;         /* Verification key.  Set during C_VerifyInit. */
-    CK_MECHANISM_TYPE xSignMechanism;      /* Mechanism of the sign operation in progress. Set during C_SignInit. */
-    SemaphoreHandle_t xSignMutex;          /* Protects the signing key from being modified while in use. */
-    mbedtls_pk_context xSignKey;           /* Signing key.  Set during C_SignInit. */
-    mbedtls_sha256_context xSHA256Context; /* Context for in progress digest operation. */
+    CK_MECHANISM_TYPE xOperationVerifyMechanism; /* The mechanism of verify operation in progress. Set during C_VerifyInit. */
+    SemaphoreHandle_t xVerifyMutex;              /* Protects the verification key from being modified while in use. */
+    mbedtls_pk_context xVerifyKey;               /* Verification key.  Set during C_VerifyInit. */
+    CK_MECHANISM_TYPE xOperationSignMechanism;   /* Mechanism of the sign operation in progress. Set during C_SignInit. */
+    SemaphoreHandle_t xSignMutex;                /* Protects the signing key from being modified while in use. */
+    mbedtls_pk_context xSignKey;                 /* Signing key.  Set during C_SignInit. */
+    mbedtls_sha256_context xSHA256Context;       /* Context for in progress digest operation. */
 } P11Session_t, * P11SessionPtr_t;
 
 
@@ -166,6 +166,20 @@ P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
     return ( P11SessionPtr_t ) xSession; /*lint !e923 Allow casting integer type to pointer for handle. */
 }
 
+/**
+ * @brief Determines if an opeartion is in progress.
+ */
+CK_BBOOL operationActive( P11SessionPtr_t pxSession )
+{
+    if( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ||
+        pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ||
+        pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION )
+    {
+        return CK_TRUE;
+    }
+
+    return CK_FALSE;
+}
 
 /*
  * PKCS#11 module implementation.
@@ -1022,9 +1036,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
      */
     if( CKR_OK == xResult )
     {
-        pxSessionObj->xOperationInProgress = pkcs11NO_OPERATION;
-        pxSessionObj->xVerifyMechanism = pkcs11NO_OPERATION;
-        pxSessionObj->xSignMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xOperationDigestMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xOperationVerifyMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xOperationSignMechanism = pkcs11NO_OPERATION;
     }
 
     if( CKR_OK != xResult )
@@ -2707,7 +2721,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
 
     if ( xResult == CKR_OK )
     {
-        if ( pxSession->xOperationInProgress != pkcs11NO_OPERATION )
+        if ( operationActive(pxSession) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -2734,7 +2748,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            pxSession->xOperationInProgress = pMechanism->mechanism;
+            pxSession->xOperationDigestMechanism = pMechanism->mechanism;
         }
     }
 
@@ -2775,7 +2789,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        if( pxSession->xOperationInProgress != CKM_SHA256 )
+        if( pxSession->xOperationDigestMechanism != CKM_SHA256 )
         {
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
@@ -2786,13 +2800,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
         if( 0 != mbedtls_sha256_update_ret( &pxSession->xSHA256Context, pPart, ulPartLen ) )
         {
             xResult = CKR_FUNCTION_FAILED;
-            pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+            pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         }
     }
 
     if ( xResult != CKR_OK && xResult != CKR_SESSION_HANDLE_INVALID )
     {
-        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
     }
 
@@ -2842,10 +2856,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        if( pxSession->xOperationInProgress != CKM_SHA256 )
+        if( pxSession->xOperationDigestMechanism != CKM_SHA256 )
         {
             xResult = CKR_OPERATION_NOT_INITIALIZED;
-            pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+            pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         }
     }
 
@@ -2869,14 +2883,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                     xResult = CKR_FUNCTION_FAILED;
                 }
 
-                pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+                pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
             }
         }
     }
 
     if ( xResult != CKR_OK && xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
     {
-        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
     }
 
@@ -2933,7 +2947,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
     if ( xResult == CKR_OK )
     {
-        if ( pxSession->xSignMechanism != pkcs11NO_OPERATION )
+        if ( operationActive(pxSession) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -3043,7 +3057,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        pxSession->xSignMechanism = pxMechanism->mechanism;
+        pxSession->xOperationSignMechanism = pxMechanism->mechanism;
     }
 
     return xResult;
@@ -3104,12 +3118,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     {
         /* Update the signature length. */
 
-        if( pxSessionObj->xSignMechanism == CKM_RSA_PKCS )
+        if( pxSessionObj->xOperationSignMechanism == CKM_RSA_PKCS )
         {
             xSignatureLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
         }
-        else if( pxSessionObj->xSignMechanism == CKM_ECDSA )
+        else if( pxSessionObj->xOperationSignMechanism == CKM_ECDSA )
         {
             xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
@@ -3175,7 +3189,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
-        if( ( pxSessionObj->xSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == CK_TRUE ) )
+        if( ( pxSessionObj->xOperationSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == CK_TRUE ) )
         {
             lMbedTLSResult = PKI_mbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
 
@@ -3194,7 +3208,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     /* Complete the operation in the context. */
     if( xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
     {
-        pxSessionObj->xSignMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xOperationSignMechanism = pkcs11NO_OPERATION;
     }
 
     return xResult;
@@ -3248,7 +3262,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        if( pxSession->xVerifyMechanism != pkcs11NO_OPERATION )
+        if( operationActive(pxSession) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -3356,7 +3370,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        pxSession->xVerifyMechanism = pxMechanism->mechanism;
+        pxSession->xOperationVerifyMechanism = pxMechanism->mechanism;
     }
 
     return xResult;
@@ -3407,7 +3421,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
      * These PKCS #11 mechanism expect data to be pre-hashed/formatted. */
     if( xResult == CKR_OK )
     {
-        if( pxSessionObj->xVerifyMechanism == CKM_RSA_X_509 )
+        if( pxSessionObj->xOperationVerifyMechanism == CKM_RSA_X_509 )
         {
             if( ulDataLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
             {
@@ -3419,7 +3433,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                 xResult = CKR_SIGNATURE_LEN_RANGE;
             }
         }
-        else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
+        else if( pxSessionObj->xOperationVerifyMechanism == CKM_ECDSA )
         {
             if( ulDataLen != pkcs11SHA256_DIGEST_LENGTH )
             {
@@ -3441,7 +3455,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         /* Perform an RSA verification. */
-        if( pxSessionObj->xVerifyMechanism == CKM_RSA_X_509 )
+        if( pxSessionObj->xOperationVerifyMechanism == CKM_RSA_X_509 )
         {
             if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
             {
@@ -3468,7 +3482,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
         }
 
         /* Perform an ECDSA verification. */
-        else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
+        else if( pxSessionObj->xOperationVerifyMechanism == CKM_ECDSA )
         {
             /* TODO: Refactor w/ test code
              * An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
@@ -3514,7 +3528,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 
     if( xResult != CKR_SESSION_HANDLE_INVALID )
     {
-        pxSessionObj->xVerifyMechanism = pkcs11NO_OPERATION;
+        pxSessionObj->xOperationVerifyMechanism = pkcs11NO_OPERATION;
     }
 
     /* Return the signature verification result. */
