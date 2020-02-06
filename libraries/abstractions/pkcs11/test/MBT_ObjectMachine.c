@@ -174,10 +174,11 @@ TEST(Full_PKCS11_ModelBased_ObjectMachine, path_12)
 
 TEST(Full_PKCS11_ModelBased_ObjectMachine, path_13)
 {
-	C_FindObjectsInit_normal_behavior();
-	C_FindObjects_exceptional_behavior_2();
-	C_FindObjectsInit_exceptional_behavior_0();
+    C_FindObjectsInit_normal_behavior();
+    C_FindObjects_exceptional_behavior_2();
+    C_FindObjectsInit_normal_behavior();
 }
+
 TEST(Full_PKCS11_ModelBased_ObjectMachine, path_14)
 {
 	C_FindObjectsInit_normal_behavior();	

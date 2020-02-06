@@ -48,7 +48,7 @@ void C_GetAttributeValue_normal_behavior()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_OK, rv);
 }
@@ -67,7 +67,7 @@ void C_GetAttributeValue_exceptional_behavior_0()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_SESSION_HANDLE_INVALID, rv);
 }
@@ -86,7 +86,7 @@ void C_GetAttributeValue_exceptional_behavior_1()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_OBJECT_HANDLE_INVALID, rv);
 }
@@ -105,7 +105,7 @@ void C_GetAttributeValue_exceptional_behavior_2()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_ATTRIBUTE_SENSITIVE, rv);
 }
@@ -124,7 +124,7 @@ void C_GetAttributeValue_exceptional_behavior_3()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_ATTRIBUTE_TYPE_INVALID, rv);
 }
@@ -136,7 +136,7 @@ void C_GetAttributeValue_exceptional_behavior_4()
 	CK_ATTRIBUTE_PTR pTemplate = NULL_PTR;
 	CK_ULONG ulCount = 1;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_ARGUMENTS_BAD, rv);
 }
@@ -155,7 +155,7 @@ void C_GetAttributeValue_exceptional_behavior_5()
 
 	pTemplate = &template;
 
-	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(xGlobalSession, hObject, pTemplate, ulCount);
+	CK_RV rv = pxGlobalFunctionList->C_GetAttributeValue(hSession, hObject, pTemplate, ulCount);
 
 	TEST_ASSERT_EQUAL(CKR_CRYPTOKI_NOT_INITIALIZED, rv);
 }
