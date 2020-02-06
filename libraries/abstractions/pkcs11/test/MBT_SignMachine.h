@@ -26,12 +26,12 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-/* The model based single-part sign machine test group is for tests
- * that have be automatically sythensized from the API test
- * generation utility for the signing fragment of the PKCS#11 API 
- * that utlizes single-part operations. */
+ /* The model based single-part sign machine test group is for tests
+  * that have be automatically sythensized from the API test
+  * generation utility for the signing fragment of the PKCS#11 API
+  * that utlizes single-part operations. */
 
-TEST_GROUP(Full_PKCS11_ModelBased_SignMachine);
-TEST_SETUP(Full_PKCS11_ModelBased_SignMachine);
-TEST_TEAR_DOWN(Full_PKCS11_ModelBased_SignMachine);
-TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SignMachine);
+TEST_GROUP( Full_PKCS11_ModelBased_SignMachine );
+TEST_SETUP( Full_PKCS11_ModelBased_SignMachine );
+TEST_TEAR_DOWN( Full_PKCS11_ModelBased_SignMachine );
+TEST_GROUP_RUNNER( Full_PKCS11_ModelBased_SignMachine );

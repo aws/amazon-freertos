@@ -34,123 +34,123 @@
 
 #include "MBT_GenerationMachine.h"
 
-TEST_SETUP(Full_PKCS11_ModelBased_GenerationMachine)
+TEST_SETUP( Full_PKCS11_ModelBased_GenerationMachine )
 {
-	CK_RV rv = xInitializePKCS11();
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to initialize PKCS #11 module.");
-	rv = xInitializePkcs11Session(&xGlobalSession);
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to open PKCS #11 session.");
+    CK_RV rv = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Failed to initialize PKCS #11 module." );
+    rv = xInitializePkcs11Session( &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Failed to open PKCS #11 session." );
 }
 
-TEST_TEAR_DOWN(Full_PKCS11_ModelBased_GenerationMachine)
+TEST_TEAR_DOWN( Full_PKCS11_ModelBased_GenerationMachine )
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
+    pxGlobalFunctionList->C_Finalize( NULL_PTR );
 }
 
 void runAllGenerationTestCases() {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_0);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_1);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_2);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_3);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_4);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_5);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_6);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_7);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_8);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_9);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_10);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_11);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_GenerationMachine, path_12);
+    pxGlobalFunctionList->C_Finalize( NULL_PTR );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_0 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_1 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_2 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_3 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_4 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_5 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_6 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_7 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_8 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_9 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_10 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_11 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_GenerationMachine, path_12 );
 }
 
-TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_GenerationMachine)
+TEST_GROUP_RUNNER( Full_PKCS11_ModelBased_GenerationMachine )
 {
-	xGlobalSlotId = 1; // TODO
+    xGlobalSlotId = 1;
 
-	CK_RV rv = prvBeforeRunningTests();
+    CK_RV rv = prvBeforeRunningTests();
 
-	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
-		rv = CKR_OK; 
-	}
+    if( rv == CKR_CRYPTOKI_NOT_INITIALIZED ) {
+        rv = CKR_OK;
+    }
 
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state." );
 
-	runAllGenerationTestCases();
-	prvAfterRunningTests_Object();
+    runAllGenerationTestCases();
+    prvAfterRunningTests_Object();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_0)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_0 )
 {
-	C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_1)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_1 )
 {
-	C_GenerateKeyPair_exceptional_behavior_0();
+    C_GenerateKeyPair_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_2)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_2 )
 {
-	C_GenerateKeyPair_exceptional_behavior_1();
+    C_GenerateKeyPair_exceptional_behavior_1();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_3)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_3 )
 {
-	C_GenerateKeyPair_exceptional_behavior_2();
+    C_GenerateKeyPair_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_4)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_4 )
 {
-	C_GenerateKeyPair_exceptional_behavior_3();
+    C_GenerateKeyPair_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_5)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_5 )
 {
-	C_GenerateKeyPair_exceptional_behavior_4();
+    C_GenerateKeyPair_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_6)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_6 )
 {
-	C_GenerateKeyPair_exceptional_behavior_1();
-	C_GenerateKeyPair_exceptional_behavior_2();
-	C_GenerateKeyPair_normal_behavior();
-	C_GenerateKeyPair_exceptional_behavior_3();
-	C_GenerateKeyPair_exceptional_behavior_4();
+    C_GenerateKeyPair_exceptional_behavior_1();
+    C_GenerateKeyPair_exceptional_behavior_2();
+    C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_exceptional_behavior_3();
+    C_GenerateKeyPair_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_7)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_7 )
 {
-	C_GenerateKeyPair_normal_behavior();
-	C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_8)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_8 )
 {
-	C_GenerateKeyPair_normal_behavior();
-	C_GenerateKeyPair_exceptional_behavior_2();
-	C_GenerateKeyPair_exceptional_behavior_2();
+    C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_exceptional_behavior_2();
+    C_GenerateKeyPair_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_9)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_9 )
 {
-	C_GenerateKeyPair_normal_behavior();
-	C_GenerateKeyPair_exceptional_behavior_1();
-	C_GenerateKeyPair_exceptional_behavior_1();
-	C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_normal_behavior();
+    C_GenerateKeyPair_exceptional_behavior_1();
+    C_GenerateKeyPair_exceptional_behavior_1();
+    C_GenerateKeyPair_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_10)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_10 )
 {
-	C_GenerateRandom_normal_behavior();
+    C_GenerateRandom_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_11)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_11 )
 {
-	C_GenerateRandom_exceptional_behavior_1();
+    C_GenerateRandom_exceptional_behavior_1();
 }
 
-TEST(Full_PKCS11_ModelBased_GenerationMachine, path_12)
+TEST( Full_PKCS11_ModelBased_GenerationMachine, path_12 )
 {
-	C_GenerateRandom_exceptional_behavior_2();
+    C_GenerateRandom_exceptional_behavior_2();
 }

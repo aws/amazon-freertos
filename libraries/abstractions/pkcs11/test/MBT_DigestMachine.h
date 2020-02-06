@@ -25,12 +25,13 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-/* The model based digest machine test group is for test
- * that have be automatically sythensized from the API test
- * generation utility for the digest fragment
- * of the PKCS#11 API */
+ /* The model based digest machine test group is for test
+  * that have be automatically sythensized from the API test
+  * generation utility for the digest fragment
+  * of the PKCS#11 API
+  */
 
-TEST_GROUP(Full_PKCS11_ModelBased_DigestMachine);
-TEST_SETUP(Full_PKCS11_ModelBased_DigestMachine);
-TEST_TEAR_DOWN(Full_PKCS11_ModelBased_DigestMachine);
-TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_DigestMachine);
+TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
+TEST_SETUP( Full_PKCS11_ModelBased_DigestMachine );
+TEST_TEAR_DOWN( Full_PKCS11_ModelBased_DigestMachine );
+TEST_GROUP_RUNNER( Full_PKCS11_ModelBased_DigestMachine );

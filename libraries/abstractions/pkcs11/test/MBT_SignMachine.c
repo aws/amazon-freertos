@@ -34,698 +34,698 @@
 
 #include "MBT_SignMachine.h"
 
-TEST_SETUP(Full_PKCS11_ModelBased_SignMachine)
+TEST_SETUP( Full_PKCS11_ModelBased_SignMachine )
 {
-	CK_RV rv = xInitializePKCS11();
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to initialize PKCS #11 module.");
-	rv = xInitializePkcs11Session(&xGlobalSession);
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to open PKCS #11 session.");
+    CK_RV rv = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Failed to initialize PKCS #11 module." );
+    rv = xInitializePkcs11Session( &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Failed to open PKCS #11 session." );
 
-	resetCredentials();
-	generateValidSingingKeyPair();
+    resetCredentials();
+    generateValidSingingKeyPair();
 }
 
-TEST_TEAR_DOWN(Full_PKCS11_ModelBased_SignMachine)
+TEST_TEAR_DOWN( Full_PKCS11_ModelBased_SignMachine )
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
+    pxGlobalFunctionList->C_Finalize( NULL_PTR );
 }
 
 void runAllSignTestCases() {
 
-	CK_RV rv = prvBeforeRunningTests();
-
-	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
-		rv = CKR_OK;
-	}
-
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
-
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
-
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_0);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_1);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_2);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_3);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_4);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_5);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_6);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_7);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_8);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_9);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_10);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_11);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_12);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_13);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_14);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_15);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_16);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_17);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_18);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_19);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_20);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_21);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_22);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_23);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_24);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_25);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_26);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_27);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_28);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_29);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_30);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_31);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_32);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_33);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_34);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_35);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_36);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_37);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_38);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_39);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_40);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_41);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_42);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_43);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_44);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_45);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_46);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_47);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_48);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_49);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_50);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_51);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_52);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_53);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_54);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_55);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_56);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_57);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_58);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_59);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_60);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_61);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_62);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_63);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_64);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_65);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_66);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_67);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_68);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_69);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_70);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_71);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_72);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_73);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_74);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_75);
-	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_76);
-
-	prvAfterRunningTests_Object();
-}
-
-TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SignMachine)
+    CK_RV rv = prvBeforeRunningTests();
+
+    if( rv == CKR_CRYPTOKI_NOT_INITIALIZED ) {
+        rv = CKR_OK;
+    }
+
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state." );
+
+    pxGlobalFunctionList->C_Finalize( NULL_PTR );
+
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_0 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_1 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_2 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_3 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_4 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_5 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_6 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_7 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_8 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_9 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_10 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_11 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_12 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_13 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_14 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_15 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_16 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_17 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_18 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_19 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_20 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_21 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_22 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_23 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_24 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_25 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_26 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_27 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_28 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_29 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_30 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_31 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_32 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_33 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_34 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_35 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_36 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_37 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_38 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_39 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_40 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_41 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_42 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_43 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_44 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_45 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_46 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_47 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_48 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_49 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_50 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_51 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_52 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_53 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_54 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_55 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_56 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_57 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_58 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_59 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_60 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_61 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_62 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_63 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_64 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_65 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_66 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_67 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_68 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_69 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_70 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_71 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_72 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_73 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_74 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_75 );
+    RUN_TEST_CASE( Full_PKCS11_ModelBased_SignMachine, path_76 );
+
+    prvAfterRunningTests_Object();
+}
+
+TEST_GROUP_RUNNER( Full_PKCS11_ModelBased_SignMachine )
 {
-	xGlobalSlotId = 1; // TODO
+    xGlobalSlotId = 1;
 
-	xMechanismType = CKM_RSA_PKCS;
-	runAllSignTestCases();
-
-	xMechanismType = CKM_ECDSA;
-	resetCredentials();
-	generateValidSingingKeyPair();
-	runAllSignTestCases();
+    xMechanismType = CKM_RSA_PKCS;
+    runAllSignTestCases();
+
+    xMechanismType = CKM_ECDSA;
+    resetCredentials();
+    generateValidSingingKeyPair();
+    runAllSignTestCases();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_0)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_0 )
 {
-	C_SignInit_normal_behavior();
-	C_SignInit_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_SignInit_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_1)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_1 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_2)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_2 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_3)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_3 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_4)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_4 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_5)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_5 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_6)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_6 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_7)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_7 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_8)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_8 )
 {
-	C_Sign_exceptional_behavior_0();
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
-	C_Sign_exceptional_behavior_0();
+    C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_9)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_9 )
 {
-	C_Sign_exceptional_behavior_0();
-	C_SignInit_normal_behavior();
-	C_SignInit_exceptional_behavior_0();
-	C_Sign_normal_behavior();
-	C_Sign_exceptional_behavior_0();
+    C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_SignInit_exceptional_behavior_0();
+    C_Sign_normal_behavior();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_10)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_10 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_11)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_11 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_12)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_12 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_13)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_13 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_14)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_14 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_15)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_15 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_16)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_16 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_17)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_17 )
 {
-	C_SignInit_normal_behavior();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_18)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_18 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_19)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_19 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_20)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_20 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1(); 
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_21)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_21 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_22)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_22 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_4();
-	C_SignInit_normal_behavior();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_4();
+    C_SignInit_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_23)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_23 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_24)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_24 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_25)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_25 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_26)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_26 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_27)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_27 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_1();
-	C_Sign_normal_behavior();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_1();
+    C_Sign_normal_behavior();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_28)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_28 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_normal_behavior();
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_normal_behavior();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_29)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_29 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_30)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_30 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_31)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_31 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_32)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_32 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_33)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_33 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_34)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_34 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_35)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_35 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_36)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_36 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_3();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_3();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_37)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_37 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_38)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_38 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_39)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_39 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_40)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_40 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_41)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_41 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_42)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_42 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_43)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_43 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_44)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_44 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_45)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_45 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_46)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_46 )
 {
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_47)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_47 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_SignInit_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_SignInit_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_48)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_48 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_Sign_normal_behavior();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_normal_behavior();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_49)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_49 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_1();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_1();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_50)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_50 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_51)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_51 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_52)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_52 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_53)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_53 )
 {
-	C_Sign_exceptional_behavior_0();
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_0();
+    C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_54)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_54 )
 {
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_55)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_55 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_56)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_56 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_57)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_57 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_58)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_58 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_59)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_59 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_60)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_60 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_61)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_61 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_62)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_62 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_63)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_63 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_0();
-	C_SignInit_normal_behavior();
-	C_Sign_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_0();
+    C_SignInit_normal_behavior();
+    C_Sign_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_64)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_64 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_65)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_65 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_4();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_66)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_66 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_67)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_67 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_6();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_6();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_68)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_68 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_SignInit_exceptional_behavior_7();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_7();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_69)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_69 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_70)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_70 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_3();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_3();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_71)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_71 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_72)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_72 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	C_SignInit_exceptional_behavior_2();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_2();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_73)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_73 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	C_SignInit_exceptional_behavior_3();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_3();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_74)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_74 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	C_SignInit_exceptional_behavior_4();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_4();
+    C_Sign_exceptional_behavior_0();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_75)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_75 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	//C_SignInit_exceptional_behavior_5();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    //C_SignInit_exceptional_behavior_5();
 }
 
-TEST(Full_PKCS11_ModelBased_SignMachine, path_76)
+TEST( Full_PKCS11_ModelBased_SignMachine, path_76 )
 {
-	C_SignInit_exceptional_behavior_2();
-	C_SignInit_exceptional_behavior_4();
-	C_SignInit_exceptional_behavior_6();
-	C_Sign_exceptional_behavior_0();
+    C_SignInit_exceptional_behavior_2();
+    C_SignInit_exceptional_behavior_4();
+    C_SignInit_exceptional_behavior_6();
+    C_Sign_exceptional_behavior_0();
 }
