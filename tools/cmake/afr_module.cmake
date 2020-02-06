@@ -60,10 +60,6 @@ function(afr_module)
         afr_cache_append(AFR_MODULES_PUBLIC ${module_name})
     endif()
 
-    # All modules implicitly depends on kernel unless INTERFACE or KERNEL is provided.
-    if (NOT AFR_ENABLE_IUNIT_TESTS)
-    endif()
-
     if(NOT (ARG_INTERFACE OR ARG_KERNEL))
         afr_module_dependencies(
             ${module_name}
@@ -345,12 +341,10 @@ function(afr_resolve_dependencies)
 	return()
     endif()
 
-    if (NOT AFR_ENABLE_UNIT_TESTS)
-	# Make sure kernel can be enabled first.
-	__resolve_dependencies(kernel)
-	if("kernel" IN_LIST __dg_disabled)
-	    message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
-	endif()
+    # Make sure kernel can be enabled first.
+    __resolve_dependencies(kernel)
+    if("kernel" IN_LIST __dg_disabled)
+        message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
     endif()
     afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
 
