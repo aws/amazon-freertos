@@ -72,7 +72,7 @@ TaskHandle_t xUnconstrainedTCB( void )
  */
 void vSetGlobalVariables()
 {
-	uxPendedTicks = nondet_ubasetype();
+	xPendedTicks = nondet_ubasetype();
 	uxSchedulerSuspended = nondet_ubasetype();
 	xYieldPending = nondet_basetype();
 	xTickCount = nondet_ticktype();
