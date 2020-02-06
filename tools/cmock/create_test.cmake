@@ -14,10 +14,11 @@ function(create_test test_name test_src link_list dep_list)
         )
     add_executable(${test_name} ${test_src} ${test_name}_runner.c)
     set_target_properties(${test_name} PROPERTIES
-            COMPILE_FLAGS "-ggdb3 -Og -Wall -pthread"
+            COMPILE_FLAGS "-ggdb3 -Og -Wall"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             INSTALL_RPATH_USE_LINK_PATH TRUE
-            LINK_FLAGS "-Og -ggdb3 -pthread \
+            LINK_FLAGS "-Og -ggdb3 \
+                -Wl,-rpath,${CMAKE_BINARY_DIR}/lib \
                 -Wl,-rpath,${CMAKE_CURRENT_BINARY_DIR}/lib"
         )
     target_include_directories(${test_name} PUBLIC

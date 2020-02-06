@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.1
+ * Amazon FreeRTOS Secure Sockets V1.1.8
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,8 +22,8 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
 #include <stdbool.h>
-#include <pthread.h>
 
 #include "unity.h"
 
@@ -40,6 +40,8 @@
 #include "mock_iot_wifi.h"
 
 #include "wait_for_event.h"
+#include "task_control.h"
+
 #include "iot_secure_sockets.h"
 
 
@@ -213,8 +215,11 @@ static Socket_t create_normal_connection()
 
 /*!
  * @brief A happy send case with normal sockets
+ *
+ * @details The purpose is to make sure we get returned the same number of bytes
+ *          That lwip_send returned
  */
-void test01_SecureSockets_send_successful( void )
+void test_SecureSockets_send_successful( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -231,8 +236,11 @@ void test01_SecureSockets_send_successful( void )
 
 /*!
  * @brief A happy send case with tls sockets
+ *
+ * @details The purpose of this testcase is to make sure we recieve the same
+ *          number of bytes that TLS_Send returned
  */
-void test02_SecureSockets_send_successful_tls( void )
+void test_SecureSockets_send_successful_tls( void )
 {
     int32_t ret;
     const char buffer[ BUFFER_LEN ];
@@ -251,8 +259,11 @@ void test02_SecureSockets_send_successful_tls( void )
 
 /*!
  * @brief Test various bad parameters
+ *
+ * @details The purpose of this testcase is to make sure SOCKETS_Send returns
+ *          errors when it receives some invalid parameters
  */
-void test03_SecureSockets_send_invalid_parameters( void )
+void test_SecureSockets_send_invalid_parameters( void )
 {
     Socket_t s = SOCKETS_INVALID_SOCKET;
     const char buffer[ BUFFER_LEN ];
@@ -282,7 +293,13 @@ void test03_SecureSockets_send_invalid_parameters( void )
     deinitSocket( s );
 }
 
-void test04_SecureSockets_send_not_connected( void )
+/*!
+ * @brief Test Send on a not connected socket
+ *
+ * The purpose of this test case is to make sure SOCKETS_Send will not
+ * call lwip_send when it is not connected and returns an error
+ */
+void test_SecureSockets_send_not_connected( void )
 {
     int32_t ret;
     const char buffer[ BUFFER_LEN ];
@@ -301,9 +318,11 @@ void test04_SecureSockets_send_not_connected( void )
 
 /*!
  * @brief calling SOCKETS_Socket with various invalid arguments
- *        expects SOCKETS_INVALID_SOCKET
+ *
+ * The purpose of this test case is to test various bad arguments sent so
+ * SOCKETS_Socket  expecting a return of SOCKETS_INVALID_SOCKET
  */
-void test05_SecureSockets_socket_invalid_arguments( void )
+void test_SecureSockets_socket_invalid_arguments( void )
 {
     Socket_t so;
 
@@ -334,10 +353,12 @@ void test05_SecureSockets_socket_invalid_arguments( void )
 }
 
 /*!
- * @brief out of memory test
- *        memory allocation returns NULL
+ * @brief out of memory test memory allocation returns NULL
+ *
+ * The Purpose of this testcase is to  make sure the Sockets_socket api behaves
+ * properly when the system is out of memory
  */
-void test06_SecureSockets_socket_no_memory( void )
+void test_SecureSockets_socket_no_memory( void )
 {
     uninitCallbacks();
     pvPortMalloc_ExpectAnyArgsAndReturn( NULL );
@@ -350,10 +371,16 @@ void test06_SecureSockets_socket_no_memory( void )
 
 /*!
  * @brief  ip_sockets is >= 0
+ *
+ * The purpose of this testcase is to make sure sockets_socket behave properly
+ * when lwop_socket returns >=0 and returns a non invlaid socket
  */
-void test07_SecureSockets_socket_ip_socket_is_ge_zero( void )
+void test_SecureSockets_socket_ip_socket_is_ge_zero( void )
 {
-    lwip_socket_ExpectAnyArgsAndReturn( 0 );
+    lwip_socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                 SOCKETS_SOCK_STREAM,
+                                 SOCKETS_IPPROTO_TCP,
+                                 0 );
 
     Socket_t so = SOCKETS_Socket( SOCKETS_AF_INET,
                                   SOCKETS_SOCK_STREAM,
@@ -361,12 +388,27 @@ void test07_SecureSockets_socket_ip_socket_is_ge_zero( void )
 
     TEST_ASSERT_NOT_EQUAL( SOCKETS_INVALID_SOCKET, so );
     deinitSocket( so );
+
+    lwip_socket_ExpectAndReturn( SOCKETS_AF_INET,
+                                 SOCKETS_SOCK_STREAM,
+                                 SOCKETS_IPPROTO_TCP,
+                                 5 );
+
+    so = SOCKETS_Socket( SOCKETS_AF_INET,
+                         SOCKETS_SOCK_STREAM,
+                         SOCKETS_IPPROTO_TCP );
+
+    TEST_ASSERT_NOT_EQUAL( SOCKETS_INVALID_SOCKET, so );
+    deinitSocket( so );
 }
 
 /*!
- * @brief  ip_sockets is < 0
+ * @brief  ip_sockets is < 0 alskdj
+ *
+ * The purpose of this test is to make sure the SOCKETS_Socket api
+ * returns an invalid socket when lwip_socket returns an error (-1)
  */
-void test08_SecureSockets_socket_ip_socket_is_ge_zero( void )
+void test_SecureSockets_socket_ip_socket_is_lessthan_zero( void )
 {
     lwip_socket_ExpectAnyArgsAndReturn( -1 );
 
@@ -381,8 +423,12 @@ void test08_SecureSockets_socket_ip_socket_is_ge_zero( void )
  * @brief allocate sockets grater than
  *        socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS
  *        expect the last call to fail
+ *
+ * The purpose of this testcase is to make sure secure socket is not creating
+ * more socket than the configured value of
+ * socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS
  */
-void test09_SecureSockets_socket_max_sockets( void )
+void test_SecureSockets_socket_max_sockets( void )
 {
     int i;
     int max_sockets = socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS;
@@ -411,16 +457,20 @@ void test09_SecureSockets_socket_max_sockets( void )
 
 /*!
  * @brief A happy path for normal socket receive
+ *
+ * The purpose of this testcase is to make sure we return to the user the same
+ * number of bytes received by lwip_recv, and lwip_recv is being called with the
+ * arguments sent to SOCKETS_Recv
  */
-void test10_SecureSockets_Recv_successful( void )
+void test_SecureSockets_Recv_successful( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
     Socket_t so = create_normal_connection();
 
-    /*lwip_recv_IgnoreAndReturn( BUFFER_LEN ); */
-    lwip_recv_ExpectAnyArgsAndReturn( BUFFER_LEN );
-    /* api call in test */
+    lwip_recv_ExpectAndReturn( 1, buffer, BUFFER_LEN, 0, BUFFER_LEN );
+    lwip_recv_IgnoreArg_s();
+    /* api call in-test */
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
 
     TEST_ASSERT_EQUAL_INT( BUFFER_LEN, ret );
@@ -430,8 +480,11 @@ void test10_SecureSockets_Recv_successful( void )
 
 /*!
  * @brief  various error scenarios with Sockets recieve
+ *
+ * The purpose of this test case is to make sure SOCKETS_Recv behaves properly
+ * facing some wrong/not expected arguments and returns the apropriate erros
  */
-void test11_SecureSockets_Recv_lwip_error( void )
+void test_SecureSockets_Recv_lwip_error( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -472,14 +525,18 @@ void test11_SecureSockets_Recv_lwip_error( void )
 
 /*!
  * @brief A happy path for TLS socket receive
+ *
+ * The Purpose of this testcase is to make sure SOCKETS_Recv behave properly
+ * with TLS Enabled under nomal conditions
  */
-void test12_SecureSockets_Recv_TLS_successful( void )
+void test_SecureSockets_Recv_TLS_successful( void )
 {
     int32_t ret;
-    char buffer[ BUFFER_LEN ];
+    unsigned char buffer[ BUFFER_LEN ];
     Socket_t so = create_TLS_connection();
 
-    TLS_Recv_IgnoreAndReturn( BUFFER_LEN );
+    TLS_Recv_ExpectAndReturn( NULL, buffer, BUFFER_LEN, BUFFER_LEN );
+    TLS_Recv_IgnoreArg_pvContext();
     /* api call in test */
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
 
@@ -490,8 +547,11 @@ void test12_SecureSockets_Recv_TLS_successful( void )
 
 /*!
  * @brief Receive while socket not connected
+ *
+ * The purpose of thi test case is to make sure when SOCKETS_Recv is called
+ * while the socket is not connected it will return an error of ENOTCONN
  */
-void test13_SecureSockets_Recv_NotConnected( void )
+void test_SecureSockets_Recv_NotConnected( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -504,8 +564,11 @@ void test13_SecureSockets_Recv_NotConnected( void )
 
 /*!
  * @brief Receive invalid socket
+ *
+ * The purpose of this test is to show that SOCKETS_Recv will be able to handle
+ * wrong or bad parameters and return the appropriate errors
  */
-void test14_SecureSockets_Recv_InvalidParameters( void )
+void test_SecureSockets_Recv_InvalidParameters( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -527,8 +590,11 @@ void test14_SecureSockets_Recv_InvalidParameters( void )
 
 /*!
  * @brief Test a happy case
+ *
+ * The purpose of this testcase is to make sure Sockets shutdow behave according
+ * to spec when called with normal and expected parameters
  */
-void test15_SecureSockets_Shutdown_successful( void )
+void test_SecureSockets_Shutdown_successful( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -541,8 +607,11 @@ void test15_SecureSockets_Shutdown_successful( void )
 
 /*!
  * @brief Test bad arguments
+ *
+ * The purpose of this testcase is to make sure when sockets_shutdown is called
+ * with an invalid socket it would return the expected error or EINVAL
  */
-void test16_SecureSockets_Shutdown_bad_arguments( void )
+void test_SecureSockets_Shutdown_bad_arguments( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -553,8 +622,11 @@ void test16_SecureSockets_Shutdown_bad_arguments( void )
 
 /*!
  * @brief lwip_shutdown error
+ *
+ * The purpose of this testcase is to make sure sockets_shutdown would handle an
+ * error return from lwop_shutdown and pass that error to the caller
  */
-void test17_SecureSockets_Shutdown_lwip_error( void )
+void test_SecureSockets_Shutdown_lwip_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -568,9 +640,12 @@ void test17_SecureSockets_Shutdown_lwip_error( void )
 /* ========================  TESTING  SOCKETS_Close  -======================= */
 
 /*!
- * @brief Close happy case
+ * @brief sockets_Close happy case
+ *
+ * The purpose of this testcase is to show that under normal arguments and with
+ * a valid socket close frees the socket memory and returns no errors
  */
-void test18_SecureSockets_Close_successful( void )
+void test_SecureSockets_Close_successful( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -584,8 +659,11 @@ void test18_SecureSockets_Close_successful( void )
 
 /*!
  * @brief Close successful ALPN protocol
+ *
+ * The purpose of this testcase is to prove that close with ALPN enabled would
+ * behave as expected frees the memory and return no errors
  */
-void test19_SecureSockets_Close_successful2( void )
+void test_SecureSockets_Close_successful2( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -599,8 +677,11 @@ void test19_SecureSockets_Close_successful2( void )
 
 /*!
  * @brief Close successful ALPN protocol with TLS
+ *
+ * The purpose of this testcase is to prove that close with TLS and ALPN
+ * enabled would behave as expected frees the memory and return no errors
  */
-void test20_SecureSockets_Close_successful3( void )
+void test_SecureSockets_Close_successful3( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -616,8 +697,11 @@ void test20_SecureSockets_Close_successful3( void )
 
 /*!
  * @brief Close successful with Server Certificate
+ *
+ * The purpose of this testcase is to prove that close with server certificates
+ * enabled would behave as expected frees the memory and return no errors
  */
-void test21_SecureSockets_Close_successful4( void )
+void test_SecureSockets_Close_successful4( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -631,8 +715,12 @@ void test21_SecureSockets_Close_successful4( void )
 
 /*!
  * @brief Close successful with Server Name indication
+ *
+ * The purpose of this testcase is to prove that close with server name
+ * indication enabled would behave as expected frees the memory and
+ * return no errors
  */
-void test22_SecureSockets_Close_successful5( void )
+void test_SecureSockets_Close_successful5( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -646,8 +734,11 @@ void test22_SecureSockets_Close_successful5( void )
 
 /*!
  * @brief Close invalid parameters
+ *
+ * The purpose of this testcase is to make sure that if we close an inalid
+ * socket we will get and error return of EINVAL
  */
-void test23_SecureSockets_Close_InvalidSocket( void )
+void test_SecureSockets_Close_InvalidSocket( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -660,8 +751,11 @@ void test23_SecureSockets_Close_InvalidSocket( void )
 
 /*!
  * @brief Connect  with various invalid parameters
+ *
+ * The purpose of this test is to make sure that sockets_connect will return an
+ * error when called with invalid parameters
  */
-void test24_SecureSockets_Connect_InvalidParameters( void )
+void test_SecureSockets_Connect_InvalidParameters( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -683,8 +777,11 @@ void test24_SecureSockets_Connect_InvalidParameters( void )
 
 /*!
  * @brief Connect  with lwip_connect error
+ *
+ * The purpose of this testcase is to prove that sockets_connect would handle
+ * erros from lwip_connect and return the appropriate error to the caller
  */
-void test25_SecureSockets_Connect_lwip_connect_error( void )
+void test_SecureSockets_Connect_lwip_connect_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -704,9 +801,12 @@ void test25_SecureSockets_Connect_lwip_connect_error( void )
 }
 
 /*!
- * @brief Connect  with TLS_Init error
+ * @brief Connect with TLS_Init error
+ *
+ * The purpose of this testcase is to prove that sockets_connect would handle
+ * erros from lwip_connect and return the appropriate error to the caller
  */
-void test26_SecureSockets_Connect_TLS_Init_error( void )
+void test_SecureSockets_Connect_TLS_Init_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -730,9 +830,11 @@ void test26_SecureSockets_Connect_TLS_Init_error( void )
 }
 
 /*!
- * @brief Connect  with TLS_Connect error
+ * @brief Connect with TLS_Connect error
+ * The purpose of this testcase is to make sure sockets_conect is handling
+ *  errors properly from TSL_Connect
  */
-void test27_SecureSockets_Connect_TLS_connect_error( void )
+void test_SecureSockets_Connect_TLS_connect_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -761,8 +863,11 @@ void test27_SecureSockets_Connect_TLS_connect_error( void )
 
 /*!
  * @brief Connect  with TLS_Connect error with server name indication
+ *
+ * The purpose of this test case is to make sure that sokets_conect can handle
+ * tls_connect errors properly and return errors to the caller
  */
-void test28_SecureSockets_Connect_TLS_connect_error( void )
+void test_SecureSockets_Connect_TLS_SNI_connect_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -792,8 +897,12 @@ void test28_SecureSockets_Connect_TLS_connect_error( void )
 
 /*!
  * @brief GetHostByName  successful case
+ *
+ * The purpose of this testase is to make sure sockets_gethostbyname is behaving
+ * properly under normal conditions and returning the expected data to the
+ * caller
  */
-void test29_SecureSockets_GetHostByName_suceessful( void )
+void test_SecureSockets_GetHostByName_suceessful( void )
 {
     int32_t ret;
     uint8_t addr = 0;
@@ -810,9 +919,12 @@ void test29_SecureSockets_GetHostByName_suceessful( void )
 }
 
 /*!
- * @brief GetHostByName   hostname too large
+ * @brief GetHostByName hostname too large
+ *
+ * The Purpose of this testcase is to make sure sockets_gethostbyname can handle
+ * various invalid parameters such hostname too large
  */
-void test30_SecureSockets_GetHostByName_longHostname( void )
+void test_SecureSockets_GetHostByName_longHostname( void )
 {
     int32_t ret;
     int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH + 5;
@@ -830,8 +942,12 @@ void test30_SecureSockets_GetHostByName_longHostname( void )
 
 /*!
  * @brief Init  successful case
+ *
+ * The Purpose of this testcase is to make sure any modification to the function
+ * will faild the testcase without updating it as the function currently doesn't
+ * perform any action
  */
-void test31_SecureSockets_Init( void )
+void test_SecureSockets_Init( void )
 {
     BaseType_t ret;
 
@@ -843,8 +959,11 @@ void test31_SecureSockets_Init( void )
 
 /*!
  * @brief SetSockOp bad arguments
+ *
+ * The Purpose of this testcase is to make sure setsockopt  when called with an
+ * invalid socked it will return the appropriate message of EINVAL to the caller
  */
-void test32_SecureSockets_SetSockOpt_bad_arguments( void )
+void test_SecureSockets_SetSockOpt_bad_arguments( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -857,8 +976,11 @@ void test32_SecureSockets_SetSockOpt_bad_arguments( void )
  * @brief SetSockOp successful case for
  *                   SOCKETS_SO_RCVTIMEO:
  *                   SOCKETS_SO_SNDTIMEO:
+ *
+ * The Purpose of this testcase is to make sure sockets_setsockopt is able to
+ * handle the setting of receive timeout and send timeout
  */
-void test33_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
+void test_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -886,8 +1008,11 @@ void test33_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
 
 /*!
  * @brief SetSockOp lwip_setsockopt error
+ *
+ * The Purpose of this testcase is to make sure setsockopt can handle errors
+ * received from lwip_setsockopt
  */
-void test34_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
+void test_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -907,8 +1032,11 @@ void test34_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
 
 /*!
  * @brief SetSockOp invalid option
+ *
+ * The Purpose of this testcase is to make sure sockets_setsockopt is able to
+ * handle invalid options and return an error code to the caller of ENOPROTOOPT
  */
-void test35_SecureSockets_SetSockOpt_Invalid_Option( void )
+void test_SecureSockets_SetSockOpt_Invalid_Option( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -924,8 +1052,11 @@ void test35_SecureSockets_SetSockOpt_Invalid_Option( void )
 
 /*!
  * @brief SetSockOp so nonblock_success succesful case
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to handle set
+ * the socket to a nonblocking state
  */
-void test36_SecureSockets_SetsockOpt_nonblock_success( void )
+void test_SecureSockets_SetsockOpt_nonblock_success( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -944,8 +1075,12 @@ void test36_SecureSockets_SetsockOpt_nonblock_success( void )
 /*!
  * @brief SOCKETS_SetSockOpt various error conditions
  *          socket not connected and lwip_ioctl error
+ *
+ * The Purpose of this testcase is to make sure setsociopt is able to handle
+ * error codes from lwip_ioctl and return the appropriate error codes to the
+ * caller
  */
-void test37_SecureSockets_SetsockOpt_nonblock_error( void )
+void test_SecureSockets_SetsockOpt_nonblock_error( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -970,7 +1105,7 @@ static TaskHandle_t handle;
 static Socket_t s_so;
 static bool userCallback_called;
 static struct event * callback_event;
-static pthread_t tid;
+static struct task * tsk;
 
 static void taskComplete_cb( Socket_t ctx )
 {
@@ -983,7 +1118,7 @@ static void vTaskDelete_cb( TaskHandle_t task_handle,
                             int num_calls )
 {
     free_cb( handle, 1 );
-    pthread_exit( NULL );
+    task_kill( tsk );
 }
 
 /* helper function to create a fake implementation of xTaskCreate */
@@ -1001,8 +1136,9 @@ static long int xTaskCreate_cb2( TaskFunction_t pxTaskCode,
     handle = malloc_cb( sizeof( TaskHandle_t ), 1 );
     *pxCreatedTask = handle;
 
-    if( pthread_create( &tid, NULL, ( void * ( * )( void * ) )pxTaskCode,
-                        pvParameters ) != 0 )
+    tsk = task_create( pxTaskCode, pvParameters );
+
+    if( tsk == NULL )
     {
         TEST_FAIL();
         return pdFAIL;
@@ -1014,8 +1150,12 @@ static long int xTaskCreate_cb2( TaskFunction_t pxTaskCode,
 /*!
  * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
  *        making sure it got called when an actifity occured on the socket
+ *
+ * The Purpose of this testcase is to make sure the asynchronous operation of
+ * sockets is working as expected, the user callback is called when some
+ * activity is available on the socket.
  */
-void test38_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
+void test_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
 {
     int32_t ret;
     void * option = &taskComplete_cb; /* user callback for socket event */
@@ -1034,7 +1174,7 @@ void test38_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
     /* wait for the callback ...to  deinitialize the socket */
     event_wait( callback_event );
     deinitSocket( s_so );
-    pthread_join( tid, NULL );
+    task_join( tsk );
 
     event_delete( callback_event );
 }
@@ -1073,8 +1213,12 @@ static long int xTaskCreate_cb( TaskFunction_t pxTaskCode,
 /*!
  * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
  *        making sure it got called when an actifity occured on the socket
+ *
+ * The Purpose of this testcase is to make sure the asynchronous operation of
+ * sockets is working as expected, the user callback is called when some
+ * activity is available on the socket.
  */
-void test39_SecureSockets_SetSockOpt_wakeup_callback( void )
+void test_SecureSockets_SetSockOpt_wakeup_callback( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -1097,11 +1241,15 @@ void test39_SecureSockets_SetSockOpt_wakeup_callback( void )
 }
 
 /*!
- * @brief SetSockOpt SOCKETS_SO_WAKEUP_CALLBACK currently the clean
- * functionality is not implemented, but once implemented this test case will
+ * @brief SetSockOpt SOCKETS_SO_WAKEUP_CALLBACK
+ *
+ * The Purpose of this testcase is to
+ *
+ * @warning currently the clean functionality is not implemented,
+ * but once implemented this test case will
  * probably fails until it is updated to test the new code
  */
-void test40_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
+void test_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -1136,8 +1284,12 @@ static void * malloc_cb2( size_t size,
 
 /*!
  * @brief  SetSockOpt alpn no memory tests
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to handle
+ * when the system goes out of memory and return the appropriate answer to the
+ * caller
  */
-void test41_SecureSockets_SetSockOpt_alpn_no_mem( void )
+void test_SecureSockets_SetSockOpt_alpn_no_mem( void )
 {
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT, socketsAWS_IOT_ALPN_MQTT };
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -1166,9 +1318,12 @@ void test41_SecureSockets_SetSockOpt_alpn_no_mem( void )
 }
 
 /*!
- * @brief
+ * @brief SetSockOpt to test set alpn protocol
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to set the
+ * alpn option
  */
-void test42_SecureSockets_SetSockOpt_alpn_connected( void )
+void test_SecureSockets_SetSockOpt_alpn_connected( void )
 {
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT, socketsAWS_IOT_ALPN_MQTT };
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -1188,8 +1343,11 @@ void test42_SecureSockets_SetSockOpt_alpn_connected( void )
 /*!
  * @brief  SetSockOpt SOCKETS_SO_SERVER_NAME_INDICATION
  *         various error conditions
+ *
+ * The Purpose of this testcase is to make sure setsockopt can handle bad
+ * parameters and sends appropriate error codes to the caller
  */
-void test43_SecureSockets_SetSockOpt_setname_indication_error( void )
+void test_SecureSockets_SetSockOpt_setname_indication_error( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1221,9 +1379,12 @@ void test43_SecureSockets_SetSockOpt_setname_indication_error( void )
 }
 
 /*!
- * @brief
+ * @brief test setsockopt set ame indication out of memeory
+ *
+ * The Purpose of this testcase is to make sure setsock option is able to handle
+ * when the system goes out of memory and send appropriate errors to the caller
  */
-void test44_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
+void test_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1251,8 +1412,11 @@ void test44_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
 
 /*!
  * @brief  SetSockOpt set TLS to an already connected socket
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to set the
+ * tls flag
  */
-void test45_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
+void test_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -1265,8 +1429,11 @@ void test45_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
 
 /*!
  * @brief SetSockOpt set trusted server certificate memory errors
+ *
+ * The Purpose of this testcase is to make sure setsockopt is able to handle
+ * when system goes out of memory
  */
-void test46_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
+void test_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1301,8 +1468,11 @@ void test46_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
 
 /*!
  * @brief  SetSockOpt set TLS to an already connected socket
+ *
+ * The Purpose of this testcase is to make sure the caller is not able to set
+ * trusted server setificates after the socket is connected
  */
-void test47_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void )
+void test_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -1316,8 +1486,11 @@ void test47_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void
 
 /*!
  * @brief SetSockOpt set trusted server certificate
+ *
+ * The Purpose of this testcase is to make sure the setsockopt is able to handle
+ * bad arguments sent by the caller and return the appropriate messages
  */
-void test48_SecureSockets_SetSockOpt_trusted_server_invalid_arguments()
+void test_SecureSockets_SetSockOpt_trusted_server_invalid_arguments()
 {
     int32_t ret;
     Socket_t so = initSocket();

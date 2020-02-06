@@ -71,7 +71,7 @@
     list(APPEND link_list
                 -lsecure_sockets_mock
                 libsecure_sockets_real.a
-                libutils.a
+                libutils.so
             )
     list(APPEND dep_list
                 secure_sockets_real
