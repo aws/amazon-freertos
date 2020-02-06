@@ -3861,29 +3861,29 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
-    }
 
-    if( lMbedResult > 0 )
-    {
-        xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
-    }
-    else
-    {
-        xResult = CKR_GENERAL_ERROR;
+        if( lMbedResult > 0 )
+        {
+            xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        }
+        else
+        {
+            xResult = CKR_GENERAL_ERROR;
+        }
     }
 
     if( xResult == CKR_OK )
     {
         lMbedResult = mbedtls_pk_write_key_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
-    }
 
-    if( lMbedResult > 0 )
-    {
-        xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult ); /* TS-7249. */
-    }
-    else
-    {
-        xResult = CKR_GENERAL_ERROR;
+        if( lMbedResult > 0 )
+        {
+            xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult ); /* TS-7249. */
+        }
+        else
+        {
+            xResult = CKR_GENERAL_ERROR;
+        }
     }
 
     if( ( xPalPublic != CK_INVALID_HANDLE ) && ( xPalPrivate != CK_INVALID_HANDLE ) )
