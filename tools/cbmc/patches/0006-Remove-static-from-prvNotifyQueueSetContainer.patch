@@ -6,8 +6,8 @@ index 17a6964e..24a40c29 100644
  	 * Checks to see if a queue is a member of a queue set, and if so, notifies
  	 * the queue set that the queue contains data.
  	 */
--	static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition ) PRIVILEGED_FUNCTION;
-+	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition ) PRIVILEGED_FUNCTION;
+-	static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
++	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue ) PRIVILEGED_FUNCTION;
  #endif
 
  /*
@@ -15,8 +15,8 @@ index 17a6964e..24a40c29 100644
 
  #if ( configUSE_QUEUE_SETS == 1 )
 
--	static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition )
-+	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition )
+-	static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue )
++	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue )
  	{
  	Queue_t *pxQueueSetContainer = pxQueue->pxQueueSetContainer;
  	BaseType_t xReturn = pdFALSE;
