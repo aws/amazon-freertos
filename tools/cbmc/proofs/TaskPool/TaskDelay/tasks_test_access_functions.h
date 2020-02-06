@@ -124,7 +124,7 @@ BaseType_t xPrepareTaskLists( void )
 /*
  * We stub out `xTaskResumeAll` including the assertion and change on
  * variables `uxSchedulerSuspended`. We assume that `xPendingReadyList`
- * is empty to avoid the first loop, and uxPendedTicks to avoid the second
+ * is empty to avoid the first loop, and xPendedTicks to avoid the second
  * one. Finally, we return a nondeterministic value (overapproximation)
  */
 BaseType_t xTaskResumeAllStub( void )
@@ -137,7 +137,7 @@ BaseType_t xTaskResumeAllStub( void )
 	{
 		--uxSchedulerSuspended;
 		__CPROVER_assert( listLIST_IS_EMPTY( &xPendingReadyList ), "Pending ready tasks list not empty." );
-		__CPROVER_assert( uxPendedTicks == 0 , "uxPendedTicks is not equal to zero.");
+		__CPROVER_assert( xPendedTicks == 0 , "xPendedTicks is not equal to zero.");
 	}
 	taskEXIT_CRITICAL();
 

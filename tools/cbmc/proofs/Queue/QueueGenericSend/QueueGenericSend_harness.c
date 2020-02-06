@@ -59,7 +59,7 @@ BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue, const void *pvItemToQueu
 	}
 }
 #else
-	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition )
+	BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue )
 	{
 		Queue_t *pxQueueSetContainer = pxQueue->pxQueueSetContainer;
 		configASSERT( pxQueueSetContainer );
@@ -69,7 +69,7 @@ BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue, const void *pvItemToQueu
 		configASSERT( pxQueue );
 		if( pxQueue->pxQueueSetContainer != NULL )
 		{
-			prvNotifyQueueSetContainer(pxQueue, queueSEND_TO_BACK);
+			prvNotifyQueueSetContainer(pxQueue);
 		}
 		listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) );
 		pxQueue->cTxLock = queueUNLOCKED;
