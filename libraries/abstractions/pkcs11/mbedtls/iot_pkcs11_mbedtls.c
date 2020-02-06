@@ -173,7 +173,8 @@ CK_BBOOL operationActive( P11SessionPtr_t pxSession )
 {
     if( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ||
         pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ||
-        pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION )
+        pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ||
+        pxSession->pxFindObjectLabel != NULL )
     {
         return CK_TRUE;
     }
@@ -2444,7 +2445,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        if( pxSession->pxFindObjectLabel != NULL )
+        if( operationActive( pxSession ) )
         {
             xResult = CKR_OPERATION_ACTIVE;
             PKCS11_PRINT( ( "ERROR: Find object operation already in progress. \r\n" ) );
@@ -2719,9 +2720,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
-        if ( operationActive(pxSession) )
+        if( operationActive( pxSession ) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -2945,9 +2946,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
-        if ( operationActive(pxSession) )
+        if( operationActive( pxSession ) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
@@ -3262,7 +3263,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        if( operationActive(pxSession) )
+        if( operationActive( pxSession ) )
         {
             xResult = CKR_OPERATION_ACTIVE;
         }
