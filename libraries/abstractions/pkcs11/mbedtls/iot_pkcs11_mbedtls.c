@@ -2587,7 +2587,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     }
 
     /* TODO: Re-inspect this previous logic. */
-    if( ( pdFALSE == xDone ) )
+    if( ( xResult == CKR_OK ) && ( pdFALSE == xDone ) )
     {
         /* Try to find the object in module's list first. */
         prvFindObjectInListByLabel( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &xPalHandle, pxObject );
@@ -2634,7 +2634,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     /* Clean up memory if there was an error finding the object. */
     if( xResult != CKR_OK )
     {
-        if( pxSession->pxFindObjectLabel != NULL )
+        if( ( pxSession != NULL ) && ( pxSession->pxFindObjectLabel != NULL ) )
         {
             vPortFree( pxSession->pxFindObjectLabel );
             pxSession->pxFindObjectLabel = NULL;
