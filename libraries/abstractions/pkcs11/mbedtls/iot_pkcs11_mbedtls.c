@@ -3818,7 +3818,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     {
         if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism )
         {
-            xResult = CKR_MECHANISM_PARAM_INVALID;
+            xResult = CKR_MECHANISM_INVALID;
         }
     }
 
