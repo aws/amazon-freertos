@@ -289,7 +289,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     # Convert afx file to bin file
     if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
         set(axf2fw "${mw320_dir}/sdk/tools/bin/Linux/axf2firmware")
-        execute_process(COMMAND chmod +x "${axf2fw}")  # TODO, workaround for Amazon FreeRTOS console permission issue.
+        execute_process(COMMAND chmod +x "${axf2fw}")  # TODO, workaround for FreeRTOS console permission issue.
     else()
         message(FATAL_ERROR "Only Linux host is supported for marvell.")
     endif()

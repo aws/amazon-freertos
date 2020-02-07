@@ -326,7 +326,7 @@ endif()
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
 
-# TODO, workaround for permission issue in Amazon FreeRTOS console.
+# TODO, workaround for permission issue in FreeRTOS console.
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
     execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
 endif()

@@ -1,12 +1,12 @@
-# These Amazon FreeRTOS related global variables are available to use.
-# AFR_ROOT_DIR                  Amazon FreeRTOS source root.
+# These FreeRTOS related global variables are available to use.
+# AFR_ROOT_DIR                  FreeRTOS source root.
 # AFR_KERNEL_DIR                FreeRTOS kernel root.
-# AFR_MODULES_DIR               Amazon FreeRTOS modules root.
+# AFR_MODULES_DIR               FreeRTOS modules root.
 # AFR_MODULES_C_SDK_DIR         C-SDK libraries root.
 # AFR_MODULES_FREERTOS_PLUS_DIR FreeRTOS-Plus libraries root.
 # AFR_MODULES_ABSTRACTIONS_DIR  Abstractions layers root.
-# AFR_DEMOS_DIR                 Amazon FreeRTOS demos root.
-# AFR_TESTS_DIR                 Amazon FreeRTOS common tests and framework root.
+# AFR_DEMOS_DIR                 FreeRTOS demos root.
+# AFR_TESTS_DIR                 FreeRTOS common tests and framework root.
 # AFR_VENDORS_DIR               vendors content root.
 # AFR_3RDPARTY_DIR              3rdparty libraries root.
 
@@ -37,7 +37,7 @@
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-# Provide metadata for listing on Amazon FreeRTOS console.
+# Provide metadata for listing on FreeRTOS console.
 afr_set_board_metadata(NAME "board")
 afr_set_board_metadata(DISPLAY_NAME "Board")
 afr_set_board_metadata(DESCRIPTION "Template Board for AmazonFreeRTOS")
