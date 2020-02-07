@@ -35,7 +35,7 @@
 # afr_glob_src(headers DIRECTORY "${some_path}" EXTENSIONS h)
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 # Provide metadata for listing on Amazon FreeRTOS console.
 afr_set_board_metadata(NAME "board")
@@ -109,7 +109,7 @@ afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 # )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Define portable layer targets with afr_mcu_port(<module_name>). We will create an CMake
 # INTERFACE IMPORTED target called AFR::${module_name}::mcu_port for you. You can use it with
@@ -215,7 +215,7 @@ afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 # We require you to define at least demos and tests executable targets. Available demos and tests
 # will be automatically enabled by us. You need to provide other project settings such as linker

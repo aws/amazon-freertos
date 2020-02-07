@@ -1,4 +1,4 @@
-# Amazon FreeRTOS port for SoftHSMv2 #
+# FreeRTOS port for SoftHSMv2 #
 ## Introduction ##
 This directory includes a C module that allows [SoftHSMv2](https://github.com/opendnssec/SoftHSMv2), a 3rd party open-source PKCS #11 library, to be used with the [Amazon FreeRTOS simulator project](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html). This port can be used as a rough measurement of PKCS #11 standard compatibility for crypto-aware apps and other PKCS #11 interface implementations. Instructions follow.
 

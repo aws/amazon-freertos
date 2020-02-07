@@ -30,7 +30,7 @@
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
-/* Amazon FreeRTOS Includes. */
+/* FreeRTOS Includes. */
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"

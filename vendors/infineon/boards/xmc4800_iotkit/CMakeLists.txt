@@ -17,7 +17,7 @@ if(NOT ${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Connectivity-Kit")
@@ -238,7 +238,7 @@ target_sources(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 

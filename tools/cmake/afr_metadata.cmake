@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS metadata
+# FreeRTOS metadata
 # -------------------------------------------------------------------------------------------------
 # Clean the output metadata files from the build folder.
 set(AFR_METADATA_OUTPUT_DIR "${CMAKE_BINARY_DIR}/metadata" CACHE INTERNAL "")

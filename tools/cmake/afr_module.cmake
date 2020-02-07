@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS modules
+# FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # First we need to clean defined CACHE variables on previous CMake run.
 foreach(module IN LISTS AFR_MODULES)

@@ -1,4 +1,4 @@
-### Amazon FreeRTOS Qualifcation Program (AFQP) Check
+### FreeRTOS Qualifcation Program (AFQP) Check
 
 #### Dependencies
 * Python 2.7+ or Python 3+

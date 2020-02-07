@@ -1,4 +1,4 @@
-# Amazon FreeRTOS CMake porting guide
+# FreeRTOS CMake porting guide
 
 A CMake listfile is required to list a newly qualified board on the Amazon FreeRTOS console. Please
 use the [`CMakeLists.txt`](../vendors/vendor/board/CMakeLists.txt) template to create a new CMake
@@ -40,13 +40,13 @@ listfile to define the required information for Amazon FreeRTOS:
 afr_set_board_metadata(<name> <value>)
 
 # This function is used to define the portable layer target associated with an
-# Amazon FreeRTOS module, e.g., secure sockets or WiFi. It will create a CMake
+# FreeRTOS module, e.g., secure sockets or WiFi. It will create a CMake
 # global INTERFACE IMPORTED target with a name AFR:<module_name>::mcu_port.
 # If `DEPENDS` is used, additional targets will be linked via target_link_libraries.
 afr_mcu_port(<module_name> [<DEPENDS> [targets...]])
 ```
 
-### Amazon FreeRTOS Console Metadata
+### FreeRTOS Console Metadata
 
 The first section of the template file defines the metadata that is required to display a board's
 data in the Amazon FreeRTOS console. Use the function `afr_set_board_metadata(<name> <value>)` to
@@ -148,7 +148,7 @@ target_compile_options(
 )
 ```
 
-### Amazon FreeRTOS Portable Layers
+### FreeRTOS Portable Layers
 
 The third section of the template file defines all of the portable layer targets for Amazon FreeRTOS
 modules. **The only requirement is to use the `afr_mcu_port(<module_name>)` function to define
@@ -344,7 +344,7 @@ target_link_libraries(
 )
 ```
 
-### Amazon FreeRTOS Demos and Tests
+### FreeRTOS Demos and Tests
 
 This section defines the demo and test targets for Amazon FreeRTOS. CMake targets will be created
 automatically for each demo and test that satisfy the dependency requirements. You need to define

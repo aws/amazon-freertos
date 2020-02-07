@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "MCHP-ATECC608A-With-Windows-Simulator")
 afr_set_board_metadata(DISPLAY_NAME "ATECC608A with Windows Simulator")

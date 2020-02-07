@@ -16,7 +16,7 @@ endif()
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "Xilinx-Avnet-MicroZed")
 afr_set_board_metadata(DISPLAY_NAME "Microzed Industrial IoT Bundle")
@@ -88,7 +88,7 @@ target_link_libraries(
 
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
@@ -163,7 +163,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
