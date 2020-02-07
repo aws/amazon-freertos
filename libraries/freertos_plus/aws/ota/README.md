@@ -1,5 +1,5 @@
 ## Porting
-In order to support Amazon FreeRTOS Over-the-Air Updates (OTA) on your microcontroller, it is necessary to implement the Portable Application Layer (PAL). This subdirectory consists of silicon vendor names that have successfully completed and tested at least one PAL. The PAL interface is defined in lib\include\private\aws_ota_pal.h (relative to the top of the repo).
+In order to support FreeRTOS Over-the-Air Updates (OTA) on your microcontroller, it is necessary to implement the Portable Application Layer (PAL). This subdirectory consists of silicon vendor names that have successfully completed and tested at least one PAL. The PAL interface is defined in lib\include\private\aws_ota_pal.h (relative to the top of the repo).
 
 PAL interface documentation is in https://docs.aws.amazon.com/freertos/latest/userguide/porting-ota-pal.html.
 
