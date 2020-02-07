@@ -1,6 +1,6 @@
 /* Copyright Statement:
  *
- * Amazon FreeRTOS Wi-Fi glue layer.
+ * FreeRTOS Wi-Fi glue layer.
  * (c) 2018 MediaTek Inc. or its affiliates. All Rights Reserved.
  * 
 * FreeRTOS Wi-Fi for MT7697Hx-Dev-Kit V1.0.1

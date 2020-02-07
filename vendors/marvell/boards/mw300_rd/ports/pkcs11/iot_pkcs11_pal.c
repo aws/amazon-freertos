@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL
+ * FreeRTOS PKCS #11 PAL
  *
  * (C) Copyright 2018-2019 Marvell International Ltd. All Rights Reserved.
  *

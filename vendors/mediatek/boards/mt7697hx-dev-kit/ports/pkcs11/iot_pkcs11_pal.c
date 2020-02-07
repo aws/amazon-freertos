@@ -1,6 +1,6 @@
 /* Copyright Statement:
  *
- * Amazon FreeRTOS PKCS glue layer.
+ * FreeRTOS PKCS glue layer.
  * (c) 2018 MediaTek Inc. or its affiliates. All Rights Reserved.
  *
 * FreeRTOS PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.1
