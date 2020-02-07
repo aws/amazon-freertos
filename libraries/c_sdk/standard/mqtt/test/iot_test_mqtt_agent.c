@@ -481,7 +481,7 @@ TEST( Full_MQTT_Agent_ALPN, MQTT_Agent_SubscribePublishAlpn )
  * high and low priorities.
  *
  * At the end of the test, Tasks do not self delete. They get suspended. The main test function will first wait for every
- * task to complete through Amazon FreeRTOS synchronization mechanism then it will delete all the created tasks.
+ * task to complete through FreeRTOS synchronization mechanism then it will delete all the created tasks.
  *
  * For simplicity sake, memory is not allocated in the Receive or Transmit tasks. The allocation is centralized in one place, the main task.
  */

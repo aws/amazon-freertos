@@ -31,7 +31,7 @@
 
 /**
  * @brief Overriding function for WDRV_STUB_Assert() defined in wdrv_wilc1000_stub.h.
- * We want to call configASSERT() in Amazon FreeRTOS instead so that functions abort
+ * We want to call configASSERT() in FreeRTOS instead so that functions abort
  * tests for assertions instead of falling into a while loop.
  */
 void WDRV_STUB_Assert( int condition,

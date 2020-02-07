@@ -26,7 +26,7 @@
 /**
  * @file iot_network_freertos.h
  * @brief Declares the network stack functions specified in aws_iot_network.h for
- * Amazon FreeRTOS Secure Sockets.
+ * FreeRTOS Secure Sockets.
  */
 
 #ifndef _IOT_NETWORK_AFR_H_
@@ -129,7 +129,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
- * Amazon FreeRTOS Secure Sockets.
+ * FreeRTOS Secure Sockets.
  */
 IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,

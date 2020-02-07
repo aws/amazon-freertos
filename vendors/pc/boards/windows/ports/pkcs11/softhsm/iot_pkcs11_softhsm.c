@@ -26,7 +26,7 @@
 /**
  * @file iot_pkcs11_softhsm.c
  * @brief Wrapper module for using https://github.com/opendnssec/SoftHSMv2 with
- * Amazon FreeRTOS. This file deviates from the FreeRTOS style standard for
+ * FreeRTOS. This file deviates from the FreeRTOS style standard for
  * some function names and data types in order to maintain compliance with
  * the PKCS #11 standard.
  */

@@ -109,13 +109,13 @@ def test_check_build_artifacts(input_files, expected_errors):
 def test_get_license():
     with open(os.path.join('tst','license_test_0.h'), 'r') as f:
         license = afqp_check.get_license(f)
-        assert 'Amazon FreeRTOS' in license
+        assert 'FreeRTOS' in license
         assert 'http://www.FreeRTOS.org' in license
         assert '#include \"dummy.h\"' not in license
     
     with open('tst/license_test_1.h', 'r') as f:
         license = afqp_check.get_license(f)
-        assert 'Amazon FreeRTOS' in license
+        assert 'FreeRTOS' in license
         assert 'http://www.FreeRTOS.org' in license
         assert '#ifndef DUMMY' not in license
 

@@ -24,7 +24,7 @@
  */
 
 /*
- * The implementation is Amazon Freertos specific. It depends on aws_secure_sockets library.
+ * The implementation is FreeRTOS specific. It depends on aws_secure_sockets library.
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions

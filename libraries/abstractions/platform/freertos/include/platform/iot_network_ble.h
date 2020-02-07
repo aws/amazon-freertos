@@ -52,7 +52,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
- * Amazon FreeRTOS Secure Sockets.
+ * FreeRTOS Secure Sockets.
  */
 IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,

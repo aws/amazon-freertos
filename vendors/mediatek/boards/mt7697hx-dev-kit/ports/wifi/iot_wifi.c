@@ -171,7 +171,7 @@ struct handshake
  *
  *    The mode of the Wi-Fi hardware and stack.
  *
- *    Amazon has 3 modes in Amazon FreeRTOS Wi-Fi API:
+ *    Amazon has 3 modes in FreeRTOS Wi-Fi API:
  *
  *          eWiFiModeStation
  *          eWiFiModeAP

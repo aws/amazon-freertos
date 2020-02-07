@@ -26,7 +26,7 @@
 /**
  * @file iot_network_freertos.c
  * @brief Implementation of the network-related functions from iot_network_freertos.h
- * for Amazon FreeRTOS secure sockets.
+ * for FreeRTOS secure sockets.
  */
 
 /* The config header is always included first. */
