@@ -1,5 +1,5 @@
 /*
-* FreeRTOS PKCS #11 PAL for LPC54018 IoT Module V1.0.3
+ * FreeRTOS PKCS #11 PAL for LPC54018 IoT Module V1.0.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

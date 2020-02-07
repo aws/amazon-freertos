@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2018 Xilinx, Inc.
-* FreeRTOS V1.4.7
+ * FreeRTOS V1.4.7
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

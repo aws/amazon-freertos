@@ -1,5 +1,5 @@
 /*
-* FreeRTOS PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
+ * FreeRTOS PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of

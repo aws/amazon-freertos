@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 Espressif Systems (Shanghai) PTE LTD
  *
-* FreeRTOS OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.4
+ * FreeRTOS OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

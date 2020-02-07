@@ -1,5 +1,5 @@
 /*
-* FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 4
+ * FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

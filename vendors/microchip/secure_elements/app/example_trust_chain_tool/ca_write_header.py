@@ -4,7 +4,7 @@ from string import Template
 
 AWS_CLIENTCREDENTIAL_KEYS_TEMPLATE = Template("""
 /*
-* FreeRTOS V201906.00 Major
+ * FreeRTOS V201906.00 Major
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

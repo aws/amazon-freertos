@@ -1,5 +1,5 @@
 /*
-* FreeRTOS Wi-Fi for Cypress CYW954907AEVAL1F development kit V1.0.0
+ * FreeRTOS Wi-Fi for Cypress CYW954907AEVAL1F development kit V1.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
