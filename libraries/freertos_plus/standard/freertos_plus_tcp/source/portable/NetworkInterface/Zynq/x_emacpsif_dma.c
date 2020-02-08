@@ -167,8 +167,8 @@ BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	xemacpsif = (xemacpsif_s *)(arg);
 
-	/* This function is called from an ISR. The driver has already cleared the
-	TXCOMPL and TXSR_USEDREAD status bits in the XEMACPS_TXSR register.
+	/* This function is called from an ISR. The Xilinx ISR-handler has already
+	cleared the TXCOMPL and TXSR_USEDREAD status bits in the XEMACPS_TXSR register.
 	But it forgets to do a read-back. Do so now to avoid ever-returning ISR's. */
 	( void ) XEmacPs_ReadReg(xemacpsif->emacps.Config.BaseAddress, XEMACPS_TXSR_OFFSET);
 
@@ -435,10 +435,8 @@ int head = xemacpsif->rxHead;
 				/* Clearing 'XEMACPS_RXBUF_NEW_MASK'       0x00000001 *< Used bit.. */
 				xemacpsif->rxSegments[ head ].flags = 0;
 				xemacpsif->rxSegments[ head ].address = addr;
-				if (xemacpsif->rxSegments[ head ].address)
-				{
-					// Just to read it
-				}
+				/* Make sure that the value has reached the peripheral by reading it back. */
+				( void ) xemacpsif->rxSegments[ head ].address;
 			}
 		}
 
@@ -494,8 +492,7 @@ XStatus init_dma(xemacpsif_s *xemacpsif)
 
 	xTxSize = ipconfigNIC_N_TX_DESC * sizeof( xemacpsif->txSegments[ 0 ] );
 
-	/* Also round-up to 4KB */
-	xemacpsif->uTxUnitSize = ( dmaRX_TX_BUFFER_SIZE + 0x1000ul ) & ~0xffful;
+	xemacpsif->uTxUnitSize = dmaRX_TX_BUFFER_SIZE;
 	/*
 	 * We allocate 65536 bytes for RX BDs which can accommodate a
 	 * maximum of 8192 BDs which is much more than any application

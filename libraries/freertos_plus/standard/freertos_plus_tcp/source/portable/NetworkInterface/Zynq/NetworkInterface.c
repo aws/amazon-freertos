@@ -230,13 +230,9 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxBuffer, 
 		pxPacket = ( ProtocolPacket_t * ) ( pxBuffer->pucEthernetBuffer );
 		if( pxPacket->xICMPPacket.xIPHeader.ucProtocol == ipPROTOCOL_ICMP )
 		{
-		IPHeader_t *pxIPHeader = &( pxPacket->xUDPPacket.xIPHeader );
-
-			pxPacket->xICMPPacket.xICMPHeader.usChecksum = ( uint16_t )0u;
-			pxIPHeader->usHeaderChecksum = 0u;
-			pxIPHeader->usHeaderChecksum = usGenerateChecksum( 0UL, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
-			pxIPHeader->usHeaderChecksum = ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
-
+			/* The EMAC will calculate the checksum of the IP-header.
+			It can only calculate protocol checksums of UDP and TCP,
+			so for ICMP and other protocols it must be done manually. */
 			usGenerateProtocolChecksum( (uint8_t*)&( pxPacket->xUDPPacket ), pxBuffer->xDataLength, pdTRUE );
 		}
 	}
