@@ -143,17 +143,17 @@ TEST_TEAR_DOWN( TEST_IOT_UART )
  */
 TEST_GROUP_RUNNER( TEST_IOT_UART )
 {
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTCancel );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTWriteReadAsyncWithCallback );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTIoctlFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTReadSyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTReadAsyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTWriteSyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTWriteAsyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTCancel );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTIoctlWhenBusy )
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTWriteAsyncReadAsyncLoopbackTest );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTIoctlGetSet );
+    RUN_TEST_CASE( TEST_IOT_UART, DQP_FR_IotUARTOpenCloseCancelFuzzing );
 }
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
@@ -163,7 +163,7 @@ TEST_GROUP_RUNNER( TEST_IOT_UART )
  * connector and the test is run by transmitting some bytes on write sync and checking
  * if same characters are read synchronously.
  */
-TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteReadSync )
+TEST( TEST_IOT_UART, DQP_FR_AssistedIotUARTWriteReadSync )
 {
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
     uint8_t cpBufferRead[ testIotUARTBUFFERSIZE ] = { 0 };
@@ -195,7 +195,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteReadSync )
 /**
  * @brief Test Function to check UART Ioctl API specifications.
  */
-TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTIoctlGetSet )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lClose, lTransferAmount;
@@ -282,7 +282,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
  *  Works by signal external device to change to a new baudrate. Sending and recieving a message.
  *  Then signals to return back to default baudrate.
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_AssistedIotUARTBaudChange )
+TEST( TEST_IOT_UART, DQP_FR_AssistedIotUARTBaudChange )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lRead, lClose;
@@ -365,7 +365,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTBaudChange )
  * if same characters are read asynchronously.
  * This test also checks if we are getting Tx bytes in flight.
  */
-TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTWriteAsyncReadAsyncLoopbackTest )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lClose, lRead, lTransferAmount;
@@ -411,7 +411,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
  * if same characters are read asynchronously on RPI3. Validation happens on RPI3
  * This test also checks if we are getting Tx bytes in flight.
  */
-TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
+TEST( TEST_IOT_UART, DQP_FR_AssistedIotUARTWriteAsync )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lClose, lTransferAmount_1, lTransferAmount_2;
@@ -461,7 +461,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
  * connector and the test is run by transmitting some bytes on write async and checking
  * if same characters are read aynchronously.
  */
-TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTWriteReadAsyncWithCallback )
 {
     IotUARTHandle_t xUartHandle;
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
@@ -505,7 +505,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
  * @brief Test Function to test iot_uart_cancel
  *
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTCancel )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lWrite, lClose, lCancel;
@@ -557,7 +557,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 /**
  * @brief Test Function to fuzz iot_uart_write_async
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTWriteAsyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lClose, lWrite;
@@ -591,7 +591,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing )
 /**
  * @brief Test Function to fuzz iot_uart_write_sync
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTWriteSyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lClose, lWrite;
@@ -623,7 +623,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
 /**
  * @brief Test Function to fuzz iot_uart_read_async
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTReadAsyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lClose, lRead;
@@ -655,7 +655,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing )
 /**
  * @brief Test Function to fuzz iot_uart_read_sync
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTReadSyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lClose, lRead;
@@ -686,7 +686,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing )
 
 /* @brief Test Function to fuzz iot_uart_ioctl
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTIoctlFuzzing )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lClose;
@@ -732,7 +732,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
  * @brief Test Function to check if UART can be configured when an operation is ongoing.
  * If any asynchronous operation is in the process in UART, iot_uart_ioctl should fail.
  */
-TEST( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTIoctlWhenBusy )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lClose;
@@ -762,7 +762,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
 
 /* @brief Test Function to fuzz iot_uart_open and iot_uart_close
  *-----------------------------------------------------------*/
-TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
+TEST( TEST_IOT_UART, DQP_FR_IotUARTOpenCloseCancelFuzzing )
 {
     IotUARTHandle_t xUartHandle_1, xUartHandle_2, xUartHandle_3;
     int32_t lClose, lCancel;

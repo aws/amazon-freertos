@@ -109,30 +109,30 @@ TEST_TEAR_DOWN( TEST_IOT_SPI )
  */
 TEST_GROUP_RUNNER( TEST_IOT_SPI )
 {
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_OpenClose );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_Init );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CancelFail );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_OpenClose );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_Init );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_CancelFail );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_CancelSuccess );
 
     #if ( IOT_TEST_COMMON_IO_SPI_ASSISTED == 1 )
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSync );
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync );
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSync );
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync );
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSync );
-        RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_ReadSync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_ReadAsync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_WriteSync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_WriteAsync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_TransferSync );
+        RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_TransferAsync );
     #endif
 
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_OpenFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CloseFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_IoctlFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CancelFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_OpenFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_CloseFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_IoctlFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_ReadSyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_ReadAsyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_WriteSyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_WriteAsyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_TransferSyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_TransferAsyncFuzzing );
+    RUN_TEST_CASE( TEST_IOT_SPI, DQP_FR_IotSPI_CancelFuzzing );
 }
 /*-----------------------------------------------------------*/
 
@@ -140,7 +140,7 @@ TEST_GROUP_RUNNER( TEST_IOT_SPI )
  * @brief Test Function to test spi open and close
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_OpenClose )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_OpenClose )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -159,7 +159,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_OpenClose )
  * @brief Test Function to test spi init
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_Init )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_Init )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMode_t xMode;
@@ -202,7 +202,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_Init )
  * @brief Test Function to test spi read sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadSync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -258,7 +258,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSync )
  * @brief Assisted Test Function to test spi read sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadSyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -338,7 +338,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
  * @brief Test Function to test spi read async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadAsync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -402,7 +402,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync )
  * @brief Assisted Test Function to test spi read async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadAsyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -491,7 +491,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
  * @brief Test Function to test spi write sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteSync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -539,7 +539,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSync )
  * @brief Assisted Test Function to test spi write sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteSyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -620,7 +620,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
  * @brief Test Function to test spi write async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteAsync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -676,7 +676,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync )
  * @brief Assisted Test Function to test spi write async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteAsyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -767,7 +767,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
  * @brief Test Function to test spi transfer sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferSync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -828,7 +828,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSync )
  * @brief Assisted Test Function to test spi transfer sync
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferSyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -926,7 +926,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
  * @brief Test Function to test spi transfer async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferAsync )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -986,7 +986,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync )
  * @brief Assisted Test Function to test spi transfer async
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferAsyncAssisted )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -1083,7 +1083,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
  * @brief Test Function to test spi cancel with nothing to cancel
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelFail )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_CancelFail )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1112,7 +1112,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelFail )
  * @brief Test Function to test spi cancel
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_CancelSuccess )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMasterConfig_t xOrigConfig, xTestConfig;
@@ -1170,7 +1170,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess )
  * @brief Test Function to test spi open with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_OpenFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_OpenFuzzing )
 {
     IotSPIHandle_t xSPIHandle, xSPIHandle2;
     int32_t lRetVal;
@@ -1195,7 +1195,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_OpenFuzzing )
  * @brief Test Function to test spi close with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_CloseFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_CloseFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1222,7 +1222,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CloseFuzzing )
  * @brief Test Function to test spi ioctl with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_IoctlFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_IoctlFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     IotSPIMode_t xMode;
@@ -1290,7 +1290,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_IoctlFuzzing )
  * @brief Test Function to test spi readSync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadSyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1319,7 +1319,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncFuzzing )
  * @brief Test Function to test spi readAsync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_ReadAsyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1348,7 +1348,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncFuzzing )
  * @brief Test Function to test spi writeSync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteSyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1377,7 +1377,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncFuzzing )
  * @brief Test Function to test spi writeAsync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_WriteAsyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1406,7 +1406,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncFuzzing )
  * @brief Test Function to test spi transferSync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferSyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1439,7 +1439,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncFuzzing )
  * @brief Test Function to test spi transferAsync with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_TransferAsyncFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;
@@ -1472,7 +1472,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncFuzzing )
  * @brief Test Function to test spi cancel with invalid params
  *
  */
-TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelFuzzing )
+TEST( TEST_IOT_SPI, DQP_FR_IotSPI_CancelFuzzing )
 {
     IotSPIHandle_t xSPIHandle;
     int32_t lRetVal;

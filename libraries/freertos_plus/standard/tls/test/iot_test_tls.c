@@ -84,14 +84,14 @@ TEST_TEAR_DOWN( Full_TLS )
 
 TEST_GROUP_RUNNER( Full_TLS )
 {
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
+    RUN_TEST_CASE( Full_TLS, DQP_FR_TLS_ConnectDefault );
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
         #if ( pkcs11testEC_KEY_SUPPORT == 1 )
-            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+            RUN_TEST_CASE( Full_TLS, DQP_FR_TLS_ConnectEC );
+            RUN_TEST_CASE( Full_TLS, DQP_FR_TLS_ConnectBYOCCredentials );
         #endif
-        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
-        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
+        RUN_TEST_CASE( Full_TLS, DQP_FR_TLS_ConnectMalformedCert );
+        RUN_TEST_CASE( Full_TLS, DQP_FR_TLS_ConnectUntrustedCert );
     #endif
 }
 
@@ -277,7 +277,7 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectDefault )
+TEST( Full_TLS, DQP_FR_TLS_ConnectDefault )
 {
     const char * pcAWSIoTAddress = clientcredentialMQTT_BROKER_ENDPOINT;
     uint16_t usAWSIoTPort = clientcredentialMQTT_BROKER_PORT;
@@ -307,7 +307,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectDefault )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectEC )
+TEST( Full_TLS, DQP_FR_TLS_ConnectEC )
 {
     ProvisioningParams_t xParams;
 
@@ -325,7 +325,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectEC )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
+TEST( Full_TLS, DQP_FR_TLS_ConnectMalformedCert )
 {
     ProvisioningParams_t xParams;
 
@@ -341,7 +341,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
+TEST( Full_TLS, DQP_FR_TLS_ConnectUntrustedCert )
 {
     ProvisioningParams_t xParams;
 
@@ -357,7 +357,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
+TEST( Full_TLS, DQP_FR_TLS_ConnectBYOCCredentials )
 {
     ProvisioningParams_t xParams;
 

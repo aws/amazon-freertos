@@ -613,68 +613,68 @@ TEST_TEAR_DOWN( Full_WiFi )
 TEST_GROUP_RUNNER( Full_WiFi )
 {
     /* Happy path tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOff );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiMode );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectionLoop );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiNetworkAddGetDelete );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPowerManagementMode )
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetIP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetMAC );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetHostIP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiScan );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiOnOff );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiMode );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiConnectionLoop );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiNetworkAddGetDelete );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiPowerManagementMode )
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiGetIP );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiGetMAC );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiGetHostIP );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiScan );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiReset );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiPing );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiIsConnected );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiConnectMultipleAP );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiOnOffLoop );
 
     /* Null parameter tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetMode_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetIP_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetHostIP_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkAdd_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGet_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_SetPMMode_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetPMMode_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Ping_NullParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetMode_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetIP_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetMAC_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetHostIP_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_Scan_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkAdd_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkGet_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_SetPMMode_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetPMMode_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_Ping_NullParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_NullParameters );
 
     /* Invalid parameters tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Ping_ZeroParameters );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_SetMode_InvalidMode );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetHostIP_InvalidDomainName );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_GetHostIP_DomainNameLengthExceeded );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkDelete_DeleteNonExistingNetwork );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkGetNonExistingNetwork );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_SetPMMode_InvalidPMMode );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_Ping_ZeroParameters );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidSSID );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidPassword );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidSecurityTypes );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_MaxSSIDLengthExceeded );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_MaxPasswordLengthExceeded );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_ZeroLengthSSID );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_ZeroLengthPassword );
 
     /* Stability tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_PasswordLengthLess );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_Scan_ZeroScanNumber );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkGet_GetManyNetworks );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkAdd_AddManyNetworks );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_NetworkDelete_DeleteManyNetworks );
+    RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConnectAP_ConnectAllChannels );
 
     #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
-        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WiFiConfigureAP );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_InvalidSecurityType );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ZeroLengthSSID );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ZeroLengthPassword );
+        RUN_TEST_CASE( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ConfigureAllChannels );
     #endif
 
     prvFinishWiFiTesting();
@@ -684,7 +684,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
  * @brief Turn the Wi-Fi off then on in a loop and verify success. The Wi-Fi
  * should be ON after this test is finished.
  */
-TEST( Full_WiFi, AFQP_WiFiOnOffLoop )
+TEST( Full_WiFi, DQP_FR_WiFiOnOffLoop )
 {
     char cBuffer[ 256 ];
     int16_t sBufferLength = 256;
@@ -718,7 +718,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOffLoop )
  * @brief A single happy path case of turning the Wi-Fi off, on, then connecting
  * to the AP and disconnecting. Verify API results.
  */
-TEST( Full_WiFi, AFQP_WiFiOnOff )
+TEST( Full_WiFi, DQP_FR_WiFiOnOff )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -754,7 +754,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOff )
  * @brief Call WIFI_GetMode() and WIFI_SetMode() with each of the available
  * Wi-Fi modes; verify the API return status.
  */
-TEST( Full_WiFi, AFQP_WiFiMode )
+TEST( Full_WiFi, DQP_FR_WiFiMode )
 {
     WIFIDeviceMode_t xWiFiDeviceMode;
     WIFIReturnCode_t xWiFiStatus;
@@ -788,7 +788,7 @@ TEST( Full_WiFi, AFQP_WiFiMode )
 /**
  * @brief Call WIFI_GetMode() with Null parameterrs and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetMode_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_GetMode_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -802,7 +802,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetMode_NullParameters )
 /**
  * @brief Call WIFI_SetMode() with an invalid mode and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
+TEST( Full_WiFi, DQP_FR_WIFI_SetMode_InvalidMode )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -821,7 +821,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
  * @brief Connect and disconnect the wireless AP testwifiCONNECTION_LOOP_TIMES
  * and verify the return status each time.
  */
-TEST( Full_WiFi, AFQP_WiFiConnectionLoop )
+TEST( Full_WiFi, DQP_FR_WiFiConnectionLoop )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -864,7 +864,7 @@ TEST( Full_WiFi, AFQP_WiFiConnectionLoop )
 /**
  * @brief Exercise WIFI_GetIP() and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiGetIP )
+TEST( Full_WiFi, DQP_FR_WiFiGetIP )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -893,7 +893,7 @@ TEST( Full_WiFi, AFQP_WiFiGetIP )
 /**
  * @brief Call WIFI_GetIP() with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetIP_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_GetIP_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -913,7 +913,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetIP_NullParameters )
  * The MAC address returned is checked to be non-zero. Checking for manufacturer
  * addresses given the unknown set of network interface vendors is infeasible.
  */
-TEST( Full_WiFi, AFQP_WiFiGetMAC )
+TEST( Full_WiFi, DQP_FR_WiFiGetMAC )
 {
     uint8_t ucMacAddressVal[ testwifiMAC_ADDRESS_LENGTH ];
     WIFIReturnCode_t xWiFiStatus;
@@ -946,7 +946,7 @@ TEST( Full_WiFi, AFQP_WiFiGetMAC )
 /**
  * @brief Call WIFI_GetMAC() with NULL parameters and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_GetMAC_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -962,7 +962,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters )
 /**
  * @brief Exercise WIFI_GetHostIP and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiGetHostIP )
+TEST( Full_WiFi, DQP_FR_WiFiGetHostIP )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -989,7 +989,7 @@ TEST( Full_WiFi, AFQP_WiFiGetHostIP )
 /**
  * @brief Call WIFI_GetHOSTIP with NULL parameters and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetHostIP_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_GetHostIP_NullParameters )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1015,7 +1015,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_NullParameters )
  * @brief Call WIFI_GetHostIP with the invalid domain name defined in
  * testwifiTEST_INVALID_DOMAIN_NAME and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
+TEST( Full_WiFi, DQP_FR_WIFI_GetHostIP_InvalidDomainName )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1039,7 +1039,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
  * @brief Call WIFI_GetHostIP with a domain name that exceeds the standard
  * maximum domain name length of 253 and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
+TEST( Full_WiFi, DQP_FR_WIFI_GetHostIP_DomainNameLengthExceeded )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1070,7 +1070,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 /**
  * @brief Exercise WIFI_Scan() and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiScan )
+TEST( Full_WiFi, DQP_FR_WiFiScan )
 {
     WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1089,7 +1089,7 @@ TEST( Full_WiFi, AFQP_WiFiScan )
 /**
  * @brief Call WIFI_Scan() with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_Scan_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1103,7 +1103,7 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
 /**
  * @brief Call WIFI_Scan() to scan for zero total networks and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
+TEST( Full_WiFi, DQP_FR_WIFI_Scan_ZeroScanNumber )
 {
     WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ];
 
@@ -1119,7 +1119,7 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
  * @brief Single test of adding a Wi-Fi network, getting it, then delete it;
  * verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiNetworkAddGetDelete )
+TEST( Full_WiFi, DQP_FR_WiFiNetworkAddGetDelete )
 {
     WIFINetworkProfile_t xNetworkProfile;
     WIFIReturnCode_t xWiFiStatus;
@@ -1173,7 +1173,7 @@ TEST( Full_WiFi, AFQP_WiFiNetworkAddGetDelete )
 /**
  * @brief Call WIFI_NetworkAdd() with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkAdd_NullParameters )
 {
     WIFINetworkProfile_t xNetworkProfile;
     WIFIReturnCode_t xWiFiStatus;
@@ -1197,7 +1197,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_NullParameters )
 /**
  * @brief Call WIFI_NetworkGet() with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkGet_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkGet_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1212,7 +1212,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_NullParameters )
  * @brief Call WIFI_NetworkDelete() on a network that doesn't exist and verify
  * success.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkDelete_DeleteNonExistingNetwork )
 {
     WIFINetworkProfile_t xNetworkProfile;
     WIFIReturnCode_t xWiFiStatus;
@@ -1252,7 +1252,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork )
 /**
  * @brief Call WIFI_NetworkGet() on a non-existing network and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkGetNonExistingNetwork )
 {
     WIFINetworkProfile_t xNetworkProfile;
     WIFIReturnCode_t xWiFiStatus;
@@ -1292,7 +1292,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
 /**
  * @brief Call WIFI_NetworkGet() over the maximum network save number.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkGet_GetManyNetworks )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkProfile_t xNetworkProfile;
@@ -1322,7 +1322,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
  * checked. Instead only the network returned on success is checked to be
  * correct.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkAdd_AddManyNetworks )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkProfile_t xNetworkProfile;
@@ -1392,7 +1392,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
  * @brief Call WIFI_NetworkDelete over the maximum network save number. This
  * verifies stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
+TEST( Full_WiFi, DQP_FR_WIFI_NetworkDelete_DeleteManyNetworks )
 {
     uint16_t usIndex;
 
@@ -1409,7 +1409,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
  * @brief Exercise the WIFI_SetPMMode() and WIFI_GetPMMode() APIs for each of
  * the available modes and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiPowerManagementMode )
+TEST( Full_WiFi, DQP_FR_WiFiPowerManagementMode )
 {
     WIFIPMMode_t xPMMode;
     WIFIReturnCode_t xWiFiStatus;
@@ -1449,7 +1449,7 @@ TEST( Full_WiFi, AFQP_WiFiPowerManagementMode )
 /**
  * @brief Call WIFI_SetPMMode() with NULL parameters.
  */
-TEST( Full_WiFi, AFQP_WIFI_SetPMMode_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_SetPMMode_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1463,7 +1463,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_NullParameters )
 /**
  * @brief call WIFI_GetPMMode() with NULL parameters.
  */
-TEST( Full_WiFi, AFQP_WIFI_GetPMMode_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_GetPMMode_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFIPMMode_t xPMMode;
@@ -1485,7 +1485,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetPMMode_NullParameters )
 /**
  * @brief call WIFI_SetPMMode() with an invalid power mode and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
+TEST( Full_WiFi, DQP_FR_WIFI_SetPMMode_InvalidPMMode )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1505,7 +1505,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
  * network created by it on your phone and configure. You should expect it to
  * return eWiFiSuccess.
  */
-TEST( Full_WiFi, AFQP_WiFiConfigureAP )
+TEST( Full_WiFi, DQP_FR_WiFiConfigureAP )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1527,7 +1527,7 @@ TEST( Full_WiFi, AFQP_WiFiConfigureAP )
 /**
  * @brief Call WIFI_ConfigureAP with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_NullParameters )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1581,7 +1581,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 /**
  * @brief Configure the AP with an invalid security type an verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_InvalidSecurityType )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1602,7 +1602,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
  * @brief Configure the SoftAP with a SSID exceeding the maximum SSID length and
  * verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
 {
     char cLengthExceedingSSID[ wificonfigMAX_SSID_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1629,7 +1629,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
  * @brief Configure the SoftAP with a password exceeding the maximum password
  * length and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 {
     char cLengthExceedingPassword[ wificonfigMAX_PASSPHRASE_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1655,7 +1655,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 /**
  * @brief Configure the SoftAP with a zero length SSID and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ZeroLengthSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1674,7 +1674,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
 /**
  * @brief Configure the SoftAP with a zero length password and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ZeroLengthPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1694,7 +1694,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
  * @brief Configure the SoftAP over all channels specified in
  * testwifiMAX_CHANNEL_NUMBER and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
+TEST( Full_WiFi, DQP_FR_WIFI_ConfigureAP_ConfigureAllChannels )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     uint32_t ulIndex;
@@ -1715,7 +1715,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
 /**
  * @brief Exercise WIFI_Reset and verify a success.
  */
-TEST( Full_WiFi, AFQP_WiFiReset )
+TEST( Full_WiFi, DQP_FR_WiFiReset )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1726,7 +1726,7 @@ TEST( Full_WiFi, AFQP_WiFiReset )
 /**
  * @brief Exercise WIFI_Ping() and verify a success.
  */
-TEST( Full_WiFi, AFQP_WiFiPing )
+TEST( Full_WiFi, DQP_FR_WiFiPing )
 {
     WIFIReturnCode_t xWiFiStatus;
     uint32_t ulPingAddress = testwifiPING_ADDRESS;
@@ -1741,7 +1741,7 @@ TEST( Full_WiFi, AFQP_WiFiPing )
 /**
  * @brief Call WIFI_Ping() with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_Ping_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1758,7 +1758,7 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
  * @brief Call WIFI_Ping() with zero for the ping interval and zero for the ping
  * count and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_Ping_ZeroParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_Ping_ZeroParameters )
 {
     uint32_t ulPingAddress = testwifiPING_ADDRESS;
 
@@ -1779,7 +1779,7 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_ZeroParameters )
  * @brief Test WIFI_IsConnected() after calling WIFI_ConnectAP() and
  * WIFI_DisconnectAP() and verify success.
  */
-TEST( Full_WiFi, AFQP_WiFiIsConnected )
+TEST( Full_WiFi, DQP_FR_WiFiIsConnected )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     BaseType_t xIsConnected;
@@ -1819,7 +1819,7 @@ TEST( Full_WiFi, AFQP_WiFiIsConnected )
  * @brief Test WIFI_ConnectAP() with null parameters. It is expected that null
  * parameters will go into an assert or fail.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_NullParameters )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1868,7 +1868,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
  * there exists a Access point, in range, with the same SSID but an Open
  * security type.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus = eWiFiFailure;
@@ -1901,7 +1901,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword )
 /**
  * @brief Call WIFI_ConnectAP() with an invalid SSID and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus = eWiFiFailure;
@@ -1935,7 +1935,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
  * @brief Call WIFI_ConnectAP() with invalid security types and verify
  * stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_InvalidSecurityTypes )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1967,7 +1967,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
  * @brief Call WIFI_ConnectAP() with valid credentials over all channels and
  * verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_ConnectAllChannels )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     uint32_t ulIndex;
@@ -1989,7 +1989,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
  * @brief Call WIFI_ConnectAP() with an SSID that exceeds the maximum SSID
  * length and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_MaxSSIDLengthExceeded )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus = eWiFiFailure;
@@ -2027,7 +2027,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded )
  * @brief Call WIFI_ConnectAP() with a password that exceeds the maximum
  * password length and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_MaxPasswordLengthExceeded )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus = eWiFiFailure;
@@ -2065,7 +2065,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
  * @brief Attempt to connect to an AP with a valid SSID and with a specified
  * length of zero and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_ZeroLengthSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -2086,7 +2086,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
  * @brief Attempt to connect to an AP with a valid password and with a specified
  * length of zero and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_ZeroLengthPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -2107,7 +2107,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
  * @brief Attempt to connect to an AP with a valid password and the specified
  * password length is less; verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
+TEST( Full_WiFi, DQP_FR_WIFI_ConnectAP_PasswordLengthLess )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -2129,7 +2129,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
  * credentials defined in this test over and over and verify we are still
  * connected.
  */
-TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
+TEST( Full_WiFi, DQP_FR_WiFiConnectMultipleAP )
 {
     BaseType_t xIsConnected;
     BaseType_t xMaxRetries = 6;

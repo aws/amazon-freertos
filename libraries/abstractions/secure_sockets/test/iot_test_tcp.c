@@ -769,63 +769,63 @@ static BaseType_t prvCheckTimeout( TickType_t xStartTime,
 
 TEST_GROUP_RUNNER( Full_TCP )
 {
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_CloseInvalidParams );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_CloseWithoutReceiving );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownInvalidParams );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownWithoutReceiving );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_On_Unconnected_Socket );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidParams );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_TCP );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_SetSockOpt_RCVTIMEO );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_NonBlocking_Test );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_SetSockOpt_InvalidParams );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Shutdown );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Close );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_ByteByByte );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_SendRecv_VaryLength );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_ConcurrentCount );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Send_Invalid );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_Invalid );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_htons_HappyCase );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_CloseInvalidParams );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_CloseWithoutReceiving );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_ShutdownInvalidParams );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_ShutdownWithoutReceiving );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Recv_On_Unconnected_Socket );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Connect_InvalidParams );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Connect_InvalidAddressLength );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Socket_TCP );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_SetSockOpt_RCVTIMEO );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_NonBlocking_Test );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_SetSockOpt_InvalidParams );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Shutdown );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Close );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Recv_ByteByByte );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_SendRecv_VaryLength );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Socket_ConcurrentCount );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Socket_InvalidInputParams );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Send_Invalid );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Recv_Invalid );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_htons_HappyCase );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_inet_addr_quick_HappyCase );
 
     #if ( tcptestSECURE_SERVER == 1 )
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseInvalidParams );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseWithoutReceiving );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownInvalidParams );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownWithoutReceiving );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidParams );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_CloseInvalidParams );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_CloseWithoutReceiving );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_ShutdownInvalidParams );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_ShutdownWithoutReceiving );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_On_Unconnected_Socket );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Connect_InvalidParams );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Connect_InvalidAddressLength );
         /* SECURE_SOCKETS_Socket_TCP DNE. */
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_RCVTIMEO );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_NonBlocking_Test );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_InvalidParams );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Shutdown );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Close );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_ByteByByte );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SendRecv_VaryLength );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_RCVTIMEO );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_NonBlocking_Test );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_InvalidParams );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Shutdown );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Close );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_ByteByByte );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SendRecv_VaryLength );
         /* SECURE_SOCKETS_Socket_InvalidTooManySockets has not been implemented. */
         /*SECURE_SOCKETS_Socket_InvalidInputParams DNE.*/
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Send_Invalid );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_Invalid );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SockEventHandler );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_NonBlockingConnect );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Send_Invalid );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_Invalid );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SockEventHandler );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_NonBlockingConnect );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_TwoSecureConnections );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSecureOptionsAfterConnect );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
 
     /* Thread safety tests */
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+    RUN_TEST_CASE( Full_TCP, DQP_FR_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
 
     #if ( tcptestSECURE_SERVER == 1 )
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+        RUN_TEST_CASE( Full_TCP, DQP_FR_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
 }
 
@@ -842,14 +842,14 @@ static void prvSOCKETS_CloseInvalidParams( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_EINVAL, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_CloseInvalidParams )
+TEST( Full_TCP, DQP_FR_SOCKETS_CloseInvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_CloseInvalidParams( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_CloseInvalidParams )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_CloseInvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -876,14 +876,14 @@ static void prvSOCKETS_CloseWithoutReceiving( Server_t xConn )
 }
 
 
-TEST( Full_TCP, AFQP_SOCKETS_CloseWithoutReceiving )
+TEST( Full_TCP, DQP_FR_SOCKETS_CloseWithoutReceiving )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_CloseWithoutReceiving( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_CloseWithoutReceiving )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_CloseWithoutReceiving )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -916,14 +916,14 @@ static void prvSOCKETS_ShutdownInvalidParams( Server_t xConn )
     TEST_ASSERT_EQUAL_MESSAGE( SOCKETS_EINVAL, xResult, "Socket could shutdown with an invalid param" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_ShutdownInvalidParams )
+TEST( Full_TCP, DQP_FR_SOCKETS_ShutdownInvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_ShutdownInvalidParams( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownInvalidParams )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_ShutdownInvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -951,14 +951,14 @@ static void prvSOCKETS_ShutdownWithoutReceiving( Server_t xConn )
 }
 
 
-TEST( Full_TCP, AFQP_SOCKETS_ShutdownWithoutReceiving )
+TEST( Full_TCP, DQP_FR_SOCKETS_ShutdownWithoutReceiving )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_ShutdownWithoutReceiving( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownWithoutReceiving )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_ShutdownWithoutReceiving )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1018,14 +1018,14 @@ static void prvSOCKETS_Recv_On_Unconnected_Socket( Server_t xConn )
     }
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Recv_On_Unconnected_Socket )
+TEST( Full_TCP, DQP_FR_SOCKETS_Recv_On_Unconnected_Socket )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Recv_On_Unconnected_Socket( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_On_Unconnected_Socket )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1050,7 +1050,7 @@ static void prvSOCKETS_Socket_TCP( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Socket_TCP )
+TEST( Full_TCP, DQP_FR_SOCKETS_Socket_TCP )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1123,14 +1123,14 @@ static void prvSOCKETS_SetSockOpt_RCVTIMEO( Server_t xConn )
 }
 
 
-TEST( Full_TCP, AFQP_SOCKETS_SetSockOpt_RCVTIMEO )
+TEST( Full_TCP, DQP_FR_SOCKETS_SetSockOpt_RCVTIMEO )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_SetSockOpt_RCVTIMEO( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_RCVTIMEO )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_RCVTIMEO )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1225,14 +1225,14 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
 }
 
 
-TEST( Full_TCP, AFQP_SOCKETS_NonBlocking_Test )
+TEST( Full_TCP, DQP_FR_SOCKETS_NonBlocking_Test )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_NonBlocking_Test( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_NonBlocking_Test )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_NonBlocking_Test )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1287,7 +1287,7 @@ static void prvSetSockOpt_InvalidParams( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "SOCKETS_Close failed. \r\n" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_SetSockOpt_InvalidParams )
+TEST( Full_TCP, DQP_FR_SOCKETS_SetSockOpt_InvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1296,7 +1296,7 @@ TEST( Full_TCP, AFQP_SOCKETS_SetSockOpt_InvalidParams )
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_InvalidParams )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_InvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1312,14 +1312,14 @@ static void prvSOCKETS_SetSockOpt_SNDTIMEO( Server_t xConn )
     TEST_FAIL_MESSAGE( "This test is not implemented." );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_SetSockOpt_SNDTIMEO )
+TEST( Full_TCP, DQP_FR_SOCKETS_SetSockOpt_SNDTIMEO )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_SetSockOpt_SNDTIMEO( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SNDTIMEO )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_SNDTIMEO )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1400,14 +1400,14 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Shutdown )
+TEST( Full_TCP, DQP_FR_SOCKETS_Shutdown )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Shutdown( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Shutdown )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Shutdown )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1481,14 +1481,14 @@ static void prvTestSOCKETS_Close( Server_t xConn )
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Close )
+TEST( Full_TCP, DQP_FR_SOCKETS_Close )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvTestSOCKETS_Close( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Close )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Close )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1554,14 +1554,14 @@ static void prvTestSOCKETS_Recv_ByteByByte( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Recv_ByteByByte )
+TEST( Full_TCP, DQP_FR_SOCKETS_Recv_ByteByByte )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvTestSOCKETS_Recv_ByteByByte( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Recv_ByteByByte )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_ByteByByte )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1636,14 +1636,14 @@ static void prvSOCKETS_SendRecv_VaryLength( Server_t xConn )
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_SendRecv_VaryLength )
+TEST( Full_TCP, DQP_FR_SOCKETS_SendRecv_VaryLength )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_SendRecv_VaryLength( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SendRecv_VaryLength )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SendRecv_VaryLength )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1735,7 +1735,7 @@ static void prvSOCKETS_Socket_InvalidInputParams( Server_t xConn )
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams )
+TEST( Full_TCP, DQP_FR_SOCKETS_Socket_InvalidInputParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1815,14 +1815,14 @@ static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Socket_ConcurrentCount )
+TEST( Full_TCP, DQP_FR_SOCKETS_Socket_ConcurrentCount )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Socket_ConcurrentCount( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Socket_InvalidTooManySockets )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Socket_InvalidTooManySockets )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
     /* TODO: Modify so that the number of secure sockets can be counted. */
@@ -1891,14 +1891,14 @@ static void prvSOCKETS_Connect_InvalidParams( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Connect_InvalidParams )
+TEST( Full_TCP, DQP_FR_SOCKETS_Connect_InvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Connect_InvalidParams( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidParams )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Connect_InvalidParams )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1973,7 +1973,7 @@ static void prvConnect_InvalidAddressLength( Server_t xConn,
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength )
+TEST( Full_TCP, DQP_FR_SOCKETS_Connect_InvalidAddressLength )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -1987,7 +1987,7 @@ TEST( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Connect_InvalidAddressLength )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2056,14 +2056,14 @@ static void prvSend_Invalid( Server_t xConn )
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Send_Invalid )
+TEST( Full_TCP, DQP_FR_SOCKETS_Send_Invalid )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSend_Invalid( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Send_Invalid )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Send_Invalid )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2095,14 +2095,14 @@ static void prvRecv_Invalid( Server_t xConn )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Recv_Invalid )
+TEST( Full_TCP, DQP_FR_SOCKETS_Recv_Invalid )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvRecv_Invalid( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Recv_Invalid )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Recv_Invalid )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2178,7 +2178,7 @@ static void prvServerDomainName( void )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2230,7 +2230,7 @@ static void prvTrustedServerCertificate( void )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2281,7 +2281,7 @@ static void prvTriggerWrongRootCA( void )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SockEventHandler )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SockEventHandler )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2423,14 +2423,14 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
     vTaskPrioritySet( NULL, tskIDLE_PRIORITY );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Full_TCP, DQP_FR_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Threadsafe_SameSocketDifferentTasks( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2610,14 +2610,14 @@ void prvStartTCPEchoClientTasks_DifferentSockets( Server_t xConn )
 }
 
 
-TEST( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks )
+TEST( Full_TCP, DQP_FR_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvStartTCPEchoClientTasks_DifferentSockets( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2786,7 +2786,7 @@ static void prvNonBlockingConnect( void )
     /* Test teardown will close the socket. */
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_NonBlockingConnect )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_NonBlockingConnect )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2890,7 +2890,7 @@ static void prvTwoSecureConnections( void )
     }
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_TwoSecureConnections )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2898,7 +2898,7 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
+TEST( Full_TCP, DQP_FR_SOCKETS_htons_HappyCase )
 {
     uint16_t usNetworkOrderValue;
 
@@ -2925,7 +2925,7 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase )
+TEST( Full_TCP, DQP_FR_SOCKETS_inet_addr_quick_HappyCase )
 {
     uint32_t ulPackedIpAddress;
 
@@ -2951,7 +2951,7 @@ TEST( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect )
+TEST( Full_TCP, DQP_FR_SECURE_SOCKETS_SetSecureOptionsAfterConnect )
 {
     BaseType_t xResult = pdFAIL;
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT };

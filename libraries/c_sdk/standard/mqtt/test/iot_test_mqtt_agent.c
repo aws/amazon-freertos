@@ -384,8 +384,8 @@ TEST_TEAR_DOWN( Full_MQTT_Agent_ALPN )
  */
 TEST_GROUP_RUNNER( Full_MQTT_Agent )
 {
-    RUN_TEST_CASE( Full_MQTT_Agent, AFQP_MQTT_Agent_SubscribePublishDefaultPort );
-    RUN_TEST_CASE( Full_MQTT_Agent, AFQP_MQTT_Agent_InvalidCredentials );
+    RUN_TEST_CASE( Full_MQTT_Agent, DQP_FR_MQTT_Agent_SubscribePublishDefaultPort );
+    RUN_TEST_CASE( Full_MQTT_Agent, DQP_FR_MQTT_Agent_InvalidCredentials );
 }
 TEST_GROUP_RUNNER( Full_MQTT_Agent_Stress_Tests )
 {
@@ -398,13 +398,13 @@ TEST_GROUP_RUNNER( Full_MQTT_Agent_ALPN )
 /*-----------------------------------------------------------*/
 
 /* Test for ping-ponging a message using the default AWS IoT port for MQTT. */
-TEST( Full_MQTT_Agent, AFQP_MQTT_Agent_SubscribePublishDefaultPort )
+TEST( Full_MQTT_Agent, DQP_FR_MQTT_Agent_SubscribePublishDefaultPort )
 {
     prvCreateClientAndConnectToBroker( pdFALSE );
 }
 
 /* Test for ping-ponging a message using the default AWS IoT port for MQTT. */
-TEST( Full_MQTT_Agent, AFQP_MQTT_Agent_InvalidCredentials )
+TEST( Full_MQTT_Agent, DQP_FR_MQTT_Agent_InvalidCredentials )
 {
     MQTTAgentReturnCode_t xReturned;
     MQTTAgentHandle_t xMQTTHandle = NULL;

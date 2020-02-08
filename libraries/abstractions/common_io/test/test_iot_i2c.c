@@ -171,50 +171,50 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
     xtestIotI2CSemaphore = xSemaphoreCreateBinary();
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotI2CSemaphore );
 
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2COpenCloseSuccess );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2COpenCloseFail );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2COpenCloseFailUnsupportInst );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationSuccess );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseSuccess );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseFail );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseFailUnsupportInst );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CSetGetConfigurationSuccess );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CSetGetConfigurationFail );
 
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadSyncFail );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteSyncSuccess );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteSyncFail );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CReadSyncFail );
 
     /* If it supports not sending stop condition. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP == 1 )
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess );
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadSyncSuccess );
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl );
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CGetBusStateSuccess );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadSyncSuccess );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailIoctl );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailReadTwice );
     #endif
 
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncSuccess );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncFailIoctl );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncFailWriteTwice );
+    RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailSetAddr );
 
     /* If it supports not sending stop condition. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP == 1 )
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadAsyncSuccess );
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadChainSuccess );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadAsyncSuccess );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadChainSuccess );
     #endif
 
     /* If it supports cancel the current operation. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_CANCEL == 1 )
         #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP == 1 )
-            RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess );
+            RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CCancelReadSuccess );
         #endif
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelFail );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CCancelFail );
     #endif
 
     /* Unsupported tests. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP != 1 )
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CSendNoStopUnsupported );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CSendNoStopUnsupported );
     #endif
 
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_CANCEL != 1 )
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelUnsupported );
+        RUN_TEST_CASE( TEST_IOT_I2C, DQP_FR_IotI2CCancelUnsupported );
     #endif
 }
 
@@ -223,7 +223,7 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
 /**
  * @brief Test Function to test iot_i2c_open and iot_i2c_close.
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -241,7 +241,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseSuccess )
 /**
  * @brief Test Function to test iot_i2c_open and iot_i2c_close fail case.
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFail )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseFail )
 {
     IotI2CHandle_t xI2CHandle;
     IotI2CHandle_t xI2CHandle_1;
@@ -272,7 +272,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFail )
 /**
  * @brief Test Function to test iot_i2c_open and iot_i2c_close with unsupported instance
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFailUnsupportInst )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2COpenCloseFailUnsupportInst )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -290,7 +290,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFailUnsupportInst )
 /**
  * @brief Test Function for I2C set and get configuration success
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CSetGetConfigurationSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     IotI2CConfig_t xI2CConfig_write;
@@ -343,7 +343,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationSuccess )
 /**
  * @brief Test Function for I2C set and get configuration fail
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CSetGetConfigurationFail )
 {
     IotI2CHandle_t xI2CHandle;
     IotI2CConfig_t xI2CConfig;
@@ -377,7 +377,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
 /**
  * @brief Test Function for I2C async read success
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadAsyncSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadAsyncSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -447,7 +447,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadAsyncSuccess )
 /**
  * @brief Test Function for I2C async read success
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadChainSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadChainSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -516,7 +516,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadChainSuccess )
 /**
  * @brief Test Function for I2C async read fail to do ioctl
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailIoctl )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -578,7 +578,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl )
 /**
  * @brief Test Function for I2C async read twice fail
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailReadTwice )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -644,7 +644,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
 /**
  * @brief Test Function for I2C read async fail. slave address and register not set.
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CReadAsyncFailSetAddr )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -673,7 +673,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr )
 /**
  * @brief Test Function for I2C cancel
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CCancelReadSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -754,7 +754,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess )
 /**
  * @brief Test Function for I2C cancel fail
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CCancelFail )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CCancelFail )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -776,7 +776,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelFail )
 
 /*-----------------------------------------------------------*/
 
-TEST( TEST_IOT_I2C, AFQP_IotI2CCancelUnsupported )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CCancelUnsupported )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -801,7 +801,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelUnsupported )
 /**
  * @brief Test Function for I2C async write
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -867,7 +867,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess )
 /**
  * @brief Test Function for I2C async write fail to do ioctl
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncFailIoctl )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -917,7 +917,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl )
 /**
  * @brief Test Function for I2C async write twice fail
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteAsyncFailWriteTwice )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -967,7 +967,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice )
 /**
  * @brief Test Function for I2C sync write then read, in same transaction.
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadSyncSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteThenReadSyncSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -1032,7 +1032,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadSyncSuccess )
 /**
  * @brief Test Function for I2C sync read Fail
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncFail )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CReadSyncFail )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -1067,7 +1067,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncFail )
 /**
  * @brief Test Function for I2C sync write
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteSyncSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -1124,7 +1124,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess )
 /**
  * @brief Test Function for I2C sync write
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CWriteSyncFail )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -1160,7 +1160,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail )
 /**
  * @brief Test Function for I2C but getState
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CGetBusStateSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -1221,7 +1221,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess )
     TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 }
 
-TEST( TEST_IOT_I2C, AFQP_IotI2CSendNoStopUnsupported )
+TEST( TEST_IOT_I2C, DQP_FR_IotI2CSendNoStopUnsupported )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
