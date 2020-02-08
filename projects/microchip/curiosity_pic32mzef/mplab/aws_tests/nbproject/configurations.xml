@@ -1099,7 +1099,7 @@
 				<property key="generate-16-bit-code" value="false"/>
 				<property key="generate-cross-reference-file" value="false"/>
 				<property key="generate-micro-compressed-code" value="false"/>
-				<property key="heap-size" value="170000"/>
+				<property key="heap-size" value="10000"/>
 				<property key="input-libraries" value=""/>
 				<property key="kseg-length" value=""/>
 				<property key="kseg-origin" value=""/>
