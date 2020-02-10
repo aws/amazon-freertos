@@ -1171,6 +1171,12 @@
 		</file>
 	</group>
 	<group>
+		<name>vendors/ti/boards/cc3220_launchpad/</name>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\CC3220SF.ccxml</name>
+		</file>
+	</group>
+	<group>
 		<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/</name>
 		<file>
 			<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\ClockP_freertos.c</name>
@@ -1735,33 +1741,30 @@
 		</file>
 	</group>
 	<group>
-		<name>libraries/freertos_plus/aws/ota/src/</name>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
-		</file>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c</name>
-		</file>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h</name>
-		</file>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h</name>
-		</file>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h</name>
-		</file>
-		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h</name>
-		</file>
-	</group>
-	<group>
 		<name>libraries/freertos_plus/aws/ota/include/</name>
 		<file>
 			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
 		</file>
 		<file>
-			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h</name>
+		</file>
+	</group>
+	<group>
+		<name>libraries/freertos_plus/aws/ota/src/</name>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h</name>
 		</file>
 	</group>
 	<group>
@@ -1987,6 +1990,33 @@
 		<name>vendors/ti/boards/cc3220_launchpad/ports/ota/</name>
 		<file>
 			<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\ota\aws_ota_pal.c</name>
+		</file>
+	</group>
+	<group>
+		<name>libraries/freertos_plus/aws/ota/src/mqtt/</name>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h</name>
+		</file>
+	</group>
+	<group>
+		<name>libraries/freertos_plus/aws/ota/src/http/</name>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c</name>
+		</file>
+		<file>
+			<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h</name>
 		</file>
 	</group>
 	<group>
