@@ -34,7 +34,7 @@
 #include "aws_test_runner_config.h"
 
 /*
- * @brief If set to 1, will run AFQP tests only.
+ * @brief If set to 1, will run DQP_FR tests only.
  */
 #ifdef testrunnerAFQP_ENABLED
     #define testrunnerTEST_FILTER    "AFQP"

@@ -26,7 +26,7 @@
 #ifndef AWS_TEST_RUNNER_CONFIG_H
 #define AWS_TEST_RUNNER_CONFIG_H
 
-/* Uncomment this line if you want to run AFQP tests only. */
+/* Uncomment this line if you want to run DQP_FR tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
 #define testrunnerUNSUPPORTED                       0

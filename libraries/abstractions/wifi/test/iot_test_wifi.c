@@ -184,7 +184,7 @@ typedef struct
  * if in WIFI_ConnectAP() the mode is not switched from SoftAP to Station. */
 #define testwifiENABLE_CONFIGURE_AP_TESTS    0
 
-/* Functions that are required to be implemented for AFQP are:
+/* Functions that are required to be implemented for DQP_FR are:
  * - WIFI_On()
  * - WIFI_ConnectAP()
  * - WIFI_Disconnect()

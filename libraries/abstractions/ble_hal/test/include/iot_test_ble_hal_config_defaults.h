@@ -32,7 +32,7 @@
 #define _IOT_TEST_BLE_HAL_CONFIG_DEFAULTS_H
 
 /* Enable/Disable test cases */
-/* AFQP test */
+/* DQP_FR test */
 #define ENABLE_TC_AFQP_WRITE_LONG                                             ( 1 )
 #define ENABLE_TC_AFQP_READ_LONG                                              ( 1 )
 #define ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE                                   ( 0 )

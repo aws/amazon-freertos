@@ -5,7 +5,7 @@ PAL interface documentation is in https://docs.aws.amazon.com/freertos/latest/us
 
 ## Unit Testing for an OTA PAL
 
-The first step is to complete the port of your PAL (portable layer; i.e., the interface defined by lib\include\private\aws_ota_pal.h) and confirm that it passes the OTA unit tests in AFQP (i.e., those under tests\common\ota).
+The first step is to complete the port of your PAL (portable layer; i.e., the interface defined by lib\include\private\aws_ota_pal.h) and confirm that it passes the OTA unit tests in DQP_FR (i.e., those under tests\common\ota).
 
 ## AWS IoT Device Setup
 
