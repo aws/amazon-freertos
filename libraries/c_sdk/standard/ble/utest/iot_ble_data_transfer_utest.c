@@ -90,7 +90,7 @@ typedef struct {
                                        {NULL, NULL, NULL, false},       \
                                        false,                           \
                                        NULL,                            \
-                                       MAX_XMIT_DATA_SIZE,              \
+                                       IOT_BLE_PREFERRED_MTU_SIZE,      \
                                        NULL                             \
                                     }
 
@@ -521,23 +521,42 @@ test_00_IotBleDataTransfer_Init( void )
 }
 
 /*
- * Failure at service creation
+ * Force failure of callback registration within _registerCallbacks
  */
-/* TODO: Will need to cause fail mode here, despite stub always returning Success
 void
 test_01_IotBleDataTransfer_Init( void )
 {
     bool ret = false;
 
-    IotBle_RegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    IotBle_RegisterEventCb_Stub(NULL);
+
+    IotBle_RegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusFail);
+    ret = IotBleDataTransfer_Init();
+    TEST_ASSERT_FALSE(ret);
+
     IotBle_RegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusSuccess);
     IotBle_RegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusFail);
     ret = IotBleDataTransfer_Init();
     TEST_ASSERT_FALSE(ret);
+
+    IotBle_RegisterEventCb_Stub(IotBle_RegisterEventCb_Callback);
 }
-*/
 
+/*
+ * Force failure of channel initialization
+ */
+void
+test_02_IotBleDataTransfer_Init( void )
+{
+    bool ret = false;
+    IotSemaphore_Create_Stub(NULL);
 
+    IotSemaphore_Create_IgnoreAndReturn(false); // Can be called variably, depending on # of services
+    ret = IotBleDataTransfer_Init();
+    TEST_ASSERT_FALSE(ret);
+
+    IotSemaphore_Create_Stub(IotSemaphore_Create_Callback);
+}
 /*******************************************************************************
  * IotBleDataTransfer_Open
  ******************************************************************************/
@@ -649,7 +668,104 @@ test_02_IotBleDataTransfer_Send( void )
     TEST_ASSERT_MESSAGE(n_sent == sizeof(msg), "Did not send all expected bytes");
 }
 
+/*
+ * Send max-capacity packet, then needs to resize send buffer to send remainder of message, but buffer resizing fails
+ * Currently this means that the remainder issued by call the _Send
+ */
+void
+test_03_IotBleDataTransfer_Send( void )
+{
+    size_t n_sent = 0;
+    const uint16_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+
+    pvPortMalloc_Stub(NULL);
+    IotBle_SendIndication_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    pvPortMalloc_ExpectAnyArgsAndReturn(NULL);
+    uint8_t msg[get_max_data_len() + 1];
+    memset(msg, 0xDC, sizeof(msg));
+    n_sent = IotBleDataTransfer_Send(pChannel, msg, sizeof(msg));
+    TEST_ASSERT(n_sent == get_max_data_len());
+    pvPortMalloc_Stub(pvPortMalloc_Callback);
+}
+
+/*
+ * Send a large message over multiple packets, such that a remainder needs to be stored in the send buffer.
+ * Force failure of buffer resizing
+ */
+void
+test_04_IotBleDataTransfer_Send( void )
+{
+    size_t n_sent = 0;
+    const uint16_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+    // First send a large message so that the send buffer is created
+    IotBle_SendIndication_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    uint8_t msg[4 * get_max_data_len() + 1];
+    memset(msg, 0xDC, sizeof(msg));
+    n_sent = IotBleDataTransfer_Send(pChannel, msg, get_max_data_len() + 1);
+    TEST_ASSERT(n_sent == get_max_data_len() + 1);
+
+    // Now that the send buffer exists, we can exercices its resizing
+    pvPortMalloc_Stub(NULL);
+    IotBle_SendIndication_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    pvPortMalloc_ExpectAnyArgsAndReturn(NULL);
+    n_sent = IotBleDataTransfer_Send(pChannel, msg, sizeof(msg));
+    TEST_ASSERT(n_sent == get_max_data_len());
+    pvPortMalloc_Stub(pvPortMalloc_Callback);
+}
+
+/*
+ * Send a large message that requires multiple packet transmissions, but call to internal _send helper fails
+ * because SendIndication fails
+ */
+void
+test_05_IotBleDataTransfer_Send( void )
+{
+    size_t n_sent = 0;
+    const uint16_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+    IotBle_SendIndication_ExpectAnyArgsAndReturn(eBTStatusFail);
+    uint8_t msg[get_max_data_len() + 1];
+    memset(msg, 0xDC, sizeof(msg));
+    n_sent = IotBleDataTransfer_Send(pChannel, msg, sizeof(msg));
+    TEST_ASSERT(n_sent == 0);
+}
+
+
+/*
+ * Send a large message that requires multiple packet transmissions but there's a timeout after waiting for the
+ * sendComplete semaphore to be available
+ */
+void
+test_06_IotBleDataTransfer_Send( void ) {
+    size_t n_sent = 0;
+    const uint16_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+    IotSemaphore_TimedWait_Stub(NULL);
+    IotSemaphore_TimedWait_ExpectAnyArgsAndReturn(false);
+    uint8_t msg[get_max_data_len() + 1];
+    memset(msg, 0xDC, sizeof(msg));
+    n_sent = IotBleDataTransfer_Send(pChannel, msg, sizeof(msg));
+    IotSemaphore_TimedWait_Stub(IotSemaphore_TimedWait_Callback);
+    TEST_ASSERT(n_sent == 0);
+}
 /*******************************************************************************
  * IotBleDataTransfer_Receive
  ******************************************************************************/
@@ -678,6 +794,31 @@ test_00_IotBleDataTransfer_Receive( void )
     TEST_ASSERT_EQUAL_UINT8_ARRAY(msg_out, msg_in, msg_out_size);
 }
 
+/*
+ * Server receives more bytes than it request to read
+ */
+void
+test_01_IotBleDataTransfer_Receive( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    uint8_t msg_out[] = "Test data from fake client";
+    uint8_t msg_out_size  = sizeof(msg_out);
+    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg_out, msg_out_size);
+
+    const size_t requested_in_size = msg_out_size / 2;
+    uint8_t msg_in[sizeof(msg_out)] = { 0 };
+    uint8_t msg_in_size = IotBleDataTransfer_Receive(pChannel, msg_in, requested_in_size);
+
+    TEST_ASSERT(msg_in);
+    TEST_ASSERT(msg_in_size == requested_in_size);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(msg_out, msg_in, requested_in_size);
+}
 
 /*******************************************************************************
  * IotBleDataTransfer_PeekReceiveBuffer
@@ -782,11 +923,69 @@ test_00_IotBleDataTransfer_Cleanup( void )
 {
     bool ret = false;
 
+    // To reuse Cmocks forecasted returns, must uninstall any stubs
+    IotBle_UnRegisterEventCb_Stub(NULL);
+
     IotBle_UnRegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusSuccess);
     IotBle_UnRegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusSuccess);
     ret = IotBleDataTransfer_Cleanup();
-
     TEST_ASSERT(ret);
+
+    // Reinstall callback that most other tests use
+    IotBle_UnRegisterEventCb_Stub(IotBle_UnregisterEventCb_Callback);
+}
+
+/*
+ * First call to unregister fails and short circuits failure
+ */
+void
+test_01_IotBleDataTransfer_Cleanup( void )
+{
+    bool ret = false;
+
+    IotBle_UnRegisterEventCb_Stub(NULL);
+
+    IotBle_UnRegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusFail);
+    ret = IotBleDataTransfer_Cleanup();
+    TEST_ASSERT_FALSE(ret);
+
+    IotBle_UnRegisterEventCb_Stub(IotBle_UnregisterEventCb_Callback);
+}
+
+/*
+ * Last call to unregister fails
+ */
+void
+test_02_IotBleDataTransfer_Cleanup( void )
+{
+    bool ret = false;
+
+    IotBle_UnRegisterEventCb_Stub(NULL);
+
+    IotBle_UnRegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    IotBle_UnRegisterEventCb_ExpectAnyArgsAndReturn(eBTStatusFail);
+    ret = IotBleDataTransfer_Cleanup();
+    TEST_ASSERT_FALSE(ret);
+
+    IotBle_UnRegisterEventCb_Stub(IotBle_UnregisterEventCb_Callback);
+}
+
+
+
+/*
+ * Channel cleanup fails
+ */
+void
+test_03_IotBleDataTransfer_Cleanup( void )
+{
+    bool ret = false;
+    IotBle_DeleteService_Stub(NULL);
+
+    IotBle_DeleteService_IgnoreAndReturn(eBTStatusFail);
+    ret = IotBleDataTransfer_Cleanup();
+    TEST_ASSERT_FALSE(ret);
+
+    IotBle_DeleteService_Stub(IotBle_DeleteService_Callback);
 }
 
 /*******************************************************************************
@@ -848,7 +1047,6 @@ test_00_TXMesgCharCallback( void )
     generate_client_read_event(service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR);
 }
 
-
 /*
  * More reasonably, large data couldn't fit in the small char characteristic and in one indication. So client
  * asks for the rest of the data and server sends over multiple, fully filled per mtu, packets
@@ -875,7 +1073,7 @@ test_00_TXLargeMesgCharCallback( void )
 }
 
 /*
- * Client reads remaining data from server, but remainder is still too large to fit withing mtu
+ * Client reads remaining data from server, but remainder is still too large to fit within mtu
  */
 void
 test_01_TXLargeMesgCharCallback( void )
@@ -897,12 +1095,34 @@ test_01_TXLargeMesgCharCallback( void )
     generate_client_read_event(service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR);
 }
 
+/*
+ * Client tries to read data that requires 2 separatre packets. The first one is successful, the second is not
+ */
+void
+test_02_TXLargeMesgCharCallback( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+    IotBleDataTransfer_SetCallback(pChannel, channel_callback, NULL);
+
+    IotBle_SendIndication_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    char msg[2*get_max_data_len() + 1];
+    memset(msg, 0xDC, sizeof(msg));
+    IotBleDataTransfer_Send(pChannel, msg, sizeof(msg));
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusFail);
+    generate_client_read_event(service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR);
+    generate_client_read_event(service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR);
+}
 /*
  * Client tries to read from closed channel. They've yet to indicate that they are ready
  */
 void
-test_02_TXLargeMesgCharCallback( void )
+test_03_TXLargeMesgCharCallback( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
@@ -1001,9 +1221,10 @@ test_01_RXLargeMesgCharCallback( void )
     IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
     init_transfers();
     IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+    IotBleDataTransfer_SetCallback(pChannel, channel_callback, NULL);
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
-    char msg[IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE / 2];
+    char msg[get_max_data_len() / 2];
     memset(msg, 0xDC, sizeof(msg));
     generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof(msg));
 }
@@ -1029,6 +1250,27 @@ test_02_RXLargeMesgCharCallback( void )
     generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof(msg));
     memset(msg, ~0xDC, sizeof(msg));
     generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof(msg));
+}
+
+/*
+ * The incoming message is larger than currently allocated receive buf. A resize is necessary but fails
+ */
+void
+test_03_RXLargeMesgCharCallback( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    init_transfers();
+    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
+
+    pvPortMalloc_Stub(NULL);
+    pvPortMalloc_ExpectAnyArgsAndReturn(NULL);
+    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
+    char msg[2 * get_max_data_len()];
+    memset(msg, ~0xDC, sizeof(msg));
+    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof(msg));
+    pvPortMalloc_Stub(pvPortMalloc_Callback);
 }
 
 
