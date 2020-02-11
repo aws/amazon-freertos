@@ -1028,10 +1028,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                 configPRINTF( ( "Warning: could not clean-up old crypto objects. %d \r\n", xResult ) );
             }
         }
-        else
-        {
-            xResult = CKR_ARGUMENTS_BAD;
-        }
     #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
 
     /* If a client certificate has been provided by the caller, attempt to
@@ -1048,10 +1044,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         {
             configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
         }
-    }
-    else
-    {
-        xResult = CKR_ARGUMENTS_BAD;
     }
 
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
@@ -1095,10 +1087,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             xResult = CKR_OK;
             configPRINTF( ( "Warning: no persistent storage is available for the JITP certificate. The certificate in aws_clientcredential_keys.h will be used instead.\r\n" ) );
         }
-    }
-    else
-    {
-        xResult = CKR_ARGUMENTS_BAD;
     }
 
     /* Check whether a key pair is now present. In order to support X.509
