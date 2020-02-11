@@ -9,7 +9,7 @@
 
 Using the Mobile SDKs for FreeRTOS Bluetooth Devices, you can write native mobile applications that communicate with the embedded applications on your microcontroller over BLE. For more information about the mobile SDKs, see [Mobile SDKs for FreeRTOS Bluetooth Devices](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ble-mobile.html).
 
-In addition to supporting MQTT, the FreeRTOS BLE library includes services for configuring Wi-Fi networks. The FreeRTOS BLE library also includes some middleware and lower-level APIs for more direct control over your BLE stack. The source files for the FreeRTOS BLE library are located in [FreeRTOS/lib/bluetooth_low_energy](https://github.com/aws/amazon-freertos/tree/feature/ble-beta/lib/bluetooth_low_energy).
+In addition to supporting MQTT, the FreeRTOS BLE library includes services for configuring Wi-Fi networks. The FreeRTOS BLE library also includes some middleware and lower-level APIs for more direct control over your BLE stack. The source files for the FreeRTOS BLE library are located in [Amazon-FreeRTOS/libraries/bluetooth_low_energy](https://github.com/aws/amazon-freertos/tree/feature/ble-beta/lib/bluetooth_low_energy).
 
 FreeRTOS BLE Architecture
 The FreeRTOS BLE library is made up of three layers: services, middleware, and low-level wrappers.
