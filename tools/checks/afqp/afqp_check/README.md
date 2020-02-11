@@ -1,4 +1,4 @@
-### Device Qualification Program for FreeRTOS (DQP_FR) Check
+### Device Qualification Program for FreeRTOS Check
 
 #### Dependencies
 * Python 2.7+ or Python 3+
