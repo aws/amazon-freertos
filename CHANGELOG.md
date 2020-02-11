@@ -1,4 +1,4 @@
-# Change Log for Amazon FreeRTOS
+# Change Log for FreeRTOS
 
 ## 201912.00 12/17/2019
 
