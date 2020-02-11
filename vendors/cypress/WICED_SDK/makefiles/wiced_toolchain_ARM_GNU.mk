@@ -198,7 +198,7 @@ CPU_LDFLAGS  := -mthumb -mcpu=cortex-m0 -Wl,-A,thumb
 endif
 
 ifeq ($(HOST_ARCH),ARM_CR4)
-CPU_BASE_FLAGS     := -mthumb -mcpu=cortex-r4 -mthumb-interwork
+CPU_BASE_FLAGS     := -mthumb -mcpu=cortex-r4 -mthumb-interwork -mfpu=vfpv3-d16 -mfloat-abi=softfp
 CPU_COMPILER_FLAGS := $(CPU_BASE_FLAGS) -fno-builtin-memcmp -fno-builtin-memcpy -fno-builtin-memset
 CPU_CFLAGS         := $(CPU_COMPILER_FLAGS)
 CPU_CXXFLAGS       := $(CPU_COMPILER_FLAGS)
