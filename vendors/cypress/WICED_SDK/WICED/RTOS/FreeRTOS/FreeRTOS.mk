@@ -86,13 +86,13 @@ $(NAME)_ARM_CM4_SOURCES  := $($(NAME)_ARM_CM3_SOURCES)
 $(NAME)_ARM_CM4_INCLUDES := $($(NAME)_ARM_CM3_INCLUDES)
 
 # ARM Cortex R4 specific sources and includes
-#$(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)lib/FreeRTOS/portable/GCC/ARM_CRx_No_GIC/port.c \
-#                          $(AMAZON_FREERTOS_PATH)lib/FreeRTOS/portable/GCC/ARM_CRx_No_GIC/portASM.S
-#$(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)lib/FreeRTOS/portable/GCC/ARM_CRx_No_GIC
+$(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/ARM_CRx_No_GIC/port.c \
+                          $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/ARM_CRx_No_GIC/portASM.S
+$(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/ARM_CRx_No_GIC
 
-$(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/port.c \
-                          $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/portASM.S
-$(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/
+#$(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/port.c \
+#                          $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/portASM.S
+#$(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/
 
 $(NAME)_SOURCES += $($(NAME)_$(HOST_ARCH)_SOURCES)
 GLOBAL_INCLUDES += $($(NAME)_$(HOST_ARCH)_INCLUDES)
