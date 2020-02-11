@@ -90,10 +90,6 @@ $(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/A
                           $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/ARM_CRx_No_GIC/portASM.S
 $(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/GCC/ARM_CRx_No_GIC
 
-#$(NAME)_ARM_CR4_SOURCES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/port.c \
-#                          $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/portASM.S
-#$(NAME)_ARM_CR4_INCLUDES := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/ThirdParty/GCC/Wiced_CY/
-
 $(NAME)_SOURCES += $($(NAME)_$(HOST_ARCH)_SOURCES)
 GLOBAL_INCLUDES += $($(NAME)_$(HOST_ARCH)_INCLUDES)
 GLOBAL_LDFLAGS  += $($(NAME)_$(HOST_ARCH)_LDFLAGS)
