@@ -82,8 +82,8 @@
  */
  /*!< SDIO operation completed successfully. */
 #define IOT_SDIO_SUCCESS                             ( 0 )
-/*!< SDIO operation failed. */
-#define IOT_SDIO_FAIL                                ( 1 )
+/*!< SDIO ioctl failed. */
+#define IOT_SDIO_IOCTL_FAIL                          ( 1 )
 /*!< SDIO host controller initialization failed. */
 #define IOT_SDIO_HOST_INIT_FAIL                      ( 2 )
 /*!< At least one parameter is invalid. */
