@@ -34,32 +34,32 @@
  *
  *          SD/SDIO/MMC driver can be built on top of SDMMC host. This interface only define
  *          the APIs for SDIO applications, the interface can be expanded to support SD/MMC either
- *          by expanding the APIs in this file or adding separate files for SD/MMC
+ *          by expanding the APIs in this file or adding separate files for SD/MMC.
  *
  * @design consideration
- *          SDIO HAL APIs performs protocol layer tasks between sdio host and sdio card.
+ *          SDIO HAL APIs performs protocol layer tasks between SDIO host and SDIO card.
  *          Some APIs perform a single task and some APIs perform a sequence of tasks.
  *          For examples, iot_sdio_io_read_direct() API performs a single task of reading
  *          one byte from card register, and iot_sdio_card_connect() API performs all tasks
  *          required by card initialization as specified in section 3.1.2 in "SD Specification
  *          Part E1 SDIO".
  *
- *          Upon calling iot_sdio_open() API, the user is a given a pxSdioHandle, an abstract
+ *          Upon calling iot_sdio_open() API, the user is a given a pxSdioHandle, a
  *          reference to the SDIO card slot that the user is interested in. Thereafter, user
  *          uses this handle to call other APIs to perform tasks associated with the target
  *          card slot. For example, iot_sdio_check_card_presence_status(pxSdioHandle, true)
- *          checks sdio card presence, and iot_sdio_io_write_extended(pxSdioHandle)
- *          writes data to sdio card in the slot, etc.
+ *          checks SDIO card presence, and iot_sdio_io_write_extended(pxSdioHandle)
+ *          writes data to SDIO card in the slot, etc.
  *
  * @limitation
- *          SDIO HAL APIs are intended to be used in embedded systems where each sdio host
+ *          SDIO HAL APIs are intended to be used in embedded systems where each SDIO host
  *          controller is connected to either a single hot swappable sido card slot or multiple
  *          eSDIO devices in a Shared Bus Configuration (Refer to Section 7.3 of "SD Specification
  *          Part E1 SDIO").
  *
- *          These APIs are not suitable for systems where a single sdio host controller supports
+ *          These APIs are not suitable for systems where a single SDIO host controller supports
  *          multiple hot swappable slots. With multiple hot swappable slots available on a single
- *          host controller, it is not possible pre-determine which card slot sdio device will be
+ *          host controller, it is not possible pre-determine which card slot SDIO device will be
  *          inserted, and know which card slot handle to request. Since this type of host controller
  *          is very rare even in non-embedded world, it is not worth to add complexity to SDIO HAL
  *          APIs to support it.
@@ -91,44 +91,31 @@
 /*!< Sending command to or receive response from
      card failed. */
 #define IOT_SDIO_TRANSFER_FAIL                       ( 4 )
-/*!< If the card is initialized in 3.3V signaling,
-     and card support high speed mode (SHS ==1),
-     host can issue CMD52 in RAW mode, setting EHS
-     bit in CCCR to one to switch to high speed mode
-     . This error code indicates that the sdio card
-     supports high speed mode but failed to switch to
-     high speed mode. The bus clock rate remains
-     unchanged in this case. */
+/*!< If the card is initialized in 3.3V signaling, and card support high speed
+     mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
+     to one to switch to high speed mode. This error code indicates that the
+     sdio card supports high speed mode but failed to switch to high speed
+     mode. The bus clock rate remains unchanged in this case. */
 #define IOT_SDIO_SWITCH_HIGH_SPEED_FAIL              ( 5 )
-/*!< If the card is initialized in 3.3V signaling,
-     and card support high speed mode (SHS ==1),
-     host can issue CMD52 in RAW mode, setting EHS
-     bit in CCCR to one to switch to high speed mode
-     . This error code indicates that the sdio card
-     does not supports high speed mode. The bus clock
-     rate will be set to the default 25MHz in this
-     case. */
+/*!< If the card is initialized in 3.3V signaling, and card support high speed
+     mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
+     to one to switch to high speed mode. This error code indicates that the
+     sdio card does not supports high speed mode. The bus clock rate will be
+     set to the default 25MHz in this case. */
 #define IOT_SDIO_LOW_SPEED_CARD                      ( 6 )
-/*!< If the card is initialized in 1.8V signaling,
-     and card support UHS-I, host will try to
-     set card's bus timing mode to the highest
-     mode the card supports using CMD52, and set
-     the max clock frequence for that mode. This
-     error code indicates a failure of such
-     operation */
+/*!< If the card is initialized in 1.8V signaling, and card support UHS-I, host
+     will try to set card's bus timing mode to the highest mode the card
+     supports using CMD52, and set the max clock frequence for that mode. This
+     error code indicates a failure of such operation */
 #define IOT_SDIO_SELECT_BUS_TIMING_FAIL              ( 7 )
 /*!< Setting block size for block transfer mode
      failed. */
 #define IOT_SDIO_SET_CARD_BLOCK_SIZE_FAIL            ( 8 )
-/*!< During card initializaton, A host that
-     supports UHS-I use CMD5 to probe if card also
-     supports UHS-I and ready to switch from 3.3v
-     to 1.8v. Once voltage switch request is
-     accepted, host sends CMD11 to initiate voltage
-     switch sequence. This error code indicates
-     either card failed to respond to CMD11 or card
-     responded to CMD11 but failed to switch
-     voltage.*/
+/*!< During card initializaton, A host that supports UHS-I use CMD5 to probe if
+     card also supports UHS-I and ready to switch from 3.3v to 1.8v. Once
+     voltage switch request is accepted, host sends CMD11 to initiate voltage
+     switch sequence. This error code indicates either card failed to respond
+     to CMD11 or card responded to CMD11 but failed to switch voltage.*/
 #define IOT_SDIO_SWITCH_VOLTAGE_FAIL                 ( 9 )
 /*!< host controller not ready. */
 #define IOT_SDIO_HOST_NOT_READY                      ( 10 )
@@ -214,14 +201,14 @@ typedef enum IotSdioCardDetectType
 typedef enum IotSdioEventType
 {
     eSdioCardInterruptEvent,    /*!< Interrupt received from sdio card */
-    eSdioCardInsertedEvent,     /*!< sdio card insertion is detected */
-    eSdioCardRemovedEvent,      /*!< sdio card removal is detected */
+    eSdioCardInsertedEvent,     /*!< Sdio card insertion is detected */
+    eSdioCardRemovedEvent,      /*!< Sdio card removal is detected */
     eSdioCardPowerOnEvent,      /*!< Powering on sdio card */
-    eSdioCardPowerOffEvent,     /*!< powering off sdio card */
+    eSdioCardPowerOffEvent,     /*!< Powering off sdio card */
 } IotSdioEventType_t;
 
 /**
- * @brief Ioctl request types.
+ * @brief IOCTL request types.
  */
 typedef enum IotSdioIoctlRequest
 {
