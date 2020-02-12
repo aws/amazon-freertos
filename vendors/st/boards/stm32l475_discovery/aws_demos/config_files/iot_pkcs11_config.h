@@ -84,6 +84,15 @@
 #define pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED    0
 
 /**
+ * @brief Disable ECDSA crypto algorithm (i.e. mechanism) support in this
+ * PKCS #11 module.
+ *
+ * Set this to 1 when the host doesn't support ECDSA for network authentication
+ * (e.g. in the TLS protocol implementation).
+ */
+#define pkcs11configSUPPRESS_ECDSA_MECHANISM               1
+
+/**
  * @brief The PKCS #11 label for device private key.
  *
  * Private key for connection to AWS IoT endpoint.  The corresponding
