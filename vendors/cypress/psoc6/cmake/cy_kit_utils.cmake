@@ -685,11 +685,6 @@ function(cy_kit_generate)
     endif(CY_ALTERNATE_APP)
 
     if(CY_TFM_PSA)
-       find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
-        if(NOT GCC_OBJCOPY )
-            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-        endif()
-
         set(CY_AWS_ELF  "${CMAKE_BINARY_DIR}/aws.elf")
         set(CY_CM0_IMG "${CMAKE_BINARY_DIR}/cm0.hex")
         set(CY_CM4_IMG "${CMAKE_BINARY_DIR}/cm4.hex")
@@ -708,21 +703,40 @@ function(cy_kit_generate)
         if(NOT CY_TFM_SIGN_SCRIPT)
             message(FATAL_ERROR "You must define CY_TFM_SIGN_SCRIPT in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
-       if(NOT CY_DEVICE_NAME)
+        if(NOT CY_DEVICE_NAME)
             message(FATAL_ERROR "You must define CY_DEVICE_NAME in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
 
-       # Workaround the signing issue by removing the sFlash sections
-        add_custom_command(
-            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-           COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
-        )
+        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+            find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
+            if(NOT GCC_OBJCOPY )
+                message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+            endif()
 
-        # Generate HEX file
-        add_custom_command(
-            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-           COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_AWS_ELF}" "${CY_CM4_IMG}"
-        )
+            # Workaround the signing issue by removing the sFlash sections
+	    add_custom_command(
+	        TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+	        COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
+            )
+            # Generate HEX file
+            add_custom_command(
+                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_AWS_ELF}" "${CY_CM4_IMG}"
+            )
+        elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+            find_program(FROMELF_TOOL fromelf)
+            if(NOT FROMELF_TOOL )
+                message(FATAL_ERROR "Cannot find fromelf tool")
+            endif()
+
+            # Generate HEX file
+            add_custom_command(
+                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                COMMAND ${FROMELF_TOOL} --i32 --output="${CY_CM4_IMG}" "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf"
+            )
+	else()
+            message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")
+        endif()
 
         # Sign both TFM and AFR images
         add_custom_command(
