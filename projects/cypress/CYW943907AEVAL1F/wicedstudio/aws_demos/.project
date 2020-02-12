@@ -142,14 +142,14 @@
 			<locationURI>BASE_DIR/freertos_kernel/portable/MemMang/heap_3.c</locationURI>
 		</link>
 		<link>
-			<name>freertos_kernel/portable/GCC/ARM_CM4F/port.c</name>
+			<name>vendors/cypress/freertos_thirdparty_port/GCC/Wiced_CY/port.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/port.c</locationURI>
+			<locationURI>BASE_DIR/vendors/cypress/freertos_thirdparty_port/GCC/Wiced_CY/port.c</locationURI>
 		</link>
 		<link>
-			<name>freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</name>
+			<name>vendors/cypress/freertos_thirdparty_port/GCC/Wiced_CY/portmacro.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</locationURI>
+			<locationURI>BASE_DIR/vendors/cypress/freertos_thirdparty_port/GCC/Wiced_CY/portmacro.h</locationURI>
 		</link>
 		<link>
 			<name>demos/demo_runner/aws_demo_version.c</name>
