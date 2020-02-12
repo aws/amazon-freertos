@@ -1,4 +1,4 @@
-Amazon FreeRTOS currently only includes a subset of the TI CC32XX
+FreeRTOS currently only includes a subset of the TI CC32XX
 SimpleLink SDK.  This keeps the download small, and provides a nice
 out of box experience, but is not recommended for actual application
 development.

@@ -13,7 +13,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "curiosity_pic32mzef")
     include("${CMAKE_CURRENT_LIST_DIR}/curiosity_pic32mzef.cmake")
@@ -43,7 +43,7 @@ target_link_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Kernel
 afr_mcu_port(kernel)
@@ -291,7 +291,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 

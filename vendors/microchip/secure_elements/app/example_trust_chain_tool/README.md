@@ -75,7 +75,7 @@ You have now created your Signing CA, and registered it with your AWS account.
 For each device that you want to register with AWS, you will need to generate
 unique keys, and a corresponding certificate.
 
-1) Go to the Amazon FreeRTOS code, and open the demo project, located at <amazon-freertos-root>\projects\microchip\ecc608a_plus_winsim\visual_studio\aws_demos.
+1) Go to the FreeRTOS code, and open the demo project, located at <amazon-freertos-root>\projects\microchip\ecc608a_plus_winsim\visual_studio\aws_demos.
 
 In the demo, navigate to 
 demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c.  
@@ -189,7 +189,7 @@ in your demo project.
 ```
 
 This creates the aws_clientcredential_keys.h file that is used by 
-Amazon FreeRTOS to save the generated certificates into the secure element. 
+FreeRTOS to save the generated certificates into the secure element. 
 This file needs to be copied to the demos/common/include directory of the 
 demo project to replace the existing blank file.
 

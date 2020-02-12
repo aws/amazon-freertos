@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "MCHP-Curiosity-PIC32MZEF")
 afr_set_board_metadata(DISPLAY_NAME "Curiosity PIC32MZEF")

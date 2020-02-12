@@ -20,7 +20,7 @@ elseif(NOT AFR_METADATA_MODE)
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "NXP-LPC54018-IoT-Module")
@@ -94,7 +94,7 @@ target_include_directories(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
 
@@ -268,7 +268,7 @@ target_sources(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ${executable_suffix})
 

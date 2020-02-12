@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 V1.0.2
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 V1.0.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -33,7 +33,7 @@
 #endif
 
 /**
- * @brief Amazon FreeRTOS PKCS#11 Interface.
+ * @brief FreeRTOS PKCS#11 Interface.
  * The following definitions are required by the PKCS#11 standard public
  * headers.
  */

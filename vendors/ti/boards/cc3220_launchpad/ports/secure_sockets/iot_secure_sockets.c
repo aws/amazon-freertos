@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -1300,7 +1300,7 @@ void SimpleLinkSockEventHandler( SlSockEvent_t * pSlSockEvent )
 
             switch( pSlSockEvent->SocketAsyncEvent.SockTxFailData.Status )
             {
-                case SL_ERROR_BSD_ECLOSE: /*lint !e9034 switch on a _i16, but SL_ERROR* defines are _i32.  Neither are defined in files controlled by Amazon FreeRTOS. */
+                case SL_ERROR_BSD_ECLOSE: /*lint !e9034 switch on a _i16, but SL_ERROR* defines are _i32.  Neither are defined in files controlled by FreeRTOS. */
 
                     /* TODO: Should this call sockets close? */
                     SOCKETS_PRINT( ( "[SimpleLinkSockEventHandler ERROR]: Close socket (%d) operation failed to transmit all queued packets.\r\n",

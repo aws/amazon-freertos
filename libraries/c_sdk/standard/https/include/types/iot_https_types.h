@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.1
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS HTTPS Client V1.1.2
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -776,7 +776,7 @@ typedef struct IotHttpsConnectionInfo
      *
      * This contains the interface to connect, disconnect, send data, and receive data from the network.
      *
-     * In Amazon FreeRTOS this should be of the type @ref IotNetworkInterface_t.
+     * In FreeRTOS this should be of the type @ref IotNetworkInterface_t.
      */
     IOT_HTTPS_NETWORK_INTERFACE_TYPE pNetworkInterface;
 } IotHttpsConnectionInfo_t;

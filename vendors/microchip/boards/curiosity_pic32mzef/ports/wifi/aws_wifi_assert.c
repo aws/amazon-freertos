@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.4
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,12 +26,12 @@
 /* Wi-Fi driver includes. */
 #include "wdrv_wilc1000_api.h"
 
-/* Amazon FreeRTOS include. */
+/* FreeRTOS include. */
 #include "FreeRTOSConfig.h"
 
 /**
  * @brief Overriding function for WDRV_STUB_Assert() defined in wdrv_wilc1000_stub.h.
- * We want to call configASSERT() in Amazon FreeRTOS instead so that functions abort
+ * We want to call configASSERT() in FreeRTOS instead so that functions abort
  * tests for assertions instead of falling into a while loop.
  */
 void WDRV_STUB_Assert( int condition,

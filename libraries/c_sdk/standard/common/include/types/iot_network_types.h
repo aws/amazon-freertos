@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Common V1.1.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common V1.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -33,7 +33,7 @@
 #define IOT_NETWORK_TYPES_H_
 
 /**
- * @brief Network types supported by Amazon FreeRTOS.
+ * @brief Network types supported by FreeRTOS.
  */
 #define AWSIOT_NETWORK_TYPE_NONE      0x00000000
 #define AWSIOT_NETWORK_TYPE_WIFI      0x00000001

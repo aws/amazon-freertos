@@ -1,4 +1,4 @@
-# Change Log for Amazon FreeRTOS
+# Change Log for FreeRTOS
 
 ## 202002.00 2/17/2020
 

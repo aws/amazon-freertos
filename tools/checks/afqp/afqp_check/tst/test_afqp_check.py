@@ -109,13 +109,13 @@ def test_check_build_artifacts(input_files, expected_errors):
 def test_get_license():
     with open(os.path.join('tst','license_test_0.h'), 'r') as f:
         license = afqp_check.get_license(f)
-        assert 'Amazon FreeRTOS' in license
+        assert 'FreeRTOS' in license
         assert 'http://www.FreeRTOS.org' in license
         assert '#include \"dummy.h\"' not in license
     
     with open('tst/license_test_1.h', 'r') as f:
         license = afqp_check.get_license(f)
-        assert 'Amazon FreeRTOS' in license
+        assert 'FreeRTOS' in license
         assert 'http://www.FreeRTOS.org' in license
         assert '#ifndef DUMMY' not in license
 
@@ -138,13 +138,13 @@ license_path = 'a/b/c/aws_ota_pal.c'
 license_path_config = 'a/b/c/aws_ota_agent_config.h'
 
 license_no_errors = \
-    """/*\nAmazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0
+    """/*\nFreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0
     Copyright (C) <year> Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n
     Permission is hereby granted, free of charge, to any person obtaining a copy 
     of\n""".replace('<year>', str(datetime.now().year))
  
 license_no_errors_config = \
-    """/*\nAmazon FreeRTOS V1.0.0
+    """/*\nFreeRTOS V1.0.0
     Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n
     Permission is hereby granted, free of charge, to any person obtaining a copy 
     of\n""".replace('<year>', str(datetime.now().year))
@@ -155,8 +155,8 @@ get_copyright_errors_params = [
     ('No copyright here.\nNo copyright here.\nNo copyright here.\n', license_path, False, 2),
     (license_no_errors.replace('2018', '1999'), license_path, False, 1),
     (license_no_errors_config.replace('2018', '1999'), license_path_config, True, 1),
-    (license_no_errors.replace('/*\nAmazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0\n', ''), license_path, False, 1),
-    (license_no_errors_config.replace('/*\nAmazon FreeRTOS V1.0.0\n', ''), license_path_config, True, 1),
+    (license_no_errors.replace('/*\nFreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0\n', ''), license_path, False, 1),
+    (license_no_errors_config.replace('/*\nFreeRTOS V1.0.0\n', ''), license_path_config, True, 1),
     (license_no_errors.replace(' V1.0.0', ''), license_path, False, 1),
     (license_no_errors_config.replace(' V1.0.0', ''), license_path_config, True, 0),
     (license_no_errors.replace('Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n\n', ''), license_path, False, 1),

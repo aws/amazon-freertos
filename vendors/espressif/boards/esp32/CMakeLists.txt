@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_devkitc.cmake")
@@ -64,7 +64,7 @@ target_link_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(extra_components_dir "${CMAKE_CURRENT_LIST_DIR}/components")
@@ -291,7 +291,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
@@ -326,7 +326,7 @@ endif()
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
 
-# TODO, workaround for permission issue in Amazon FreeRTOS console.
+# TODO, workaround for permission issue in FreeRTOS console.
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
     execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
 endif()

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS BLE V2.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS BLE V2.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,9 +44,9 @@
 
 /**
  *
- * @brief UUID of Amazon FreeRTOS Device Information Service.
+ * @brief UUID of FreeRTOS Device Information Service.
  *
- * This 128 bit UUID used by all Amazon FreeRTOS for devices information.
+ * This 128 bit UUID used by all FreeRTOS for devices information.
  * using this UUID.
  *
  * The UUID is defined as a base + a mask. The mask is used to compute all the 128 bit UUIDs in the attribute table
@@ -219,7 +219,7 @@
 #endif
 
 /**
- * @brief This configuration flag can be used to enable or disable all Amazon FreeRTOS GATT services.
+ * @brief This configuration flag can be used to enable or disable all FreeRTOS GATT services.
  * Configuration is useful if a custom GATT service is used instead of the default GATT services.
  */
 #ifndef IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES
@@ -235,9 +235,9 @@
 
 
 /**
- * @brief Flag to enable Amazon FreeRTOS Device Information Service.
+ * @brief Flag to enable FreeRTOS Device Information Service.
  *
- * Device Information service is used by the Amazon FreeRTOS mobile SDK to fetch device related information.
+ * Device Information service is used by the FreeRTOS mobile SDK to fetch device related information.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_DEVICE_INFO_SERVICE
@@ -252,7 +252,7 @@
  * @brief Enable WIFI provisioning GATT service.
  *
  * By default WIFI provisioning will be disabled. The flag will enable the GATT
- * service which communicates with Amazon FreeRTOS Mobile SDK to provision WiFi Networks.
+ * service which communicates with FreeRTOS Mobile SDK to provision WiFi Networks.
  *
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
@@ -266,7 +266,7 @@
 /**
  * @brief Enable MQTT over BLE GATT service.
  *
- * The flag will enable the GATT service which communicates with Amazon FreeRTOS Mobile SDK,
+ * The flag will enable the GATT service which communicates with FreeRTOS Mobile SDK,
  * which acts as a proxy to forward MQTT packets to AWS IoT.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
@@ -280,7 +280,7 @@
 
 /**
  * @brief Flag to enable data transfer service.
- * Data transfer service can be used to exchange raw data between  Amazon FreeRTOS device and Amazon FreeRTOS Mobile SDK.
+ * Data transfer service can be used to exchange raw data between  FreeRTOS device and FreeRTOS Mobile SDK.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE

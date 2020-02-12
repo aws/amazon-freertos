@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Numaker_PFM_M487 V1.0.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 PAL for Numaker_PFM_M487 V1.0.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@
 
 /**
  * @file aws_pkcs11_pal.c
- * @brief Amazon FreeRTOS device specific helper functions for
+ * @brief FreeRTOS device specific helper functions for
  * PKCS#11 implementation based on mbedTLS.  This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS#11 standard.
