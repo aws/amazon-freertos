@@ -4,9 +4,9 @@
 
 ### New Features
 
-#### FreeRTOS Kernel v10.3.0
-- Kernel version for FreeRTOS is updated to V10.3.0
-- Additional Details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.3.0-kernel-only/History.txt
+#### FreeRTOS kernel V10.3.0
+- Includes FreeRTOS kernel V10.3.0
+- Additional details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.3.0-kernel-only/History.txt
 
 #### Product Name Change
 - The name 'Amazon FreeRTOS' has been changed to 'FreeRTOS'
