@@ -15,8 +15,8 @@
 - Additional details can be found at https://freertos.org/
 
 ### Updates
-### OTA 
-- Fixed bugs in running OTA E2E Tests
+### Cmake
+- Fix a dependency parsing bug in CMake
 
 ## 201912.00 12/17/2019
 
