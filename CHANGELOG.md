@@ -9,10 +9,9 @@
 - Additional Details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.3.0-kernel-only/History.txt
 
 #### Product Name Change
-- Amazon FreeRTOS has been changed to FreeRTOS
-- Amazon FreeRTOS Qualification (AFQ) has been changed to Device Qualification Program for FreeRTOS
+- The name 'Amazon FreeRTOS' has been changed to 'FreeRTOS'
+- The name 'Amazon FreeRTOS Qualification (AFQ)' has been changed to 'Device Qualification Program for FreeRTOS'
 - Changes were applied only to comments and headers
-- Additional details can be found at https://freertos.org/
 
 ### Updates
 ### Cmake
