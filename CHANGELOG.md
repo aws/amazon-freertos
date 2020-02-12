@@ -4,7 +4,7 @@
 
 ### New Features
 
-#### FreeRTOS Kernel v10.3
+#### FreeRTOS Kernel v10.3.0
 - Kernel version for FreeRTOS is updated to V10.3.0
 - Additional Details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.3.0-kernel-only/History.txt
 
@@ -16,7 +16,7 @@
 
 ### Updates
 ### OTA 
-- Fixed a few bugs in running OTA E2E Tests
+- Fixed bugs in running OTA E2E Tests
 
 ## 201912.00 12/17/2019
 
