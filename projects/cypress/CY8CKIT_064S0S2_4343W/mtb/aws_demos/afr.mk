@@ -73,8 +73,10 @@ endif
 
 ifeq ($(TOOLCHAIN),ARM)
 DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
+# As of ARM Compiler 6.12, <assert.h> does not define static_assert (ISO/IEC 9899:2011).
+# This define may interfere with <cassert> or future versions of the ARM C library.
+DEFINES+=static_assert=_Static_assert
 endif
-
 
 ################################################################################
 # vendors/cypress
