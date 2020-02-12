@@ -179,8 +179,11 @@ afr_mcu_port(kernel)
 
 set(
     compiler_src
-    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
-    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM7/r0p1/portmacro.h"
+    "${nrf5_sdk}/external/freertos/portable/GCC/nrf52/port.c"
+    "${nrf5_sdk}/external/freertos/portable/GCC/nrf52/portmacro.h"
+    "${nrf5_sdk}/external/freertos/portable/CMSIS/nrf52/port_cmsis.c"
+    "${nrf5_sdk}/external/freertos/portable/CMSIS/nrf52/port_cmsis_systick.c"
+    "${nrf5_sdk}/external/freertos/portable/CMSIS/nrf52/portmacro_cmsis.h"
     "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
  )
 
@@ -367,7 +370,8 @@ target_sources(
 )
 set(
     kernel_inc_dirs
-    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM7/r0p1"
+    "${nrf5_sdk}/external/freertos/portable/GCC/nrf52"
+    "${nrf5_sdk}/external/freertos/portable/CMSIS/nrf52"
     "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
