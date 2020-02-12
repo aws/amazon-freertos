@@ -82,11 +82,18 @@ TFM_CM4_ELF=$(CY_CONFIG_DIR)/cm4.elf
 TFM_CM4_HEX=$(CY_CONFIG_DIR)/cm4.hex
 TFM_CM0_SIGNED=$(CY_CONFIG_DIR)/cm0_signed.hex
 TFM_CM4_SIGNED=$(CY_CONFIG_DIR)/cm4_signed.hex
+
+ifeq ($(TOOLCHAIN),GCC_ARM)
 CY_BSP_POSTBUILD=arm-none-eabi-objcopy -R .cy_sflash_user_data -R .cy_toc_part2 $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_ELF);
 CY_BSP_POSTBUILD+=arm-none-eabi-objcopy -O ihex $(TFM_CM4_ELF) $(TFM_CM4_HEX);
+else ifeq ($(TOOLCHAIN),IAR)
+# TBD
+else ifeq ($(TOOLCHAIN),ARM)
+CY_BSP_POSTBUILD=fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONFIG_DIR)/$(APPNAME).elf;
+endif
+
 CY_BSP_POSTBUILD+=cp $(TFM_PSOC64_PATH)/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex $(TFM_CM0_HEX);
 CY_BSP_POSTBUILD+=$(CY_PYTHON_PATH) $(TFM_SIGN_SCRIPT) -s $(TFM_CM0_HEX) -n $(TFM_CM4_HEX) -p $(TFM_POLICY_FILE) -d $(TFM_DEVICE_NAME)
-
 
 # BSP programming flow
 CY_BSP_PROGRAM=true

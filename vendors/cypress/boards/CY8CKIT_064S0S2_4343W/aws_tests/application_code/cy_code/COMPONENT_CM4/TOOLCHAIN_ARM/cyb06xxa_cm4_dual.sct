@@ -47,17 +47,19 @@
 
 ; The following defines control RAM and flash memory allocation for the CM4 core.
 ; RAM
-#define RAM_START               0x08000000
-#define RAM_SIZE                0x000EA000
+#define RAM_START               0x08030000
+#define RAM_SIZE                0x000B7000
 ; Flash
-#define FLASH_START             0x10000000
-#define FLASH_SIZE              0x001D0000
+#define FLASH_START             0x10050000
+#define FLASH_SIZE              0x0011F800
 
 ; The size of the stack section at the end of CM4 SRAM
 #define STACK_SIZE              0x00001000
 
 ; The size of the MCU boot header area at the start of FLASH
 #define BOOT_HEADER_SIZE        0x00000400
+
+#define FLASH_START_WITH_HDR    FLASH_START+BOOT_HEADER_SIZE
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
@@ -98,9 +100,9 @@
 
 
 ; Cortex-M4 application flash area
-LR_IROM1 FLASH_START FLASH_SIZE
+LR_IROM1 FLASH_START_WITH_HDR FLASH_SIZE
 {
-    ER_FLASH_VECTORS +BOOT_HEADER_SIZE
+    ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
     }
