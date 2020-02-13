@@ -7,13 +7,13 @@ regarding verification purposes. However, this causes a lot of trouble when
 such variables are pointers, since one of the possible values we can get when
 dereferencing a volatile pointer is `NULL`.
 
-In the case of `uxPendedTicks`, a non-volatile copy of the variable is done
+In the case of `xPendedTicks`, a non-volatile copy of the variable is done
 before the following loop in tasks.c (lines 2231-2255):
 
 {
-	UBaseType_t uxPendedCounts = uxPendedTicks; /* Non-volatile copy. */
+	TickType_t xPendedCounts = xPendedTicks; /* Non-volatile copy. */
 
-	if( uxPendedCounts > ( UBaseType_t ) 0U )
+	if( xPendedCounts > ( UBaseType_t ) 0U )
 	{
 		do
 		{
@@ -25,10 +25,10 @@ before the following loop in tasks.c (lines 2231-2255):
 			{
 				mtCOVERAGE_TEST_MARKER();
 			}
-			--uxPendedCounts;
-		} while( uxPendedCounts > ( UBaseType_t ) 0U );
+			--xPendedCounts;
+		} while( xPendedCounts > ( UBaseType_t ) 0U );
 
-		uxPendedTicks = 0;
+		xPendedTicks = 0;
 	}
 	else
 	{
@@ -36,8 +36,8 @@ before the following loop in tasks.c (lines 2231-2255):
 	}
 }
 
-Here, `uxPendedTicks` could return any value, making it impossible to unwind
-(or unroll) this loop in CBMC.  Therefore, we require `uxPendedTicks` to behave
+Here, `xPendedTicks` could return any value, making it impossible to unwind
+(or unroll) this loop in CBMC.  Therefore, we require `xPendedTicks` to behave
 as a regular variable so that the loop can be unwound.
 
 ---
