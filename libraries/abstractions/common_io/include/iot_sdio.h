@@ -80,71 +80,87 @@
 /**
  * @brief The return codes for the functions in SDIO
  */
- /*!< SDIO operation completed successfully. */
-#define IOT_SDIO_SUCCESS                             ( 0 )
+/*!< SDIO operation completed successfully. */
+#define IOT_SDIO_SUCCESS                       ( 0 )
+
 /*!< SDIO ioctl failed. */
-#define IOT_SDIO_IOCTL_FAIL                          ( 1 )
+#define IOT_SDIO_IOCTL_FAIL                    ( 1 )
+
 /*!< SDIO host controller initialization failed. */
-#define IOT_SDIO_HOST_INIT_FAIL                      ( 2 )
+#define IOT_SDIO_HOST_INIT_FAIL                ( 2 )
+
 /*!< At least one parameter is invalid. */
-#define IOT_SDIO_INVALID_VALUE                       ( 3 )
-/*!< Sending command to or receive response from
-     card failed. */
-#define IOT_SDIO_TRANSFER_FAIL                       ( 4 )
+#define IOT_SDIO_INVALID_VALUE                 ( 3 )
+
+/*!< Sending command to or receive response from card failed. */
+#define IOT_SDIO_TRANSFER_FAIL                 ( 4 )
+
 /*!< If the card is initialized in 3.3V signaling, and card support high speed
-     mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
-     to one to switch to high speed mode. This error code indicates that the
-     sdio card supports high speed mode but failed to switch to high speed
-     mode. The bus clock rate remains unchanged in this case. */
-#define IOT_SDIO_SWITCH_HIGH_SPEED_FAIL              ( 5 )
+ *   mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
+ *   to one to switch to high speed mode. This error code indicates that the
+ *   sdio card supports high speed mode but failed to switch to high speed
+ *   mode. The bus clock rate remains unchanged in this case. */
+#define IOT_SDIO_SWITCH_HIGH_SPEED_FAIL        ( 5 )
+
 /*!< If the card is initialized in 3.3V signaling, and card support high speed
-     mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
-     to one to switch to high speed mode. This error code indicates that the
-     sdio card does not supports high speed mode. The bus clock rate will be
-     set to the default 25MHz in this case. */
-#define IOT_SDIO_LOW_SPEED_CARD                      ( 6 )
+ *   mode (SHS ==1), host can issue CMD52 in RAW mode, setting EHS bit in CCCR
+ *   to one to switch to high speed mode. This error code indicates that the
+ *   sdio card does not supports high speed mode. The bus clock rate will be
+ *   set to the default 25MHz in this case. */
+#define IOT_SDIO_LOW_SPEED_CARD                ( 6 )
+
 /*!< If the card is initialized in 1.8V signaling, and card support UHS-I, host
-     will try to set card's bus timing mode to the highest mode the card
-     supports using CMD52, and set the max clock frequence for that mode. This
-     error code indicates a failure of such operation */
-#define IOT_SDIO_SELECT_BUS_TIMING_FAIL              ( 7 )
-/*!< Setting block size for block transfer mode
-     failed. */
-#define IOT_SDIO_SET_CARD_BLOCK_SIZE_FAIL            ( 8 )
+ *   will try to set card's bus timing mode to the highest mode the card
+ *   supports using CMD52, and set the max clock frequence for that mode. This
+ *   error code indicates a failure of such operation */
+#define IOT_SDIO_SELECT_BUS_TIMING_FAIL        ( 7 )
+
+/*!< Setting block size for block transfer mode failed. */
+#define IOT_SDIO_SET_CARD_BLOCK_SIZE_FAIL      ( 8 )
+
 /*!< During card initializaton, A host that supports UHS-I use CMD5 to probe if
-     card also supports UHS-I and ready to switch from 3.3v to 1.8v. Once
-     voltage switch request is accepted, host sends CMD11 to initiate voltage
-     switch sequence. This error code indicates either card failed to respond
-     to CMD11 or card responded to CMD11 but failed to switch voltage.*/
-#define IOT_SDIO_SWITCH_VOLTAGE_FAIL                 ( 9 )
+ *   card also supports UHS-I and ready to switch from 3.3v to 1.8v. Once
+ *   voltage switch request is accepted, host sends CMD11 to initiate voltage
+ *   switch sequence. This error code indicates either card failed to respond
+ *   to CMD11 or card responded to CMD11 but failed to switch voltage.*/
+#define IOT_SDIO_SWITCH_VOLTAGE_FAIL           ( 9 )
+
 /*!< host controller not ready. */
-#define IOT_SDIO_HOST_NOT_READY                      ( 10 )
+#define IOT_SDIO_HOST_NOT_READY                ( 10 )
+
 /*!< Not a valid SDIO card. */
-#define IOT_SDIO_INVALID_CARD                        ( 11 )
+#define IOT_SDIO_INVALID_CARD                  ( 11 )
+
 /*!< Send Relative Address (CMD3) failed. */
-#define IOT_SDIO_SEND_RELATIVE_ADDRESS_FAIL          ( 12 )
+#define IOT_SDIO_SEND_RELATIVE_ADDRESS_FAIL    ( 12 )
+
 /*!< Select Card (CMD7) failed. */
-#define IOT_SDIO_SELECT_CARD_FAIL                    ( 13 )
+#define IOT_SDIO_SELECT_CARD_FAIL              ( 13 )
+
 /*!< Read (via CMD52) CIS (Card Information
-     Structure failed. */
-#define IOT_SDIO_READ_CIS_FAIL                       ( 14 )
+ *   Structure failed. */
+#define IOT_SDIO_READ_CIS_FAIL                 ( 14 )
+
 /*!< Set (via CMD52) data bus width failed. */
-#define IOT_SDIO_SET_DATA_BUS_WIDTH_FAIL             ( 15 )
+#define IOT_SDIO_SET_DATA_BUS_WIDTH_FAIL       ( 15 )
+
 /*!< Card does not support Asynchronous Interrupt. */
-#define IOT_SDIO_ASYNC_INT_NOT_SUPPORTED             ( 16 )
-/*!< Reading CCCR (function 0) or FBR
-     (function 1-7) failed*/
-#define IOT_SDIO_GET_CARD_CAPABILITY_FAIL            ( 17 )
-#define IOT_SDIO_FUNCTION_NOT_SUPPORTED              ( 18 )
+#define IOT_SDIO_ASYNC_INT_NOT_SUPPORTED       ( 16 )
+
+/*!< Reading CCCR (function 0) or FBR (function 1-7) failed*/
+#define IOT_SDIO_GET_CARD_CAPABILITY_FAIL      ( 17 )
+
+/*!< Api function is not supported by platform */
+#define IOT_SDIO_FUNCTION_NOT_SUPPORTED        ( 18 )
 
 /**
  * @brief sdio io bus width
  */
 
-#define IOT_SDIO_BUS_1BIT   ( 0 )      /*!< 1 bit bus mode */
-                                       /*!< 1U is reserved per SDIO specification*/
-#define IOT_SDIO_BUS_4BIT   ( 2 )      /*!< 4 bit bus mode */
-#define IOT_SDIO_BUS_8BIT   ( 3 )      /*!< 8 bit bus mode */
+#define IOT_SDIO_BUS_1BIT    ( 0 )     /*!< 1 bit bus mode */
+/*!< 1 is reserved per SDIO specification*/
+#define IOT_SDIO_BUS_4BIT    ( 2 )     /*!< 4 bit bus mode */
+#define IOT_SDIO_BUS_8BIT    ( 3 )     /*!< 8 bit bus mode */
 
 /**
  * @brief sdio io read/write direction
@@ -172,15 +188,15 @@ typedef enum IotSdioDirection
  */
 typedef enum IotSdioFunction
 {
-    eSdioFunction0,       /*!< refer to common register area present on all I/O cards*/
-    eSdioFunction1,       /*!< refer to register area of 1st I/O function if card supports it*/
-    eSdioFunction2,       /*!< refer to register area of 2nd I/O function if card supports it*/
-    eSdioFunction3,       /*!< refer to register area of 3rd I/O function if card supports it*/
-    eSdioFunction4,       /*!< refer to register area of 4th I/O function if card supports it*/
-    eSdioFunction5,       /*!< refer to register area of 5th I/O function if card supports it*/
-    eSdioFunction6,       /*!< refer to register area of 6th I/O function if card supports it*/
-    eSdioFunction7,       /*!< refer to register area of 7th I/O function if card supports it*/
-    eSdioFunctionMemory,  /*!< refer to register area of memory function of a combo card*/
+    eSdioFunction0,      /*!< refer to common register area present on all I/O cards*/
+    eSdioFunction1,      /*!< refer to register area of 1st I/O function if card supports it*/
+    eSdioFunction2,      /*!< refer to register area of 2nd I/O function if card supports it*/
+    eSdioFunction3,      /*!< refer to register area of 3rd I/O function if card supports it*/
+    eSdioFunction4,      /*!< refer to register area of 4th I/O function if card supports it*/
+    eSdioFunction5,      /*!< refer to register area of 5th I/O function if card supports it*/
+    eSdioFunction6,      /*!< refer to register area of 6th I/O function if card supports it*/
+    eSdioFunction7,      /*!< refer to register area of 7th I/O function if card supports it*/
+    eSdioFunctionMemory, /*!< refer to register area of memory function of a combo card*/
 } IotSdioFunction_t;
 
 /**
@@ -192,7 +208,7 @@ typedef enum IotSdioCardDetectType
     eDetectCardByHostCD,    /*!< sdio card detect by CD pin through host */
     eDetectCardByHostDATA3, /*!< sdio card detect by DAT3 pin through host */
     eDetectCardNonStandard, /*!< sdio card detect by non standard method
-                                 certain sdio host may support */
+                             *   certain sdio host may support */
 } IotSdioCardDetectType_t;
 
 /**
@@ -200,11 +216,11 @@ typedef enum IotSdioCardDetectType
  */
 typedef enum IotSdioEventType
 {
-    eSdioCardInterruptEvent,    /*!< Interrupt received from sdio card */
-    eSdioCardInsertedEvent,     /*!< Sdio card insertion is detected */
-    eSdioCardRemovedEvent,      /*!< Sdio card removal is detected */
-    eSdioCardPowerOnEvent,      /*!< Powering on sdio card */
-    eSdioCardPowerOffEvent,     /*!< Powering off sdio card */
+    eSdioCardInterruptEvent, /*!< Interrupt received from sdio card */
+    eSdioCardInsertedEvent,  /*!< Sdio card insertion is detected */
+    eSdioCardRemovedEvent,   /*!< Sdio card removal is detected */
+    eSdioCardPowerOnEvent,   /*!< Powering on sdio card */
+    eSdioCardPowerOffEvent,  /*!< Powering off sdio card */
 } IotSdioEventType_t;
 
 /**
@@ -212,43 +228,43 @@ typedef enum IotSdioEventType
  */
 typedef enum IotSdioIoctlRequest
 {
-    eSDIOSetDriverStrength,    /*!< Set driver strength type
-                                    input: SDIO card driver strength.
-                                           input data type IotSdioSdDriverStrength_t */
-    eSDIOSetCardInactive,      /*!< put card in inactive state */
-    eSDIOSwitchToHighSpeed,    /*!< switch to high speed mode if card spports it */
-    eSDIOSetDataBusWidth,      /*!< set sdio card data bus width and change host setting to support it
-                                    input: sdio bus width, input data type IotSdioBusWidth_t */
-    eSDIOGetCardCapabilities,  /*!< request host to learn capabilities of specified card function
-                                    input: I/O function number, of type IotSdioFunction_t*/
-    eSDIOSetCardDetectParams,  /*!< Set card detect parameters
-                                    input: card detect parameters.
-                                           input data type IotSdioCardDetectParam_t*/
-    eSDIOSetFuncBlockSize,     /*!< Set transfer block size for a function
-                                    input: I/O function and block size.
-                                           input data type IotSdioFuncBlkSize_t*/
-    eSDIOEnableIOFunctionIrq,  /*!< enable/disable irq for individual io functions
-                                    input: I/O function number and enable or disable,
-                                           input data type IotSdioPerFuncEnable */
-    eSDIOEnableAsyncIrqMode,   /*!< enable/disable asynchronous interrupt mode
-                                    input: boolean to indicate enable or disable */
-    eSDIOEnableIo,             /*!< enable/disable an I/O function on card
-                                    input: I/O function number and boolean to indicate enable
-                                           or disable, input data type IotSdioPerFuncEnable_t */
-    eSDIOSelectIo,             /*!< Select an I/O function for suspend/resume
-                                    input: I/O function number, input data type IotSdioFunction_t */
-    eSDIOAbortIo,              /*!< Abort an ongoing transfer initiated by the specified I/O function
-                                    input: I/O function number. Input data type IotSdioFunction_t */
-    eSDIOReadCis,              /*!< Host read list of tuples from card CIS
-                                    input: I/O function number and tuple list to read,
-                                           input data type IotSdioReadCis_t*/
-    eSDIOPowerOnOffCard,       /*!< Power on/off card
-                                    input: boolean true for power on, false for power off
-                                           boolean true to use board's default power method,
-                                           false to use user defined power method via callback.
-                                           input data type IoTSdioPowerOnOffCard_t */
-    eSDIOCheckCardPresence,    /*!< check card presence
-                                    output: boolean to indicate card present or not present*/
+    eSDIOSetDriverStrength,   /*!< Set driver strength type
+                               *   input: SDIO card driver strength.
+                               *          input data type IotSdioSdDriverStrength_t */
+    eSDIOSetCardInactive,     /*!< put card in inactive state */
+    eSDIOSwitchToHighSpeed,   /*!< switch to high speed mode if card spports it */
+    eSDIOSetDataBusWidth,     /*!< set sdio card data bus width and change host setting to support it
+                               *   input: sdio bus width, input data type IotSdioBusWidth_t */
+    eSDIOGetCardCapabilities, /*!< request host to learn capabilities of specified card function
+                               *   input: I/O function number, of type IotSdioFunction_t*/
+    eSDIOSetCardDetectParams, /*!< Set card detect parameters
+                               *   input: card detect parameters.
+                               *          input data type IotSdioCardDetectParam_t*/
+    eSDIOSetFuncBlockSize,    /*!< Set transfer block size for a function
+                               *   input: I/O function and block size.
+                               *          input data type IotSdioFuncBlkSize_t*/
+    eSDIOEnableIOFunctionIrq, /*!< enable/disable irq for individual io functions
+                               *   input: I/O function number and enable or disable,
+                               *          input data type IotSdioPerFuncEnable */
+    eSDIOEnableAsyncIrqMode,  /*!< enable/disable asynchronous interrupt mode
+                               *    input: boolean to indicate enable or disable */
+    eSDIOEnableIo,            /*!< enable/disable an I/O function on card
+                               *   input: I/O function number and boolean to indicate enable
+                               *          or disable, input data type IotSdioPerFuncEnable_t */
+    eSDIOSelectIo,            /*!< Select an I/O function for suspend/resume
+                               *   input: I/O function number, input data type IotSdioFunction_t */
+    eSDIOAbortIo,             /*!< Abort an ongoing transfer initiated by the specified I/O function
+                               *   input: I/O function number. Input data type IotSdioFunction_t */
+    eSDIOReadCis,             /*!< Host read list of tuples from card CIS
+                               *   input: I/O function number and tuple list to read,
+                               *          input data type IotSdioReadCis_t*/
+    eSDIOPowerOnOffCard,      /*!< Power on/off card
+                               *   input: boolean true for power on, false for power off
+                               *          boolean true to use board's default power method,
+                               *          false to use user defined power method via callback.
+                               *          input data type IoTSdioPowerOnOffCard_t */
+    eSDIOCheckCardPresence,   /*!< check card presence
+                               *   output: boolean to indicate card present or not present*/
 } IotSdioIoctlRequest_t;
 
 /**
@@ -276,8 +292,8 @@ typedef struct IoTSdioCardDetectParam
  */
 typedef struct IoTSdioPowerOnOffCard
 {
-    bool bPowerOn;                  /*!< True to power on card, false to power off card. */
-    bool bUseCallback;              /*!< indicate if user callback should be used to power on/off card. */
+    bool bPowerOn;     /*!< True to power on card, false to power off card. */
+    bool bUseCallback; /*!< indicate if user callback should be used to power on/off card. */
 } IoTSdioPowerOnOffCard_t;
 
 /**
@@ -285,9 +301,9 @@ typedef struct IoTSdioPowerOnOffCard
  */
 typedef struct IotSdioFuncBlkSize
 {
-    IotSdioFunction_t eFunc;    /*!< IO function number range from eSdioFunction0 to eSdioFunction7*/
-    uint32_t ulBlockSize;       /*!< Block size to be set for I/O function. Must not begreater
-                                     than the maximum block size supported by IO function.*/
+    IotSdioFunction_t eFunc; /*!< IO function number range from eSdioFunction0 to eSdioFunction7*/
+    uint32_t ulBlockSize;    /*!< Block size to be set for I/O function. Must not begreater
+                              *   than the maximum block size supported by IO function.*/
 } IotSdioFuncBlkSize_t;
 
 /**
@@ -296,8 +312,8 @@ typedef struct IotSdioFuncBlkSize
  */
 typedef struct IotSdioPerFuncEnable
 {
-    IotSdioFunction_t eFunc;    /*!< IO function number range from eSdioFunction0 to eSdioFunction7 */
-    bool bEnable;               /*!< true to enable, false to disable */
+    IotSdioFunction_t eFunc; /*!< IO function number range from eSdioFunction0 to eSdioFunction7 */
+    bool bEnable;            /*!< true to enable, false to disable */
 } IotSdioPerFuncEnable_t;
 
 /**
@@ -305,10 +321,10 @@ typedef struct IotSdioPerFuncEnable
  */
 typedef struct IotSdioReadCis
 {
-    IotSdioFunction_t eFunc;        /*!< IO function number range from eSdioFunction0 to eSdioFunction7 */
-    const uint32_t *pulTupleList;   /*!< Point to a list of tuple codes to be read. */
-                                    /*!< Tuple code that is not supported by sdio card will be ignored. */
-    uint32_t ulTupleNum;            /*!< Number of tuple codes in the list. */
+    IotSdioFunction_t eFunc;       /*!< IO function number range from eSdioFunction0 to eSdioFunction7 */
+    const uint32_t * pulTupleList; /*!< Point to a list of tuple codes to be read.
+                                    *   Tuple code that is not supported by sdio card will be ignored. */
+    uint32_t ulTupleNum;           /*!< Number of tuple codes in the list. */
 } IotSdioReadCis_t;
 
 /**
@@ -345,8 +361,9 @@ typedef struct IotSdioSlotDescriptor * IotSdioSlotHandle_t;
  *                          passed back to the caller in the callback.
  *
  */
-typedef void (*IotSdioCallback_t) ( IotSdioSlotHandle_t const pxSdioHandle,
-                                    IotSdioEventType_t eSdioEvent, void * pvUserContext );
+typedef void (* IotSdioCallback_t) ( IotSdioSlotHandle_t const pxSdioHandle,
+                                     IotSdioEventType_t eSdioEvent,
+                                     void * pvUserContext );
 
 /**
  * @brief SDIO I/O function callback type.  User can call iot_sdio_set_io_function_callback() API
@@ -372,8 +389,9 @@ typedef void (*IotSdioCallback_t) ( IotSdioSlotHandle_t const pxSdioHandle,
  *                           This is not used by the driver, but just passed
  *                           back to the user in the callback.
  */
-typedef void (*IotSdioIOFunctionCallback_t) ( IotSdioSlotHandle_t const pxSdioHandle,
-                                              IotSdioFunction_t eFunc, void * pvUserContext );
+typedef void (* IotSdioIOFunctionCallback_t) ( IotSdioSlotHandle_t const pxSdioHandle,
+                                               IotSdioFunction_t eFunc,
+                                               void * pvUserContext );
 
 /*!
  * @brief   iot_sdio_open() is used to open a handle to a sdio card slot.
@@ -396,8 +414,8 @@ typedef void (*IotSdioIOFunctionCallback_t) ( IotSdioSlotHandle_t const pxSdioHa
  *       - slot index number is invalid
  *       - if a handle on this card slot instance is already open.
  */
-IotSdioSlotHandle_t iot_sdio_open(uint8_t ucHostIdx,
-                                  uint8_t ucSlotIdx);
+IotSdioSlotHandle_t iot_sdio_open( uint8_t ucHostIdx,
+                                   uint8_t ucSlotIdx );
 
 /*!
  * @brief   iot_sdio_close() is used to close the sdio card slot handle.
@@ -416,7 +434,7 @@ IotSdioSlotHandle_t iot_sdio_open(uint8_t ucHostIdx,
  *   - IOT_SDIO_SUCCESS on success close
  *   - IOT_SDIO_INVALID_VALUE on NULL pxSdioHandle or already closed handle.
  */
-int32_t iot_sdio_close(IotSdioSlotHandle_t const pxSdioHandle);
+int32_t iot_sdio_close( IotSdioSlotHandle_t const pxSdioHandle );
 
 /*!
  * @brief   iot_sdio_card_connect() is used to connect SDIO card.
@@ -441,7 +459,7 @@ int32_t iot_sdio_close(IotSdioSlotHandle_t const pxSdioHandle);
  *   - IOT_SDIO_SET_DATA_BUS_WIDTH_FAIL if failed to set maximum data bus width.
  *   - IOT_SDIO_SELECT_BUS_TIMING_FAIL if failed to switch to card supported timing mode.
  */
-int32_t iot_sdio_card_connect(IotSdioSlotHandle_t const pxSdioHandle);
+int32_t iot_sdio_card_connect( IotSdioSlotHandle_t const pxSdioHandle );
 
 /*!
  * @brief   iot_sdio_card_disconnect() is used to disconnect SDIO card.
@@ -458,7 +476,7 @@ int32_t iot_sdio_card_connect(IotSdioSlotHandle_t const pxSdioHandle);
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
  *   - IOT_SDIO_TRANSFER_FAIL is failed to reset(write CCCR reg) or de-select(CMD7) card.
  */
-int32_t iot_sdio_card_disconnect(IotSdioSlotHandle_t const pxSdioHandle);
+int32_t iot_sdio_card_disconnect( IotSdioSlotHandle_t const pxSdioHandle );
 
 /*!
  * @brief   iot_sdio_card_reset() is used to reset the sdio card in the target slot.
@@ -472,7 +490,7 @@ int32_t iot_sdio_card_disconnect(IotSdioSlotHandle_t const pxSdioHandle);
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
  *   - IOT_SDIO_TRANSFER_FAIL is failed to reset(write CCCR reg) card.
  */
-int32_t iot_sdio_card_reset(IotSdioSlotHandle_t const pxSdioHandle);
+int32_t iot_sdio_card_reset( IotSdioSlotHandle_t const pxSdioHandle );
 
 /*!
  * @brief   iot_sdio_io_write_direct() implements the write portion of CMD52.
@@ -500,11 +518,11 @@ int32_t iot_sdio_card_reset(IotSdioSlotHandle_t const pxSdioHandle);
  *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
  *                            response from card.
  */
-int32_t iot_sdio_io_write_direct(IotSdioSlotHandle_t const pxSdioHandle,
-                                 IotSdioFunction_t eFunc,
-                                 uint32_t ulRegAddr,
-                                 uint8_t *pucData,
-                                 bool bRaw);
+int32_t iot_sdio_io_write_direct( IotSdioSlotHandle_t const pxSdioHandle,
+                                  IotSdioFunction_t eFunc,
+                                  uint32_t ulRegAddr,
+                                  uint8_t * pucData,
+                                  bool bRaw );
 
 /*!
  * @brief   iot_sdio_io_read_direct() implements the read portion of CMD52.
@@ -526,10 +544,10 @@ int32_t iot_sdio_io_write_direct(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
  *                            response from card.
  */
-int32_t iot_sdio_io_read_direct(IotSdioSlotHandle_t const pxSdioHandle,
-                                IotSdioFunction_t eFunc,
-                                uint32_t ulRegAddr,
-                                uint8_t *pucData);
+int32_t iot_sdio_io_read_direct( IotSdioSlotHandle_t const pxSdioHandle,
+                                 IotSdioFunction_t eFunc,
+                                 uint32_t ulRegAddr,
+                                 uint8_t * pucData );
 
 /*!
  * @brief   iot_sdio_io_write_extended() implements the write portion of CMD53.
@@ -565,13 +583,13 @@ int32_t iot_sdio_io_read_direct(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
  *                            response from card.
  */
-int32_t iot_sdio_io_write_extended(IotSdioSlotHandle_t const pxSdioHandle,
-                                   IotSdioFunction_t eFunc,
-                                   bool bBlockMode,
-                                   bool bOpcode,
-                                   uint32_t ulRegAddr,
-                                   uint8_t *pucBuf,
-                                   uint32_t ulCount);
+int32_t iot_sdio_io_write_extended( IotSdioSlotHandle_t const pxSdioHandle,
+                                    IotSdioFunction_t eFunc,
+                                    bool bBlockMode,
+                                    bool bOpcode,
+                                    uint32_t ulRegAddr,
+                                    uint8_t * pucBuf,
+                                    uint32_t ulCount );
 
 /*!
  * @brief   iot_sdio_io_read_extended() implements the read portion of CMD53.
@@ -607,13 +625,13 @@ int32_t iot_sdio_io_write_extended(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
  *                            response from card.
  */
-int32_t iot_sdio_io_read_extended(IotSdioSlotHandle_t const pxSdioHandle,
+int32_t iot_sdio_io_read_extended( IotSdioSlotHandle_t const pxSdioHandle,
                                    IotSdioFunction_t eFunc,
                                    bool bBlockMode,
                                    bool bOpcode,
                                    uint32_t ulRegAddr,
-                                   uint8_t *pucBuf,
-                                   uint32_t ulCount);
+                                   uint8_t * pucBuf,
+                                   uint32_t ulCount );
 
 /*!
  * @brief   iot_sdio_set_io_function_callback() is used to set IOFunctionCallback for each I/O function the
@@ -643,10 +661,10 @@ int32_t iot_sdio_io_read_extended(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_SUCCESS on success.
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
  */
-int32_t iot_sdio_set_io_function_callback(IotSdioSlotHandle_t const pxSdioHandle,
-                              IotSdioFunction_t eFunc,
-                              IotSdioIOFunctionCallback_t xIOFunctionCallback,
-                              void * pvIOFunctionCallbackUserContext);
+int32_t iot_sdio_set_io_function_callback( IotSdioSlotHandle_t const pxSdioHandle,
+                                           IotSdioFunction_t eFunc,
+                                           IotSdioIOFunctionCallback_t xIOFunctionCallback,
+                                           void * pvIOFunctionCallbackUserContext );
 
 /*!
  * @brief   iot_sdio_set_sdio_callback() is used to set sdio card interrupt callback.
@@ -660,9 +678,9 @@ int32_t iot_sdio_set_io_function_callback(IotSdioSlotHandle_t const pxSdioHandle
  *   - IOT_SDIO_SUCCESS on success.
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
  */
-int32_t iot_sdio_set_sdio_callback(IotSdioSlotHandle_t const pxSdioHandle,
-                                          IotSdioCallback_t xSdioCallback,
-                                          void *pvSdioCallbackUserContext);
+int32_t iot_sdio_set_sdio_callback( IotSdioSlotHandle_t const pxSdioHandle,
+                                    IotSdioCallback_t xSdioCallback,
+                                    void * pvSdioCallbackUserContext );
 
 /**
  * @brief iot_sdio_ioctl() is Used for various sdio control function.
@@ -677,7 +695,7 @@ int32_t iot_sdio_set_sdio_callback(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to or receive response from card.
  *   - IOT_SDIO_SET_CARD_BLOCK_SIZE_FAIL if eSDIOSetFuncBlockSize ioctl request failed.
  *   - IOT_SDIO_LOW_SPEED_CARD if switching speed failed due low speed only card.
-       (for eSDIOSwitchToHighSpeed request only).
+ *     (for eSDIOSwitchToHighSpeed request only).
  *   - IOT_SDIO_SWITCH_HIGH_SPEED_FAIL if sdio card supports high speed mode but failed
  *       to switch to high speed mode. (for eSDIOSwitchToHighSpeed only).
  *   - IOT_SDIO_ASYNC_INT_NOT_SUPPORTED if card doesn't support async interrupt mode.
@@ -685,9 +703,9 @@ int32_t iot_sdio_set_sdio_callback(IotSdioSlotHandle_t const pxSdioHandle,
  *   - IOT_SDIO_READ_CIS_FAIL if read cis command execution failed. (for eSDIOReadCis only)
  *   - IOT_SDIO_FAIL other failures that is unrelated to command execution.
  */
-int32_t iot_sdio_ioctl(IotSdioSlotHandle_t const pxSdioHandle,
-                       IotSdioIoctlRequest_t xSdioIoctlRequest,
-                       void * const pvBuffer);
+int32_t iot_sdio_ioctl( IotSdioSlotHandle_t const pxSdioHandle,
+                        IotSdioIoctlRequest_t xSdioIoctlRequest,
+                        void * const pvBuffer );
 
 /**
  * @}
