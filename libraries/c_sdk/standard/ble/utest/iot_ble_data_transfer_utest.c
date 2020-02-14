@@ -220,7 +220,7 @@ generate_client_read_event(uint8_t service_id, IotBleDataTransferAttributes_t at
  * Simulates event that receiving side has sent a write for Control Attribute=1 of the LOT service,
  * indicating that they are ready to receive data i.e. IotBle_DataTransfer_Send can succeed in sending bytes
  */
-static inline void
+static void
 generate_client_ready_event(uint16_t service)
 {
     uint8_t client_ready = true;
@@ -252,7 +252,7 @@ generate_mtu_changed_event(size_t new_mtu)
 /*
  * Get a channel. For some tests it doesn't really matter which one it is
  */
-static inline IotBleDataTransferChannel_t *
+static IotBleDataTransferChannel_t *
 get_open_channel(uint16_t service_variant)
 {
     IotBleDataTransferChannel_t *channel = 0;
