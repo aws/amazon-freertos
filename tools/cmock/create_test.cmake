@@ -5,19 +5,19 @@ function(create_test test_name test_src link_list dep_list)
     include (CTest)
     get_filename_component(test_src_absolute ${test_src} ABSOLUTE)
     add_custom_command(OUTPUT ${test_name}_runner.c
-                       COMMAND ruby
-                        ${CMAKE_SOURCE_DIR}/libraries/3rdparty/unity/auto/generate_test_runner.rb
-                        ${CMAKE_SOURCE_DIR}/tools/cmock/project.yml
-                        ${test_src_absolute}
-                        ${test_name}_runner.c
-                       DEPENDS ${test_src}
+                  COMMAND ruby
+                    ${CMAKE_SOURCE_DIR}/libraries/3rdparty/unity/auto/generate_test_runner.rb
+                    ${CMAKE_SOURCE_DIR}/tools/cmock/project.yml
+                    ${test_src_absolute}
+                    ${test_name}_runner.c
+                  DEPENDS ${test_src}
         )
     add_executable(${test_name} ${test_src} ${test_name}_runner.c)
     set_target_properties(${test_name} PROPERTIES
-            COMPILE_FLAGS "-ggdb3 -O0 -Wall -fsanitize=address -pg"
+            COMPILE_FLAGS "-ggdb3 -Og -Wall -pthread"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             INSTALL_RPATH_USE_LINK_PATH TRUE
-            LINK_FLAGS "-fsanitize=address -pg  -O0\
+            LINK_FLAGS "-Og -ggdb3 -pthread \
                 -Wl,-rpath,${CMAKE_CURRENT_BINARY_DIR}/lib"
         )
     target_include_directories(${test_name} PUBLIC
@@ -36,7 +36,7 @@ function(create_test test_name test_src link_list dep_list)
     endforeach()
     target_link_libraries(${test_name} -lgcov)
 
-    target_link_directories(${test_name}  PUBLIC
+    target_link_directories(secure_sockets_utest  PUBLIC
                             ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
     add_test(NAME ${test_name}
@@ -83,8 +83,8 @@ function(create_mock_list mock_name mock_list)
                                ${mocks_dir}
             )
     set_target_properties(${mock_name} PROPERTIES
-                        COMPILE_FLAGS "-ggdb3 -O0 -fPIC"
-                        LINK_FLAGS "-ggdb3 -fPIC -O0"
+                        COMPILE_FLAGS "-ggdb3 -Og -fPIC"
+                        LINK_FLAGS "-ggdb3 -fPIC -Og"
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
             )

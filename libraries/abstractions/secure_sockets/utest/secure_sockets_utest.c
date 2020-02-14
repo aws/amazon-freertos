@@ -1,3 +1,27 @@
+/*
+ * Amazon FreeRTOS HTTPS Client V1.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 #include <stdbool.h>
 #include <pthread.h>
 
@@ -7,6 +31,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 
+
 #include "mock_sockets.h"
 #include "mock_portable.h"
 #include "mock_task.h"
@@ -15,7 +40,6 @@
 #include "mock_iot_wifi.h"
 
 #include "wait_for_event.h"
-
 #include "iot_secure_sockets.h"
 
 
@@ -281,20 +305,31 @@ void test04_SecureSockets_send_not_connected( void )
  */
 void test05_SecureSockets_socket_invalid_arguments( void )
 {
-    Socket_t so = SOCKETS_Socket( SOCKETS_AF_INET,
-                                  SOCKETS_SOCK_DGRAM,
-                                  SOCKETS_IPPROTO_TCP );
+    Socket_t so;
 
+    so = SOCKETS_Socket( SOCKETS_AF_INET6,   /* wrong param */
+                         SOCKETS_SOCK_DGRAM, /* wrong param */
+                         SOCKETS_IPPROTO_TCP );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
+
+    so = SOCKETS_Socket( SOCKETS_AF_INET6,      /* wrong param */
+                         SOCKETS_SOCK_STREAM,
+                         SOCKETS_IPPROTO_UDP ); /* wrong param */
+    TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
+
+    so = SOCKETS_Socket( SOCKETS_AF_INET,
+                         SOCKETS_SOCK_DGRAM, /* wrong param */
+                         SOCKETS_IPPROTO_TCP );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
+
+    so = SOCKETS_Socket( SOCKETS_AF_INET6,      /* wrong param */
+                         SOCKETS_SOCK_STREAM,
+                         SOCKETS_IPPROTO_UDP ); /* wrong param */
     TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
 
     so = SOCKETS_Socket( SOCKETS_AF_INET,
                          SOCKETS_SOCK_STREAM,
-                         SOCKETS_IPPROTO_UDP );
-    TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
-
-    so = SOCKETS_Socket( SOCKETS_AF_INET6,
-                         SOCKETS_SOCK_DGRAM,
-                         SOCKETS_IPPROTO_TCP );
+                         SOCKETS_IPPROTO_UDP ); /* wrong param */
     TEST_ASSERT_EQUAL_INT( SOCKETS_INVALID_SOCKET, so );
 }
 
@@ -417,10 +452,20 @@ void test11_SecureSockets_Recv_lwip_error( void )
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
     TEST_ASSERT_EQUAL_INT( SOCKETS_ECLOSED, ret );
 
+    lwip_recv_ExpectAnyArgsAndReturn( -1 );
+    errno = 0;
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_SOCKET_ERROR, ret );
+
     lwip_recv_ExpectAnyArgsAndReturn( 0 );
     errno = ENOTCONN;
     ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
     TEST_ASSERT_EQUAL_INT( SOCKETS_ECLOSED, ret );
+
+    lwip_recv_ExpectAnyArgsAndReturn( 0 );
+    errno = 0;
+    ret = SOCKETS_Recv( so, buffer, BUFFER_LEN, 0 );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
 
     deinitSocket( so );
 }
@@ -428,7 +473,7 @@ void test11_SecureSockets_Recv_lwip_error( void )
 /*!
  * @brief A happy path for TLS socket receive
  */
-void test11_SecureSockets_Recv_TLS_successful( void )
+void test12_SecureSockets_Recv_TLS_successful( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -446,7 +491,7 @@ void test11_SecureSockets_Recv_TLS_successful( void )
 /*!
  * @brief Receive while socket not connected
  */
-void test12_SecureSockets_Recv_NotConnected( void )
+void test13_SecureSockets_Recv_NotConnected( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -460,7 +505,7 @@ void test12_SecureSockets_Recv_NotConnected( void )
 /*!
  * @brief Receive invalid socket
  */
-void test13_SecureSockets_Recv_InvalidParameters( void )
+void test14_SecureSockets_Recv_InvalidParameters( void )
 {
     int32_t ret;
     char buffer[ BUFFER_LEN ];
@@ -483,7 +528,7 @@ void test13_SecureSockets_Recv_InvalidParameters( void )
 /*!
  * @brief Test a happy case
  */
-void test14_SecureSockets_Shutdown_successful( void )
+void test15_SecureSockets_Shutdown_successful( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -497,7 +542,7 @@ void test14_SecureSockets_Shutdown_successful( void )
 /*!
  * @brief Test bad arguments
  */
-void test15_SecureSockets_Shutdown_bad_arguments( void )
+void test16_SecureSockets_Shutdown_bad_arguments( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -509,7 +554,7 @@ void test15_SecureSockets_Shutdown_bad_arguments( void )
 /*!
  * @brief lwip_shutdown error
  */
-void test16_SecureSockets_Shutdown_lwip_error( void )
+void test17_SecureSockets_Shutdown_lwip_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -525,7 +570,7 @@ void test16_SecureSockets_Shutdown_lwip_error( void )
 /*!
  * @brief Close happy case
  */
-void test17_SecureSockets_Close_successful( void )
+void test18_SecureSockets_Close_successful( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -540,7 +585,7 @@ void test17_SecureSockets_Close_successful( void )
 /*!
  * @brief Close successful ALPN protocol
  */
-void test18_SecureSockets_Close_successful2( void )
+void test19_SecureSockets_Close_successful2( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -555,7 +600,7 @@ void test18_SecureSockets_Close_successful2( void )
 /*!
  * @brief Close successful ALPN protocol with TLS
  */
-void test19_SecureSockets_Close_successful3( void )
+void test20_SecureSockets_Close_successful3( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -572,7 +617,7 @@ void test19_SecureSockets_Close_successful3( void )
 /*!
  * @brief Close successful with Server Certificate
  */
-void test20_SecureSockets_Close_successful4( void )
+void test21_SecureSockets_Close_successful4( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -587,7 +632,7 @@ void test20_SecureSockets_Close_successful4( void )
 /*!
  * @brief Close successful with Server Name indication
  */
-void test21_SecureSockets_Close_successful5( void )
+void test22_SecureSockets_Close_successful5( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -602,7 +647,7 @@ void test21_SecureSockets_Close_successful5( void )
 /*!
  * @brief Close invalid parameters
  */
-void test22_SecureSockets_Close_InvalidSocket( void )
+void test23_SecureSockets_Close_InvalidSocket( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -616,7 +661,7 @@ void test22_SecureSockets_Close_InvalidSocket( void )
 /*!
  * @brief Connect  with various invalid parameters
  */
-void test23_SecureSockets_Connect_InvalidParameters( void )
+void test24_SecureSockets_Connect_InvalidParameters( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -639,14 +684,14 @@ void test23_SecureSockets_Connect_InvalidParameters( void )
 /*!
  * @brief Connect  with lwip_connect error
  */
-void test24_SecureSockets_Connect_lwip_connect_error( void )
+void test25_SecureSockets_Connect_lwip_connect_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
     SocketsSockaddr_t pxAddress;
 
     pxAddress.ucLength = 32;
-    pxAddress.ucSocketDomain = SOCKETS_AF_INET;
+    pxAddress.ucSocketDomain = true;
     pxAddress.usPort = 1000;
     pxAddress.ulAddress = 1234567;
 
@@ -661,14 +706,14 @@ void test24_SecureSockets_Connect_lwip_connect_error( void )
 /*!
  * @brief Connect  with TLS_Init error
  */
-void test25_SecureSockets_Connect_TLS_Init_error( void )
+void test26_SecureSockets_Connect_TLS_Init_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
     SocketsSockaddr_t pxAddress;
 
     pxAddress.ucLength = 32;
-    pxAddress.ucSocketDomain = SOCKETS_AF_INET;
+    pxAddress.ucSocketDomain = true;
     pxAddress.usPort = 1000;
     pxAddress.ulAddress = 1234567;
 
@@ -677,6 +722,7 @@ void test25_SecureSockets_Connect_TLS_Init_error( void )
     lwip_connect_IgnoreAndReturn( 0 );
     vLoggingPrintf_Ignore();
     TLS_Init_IgnoreAndReturn( pdFREERTOS_ERRNO_ENOENT );
+
     ret = SOCKETS_Connect( so, &pxAddress, sizeof( pxAddress ) );
     TEST_ASSERT_EQUAL_INT( SOCKETS_SOCKET_ERROR, ret );
     TLS_Cleanup_ExpectAnyArgs();
@@ -686,7 +732,7 @@ void test25_SecureSockets_Connect_TLS_Init_error( void )
 /*!
  * @brief Connect  with TLS_Connect error
  */
-void test26_SecureSockets_Connect_TLS_connect_error( void )
+void test27_SecureSockets_Connect_TLS_connect_error( void )
 {
     int32_t ret;
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -703,8 +749,41 @@ void test26_SecureSockets_Connect_TLS_connect_error( void )
     vLoggingPrintf_Ignore();
     TLS_Init_IgnoreAndReturn( pdFREERTOS_ERRNO_NONE );
     TLS_Connect_IgnoreAndReturn( pdFREERTOS_ERRNO_ENOENT );
+
     ret = SOCKETS_Connect( so, &pxAddress, sizeof( pxAddress ) );
     TEST_ASSERT_EQUAL_INT( SOCKETS_SOCKET_ERROR, ret );
+
+
+
+    TLS_Cleanup_ExpectAnyArgs();
+    deinitSocket( so );
+}
+
+/*!
+ * @brief Connect  with TLS_Connect error with server name indication
+ */
+void test28_SecureSockets_Connect_TLS_connect_error( void )
+{
+    int32_t ret;
+    Socket_t so = SOCKETS_INVALID_SOCKET;
+    SocketsSockaddr_t pxAddress;
+
+    pxAddress.ucLength = 32;
+    pxAddress.ucSocketDomain = SOCKETS_AF_INET;
+    pxAddress.usPort = 1000;
+    pxAddress.ulAddress = 1234567;
+
+    so = initSocket();
+    setTLSMode( so );
+    setServerNameIndication( so );
+    lwip_connect_IgnoreAndReturn( 0 );
+    vLoggingPrintf_Ignore();
+    TLS_Init_IgnoreAndReturn( pdFREERTOS_ERRNO_NONE );
+    TLS_Connect_IgnoreAndReturn( pdFREERTOS_ERRNO_ENOENT );
+    ret = SOCKETS_Connect( so, &pxAddress, sizeof( pxAddress ) );
+    TEST_ASSERT_EQUAL_INT( SOCKETS_SOCKET_ERROR, ret );
+
+
     TLS_Cleanup_ExpectAnyArgs();
     deinitSocket( so );
 }
@@ -714,7 +793,7 @@ void test26_SecureSockets_Connect_TLS_connect_error( void )
 /*!
  * @brief GetHostByName  successful case
  */
-void test27_SecureSockets_GetHostByName_suceessful( void )
+void test29_SecureSockets_GetHostByName_suceessful( void )
 {
     int32_t ret;
     uint8_t addr = 0;
@@ -733,7 +812,7 @@ void test27_SecureSockets_GetHostByName_suceessful( void )
 /*!
  * @brief GetHostByName   hostname too large
  */
-void test28_SecureSockets_GetHostByName_longHostname( void )
+void test30_SecureSockets_GetHostByName_longHostname( void )
 {
     int32_t ret;
     int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH + 5;
@@ -752,7 +831,7 @@ void test28_SecureSockets_GetHostByName_longHostname( void )
 /*!
  * @brief Init  successful case
  */
-void test29_SecureSockets_Init( void )
+void test31_SecureSockets_Init( void )
 {
     BaseType_t ret;
 
@@ -765,7 +844,7 @@ void test29_SecureSockets_Init( void )
 /*!
  * @brief SetSockOp bad arguments
  */
-void test30_SecureSockets_SetSockOpt_bad_arguments( void )
+void test32_SecureSockets_SetSockOpt_bad_arguments( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -779,7 +858,7 @@ void test30_SecureSockets_SetSockOpt_bad_arguments( void )
  *                   SOCKETS_SO_RCVTIMEO:
  *                   SOCKETS_SO_SNDTIMEO:
  */
-void test31_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
+void test33_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -808,7 +887,7 @@ void test31_SecureSockets_SetSockOpt_So_RCV_SND_Timeout( void )
 /*!
  * @brief SetSockOp lwip_setsockopt error
  */
-void test32_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
+void test34_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -829,7 +908,7 @@ void test32_SecureSockets_SetSockOpt_So_RCV_SND_Timeout_error( void )
 /*!
  * @brief SetSockOp invalid option
  */
-void test33_SecureSockets_SetSockOpt_Invalid_Option( void )
+void test35_SecureSockets_SetSockOpt_Invalid_Option( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -846,7 +925,7 @@ void test33_SecureSockets_SetSockOpt_Invalid_Option( void )
 /*!
  * @brief SetSockOp so nonblock_success succesful case
  */
-void test34_SecureSockets_SetsockOpt_nonblock_success( void )
+void test36_SecureSockets_SetsockOpt_nonblock_success( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -866,7 +945,7 @@ void test34_SecureSockets_SetsockOpt_nonblock_success( void )
  * @brief SOCKETS_SetSockOpt various error conditions
  *          socket not connected and lwip_ioctl error
  */
-void test35_SecureSockets_SetsockOpt_nonblock_error( void )
+void test37_SecureSockets_SetsockOpt_nonblock_error( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -878,6 +957,7 @@ void test35_SecureSockets_SetsockOpt_nonblock_error( void )
     TEST_ASSERT_EQUAL( SOCKETS_ENOTCONN, ret );
 
     connectSocket( so );
+
     lwip_ioctl_ExpectAndReturn( 0, FIONBIO, &opt, -1 );
     lwip_ioctl_IgnoreArg_s();
     ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_NONBLOCK, NULL, 0 );
@@ -935,7 +1015,7 @@ static long int xTaskCreate_cb2( TaskFunction_t pxTaskCode,
  * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
  *        making sure it got called when an actifity occured on the socket
  */
-void test36_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
+void test38_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
 {
     int32_t ret;
     void * option = &taskComplete_cb; /* user callback for socket event */
@@ -970,20 +1050,31 @@ static long int xTaskCreate_cb( TaskFunction_t pxTaskCode,
     handle = malloc_cb( sizeof( TaskHandle_t ), 1 );
     *pxCreatedTask = handle;
 
-    lwip_select_IgnoreAndReturn( 1 );
-    lwip_select_IgnoreAndReturn( -1 );
-    lwip_select_IgnoreAndReturn( 1 );
+    fd_set read_fds;
+    fd_set read_fds2;
+    FD_ZERO( &read_fds );
+    FD_ZERO( &read_fds2 );
+
+    lwip_select_ExpectAndReturn( 6, &read_fds, &read_fds, &read_fds, NULL, 1 );
+    lwip_select_IgnoreArg_writeset();
+    lwip_select_IgnoreArg_exceptset();
+    lwip_select_IgnoreArg_maxfdp1();
+    lwip_select_IgnoreArg_readset();
+    lwip_select_ReturnMemThruPtr_readset( &read_fds2, sizeof( fd_set ) );
+
+    lwip_select_ExpectAnyArgsAndReturn( -1 );
 
     vTaskDelete_Ignore();
     pxTaskCode( pvParameters ); /* pvParameters the socket_t/ss_ctx */
-    return pdPASS;
+    /*return pdPASS; */
+    return pdFAIL;
 }
 
 /*!
  * @brief test SetSockOpt sockets_so_wakeup_callback by registering a callback
  *        making sure it got called when an actifity occured on the socket
  */
-void test37_SecureSockets_SetSockOpt_wakeup_callback( void )
+void test39_SecureSockets_SetSockOpt_wakeup_callback( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -1010,7 +1101,7 @@ void test37_SecureSockets_SetSockOpt_wakeup_callback( void )
  * functionality is not implemented, but once implemented this test case will
  * probably fails until it is updated to test the new code
  */
-void test38_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
+void test40_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
 {
     Socket_t so = SOCKETS_INVALID_SOCKET;
     int32_t ret;
@@ -1019,6 +1110,10 @@ void test38_SecureSockets_SetSockOpt_wakeup_callback_clear( void )
 
     ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
                               NULL, 0 );
+    TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, ret );
+
+    ret = SOCKETS_SetSockOpt( so, 0, SOCKETS_SO_WAKEUP_CALLBACK,
+                              NULL, sizeof( void * ) );
     TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, ret );
 
     deinitSocket( so );
@@ -1042,7 +1137,7 @@ static void * malloc_cb2( size_t size,
 /*!
  * @brief  SetSockOpt alpn no memory tests
  */
-void test39_SecureSockets_SetSockOpt_alpn_no_mem( void )
+void test41_SecureSockets_SetSockOpt_alpn_no_mem( void )
 {
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT, socketsAWS_IOT_ALPN_MQTT };
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -1073,7 +1168,7 @@ void test39_SecureSockets_SetSockOpt_alpn_no_mem( void )
 /*!
  * @brief
  */
-void test40_SecureSockets_SetSockOpt_alpn_connected( void )
+void test42_SecureSockets_SetSockOpt_alpn_connected( void )
 {
     char * pcAlpns[] = { socketsAWS_IOT_ALPN_MQTT, socketsAWS_IOT_ALPN_MQTT };
     Socket_t so = SOCKETS_INVALID_SOCKET;
@@ -1094,7 +1189,7 @@ void test40_SecureSockets_SetSockOpt_alpn_connected( void )
  * @brief  SetSockOpt SOCKETS_SO_SERVER_NAME_INDICATION
  *         various error conditions
  */
-void test41_SecureSockets_SetSockOpt_setname_indication_error( void )
+void test43_SecureSockets_SetSockOpt_setname_indication_error( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1128,7 +1223,7 @@ void test41_SecureSockets_SetSockOpt_setname_indication_error( void )
 /*!
  * @brief
  */
-void test42_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
+void test44_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1157,7 +1252,7 @@ void test42_SecureSockets_SetSockOpt_setname_indication_memory_errors( void )
 /*!
  * @brief  SetSockOpt set TLS to an already connected socket
  */
-void test43_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
+void test45_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -1171,7 +1266,7 @@ void test43_SecureSockets_SetSockOpt_require_tls_already_conected_error( void )
 /*!
  * @brief SetSockOpt set trusted server certificate memory errors
  */
-void test44_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
+void test46_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
 {
     int32_t ret;
     Socket_t so = initSocket();
@@ -1207,7 +1302,7 @@ void test44_SecureSocketsSetSockOpt_set_server_cert_memory_errors( void )
 /*!
  * @brief  SetSockOpt set TLS to an already connected socket
  */
-void test45_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void )
+void test47_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void )
 {
     int32_t ret;
     Socket_t so = create_normal_connection();
@@ -1222,7 +1317,7 @@ void test45_SecureSockets_SetSockOpt_trusted_server_already_conected_error( void
 /*!
  * @brief SetSockOpt set trusted server certificate
  */
-void test46_SecureSockets_SetSockOpt_trusted_server_invalid_arguments()
+void test48_SecureSockets_SetSockOpt_trusted_server_invalid_arguments()
 {
     int32_t ret;
     Socket_t so = initSocket();

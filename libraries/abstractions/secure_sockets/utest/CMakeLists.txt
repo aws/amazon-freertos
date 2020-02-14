@@ -1,5 +1,4 @@
-#afr_module(secure_socket_ut)
-    project ("secure socket cmock unit test")
+    project ("secure sockets unit test")
     cmake_minimum_required (VERSION 3.13)
 
     set(3rdparty_dir "${AFR_ROOT_DIR}/libraries/3rdparty")
@@ -17,8 +16,6 @@
                 "${3rdparty_dir}/lwip/src/include/lwip/sockets.h"
             )
     create_mock_list(secure_sockets_mock "${mock_list}"
-            )
-    add_dependencies(secure_sockets_mock libcmock libunity
             )
     target_include_directories(secure_sockets_mock PUBLIC
                 "${3rdparty_dir}/lwip/src/include"
@@ -43,6 +40,7 @@
     add_library(secure_sockets_real STATIC
                 "../lwip/iot_secure_sockets.c"
             )
+
     target_include_directories(secure_sockets_real PUBLIC
                 .
                 ../include
@@ -57,16 +55,11 @@
             )
 
     set_target_properties(secure_sockets_real PROPERTIES
-                COMPILE_FLAGS "-Wall -fPIC -ggdb3 -O0  -pg \
+                COMPILE_FLAGS "-Wall -fPIC -ggdb3 -Og \
                     -fprofile-arcs -ftest-coverage -fprofile-generate \
-                    -fsanitize=address \
-                    -fsanitize=leak \
-                    -include /usr/include/errno.h "
+                    -include portableDefs.h -Wno-unused-but-set-variable"
                 LINK_FLAGS "-fPIC -fprofile-arcs -ftest-coverage \
-                    -fprofile-generate -ggdb3 -O0 -pg \
-                    -fsanitize=address \
-                    -fsanitize=address \
-                    -fsanitize=leak"
+                    -fprofile-generate -ggdb3 -Og"
                 ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
 
@@ -87,9 +80,6 @@
                 secure_sockets_utest.c
                 "${link_list}"
                 "${dep_list}"
-            )
-    set_target_properties(secure_sockets_utest PROPERTIES
-                COMPILE_FLAGS "-include /usr/include/errno.h"
             )
     target_include_directories(secure_sockets_utest PUBLIC
                 ../include

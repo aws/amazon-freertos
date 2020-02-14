@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.13)
-
-    message("base binary dir is ${CMAKE_BINARY_DIR}")
-# zero coverage counters
+    cmake_minimum_required(VERSION 3.13)
+    set(BINARY_DIR ${CMAKE_BINARY_DIR})
+# reset coverage counters
     execute_process(
                 COMMAND lcov --directory ${CMAKE_BINARY_DIR}
                              --base-directory ${CMAKE_BINARY_DIR}
@@ -18,7 +17,6 @@ cmake_minimum_required(VERSION 3.13)
                              --rc genhtml_branch_coverage=1
                              --output-file=${CMAKE_BINARY_DIR}/base_coverage.info
             )
-    message("output base_Coverage .info")
     file(GLOB files "${CMAKE_BINARY_DIR}/bin/*")
 
     set(REPORT_FILE ${CMAKE_BINARY_DIR}/utest_report.txt)
@@ -39,6 +37,7 @@ cmake_minimum_required(VERSION 3.13)
     execute_process(COMMAND ruby
         ${CMAKE_SOURCE_DIR}/../libraries/3rdparty/CMock/vendor/unity/auto/parse_output.rb
                         -xml ${REPORT_FILE}
+                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 )
 
 # capture data after running the tests
@@ -61,7 +60,9 @@ cmake_minimum_required(VERSION 3.13)
                              --rc lcov_branch_coverage=1
             )
     execute_process(
-                COMMAND genhtml --rc lcov_branch_coverage=1 --branch-coverage -o ${CMAKE_BINARY_DIR}/coverage
-                                    ${CMAKE_BINARY_DIR}/coverage.info  
+                COMMAND genhtml --rc lcov_branch_coverage=1
+                                --branch-coverage
+                                --output-directory ${CMAKE_BINARY_DIR}/coverage
+                                    ${CMAKE_BINARY_DIR}/coverage.info
             )
 
