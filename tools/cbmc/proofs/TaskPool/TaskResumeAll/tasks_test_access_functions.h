@@ -67,7 +67,7 @@ TaskHandle_t xUnconstrainedTCB( void )
 }
 
 /*
- * We set uxPendedTicks since __CPROVER_assume does not work
+ * We set xPendedTicks since __CPROVER_assume does not work
  * well with statically initialised variables
  */
 void vSetGlobalVariables( void ) {
@@ -76,7 +76,7 @@ void vSetGlobalVariables( void ) {
 	__CPROVER_assume( uxNonZeroValue != 0 );
 
 	uxSchedulerSuspended = uxNonZeroValue;
-	uxPendedTicks = nondet_bool() ? PENDED_TICKS : 0;
+	xPendedTicks = nondet_bool() ? PENDED_TICKS : 0;
 	uxCurrentNumberOfTasks = nondet_ubasetype();
 	xTickCount = nondet_ticktype();
 }
