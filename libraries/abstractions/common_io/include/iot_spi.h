@@ -111,14 +111,14 @@ typedef struct IotSPIMasterConfig
 /**
  * @brief The SPI descriptor type defined in the source file.
  */
-struct                      IotSPIDescriptor_t;
+struct                      IotSPIDescriptor;
 
 /**
  * @brief IotSPIHandle_t is the handle type returned by calling iot_spi_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotSPIDescriptor_t * IotSPIHandle_t;
+typedef struct IotSPIDescriptor * IotSPIHandle_t;
 
 /**
  * @brief The callback function for completion of SPI operation.

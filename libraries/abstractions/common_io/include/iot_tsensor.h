@@ -73,14 +73,14 @@ typedef enum
 /**
  * @brief   tsensor descriptor type defined in the source file.
  */
-struct IotTsensorDescriptor_t;
+struct IotTsensorDescriptor;
 
 /**
  * @brief   IotTsensorHandle_t type is the tsensor handle returned by calling iot_tsensor_open()
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotTsensorDescriptor_t * IotTsensorHandle_t;
+typedef struct IotTsensorDescriptor * IotTsensorHandle_t;
 
 /**
  * @brief The callback function for completion of Tsensor operation.

@@ -19,7 +19,7 @@ It is assumed that one of these words are defined:
 
 The driver has been tested on both Eval and Discovery boards with both STM32F4 and STM32F7.
 
-Recommened settings for STM32Fxx Network Interface:
+Recommended settings for STM32Fxx Network Interface:
 
 // Defined in FreeRTOSIPConfig.h
 
@@ -46,6 +46,27 @@ When MTU is 1200, MTU+48 will make 1248 ( 0x4E0 ), which is also well aligned.
 Having well aligned buffers is important for CPU with memory cache. Often the caching system divides memory in blocks of 32 bytes. When two buffers share the same cache buffer, you are bound to see data errors.
 
 Without memory caching, let the size be at least a multiple of 8 ( for DMA ), and make it at least "ipconfigNETWORK_MTU + 14".
+
+STM32F7xx only:
+
+Networkinterface.c will place the 2 DMA tables in a special section called 'first_data'.
+In case 'BufferAllocation_1.c' is used, the network packets will also be declared in this section 'first_data'.
+As long as the part has no caching, this section can be placed anywhere in RAM.
+On an STM32F7 with an L1 data cache, it shall be placed in the first 64KB of RAM, which is always uncached.
+The linker script must be changed for this, for instance as follows:
+
+   .data : 
+   {
+     . = ALIGN(4);
+     _sdata = .;        // create a global symbol at data start
++    *(.first_data)     // .first_data sections
+     *(.data)           // .data sections
+     *(.data*)          // .data* sections
+ 
+     . = ALIGN(4);
+     _edata = .;        // define a global symbol at data end
+   } >RAM AT> FLASH
+
 
 The driver contains these files:
 

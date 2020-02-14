@@ -35,7 +35,7 @@ target_compile_options(
 
 
 # Linker flags
-set(linker_flags -Wl,--script=\"${board_dir}/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=170000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--memorysummary,memoryfile.xml,--allow-multiple-definition)
+set(linker_flags -Wl,--script=\"${board_dir}/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=10000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--memorysummary,memoryfile.xml,--allow-multiple-definition)
 
 target_link_options(
     AFR::compiler::mcu_port

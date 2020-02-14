@@ -66,7 +66,8 @@ class OtaTestRunner:
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = OtaAfrProject(boardConfig)
-        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig, stageParams, True)
+        # OTA jobs only accept underscore and no dots. We replace dots with underscores for all IoT Core related names.
+        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'].replace('.', '_'), self._otaConfig, stageParams, True)
         # FlashSerialComm opens a thread. If there is an exception in OtaAwsAgent we want to exit the program, so this is initialized last.
         self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
 
