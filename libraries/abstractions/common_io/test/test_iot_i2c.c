@@ -75,7 +75,7 @@ typedef struct CallbackParam
 
 uint8_t uctestIotI2CSlaveAddr = 0;           /**< The slave address to be set for the I2C port. */
 uint8_t uctestIotI2CInvalidSlaveAddr = 0xFF; /**< The slave address to be set for the I2C port. */
-uint8_t uctestIotI2CDeviceRegister = 0;       /**< The device register to be set for the I2C port. */
+uint8_t uctestIotI2CDeviceRegister = 0;      /**< The device register to be set for the I2C port. */
 uint8_t uctestIotI2CWriteVal = 0;            /**< The write value to write to device. */
 uint8_t uctestIotI2CInstanceIdx = 0;         /**< The current I2C test instance index */
 uint8_t uctestIotI2CInstanceNum = 1;         /**< The total I2C test instance number */
@@ -96,7 +96,7 @@ static SemaphoreHandle_t xtestIotI2CSemaphore = NULL;
 static void prvAppendToMessage( size_t * pOffset,
                                 uint8_t * pBuffer,
                                 size_t bufferLen,
-                                char* cMsg);
+                                char * cMsg );
 
 /*-----------------------------------------------------------*/
 
@@ -122,10 +122,10 @@ TEST_SETUP( TEST_IOT_I2C )
         gIotI2cHandle[ testIotI2C_INSTANCE ] = NULL;
     }
 
-    if(xtestIotI2CSemaphore == NULL)
+    if( xtestIotI2CSemaphore == NULL )
     {
         xtestIotI2CSemaphore = xSemaphoreCreateBinary();
-        TEST_ASSERT_NOT_EQUAL(NULL, xtestIotI2CSemaphore);
+        TEST_ASSERT_NOT_EQUAL( NULL, xtestIotI2CSemaphore );
     }
 }
 
@@ -467,59 +467,60 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncAssisted )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
-    uint8_t ucReadBuf[16];
-    char cMsg[testIotI2C_MESSAGE_LENGTH] = {0};
+    uint8_t ucReadBuf[ 16 ];
+    char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
 
-    IotI2CConfig_t xI2CConfig = {
-        .ulBusFreq = testIotI2C_BAUDRATE,
-        .ulMasterTimeout =  testIotI2C_DEFAULT_TIMEOUT
+    IotI2CConfig_t xI2CConfig =
+    {
+        .ulBusFreq       = testIotI2C_BAUDRATE,
+        .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open(testIotI2C_INSTANCE);
-    TEST_ASSERT_NOT_EQUAL(NULL, xI2CHandle);
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
+    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
-    if(TEST_PROTECT())
+    if( TEST_PROTECT() )
     {
         /* Set completion callback */
-        iot_i2c_set_callback(xI2CHandle, prvI2CCallback, NULL );
+        iot_i2c_set_callback( xI2CHandle, prvI2CCallback, NULL );
 
         /* Set i2c congifuration */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetMasterConfig, &xI2CConfig);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c slave address for writing the device register */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c not stop between transaction */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSendNoStopFlag, NULL);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Write the device register address */
-        lRetVal = iot_i2c_write_sync(xI2CHandle, &uctestIotI2CDeviceRegister, sizeof(uctestIotI2CDeviceRegister));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_write_sync( xI2CHandle, &uctestIotI2CDeviceRegister, sizeof( uctestIotI2CDeviceRegister ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c slave address to read from the device register */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Read from i2c device */
-        lRetVal = iot_i2c_read_async(xI2CHandle, &ucReadBuf, sizeof(ucReadBuf));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_read_async( xI2CHandle, &ucReadBuf, sizeof( ucReadBuf ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
-        lRetVal = xSemaphoreTake(xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT);
-        TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
+        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
     }
 
-    lRetVal = iot_i2c_close(xI2CHandle);
-    TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+    lRetVal = iot_i2c_close( xI2CHandle );
+    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
     /* Create a string with read bytes and print it to console */
-    prvAppendToMessage( &msgOffset, ucReadBuf, sizeof(ucReadBuf), cMsg );
+    prvAppendToMessage( &msgOffset, ucReadBuf, sizeof( ucReadBuf ), cMsg );
 
-    TEST_IGNORE_MESSAGE(cMsg);
+    TEST_IGNORE_MESSAGE( cMsg );
 }
 
 /*-----------------------------------------------------------*/
@@ -947,55 +948,56 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncAssisted )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
-    uint8_t writeVal[16] = {uctestIotI2CDeviceRegister};
-    char cMsg[testIotI2C_MESSAGE_LENGTH] = {0};
+    uint8_t writeVal[ 16 ] = { uctestIotI2CDeviceRegister };
+    char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
 
     /* Generate bytes to write randomly */
-    srand(xTaskGetTickCount());
+    srand( xTaskGetTickCount() );
 
     /* Create a string with write bytes and print it to console later */
-    for(int i=1, len=sizeof(writeVal); i<len; i++)
+    for( int i = 1, len = sizeof( writeVal ); i < len; i++ )
     {
-        writeVal[i]=(uint8_t)rand();
+        writeVal[ i ] = ( uint8_t ) rand();
     }
 
-    prvAppendToMessage( &msgOffset, writeVal, sizeof(writeVal), cMsg );
+    prvAppendToMessage( &msgOffset, writeVal, sizeof( writeVal ), cMsg );
 
-    IotI2CConfig_t xI2CConfig = {
-        .ulBusFreq = testIotI2C_BAUDRATE,
+    IotI2CConfig_t xI2CConfig =
+    {
+        .ulBusFreq       = testIotI2C_BAUDRATE,
         .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open(testIotI2C_INSTANCE);
-    TEST_ASSERT_NOT_EQUAL(NULL, xI2CHandle);
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
+    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
     {
         /* Set completion callback */
-        iot_i2c_set_callback(xI2CHandle, prvI2CCallback, NULL );
+        iot_i2c_set_callback( xI2CHandle, prvI2CCallback, NULL );
 
         /* Set i2c congifuration */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetMasterConfig, &xI2CConfig);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c slave address */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Write the value to the device */
-        lRetVal = iot_i2c_write_async(xI2CHandle, writeVal, sizeof(writeVal));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_write_async( xI2CHandle, writeVal, sizeof( writeVal ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
-        lRetVal = xSemaphoreTake(xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT);
-        TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
+        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
     }
 
-    lRetVal = iot_i2c_close(xI2CHandle);
-    TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+    lRetVal = iot_i2c_close( xI2CHandle );
+    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
-    TEST_IGNORE_MESSAGE(cMsg);
+    TEST_IGNORE_MESSAGE( cMsg );
 }
 
 /*-----------------------------------------------------------*/
@@ -1172,53 +1174,54 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncAssisted )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
-    uint8_t ucReadBuf[16];
-    char cMsg[testIotI2C_MESSAGE_LENGTH] = {0};
+    uint8_t ucReadBuf[ 16 ];
+    char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
 
-    IotI2CConfig_t xI2CConfig = {
-        .ulBusFreq = testIotI2C_BAUDRATE,
+    IotI2CConfig_t xI2CConfig =
+    {
+        .ulBusFreq       = testIotI2C_BAUDRATE,
         .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT,
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open(testIotI2C_INSTANCE);
-    TEST_ASSERT_NOT_EQUAL(NULL, xI2CHandle);
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
+    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
     {
         /* Set i2c congifuration */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetMasterConfig, &xI2CConfig);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c slave address */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c congifuration */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSendNoStopFlag, NULL);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Write the device register address */
-        lRetVal = iot_i2c_write_sync(xI2CHandle, &uctestIotI2CDeviceRegister, sizeof(uctestIotI2CDeviceRegister));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_write_sync( xI2CHandle, &uctestIotI2CDeviceRegister, sizeof( uctestIotI2CDeviceRegister ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Repeated start to read */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Read from i2c device */
-        lRetVal = iot_i2c_read_sync(xI2CHandle, &ucReadBuf, sizeof(ucReadBuf));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_read_sync( xI2CHandle, &ucReadBuf, sizeof( ucReadBuf ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_i2c_close(xI2CHandle);
-    TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+    lRetVal = iot_i2c_close( xI2CHandle );
+    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
     /* Create a string with read bytes and print it to console */
-    prvAppendToMessage( &msgOffset, ucReadBuf, sizeof(ucReadBuf), cMsg );
+    prvAppendToMessage( &msgOffset, ucReadBuf, sizeof( ucReadBuf ), cMsg );
 
-    TEST_IGNORE_MESSAGE(cMsg);
+    TEST_IGNORE_MESSAGE( cMsg );
 }
 
 /*-----------------------------------------------------------*/
@@ -1322,49 +1325,50 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncAssisted )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
-    uint8_t writeVal[16] = {uctestIotI2CDeviceRegister};
-    char cMsg[testIotI2C_MESSAGE_LENGTH] = {0};
+    uint8_t writeVal[ 16 ] = { uctestIotI2CDeviceRegister };
+    char cMsg[ testIotI2C_MESSAGE_LENGTH ] = { 0 };
     size_t msgOffset = 0;
 
     /* Generate bytes to write randomly */
-    srand(xTaskGetTickCount());
+    srand( xTaskGetTickCount() );
 
     /* Create a string with write bytes and print it to console later */
-    for(int i=1, len=sizeof(writeVal); i<len; i++)
+    for( int i = 1, len = sizeof( writeVal ); i < len; i++ )
     {
-        writeVal[i]=(uint8_t)rand();
+        writeVal[ i ] = ( uint8_t ) rand();
     }
 
-    prvAppendToMessage( &msgOffset, writeVal, sizeof(writeVal), cMsg );
+    prvAppendToMessage( &msgOffset, writeVal, sizeof( writeVal ), cMsg );
 
-    IotI2CConfig_t xI2CConfig = {
-        .ulBusFreq = testIotI2C_BAUDRATE,
+    IotI2CConfig_t xI2CConfig =
+    {
+        .ulBusFreq       = testIotI2C_BAUDRATE,
         .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open(testIotI2C_INSTANCE);
-    TEST_ASSERT_NOT_EQUAL(NULL, xI2CHandle);
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
+    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
     {
         /* Set i2c congifuration */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetMasterConfig, &xI2CConfig);
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Set i2c slave address */
-        lRetVal = iot_i2c_ioctl(xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &ucAssistedTestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Wirte the value to the device */
-        lRetVal = iot_i2c_write_sync(xI2CHandle, writeVal, sizeof(writeVal));
-        TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+        lRetVal = iot_i2c_write_sync( xI2CHandle, writeVal, sizeof( writeVal ) );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_i2c_close(xI2CHandle);
-    TEST_ASSERT_EQUAL(IOT_I2C_SUCCESS, lRetVal);
+    lRetVal = iot_i2c_close( xI2CHandle );
+    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
-    TEST_IGNORE_MESSAGE(cMsg);
+    TEST_IGNORE_MESSAGE( cMsg );
 }
 
 /*-----------------------------------------------------------*/
@@ -1489,6 +1493,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSendNoStopUnsupported )
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Append bytes in the buffer to _cMsg, starting at given offset.
  */
@@ -1496,13 +1501,15 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSendNoStopUnsupported )
 static void prvAppendToMessage( size_t * pOffset,
                                 uint8_t * pBuffer,
                                 size_t bufferLen,
-                                char* cMsg)
+                                char * cMsg )
 {
     size_t i = 0;
     size_t offset = *pOffset;
 
-    if( pOffset == NULL || pBuffer==NULL || cMsg==NULL )
+    if( ( pOffset == NULL ) || ( pBuffer == NULL ) || ( cMsg == NULL ) )
+    {
         return;
+    }
 
     for( ; i < bufferLen && offset + 2 < testIotI2C_MESSAGE_LENGTH; i++ )
     {
