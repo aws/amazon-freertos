@@ -49,7 +49,7 @@
 #define testIotSdio_DTS_ADDR                  (0x15)
 #define testIotSdio_DTS_MASK                  (0x30)
 #define testIotSdio_DTS_BITS                  (0x04)
-#define testIotSdio_DTS_TYPE_MASK             (0x04)
+#define testIotSdio_DTS_TYPE_MASK             (0x01)
 #define testIotSdio_IO_EN_ADDR                (0x02)
 #define testIotSdio_IO1_EN_MASK               (0x02)
 #define testIotSdio_FUNC_SEL_ADDR             (0x0d)
@@ -901,9 +901,13 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioIoctl )
                                 testIotSdio_DTS_ADDR,
                                 (uint8_t *)&ucReadVal);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
-    if (testIotSdio_DTS_TYPE_MASK & ucReadVal) {
+
+    if ( (etestIotSdioDriverType != eSdDriverStrengthTypeB) &&
+         ((testIotSdio_DTS_TYPE_MASK<<(etestIotSdioDriverType-1)) & ucReadVal)) {
+        /* The requested driver strenghth type was not type B, and was supported by card */
         TEST_ASSERT_EQUAL(etestIotSdioDriverType, (testIotSdio_DTS_MASK & ucReadVal)>>testIotSdio_DTS_BITS);
     } else {
+        /* The requested driver strenghth type was either type B, or was not supported by card */
         TEST_ASSERT_EQUAL(eSdDriverStrengthTypeB, (testIotSdio_DTS_MASK & ucReadVal)>>testIotSdio_DTS_BITS);
     }
 
