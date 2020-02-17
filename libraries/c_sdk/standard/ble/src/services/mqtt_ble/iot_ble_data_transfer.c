@@ -563,7 +563,10 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
             resp.eventStatus = eBTStatusSuccess;
         }
 
-        IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        if( pEventParam->xEventType == eBLEWrite )
+        {
+            IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        }
     }
 }
 
