@@ -162,7 +162,7 @@ OTA_Err_t prvErasePages(size_t xFrom, size_t xTo)
         else
         {
             /**
-             * IF soft device is enabled, the result of sd_flash_page_erase() is posted via event, otherwise sd_flash_page_erase()
+             * If soft device is enabled, the result of sd_flash_page_erase() is posted via event, otherwise sd_flash_page_erase()
              * is a blocking operation.
              */
             if( nrf_sdh_is_enabled() )
@@ -554,10 +554,10 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
 
       if( xErrCode == NRF_SUCCESS )
       {
-            /**
-             * IF soft device is enabled, the result of sd_flash_write() is posted via event, otherwise sd_flash_write()
-             * is a blocking operation.
-             */
+          /**
+           * If soft device is enabled, the result of sd_flash_write() is posted via event, otherwise sd_flash_write()
+           * is a blocking operation.
+           */
           if( nrf_sdh_is_enabled() )
           {
               EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
