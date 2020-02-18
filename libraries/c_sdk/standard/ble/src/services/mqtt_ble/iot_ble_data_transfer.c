@@ -618,7 +618,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
 
-        if( pService && pService->channel.isOpen == true )
+        if( pService && ( pService->channel.isOpen == true ) )
         {
             length = ( pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail );
 
