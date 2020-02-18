@@ -1,6 +1,6 @@
 # Change Log for FreeRTOS
 
-## 202002.00 2/17/2020
+## 202002.00 2/18/2020
 
 ### New Features
 
