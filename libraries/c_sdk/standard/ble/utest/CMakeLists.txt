@@ -1,5 +1,4 @@
-#afr_module(secure_socket_ut)
-project ("c_sdk standard ble cmock unit test")
+project ("c_sdk ble cmock unit test")
 cmake_minimum_required (VERSION 3.13)
 
 set(3rdparty_dir "${AFR_ROOT_DIR}/libraries/3rdparty")
@@ -20,10 +19,7 @@ list(APPEND mock_list
 create_mock_list(iot_ble_data_transfer_mock
         "${mock_list}"
         )
-add_dependencies(iot_ble_data_transfer_mock
-        libcmock
-        libunity
-        )
+
 target_include_directories(iot_ble_data_transfer_mock PUBLIC
         config
         ${abstraction_dir}/ble_hal/include
@@ -41,6 +37,11 @@ target_compile_definitions(iot_ble_data_transfer_mock PUBLIC
         IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE
         )
 
+add_dependencies(iot_ble_data_transfer_mock
+                 cmock
+                 unity
+                )
+
 # Real libraries
 add_library(iot_ble_data_transfer_real STATIC
         ../src/services/mqtt_ble/iot_ble_data_transfer.c
@@ -48,8 +49,8 @@ add_library(iot_ble_data_transfer_real STATIC
 target_include_directories(iot_ble_data_transfer_real PUBLIC
         .
         config
-        ${AFR_ROOT_DIR}/tests/include
         ../include
+        ${AFR_ROOT_DIR}/tests/include
         ${abstraction_dir}/ble_hal/include
         ${abstraction_dir}/platform/include
         ${abstraction_dir}/platform/freertos/include
@@ -59,16 +60,11 @@ target_include_directories(iot_ble_data_transfer_real PUBLIC
         )
 
 set_target_properties(iot_ble_data_transfer_real PROPERTIES
-        COMPILE_FLAGS "-Wall -fPIC -ggdb3 -O0  -pg \
+        COMPILE_FLAGS "-Wall -fPIC -ggdb3 -Og \
                     -fprofile-arcs -ftest-coverage -fprofile-generate \
-                    -fsanitize=address \
-                    -fsanitize=leak \
-                    -include /usr/include/errno.h "
+                    -include portableDefs.h -Wno-unused-but-set-variable"
         LINK_FLAGS "-fPIC -fprofile-arcs -ftest-coverage \
-                    -fprofile-generate -ggdb3 -O0 -pg \
-                    -fsanitize=address \
-                    -fsanitize=address \
-                    -fsanitize=leak"
+                    -fprofile-generate -ggdb3 -Og"
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
         )
 
@@ -80,7 +76,6 @@ target_link_libraries(iot_ble_data_transfer_real PUBLIC
 list(APPEND link_list
         -liot_ble_data_transfer_mock
         libiot_ble_data_transfer_real.a
-        libutils.a
         )
 list(APPEND dep_list
         iot_ble_data_transfer_real
@@ -92,9 +87,7 @@ create_test(iot_ble_data_transfer_utest
         "${link_list}"
         "${dep_list}"
         )
-set_target_properties(iot_ble_data_transfer_utest PROPERTIES
-        COMPILE_FLAGS "-include /usr/include/errno.h"
-        )
+
 target_include_directories(iot_ble_data_transfer_utest PUBLIC
         ../include
         config
