@@ -1310,6 +1310,19 @@ void test_02_RXMesgCharCallback( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), false );
 }
 
+
+/*
+ * Client sends message but channel isn't open.
+ */
+void test_03_RXMesgCharCallback( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+    init_transfers();
+
+    uint8_t msg[] = "This is test data";
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), false );
+}
+
 /*
  * At the time of writing this test, if a client sent a large enough first message it could cause a heap overflow
  */
@@ -1395,7 +1408,8 @@ void test_03_RXLargeMesgCharCallback( void )
 
 
 /*
- * Client writes to large char characteristic but the service hasn't been created yet
+ * Client writes to large char characteristic but the service hasn't been created yet. Then retry with service created
+ * but with channel closed
  */
 void test_04_RXLargeMesgCharCallback( void )
 {
@@ -1404,6 +1418,10 @@ void test_04_RXLargeMesgCharCallback( void )
     IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
     generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, true);
     generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false);
+
+    init_transfers();
+    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false);
+
 }
 
 /*
