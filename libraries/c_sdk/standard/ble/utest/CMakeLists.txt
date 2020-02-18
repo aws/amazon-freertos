@@ -93,6 +93,7 @@ create_test(iot_ble_data_transfer_utest
 target_include_directories(iot_ble_data_transfer_utest PUBLIC
         ../include
         config
+        ${CMAKE_CURRENT_BINARY_DIR}/mocks
         ${AFR_ROOT_DIR}/tests/include
         ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include
         ${abstraction_dir}/ble_hal/include

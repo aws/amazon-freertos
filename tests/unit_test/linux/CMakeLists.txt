@@ -52,6 +52,6 @@
 
     add_custom_target(coverage
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmock/coverage.cmake
-            DEPENDS secure_sockets_utest iot_ble_data_transer_utest cmock unity
+            DEPENDS secure_sockets_utest iot_ble_data_transfer_utest cmock unity
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
