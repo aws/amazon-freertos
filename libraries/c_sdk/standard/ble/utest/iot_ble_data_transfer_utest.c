@@ -228,16 +228,16 @@ void generate_client_ready_event( uint16_t service )
     generate_client_write_event( service, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &client_ready, 1 , false);
 }
 
-void generate_connect_event()
+void generate_connect_event(BTStatus_t status)
 {
     TEST_ASSERT_MESSAGE( lot_service.connection_callback, "Event can't be tied to unregistered callback" )
-    lot_service.connection_callback( eBTStatusSuccess, 0, true, NULL );
+    lot_service.connection_callback( status, 0, true, NULL );
 }
 
-void generate_disconnect_event()
+void generate_disconnect_event(BTStatus_t status)
 {
     TEST_ASSERT_MESSAGE( lot_service.connection_callback, "Event can't be tied to unregistered callback" )
-    lot_service.connection_callback( eBTStatusSuccess, 0, false, NULL );
+    lot_service.connection_callback( status, 0, false, NULL );
 }
 
 void generate_mtu_changed_event( size_t new_mtu )
@@ -593,26 +593,39 @@ void test_03_IotBleDataTransfer_Init( void )
  ******************************************************************************/
 
 /*
- * Assume that requested service has ready/available channels, but not whether the services exist
+ * Happy path for opening a service. Then try to reopen it again
  */
 void test_00_IotBleDataTransfer_Open( void )
 {
+    uint8_t service_variant = -1;
+    IotBleDataTransferChannel_t * channel = NULL;
     init_transfers();
 
-    IotBleDataTransferChannel_t * channel = 0;
     #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
         #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-            channel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
-            TEST_ASSERT_MESSAGE( channel, "Attempting to open uninitialized wifi-provisioning service" );
+            service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING;
         #endif
         #if ( IOT_BLE_ENABLE_MQTT == 1 )
-            channel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
-            TEST_ASSERT_MESSAGE( channel, "Attempting to open uninitialized wifi-provisioning service" );
+            service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
         #endif
     #endif
+
+    channel = IotBleDataTransfer_Open(service_variant);
+    TEST_ASSERT(channel);
+
+    // Exercise attempt to reopen
+    IotBleDataTransferChannel_t * reopened_channel = IotBleDataTransfer_Open(service_variant);
+    TEST_ASSERT(reopened_channel == NULL);
 }
 
-
+/*
+ * Try opening a service that doesn't exist
+ */
+void test_01_IotBleDataTransfer_Open( void )
+{
+    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open(-1);
+    TEST_ASSERT(pChannel == NULL);
+}
 /*******************************************************************************
  * IotBleDataTransfer_SetCallback
  ******************************************************************************/
@@ -633,6 +646,36 @@ void test_00_IotBleDataTransfer_SetCallback( void )
 }
 
 
+/*
+ * Exercise the fail paths for this call
+ */
+void test_01_IotBleDataTransfer_SetCallback( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+    bool ret = false;
+    init_transfers();
+
+    ret = IotBleDataTransfer_SetCallback( NULL, channel_callback, NULL );
+    TEST_ASSERT_FALSE(ret);
+
+    IotBleDataTransferChannel_t *pChannel = IotBleDataTransfer_Open(service_variant);
+    IotBleDataTransfer_Reset(pChannel);
+    ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
+    TEST_ASSERT_FALSE(ret);
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    init_transfers();
+    pChannel = get_open_channel(service_variant);
+    ret = IotBleDataTransfer_SetCallback( pChannel, NULL, NULL );
+    TEST_ASSERT_FALSE(ret);
+
+    IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    init_transfers();
+    pChannel = get_open_channel(service_variant);
+    ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
+    ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
+    TEST_ASSERT_FALSE(ret);
+}
 
 /*******************************************************************************
  * IotBleDataTransfer_Send
@@ -659,6 +702,12 @@ void test_00_IotBleDataTransfer_Send( void )
     IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
     n_sent = IotBleDataTransfer_Send( pChannel, msg, sizeof( msg ) );
     TEST_ASSERT_MESSAGE( n_sent == sizeof( msg ), "Did not send all expected bytes" );
+
+    uint8_t full_msg[get_max_data_len()];
+    memset(full_msg, 0xDC, sizeof(full_msg));
+    IotBle_SendIndication_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    n_sent = IotBleDataTransfer_Send( pChannel, full_msg, sizeof( full_msg ) );
+    TEST_ASSERT_MESSAGE( n_sent == sizeof( full_msg ), "Did not send all expected bytes" );
 }
 
 /*
@@ -842,7 +891,7 @@ void test_00_IotBleDataTransfer_Receive( void )
 }
 
 /*
- * Server receives more bytes than it request to read
+ * Server receives more bytes than it request to read, then flushes an empty rx buffer
  */
 void test_01_IotBleDataTransfer_Receive( void )
 {
@@ -858,11 +907,14 @@ void test_01_IotBleDataTransfer_Receive( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg_out, msg_out_size, true );
 
     const size_t requested_in_size = msg_out_size / 2;
+    const size_t remaining_in_size = msg_out_size - requested_in_size;
     uint8_t msg_in[ sizeof( msg_out ) ] = { 0 };
     uint8_t msg_in_size = IotBleDataTransfer_Receive( pChannel, msg_in, requested_in_size );
-
     TEST_ASSERT( msg_in_size == requested_in_size );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( msg_out, msg_in, requested_in_size );
+
+    msg_in_size = IotBleDataTransfer_Receive(pChannel, NULL, msg_out_size);
+    TEST_ASSERT(msg_in_size == remaining_in_size);
 }
 
 /*******************************************************************************
@@ -1048,8 +1100,10 @@ void test_00_connectionCallback( void )
     TEST_ASSERT( ret );
 
 
-    generate_connect_event();
-    generate_disconnect_event();
+    generate_connect_event(eBTStatusSuccess);
+    generate_disconnect_event(eBTStatusSuccess);
+
+    generate_connect_event(eBTStatusFail);
 }
 
 
@@ -1068,6 +1122,7 @@ void test_00_MTUChangedCallback( void )
 
     size_t mtu = get_mtu();
     generate_mtu_changed_event( get_mtu() * 2 );
+    generate_mtu_changed_event( mtu );
     generate_mtu_changed_event( mtu );
 }
 
@@ -1252,6 +1307,7 @@ void test_02_RXMesgCharCallback( void )
     uint8_t msg[ 4 * get_max_data_len() ];
     memset( msg, 0xDC, sizeof( msg ) );
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), false );
 }
 
 /*
@@ -1360,7 +1416,8 @@ void test_00_clientCharCfgDescrCallback( void )
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t config[ 2 ] = { 0 };
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) ,true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) , true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) , false );
 }
 
 /*
@@ -1439,8 +1496,14 @@ void test_03_ControlCharCallback()
 
     // Write with valid handle but channel is not ready, then try again when it is
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
-    uint8_t dummy = 0xAA;
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &dummy, 1, false);
+    uint8_t ready = 0;
+    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false);
+
+    // Now write when ready
+    IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    ready = 1;
+    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false);
+
 }
 
 
@@ -1484,3 +1547,5 @@ void test_ServerCallbacks_With_BadAttrHandles()
         generate_event_with_bad_handle(service_variant, attr, false);
     }
 }
+
+
