@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Greengrass V2.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Greengrass V2.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -145,7 +145,7 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
  *  GGD_JSONRequestStart.
  *
  * @note 1. Parse the HTML response to extract the JSON file.
- * This function allows the JSON file retrieval in chunck.
+ * This function allows the JSON file retrieval in chunks.
  * The user can call the function several time with small buffer size.
  * The JSON file will be retrieved bit by bit until
  * xJSONFileRetrieveCompleted is set to true.
@@ -161,7 +161,7 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
  *
  * @param [in] ulBufferSize: Size of the memory buffer provided.
  *
- * @param [in] pulJSONFileSize: Size of JSON file to be retrieved.
+ * @param [in] ulJSONFileSize: Size of JSON file to be retrieved.
  *
  * @param [out] pulByteRead: Must be set to zero by the user
  * prior first calling of GGD_GetJSONFile. Then the number of
@@ -182,7 +182,7 @@ BaseType_t GGD_JSONRequestGetFile( Socket_t * pxSocket,
                                    const uint32_t ulBufferSize,
                                    uint32_t * pulByteRead,
                                    BaseType_t * pxJSONFileRetrieveCompleted,
-                                   const uint32_t pulJSONFileSize );
+                                   const uint32_t ulJSONFileSize );
 
 /*
  * @brief Need to be called if GGD_JSONRequestGetFile cannot be called.

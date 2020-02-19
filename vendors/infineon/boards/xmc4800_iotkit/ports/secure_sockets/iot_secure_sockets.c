@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Secure Sockets for Infineon XMC4800 IoT Connectivity Kit V1.0.1
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Secure Sockets for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright (c) 2018, Infineon Technologies AG
  * All rights reserved.

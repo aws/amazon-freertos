@@ -48,7 +48,7 @@ Infineon's GitHub offers various application notes for OPTIGA™ Trust X securit
 
 ## Porting Guide
 You might find a list of supported Platforms [here](https://github.com/Infineon/optiga-trust-x/tree/master/pal). These are:
-* Espressif ESP32 with Amazon freeRTOS
+* Espressif ESP32 with FreeRTOS
 * Espressif ESP32 with freeRTOS
 * Nordic NRF52
 * Raspberry Pi (Embedded Linux)

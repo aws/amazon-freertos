@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS BLE HAL V4.0.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS BLE HAL V4.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,7 +32,7 @@
 #define _IOT_TEST_BLE_HAL_CONFIG_DEFAULTS_H
 
 /* Enable/Disable test cases */
-/* AFQP test */
+/* DQP_FR test */
 #define ENABLE_TC_AFQP_WRITE_LONG                                             ( 1 )
 #define ENABLE_TC_AFQP_READ_LONG                                              ( 1 )
 #define ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE                                   ( 0 )

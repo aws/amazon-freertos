@@ -2,7 +2,7 @@ menu "FreeRTOS"
 
 config FREERTOS_UNICORE
     bool
-    # Only single core mode is supported in Amazon FreeRTOS
+    # Only single core mode is supported in FreeRTOS
     default y
     help
         This version of FreeRTOS normally takes control of all cores of 

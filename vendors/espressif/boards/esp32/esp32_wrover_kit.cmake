@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "ESP-WROVER-KIT")
 afr_set_board_metadata(DISPLAY_NAME "ESP-WROVER-KIT")

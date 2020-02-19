@@ -1,6 +1,6 @@
 """
-Amazon FreeRTOS
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+FreeRTOS
+Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -722,6 +722,7 @@ class AWSS3Bucket:
         self.s3_name = name
         self.s3_bucket = self._s3_client.Bucket(self.s3_name)
         self.__create_bucket()
+        self.s3_keys = []
 
     def __create_bucket(self):
         response = None
@@ -747,6 +748,7 @@ class AWSS3Bucket:
                 raise Exception(f'ERROR: Bucket {self.s3_name} already exist and it is in region {response_region}. However testing in gamma or beta only supports us-west-2 and us-east-1.')
 
     def upload_file(self, file_path, file_name):
+        self.s3_keys.append(file_name)
         self._s3_client.Bucket(self.s3_name).upload_file(file_path, file_name)
 
     def download_file(self, key, file_path):
@@ -767,9 +769,8 @@ class AWSS3Bucket:
         except:
             # Bucket doesn't exist nothing to clean.
             return
-        self.s3_bucket.object_versions.delete()
-        # We will no longer delete the bucket because we want to keep our bucket name.
-        #self.s3_bucket.delete()
+        for key in self.s3_keys:
+            self._s3_client.Object(self.s3_name, key).delete()
 
     def __enter__(self):
         return self

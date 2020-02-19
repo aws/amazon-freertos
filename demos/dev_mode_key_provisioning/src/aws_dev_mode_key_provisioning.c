@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201912.00
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -61,7 +61,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/oid.h"
 
-/* Default Amazon FreeRTOS API for console logging. */
+/* Default FreeRTOS API for console logging. */
 #define DEV_MODE_KEY_PROVISIONING_PRINT( X )    vLoggingPrintf X
 
 /* For writing log lines without a prefix. */
@@ -454,7 +454,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 /*-----------------------------------------------------------*/
 
 /* Generate a new 2048-bit RSA key pair. Please note that C_GenerateKeyPair for
- * RSA keys is not supported by the Amazon FreeRTOS mbedTLS PKCS #11 port. */
+ * RSA keys is not supported by the FreeRTOS mbedTLS PKCS #11 port. */
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucPrivateKeyLabel,
                                     uint8_t * pucPublicKeyLabel,
@@ -571,7 +571,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTokenStorage = CK_TRUE;
 
     /* TODO: Subject is a required attribute.
-     * Currently, this field is not used by Amazon FreeRTOS ports,
+     * Currently, this field is not used by FreeRTOS ports,
      * this should be updated so that subject matches proper
      * format for future ports. */
     CK_BYTE xSubject[] = "TestSubject";

@@ -11,7 +11,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "mw320")
     include("${CMAKE_CURRENT_LIST_DIR}/mw320.cmake")
@@ -141,7 +141,7 @@ target_link_libraries(
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # ==================== Marvell ====================
 set(board ${AFR_BOARD_NAME})
@@ -249,7 +249,7 @@ target_include_directories(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
 
@@ -289,7 +289,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     # Convert afx file to bin file
     if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
         set(axf2fw "${mw320_dir}/sdk/tools/bin/Linux/axf2firmware")
-        execute_process(COMMAND chmod +x "${axf2fw}")  # TODO, workaround for Amazon FreeRTOS console permission issue.
+        execute_process(COMMAND chmod +x "${axf2fw}")  # TODO, workaround for FreeRTOS console permission issue.
     else()
         message(FATAL_ERROR "Only Linux host is supported for marvell.")
     endif()

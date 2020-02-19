@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL
+ * FreeRTOS PKCS #11 PAL
  *
  * (C) Copyright 2018-2019 Marvell International Ltd. All Rights Reserved.
  *
@@ -24,7 +24,7 @@
 
 /* For best security practice, it is recommended to utilize a random number
  * generation solution that is truly randomized and conforms to the guidelines
- * provided in the Amazon FreeRTOS Qualification Guide
+ * provided in the Device Qualification Program for FreeRTOS Guide
  * (https://docs.aws.amazon.com/freertos/latest/qualificationguide/afq-checklist.html).
  * The random number generator method presented in this file by the silicon vendor
  * is not truly random in nature.
@@ -36,7 +36,7 @@
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
-/* Amazon FreeRTOS Includes. */
+/* FreeRTOS Includes. */
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"

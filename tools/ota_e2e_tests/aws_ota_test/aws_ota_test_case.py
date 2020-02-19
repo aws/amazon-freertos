@@ -1,6 +1,6 @@
 """
-Amazon FreeRTOS
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+FreeRTOS
+Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -39,7 +39,7 @@ class OtaTestCase(ABC):
         _name(str): Name of the testcase.
         _positive(bool): Positive or negative of the testcase.
         _otaConfig(dict): 'ota_config' in board.json.
-        _otaProject(obj:OtaAfrProject): Amazon FreeRTOS source code resource.
+        _otaProject(obj:OtaAfrProject): FreeRTOS source code resource.
         _otaAwsAgent(obj:OtaAwsAgent): AWS CLI for OTA resource.
         _flashComm(obj:FlashSerialComm): MCU Flash and Serial read resource.
     Methods:

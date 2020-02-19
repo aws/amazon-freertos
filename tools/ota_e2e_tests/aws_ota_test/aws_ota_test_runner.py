@@ -1,6 +1,6 @@
 """
-Amazon FreeRTOS
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+FreeRTOS
+Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -40,7 +40,7 @@ class OtaTestRunner:
         stage(dict): What development environment stage the AWS service stack is in to run OTA tests.
     Attributes:
         _flashComm(obj:FlashSerialComm): MCU flash and serial communication resource.
-        _otaProject(obj:OtaAfrProject): Amazon FreeRTOS code resource.
+        _otaProject(obj:OtaAfrProject): FreeRTOS code resource.
         _otaAwsAgent(obj:OtaAwsAgent): Interface to AWS CLI resource.
         _otaTestCases(list(obj:OtaTestCase)): All of the OTA test cases in this run.
     Methods:
@@ -66,7 +66,8 @@ class OtaTestRunner:
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = OtaAfrProject(boardConfig)
-        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig, stageParams, True)
+        # OTA jobs only accept underscore and no dots. We replace dots with underscores for all IoT Core related names.
+        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'].replace('.', '_'), self._otaConfig, stageParams, True)
         # FlashSerialComm opens a thread. If there is an exception in OtaAwsAgent we want to exit the program, so this is initialized last.
         self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
 

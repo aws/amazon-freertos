@@ -1,4 +1,4 @@
-/* Dummy file for using r_bsp.h (designed for with FreeRTOS kernel) with Amazon FreeRTOS */
+/* Dummy file for using r_bsp.h (designed for with FreeRTOS kernel) with FreeRTOS */
 ////#ifndef CO_ROUTINE_H
 ////#define CO_ROUTINE_H
 ////

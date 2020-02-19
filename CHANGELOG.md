@@ -1,4 +1,21 @@
-# Change Log for Amazon FreeRTOS
+# Change Log for FreeRTOS
+
+## 202002.00 2/18/2020
+
+### New Features
+
+#### FreeRTOS kernel V10.3.0
+- Includes FreeRTOS kernel V10.3.0
+- Additional details can be found here: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/V10.3.0-kernel-only/History.txt
+
+#### Product Name Change
+- The name 'Amazon FreeRTOS' has been changed to 'FreeRTOS'
+- The name 'Amazon FreeRTOS Qualification (AFQ)' has been changed to 'Device Qualification Program for FreeRTOS'
+- Changes were applied only to comments and headers
+
+### Updates
+### Cmake
+- Fix a dependency parsing bug in CMake
 
 ## 201912.00 12/17/2019
 

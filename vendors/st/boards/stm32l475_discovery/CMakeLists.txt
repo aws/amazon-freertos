@@ -9,7 +9,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "STM32-B-L475E-IOT01A")
 afr_set_board_metadata(DISPLAY_NAME "STM32L4 Discovery kit IoT node")
@@ -68,7 +68,7 @@ target_link_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Kernel
 afr_mcu_port(kernel)
@@ -144,7 +144,7 @@ target_sources(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 

@@ -6,7 +6,7 @@
     <tab type="mainpage" visible="yes" title=""/>
 
     <!-- Links to the library documentation. -->
-    <tab type="usergroup" title="Amazon FreeRTOS Library Documentation" url="">
+    <tab type="usergroup" title="FreeRTOS Library Documentation" url="">
       <tab type="user" title="POSIX" url="../posix/index.html"/>
       <tab type="user" title="Secure Sockets" url="../secure_sockets/index.html"/>
       <tab type="user" title="Wi-Fi Management" url="../wifi/index.html"/>

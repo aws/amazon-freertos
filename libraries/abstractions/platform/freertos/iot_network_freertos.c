@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Platform V1.1.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Platform V1.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@
 /**
  * @file iot_network_freertos.c
  * @brief Implementation of the network-related functions from iot_network_freertos.h
- * for Amazon FreeRTOS secure sockets.
+ * for FreeRTOS secure sockets.
  */
 
 /* The config header is always included first. */
@@ -42,7 +42,7 @@
 /* Error handling include. */
 #include "private/iot_error.h"
 
-/* Amazon FreeRTOS network include. */
+/* FreeRTOS network include. */
 #include "platform/iot_network_freertos.h"
 
 /* Configure logs for the functions in this file. */
@@ -85,7 +85,7 @@
 
 typedef struct _networkConnection
 {
-    Socket_t socket;                             /**< @brief Amazon FreeRTOS Secure Sockets handle. */
+    Socket_t socket;                             /**< @brief FreeRTOS Secure Sockets handle. */
     StaticSemaphore_t socketMutex;               /**< @brief Prevents concurrent threads from sending on a socket. */
     StaticEventGroup_t connectionFlags;          /**< @brief Synchronizes with the receive task. */
     TaskHandle_t receiveTask;                    /**< @brief Handle of the receive task, if any. */

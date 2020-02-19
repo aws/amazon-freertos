@@ -583,7 +583,7 @@ extern traceObjectClass TraceObjectClassTable[5];
 #else
 
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
-	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxPendedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || xPendedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { trcKERNEL_HOOKS_NEW_TIME(DIV_NEW_TIME, xTickCount + 1); }
 
 #endif
@@ -1339,7 +1339,7 @@ uint32_t prvIsNewTCB(void* pNewTCB);
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { prvTraceStoreEvent1(PSF_EVENT_NEW_TIME, (uint32_t)(xTickCount + 1)); }
 #else /* TRC_CFG_FREERTOS_VERSION == TRC_FREERTOS_VERSION_7_3_OR_7_4 */
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
-	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxPendedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || xPendedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { prvTraceStoreEvent1(PSF_EVENT_NEW_TIME, (uint32_t)(xTickCount + 1)); }
 #endif /* TRC_CFG_FREERTOS_VERSION == TRC_FREERTOS_VERSION_7_3_OR_7_4 */
 

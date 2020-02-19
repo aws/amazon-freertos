@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201912.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -64,7 +64,7 @@
 #define ggdDEMO_MAX_MQTT_MSG_SIZE              500
 #define ggdDEMO_DISCOVERY_FILE_SIZE            2500
 #define ggdDEMO_MQTT_MSG_TOPIC                 "freertos/demos/ggd"
-#define ggdDEMO_MQTT_MSG_DISCOVERY             "{\"message\":\"Hello #%lu from Amazon FreeRTOS to Greengrass Core.\"}"
+#define ggdDEMO_MQTT_MSG_DISCOVERY             "{\"message\":\"Hello #%lu from FreeRTOS to Greengrass Core.\"}"
 
 #define ggdDEMO_KEEP_ALIVE_INTERVAL_SECONDS    1200
 /* Number of times to try MQTT connection. */

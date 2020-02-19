@@ -1,6 +1,6 @@
 ## WiFi provisioning
 WiFi provisioning is a BLE service that allows to safely send credential from phone to device over Bluetooth low energy. 
-The source code for the service can be found in the Amazon FreeRTOS repo under folder ```lib/bluetooth_low_energy/services/wifi_provisioning```. 
+The source code for the service can be found in the FreeRTOS repo under folder ```lib/bluetooth_low_energy/services/wifi_provisioning```. 
 
 This directory is a placeholder, WiFi provisioning really take place in the main loop:
 
