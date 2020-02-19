@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS Common IO V0.1.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -45,6 +45,7 @@
 #define testIotSdio_CMD52TESTADDR             (0x04)
 #define testIotSdio_EHS_ADDR                  (0x13)
 #define testIotSdio_EHS_ADDR                  (0x13)
+#define testIotSdio_SHS_MASK                  (0x01)
 #define testIotSdio_EHS_MASK                  (0x02)
 #define testIotSdio_DTS_ADDR                  (0x15)
 #define testIotSdio_DTS_MASK                  (0x30)
@@ -68,6 +69,11 @@
 #define testIotSdio_OFFSET_LEN                (0x3)
 #define testIotSdio_BLKSIZ_LEN                (0x2)
 #define testIotSdio_EXTENDED_READ_TEST_SIZE   (0x31)
+
+#define testIotSdio_HANDLE_HOST_NUM           (2)
+#define testIotSdio_HANDLE_SLOT_NUM           (7)
+#define testIotSdio_HOST_INSTANCE             uctestIotSdioValidHostIdx
+#define testIotSdio_SLOT_INSTANCE             uctestIotSdioValidSlotIdx
 
 /*-----------------------------------------------------------*/
 
@@ -103,6 +109,7 @@ static const uint32_t g_funcTupleList[testIotSdio_FUNC_TPL_CNT] = {
     testIotSdio_TPL_CODE_FUNCID, testIotSdio_TPL_CODE_FUNCE,
 };
 
+extern IotSdioSlotHandle_t gIotSdioHandle[ testIotSdio_HANDLE_HOST_NUM ][ testIotSdio_HANDLE_SLOT_NUM ];
 /*-----------------------------------------------------------*/
 
 /* Define Test Group. */
@@ -115,6 +122,17 @@ TEST_GROUP( TEST_IOT_SDIO );
  */
 TEST_SETUP( TEST_IOT_SDIO )
 {
+    IotSdioSlotHandle_t xGlobalSdioHandle = gIotSdioHandle[ testIotSdio_HOST_INSTANCE ][ testIotSdio_SLOT_INSTANCE ];
+    int32_t lRetVal;
+
+    /* Close global handle it was opened. */
+    if( xGlobalSdioHandle != NULL )
+    {
+        lRetVal = iot_i2c_close( xGlobalSdioHandle );
+        TEST_ASSERT_EQUAL( IOT_SDIO_SUCCESS, lRetVal );
+
+        gIotSdioHandle[ testIotSdio_HOST_INSTANCE ][ testIotSdio_SLOT_INSTANCE ] = NULL;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -137,22 +155,16 @@ void prvSdioCallback( IotSdioSlotHandle_t const pxSdioHandle,
     switch (eSdioEvent)
     {
         case eSdioCardInterruptEvent:
-            printf("sdiocallback with eSdioCardInterruptEvent\n");
             break;
         case eSdioCardInsertedEvent:
-            printf("sdiocallback with eSdioCardInsertedEvent\n");
             break;
         case eSdioCardRemovedEvent:
-            printf("sdiocallback with eSdioCardRemovedEvent\n");
             break;
         case eSdioCardPowerOnEvent:
-            printf("sdiocallback with eSdioCardPowerOnEvent\n");
             break;
         case eSdioCardPowerOffEvent:
-            printf("sdiocallback with eSdioCardPowerOffEvent\n");
             break;
         default:
-            printf("sdiocallback with unknown event\n");
             break;
     }
 }
@@ -280,18 +292,21 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioCardConnectDisconnect )
     lRetVal = iot_sdio_ioctl(xSdioHandle, eSDIOSetCardDetectParams, (void *)&xtestIotSdioCardDetectParam);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* some card needs to be powered off to be detected. */
     xCardPowerCtl.bPowerOn = false;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
                              (void *)&xCardPowerCtl);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* detect card */
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOCheckCardPresence,
                              (void *)&bCardPresent);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
     TEST_ASSERT_EQUAL( true, bCardPresent);
 
+    /* Power on card. Power on is validated later by card connect. */
     xCardPowerCtl.bPowerOn = true;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
@@ -373,20 +388,23 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioWriteReadDirect )
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
     lRetVal = iot_sdio_ioctl(xSdioHandle, eSDIOSetCardDetectParams, (void *)&xtestIotSdioCardDetectParam);
-    TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);;
+    TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* some card needs to be powered off to be detected. */
     xCardPowerCtl.bPowerOn = false;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
                              (void *)&xCardPowerCtl);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* detect card */
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOCheckCardPresence,
                              (void *)&bCardPresent);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
     TEST_ASSERT_EQUAL( true, bCardPresent);
 
+    /* Power on card. Power on is validated later by card connect. */
     xCardPowerCtl.bPowerOn = true;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
@@ -540,18 +558,21 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioWriteReadExtended )
     lRetVal = iot_sdio_ioctl(xSdioHandle, eSDIOSetCardDetectParams, (void *)&xtestIotSdioCardDetectParam);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* some card needs to be powered off to be detected. */
     xCardPowerCtl.bPowerOn = false;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
                              (void *)&xCardPowerCtl);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* detect card */
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOCheckCardPresence,
                              (void *)&bCardPresent);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
     TEST_ASSERT_EQUAL( true, bCardPresent);
 
+    /* Power on card. Power on is validated later by card connect. */
     xCardPowerCtl.bPowerOn = true;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
@@ -854,18 +875,21 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioIoctl )
     lRetVal = iot_sdio_ioctl(xSdioHandle, eSDIOSetCardDetectParams, (void *)&xtestIotSdioCardDetectParam);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* some card needs to be powered off to be detected. */
     xCardPowerCtl.bPowerOn = false;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
                              (void *)&xCardPowerCtl);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
 
+    /* detect card */
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOCheckCardPresence,
                              (void *)&bCardPresent);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
     TEST_ASSERT_EQUAL( true, bCardPresent);
 
+    /* Power on card. Power on is validated later by card connect. */
     xCardPowerCtl.bPowerOn = true;
     lRetVal = iot_sdio_ioctl(xSdioHandle,
                              eSDIOPowerOnOffCard,
@@ -887,7 +911,13 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioIoctl )
                                 testIotSdio_EHS_ADDR,
                                 (uint8_t *)&ucReadVal);
     TEST_ASSERT_EQUAL(IOT_SDIO_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotSdio_EHS_MASK, testIotSdio_EHS_MASK&ucReadVal);
+    if (testIotSdio_SHS_MASK&ucReadVal) {
+        /* EHS bit must be set if card supports high speed */
+        TEST_ASSERT_EQUAL(testIotSdio_EHS_MASK, testIotSdio_EHS_MASK&ucReadVal);
+    } else {
+        /* EHS bit must not be set if card does not supports high speed */
+        TEST_ASSERT_NOT_EQUAL(testIotSdio_EHS_MASK, testIotSdio_EHS_MASK&ucReadVal);
+    }
 
     /* Set driver strength */
     lRetVal = iot_sdio_ioctl(xSdioHandle,
@@ -904,10 +934,11 @@ TEST( TEST_IOT_SDIO, AFQP_IotSdioIoctl )
 
     if ( (etestIotSdioDriverType != eSdDriverStrengthTypeB) &&
          ((testIotSdio_DTS_TYPE_MASK<<(etestIotSdioDriverType-1)) & ucReadVal)) {
-        /* The requested driver strenghth type was not type B, and was supported by card */
+        /* Requested driver strength type must be set if it is not type B, and is supported by card */
         TEST_ASSERT_EQUAL(etestIotSdioDriverType, (testIotSdio_DTS_MASK & ucReadVal)>>testIotSdio_DTS_BITS);
     } else {
-        /* The requested driver strenghth type was either type B, or was not supported by card */
+        /* Driver strength type B (default) must be set if the requested driver strenghth type was 
+         * type B or a type that was not supported by card */
         TEST_ASSERT_EQUAL(eSdDriverStrengthTypeB, (testIotSdio_DTS_MASK & ucReadVal)>>testIotSdio_DTS_BITS);
     }
 
