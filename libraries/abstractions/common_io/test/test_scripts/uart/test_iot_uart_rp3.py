@@ -32,13 +32,14 @@ PORT = 50007
 
 # open GPIO pins UART on PI. Make sure that you have enabled the PI in raspi-config.
 serialport = serial.Serial(
-    port="/dev/ttyAMA0",
+    port="/dev/serial0",
     baudrate=115200,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
-    timeout=15,
+    timeout=10,
 )
+
 
 def write_async(s):
     print("write_async")
@@ -96,7 +97,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    socket.setdefaulttimeout(10)
+    socket.setdefaulttimeout(5)
 
     # Use socket to signal RPI is ready
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

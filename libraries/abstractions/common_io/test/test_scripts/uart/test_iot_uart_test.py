@@ -32,11 +32,12 @@ import socket
 from time import sleep
 import threading
 
-scriptdir = os.path.abspath(sys.path[0])
+scriptdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(scriptdir)
-print("Script Dir: %s" % scriptdir)
-print("Parent Dir: %s" % parentdir)
-sys.path.insert(0, parentdir)
+if parentdir not in sys.path:
+    print("Script Dir: %s" % scriptdir)
+    print("Parent Dir: %s" % parentdir)
+    sys.path.append(parentdir)
 from test_iot_test_template import test_template
 
 
@@ -45,7 +46,7 @@ class TestUartAssisted(test_template):
     Test class for uart tests.
     """
 
-    rpi_output_file = "%s/uart_res.txt"% scriptdir
+    rpi_output_file = "%s/uart_res.txt" % scriptdir
 
     def __init__(self, serial, ip, login, pwd, csv_handler):
         self._func_list = [self.test_IotUartWriteReadAsync,
@@ -59,7 +60,7 @@ class TestUartAssisted(test_template):
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script = "%s/test_iot_runonPI_uart.sh"% scriptdir
+    shell_script = "%s/test_iot_runonPI_uart.sh" % scriptdir
     port = 50007
 
     def test_IotUartWriteReadAsync(self):
@@ -69,7 +70,7 @@ class TestUartAssisted(test_template):
         """
         dut_result = None
         pi_result = None
-        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteReadSync\W\sPASS")
+        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteReadSync.*?PASS")
         pi_regex = re.compile(r"UART\sread-write")
 
         t_shell = threading.Thread(target=self.run_shell_script,
@@ -101,13 +102,13 @@ class TestUartAssisted(test_template):
         self._serial.write(cmd.encode("utf-8"))
         self._serial.write("\r\n".encode("utf-8"))
 
-        dut_res =  str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        dut_res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])))
         dut_result = dut_res_pattern.search(dut_res)
         print(dut_res)
         t_shell.join()
 
         with open(self.rpi_output_file, "r") as f:
-            rpi_output = str(f.read());
+            rpi_output = str(f.read())
             print(rpi_output)
             pi_result = pi_regex.search(rpi_output)
 
@@ -124,7 +125,7 @@ class TestUartAssisted(test_template):
         """
         result_matches = []
         dut_result = None
-        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTBaudChange\W\sPASS")
+        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTBaudChange.*?PASS")
         pi_res_pattern = re.compile(r"UART\sread-write")
 
         t_shell = threading.Thread(target=self.run_shell_script,
@@ -155,7 +156,7 @@ class TestUartAssisted(test_template):
         self._serial.write(cmd.encode("utf-8"))
         self._serial.write("\r\n".encode("utf-8"))
 
-        dut_res =  str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        dut_res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])))
         dut_result = dut_res_pattern.search(dut_res)
 
         print(dut_res)
@@ -176,9 +177,9 @@ class TestUartAssisted(test_template):
         """
         pi_result = None
         dut_result = None
-        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteAsync\W\sPASS")
+        dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteAsync.*?PASS")
         # 199 corresponds to the config testIotUART_BUFFER_LENGTH_LARGE - 1 on the DUT
-        pi_res_pattern = re.compile(r"\b(?:\\xaa){199}\b")
+        pi_res_pattern = re.compile(r"(?:\\xaa){199}")
 
         t_shell = threading.Thread(target=self.run_shell_script,
                                    args=(" ".join([self.shell_script, self._ip, self._login, self._pwd, '3']),))
@@ -209,13 +210,13 @@ class TestUartAssisted(test_template):
         self._serial.write(cmd.encode("utf-8"))
         self._serial.write("\r\n".encode("utf-8"))
 
-        dut_res =  str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        dut_res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored '])))
         dut_result = dut_res_pattern.search(dut_res)
         print(dut_res)
         t_shell.join()
 
         with open(self.rpi_output_file, "r") as f:
-            rpi_output = str(f.read());
+            rpi_output = str(f.read())
             print(rpi_output)
             pi_result = pi_res_pattern.search(rpi_output)
 
@@ -224,12 +225,6 @@ class TestUartAssisted(test_template):
         self.clean()
 
         return "Pass" if pi_result and dut_result else "Fail"
-
-    def clean(self):
-        os.remove(self.rpi_output_file)
-        self.run_shell_script(
-            " ".join([self.shell_script, self._ip, self._login, self._pwd, "-c"])
-        )
 
 
 # unit test

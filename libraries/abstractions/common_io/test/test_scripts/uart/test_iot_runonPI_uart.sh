@@ -41,5 +41,5 @@ elif [ "$1" == "-c" ]; then
 else
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python3 /home/pi/Tests/test_iot_uart_rp3.py $1 > /home/pi/Tests/uart_res.txt"
     #Copy back result
-    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/uart_res.txt .
+    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/uart_res.txt ${DIR}
 fi
