@@ -1,4 +1,4 @@
-# Amazon FreeRTOS Demo Bootloader for Microchip Curiosity Board - PIC32MZ  ##
+# FreeRTOS Demo Bootloader for Microchip Curiosity Board - PIC32MZ  ##
 The demo bootloader demonstrates features for supporting OTA and crypto signature verification on boot.
 
 ## Building the bootloader

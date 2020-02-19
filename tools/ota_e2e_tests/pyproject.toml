@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "afr_ota_e2e_tests"
 version = "1.0.0"
-description = "Amazon FreeRTOS OTA End to End Integration tests."
+description = "FreeRTOS OTA End to End Integration tests."
 authors = ["Sarena Meas <6563840+sarenameas@users.noreply.github.com>"]
 license = "MIT"
 

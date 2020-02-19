@@ -3,16 +3,16 @@
 @anchor iotble
 @brief BLE library.
 
-> Amazon FreeRTOS supports publishing and subscribing to MQTT topics over Bluetooth Low Energy (BLE) through a proxy device, such as a mobile phone. With the Amazon FreeRTOS BLE library, your microcontroller can securely communicate with the AWS IoT MQTT broker.
+> FreeRTOS supports publishing and subscribing to MQTT topics over Bluetooth Low Energy (BLE) through a proxy device, such as a mobile phone. With the FreeRTOS BLE library, your microcontroller can securely communicate with the AWS IoT MQTT broker.
 
 @image html blediagram.png width=40%
 
-Using the Mobile SDKs for Amazon FreeRTOS Bluetooth Devices, you can write native mobile applications that communicate with the embedded applications on your microcontroller over BLE. For more information about the mobile SDKs, see [Mobile SDKs for Amazon FreeRTOS Bluetooth Devices](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ble-mobile.html).
+Using the Mobile SDKs for FreeRTOS Bluetooth Devices, you can write native mobile applications that communicate with the embedded applications on your microcontroller over BLE. For more information about the mobile SDKs, see [Mobile SDKs for FreeRTOS Bluetooth Devices](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ble-mobile.html).
 
-In addition to supporting MQTT, the Amazon FreeRTOS BLE library includes services for configuring Wi-Fi networks. The Amazon FreeRTOS BLE library also includes some middleware and lower-level APIs for more direct control over your BLE stack. The source files for the Amazon FreeRTOS BLE library are located in [AmazonFreeRTOS/lib/bluetooth_low_energy](https://github.com/aws/amazon-freertos/tree/feature/ble-beta/lib/bluetooth_low_energy).
+In addition to supporting MQTT, the FreeRTOS BLE library includes services for configuring Wi-Fi networks. The FreeRTOS BLE library also includes some middleware and lower-level APIs for more direct control over your BLE stack. The source files for the FreeRTOS BLE library are located in [Amazon-FreeRTOS/libraries/bluetooth_low_energy](https://github.com/aws/amazon-freertos/tree/feature/ble-beta/lib/bluetooth_low_energy).
 
-Amazon FreeRTOS BLE Architecture
-The Amazon FreeRTOS BLE library is made up of three layers: services, middleware, and low-level wrappers.
+FreeRTOS BLE Architecture
+The FreeRTOS BLE library is made up of three layers: services, middleware, and low-level wrappers.
 
 @image html BLE-architecture.png width=40%
 
@@ -68,9 +68,9 @@ The current BLE tests use the [Unity test framework](http://www.throwtheswitch.o
 @config_page{ble}
 @config_brief{BLE library}
 
-Amazon FreeRTOS BLE Library Configuration File
+FreeRTOS BLE Library Configuration File
 
-Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an aws_ble_config.h header file, in which configuration parameters are defined. Undefined configuration parameters take the default values specified in lib\include\private\aws_ble_config_defaults.h.
+Applications that use the FreeRTOS MQTT over BLE service must provide an aws_ble_config.h header file, in which configuration parameters are defined. Undefined configuration parameters take the default values specified in lib\include\private\aws_ble_config_defaults.h.
 
 */
 

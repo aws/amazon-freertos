@@ -1,6 +1,6 @@
 afr_set_board_metadata(ID "MW320")
 afr_set_board_metadata(DISPLAY_NAME "MW320 AWS IoT Starter Kit")
-afr_set_board_metadata(DESCRIPTION "Marvell development kit based on MW320 and Amazon FreeRTOS")
+afr_set_board_metadata(DESCRIPTION "Marvell development kit based on MW320 and FreeRTOS")
 afr_set_board_metadata(VENDOR_NAME "Marvell")
 afr_set_board_metadata(FAMILY_NAME "Wireless Microcontroller")
 afr_set_board_metadata(IS_ACTIVE "TRUE")

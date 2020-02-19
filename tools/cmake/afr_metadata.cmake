@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS metadata
+# FreeRTOS metadata
 # -------------------------------------------------------------------------------------------------
 # Clean the output metadata files from the build folder.
 set(AFR_METADATA_OUTPUT_DIR "${CMAKE_BINARY_DIR}/metadata" CACHE INTERNAL "")
@@ -294,7 +294,7 @@ function(afr_write_metadata)
         endif()
     endforeach()
 
-    # Append extra files for Amazon FreeRTOS console.
+    # Append extra files for FreeRTOS console.
     list(
         APPEND src_console
         "${AFR_ROOT_DIR}/CHANGELOG.md"
@@ -348,7 +348,7 @@ set(AFR_METADATA_LIB "" CACHE INTERNAL "List of CMake property names for AFR lib
 set(AFR_METADATA_DEMO "" CACHE INTERNAL "List of CMake property names for AFR demo metadata.")
 
 afr_define_metadata(BOARD ID "ID for the board to uniquely identify it.")
-afr_define_metadata(BOARD DISPLAY_NAME " Name displayed on the Amazon FreeRTOS Console.")
+afr_define_metadata(BOARD DISPLAY_NAME " Name displayed on the FreeRTOS Console.")
 afr_define_metadata(BOARD DESCRIPTION "Short description of the board.")
 afr_define_metadata(BOARD VENDOR_NAME "Vendor name." INHERITED)
 afr_define_metadata(BOARD FAMILY_NAME "Board family name." INHERITED)
@@ -357,16 +357,16 @@ afr_define_metadata(BOARD PROGRAM_MEMORY "Program memory size.")
 afr_define_metadata(BOARD CODE_SIGNER "Code signer platform.")
 afr_define_metadata(BOARD SUPPORTED_IDE "Supported IDE." INHERITED)
 afr_define_metadata(BOARD RECOMMENDED_IDE "Recommended IDE." INHERITED)
-afr_define_metadata(BOARD IS_ACTIVE "Is the board Active to be displayed on Amazon FreeRTOS Console")
+afr_define_metadata(BOARD IS_ACTIVE "Is the board Active to be displayed on FreeRTOS Console")
 afr_define_metadata(BOARD AWS_DEMOS_CONFIG_FILES_LOCATION "Location of vendor's config files")
 
 afr_define_metadata(LIB ID "Library name.")
-afr_define_metadata(LIB DISPLAY_NAME "Library name displayed on the Amazon FreeRTOS Console.")
+afr_define_metadata(LIB DISPLAY_NAME "Library name displayed on the FreeRTOS Console.")
 afr_define_metadata(LIB DESCRIPTION "Library description.")
 afr_define_metadata(LIB CATEGORY "Library category.")
-afr_define_metadata(LIB IS_VISIBLE "boolean to decide if this library is visible on Amazon FreeRTOS Console.")
+afr_define_metadata(LIB IS_VISIBLE "boolean to decide if this library is visible on FreeRTOS Console.")
 afr_define_metadata(LIB VERSION "Version of this library.")
 
 afr_define_metadata(DEMO ID "Demo name.")
-afr_define_metadata(DEMO DISPLAY_NAME "Demo name displayed on the Amazon FreeRTOS Console.")
+afr_define_metadata(DEMO DISPLAY_NAME "Demo name displayed on the FreeRTOS Console.")
 afr_define_metadata(DEMO DESCRIPTION "Demo description.")

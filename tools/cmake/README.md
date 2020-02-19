@@ -1,4 +1,4 @@
-# CMake for Amazon FreeRTOS
+# CMake for FreeRTOS
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ the [official wiki](https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/C
 
 ### Generate build files
 
-To run CMake for Amazon FreeRTOS, you need to specify 2 things,
+To run CMake for FreeRTOS, you need to specify 2 things,
 
 1. Target MCU, e.g., TI's CC3220SF LaunchPad.
 1. Compiler to use, e.g., GCC for ARM. Note that you need to make sure it's either in `PATH`
@@ -105,7 +105,7 @@ cmake -DVENDOR=ti -DBOARD=cc3220 -DCOMPILER=arm-ti \
 ```
 
 To enable debugging, you need to set `CMAKE_BUILD_TYPE` to `debug`, CMake will then add debug flags
-to the compile options. This will build Amazon FreeRTOS with debug symbols. You can also set
+to the compile options. This will build FreeRTOS with debug symbols. You can also set
 `CMAKE_BUILD_TYPE` to `release`, CMake will then add optimization flags to the compile options.
 
 ```sh
@@ -136,10 +136,10 @@ From the dropdown box of `AFR_BOARD`, select your board and click **Configure** 
 the **Generate** button. After it's finished, you should see the generated native build system files
 in the output binaries directory.
 
-### Build Amazon FreeRTOS
+### Build FreeRTOS
 
-To build Amazon FreeRTOS, simply call the native build system command from the output binaries
-directory. Note that each Amazon FreeRTOS module will be built separately and output a static
+To build FreeRTOS, simply call the native build system command from the output binaries
+directory. Note that each FreeRTOS module will be built separately and output a static
 library.
 
 ```sh

@@ -1,10 +1,10 @@
 /**
 @mainpage Overview
-@brief Amazon FreeRTOS provides secured connections to the AWS IoT platform using FreeRTOS and a set of supported hardware platforms. <br><br>
+@brief FreeRTOS provides secured connections to the AWS IoT platform using FreeRTOS and a set of supported hardware platforms. <br><br>
 
-The documentation for Amazon FreeRTOS hosted libraries can be found at the top half of: https://docs.aws.amazon.com/freertos/latest/lib-ref/index.html<br><br>
+The documentation for FreeRTOS hosted libraries can be found at the top half of: https://docs.aws.amazon.com/freertos/latest/lib-ref/index.html<br><br>
 
-The CSDK libraries shared with Amazon FreeRTOS include:
+The CSDK libraries shared with FreeRTOS include:
 - MQTT
 - Thing Shadows
 - Defender
