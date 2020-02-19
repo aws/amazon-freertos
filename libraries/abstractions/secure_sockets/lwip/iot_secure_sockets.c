@@ -210,6 +210,8 @@ static BaseType_t prvNetworkRecv( void * pvContext,
 
     ctx = ( ss_ctx_t * ) pvContext;
 
+    configASSERT( ctx->ip_socket >= 0 );
+
     int ret = lwip_recv( ctx->ip_socket,
                          pucReceiveBuffer,
                          xReceiveLength,
@@ -393,6 +395,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     pxAddress->ucSocketDomain = SOCKETS_AF_INET;
 
     ctx = ( ss_ctx_t * ) xSocket;
+    configASSERT( ctx->ip_socket >= 0 );
 
     struct sockaddr_in sa_addr = { 0 };
     int ret;
@@ -481,6 +484,8 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
 
     ctx->recv_flag = ulFlags;
 
+    configASSERT( ctx->ip_socket >= 0 );
+
     if( ctx->enforce_tls )
     {
         /* Receive through TLS pipe, if negotiated. */
@@ -518,6 +523,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         return SOCKETS_ENOTCONN;
     }
 
+    configASSERT( ctx->ip_socket >= 0 );
     ctx->send_flag = ulFlags;
 
     if( ctx->enforce_tls )
@@ -546,6 +552,7 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
+    configASSERT( ctx->ip_socket >= 0 );
     ret = lwip_shutdown( ctx->ip_socket, ( int ) ulHow );
 
     if( 0 > ret )
@@ -599,6 +606,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
+
+    configASSERT( ctx->ip_socket >= 0 );
 
     switch( lOptionName )
     {
