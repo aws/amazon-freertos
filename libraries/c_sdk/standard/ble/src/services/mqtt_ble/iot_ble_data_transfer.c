@@ -564,7 +564,10 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
             resp.eventStatus = eBTStatusSuccess;
         }
 
-        IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        if( pEventParam->xEventType == eBLEWrite )
+        {
+            IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        }
     }
 }
 
@@ -616,7 +619,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
 
-        if( pService->channel.isOpen == true )
+        if( pService && ( pService->channel.isOpen == true ) )
         {
             length = ( pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail );
 
