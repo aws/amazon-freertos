@@ -16,7 +16,7 @@ from ntpath import basename
 Error = namedtuple('Error', 'type, info')
 
 
-# Define Amazon FreeRTOS relative path
+# Define FreeRTOS relative path
 AFR_ROOT = '../../../..'
 
 
@@ -120,7 +120,7 @@ def get_license(file):
 
 
 def get_license_match_error(lic, lic_file_path):
-    """Returns an Error of the type 'warning' if the Amazon FreeRTOS license is present in the
+    """Returns an Error of the type 'warning' if the FreeRTOS license is present in the
     input file. Otherwise an empty list is returned.
     """
     # Get the words in the license template
@@ -140,7 +140,7 @@ def get_license_match_error(lic, lic_file_path):
                 same = True
                 break
     if same:
-        return [Error(type='warning', info='Amazon FreeRTOS license is in file: ' + lic_file_path)]
+        return [Error(type='warning', info='FreeRTOS license is in file: ' + lic_file_path)]
     return []
 
 
@@ -151,11 +151,11 @@ PORTABLE_LAYER_NAMES = {
     'iot_wifi.c': 'Wi-Fi'
 }
 
-COPYRIGHT_NAME = 'Amazon FreeRTOS'
+COPYRIGHT_NAME = 'FreeRTOS'
 FIRST_VERSION = 'V1.0.0'
 
 def get_copyright_errors(lic, file_path, is_config_file):
-    """Returns Errors for errors in the Amazon FreeRTOS copyright that is possibly inside of the
+    """Returns Errors for errors in the FreeRTOS copyright that is possibly inside of the
     input license, lic. Otherwise an empty list is returned.
     """
     errors = []
@@ -206,12 +206,12 @@ def get_copyright_errors(lic, file_path, is_config_file):
         elif is_config_file:
             errors.append(Error(
                 type='error',
-                info=file_path + ' is missing required version line: \"Amazon FreeRTOS VX.Y.Z\"'
+                info=file_path + ' is missing required version line: \"FreeRTOS VX.Y.Z\"'
             ))
         else:
             errors.append(Error(
                 type='error',
-                info=file_path + 'is missing: \"Amazon FreeRTOS ... for ... V1.0.0\"'
+                info=file_path + 'is missing: \"FreeRTOS ... for ... V1.0.0\"'
             ))
     # If the copyright was not found flag errors.
     if not copyright_found:
@@ -378,7 +378,7 @@ def report_errors(errors):
 
 def main():
     parser = argparse.ArgumentParser(description='AFQP File System Check')
-    parser.add_argument('--root', action='store', required=False, dest='root', default=AFR_ROOT, help='Amazon FreeRTOS Root Path. This path is relative to the /afqp_check folder by default ({}).'.format(AFR_ROOT))
+    parser.add_argument('--root', action='store', required=False, dest='root', default=AFR_ROOT, help='FreeRTOS Root Path. This path is relative to the /afqp_check folder by default ({}).'.format(AFR_ROOT))
     parser.add_argument('--rules', action='store', required=False, dest='rules_path', default='rules.json', help='The path to the rules json file. This path is relative to the /afqp_check folder by default.')
     parser.add_argument('--files', nargs='+', required=False, dest='files', help='List of files changed.')
     parser.add_argument('--vendor', action='store', required=True, dest='vendor', help='Expected vendor directory name.')

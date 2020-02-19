@@ -1,15 +1,15 @@
 # Developer-Mode Key Provisioning #
 ## Introduction ##
-The purpose of the Amazon FreeRTOS developer-mode key provisioning demo is to provide embedded developers with options for getting a trusted X.509 client certificate onto an IoT device for lab testing. Depending on the capabilities of the device, various provisioning-related operations may or may not be supported, including onboard ECDSA key generation, private key import, and X.509 certificate enrollment. In addition, different use cases call for different levels of key protection, ranging from onboard flash storage to the use of dedicated crypto hardware. This demo provides logic for working within the cryptographic capabilities of your device.
+The purpose of the FreeRTOS developer-mode key provisioning demo is to provide embedded developers with options for getting a trusted X.509 client certificate onto an IoT device for lab testing. Depending on the capabilities of the device, various provisioning-related operations may or may not be supported, including onboard ECDSA key generation, private key import, and X.509 certificate enrollment. In addition, different use cases call for different levels of key protection, ranging from onboard flash storage to the use of dedicated crypto hardware. This demo provides logic for working within the cryptographic capabilities of your device.
 
 ## Option #1: Private Key Import from AWS IoT ##
-For lab testing purposes, if your device allows the import of private keys, you can follow the instructions in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html). 
+For lab testing purposes, if your device allows the import of private keys, you can follow the instructions in [Configuring the FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html). 
 
 ## Option #2: Onboard Private Key Generation ##
 If your device does not allow the import of private keys, or if your solution calls for the use of [Just-in-Time Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html) (JITP), you can follow the instructions below.
 
 ### Initial Configuration ###
-First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not. 
+First, perform the steps in [Configuring the FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not. 
 
 ### Demo Project Configuration ###
 Open the Hello World MQTT demo as described in the [Getting Started guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-guides.html) for your board. In the project, open the file *aws_dev_mode_key_provisioning.c* and find the definition keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR, which is set to zero by default. Set it to one:

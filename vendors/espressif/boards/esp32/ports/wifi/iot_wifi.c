@@ -1,7 +1,7 @@
 // Copyright 2018 Espressif Systems (Shanghai) PTE LTD
 //
-// Amazon FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
-// Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+// FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+// Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

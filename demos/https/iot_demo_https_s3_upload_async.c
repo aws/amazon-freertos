@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201912.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,7 +38,7 @@
 /* Set up logging for this demo. */
 #include "iot_demo_logging.h"
 
-/* Amazon FreeRTOS includes. */
+/* FreeRTOS includes. */
 #include "iot_demo_https_common.h"
 #include "iot_https_utils.h"
 #include "aws_demo_config.h"
@@ -48,7 +48,7 @@
 #include "platform/iot_clock.h"
 
 /**
- * This demonstrates uploading a file to S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
+ * This demonstrates uploading a file to S3 using a pre-signed URL using the FreeRTOS HTTP Client library.
  * The HTTPS Client library is a generic HTTP/1.1 client library that be used to upload files to other webservers as
  * well.
  *

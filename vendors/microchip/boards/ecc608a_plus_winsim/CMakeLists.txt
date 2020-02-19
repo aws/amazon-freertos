@@ -12,7 +12,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "ecc608a_plus_winsim")
     include("${CMAKE_CURRENT_LIST_DIR}/ecc608a_plus_winsim.cmake")
@@ -37,7 +37,7 @@ target_compile_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
@@ -165,7 +165,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")

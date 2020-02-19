@@ -22,7 +22,7 @@ AMAZON_FREERTOS_ESP32 := ../../../../../../../../vendors/espressif/boards/esp32/
 endif
 
 #--------------------------------------------------------------------------------------
-# Amazon FreeRTOS Libraries
+# FreeRTOS Libraries
 #--------------------------------------------------------------------------------------
 COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/src \

@@ -126,7 +126,7 @@ int convert_pem_to_der( const unsigned char * pucInput,
 
 /* This function is a modified version of the static function
 rsa_rsassa_pkcs1_v15_encode() inside of rsa.c in mbedTLS.  It has been extracted 
-so that Amazon FreeRTOS PKCS #11 libraries and testing may use it. */
+so that FreeRTOS PKCS #11 libraries and testing may use it. */
 
 /* Construct a PKCS v1.5 encoding of a hashed message
  *

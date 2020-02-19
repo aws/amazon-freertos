@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS WiFi V1.0.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS WiFi V1.0.5
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -184,7 +184,7 @@ typedef struct
  * if in WIFI_ConnectAP() the mode is not switched from SoftAP to Station. */
 #define testwifiENABLE_CONFIGURE_AP_TESTS    0
 
-/* Functions that are required to be implemented for AFQP are:
+/* Functions that are required to be implemented for DQP_FR are:
  * - WIFI_On()
  * - WIFI_ConnectAP()
  * - WIFI_Disconnect()

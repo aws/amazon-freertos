@@ -77,7 +77,7 @@ The HTTPS Client library will invoke a task pool worker to send a request. It wi
 @page https_demo Demos
 @brief The HTTPS Client demos demonstrates usage of the HTTPS Client library.
 
-These demos show downloading a file from S3 and uploading a file to S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library. The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other web servers as well.
+These demos show downloading a file from S3 and uploading a file to S3 using a pre-signed URL using the FreeRTOS HTTP Client library. The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other web servers as well.
 
 See @subpage https_download_demo_usage for information on how to get the download demo up and running.
 See @subpage https_upload_demo_usage for information on how to get the upload demo up and running.

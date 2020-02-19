@@ -39,7 +39,7 @@
 #include "optiga/optiga_crypt.h"
 #include "optiga/optiga_util.h"
 
-// this is a workaround to take the correct label for the private key handle in Amazon FreeRTOS
+// this is a workaround to take the correct label for the private key handle in FreeRTOS
 #include "iot_pkcs11_config.h"
 
 #if defined(MBEDTLS_ECDSA_SIGN_ALT)

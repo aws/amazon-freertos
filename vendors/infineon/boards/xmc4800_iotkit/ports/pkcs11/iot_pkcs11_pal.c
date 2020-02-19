@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Infineon XMC4800 IoT Connectivity Kit V1.0.1
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 PAL for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright (c) 2018, Infineon Technologies AG
  * All rights reserved.
@@ -31,7 +31,7 @@
 
 /**
  * @file iot_pkcs11_pal.c
- * @brief Amazon FreeRTOS device specific helper functions for
+ * @brief FreeRTOS device specific helper functions for
  * PKCS#11 implementation based on mbedTLS.  This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS#11 standard.

@@ -13,7 +13,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "Renesas-RX65N-RSK")
@@ -80,7 +80,7 @@ target_link_options(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS portable layers
+# FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
 afr_glob_src(afr_common_src DIRECTORY "${renesas_dir}/amazon_freertos_common")
@@ -240,7 +240,7 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
+# FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX "abs")
 

@@ -1,6 +1,6 @@
 """
-Amazon FreeRTOS
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+FreeRTOS
+Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -32,12 +32,12 @@ from time import sleep
 
 
 class OtaAfrProject:
-    """OtaAfrProject represents the Amazon FreeRTOS code base for OTA.
-    This class is used to update the Amazon FreeRTOS project for OTA.
+    """OtaAfrProject represents the FreeRTOS code base for OTA.
+    This class is used to update the FreeRTOS project for OTA.
     Attributes:
         _buildConfig(dict): Build configuration from 'build_config' field in board.json.
-        _projectRootDir(str): The root of the Amazon FreeRTOS project i.e. $AFR_ROOT/demos or $AFR_ROOT/tests.
-        _boardProjectPath(str): the vendor/board/project specific path for building Amazon FreeRTOS.
+        _projectRootDir(str): The root of the FreeRTOS project i.e. $AFR_ROOT/demos or $AFR_ROOT/tests.
+        _boardProjectPath(str): the vendor/board/project specific path for building FreeRTOS.
         _buildProject(str): the name of the build project, which can be either 'demos' or 'tests'.
         _bootloaderSequenceNumber(int): the sequence number of bootloader.
     Methods:
@@ -94,7 +94,7 @@ class OtaAfrProject:
         # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
 
     def initializeOtaProject(self):
-        """Initialize the Amazon FreeRTOS project for OTA.
+        """Initialize the FreeRTOS project for OTA.
         """
         if self._buildProject == 'demos':
             self.__setDemoRunnerForOtaDemo()
@@ -104,7 +104,7 @@ class OtaAfrProject:
             raise Exception('ERROR: Invalid project root \"{}\". The valid values are \"demos\" and \"tests\".'.format(base))
 
     def generateFactoryImage(self):
-        # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to
+        # If this board uses the FreeRTOS reference bootlaoder, then we want to
         # build and flash the factory image.
         if self._buildConfig.get('use_reference_bootloader', False) and OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH:
             factoryImageGenCommand = \
@@ -120,7 +120,7 @@ class OtaAfrProject:
 
 
     def buildProject(self):
-        """Build the Amazon FreeRTOS project represented by this object.
+        """Build the FreeRTOS project represented by this object.
         """
         # Update the bootloader sequence number for every new build
         returnCodes = []

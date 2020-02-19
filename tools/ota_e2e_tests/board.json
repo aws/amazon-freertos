@@ -3,8 +3,8 @@
     // Before running this script to get the necessary configurations.
     "name": "board", // FIXME: Your board's name.
     "exclude": true, // FIXME: Set to 'false' to use this board configuration.
-    "afr_root": "../..", //FIXME: The root path of Amazon FreeRTOS.
-    "demos_or_tests": "tests", //FIXME: The type of project in Amazon FreeRTOS (under the /tests or /demos directory)
+    "afr_root": "../..", //FIXME: The root path of FreeRTOS.
+    "demos_or_tests": "tests", //FIXME: The type of project in FreeRTOS (under the /tests or /demos directory)
     "vendor_board_path":"vendor/board", // FIXME: The project board portable path defined by vendor/board under all portable source directories.
     "wifi_ssid":"Paste Wi-Fi SSID.", // FIXME
     "wifi_password":"Paste Wi-Fi Password.", // FIXME
@@ -24,8 +24,8 @@
             // FIXME: Some header files are changed and the project is rebuilt for each test. Here are commands needed to build the project. You should also
             // clean before each build if your build tool does not pick up header file changes on an incremental build.
         ],
-        "use_reference_bootloader": true, // FIXME: Set to 'true' if the Amazon FreeRTOS Reference Bootloader is use in your OTA project. If this is set to false the bottom three configurations will be ignored.
-        "bootloader_hardware_platform": "board-name", // FIXME: Set to the name of the platform assigned when porting the Amazon FreeRTOS Reference Bootloader.
+        "use_reference_bootloader": true, // FIXME: Set to 'true' if the FreeRTOS Reference Bootloader is use in your OTA project. If this is set to false the bottom three configurations will be ignored.
+        "bootloader_hardware_platform": "board-name", // FIXME: Set to the name of the platform assigned when porting the FreeRTOS Reference Bootloader.
         "bootloader_private_key_path": "system/path/to/private_key.pem", // FIXME: The path on your system to the private key use for OTA code signing.
         "bootloader_output": "{afr_root}/{demos_or_tests}/path/to/bootloader/project.hex" // FIXME: The path to the bootloader project hex formatted firmware output.
     },
@@ -58,7 +58,7 @@
     },
     "flash_config": {
         "project_dir":"{afr_root}/{demos_or_tests}/{vendor_board_path}/ide", // FIXME: The path to the project directory of the board.
-        "output": "{project_dir}/Build/aws_{demos_or_tests}.out", //FIXME: The file path to the build to flash. This should be a .hex file if you are using the Amazon FreeRTOS Reference Bootloader.
+        "output": "{project_dir}/Build/aws_{demos_or_tests}.out", //FIXME: The file path to the build to flash. This should be a .hex file if you are using the FreeRTOS Reference Bootloader.
         "tool_paths": [
             "/absolute_path/to/flash_tools_needed_for_commands/bin",
             "/another_absolute_path/to/flash_tools_needed_for_commands/bin"
