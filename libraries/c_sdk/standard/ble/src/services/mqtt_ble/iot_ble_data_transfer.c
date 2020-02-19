@@ -462,16 +462,17 @@ static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t * pChannelBuffer,
      */
     if( pChannelBuffer->pBuffer == NULL )
     {
-        pChannelBuffer->pBuffer = IotBle_Malloc( initialLength );
+        size_t resultingLength = requiredLength > initialLength ? requiredLength : initialLength;
+        pChannelBuffer->pBuffer = IotBle_Malloc( resultingLength );
 
         if( pChannelBuffer->pBuffer != NULL )
         {
-            pChannelBuffer->bufferLength = initialLength;
+            pChannelBuffer->bufferLength = resultingLength;
             pChannelBuffer->head = pChannelBuffer->tail = 0;
         }
         else
         {
-            IotLogError( "Failed to allocate a buffer of size %d", initialLength );
+            IotLogError( "Failed to allocate a buffer of size %d", resultingLength );
             result = false;
         }
     }
