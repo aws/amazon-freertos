@@ -311,7 +311,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetRxNoOfbytes, &xBytesRx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( xBytesRx, 4 );
+        TEST_ASSERT_EQUAL( xBytesRx, sizeof( ucRxBuf ) );
     }
 
     /* Restore the original configuration saved in the beginning of this test,
@@ -455,7 +455,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetRxNoOfbytes, &xBytesRx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( xBytesRx, 4 );
+        TEST_ASSERT_EQUAL( xBytesRx, sizeof( ucRxBuf ) );
     }
 
     /* Restore the original configuration saved in the beginning of this test,
@@ -584,7 +584,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetTxNoOfbytes, &xBytesTx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( xBytesTx, 4 );
+        TEST_ASSERT_EQUAL( xBytesTx, sizeof( ucTxBuf ) );
     }
 
     /* Restore the original configuration saved in the beginning of this test,
@@ -787,11 +787,11 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetRxNoOfbytes, &xBytesRx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( 4, xBytesRx );
+        TEST_ASSERT_EQUAL( sizeof( ucRxBuf ), xBytesRx );
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetTxNoOfbytes, &xBytesTx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( 4, xBytesTx );
+        TEST_ASSERT_EQUAL( sizeof( ucTxBuf ), xBytesTx );
     }
 
     /* Restore the original configuration saved in the beginning of this test,
@@ -1033,7 +1033,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
 
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPIGetTxNoOfbytes, &xBytesTx );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( xBytesTx, 4 );
+        TEST_ASSERT_EQUAL( xBytesTx, sizeof( ucTxBuf ) );
     }
 
     /* Restore the original configuration saved in the beginning of this test,

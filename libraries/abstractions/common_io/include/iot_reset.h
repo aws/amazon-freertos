@@ -86,7 +86,7 @@ void iot_reset_reboot( IotResetBootFlag_t xResetBootFlag );
  *   - does not return and device shutdown on success
  *   - IOT_RESET_FUNCTION_NOT_SUPPORTED if shutdown not supported.
  */
-int32_t iot_reset_shutdown();
+int32_t iot_reset_shutdown( void );
 
 /**
  * @brief   iot_get_reset_reason is used to get the last reset reason.
