@@ -122,13 +122,14 @@ static void prvFreeContext( TLSContext_t * pxCtx )
         mbedtls_ssl_free( &pxCtx->xMbedSslCtx );
         mbedtls_ssl_config_free( &pxCtx->xMbedSslConfig );
 
-        /* Cleanup PKCS#11. */
-        if( ( NULL != pxCtx->pxP11FunctionList ) &&
-            ( NULL != pxCtx->pxP11FunctionList->C_CloseSession ) )
+        /* Cleanup PKCS11 only if the handshake succeeded. */
+        if( ( pdTRUE == pxCtx->xTLSHandshakeSuccessful ) &&
+            ( NULL != pxCtx->pxP11FunctionList ) &&
+            ( NULL != pxCtx->pxP11FunctionList->C_CloseSession ) &&
+            ( CK_INVALID_HANDLE != pxCtx->xP11Session ) )
         {
             pxCtx->pxP11FunctionList->C_CloseSession( pxCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
-        }
-
+	}
         pxCtx->xTLSHandshakeSuccessful = pdFALSE;
     }
 }
@@ -993,10 +994,7 @@ void TLS_Cleanup( void * pvContext )
 
     if( NULL != pxCtx )
     {
-        if( pdTRUE == pxCtx->xTLSHandshakeSuccessful )
-        {
-            prvFreeContext( pxCtx );
-        }
+        prvFreeContext( pxCtx );
 
         /* Free memory. */
         vPortFree( pxCtx );
