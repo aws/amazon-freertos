@@ -169,7 +169,7 @@ hal_gdma_status_t hal_gdma_start_polling(hal_gdma_channel_t channel, uint32_t de
         return HAL_GDMA_STATUS_INVALID_PARAMETER;
     }
 
-    if (data_length < MIN_LENGHT_VALUE || data_length > MAX_LENGTH_VALUE) {
+    if (data_length < MIN_LENGTH_VALUE || data_length > MAX_LENGTH_VALUE) {
         return HAL_GDMA_STATUS_INVALID_PARAMETER;
     }
 
@@ -281,7 +281,7 @@ hal_gdma_status_t hal_gdma_start_interrupt(hal_gdma_channel_t channel, uint32_t 
         return HAL_GDMA_STATUS_INVALID_PARAMETER;
     }
 
-    if (data_length < MIN_LENGHT_VALUE || data_length > MAX_LENGTH_VALUE) {
+    if (data_length < MIN_LENGTH_VALUE || data_length > MAX_LENGTH_VALUE) {
         return HAL_GDMA_STATUS_INVALID_PARAMETER;
     }
 

@@ -578,7 +578,7 @@ CK_RV pkcs11_key_write(CK_VOID_PTR pSession, CK_VOID_PTR pObject, CK_ATTRIBUTE_P
     {
         uint8_t key_buf[36] = { 0, 0, 0, 0 };
         uint16_t write_key_id = cfg_ptr->SlotConfig[obj_ptr->slot];
-        write_key_id &= ATCA_SLOT_CONFIG_WIRTE_KEY_MASK;
+        write_key_id &= ATCA_SLOT_CONFIG_WRITE_KEY_MASK;
         write_key_id >>= ATCA_SLOT_CONFIG_WRITE_KEY_SHIFT;
 
         memcpy(&key_buf[4], pAttribute->pValue, 32);
