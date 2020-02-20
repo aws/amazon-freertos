@@ -56,7 +56,7 @@ static SemaphoreHandle_t g_connect_semaph;
 static SemaphoreHandle_t g_dhcp_semaph;
 
 /* Protect API */
-static SemaphoreHandle_t g_wifi_semaph;
+SemaphoreHandle_t g_wifi_semaph;
 
 /* Wi-Fi/HW hardware configuration */
 QCA_CONTEXT_STRUCT g_wifi_ctx = { 0 };
@@ -315,9 +315,14 @@ WIFIReturnCode_t WIFI_On( void )
     if (A_OK != result)
         return eWiFiFailure;
 
-    /* Power off the WLAN and wait 30ms */
-    CUSTOM_HW_POWER_UP_DOWN(NULL, false);
-    vTaskDelay(MSEC_TO_TICK(30));
+    /* Power off the WLAN and wait 500ms */
+    WIFISHIELD_PowerUp(0);
+    vTaskDelay(MSEC_TO_TICK(500));
+
+    /* Power on the WLAN */
+    WIFISHIELD_PowerUp(1);
+    /* Wait 500ms for it to stabilize */
+    vTaskDelay(MSEC_TO_TICK(500));
 
     g_wifi_ctx.PARAM_PTR = &g_wifi_params;
     if (A_OK != ATHEROS_WIFI_IF.INIT(&g_wifi_ctx))
@@ -326,8 +331,8 @@ WIFIReturnCode_t WIFI_On( void )
     /* Disable low power mode to avoid SPI bus flood */
     qcom_power_set_mode(0, MAX_PERF_POWER, USER);
 
-    /* Create a on_connect semaphore, */
-    g_wifi_semaph = xSemaphoreCreateBinary();
+    /* Create a mutual exclusion semaphore for the wifi module */
+    g_wifi_semaph = xSemaphoreCreateMutex();
     if (NULL == g_wifi_semaph)
         return eWiFiFailure;
     xSemaphoreGive(g_wifi_semaph);
