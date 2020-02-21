@@ -35,7 +35,6 @@
 
 /* Driver includes */
 #include "iot_sdio.h"
-#include "board.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
