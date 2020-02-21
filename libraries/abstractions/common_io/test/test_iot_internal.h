@@ -190,6 +190,18 @@ extern uint32_t ultestIotEfuse32BitWordValidIdx;   /* Efuse index for valid 32-b
 extern uint32_t ultestIotEfuse32BitWordInvalidIdx; /* Efuse index that is not valid for 32-bit R/W operations */
 extern uint32_t ultestIotEfuse32BitWordWriteVal;   /* 32-bit value to write to eFuse at index uctestIotEfuse32BitWordValidIdx */
 
+/* SDIO */
+extern uint8_t uctestIotSdioValidHostIdx;
+extern uint8_t uctestIotSdioInvalidHostIdx;
+extern uint8_t uctestIotSdioValidSlotIdx;
+extern uint8_t uctestIotSdioInvalidSlotIdx;
+extern uint8_t uctestIotSdioInvalidFuncNmbr;
+extern IotSdioCallback_t xtestIotSdioTestCallback;
+extern IotSdioCardDetectParam_t xtestIotSdioCardDetectParam;
+extern IotSdioBusWidth_t etestIotSdioBusWidth;
+extern IotSdioSdDriverStrength_t etestIotSdioDriverType;
+extern bool btestIotSdioVerifyInactive;
+
 /* TSensor */
 extern uint8_t uctestIotTsensorInstance; /* I2C instance used in the test */
 
