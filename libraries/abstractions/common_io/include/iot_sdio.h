@@ -232,7 +232,7 @@ typedef enum IotSdioIoctlRequest
                                *   input: SDIO card driver strength.
                                *          input data type IotSdioSdDriverStrength_t */
     eSDIOSetCardInactive,     /*!< put card in inactive state */
-    eSDIOSwitchToHighSpeed,   /*!< switch to high speed mode if card spports it */
+    eSDIOSwitchToHighSpeed,   /*!< switch to high speed mode if card supports it */
     eSDIOSetDataBusWidth,     /*!< set sdio card data bus width and change host setting to support it
                                *   input: sdio bus width, input data type IotSdioBusWidth_t */
     eSDIOGetCardCapabilities, /*!< request host to learn capabilities of specified card function
@@ -302,7 +302,7 @@ typedef struct IoTSdioPowerOnOffCard
 typedef struct IotSdioFuncBlkSize
 {
     IotSdioFunction_t eFunc; /*!< IO function number range from eSdioFunction0 to eSdioFunction7*/
-    uint32_t ulBlockSize;    /*!< Block size to be set for I/O function. Must not begreater
+    uint32_t ulBlockSize;    /*!< Block size to be set for I/O function. Must not be greater
                               *   than the maximum block size supported by IO function.*/
 } IotSdioFuncBlkSize_t;
 
@@ -541,7 +541,7 @@ int32_t iot_sdio_io_write_direct( IotSdioSlotHandle_t const pxSdioHandle,
  * @return
  *   - IOT_SDIO_SUCCESS on success.
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
- *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
+ *   - IOT_SDIO_TRANSFER_FAIL if failed to send command or receive
  *                            response from card.
  */
 int32_t iot_sdio_io_read_direct( IotSdioSlotHandle_t const pxSdioHandle,
@@ -580,7 +580,7 @@ int32_t iot_sdio_io_read_direct( IotSdioSlotHandle_t const pxSdioHandle,
  * @return
  *   - IOT_SDIO_SUCCESS on success.
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
- *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
+ *   - IOT_SDIO_TRANSFER_FAIL if failed to send command or receive
  *                            response from card.
  */
 int32_t iot_sdio_io_write_extended( IotSdioSlotHandle_t const pxSdioHandle,
@@ -622,7 +622,7 @@ int32_t iot_sdio_io_write_extended( IotSdioSlotHandle_t const pxSdioHandle,
  * @return
  *   - IOT_SDIO_SUCCESS on success.
  *   - IOT_SDIO_INVALID_VALUE if any parameter is invalid.
- *   - IOT_SDIO_TRANSFER_FAIL if failed to send command to for receive
+ *   - IOT_SDIO_TRANSFER_FAIL if failed to send command or receive
  *                            response from card.
  */
 int32_t iot_sdio_io_read_extended( IotSdioSlotHandle_t const pxSdioHandle,
