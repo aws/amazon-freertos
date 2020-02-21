@@ -611,7 +611,7 @@ int32_t iot_sdio_io_write_extended( IotSdioSlotHandle_t const pxSdioHandle,
  *                              Range is 0 - 0x1ffff.
  * @param[out]   pucBuf         Buffer to receive read data.
  * @param[in]   ulCount         Number of bytes to read if bBlockMode is false.
- *                              Number of blocks to read if bBlockMode is true. 
+ *                              Number of blocks to read if bBlockMode is true.
  *                              Range is 0 - 0x1ff
  *                              When bBlockMode is false, a value of 0 shall
  *                              cause 512 bytes to be read.
