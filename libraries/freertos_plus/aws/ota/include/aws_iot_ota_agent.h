@@ -31,15 +31,16 @@
 #ifndef _AWS_IOT_OTA_AGENT_H_
 #define _AWS_IOT_OTA_AGENT_H_
 
+/* Standard includes. */
+/* For FILE type in OTA_FileContext_t.*/
+#include <stdio.h>
+
 /* Type definitions for OTA Agent */
 #include "aws_iot_ota_types.h"
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"
 #include "timers.h"
-
-/* Include for console serial output. */
-#include "iot_logging_task.h"
 
 /* Evaluates to the length of a constant string defined like 'static const char str[]= "xyz"; */
 #define CONST_STRLEN( s )    ( ( ( uint32_t ) sizeof( s ) ) - 1UL )

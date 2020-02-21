@@ -287,7 +287,7 @@ static void _httpFreeBuffers()
 /* Process the HTTP response body, copy to another buffer and signal OTA agent the file block
  * download is complete. */
 static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx,
-                                      uint8_t * pResponseBodyBuffer,
+                                      uint8_t * pHTTPResponseBody,
                                       uint32_t bufferSize )
 {
     IotLogDebug( "Invoking _httpProcessResponseBody" );
@@ -309,7 +309,7 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx,
     {
         pMessage->ulDataLength = bufferSize;
 
-        memcpy( pMessage->ucData, pResponseBodyBuffer, pMessage->ulDataLength );
+        memcpy( pMessage->ucData, pHTTPResponseBody, pMessage->ulDataLength );
         eventMsg.xEventId = eOTA_AgentEvent_ReceivedFileBlock;
         eventMsg.pxEventData = pMessage;
         /* Send job document received event. */
@@ -336,8 +336,8 @@ static void _httpErrorHandler( uint16_t responseCode )
     }
 
     IotLogInfo( "HTTP message body:" );
-    vLoggingPrint( pResponseBody );
-    vLoggingPrint( "\n" );
+    vLoggingPrintf( pResponseBody );
+    vLoggingPrintf( "\n" );
 
     if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
@@ -652,7 +652,7 @@ static IotHttpsReturnCode_t _httpInitUrl( const char * pURL )
 }
 
 static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetworkInterface,
-                                          IotNetworkCredentials_t * pNetworkCredentials )
+                                          struct IotNetworkCredentials * pNetworkCredentials )
 {
     /* HTTP API return status. */
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
@@ -926,7 +926,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Network interface and credentials from OTA agent. */
     OTA_ConnectionContext_t * connContext = pAgentCtx->pvConnectionContext;
     const IotNetworkInterface_t * pNetworkInterface = connContext->pxNetworkInterface;
-    IotNetworkCredentials_t * pNetworkCredentials = connContext->pvNetworkCredentials;
+    struct IotNetworkCredentials * pNetworkCredentials = connContext->pvNetworkCredentials;
 
     /* Pre-signed URL. */
     const char * pURL = NULL;
