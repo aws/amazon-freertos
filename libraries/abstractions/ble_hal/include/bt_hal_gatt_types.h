@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V4.0.1
+ * FreeRTOS BLE HAL V5.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,21 +50,35 @@
 
 /**
  * @brief GATT Status Codes
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part F, 3.4.1.1 Error Response
+ *
  */
 typedef enum
 {
-    eBTGattStatusSuccess,                    /**< Success */
-    eBTGattStatusReadNotPermitted,           /**< Characteristic does not support read */
-    eBTGattStatusWriteNotPermitted,          /**< Characteristic does not support write */
-    eBTGattStatusInsufficientAuthentication, /**< Link is not properly Authenticated */
-    eBTGattStatusRequestNotSupported,        /**< Operation not supported */
-    eBTGattStatusInvalidOffset,              /**< Invalid offset (long writes/reads) */
-    eBTGattStatusErrorConnTimeout,           /**< Connection Timed out */
-    eBTGattStatusInvalidAttributeLength,     /**< Bad Attribute Length */
-    eBTGattStatusInsufficientEncryption,     /**< Link is not properly Encrypted */
-    eBTGattStatusError,                      /**< Generic GATT Error */
-    eBTGattStatusConnectionCongested,        /**< Congested connection */
-    eBTGattStatusErrorConnEstFail,           /**< Failed to establish gatt connection */
+    eBTGattStatusSuccess = 0x00,                      /**< Success */
+    eBTInvalidHandle = 0x01,                          /**< Invalid handle */
+    eBTGattStatusReadNotPermitted = 0x02,             /**< Characteristic does not support read */
+    eBTGattStatusWriteNotPermitted = 0x03,            /**< Characteristic does not support write */
+    eBTGattStatusInvalidPDU = 0x04,                   /**< Invalid PDU */
+    eBTGattStatusInsufficientAuthentication = 0x05,   /**< Link is not properly Authenticated */
+    eBTGattStatusRequestNotSupported = 0x06,          /**< Operation not supported */
+    eBTGattStatusInvalidOffset = 0x07,                /**< Invalid offset (long writes/reads) */
+    eBTGattStatusInsufficientAuthorization = 0x08,    /**< Link is not properly authorized */
+    eBTGattStatusPrepareQueueFull = 0x09,             /**< Too many prepare writes queued */
+    eBTGattStatusAttributeNotFound = 0x0A,            /**< No attribute found within handle range */
+    eBTGattStatusAttributeNotLong = 0x0B,             /**< Cannot be read with Read Blob Request */
+    eBTGattStatusInsufficientKeySize = 0x0C,          /**< Link is not properly Encrypted */
+    eBTGattStatusInvalidAttributeLength = 0x0D,       /**< Bad Attribute Length */
+    eBTGattStatusUnlikelyError = 0x0E,                /**< Encountered an unlikeley error */
+    eBTGattStatusInsufficientEncryption = 0x0F,       /**< Link is not properly Encrypted */
+    eBTGattStatusUnsupportedGroupType = 0x10,         /**< Unsupported grouping attribute */
+    eBTGattStatusInsufficientResources = 0x11,        /**< Insufficient Resources */
+    eBTGattStatusInternalError = 0x81,                /**< Internal GATT Error */
+    eBTGattStatusError = 0x85,                        /**< Generic GATT Error */
+    eBTGattStatusConnectionCongested = 0x8f,          /**< Congested connection */
+    eBTGattStatusErrorConnEstFail = 0x93,             /**< Failed to establish gatt connection */
+    eBTGattStatusErrorConnTimeout = 0x94,             /**< Connection Timed out */
+    eBTGattStatusLocalHostTerminatedConnection = 0x99 /**< Disconnect from Local Host */
 } BTGattStatus_t;
 
 /**

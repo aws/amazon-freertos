@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V4.0.1
+ * FreeRTOS BLE HAL V5.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,7 +47,7 @@
 /**
  * @brief  Incompatible API changes without backward compatibility.
  */
-#define btMAJOR_VERSION    4
+#define btMAJOR_VERSION    5
 
 /**
  * @brief Add new functionality with backward compatibility.
@@ -521,6 +521,7 @@ typedef struct
     BTPinRequestCallback_t pxPinRequestCb;
     BTSspRequestCallback_t pxSspRequestCb;
     BTPairingStateChangedCallback_t pxPairingStateChangedCb;
+    BTBondedCallback_t pxBondedCb; /** This is deprecated */
     BTDutModeRecvCallback_t pxDutModeRecvCb;
     BTLeTestModeCallback_t pxleTestModeCb;
     BTEnergyInfoCallback_t pxEnergyInfoCb;
