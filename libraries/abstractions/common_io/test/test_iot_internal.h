@@ -198,7 +198,7 @@ extern uint8_t uctestIotSdioInvalidSlotIdx;                  /* An invalid sdio 
 extern uint8_t uctestIotSdioInvalidFuncNmbr;                 /* An invalid sdio function number that is not supported on DUT */
 extern IotSdioCallback_t xtestIotSdioTestCallback;           /* A callback function to be used in the test */
 extern IotSdioCardDetectParam_t xtestIotSdioCardDetectParam; /* A card detection parameter used by DUT */
-extern IotSdioBusWidth_t etestIotSdioBusWidth;               /* A bus width uspported on DUT */
+extern IotSdioBusWidth_t etestIotSdioBusWidth;               /* A bus width supported on DUT */
 extern IotSdioSdDriverStrength_t etestIotSdioDriverType;     /* A driver strength type used to test driver strength setting */
 extern bool btestIotSdioVerifyInactive;                      /* Indicate if card inactive state should be verified on DUT */
 
