@@ -32,9 +32,9 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                        *
 **************************************************************************************/
 
-#define SHARED_SECRET_MAX_LENGHT         250
-#define ECC_KEY_MAX_LENGHT               0x256
-#define AES_KEY_MAX_LENGHT_IN_BYTES      0x10
+#define SHARED_SECRET_MAX_LENGTH         250
+#define ECC_KEY_MAX_LENGTH               0x256
+#define AES_KEY_MAX_LENGTH_IN_BYTES      0x10
 
 
 
