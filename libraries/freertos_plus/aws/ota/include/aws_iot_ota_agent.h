@@ -223,6 +223,14 @@ typedef enum
  * @functionpointers{ota,OTA library}
  */
 
+/* Forward delcaration of OTA_FileContext_t. */
+typedef struct OTA_FileContext   OTA_FileContext_t;
+
+/**
+ * @brief OTA Error type.
+ */
+typedef uint32_t                 OTA_Err_t;
+
 /**
  * @ingroup ota_datatypes_functionpointers
  * @brief OTA update complete callback function typedef.
@@ -370,11 +378,6 @@ typedef OTA_JobParseErr_t (* pxOTACustomJobCallback_t)( const char * pcJSON,
  * @structs{ota,OTA library}
  */
 
-/**
- * @brief OTA Error type.
- */
-typedef uint32_t OTA_Err_t;
-
 /* A composite cryptographic signature structure able to hold our largest supported signature. */
 
 #define kOTA_MaxSignatureSize    256        /* Max bytes supported for a file signature (2048 bit RSA is 256 bytes). */
@@ -392,7 +395,7 @@ typedef struct
  * Information about an OTA Update file that is to be streamed. This structure is filled in from a
  * job notification MQTT message. Currently only one file context can be streamed at time.
  */
-typedef struct
+typedef struct OTA_FileContext
 {
     uint8_t * pucFilePath; /*!< Local file pathname. */
     union
