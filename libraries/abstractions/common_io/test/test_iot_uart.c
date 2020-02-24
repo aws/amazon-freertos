@@ -131,10 +131,9 @@ TEST_GROUP( TEST_IOT_UART );
  */
 TEST_SETUP( TEST_IOT_UART )
 {
+    /* xSemaphoreCreateBinaryStatic succeeds as long as buffer parameter is not NULL. */
     xReadCompleteSemaphore = xSemaphoreCreateBinaryStatic( &xReadSemaphoreBuffer );
-    TEST_ASSERT_NOT_EQUAL( NULL, xReadCompleteSemaphore );
     xWriteCompleteSemaphore = xSemaphoreCreateBinaryStatic( &xWriteSemaphoreBuffer );
-    TEST_ASSERT_NOT_EQUAL( NULL, xWriteCompleteSemaphore );
 }
 
 /*-----------------------------------------------------------*/
