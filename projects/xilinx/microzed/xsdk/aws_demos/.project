@@ -548,6 +548,16 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
@@ -888,11 +898,6 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/memcpy.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/xilinx_code/uncached_memory.c</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/uncached_memory.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/xilinx_code/hr_gettime.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/hr_gettime.h</locationURI>
@@ -901,11 +906,6 @@
 			<name>application_code/xilinx_code/platform_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/platform_config.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/xilinx_code/uncached_memory.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/uncached_memory.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/xilinx_code/FreeRTOS_asm_vectors.S</name>
