@@ -97,7 +97,7 @@ typedef struct SSOCKETContext
     uint32_t ulState;
 } SSOCKETContext_t, * SSOCKETContextPtr_t;
 
-#define SOCKETS_INVALID_CONTEXT		( ( SSOCKETContextPtr_t ) ~0U )
+#define SOCKETS_INVALID_CONTEXT    ( ( SSOCKETContextPtr_t ) ~0U )
 
 /**
  * @brief Semaphore used to serialize all operations on the WiFi module.
@@ -138,17 +138,19 @@ static BaseType_t prvNetworkSend( void * pvContext,
     }
 
     memcpy( sendBuf, pucData, xDataLength );
+
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( g_wifi_semaph, xSemaphoreWaitTicks ) == pdTRUE )
     {
         ret = qcom_send( ( int ) pxContext->xSocket,
-                             sendBuf,
-                             xDataLength,
-                             pxContext->xSendFlags );
+                         sendBuf,
+                         xDataLength,
+                         pxContext->xSendFlags );
 
         /* Return the semaphore. */
         ( void ) xSemaphoreGive( g_wifi_semaph );
     }
+
     custom_free( sendBuf );
 
     return ret;
@@ -204,6 +206,7 @@ static BaseType_t prvNetworkRecv( void * pvContext,
                     /*int errno = t_errno( wlan_get_context(), ( uint32_t ) pxContext->xSocket ); */
                     xRetVal = SOCKETS_SOCKET_ERROR;
                 }
+
                 ulRxComplete = pdTRUE;    /* Exit the receive loop */
             }
             else if( xStatus == A_ERROR ) /* A_ERROR is returned from t_select on timeout. */
@@ -218,15 +221,16 @@ static BaseType_t prvNetworkRecv( void * pvContext,
                     xRetVal = 0;
                 }
             }
-	    else
-	    {
+            else
+            {
                 ulRxComplete = pdTRUE;
                 xRetVal = SOCKETS_SOCKET_ERROR;
-	    }
+            }
+
             ( void ) xSemaphoreGive( g_wifi_semaph );
         }
 
-        if ( ulRxComplete == pdFALSE )
+        if( ulRxComplete == pdFALSE )
         {
             vTaskDelay( nxpsecuresocketsFIVE_MILLISECONDS );
         }
@@ -271,12 +275,13 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 
         /* Try to acquire the semaphore. */
         if( xSemaphoreTake( g_wifi_semaph, xSemaphoreWaitTicks ) == pdTRUE )
-	{
+        {
             qcom_socket_close( ( int ) pxContext->xSocket );
 
             /* Return the semaphore. */
-	    ( void ) xSemaphoreGive( g_wifi_semaph );
-	}
+            ( void ) xSemaphoreGive( g_wifi_semaph );
+        }
+
         vPortFree( pxContext );
     }
     else
@@ -297,7 +302,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     SOCKADDR_T xTempAddress = { 0 };
 
-    if( ( SOCKETS_INVALID_CONTEXT != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected())
+    if( ( SOCKETS_INVALID_CONTEXT != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected() )
     {
         /* Connect the wrapped socket. */
 
@@ -307,6 +312,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
         xTempAddress.sin_addr.s_addr = SOCKETS_ntohl( pxAddress->ulAddress );
         xTempAddress.sin_family = pxAddress->ucSocketDomain;
         xTempAddress.sin_port = SOCKETS_ntohs( pxAddress->usPort );
+
         /* Try to acquire the semaphore. */
         if( xSemaphoreTake( g_wifi_semaph, xSemaphoreWaitTicks ) == pdTRUE )
         {
@@ -368,7 +374,7 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 
     if( strlen( pcHostName ) <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
-	/* Note that WIFI_GetHostIP() takes the wifi semaphore so it's not taken here */
+        /* Note that WIFI_GetHostIP() takes the wifi semaphore so it's not taken here */
         WIFI_GetHostIP( ( char * ) pcHostName, ( uint8_t * ) &ulAddr );
         configPRINTF( ( "Looked up %s as %d.%d.%d.%d\r\n",
                         pcHostName,
@@ -405,6 +411,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
         )
     {
         pxContext->xRecvFlags = ( BaseType_t ) ulFlags;
+
         if( pdTRUE == pxContext->xRequireTLS )
         {
             /* Receive through TLS pipe, if negotiated. */
@@ -621,7 +628,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                 }
                 else
                 {
-                    pxContext->ulRecvTimeout = pdMS_TO_TICKS(  ulTimeoutInMilliseconds );
+                    pxContext->ulRecvTimeout = pdMS_TO_TICKS( ulTimeoutInMilliseconds );
                 }
 
                 break;
@@ -661,6 +668,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                 break;
 
             default:
+
                 /* Try to acquire the semaphore. */
                 if( xSemaphoreTake( g_wifi_semaph, xSemaphoreWaitTicks ) == pdTRUE )
                 {
@@ -672,6 +680,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                     /* Return the semaphore. */
                     ( void ) xSemaphoreGive( g_wifi_semaph );
                 }
+
                 break;
         }
     }
@@ -740,7 +749,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lProtocol )
 {
     int32_t lStatus = SOCKETS_ERROR_NONE;
-    int32_t xSocket = A_ERROR;   /* Default to failure */
+    int32_t xSocket = A_ERROR; /* Default to failure */
     SSOCKETContextPtr_t pxContext = NULL;
 
     /* Ensure that only supported values are supplied. */
