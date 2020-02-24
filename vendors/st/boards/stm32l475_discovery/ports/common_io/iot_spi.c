@@ -49,14 +49,14 @@ typedef struct STM32_SPI_HalContext
     IRQn_Type eIrqNum;
 } STM32_SPI_HalContext_t;
 
-struct IotSPIDescriptor_t
+typedef struct IotSPIDescriptor
 {
     STM32_SPI_HalContext_t const * pxSpiContext; /* ST Handle */
     IotSPIMasterConfig_t xConfig;                /* Master Configuration */
     IotSPICallback_t xSpiCallback;               /* Callback function */
     void * pvUserContext;                        /* User context passed in callback */
     uint8_t sOpened;                             /* Bit flags to tract different states. */
-};
+} IotSPIDescriptor_t;
 /*-----------------------------------------------------------*/
 
 static SPI_HandleTypeDef xSpiHandleMap[] =
@@ -152,7 +152,7 @@ static const STM32_SPI_HalContext_t xSpiContexts[] =
 };
 /*-----------------------------------------------------------*/
 
-static struct IotSPIDescriptor_t xSpi1 =
+static IotSPIDescriptor_t xSpi1 =
 {
     .pxSpiContext  = &xSpiContexts[ 0 ],
     .xConfig       = { 0 },
@@ -161,7 +161,7 @@ static struct IotSPIDescriptor_t xSpi1 =
     .sOpened       = IOT_SPI_CLOSED,
 };
 
-static struct IotSPIDescriptor_t xSpi2 =
+static IotSPIDescriptor_t xSpi2 =
 {
     .pxSpiContext  = &xSpiContexts[ 1 ],
     .xConfig       = { 0 },
@@ -170,7 +170,7 @@ static struct IotSPIDescriptor_t xSpi2 =
     .sOpened       = IOT_SPI_CLOSED,
 };
 
-static struct IotSPIDescriptor_t xSpi3 =
+static IotSPIDescriptor_t xSpi3 =
 {
     .pxSpiContext  = &xSpiContexts[ 2 ],
     .xConfig       = { 0 },

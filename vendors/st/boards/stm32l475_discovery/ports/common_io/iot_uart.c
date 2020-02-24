@@ -53,7 +53,7 @@
  * @brief STM UART Descriptor.
  *
  */
-struct IotUARTDescriptor_t
+typedef struct IotUARTDescriptor
 {
     IotUARTCallback_t xUartCallback;
     void * pvHalContext;
@@ -61,7 +61,7 @@ struct IotUARTDescriptor_t
     SemaphoreHandle_t xSemphr;
     StaticSemaphore_t xSemphrBuffer;
     uint8_t sOpened;
-};
+} IotUARTDescriptor_t;
 
 /**
  * @brief STM HAL Context abstracted in the IotUARTDescriptor_t.
@@ -229,7 +229,7 @@ static const STM32_UART_HalContext_t xUartMap[] =
     },
 };
 
-static struct IotUARTDescriptor_t xUart0 =
+static IotUARTDescriptor_t xUart0 =
 {
     .pvUserCallbackContext = NULL,
     .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 0 ],
@@ -238,7 +238,7 @@ static struct IotUARTDescriptor_t xUart0 =
     .sOpened               = IOT_UART_CLOSED,
 };
 
-static struct IotUARTDescriptor_t xUart1 =
+static IotUARTDescriptor_t xUart1 =
 {
     .pvUserCallbackContext = NULL,
     .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 1 ],
@@ -247,7 +247,7 @@ static struct IotUARTDescriptor_t xUart1 =
     .sOpened               = IOT_UART_CLOSED,
 };
 
-static struct IotUARTDescriptor_t xUart2 =
+static IotUARTDescriptor_t xUart2 =
 {
     .pvUserCallbackContext = NULL,
     .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 2 ],
@@ -256,7 +256,7 @@ static struct IotUARTDescriptor_t xUart2 =
     .sOpened               = IOT_UART_CLOSED,
 };
 
-static struct IotUARTDescriptor_t xUart3 =
+static IotUARTDescriptor_t xUart3 =
 {
     .pvUserCallbackContext = NULL,
     .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 3 ],
@@ -265,7 +265,7 @@ static struct IotUARTDescriptor_t xUart3 =
     .sOpened               = IOT_UART_CLOSED,
 };
 
-static struct IotUARTDescriptor_t xUart4 =
+static IotUARTDescriptor_t xUart4 =
 {
     .pvUserCallbackContext = NULL,
     .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 4 ],
@@ -624,7 +624,7 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef * huart )
         {
             if( pxUarts[ i ]->xUartCallback != NULL )
             {
-                pxUarts[ i ]->xUartCallback( eUartCompleted, pxUarts[ i ]->pvUserCallbackContext );
+                pxUarts[ i ]->xUartCallback( eUartReadCompleted, pxUarts[ i ]->pvUserCallbackContext );
             }
 
             xSemaphoreGiveFromISR( pxUarts[ i ]->xSemphr, &higherPriorityTaskWoken );
@@ -646,7 +646,7 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef * huart )
         {
             if( pxUarts[ i ]->xUartCallback != NULL )
             {
-                pxUarts[ i ]->xUartCallback( eUartCompleted, pxUarts[ i ]->pvUserCallbackContext );
+                pxUarts[ i ]->xUartCallback( eUartWriteCompleted, pxUarts[ i ]->pvUserCallbackContext );
             }
 
             xSemaphoreGiveFromISR( pxUarts[ i ]->xSemphr, &higherPriorityTaskWoken );
