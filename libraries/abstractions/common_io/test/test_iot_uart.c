@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Common IO V0.1.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common IO V0.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -72,8 +72,10 @@ uint32_t ultestIotUartStopBits = 0;
 /*-----------------------------------------------------------*/
 /* Static Globals */
 /*-----------------------------------------------------------*/
-static SemaphoreHandle_t xtestIotUARTSemaphore = NULL;
-static StaticSemaphore_t xtestIotUARTCompleted;
+static SemaphoreHandle_t xReadCompleteSemaphore = NULL;
+static SemaphoreHandle_t xWriteCompleteSemaphore = NULL;
+static StaticSemaphore_t xReadSemaphoreBuffer;
+static StaticSemaphore_t xWriteSemaphoreBuffer;
 
 /* note:  config1 is different in each field from config2 */
 static IotUARTConfig_t xSampleConfig1 =
@@ -102,11 +104,17 @@ static IotUARTConfig_t xSampleConfig2 =
 static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
                                   void * pvParams )
 {
-    IotUARTOperationStatus_t * xCallbackStatus = ( IotUARTOperationStatus_t * ) pvParams;
     BaseType_t xHigherPriorityTaskWoken;
 
-    *xCallbackStatus = xOpStatus;
-    xSemaphoreGiveFromISR( xtestIotUARTSemaphore, &xHigherPriorityTaskWoken );
+    if( xOpStatus == eUartReadCompleted )
+    {
+        xSemaphoreGiveFromISR( xReadCompleteSemaphore, &xHigherPriorityTaskWoken );
+    }
+    else if( xOpStatus == eUartWriteCompleted )
+    {
+        xSemaphoreGiveFromISR( xWriteCompleteSemaphore, &xHigherPriorityTaskWoken );
+    }
+
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
@@ -123,8 +131,9 @@ TEST_GROUP( TEST_IOT_UART );
  */
 TEST_SETUP( TEST_IOT_UART )
 {
-    xtestIotUARTSemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotUARTCompleted );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotUARTSemaphore );
+    /* xSemaphoreCreateBinaryStatic succeeds as long as buffer parameter is not NULL. */
+    xReadCompleteSemaphore = xSemaphoreCreateBinaryStatic( &xReadSemaphoreBuffer );
+    xWriteCompleteSemaphore = xSemaphoreCreateBinaryStatic( &xWriteSemaphoreBuffer );
 }
 
 /*-----------------------------------------------------------*/
@@ -471,30 +480,25 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
     int32_t lRead, lWrite, lClose;
     BaseType_t xCallbackReturn;
     uint8_t ucPort = uctestIotUartPort;
-    volatile IotUARTOperationStatus_t xCallbackStatus = eUartLastWriteFailed;
 
     xUartHandle = iot_uart_open( ucPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
 
     if( TEST_PROTECT() )
     {
-        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, ( void * ) &xCallbackStatus );
+        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
 
         lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
-        xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
-
-        TEST_ASSERT_EQUAL( eUartWriteCompleted, xCallbackStatus );
-
         lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
-        xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
-        TEST_ASSERT_EQUAL( eUartReadCompleted, xCallbackStatus );
+        xCallbackReturn = xSemaphoreTake( xReadCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
         TEST_ASSERT_EQUAL( 0, strncmp( ( char * ) cpBuffer, ( char * ) cpBufferRead, testIotUART_BUFFER_LENGTH ) );
     }
@@ -515,7 +519,6 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
     IotUARTHandle_t xUartHandle;
     int32_t lWrite, lClose, lCancel;
     BaseType_t xCallbackReturn;
-    volatile IotUARTOperationStatus_t xCallbackStatus = eUartLastWriteFailed;
 
     uint8_t cSmallBuf[ 2 ] = { 'H', 'I' };
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
@@ -528,7 +531,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 
     if( TEST_PROTECT() )
     {
-        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, ( void * ) &xCallbackStatus );
+        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
 
         lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
@@ -537,7 +540,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lCancel );
 
         /* Wait to make sure operation was really canceled. */
-        xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
     }
 
@@ -545,7 +548,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
     /* Wait to make sure operation has completed. */
-    xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+    xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
     TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
     /* Since  cSmallBuf is small buffer, write is already complete. Hence nothing to cancel */
