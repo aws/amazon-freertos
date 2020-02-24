@@ -129,7 +129,8 @@ static void prvFreeContext( TLSContext_t * pxCtx )
             ( CK_INVALID_HANDLE != pxCtx->xP11Session ) )
         {
             pxCtx->pxP11FunctionList->C_CloseSession( pxCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
-	}
+        }
+
         pxCtx->xTLSHandshakeSuccessful = pdFALSE;
     }
 }
