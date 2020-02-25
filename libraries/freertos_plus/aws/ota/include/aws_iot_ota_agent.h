@@ -427,7 +427,7 @@ typedef struct OTA_FileContext
  * @ingroup ota_datatypes_structs
  * @brief OTA Connection context.
  *
- * Connection information that user provides to initialize control and data transfer for OTA.
+ * Connection information that the user provides to initialize control and data transfer for OTA.
  */
 typedef struct
 {
