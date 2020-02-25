@@ -58,9 +58,9 @@ typedef struct timer_internal
 
 /*-----------------------------------------------------------*/
 
-void prvTimerCallback( TimerHandle_t xTimerHandle )
+void prvTimerCallback( TimerHandle_t xTimerHandler )
 {
-    timer_internal_t * pxTimer = ( timer_internal_t * ) pvTimerGetTimerID( xTimerHandle );
+    timer_internal_t * pxTimer = ( timer_internal_t * ) pvTimerGetTimerID( xTimerHandler );
     pthread_t xTimerNotificationThread;
 
     /* The value of the timer ID, set in timer_create, should not be NULL. */
@@ -74,7 +74,7 @@ void prvTimerCallback( TimerHandle_t xTimerHandle )
      * argument. This call should not block. */
     if( pxTimer->xTimerPeriod > 0 )
     {
-        xTimerChangePeriod( xTimerHandle, pxTimer->xTimerPeriod, 0 );
+        xTimerChangePeriod( xTimerHandler, pxTimer->xTimerPeriod, 0 );
     }
 
     /* Create the timer notification thread if requested. */
@@ -301,7 +301,7 @@ int timer_gettime( timer_t timerid,
                xTimerExpirationPeriod = pxTimer->xTimerPeriod;
 
     /* Set it_value only if the timer is armed. Otherwise, set it to 0. */
-    if( xTimerIsTimerActive( xTimerHandler) != pdFALSE )
+    if( xTimerIsTimerActive( xTimerHandler ) != pdFALSE )
     {
         value->it_value.tv_sec = ( time_t ) ( xNextExpirationTime / configTICK_RATE_HZ );
         value->it_value.tv_nsec = ( long ) ( ( xNextExpirationTime % configTICK_RATE_HZ ) * NANOSECONDS_PER_TICK );
