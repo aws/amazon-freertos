@@ -1,6 +1,6 @@
 /**
- * Amazon FreeRTOS V1.2.3
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common IO V0.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,37 +42,28 @@
 #include "semphr.h"
 
 /**
- * @brief The number of USART ports supported by STM32l475_discovery board.
- */
-#define IOT_USART_PORTS              ( ( uint32_t ) 5 )
-#define IOT_UART_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
-#define IOT_UART_CLOSED              ( ( uint8_t ) 0 )
-#define IOT_UART_OPENED              ( ( uint8_t ) 1 )
-
-/**
  * @brief STM UART Descriptor.
  *
  */
 typedef struct IotUARTDescriptor
 {
+    UART_HandleTypeDef * pxHuart; /**< STM UART handle for all the configuration. */
+    IRQn_Type eIrqNum;            /**< Interrupt number for the UART. */
     IotUARTCallback_t xUartCallback;
-    void * pvHalContext;
     void * pvUserCallbackContext;
     SemaphoreHandle_t xSemphr;
     StaticSemaphore_t xSemphrBuffer;
     uint8_t sOpened;
 } IotUARTDescriptor_t;
 
+
 /**
- * @brief STM HAL Context abstracted in the IotUARTDescriptor_t.
- *
- * Contains all the parameters needed for working with STM driver.
+ * @brief The number of USART ports supported by STM32l475_discovery board.
  */
-typedef struct
-{
-    UART_HandleTypeDef * pxHuart; /**< STM UART handle for all the configuration. */
-    IRQn_Type eIrqNum;            /**< Interrupt number for the UART. */
-} STM32_UART_HalContext_t;
+#define IOT_USART_PORTS              ( ( uint32_t ) 5 )
+#define IOT_UART_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
+#define IOT_UART_CLOSED              ( ( uint8_t ) 0 )
+#define IOT_UART_OPENED              ( ( uint8_t ) 1 )
 
 /**
  * @brief Statically initialized map of STM UART Handle for all 5 ports.
@@ -202,37 +193,11 @@ static UART_HandleTypeDef xUartHandleMap[] =
     },
 };
 
-/**
- * @brief Statically initialized map of STM's HALContext.
- */
-static const STM32_UART_HalContext_t xUartMap[] =
-{
-    {
-        .pxHuart = &xUartHandleMap[ 0 ],
-        .eIrqNum = USART1_IRQn,
-    },
-    {
-        .pxHuart = &xUartHandleMap[ 1 ],
-        .eIrqNum = USART2_IRQn,
-    },
-    {
-        .pxHuart = &xUartHandleMap[ 2 ],
-        .eIrqNum = USART3_IRQn,
-    },
-    {
-        .pxHuart = &xUartHandleMap[ 3 ],
-        .eIrqNum = UART4_IRQn,
-    },
-    {
-        .pxHuart = &xUartHandleMap[ 4 ],
-        .eIrqNum = UART5_IRQn,
-    },
-};
-
 static IotUARTDescriptor_t xUart0 =
 {
     .pvUserCallbackContext = NULL,
-    .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 0 ],
+    .pxHuart               = &xUartHandleMap[ 0 ],
+    .eIrqNum               = USART1_IRQn,
     .xUartCallback         = NULL,
     .xSemphr               = NULL,
     .sOpened               = IOT_UART_CLOSED,
@@ -241,7 +206,8 @@ static IotUARTDescriptor_t xUart0 =
 static IotUARTDescriptor_t xUart1 =
 {
     .pvUserCallbackContext = NULL,
-    .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 1 ],
+    .pxHuart               = &xUartHandleMap[ 1 ],
+    .eIrqNum               = USART2_IRQn,
     .xUartCallback         = NULL,
     .xSemphr               = NULL,
     .sOpened               = IOT_UART_CLOSED,
@@ -250,7 +216,8 @@ static IotUARTDescriptor_t xUart1 =
 static IotUARTDescriptor_t xUart2 =
 {
     .pvUserCallbackContext = NULL,
-    .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 2 ],
+    .pxHuart               = &xUartHandleMap[ 2 ],
+    .eIrqNum               = USART3_IRQn,
     .xUartCallback         = NULL,
     .xSemphr               = NULL,
     .sOpened               = IOT_UART_CLOSED,
@@ -259,7 +226,8 @@ static IotUARTDescriptor_t xUart2 =
 static IotUARTDescriptor_t xUart3 =
 {
     .pvUserCallbackContext = NULL,
-    .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 3 ],
+    .pxHuart               = &xUartHandleMap[ 3 ],
+    .eIrqNum               = UART4_IRQn,
     .xUartCallback         = NULL,
     .xSemphr               = NULL,
     .sOpened               = IOT_UART_CLOSED,
@@ -268,7 +236,8 @@ static IotUARTDescriptor_t xUart3 =
 static IotUARTDescriptor_t xUart4 =
 {
     .pvUserCallbackContext = NULL,
-    .pvHalContext          = ( STM32_UART_HalContext_t * ) &xUartMap[ 4 ],
+    .pxHuart               = &xUartHandleMap[ 4 ],
+    .eIrqNum               = UART5_IRQn,
     .xUartCallback         = NULL,
     .xSemphr               = NULL,
     .sOpened               = IOT_UART_CLOSED,
@@ -279,26 +248,22 @@ static IotUARTHandle_t const pxUarts[] = { &xUart0, &xUart1, &xUart2, &xUart3, &
 IotUARTHandle_t iot_uart_open( int32_t lUartInstance )
 {
     IotUARTHandle_t xHandle = NULL;
-    UART_HandleTypeDef * xHandleHAL = NULL;
 
     if( ( lUartInstance < IOT_USART_PORTS ) && ( lUartInstance >= 0 ) )
     {
         xHandle = pxUarts[ lUartInstance ];
 
-        /*lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
         if( xHandle->sOpened == IOT_UART_CLOSED )
         {
             xHandle->xSemphr = xSemaphoreCreateBinaryStatic( &( xHandle->xSemphrBuffer ) );
 
-            xHandleHAL = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ lUartInstance ]->pvHalContext )->pxHuart;
-
             /* Special setup routine for USART1 that includes relevant GPIO initialization. */
-            if( xHandleHAL->Instance == USART1 )
+            if( pxUarts[ lUartInstance ]->pxHuart->Instance == USART1 )
             {
-                BSP_COM_Init( COM1, xHandleHAL );
+                BSP_COM_Init( COM1, pxUarts[ lUartInstance ]->pxHuart );
                 xHandle->sOpened = IOT_UART_OPENED;
             }
-            else if( HAL_UART_Init( xHandleHAL ) == HAL_OK )
+            else if( HAL_UART_Init( pxUarts[ lUartInstance ]->pxHuart ) == HAL_OK )
             {
                 xHandle->sOpened = IOT_UART_OPENED;
             }
@@ -341,19 +306,16 @@ int32_t iot_uart_read_async( IotUARTHandle_t const pxUartPeripheral,
     }
     else
     {
-        /*lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
-        if( HAL_UART_GetState( pxHuart ) == HAL_UART_STATE_BUSY_RX )
+        if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_BUSY_RX )
         {
             lError = IOT_UART_BUSY;
         }
         else
         {
-            HAL_NVIC_SetPriority( ( IRQn_Type ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->eIrqNum, 1, 0 );
-            HAL_NVIC_EnableIRQ( ( IRQn_Type ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->eIrqNum );
+            HAL_NVIC_SetPriority( pxUartPeripheral->eIrqNum, 1, 0 );
+            HAL_NVIC_EnableIRQ( pxUartPeripheral->eIrqNum );
 
-            if( HAL_UART_Receive_IT( pxHuart, pvBuffer, ( uint16_t ) xBytes ) != HAL_OK )
+            if( HAL_UART_Receive_IT( pxUartPeripheral->pxHuart, pvBuffer, ( uint16_t ) xBytes ) != HAL_OK )
             {
                 lError = IOT_UART_READ_FAILED;
             }
@@ -376,19 +338,16 @@ int32_t iot_uart_write_async( IotUARTHandle_t const pxUartPeripheral,
     }
     else
     {
-        /*lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
-        if( HAL_UART_GetState( pxHuart ) == HAL_UART_STATE_BUSY_TX )
+        if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_BUSY_TX )
         {
             lError = IOT_UART_BUSY;
         }
         else
         {
-            HAL_NVIC_SetPriority( ( IRQn_Type ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->eIrqNum, 1, 0 );
-            HAL_NVIC_EnableIRQ( ( IRQn_Type ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->eIrqNum );
+            HAL_NVIC_SetPriority( pxUartPeripheral->eIrqNum, 1, 0 );
+            HAL_NVIC_EnableIRQ( pxUartPeripheral->eIrqNum );
 
-            if( HAL_UART_Transmit_IT( pxHuart, pvBuffer, ( uint16_t ) xBytes ) != HAL_OK )
+            if( HAL_UART_Transmit_IT( pxUartPeripheral->pxHuart, pvBuffer, ( uint16_t ) xBytes ) != HAL_OK )
             {
                 lError = IOT_UART_WRITE_FAILED;
             }
@@ -411,8 +370,7 @@ int32_t iot_uart_read_sync( IotUARTHandle_t const pxUartPeripheral,
     {
         if( xSemaphoreTake( pxUartPeripheral->xSemphr, pdMS_TO_TICKS( IOT_UART_BLOCKING_TIMEOUT ) ) == pdFALSE )
         {
-            UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-            HAL_UART_Abort( pxHuart );
+            HAL_UART_Abort( pxUartPeripheral->pxHuart );
         }
     }
 
@@ -433,15 +391,13 @@ int32_t iot_uart_write_sync( IotUARTHandle_t const pxUartPeripheral,
     }
     else
     {
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
-        if( HAL_UART_GetState( pxHuart ) == HAL_UART_STATE_BUSY_TX )
+        if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_BUSY_TX )
         {
             lError = IOT_UART_BUSY;
         }
         else
         {
-            status = HAL_UART_Transmit( pxHuart, pvBuffer, ( uint16_t ) xBytes, IOT_UART_BLOCKING_TIMEOUT );
+            status = HAL_UART_Transmit( pxUartPeripheral->pxHuart, pvBuffer, ( uint16_t ) xBytes, IOT_UART_BLOCKING_TIMEOUT );
 
             if( status != HAL_OK )
             {
@@ -464,13 +420,10 @@ int32_t iot_uart_close( IotUARTHandle_t const pxUartPeripheral )
     }
     else
     {
-        /*lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
         /* Abort always returns HAL_OK */
-        HAL_UART_Abort( pxHuart );
+        HAL_UART_Abort( pxUartPeripheral->pxHuart );
 
-        if( HAL_UART_DeInit( pxHuart ) == HAL_OK )
+        if( HAL_UART_DeInit( pxUartPeripheral->pxHuart ) == HAL_OK )
         {
             vSemaphoreDelete( pxUartPeripheral->xSemphr );
             lError = IOT_UART_SUCCESS;
@@ -490,23 +443,20 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
 
     if( ( pxUartPeripheral != NULL ) && ( pxUartPeripheral->sOpened == IOT_UART_OPENED ) && ( pvBuffer != NULL ) )
     {
-        /* lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
         switch( xUartRequest )
         {
             case eUartSetConfig:
 
-                if( HAL_UART_GetState( pxHuart ) == HAL_UART_STATE_READY )
+                if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_READY )
                 {
                     /* Set the user configurations on STM UART. */
-                    pxHuart->Init.BaudRate = ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate;
-                    pxHuart->Init.Parity = ( ( IotUARTConfig_t * ) pvBuffer )->xParity;
-                    pxHuart->Init.WordLength = ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength;
-                    pxHuart->Init.StopBits = ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits;
-                    pxHuart->Init.HwFlowCtl = ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl;
+                    pxUartPeripheral->pxHuart->Init.BaudRate = ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate;
+                    pxUartPeripheral->pxHuart->Init.Parity = ( ( IotUARTConfig_t * ) pvBuffer )->xParity;
+                    pxUartPeripheral->pxHuart->Init.WordLength = ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength;
+                    pxUartPeripheral->pxHuart->Init.StopBits = ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits;
+                    pxUartPeripheral->pxHuart->Init.HwFlowCtl = ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl;
 
-                    if( UART_SetConfig( pxHuart ) == HAL_OK )
+                    if( UART_SetConfig( pxUartPeripheral->pxHuart ) == HAL_OK )
                     {
                         lError = IOT_UART_SUCCESS;
                     }
@@ -520,11 +470,11 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
 
             case eUartGetConfig:
 
-                ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate = pxHuart->Init.BaudRate;
-                ( ( IotUARTConfig_t * ) pvBuffer )->xParity = pxHuart->Init.Parity;
-                ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength = pxHuart->Init.WordLength;
-                ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits = pxHuart->Init.StopBits;
-                ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl = pxHuart->Init.HwFlowCtl;
+                ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate = pxUartPeripheral->pxHuart->Init.BaudRate;
+                ( ( IotUARTConfig_t * ) pvBuffer )->xParity = pxUartPeripheral->pxHuart->Init.Parity;
+                ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength = pxUartPeripheral->pxHuart->Init.WordLength;
+                ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits = pxUartPeripheral->pxHuart->Init.StopBits;
+                ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl = pxUartPeripheral->pxHuart->Init.HwFlowCtl;
 
                 lError = IOT_UART_SUCCESS;
 
@@ -532,14 +482,14 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
 
             case eGetTxNoOfbytes:
 
-                *( int32_t * ) pvBuffer = ( int32_t ) ( pxHuart->TxXferSize - pxHuart->TxXferCount );
+                *( int32_t * ) pvBuffer = ( int32_t ) ( pxUartPeripheral->pxHuart->TxXferSize - pxUartPeripheral->pxHuart->TxXferCount );
                 lError = IOT_UART_SUCCESS;
 
                 break;
 
             case eGetRxNoOfbytes:
 
-                *( int32_t * ) pvBuffer = ( int32_t ) ( pxHuart->RxXferSize - pxHuart->RxXferCount );
+                *( int32_t * ) pvBuffer = ( int32_t ) ( pxUartPeripheral->pxHuart->RxXferSize - pxUartPeripheral->pxHuart->RxXferCount );
                 lError = IOT_UART_SUCCESS;
 
                 break;
@@ -559,14 +509,11 @@ int32_t iot_uart_cancel( IotUARTHandle_t const pxUartPeripheral )
 
     if( ( pxUartPeripheral != NULL ) && ( pxUartPeripheral->sOpened == IOT_UART_OPENED ) )
     {
-        /* lint !e9079 !e9087 handle passed should be of UART_HandleTypeDef *. */
-        UART_HandleTypeDef * pxHuart = ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUartPeripheral->pvHalContext )->pxHuart;
-
-        if( HAL_UART_GetState( pxHuart ) == HAL_UART_STATE_READY )
+        if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_READY )
         {
             lError = IOT_UART_NOTHING_TO_CANCEL;
         }
-        else if( HAL_UART_Abort( pxHuart ) == HAL_OK )
+        else if( HAL_UART_Abort( pxUartPeripheral->pxHuart ) == HAL_OK )
         {
             lError = IOT_UART_SUCCESS;
         }
@@ -578,36 +525,36 @@ int32_t iot_uart_cancel( IotUARTHandle_t const pxUartPeripheral )
 
 void HAL_UART_ErrorCallback( UART_HandleTypeDef * huart )
 {
-    /* Propogate Error message back to user.
+    /* Propagate error message back to user.
      * Does not use common-io standard API that signals if error was write or read,
-     * but this is not possible with ST API in Full-Duplex mode, as it is unkown if error came from Rx or Tx */
+     * but this is not possible with ST API in Full-Duplex mode, as it is unknown if error came from Rx or Tx */
     uint32_t error = HAL_UART_GetError( huart );
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
 
-    if( error != HAL_UART_ERROR_NONE )
+    uint32_t i = 0;
+
+    for( ; i < sizeof( xUartHandleMap ) / sizeof( UART_HandleTypeDef ); i++ )
     {
-        uint32_t i = 0;
-
-        for( ; i < sizeof( xUartHandleMap ) / sizeof( UART_HandleTypeDef ); i++ )
+        if( huart->Instance == xUartHandleMap[ i ].Instance )
         {
-            if( huart->Instance == xUartHandleMap[ i ].Instance )
+            if( pxUarts[ i ]->xUartCallback != NULL )
             {
-                if( pxUarts[ i ]->xUartCallback != NULL )
-                {
-                    pxUarts[ i ]->xUartCallback( huart->ErrorCode, pxUarts[ i ]->pvUserCallbackContext );
-                }
-
-                /* Clear overrun error flag. */
-                if( error == HAL_UART_ERROR_ORE )
-                {
-                    __HAL_UART_CLEAR_OREFLAG( huart );
-                }
-                else if( error == HAL_UART_ERROR_FE )
-                {
-                    __HAL_UART_CLEAR_FEFLAG( huart );
-                }
-
-                break;
+                pxUarts[ i ]->xUartCallback( huart->ErrorCode, pxUarts[ i ]->pvUserCallbackContext );
             }
+
+            /* Clear overrun error flag. */
+            if( error == HAL_UART_ERROR_ORE )
+            {
+                __HAL_UART_CLEAR_OREFLAG( huart );
+            }
+            else if( error == HAL_UART_ERROR_FE )
+            {
+                __HAL_UART_CLEAR_FEFLAG( huart );
+            }
+
+            xSemaphoreGiveFromISR( pxUarts[ i ]->xSemphr, &higherPriorityTaskWoken );
+            portYIELD_FROM_ISR( higherPriorityTaskWoken );
+            break;
         }
     }
 }
@@ -660,30 +607,30 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef * huart )
 
 void USART1_IRQHandler( void )
 {
-    HAL_UART_IRQHandler( ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ 0 ]->pvHalContext )->pxHuart );
+    HAL_UART_IRQHandler( pxUarts[ 0 ]->pxHuart );
 }
 /*-----------------------------------------------------------*/
 
 void USART2_IRQHandler( void )
 {
-    HAL_UART_IRQHandler( ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ 1 ]->pvHalContext )->pxHuart );
+    HAL_UART_IRQHandler( pxUarts[ 1 ]->pxHuart );
 }
 /*-----------------------------------------------------------*/
 
 void USART3_IRQHandler( void )
 {
-    HAL_UART_IRQHandler( ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ 2 ]->pvHalContext )->pxHuart );
+    HAL_UART_IRQHandler( pxUarts[ 2 ]->pxHuart );
 }
 /*-----------------------------------------------------------*/
 
 void UART4_IRQHandler( void )
 {
-    HAL_UART_IRQHandler( ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ 3 ]->pvHalContext )->pxHuart );
+    HAL_UART_IRQHandler( pxUarts[ 3 ]->pxHuart );
 }
 /*-----------------------------------------------------------*/
 
 void UART5_IRQHandler( void )
 {
-    HAL_UART_IRQHandler( ( UART_HandleTypeDef * ) ( ( STM32_UART_HalContext_t * ) pxUarts[ 4 ]->pvHalContext )->pxHuart );
+    HAL_UART_IRQHandler( pxUarts[ 4 ]->pxHuart );
 }
 /*-----------------------------------------------------------*/

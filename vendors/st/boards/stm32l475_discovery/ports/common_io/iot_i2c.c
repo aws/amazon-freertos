@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common IO V0.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -55,7 +55,7 @@
 #define _FLAG_INITIALIZER       ( 0 )
 
 /* Initial state if slave address is unset. */
-#define _UNSET_SLAVE_ADDRESS    ( 0xFFFF )
+#define _UNSET_SLAVE_ADDRESS    ( 0xFFFFU )
 
 /* Read or write operation. */
 #define _I2C_READ_OP            ( 0 )
@@ -423,7 +423,7 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
                 return IOT_I2C_INVALID_VALUE;
             }
 
-            /* TODO: here it assumes the state is busy if it is not ready, but there it may be in other state. */
+            /* TODO: here it assumes the state is busy if it is not ready, but other states might also be valid to set master config. */
             if( pI2cDescriptor->xHandle.State != HAL_I2C_STATE_READY )
             {
                 return IOT_I2C_BUSY;
@@ -715,7 +715,7 @@ static int32_t _doMasterTransfer( IotI2CDescriptor_t * pI2cDescriptor,
         {
             if( pMasterSync != NULL )
             {
-                /* No ongoing transaction; simple make a blocking call. */
+                /* No ongoing transaction; simply make a blocking call. */
                 halStatus = pMasterSync( &( pI2cDescriptor->xHandle ), pI2cDescriptor->usSlaveAddr, pucBuffer, xBytes, pI2cDescriptor->xConfig.ulMasterTimeout );
 
                 /* No async call is made. */

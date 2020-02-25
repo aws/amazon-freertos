@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common IO V0.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -259,22 +259,22 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                     {
                         case eSPIMode0:
                             LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_POLARITY_LOW );
-                            LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_PHASE_1EDGE );
+                            LL_SPI_SetClockPhase( pxSpi->Instance, SPI_PHASE_1EDGE );
                             break;
 
                         case eSPIMode1:
                             LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_POLARITY_LOW );
-                            LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_PHASE_2EDGE );
+                            LL_SPI_SetClockPhase( pxSpi->Instance, SPI_PHASE_2EDGE );
                             break;
 
                         case eSPIMode2:
                             LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_POLARITY_HIGH );
-                            LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_PHASE_1EDGE );
+                            LL_SPI_SetClockPhase( pxSpi->Instance, SPI_PHASE_1EDGE );
                             break;
 
                         case eSPIMode3:
                             LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_POLARITY_HIGH );
-                            LL_SPI_SetClockPolarity( pxSpi->Instance, SPI_PHASE_2EDGE );
+                            LL_SPI_SetClockPhase( pxSpi->Instance, SPI_PHASE_2EDGE );
                             break;
 
                         default:
@@ -556,12 +556,10 @@ int32_t iot_spi_close( IotSPIHandle_t const pxSPIPeripheral )
         {
             lError = IOT_SPI_BUS_BUSY;
         }
-        else if( HAL_SPI_DeInit( pxSpi ) != HAL_OK )
-        {
-            lError = IOT_SPI_BUS_BUSY;
-        }
         else
         {
+            /* HAL_SPI_DeInit returns OK as long as input is not NULL. */
+            HAL_SPI_DeInit( pxSpi );
             pxSPIPeripheral->sOpened = IOT_SPI_CLOSED;
         }
     }

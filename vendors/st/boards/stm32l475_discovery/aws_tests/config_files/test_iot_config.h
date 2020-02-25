@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Common IO V1.0.0
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Common IO V0.1.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -74,7 +74,7 @@ const uint8_t i2cTestWriteVal[ I2C_TEST_SET ] = { 0b01101010 };
 const uint8_t i2cTestInstanceIdx[ I2C_TEST_SET ] = { 1 };
 const uint8_t i2cTestInstanceNum[ I2C_TEST_SET ] = { 3 };
 
-/* Not used by tests in AFR. */
+/* Not used by tests in this code base. */
 IotI2CHandle_t gIotI2cHandle[ 4 ] = { NULL, NULL, NULL, NULL };
 
 /*------------------------SPI-------------------------------*/
