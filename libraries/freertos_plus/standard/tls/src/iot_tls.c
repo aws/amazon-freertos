@@ -100,9 +100,9 @@ typedef struct TLSContext
     CK_KEY_TYPE xKeyType;
 } TLSContext_t;
 
-#define TLS_HANDSHAKE_NOT_STARTED   ( 0 )       /* Must be 0 */
-#define TLS_HANDSHAKE_STARTED       ( 1 )
-#define TLS_HANDSHAKE_SUCCESSFUL    ( 2 )
+#define TLS_HANDSHAKE_NOT_STARTED    ( 0 )      /* Must be 0 */
+#define TLS_HANDSHAKE_STARTED        ( 1 )
+#define TLS_HANDSHAKE_SUCCESSFUL     ( 2 )
 
 #define TLS_PRINT( X )    vLoggingPrintf X
 
