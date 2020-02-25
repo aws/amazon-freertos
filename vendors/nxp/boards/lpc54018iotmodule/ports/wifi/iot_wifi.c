@@ -40,6 +40,10 @@
  */
 #define wifiMAX_DNS_NAME_LENGTH    253
 
+/* Define the delay used when toggling the WiFi shield power.
+ */
+#define wifiSHIELD_POWER_TOGGLE_TIME_MSEC    500
+
 /* Only 1 Wi-Fi module is present at the time */
 static uint8_t g_devid = 0;
 
@@ -357,14 +361,14 @@ WIFIReturnCode_t WIFI_On( void )
         return eWiFiFailure;
     }
 
-    /* Power off the WLAN and wait 500ms */
+    /* Power off the WLAN and wait for the toggle time */
     WIFISHIELD_PowerUp( 0 );
-    vTaskDelay( MSEC_TO_TICK( 500 ) );
+    vTaskDelay( MSEC_TO_TICK( wifiSHIELD_POWER_TOGGLE_TIME_MSEC ) );
 
     /* Power on the WLAN */
     WIFISHIELD_PowerUp( 1 );
-    /* Wait 500ms for it to stabilize */
-    vTaskDelay( MSEC_TO_TICK( 500 ) );
+    /* Wait the toggle time for it to stabilize */
+    vTaskDelay( MSEC_TO_TICK( wifiSHIELD_POWER_TOGGLE_TIME_MSEC ) );
 
     g_wifi_ctx.PARAM_PTR = &g_wifi_params;
 
