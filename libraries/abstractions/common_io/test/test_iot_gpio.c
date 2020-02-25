@@ -44,17 +44,18 @@
 #include "semphr.h"
 
 /*-----------------------------------------------------------*/
-#define testIotGPIO_TEST_PORT_MASK  ( 0x00FF )
-#define testIotGPIO_TEST_DIR_BIT    ( 8 )
-#define testIotGPIO_TEST_DIR_MASK   ( 1 << testIotGPIO_TEST_DIR_BIT )
-#define testIotGPIO_TEST_IRQ_BIT    ( 9 )
-#define testIotGPIO_TEST_IRQ_MASK   ( 1 << testIotGPIO_TEST_IRQ_BIT )
-#define testIotGPIO_TEST_VALUE_BIT  ( 10 )
-#define testIotGPIO_TEST_VALUE_MASK ( 1 << testIotGPIO_TEST_VALUE_BIT )
-#define testIotGPIO_TEST_READ_DELAY ( 50 )
+#define testIotGPIO_TEST_PORT_MASK     ( 0x00FF )
+#define testIotGPIO_TEST_DIR_BIT       ( 8 )
+#define testIotGPIO_TEST_DIR_MASK      ( 1 << testIotGPIO_TEST_DIR_BIT )
+#define testIotGPIO_TEST_IRQ_BIT       ( 9 )
+#define testIotGPIO_TEST_IRQ_MASK      ( 1 << testIotGPIO_TEST_IRQ_BIT )
+#define testIotGPIO_TEST_VALUE_BIT     ( 10 )
+#define testIotGPIO_TEST_VALUE_MASK    ( 1 << testIotGPIO_TEST_VALUE_BIT )
+#define testIotGPIO_TEST_READ_DELAY    ( 50 )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
@@ -64,6 +65,7 @@ int32_t ltestIotGpioPortB = 1;
 uint32_t ultestIotGpioFunction = 0;
 
 int32_t ltestIotGpioPortInvalid = INT_MAX;
+
 /*
  * ustestIotGpioConfig is used for configuring GPIO test
  * user must set this variable for testing differnt GPIOs
@@ -108,18 +110,18 @@ TEST_SETUP( TEST_IOT_GPIO )
 
     /* Setup GPIO port A and port B as GPIO */
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA  );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA , eSetGpioFunction, &ultestIotGpioFunction );
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioFunction, &ultestIotGpioFunction );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     xtestIotGpioHandleB = iot_gpio_open( ltestIotGpioPortB );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB  );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB , eSetGpioFunction, &ultestIotGpioFunction );
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioFunction, &ultestIotGpioFunction );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleB );
@@ -147,7 +149,7 @@ TEST_GROUP_RUNNER( TEST_IOT_GPIO )
 
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenClose );
     testIotGpioClosePorts();
-    RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenOpenClose);
+    RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenOpenClose );
     testIotGpioClosePorts();
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseClose );
     testIotGpioClosePorts();
@@ -174,51 +176,54 @@ TEST_GROUP_RUNNER( TEST_IOT_GPIO )
 /**
  * @brief Function to test eGpioMode options.
  */
-static void testIotGpioOutputMode( IotGpioOutputMode_t eGpioOutputMode, uint8_t * pxValue )
+static void testIotGpioOutputMode( IotGpioOutputMode_t eGpioOutputMode,
+                                   uint8_t * pxValue )
 {
     int32_t lRetVal;
     uint8_t ucValueA, ucValueB;
 
     IotGpioDirection_t xGpioDirectionA = eGpioDirectionInput;
-    IotGpioPull_t xGpioPullA  = eGpioPullNone;
+    IotGpioPull_t xGpioPullA = eGpioPullNone;
 
     IotGpioDirection_t xGpioDirectionB = eGpioDirectionOutput;
-    IotGpioPull_t xGpioPullB  = eGpioPullNone;
+    IotGpioPull_t xGpioPullB = eGpioPullNone;
     IotGpioOutputMode_t xGpioOutputModeB = eGpioOutputMode;
 
     /* Setup GPIO port A */
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA  );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA , eSetGpioDirection, &xGpioDirectionA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
 
     /* set up GPIO port B with different mode for port A to read */
     ucValueB = *pxValue;
     xtestIotGpioHandleB = iot_gpio_open( ltestIotGpioPortB );
-    TEST_ASSERT_NOT_EQUAL( NULL,xtestIotGpioHandleB );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB);
-    if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) {
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB );
+
+    if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
+    {
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_gpio_write_sync(xtestIotGpioHandleB, ucValueB);
+    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    vTaskDelay( pdMS_TO_TICKS ( testIotGPIO_TEST_READ_DELAY ) );
+    vTaskDelay( pdMS_TO_TICKS( testIotGPIO_TEST_READ_DELAY ) );
 
-    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA);
+    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     TEST_ASSERT_EQUAL( ucValueB, ucValueA );
 
@@ -239,14 +244,14 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioMode )
     uint8_t ucValue;
 
     ucValue = 0;
-    testIotGpioOutputMode( eGpioPushPull , &ucValue );
+    testIotGpioOutputMode( eGpioPushPull, &ucValue );
     testIotGpioClosePorts();
 
     testIotGpioOutputMode( eGpioOpenDrain, &ucValue );
     testIotGpioClosePorts();
 
     ucValue = 1;
-    testIotGpioOutputMode( eGpioPushPull , &ucValue );
+    testIotGpioOutputMode( eGpioPushPull, &ucValue );
     testIotGpioClosePorts();
 
     testIotGpioOutputMode( eGpioOpenDrain, &ucValue );
@@ -254,16 +259,18 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioMode )
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to test eGpioPull options.
  */
-static void testIotGpioPull( IotGpioPull_t eGpioPull, uint8_t * pxValue )
+static void testIotGpioPull( IotGpioPull_t eGpioPull,
+                             uint8_t * pxValue )
 {
     int32_t lRetVal;
     uint8_t ucValueA, ucValueB;
 
     IotGpioDirection_t xGpioDirectionA = eGpioDirectionInput;
-    IotGpioPull_t xGpioPullA  = eGpioPullNone;
+    IotGpioPull_t xGpioPullA = eGpioPullNone;
 
     IotGpioDirection_t xGpioDirectionB = eGpioDirectionOutput;
     IotGpioOutputMode_t xGpioOutputModeB = eGpioPushPull;
@@ -273,10 +280,10 @@ static void testIotGpioPull( IotGpioPull_t eGpioPull, uint8_t * pxValue )
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
 
@@ -285,29 +292,31 @@ static void testIotGpioPull( IotGpioPull_t eGpioPull, uint8_t * pxValue )
     xtestIotGpioHandleB = iot_gpio_open( ltestIotGpioPortB );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB);
-    if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) {
-        TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
-    }
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
-    TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
-
-    if ( pxValue != NULL )
+    if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
     {
-        lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB);
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
 
-    vTaskDelay( pdMS_TO_TICKS ( testIotGPIO_TEST_READ_DELAY ) );
-
-    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    if ( pxValue != NULL )
+    if( pxValue != NULL )
+    {
+        lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
+        TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
+    }
+
+    vTaskDelay( pdMS_TO_TICKS( testIotGPIO_TEST_READ_DELAY ) );
+
+    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA );
+    TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
+
+    if( pxValue != NULL )
     {
         /* port B is explicitly driven, expect port A reading to match port B */
         TEST_ASSERT_EQUAL( ucValueB, ucValueA );
@@ -315,11 +324,11 @@ static void testIotGpioPull( IotGpioPull_t eGpioPull, uint8_t * pxValue )
     else
     {
         /* expect different port A reading depending on port B pull mode */
-        if ( eGpioPull == eGpioPullUp )
+        if( eGpioPull == eGpioPullUp )
         {
             TEST_ASSERT_EQUAL( 1, ucValueA );
         }
-        else if ( eGpioPull == eGpioPullDown )
+        else if( eGpioPull == eGpioPullDown )
         {
             TEST_ASSERT_EQUAL( 0, ucValueA );
         }
@@ -347,8 +356,8 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioPull )
     uint8_t ucValue;
 
     /* port pullup enabled, not explicitly driven */
-    //testIotGpioPull( eGpioPullUp, NULL );
-    //testIotGpioClosePorts();
+    /*testIotGpioPull( eGpioPullUp, NULL ); */
+    /*testIotGpioClosePorts(); */
 
     /* port pullup enabled, drive low */
     ucValue = 0;
@@ -361,8 +370,8 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioPull )
     testIotGpioClosePorts();
 
     /* port pulldown enabled, not explicitly driven */
-    //testIotGpioPull( eGpioPullDown, NULL );
-    //testIotGpioClosePorts();
+    /*testIotGpioPull( eGpioPullDown, NULL ); */
+    /*testIotGpioClosePorts(); */
 
     /* port pulldown enabled, drive low */
     ucValue = 0;
@@ -392,29 +401,31 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
     uint32_t ulPerfCount0, ulPerfCount1, ulPerfCountSlowDelta, ulPerfCountFastDelta;
 
     IotGpioDirection_t xGpioDirectionA = eGpioDirectionInput;
-    IotGpioPull_t xGpioPullA  = eGpioPullNone;
-    int32_t lSpeed  = ultestIotGpioSlowSpeed;
+    IotGpioPull_t xGpioPullA = eGpioPullNone;
+    int32_t lSpeed = ultestIotGpioSlowSpeed;
 
     /* Setup GPIO port A */
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA , eSetGpioSpeed, &lSpeed);
-    if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioSpeed, &lSpeed );
+
+    if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA , eSetGpioDirection, &xGpioDirectionA);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
         iot_perfcounter_open();
         ulPerfCount0 = iot_perfcounter_get_value();
-        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA);
+        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA );
         ulPerfCount1 = iot_perfcounter_get_value();
-        if ( ulPerfCount1 > ulPerfCount0 )
+
+        if( ulPerfCount1 > ulPerfCount0 )
         {
             ulPerfCountSlowDelta = ulPerfCount1 - ulPerfCount0;
         }
@@ -424,13 +435,14 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
         }
 
         lSpeed = ultestIotGpioFastSpeed;
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioSpeed, &lSpeed);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioSpeed, &lSpeed );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
         ulPerfCount0 = iot_perfcounter_get_value();
-        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA);
+        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA );
         ulPerfCount1 = iot_perfcounter_get_value();
-        if ( ulPerfCount1 > ulPerfCount0 )
+
+        if( ulPerfCount1 > ulPerfCount0 )
         {
             ulPerfCountFastDelta = ulPerfCount1 - ulPerfCount0;
         }
@@ -440,14 +452,13 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
         }
 
         TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
-
     }
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
-
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to test iot_gpio_open --> iot_gpio_close.
  */
@@ -486,6 +497,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOpenOpenClose )
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to test single iot_gpio_open and duplicate iot_gpio_close.
  */
@@ -524,59 +536,60 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioIoctlSetGet )
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
     /* Set the GPIO Direction */
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &eGpioDirectionWrite);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &eGpioDirectionWrite );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioDirection, &eGpioDirectionRead);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioDirection, &eGpioDirectionRead );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     /* Set the GPIO Pull */
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &eGpioPullWrite);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &eGpioPullWrite );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioPull, &eGpioPullRead);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioPull, &eGpioPullRead );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     /* Set the GPIO Interrupt */
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioInterrupt, &eGpioInterruptWrite);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioInterrupt, &eGpioInterruptWrite );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioInterrupt, &eGpioInterruptRead);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioInterrupt, &eGpioInterruptRead );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     /* Set the GPIO Function */
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioFunction, &ulGpioFunctionWrite);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioFunction, &ulGpioFunctionWrite );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioFunction, &ulGpioFunctionRead);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioFunction, &ulGpioFunctionRead );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    TEST_ASSERT_EQUAL( eGpioDirectionWrite , eGpioDirectionRead);
-    TEST_ASSERT_EQUAL( eGpioPullWrite , eGpioPullRead);
-    TEST_ASSERT_EQUAL( eGpioInterruptWrite , eGpioInterruptRead);
-    TEST_ASSERT_EQUAL( ulGpioFunctionWrite , ulGpioFunctionRead);
+    TEST_ASSERT_EQUAL( eGpioDirectionWrite, eGpioDirectionRead );
+    TEST_ASSERT_EQUAL( eGpioPullWrite, eGpioPullRead );
+    TEST_ASSERT_EQUAL( eGpioInterruptWrite, eGpioInterruptRead );
+    TEST_ASSERT_EQUAL( ulGpioFunctionWrite, ulGpioFunctionRead );
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
-static void prvGpioInterruptCallback(uint8_t ucPinState , void * pvUserContext)
+static void prvGpioInterruptCallback( uint8_t ucPinState,
+                                      void * pvUserContext )
 {
-    IotGpioInterrupt_t  xGpioInterrupt = *((IotGpioInterrupt_t * )pvUserContext);
+    IotGpioInterrupt_t xGpioInterrupt = *( ( IotGpioInterrupt_t * ) pvUserContext );
     BaseType_t xHigherPriorityTaskWoken;
     uint8_t ucValueB;
 
     /* Need to remove trigger source if GPIO is configured as level trigger */
-    if ( xGpioInterrupt == eGpioInterruptLow )
+    if( xGpioInterrupt == eGpioInterruptLow )
     {
         ucValueB = 1;
-        iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB);
+        iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     }
-    else if ( xGpioInterrupt == eGpioInterruptHigh )
+    else if( xGpioInterrupt == eGpioInterruptHigh )
     {
         ucValueB = 0;
-        iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB);
+        iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     }
 
     xSemaphoreGiveFromISR( xtestIotGpioSemaphore, &xHigherPriorityTaskWoken );
@@ -590,8 +603,8 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
     uint8_t ucValueA, ucValueB;
 
     IotGpioDirection_t xGpioDirectionA = eGpioDirectionInput;
-    IotGpioPull_t xGpioPullA  = eGpioPullNone;
-    IotGpioInterrupt_t xGpioInterruptA  = eGpioInterrupt;
+    IotGpioPull_t xGpioPullA = eGpioPullNone;
+    IotGpioInterrupt_t xGpioInterruptA = eGpioInterrupt;
 
     IotGpioDirection_t xGpioDirectionB = eGpioDirectionOutput;
     IotGpioOutputMode_t xGpioOutputModeB = eGpioPushPull;
@@ -600,7 +613,7 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
     xtestIotGpioSemaphore = xSemaphoreCreateBinary();
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioSemaphore );
 
-    if (eGpioInterrupt == eGpioInterruptNone )
+    if( eGpioInterrupt == eGpioInterruptNone )
     {
         TEST_ASSERT_FALSE_MESSAGE( eGpioInterrupt == eGpioInterruptNone, "Port interrupt has to be enbaled for testing." );
         return;
@@ -608,23 +621,25 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
 
     /* set up GPIO port B with different mode for port A to read */
     xtestIotGpioHandleB = iot_gpio_open( ltestIotGpioPortB );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB);
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB);
-    if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) {
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB );
+
+    if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
+    {
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     /* set port B output level so that it will not trigger interrupt immediately */
-    if ( eGpioInterrupt == eGpioInterruptRising ||
-        eGpioInterrupt == eGpioInterruptHigh ||
-        eGpioInterrupt == eGpioInterruptEdge )
+    if( ( eGpioInterrupt == eGpioInterruptRising ) ||
+        ( eGpioInterrupt == eGpioInterruptHigh ) ||
+        ( eGpioInterrupt == eGpioInterruptEdge ) )
     {
         /* Set port B to low */
         ucValueB = 0;
@@ -635,27 +650,27 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
         ucValueB = 1;
     }
 
-    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB);
+    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     /* set up port A for interrupt */
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl(xtestIotGpioHandleA,  eSetGpioInterrupt, &xGpioInterruptA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioInterrupt, &xGpioInterruptA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     iot_gpio_set_callback( xtestIotGpioHandleA, prvGpioInterruptCallback, &xGpioInterruptA );
 
     /* Toggle port B to trigger interrupt for port A */
     ucValueB ^= 1;
-    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB);
+    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     lRetVal = xSemaphoreTake( xtestIotGpioSemaphore, ultestIotGpioWaitTime );
@@ -691,7 +706,8 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioInterrupt )
 /**
  * @brief Function for testing iot_gpio_set_callback.
  */
-static void prvGpioCallback(uint8_t ucPinState , void * pvUserContext)
+static void prvGpioCallback( uint8_t ucPinState,
+                             void * pvUserContext )
 {
     BaseType_t xHigherPriorityTaskWoken;
 
@@ -712,9 +728,9 @@ static void testIotGpioOperation( void )
     uint8_t ucValue;
 
     IotGpioDirection_t xGpioDirection = eGpioDirectionInput;
-    IotGpioPull_t xGpioPull  = eGpioPullNone;
-    IotGpioOutputMode_t xGpioOutputMode  = eGpioOpenDrain;
-    IotGpioInterrupt_t xGpioInterrupt  = eGpioInterruptNone;
+    IotGpioPull_t xGpioPull = eGpioPullNone;
+    IotGpioOutputMode_t xGpioOutputMode = eGpioOpenDrain;
+    IotGpioInterrupt_t xGpioInterrupt = eGpioInterruptNone;
 
     /* Get the port to open from the test configuration */
     ucPort = ustestIotGpioConfig & testIotGPIO_TEST_PORT_MASK;
@@ -722,56 +738,57 @@ static void testIotGpioOperation( void )
     xtestIotGpioHandleA = iot_gpio_open( ucPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl(xtestIotGpioHandleA,  eSetGpioPull, &xGpioPull);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPull );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    if ( ustestIotGpioConfig & testIotGPIO_TEST_DIR_MASK )
+    if( ustestIotGpioConfig & testIotGPIO_TEST_DIR_MASK )
     {
         xGpioOutputMode = eGpioPushPull;
         xGpioDirection = eGpioDirectionOutput;
 
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirection);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirection );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioOutputMode, &xGpioOutputMode);
-        if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) {
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioOutputMode, &xGpioOutputMode );
+
+        if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
+        {
             TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
         }
     }
 
-    if ( ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK )
+    if( ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK )
     {
         xGpioInterrupt = eGpioInterruptEdge;
 
-        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA,  eSetGpioDirection, &xGpioDirection);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirection );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
         iot_gpio_set_callback( xtestIotGpioHandleA, prvGpioCallback, &ucPort );
 
-        lRetVal = iot_gpio_ioctl(xtestIotGpioHandleA,  eSetGpioInterrupt, &xGpioInterrupt);
+        lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioInterrupt, &xGpioInterrupt );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
 
-    if ( ustestIotGpioConfig & testIotGPIO_TEST_DIR_MASK )
+    if( ustestIotGpioConfig & testIotGPIO_TEST_DIR_MASK )
     {
-
         /* write operation */
         ucValue = ( ustestIotGpioConfig & testIotGPIO_TEST_VALUE_MASK ) >> testIotGPIO_TEST_VALUE_BIT;
 
         printf( "\nGPIO[%d] write value = 0x%x\n", ucPort, ucValue );
 
-        lRetVal = iot_gpio_write_sync( xtestIotGpioHandleA, ucValue);
+        lRetVal = iot_gpio_write_sync( xtestIotGpioHandleA, ucValue );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
     else
     {
         /* read operation */
-        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValue);
+        lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValue );
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
         printf( "\nGPIO[%d] read value = 0x%x\n", ucPort, ucValue );
     }
 
-    if ( ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK )
+    if( ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK )
     {
         printf( "press GPIO[%d] to trigger interrupt to continue...\n", ucPort );
         lRetVal = xSemaphoreTake( xtestIotGpioSemaphore, ultestIotGpioWaitTime );
@@ -801,38 +818,42 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOperation )
  * @brief Function to test eGpioMode options.
  * This is a Assisted test
  */
-static void testAssistedIotGpioOutputMode( IotGpioOutputMode_t eGpioOutputMode, uint8_t * pxValue )
+static void testAssistedIotGpioOutputMode( IotGpioOutputMode_t eGpioOutputMode,
+                                           uint8_t * pxValue )
 {
     int32_t lRetVal;
     uint8_t ucValueB;
 
     IotGpioDirection_t xGpioDirectionB = eGpioDirectionOutput;
-    IotGpioPull_t xGpioPullB  = eGpioPullNone;
+    IotGpioPull_t xGpioPullB = eGpioPullNone;
     IotGpioOutputMode_t xGpioOutputModeB = eGpioOutputMode;
 
     /* set up GPIO port B to output mode */
     ucValueB = *pxValue;
     xtestIotGpioHandleB = iot_gpio_open( ltestIotGpioPortB );
-    TEST_ASSERT_NOT_EQUAL( NULL,xtestIotGpioHandleB );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB);
-    if ( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) {
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioOutputMode, &xGpioOutputModeB );
+
+    if( lRetVal != IOT_GPIO_FUNCTION_NOT_SUPPORTED )
+    {
         TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_gpio_write_sync(xtestIotGpioHandleB, ucValueB);
+    lRetVal = iot_gpio_write_sync( xtestIotGpioHandleB, ucValueB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test with RP3
  * Assisted test to write from GPIO Pins, and this is being verified form the RP3
@@ -843,11 +864,11 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeWritePushPullTrue )
     uint8_t ucValue;
 
     ucValue = 1;
-    testAssistedIotGpioOutputMode( eGpioPushPull , &ucValue );
+    testAssistedIotGpioOutputMode( eGpioPushPull, &ucValue );
     testIotGpioClosePorts();
-
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test with RP3
  * Assisted test to write from GPIO Pins, and this is being verified form the RP3
@@ -858,11 +879,11 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeWritePushPullFalse )
     uint8_t ucValue;
 
     ucValue = 0;
-    testAssistedIotGpioOutputMode( eGpioPushPull , &ucValue );
+    testAssistedIotGpioOutputMode( eGpioPushPull, &ucValue );
     testIotGpioClosePorts();
-
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test with RP3
  * Assisted test to write from GPIO Pins, and this is being verified form the RP3
@@ -877,6 +898,7 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeWriteOpenDrainTrue )
     testIotGpioClosePorts();
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test with RP3
  * Assisted test to write from GPIO Pins, and this is being verified form the RP3
@@ -891,6 +913,7 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeWriteOpenDrainFalse )
     testIotGpioClosePorts();
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to test eGpioMode options.
  * This is a Assisted test to test the GPIO read modes.
@@ -899,32 +922,33 @@ static void testAssistedIotGpioRead( uint8_t * pxValue )
 {
     int32_t lRetVal;
     uint8_t ucValueA, ucValueB;
+
     ucValueB = *pxValue;
 
     IotGpioDirection_t xGpioDirectionA = eGpioDirectionInput;
-    IotGpioPull_t xGpioPullA  = eGpioPullNone;
+    IotGpioPull_t xGpioPullA = eGpioPullNone;
 
 
     /* Setup GPIO port A to Input mode*/
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA  );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA , eSetGpioDirection, &xGpioDirectionA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioDirection, &xGpioDirectionA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioPull, &xGpioPullA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA);
+    lRetVal = iot_gpio_read_sync( xtestIotGpioHandleA, &ucValueA );
 
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
     TEST_ASSERT_EQUAL( ucValueB, ucValueA );
 
     lRetVal = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
-
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test with RP3
  * Assisted test to read from GPIO Pins, these pins are driven from RP3
@@ -939,10 +963,11 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeReadTrue )
     testAssistedIotGpioRead( &ucValue );
     testIotGpioClosePorts();
 
-    testAssistedIotGpioRead ( &ucValue );
+    testAssistedIotGpioRead( &ucValue );
     testIotGpioClosePorts();
 }
 /*-----------------------------------------------------------*/
+
 /**
  * This is a assisted test to read False on the GPIO pin
  */
@@ -956,13 +981,13 @@ TEST( TEST_IOT_GPIO, AFQP_AssistedIotGpioModeReadFalse )
 
     testAssistedIotGpioRead( &ucValue );
     testIotGpioClosePorts();
-
 }
 /*-----------------------------------------------------------*/
 
 /* Below are Fuzzing tests */
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to test iot_gpio_open --> iot_gpio_close.
  */
@@ -978,7 +1003,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseFuzz )
 
     /* Open GPIO port */
     xtestIotGpioHandleA = iot_gpio_open( ltestIotGpioPortA );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA  );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleA );
 
     lRetValA = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetValA );
@@ -990,6 +1015,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseFuzz )
 
 
 /*-----------------------------------------------------------*/
+
 /**
  * Test to fuzz iot_gpio_read_sync().
  */
@@ -998,16 +1024,15 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioReadWriteSyncFuzz )
     int32_t lRetValA, lRetValB;
     uint8_t ucValue;
 
-    lRetValA = iot_gpio_read_sync( NULL, &ucValue);
+    lRetValA = iot_gpio_read_sync( NULL, &ucValue );
     TEST_ASSERT_EQUAL( IOT_GPIO_INVALID_VALUE, lRetValA );
 
-    lRetValB = iot_gpio_write_sync(NULL, ucValue);
+    lRetValB = iot_gpio_write_sync( NULL, ucValue );
     TEST_ASSERT_EQUAL( IOT_GPIO_INVALID_VALUE, lRetValB );
-
-
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * Test to fuzz iot_gpio_ioctl().
  */
@@ -1018,9 +1043,9 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioIoctlFuzz )
     uint8_t invalidEnum = 0xFF;
 
 
-    lRetValA = iot_gpio_ioctl( NULL,  eSetGpioPull, &ucValue);
+    lRetValA = iot_gpio_ioctl( NULL, eSetGpioPull, &ucValue );
     TEST_ASSERT_EQUAL( IOT_GPIO_INVALID_VALUE, lRetValA );
 
-    lRetValB = iot_gpio_ioctl( NULL,  invalidEnum, &ucValue);
+    lRetValB = iot_gpio_ioctl( NULL, invalidEnum, &ucValue );
     TEST_ASSERT_EQUAL( IOT_GPIO_INVALID_VALUE, lRetValB );
 }

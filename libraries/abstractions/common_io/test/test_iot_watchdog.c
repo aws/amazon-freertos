@@ -43,10 +43,10 @@
 
 /*-----------------------------------------------------------*/
 
-#define testIotWATCHDOG_DEFAULT_BARK_TIME    4U /* 4 msec */
-#define testIotWATCHDOG_DEFAULT_BITE_TIME    5000U /* 5 sec */
+#define testIotWATCHDOG_DEFAULT_BARK_TIME          4U    /* 4 msec */
+#define testIotWATCHDOG_DEFAULT_BITE_TIME          5000U /* 5 sec */
 
-#define testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY 100000U
+#define testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY    100000U
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
@@ -66,10 +66,10 @@ TEST_GROUP( TEST_IOT_WATCHDOG );
 /**
  * @brief Setup function called before each test in this group is executed.
  */
-TEST_SETUP(TEST_IOT_WATCHDOG )
+TEST_SETUP( TEST_IOT_WATCHDOG )
 {
     xtestIotWatchdogSemaphore = xSemaphoreCreateBinary();
-    TEST_ASSERT_NOT_EQUAL(NULL, xtestIotWatchdogSemaphore);
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotWatchdogSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -77,9 +77,9 @@ TEST_SETUP(TEST_IOT_WATCHDOG )
 /**
  * @brief Tear down function called after each test in this group is executed.
  */
-TEST_TEAR_DOWN(TEST_IOT_WATCHDOG )
+TEST_TEAR_DOWN( TEST_IOT_WATCHDOG )
 {
-    vSemaphoreDelete(xtestIotWatchdogSemaphore);
+    vSemaphoreDelete( xtestIotWatchdogSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -87,42 +87,41 @@ TEST_TEAR_DOWN(TEST_IOT_WATCHDOG )
 /**
  * @brief Function to define which tests to execute as part of this group.
  */
-TEST_GROUP_RUNNER(TEST_IOT_WATCHDOG )
+TEST_GROUP_RUNNER( TEST_IOT_WATCHDOG )
 {
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenClose);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogStartNoTimerSet);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogRestartNoStart);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFirst);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFirst);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenOpenClose);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogClose);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogStartStop);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdog_ioctl);
-    RUN_TEST_CASE(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenCloseClose);
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenClose );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogStartNoTimerSet );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogRestartNoStart );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFirst );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFirst );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenOpenClose );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogClose );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogStartStop );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdog_ioctl );
+    RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenCloseClose );
     /* This test will reset the device */
     /* RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWatchdogReset); */
     /* RUN_TEST_CASE( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateResetReason); */
-
 }
 
 /*-----------------------------------------------------------*/
-static void prvWdogBarkCallback( void *pvUserContext)
+static void prvWdogBarkCallback( void * pvUserContext )
 {
     BaseType_t xHigherPriorityTaskWoken;
 
-    xSemaphoreGiveFromISR(xtestIotWatchdogSemaphore, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    xSemaphoreGiveFromISR( xtestIotWatchdogSemaphore, &xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
-static void prvWdogBiteCallback( void *pvUserContext)
+static void prvWdogBiteCallback( void * pvUserContext )
 {
     BaseType_t xHigherPriorityTaskWoken;
 
-    xSemaphoreGiveFromISR(xtestIotWatchdogSemaphore, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    xSemaphoreGiveFromISR( xtestIotWatchdogSemaphore, &xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
@@ -131,17 +130,17 @@ static void prvWdogBiteCallback( void *pvUserContext)
  * @brief Test Function to test iot_watchdog_open and iot_watchdog_close.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenClose)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenClose )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -153,7 +152,7 @@ TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenClose)
  * and watchdog can be restarted.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -162,87 +161,90 @@ TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer)
     int32_t lWdogStatus;
 
     /* Open watchdog to initialize watchdog hardware.*/
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bark time to default value */
     lBarkTime = testIotWATCHDOG_DEFAULT_BARK_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
-    if (lRetVal == IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED) {
-        lRetVal = iot_watchdog_close(xWdogHandle);
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
+
+    if( lRetVal == IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
+    {
+        lRetVal = iot_watchdog_close( xWdogHandle );
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
         return;
     }
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Set the bite time to default bite value.*/
     lBiteTime = testIotWATCHDOG_DEFAULT_BITE_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Read back the bark and bite time */
     lBarkTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BARK_TIME, lBarkTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BARK_TIME, lBarkTime );
 
     /* Get the bite time. */
     lBiteTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime );
 
     /* Set up the callback  */
-    iot_watchdog_set_callback(xWdogHandle,
-                              prvWdogBarkCallback,
-                              NULL);
+    iot_watchdog_set_callback( xWdogHandle,
+                               prvWdogBarkCallback,
+                               NULL );
     /* Start the watchdog timer. */
-    lRetVal = iot_watchdog_start(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_start( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Check the watchdog timer status and ensure that ist running */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogStatus,
-                                (void * const)&lWdogStatus);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(eWatchdogTimerRunning, lWdogStatus);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogStatus,
+                                  ( void * const ) &lWdogStatus );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( eWatchdogTimerRunning, lWdogStatus );
 
     /*Wait for the watchdog timer bark time to expire. */
-    lRetVal = xSemaphoreTake(xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY);
-    TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+    lRetVal = xSemaphoreTake( xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY );
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
     /* Check the watchdog timer status */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogStatus,
-                                (void * const)&lWdogStatus);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(eWatchdogTimerBarkExpired, eWatchdogTimerBarkExpired & lWdogStatus);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogStatus,
+                                  ( void * const ) &lWdogStatus );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( eWatchdogTimerBarkExpired, eWatchdogTimerBarkExpired & lWdogStatus );
 
     /* Stop the watchdog timer. */
-    lRetVal = iot_watchdog_stop(xWdogHandle);
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_watchdog_stop( xWdogHandle );
+
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
     }
 
     /*Check the watchdog timer status and ensure that ist stopped */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogStatus,
-                                (void * const)&lWdogStatus);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(eWatchdogTimerStopped, eWatchdogTimerBarkExpired & lWdogStatus);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogStatus,
+                                  ( void * const ) &lWdogStatus );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( eWatchdogTimerStopped, eWatchdogTimerBarkExpired & lWdogStatus );
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -252,7 +254,7 @@ TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBarkTimer)
  * if bite time expire generates an interrupt and callback is called.
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -261,64 +263,65 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt)
     int32_t lBiteConfig;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bite time to default */
     lBiteTime = testIotWATCHDOG_DEFAULT_BITE_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Get the bite time. */
     lBiteTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime );
 
     /* Set up the callback */
-    iot_watchdog_set_callback(xWdogHandle,
-                              prvWdogBiteCallback,
-                              NULL);
+    iot_watchdog_set_callback( xWdogHandle,
+                               prvWdogBiteCallback,
+                               NULL );
 
     /* Configure bite as interrupt. */
     lBiteConfig = eWatchdogBiteTimerInterrupt;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteBehaviour,
-                                (void* const) &lBiteConfig);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteBehaviour,
+                                  ( void * const ) &lBiteConfig );
 
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED)
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
         /* Start the watchdog timer. */
-        lRetVal = iot_watchdog_start(xWdogHandle);
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+        lRetVal = iot_watchdog_start( xWdogHandle );
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
         /* Wait for the watchdog timer bark time to expire. */
-        lRetVal = xSemaphoreTake(xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY);
-        TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Check the watchdog timer status */
-        lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                    eGetWatchdogStatus,
-                                    (void * const)&lWdogStatus);
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-        TEST_ASSERT_EQUAL(eWatchdogTimerBiteExpired, eWatchdogTimerBiteExpired & lWdogStatus);
+        lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                      eGetWatchdogStatus,
+                                      ( void * const ) &lWdogStatus );
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eWatchdogTimerBiteExpired, eWatchdogTimerBiteExpired & lWdogStatus );
 
         /* Stop the watchdog timer. */
-        lRetVal = iot_watchdog_stop(xWdogHandle);
-        if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED)
+        lRetVal = iot_watchdog_stop( xWdogHandle );
+
+        if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
         {
-            TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+            TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
         }
     }
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -328,21 +331,21 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateBiteInterrupt)
  * verify that watchdog returns proper error.
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogStartNoTimerSet)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogStartNoTimerSet )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Start the watchdog timer. */
-    lRetVal = iot_watchdog_start(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_TIME_NOT_SET, lRetVal);
+    lRetVal = iot_watchdog_start( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_TIME_NOT_SET, lRetVal );
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /**
@@ -350,21 +353,21 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogStartNoTimerSet)
  * verify that watchdog returns proper error.
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogRestartNoStart)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogRestartNoStart )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Restart the watchdog timer. */
-    lRetVal = iot_watchdog_restart(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_TIME_NOT_SET, lRetVal);
+    lRetVal = iot_watchdog_restart( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_TIME_NOT_SET, lRetVal );
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /**
@@ -372,7 +375,7 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogRestartNoStart)
  * and set Bark time greater than Bite and verify that it returns proper error code
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFirst)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFirst )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -380,28 +383,29 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFi
     int32_t lBiteTime;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bark time to default value. */
     lBarkTime = testIotWATCHDOG_DEFAULT_BARK_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
 
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED) {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
+    {
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
         /* Set the bite time less than bark. */
-        lBiteTime = lBarkTime  - 1;
-        lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                    eSetWatchdogBiteTime,
-                                    (void * const)&lBiteTime);
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+        lBiteTime = lBarkTime - 1;
+        lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                      eSetWatchdogBiteTime,
+                                      ( void * const ) &lBiteTime );
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
     }
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /**
@@ -409,7 +413,7 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBarkFi
  * and set Bark time greater than Bite and verify that it returns proper error code
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFirst)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFirst )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -417,27 +421,29 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFi
     int32_t lBiteTime;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bite time to default bite time. */
     lBiteTime = testIotWATCHDOG_DEFAULT_BITE_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Set the bark time to lBiteTime + 1 */
     lBarkTime = lBiteTime + 1;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED) {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
+
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
+    {
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
     }
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -449,7 +455,7 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogSetBarkGreaterThanBiteSetWatchdogBiteFi
  * and watchdog can be restarted.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWdogRestart)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWdogRestart )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -458,81 +464,85 @@ TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWdogRestart)
     int32_t lWdogStatus;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bark time to default default value. */
     lBarkTime = testIotWATCHDOG_DEFAULT_BARK_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
-    if (lRetVal == IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED) {
-        lRetVal = iot_watchdog_close(xWdogHandle);
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
+
+    if( lRetVal == IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
+    {
+        lRetVal = iot_watchdog_close( xWdogHandle );
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
         return;
     }
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Set the bite time to default bite value */
     lBiteTime = testIotWATCHDOG_DEFAULT_BITE_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Read back the bark and bite time */
     lBarkTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBarkTime,
-                                (void * const)&lBarkTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BARK_TIME, lBarkTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBarkTime,
+                                  ( void * const ) &lBarkTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BARK_TIME, lBarkTime );
 
     /* Get the bite time. */
     lBiteTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime );
 
     /* Set up the callback */
-    iot_watchdog_set_callback(xWdogHandle,
-                            prvWdogBarkCallback,
-                            NULL);
+    iot_watchdog_set_callback( xWdogHandle,
+                               prvWdogBarkCallback,
+                               NULL );
 
     /* Start the watchdog timer. */
-    lRetVal = iot_watchdog_start(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_start( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Wait for the watchdog timer bark time to expire. */
-    lRetVal = xSemaphoreTake(xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY);
-    TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+    lRetVal = xSemaphoreTake( xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY );
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
     /* Restart the watchdog timer. */
-    lRetVal = iot_watchdog_restart(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_TIME_NOT_SET, lRetVal);
+    lRetVal = iot_watchdog_restart( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_TIME_NOT_SET, lRetVal );
 
     /* Wait again for the watchdog timer bark time to expire. */
-    lRetVal = xSemaphoreTake(xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY);
-    TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+    lRetVal = xSemaphoreTake( xtestIotWatchdogSemaphore, testIotWATCHDOG_DEFAULT_SEMAPHORE_DELAY );
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
     /* Check the watchdog timer status */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogStatus,
-                                (void * const)&lWdogStatus);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(eWatchdogTimerBarkExpired, eWatchdogTimerBarkExpired & lWdogStatus);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogStatus,
+                                  ( void * const ) &lWdogStatus );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( eWatchdogTimerBarkExpired, eWatchdogTimerBarkExpired & lWdogStatus );
 
     /* Stop the watchdog timer. */
-    lRetVal = iot_watchdog_stop(xWdogHandle);
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_watchdog_stop( xWdogHandle );
+
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
     }
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -542,7 +552,7 @@ TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWdogRestart)
  * if bite time expire resets the device.
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWatchdogReset)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWatchdogReset )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -550,95 +560,94 @@ TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateWatchdogReset)
     int32_t lBiteConfig;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Set the bite time to default */
     lBiteTime = testIotWATCHDOG_DEFAULT_BITE_TIME;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /*Get the bite time. */
     lBiteTime = 0;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eGetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-    TEST_ASSERT_EQUAL(testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eGetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
+    TEST_ASSERT_EQUAL( testIotWATCHDOG_DEFAULT_BITE_TIME, lBiteTime );
 
     /* Configure bite as interrupt. */
     lBiteConfig = eWatchdogBiteTimerReset;
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteBehaviour,
-                                (void* const) &lBiteConfig);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteBehaviour,
+                                  ( void * const ) &lBiteConfig );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
 
     /* Start the watchdog timer. */
-    lRetVal = iot_watchdog_start(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_start( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
-    vTaskDelay(lBiteTime*5);
+    vTaskDelay( lBiteTime * 5 );
     /*Target shall reset */
     /*Execution shall not reach here. */
-    TEST_ASSERT_EQUAL(0, 1);
+    TEST_ASSERT_EQUAL( 0, 1 );
 }
 
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to validate the reset reason after the
  * watchdog resets the device and the device is up after reset.
  *
  */
-TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateResetReason)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogValidateResetReason )
 {
     IotResetReason_t * xResetReason = NULL;
     int32_t lRetVal;
 
     /* Get the reset-reason post watchdog reset. */
-    lRetVal = iot_get_reset_reason(&xResetReason);
-    TEST_ASSERT_EQUAL(IOT_RESET_SUCCESS, lRetVal);
+    lRetVal = iot_get_reset_reason( &xResetReason );
+    TEST_ASSERT_EQUAL( IOT_RESET_SUCCESS, lRetVal );
 
     /* Ensure reset-reason is due to watchdog reset */
-    TEST_ASSERT_EQUAL(eResetWatchdog, xResetReason);
-
-
+    TEST_ASSERT_EQUAL( eResetWatchdog, xResetReason );
 }
 
 
-TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenOpenClose)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenOpenClose )
 {
     IotWatchdogHandle_t xWdogHandle;
     IotWatchdogHandle_t xWdogHandleOpen;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
 
     /* Attempt to Re-Open watchdog to initialize watchdog hardware. */
-    xWdogHandleOpen = iot_watchdog_open(0);
-    TEST_ASSERT_EQUAL(NULL, xWdogHandleOpen);
+    xWdogHandleOpen = iot_watchdog_open( 0 );
+    TEST_ASSERT_EQUAL( NULL, xWdogHandleOpen );
 
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(NULL, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( NULL, lRetVal );
 }
 
 /**
  * @brief Test Function to fuzz iot_watchdog_close.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogClose)
+TEST( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogClose )
 {
     int32_t lRetVal;
 
     /* Close the watchdog timer. */
-    lRetVal = iot_watchdog_close(NULL);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_close( NULL );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
 }
 
 
@@ -647,31 +656,33 @@ TEST(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogClose)
  * @brief Test Function to fuzz iot_watchdog_start, iot_watchdog_stop and iot_watchdog_restart.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogStartStop)
+TEST( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdogStartStop )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_start(NULL);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, xWdogHandle);
+    xWdogHandle = iot_watchdog_start( NULL );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, xWdogHandle );
 
-    lRetVal = iot_watchdog_stop(NULL);
-    if (lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_watchdog_stop( NULL );
+
+    if( lRetVal != IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
     }
+
 /*
-    lRetVal = iot_watchdog_restart(NULL);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
-*/
+ *  lRetVal = iot_watchdog_restart(NULL);
+ *  TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+ */
 }
 
 /**
  * @brief Test Function to fuzz iot_watchdog_ioctl.
  *
  */
-TEST(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdog_ioctl)
+TEST( TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdog_ioctl )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
@@ -680,51 +691,50 @@ TEST(TEST_IOT_WATCHDOG, AFQP_Fuzz_IotWatchdog_ioctl)
 
     /* Invoke iot_watchdog_ioctl with NULL handle and valid buffer. */
     lBiteTime = 0;
-    lRetVal = iot_watchdog_ioctl(NULL,
-                                eGetWatchdogBiteTime,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_ioctl( NULL,
+                                  eGetWatchdogBiteTime,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
 
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Invoke iot_watchdog_ioctl with NULL buffer and valid handle. */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                eSetWatchdogBiteTime,
-                                NULL);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  eSetWatchdogBiteTime,
+                                  NULL );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
 
 
     /* Invoke iot_watchdog_ioctl with NULL buffer and valid handle and invalid enum. */
-    lRetVal = iot_watchdog_ioctl(xWdogHandle,
-                                -1,
-                                (void * const)&lBiteTime);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_ioctl( xWdogHandle,
+                                  -1,
+                                  ( void * const ) &lBiteTime );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
 
     /* Close the watchdog timer. */
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
-
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 }
 
 /* Test to ensure closing the stale handle is not permitted */
 
-TEST(TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenCloseClose)
+TEST( TEST_IOT_WATCHDOG, AFQP_IotWatchdogOpenCloseClose )
 {
     IotWatchdogHandle_t xWdogHandle;
     int32_t lRetVal;
 
     /* Open watchdog to initialize watchdog hardware. */
-    xWdogHandle = iot_watchdog_open(0);
-    TEST_ASSERT_NOT_EQUAL(NULL, xWdogHandle);
+    xWdogHandle = iot_watchdog_open( 0 );
+    TEST_ASSERT_NOT_EQUAL( NULL, xWdogHandle );
 
     /* Close the stale watchdog handle. */
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_SUCCESS, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_SUCCESS, lRetVal );
 
     /* Attempt to Close the stale watchdog handle. */
-    lRetVal = iot_watchdog_close(xWdogHandle);
-    TEST_ASSERT_EQUAL(IOT_WATCHDOG_INVALID_VALUE, lRetVal);
+    lRetVal = iot_watchdog_close( xWdogHandle );
+    TEST_ASSERT_EQUAL( IOT_WATCHDOG_INVALID_VALUE, lRetVal );
 }

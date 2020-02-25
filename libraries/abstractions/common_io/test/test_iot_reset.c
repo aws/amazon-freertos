@@ -70,9 +70,9 @@ TEST_TEAR_DOWN( TEST_IOT_RESET )
  */
 TEST_GROUP_RUNNER( TEST_IOT_RESET )
 {
-    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetShutdown);
-    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetRebootZero);
-    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetRebootNonZero);
+    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetShutdown );
+    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetRebootZero );
+    RUN_TEST_CASE( TEST_IOT_RESET, AFQP_IotResetRebootNonZero );
 }
 
 /*-----------------------------------------------------------*/
@@ -81,7 +81,7 @@ TEST_GROUP_RUNNER( TEST_IOT_RESET )
  * @brief Test Function to test iot_reset_shutdown
  *
  */
-TEST( TEST_IOT_RESET, AFQP_IotResetShutdown)
+TEST( TEST_IOT_RESET, AFQP_IotResetShutdown )
 {
     int32_t lRetVal;
 
@@ -91,9 +91,9 @@ TEST( TEST_IOT_RESET, AFQP_IotResetShutdown)
 
     /* If shutdown is supported then
      * execution shall not reach here */
-    if (lRetVal != IOT_RESET_FUNCTION_NOT_SUPPORTED)
+    if( lRetVal != IOT_RESET_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_NOT_EQUAL(NULL, NULL);
+        TEST_ASSERT_NOT_EQUAL( NULL, NULL );
     }
 }
 
@@ -104,14 +104,15 @@ TEST( TEST_IOT_RESET, AFQP_IotResetShutdown)
  * Zero coldBootFlag
  *
  */
-TEST( TEST_IOT_RESET, AFQP_IotResetRebootZero)
+TEST( TEST_IOT_RESET, AFQP_IotResetRebootZero )
 {
     uint8_t coldBootFlag = 0;
+
     /* Reboot the device.  No returning */
     iot_reset_reboot( coldBootFlag );
 
     /* Execution does not reach here */
-    TEST_ASSERT_NOT_EQUAL(NULL, NULL);
+    TEST_ASSERT_NOT_EQUAL( NULL, NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -121,12 +122,13 @@ TEST( TEST_IOT_RESET, AFQP_IotResetRebootZero)
  * Non-Zero coldBootFlag
  *
  */
-TEST( TEST_IOT_RESET, AFQP_IotResetRebootNonZero)
+TEST( TEST_IOT_RESET, AFQP_IotResetRebootNonZero )
 {
     uint8_t coldBootFlag = -1;
+
     /* Reboot the device.  No returning */
     iot_reset_reboot( coldBootFlag );
 
     /* Execution does not reach here */
-    TEST_ASSERT_NOT_EQUAL(NULL, NULL);
+    TEST_ASSERT_NOT_EQUAL( NULL, NULL );
 }

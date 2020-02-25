@@ -43,17 +43,18 @@
 #include "iot_power.h"
 
 /* Defines */
-#define testIotPOWER_MAX_WAKEUP_SOURCES 32 /* Maximum wakeup sources 32 * 8 = 256*/
+#define testIotPOWER_MAX_WAKEUP_SOURCES    32 /* Maximum wakeup sources 32 * 8 = 256*/
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
-uint32_t ultestIotPowerDelay = 100;             /* Default Delay used 100 msec*/
+uint32_t ultestIotPowerDelay = 100;            /* Default Delay used 100 msec*/
 
-uint32_t ultestIotPowerSleepTimeTolerance = 3;  /* Sleep time tolerence - should be 1 */
-uint32_t ultestIotPowerPcWakeThreshold = 2;     /* Default threshold for PCWake Idle is 2ticks/ms */
-uint32_t ultestIotPowerClkSrcOffThreshold = 8;  /* Default threshold for ClkSrcOff Idle is 8ticks/ms */
-uint32_t ultestIotPowerVddOffThreshold = 9;     /* Default threshold for VddOff Idle is 9ticks/ms */
+uint32_t ultestIotPowerSleepTimeTolerance = 3; /* Sleep time tolerence - should be 1 */
+uint32_t ultestIotPowerPcWakeThreshold = 2;    /* Default threshold for PCWake Idle is 2ticks/ms */
+uint32_t ultestIotPowerClkSrcOffThreshold = 8; /* Default threshold for ClkSrcOff Idle is 8ticks/ms */
+uint32_t ultestIotPowerVddOffThreshold = 9;    /* Default threshold for VddOff Idle is 9ticks/ms */
 
 uint32_t ultestIotPowerInterruptConfig1 = 0;
 uint32_t ultestIotPowerInterruptConfig2 = 0;
@@ -125,6 +126,7 @@ TEST_GROUP_RUNNER( TEST_IOT_POWER )
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_IoctlFuzzing );
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_GetModeFuzzing );
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_CloseFuzzing );
+
     /* This test may reset the device if Vdd is off
      * Run this test individually from test_iot_main
      * RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest );
@@ -134,30 +136,34 @@ TEST_GROUP_RUNNER( TEST_IOT_POWER )
 /**
  * @brief  Callback function - called when entering and exiting idle state.
  */
-static void prvIotPowerCallback(bool bIdleState, void * pvUserContext )
+static void prvIotPowerCallback( bool bIdleState,
+                                 void * pvUserContext )
 {
     BaseType_t xHigherPriorityTaskWoken;
     IotPowerIdleMode_t xIdleModeEntered;
     int lRetVal;
 
-    if (bIdleState == true)
+    if( bIdleState == true )
     {
         /* Take the timetick only when first time it enters the sleep */
-        if (ultestIotPowerSleepEnterTime == 0)
+        if( ultestIotPowerSleepEnterTime == 0 )
         {
             ultestIotPowerSleepEnterTime = xTaskGetTickCount();
         }
+
         btestIotPowerIdleEnterState = true;
         xSemaphoreGiveFromISR( xtestIotPowerIdleEnterSemaphore, &xHigherPriorityTaskWoken );
     }
     else
     {
         /* Check the last sleep mode entered */
-        lRetVal = iot_power_ioctl( (IotPowerHandle_t )pvUserContext, eGetLastIdleMode, &xIdleModeEntered );
-        if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED && xIdleModeEntered  > xLastMode )
+        lRetVal = iot_power_ioctl( ( IotPowerHandle_t ) pvUserContext, eGetLastIdleMode, &xIdleModeEntered );
+
+        if( ( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED ) && ( xIdleModeEntered > xLastMode ) )
         {
             xLastMode = xIdleModeEntered;
         }
+
         ultestIotPowerSleepExitTime = xTaskGetTickCount();
         btestIotPowerIdleExitState = true;
         xSemaphoreGiveFromISR( xtestIotPowerIdleExitSemaphore, &xHigherPriorityTaskWoken );
@@ -167,20 +173,22 @@ static void prvIotPowerCallback(bool bIdleState, void * pvUserContext )
 /**
  * @brief  Callback function - to vote for a mode and cancel the entering to idle mode
  */
-static void prvIotPowerCallbackCancelIdle(bool bIdleState, void * pvUserContext )
+static void prvIotPowerCallbackCancelIdle( bool bIdleState,
+                                           void * pvUserContext )
 {
     int32_t lRetVal;
     BaseType_t xHigherPriorityTaskWoken;
     IotPowerMode_t xPowerMode = eUnknownPowerMode;
+
     btestIotPowerIdleEnterState = bIdleState;
 
-    if ( bIdleState == true  && pvUserContext != NULL )
+    if( ( bIdleState == true ) && ( pvUserContext != NULL ) )
     {
         /* Set the power mode to normal performance to cancel entering to idle */
-        lRetVal = iot_power_set_mode( (IotPowerHandle_t )pvUserContext, eHighPowerPerfMode);
+        lRetVal = iot_power_set_mode( ( IotPowerHandle_t ) pvUserContext, eHighPowerPerfMode );
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
-        lRetVal = iot_power_get_mode( (IotPowerHandle_t )pvUserContext, &xPowerMode );
+        lRetVal = iot_power_get_mode( ( IotPowerHandle_t ) pvUserContext, &xPowerMode );
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
         TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
 
@@ -189,7 +197,7 @@ static void prvIotPowerCallbackCancelIdle(bool bIdleState, void * pvUserContext 
     else
     {
         /* Error condition. Wake up shall not happen when Idle is cancelled */
-        TEST_ASSERT(0);
+        TEST_ASSERT( 0 );
     }
 }
 
@@ -198,21 +206,21 @@ static void prvIotPowerCallbackCancelIdle(bool bIdleState, void * pvUserContext 
  */
 static void prvDisableInterrupts()
 {
-#ifdef __ARM_ARCH /* Check for ARM target */
-    ultestIotPowerSavedInterruptConfig1 = *(volatile uint32_t *)0xE000E100;
-    ultestIotPowerSavedInterruptConfig2 = *(volatile uint32_t *)0xE000E104;
+    #ifdef __ARM_ARCH /* Check for ARM target */
+        ultestIotPowerSavedInterruptConfig1 = *( volatile uint32_t * ) 0xE000E100;
+        ultestIotPowerSavedInterruptConfig2 = *( volatile uint32_t * ) 0xE000E104;
 
-    /* Clear Enable registers */
-    *(volatile uint32_t *)0xE000E180 = ~(ultestIotPowerInterruptConfig1);
-    *(volatile uint32_t *)0xE000E184 = ~(ultestIotPowerInterruptConfig2);
+        /* Clear Enable registers */
+        *( volatile uint32_t * ) 0xE000E180 = ~( ultestIotPowerInterruptConfig1 );
+        *( volatile uint32_t * ) 0xE000E184 = ~( ultestIotPowerInterruptConfig2 );
 
-    /* Clear all Pending interrupts */
-    *(volatile uint32_t *)0xE000E280 = 0xFFFFFFFF;
-    *(volatile uint32_t *)0xE000E284 = 0xFFFFFFFF;
+        /* Clear all Pending interrupts */
+        *( volatile uint32_t * ) 0xE000E280 = 0xFFFFFFFF;
+        *( volatile uint32_t * ) 0xE000E284 = 0xFFFFFFFF;
 
-    __asm volatile( "dsb" ::: "memory" );
-    __asm volatile( "isb" );
-#endif
+        __asm volatile ( "dsb" ::: "memory" );
+        __asm volatile ( "isb" );
+    #endif /* ifdef __ARM_ARCH */
 }
 
 /**
@@ -220,14 +228,13 @@ static void prvDisableInterrupts()
  */
 static void prvEnableInterrupts()
 {
-#ifdef __ARM_ARCH /* Check for ARM target */
-    /* Re-Enable the interrupts at nvic */
-    *(volatile uint32_t *)0xE000E100 = ultestIotPowerSavedInterruptConfig1;
-    *(volatile uint32_t *)0xE000E104 = ultestIotPowerSavedInterruptConfig2;
-    __asm volatile( "dsb" ::: "memory" );
-    __asm volatile( "isb" );
-
-#endif
+    #ifdef __ARM_ARCH /* Check for ARM target */
+        /* Re-Enable the interrupts at nvic */
+        *( volatile uint32_t * ) 0xE000E100 = ultestIotPowerSavedInterruptConfig1;
+        *( volatile uint32_t * ) 0xE000E104 = ultestIotPowerSavedInterruptConfig2;
+        __asm volatile ( "dsb" ::: "memory" );
+        __asm volatile ( "isb" );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -263,7 +270,8 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeHigh )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -293,7 +301,8 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeNormal )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eNormalPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -323,7 +332,8 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeLow )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eLowPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eLowPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -353,7 +363,8 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -365,10 +376,11 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
     TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
 
     /* Register for Idle enter/exit callback */
-    iot_power_set_callback( xPowerHandle, prvIotPowerCallback, xPowerHandle);
+    iot_power_set_callback( xPowerHandle, prvIotPowerCallback, xPowerHandle );
 
     /* Reset the power mode */
     lRetVal = iot_power_reset_mode( xPowerHandle );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -381,14 +393,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
 
         /* Suspend this task for some time (10 sec) for giving a chance to
          * RTOS to enter Idle and call the call-back to set the semaphore */
-        vTaskDelay(ultestIotPowerDelay / portTICK_PERIOD_MS);
+        vTaskDelay( ultestIotPowerDelay / portTICK_PERIOD_MS );
 
         /* Wait till the Idle mode is entered */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleEnterSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is entering */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState );
         btestIotPowerIdleEnterState = false;
 
         /* Wait till the Idle mode is exited */
@@ -396,12 +408,12 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdle )
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is exiting */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState );
         btestIotPowerIdleExitState = false;
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
@@ -428,7 +440,8 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdleCancel )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -440,10 +453,11 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdleCancel )
     TEST_ASSERT_EQUAL( eHighPowerPerfMode, xPowerMode );
 
     /* Register for Idle enter/exit callback */
-    iot_power_set_callback( xPowerHandle, prvIotPowerCallbackCancelIdle, xPowerHandle);
+    iot_power_set_callback( xPowerHandle, prvIotPowerCallbackCancelIdle, xPowerHandle );
 
     /* Reset the power mode */
     lRetVal = iot_power_reset_mode( xPowerHandle );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -456,14 +470,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_EnterIdleCancel )
 
         /* Suspend this task for some time (10 sec) for giving a chance to
          * RTOS to enter Idle and call the call-back to set the semaphore */
-        vTaskDelay(ultestIotPowerDelay / portTICK_PERIOD_MS);
+        vTaskDelay( ultestIotPowerDelay / portTICK_PERIOD_MS );
 
         /* Wait till the Idle mode is entered */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleEnterSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is entering */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState );
     }
 
     /* Close Power handle */
@@ -487,12 +501,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_IoctlEnum )
 
     /* Call iot_power_ioctl with eGetPCWakeThreshold/eSetPCWakeThreshold */
     lRetVal = iot_power_ioctl( xPowerHandle, eGetPCWakeThreshold, &ulMilliSeconds1 );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
         ulMilliSeconds1 += 1;
         lRetVal = iot_power_ioctl( xPowerHandle, eSetPCWakeThreshold, &ulMilliSeconds1 );
+
         if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
         {
             TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -511,12 +527,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_IoctlEnum )
 
     /* Call iot_power_ioctl with eGetClkSrcOffWakeThreshold/eSetClkSrcOffWakeThreshold */
     lRetVal = iot_power_ioctl( xPowerHandle, eGetClkSrcOffWakeThreshold, &ulMilliSeconds1 );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
         ulMilliSeconds1 += 1;
         lRetVal = iot_power_ioctl( xPowerHandle, eSetClkSrcOffWakeThreshold, &ulMilliSeconds1 );
+
         if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
         {
             TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -535,12 +553,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_IoctlEnum )
 
     /* Call iot_power_ioctl with eGetVddOfffWakeThreshold / eSetVddOfffWakeThreshold */
     lRetVal = iot_power_ioctl( xPowerHandle, eGetVddOfffWakeThreshold, &ulMilliSeconds1 );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
         ulMilliSeconds1 += 1;
         lRetVal = iot_power_ioctl( xPowerHandle, eSetVddOfffWakeThreshold, &ulMilliSeconds1 );
+
         if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
         {
             TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -575,22 +595,24 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_SetModeFuzzing )
     TEST_ASSERT_NOT_EQUAL( NULL, xPowerHandle );
 
     /* Set the mode with invalid handle */
-    lRetVal = iot_power_set_mode( NULL, eLowPowerPerfMode);
+    lRetVal = iot_power_set_mode( NULL, eLowPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SET_FAILED, lRetVal );
 
     /* Set the mode with invalid setting */
-    lRetVal = iot_power_set_mode( xPowerHandle, -2);
+    lRetVal = iot_power_set_mode( xPowerHandle, -2 );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
     }
 
     /* Set the correct mode first */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Set the mode with invalid mode */
-    lRetVal = iot_power_set_mode( xPowerHandle, eUnknownPowerMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eUnknownPowerMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
@@ -615,9 +637,10 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ResetModeFuzzing )
 
     /* Set the mode with invalid handle */
     lRetVal = iot_power_reset_mode( NULL );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
-       TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
+        TEST_ASSERT_EQUAL( IOT_POWER_INVALID_VALUE, lRetVal );
     }
 
     /* Close Power handle with a valid handle */
@@ -733,7 +756,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     IotPowerMode_t xPowerMode = eUnknownPowerMode;
     IotPowerWakeupSources_t xWakeupSources;
     IotPowerWakeupSources_t xGetWakeupSources;
-    uint8_t ucGetWakeupSources[testIotPOWER_MAX_WAKEUP_SOURCES] = {0};
+    uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
 
@@ -744,12 +767,15 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     /* Call iot_power_ioctl with eSetPCWakeThreshold */
     ulMilliSeconds = ultestIotPowerPcWakeThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetPCWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
     }
+
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -771,6 +797,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     xWakeupSources.pucWakeupSources = puctestIotPowerWakeupSources;
     xWakeupSources.usLength = ustestIotPowerWakeupSourcesLength;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetWakeupSources, &xWakeupSources );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -781,21 +808,25 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
     xGetWakeupSources.usLength = ustestIotPowerWakeupSourcesLength;
 
     lRetVal = iot_power_ioctl( xPowerHandle, eGetWakeupSources, &xGetWakeupSources );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-        for (int i=0; i< ustestIotPowerWakeupSourcesLength; i++)
+
+        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
-            if (ucGetWakeupSources[i] != puctestIotPowerWakeupSources[i] )
+            if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {
-                TEST_ASSERT(0);
+                TEST_ASSERT( 0 );
             }
         }
     }
+
     /* Reset the last mode */
     xLastMode = eIdleNoneMode;
     /* Reset the power mode */
     lRetVal = iot_power_reset_mode( xPowerHandle );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -807,36 +838,36 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_PCWakeThresholdTest )
 
         /* Suspend this task for some time (10 sec) for giving a chance to
          * RTOS to enter Idle and call the call-back to set the semaphore */
-        vTaskDelay(ultestIotPowerDelay / portTICK_PERIOD_MS);
+        vTaskDelay( ultestIotPowerDelay / portTICK_PERIOD_MS );
 
         /* Wait till the Idle mode is entered */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleEnterSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is entering */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState );
         btestIotPowerIdleEnterState = false;
 
         /* Wait till the Idle mode is exited */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleExitSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
-        if( xLastMode != eIdleNoneMode)
+        if( xLastMode != eIdleNoneMode )
         {
             TEST_ASSERT_EQUAL( eIdlePCMode, xLastMode );
         }
 
         /* Make sure time spent in sleep */
         TEST_ASSERT_GREATER_THAN_UINT32( ultestIotPowerDelay - ultestIotPowerSleepTimeTolerance,
-                                    (ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime));
+                                         ( ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime ) );
 
         /* Verify that idle mode is exiting */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState );
         btestIotPowerIdleExitState = false;
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
@@ -858,7 +889,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     IotPowerMode_t xPowerMode = eUnknownPowerMode;
     IotPowerWakeupSources_t xWakeupSources;
     IotPowerWakeupSources_t xGetWakeupSources;
-    uint8_t ucGetWakeupSources[testIotPOWER_MAX_WAKEUP_SOURCES] = {0};
+    uint8_t ucGetWakeupSources[ testIotPOWER_MAX_WAKEUP_SOURCES ] = { 0 };
     uint32_t ulMilliSeconds;
     int32_t lRetVal;
 
@@ -869,6 +900,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     /* Call iot_power_ioctl with eSetPCWakeThreshold */
     ulMilliSeconds = ultestIotPowerPcWakeThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetPCWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -877,13 +909,15 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     /* Call iot_power_ioctl with eSetClkSrcOffWakeThreshold */
     ulMilliSeconds = ultestIotPowerClkSrcOffThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetClkSrcOffWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
     }
 
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -906,6 +940,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     xWakeupSources.usLength = ustestIotPowerWakeupSourcesLength;
 
     lRetVal = iot_power_ioctl( xPowerHandle, eSetWakeupSources, &xWakeupSources );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -916,25 +951,28 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
     xGetWakeupSources.usLength = ustestIotPowerWakeupSourcesLength;
 
     lRetVal = iot_power_ioctl( xPowerHandle, eGetWakeupSources, &xGetWakeupSources );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
-        for (int i=0; i< ustestIotPowerWakeupSourcesLength; i++)
+
+        for( int i = 0; i < ustestIotPowerWakeupSourcesLength; i++ )
         {
-            if (ucGetWakeupSources[i] != puctestIotPowerWakeupSources[i] )
+            if( ucGetWakeupSources[ i ] != puctestIotPowerWakeupSources[ i ] )
             {
-                TEST_ASSERT(0);
+                TEST_ASSERT( 0 );
             }
         }
     }
 
     /* Make sure IotPowerDelay is at-least 2 ticks */
-    TEST_ASSERT_GREATER_THAN_UINT32( 2, ultestIotPowerDelay);
+    TEST_ASSERT_GREATER_THAN_UINT32( 2, ultestIotPowerDelay );
 
     /* Reset the last mode */
     xLastMode = eIdleNoneMode;
     /* Reset the power mode */
     lRetVal = iot_power_reset_mode( xPowerHandle );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -949,39 +987,39 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_ClkSrcOffWakeThresholdTest )
 
         /* Suspend this task for some time (10 sec) for giving a chance to
          * RTOS to enter Idle and call the call-back to set the semaphore */
-        vTaskDelay(ultestIotPowerDelay / portTICK_PERIOD_MS);
+        vTaskDelay( ultestIotPowerDelay / portTICK_PERIOD_MS );
 
         /* Wait till the Idle mode is entered */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleEnterSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is entering */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState );
         btestIotPowerIdleEnterState = false;
 
         /* Wait till the Idle mode is exited */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleExitSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
-        if( xLastMode != eIdleNoneMode)
+        if( xLastMode != eIdleNoneMode )
         {
             TEST_ASSERT_EQUAL( eIdleClkSrcOffModeMode, xLastMode );
         }
 
         /* Make sure time spent in sleep */
         TEST_ASSERT_GREATER_THAN_UINT32( ultestIotPowerDelay - ultestIotPowerSleepTimeTolerance,
-                                    (ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime));
+                                         ( ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime ) );
 
         /* Re-Enable all the interrupts */
         prvEnableInterrupts();
 
         /* Verify that idle mode is exiting */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState );
         btestIotPowerIdleExitState = false;
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */
@@ -1011,6 +1049,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
     /* Call iot_power_ioctl with eSetPCWakeThreshold */
     ulMilliSeconds = ultestIotPowerPcWakeThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetPCWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -1019,6 +1058,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
     /* Call iot_power_ioctl with eSetClkSrcOffWakeThreshold */
     ulMilliSeconds = ultestIotPowerClkSrcOffThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetClkSrcOffWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -1027,13 +1067,15 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
     /* Call iot_power_ioctl with  eSetVddOfffWakeThreshold */
     ulMilliSeconds = ultestIotPowerVddOffThreshold;
     lRetVal = iot_power_ioctl( xPowerHandle, eSetVddOfffWakeThreshold, &ulMilliSeconds );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
     }
 
     /* Set the power mode to high performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -1049,6 +1091,7 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
 
     /* Reset the power mode */
     lRetVal = iot_power_reset_mode( xPowerHandle );
+
     if( lRetVal != IOT_POWER_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
@@ -1063,14 +1106,14 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
 
         /* Suspend this task for some time (10 sec) for giving a chance to
          * RTOS to enter Idle and call the call-back to set the semaphore */
-        vTaskDelay(ultestIotPowerDelay / portTICK_PERIOD_MS);
+        vTaskDelay( ultestIotPowerDelay / portTICK_PERIOD_MS );
 
         /* Wait till the Idle mode is entered */
         lRetVal = xSemaphoreTake( xtestIotPowerIdleEnterSemaphore, portMAX_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* Verify that idle mode is entering */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleEnterState );
         btestIotPowerIdleEnterState = false;
 
         /* Wait till the Idle mode is exited */
@@ -1079,18 +1122,18 @@ TEST( TEST_IOT_POWER, AFQP_IotPower_VddOffWakeThresholdTest )
 
         /* Make sure time spent in sleep */
         TEST_ASSERT_GREATER_THAN_UINT32( ultestIotPowerDelay - ultestIotPowerSleepTimeTolerance,
-                                    (ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime));
+                                         ( ultestIotPowerSleepExitTime - ultestIotPowerSleepEnterTime ) );
 
         /* Re-Enable all the interrupts */
         prvEnableInterrupts();
 
         /* Verify that idle mode is exiting */
-        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState);
+        TEST_ASSERT_EQUAL( true, btestIotPowerIdleExitState );
         btestIotPowerIdleExitState = false;
     }
 
     /* Set the power mode to normal performance */
-    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode);
+    lRetVal = iot_power_set_mode( xPowerHandle, eHighPowerPerfMode );
     TEST_ASSERT_EQUAL( IOT_POWER_SUCCESS, lRetVal );
 
     /* Read the performance mode and verify normal mode */

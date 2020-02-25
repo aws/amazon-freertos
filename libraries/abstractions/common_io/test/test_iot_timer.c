@@ -40,11 +40,12 @@
 #include "semphr.h"
 #include "task.h"
 
-#define testIotTIMER_DEFAULT_DELAY_US 500
-#define testIotTIMER_SLEEP_DELAY_MS 1
+#define testIotTIMER_DEFAULT_DELAY_US    500
+#define testIotTIMER_SLEEP_DELAY_MS      1
 
 
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
@@ -80,11 +81,12 @@ TEST_TEAR_DOWN( TEST_IOT_TIMER )
 }
 
 /*-----------------------------------------------------------*/
-static void prvTimerCallback( void *pvUserContext)
+static void prvTimerCallback( void * pvUserContext )
 {
     BaseType_t xHigherPriorityTaskWoken;
-    xSemaphoreGiveFromISR(xtestIotTimerSemaphore, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+    xSemaphoreGiveFromISR( xtestIotTimerSemaphore, &xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
@@ -95,23 +97,23 @@ static void prvTimerCallback( void *pvUserContext)
 TEST_GROUP_RUNNER( TEST_IOT_TIMER )
 {
     xtestIotTimerSemaphore = xSemaphoreCreateBinary();
-    TEST_ASSERT_NOT_EQUAL(NULL, xtestIotTimerSemaphore);
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTimerSemaphore );
 
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_OpenClose);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Running);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Stop);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Callback);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_NoCallback);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Cancel);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_OpenFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CloseFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StartFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_GetFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StopFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CallbackFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CancelFuzzing);
-    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_DelayFuzzing);
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_OpenClose );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Running );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Stop );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Callback );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_NoCallback );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_Cancel );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_OpenFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CloseFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StartFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_GetFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_StopFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CallbackFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_CancelFuzzing );
+    RUN_TEST_CASE( TEST_IOT_TIMER, AFWP_IotTimer_DelayFuzzing );
 }
 
 /*-----------------------------------------------------------*/
@@ -120,24 +122,24 @@ TEST_GROUP_RUNNER( TEST_IOT_TIMER )
  * @brief Test Function to test iot_timer_open and iot_timer_close.
  *
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_OpenClose)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_OpenClose )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware. */
-    if (gIotTimerHandle == NULL)
+    if( gIotTimerHandle == NULL )
     {
-        xTimerHandle = iot_timer_open( ltestIotTimerInstance);
-        TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+        xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+        TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
     }
     else
     {
         xTimerHandle = gIotTimerHandle;
     }
 
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Set the global TimerHandle to NULL as we closed the handle */
     gIotTimerHandle = NULL;
@@ -149,7 +151,7 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_OpenClose)
  * @brief Test Function to test getMicroSeconds
  *
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
@@ -157,10 +159,10 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running)
     uint64_t ulMicroSeconds2 = 0;
 
     /* Open timer to initialize hardware. */
-    if (gIotTimerHandle == NULL)
+    if( gIotTimerHandle == NULL )
     {
-        xTimerHandle = iot_timer_open( ltestIotTimerInstance);
-        TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+        xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+        TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
     }
     else
     {
@@ -168,45 +170,47 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Running)
     }
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Delay for 1 msec. */
-    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+    vTaskDelay( testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS );
 
     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds1);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds1 );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Make sure MicroSeconds returned is not '0' */
-    TEST_ASSERT_NOT_EQUAL(0, ulMicroSeconds1);
+    TEST_ASSERT_NOT_EQUAL( 0, ulMicroSeconds1 );
 
     /* Delay for 5 msec. */
-    vTaskDelay( (testIotTIMER_SLEEP_DELAY_MS * 5) / portTICK_PERIOD_MS);
+    vTaskDelay( ( testIotTIMER_SLEEP_DELAY_MS * 5 ) / portTICK_PERIOD_MS );
 
     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds2);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds2 );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Make sure second value is greater than origin + delay within 1msec range  */
-    TEST_ASSERT_GREATER_THAN_UINT32 ((ulMicroSeconds1 + ((testIotTIMER_SLEEP_DELAY_MS - 1) * 1000)), ulMicroSeconds2);
-    TEST_ASSERT_GREATER_THAN_UINT32 (ulMicroSeconds2, (ulMicroSeconds1 + ((testIotTIMER_SLEEP_DELAY_MS + 1) * 1000)));
+    TEST_ASSERT_GREATER_THAN_UINT32( ( ulMicroSeconds1 + ( ( testIotTIMER_SLEEP_DELAY_MS - 1 ) * 1000 ) ), ulMicroSeconds2 );
+    TEST_ASSERT_GREATER_THAN_UINT32( ulMicroSeconds2, ( ulMicroSeconds1 + ( ( testIotTIMER_SLEEP_DELAY_MS + 1 ) * 1000 ) ) );
 
     /* Stop the timer */
-    lRetVal = iot_timer_stop(xTimerHandle);
-    if (lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_timer_stop( xTimerHandle );
+
+    if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
     }
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test stopping the timre
  *
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
@@ -214,47 +218,48 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop)
     uint64_t ulMicroSeconds2 = 0;
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open( ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Delay for 1 msec. */
-    vTaskDelay(testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS);
+    vTaskDelay( testIotTIMER_SLEEP_DELAY_MS / portTICK_PERIOD_MS );
 
     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds1);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds1 );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Make sure MicroSeconds returned is not '0' */
-    TEST_ASSERT_NOT_EQUAL(0, ulMicroSeconds1);
+    TEST_ASSERT_NOT_EQUAL( 0, ulMicroSeconds1 );
 
     /* Delay for 5 msec. */
-    vTaskDelay( (testIotTIMER_SLEEP_DELAY_MS * 5) / portTICK_PERIOD_MS);
+    vTaskDelay( ( testIotTIMER_SLEEP_DELAY_MS * 5 ) / portTICK_PERIOD_MS );
 
     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds2);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds2 );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Make sure second value is greater than origin + delay within 1msec range  */
-    TEST_ASSERT_GREATER_THAN_UINT32 ((ulMicroSeconds1 + ((testIotTIMER_SLEEP_DELAY_MS - 1) * 1000)), ulMicroSeconds2);
-    TEST_ASSERT_GREATER_THAN_UINT32 (ulMicroSeconds2, (ulMicroSeconds1 + ((testIotTIMER_SLEEP_DELAY_MS + 1) * 1000)));
+    TEST_ASSERT_GREATER_THAN_UINT32( ( ulMicroSeconds1 + ( ( testIotTIMER_SLEEP_DELAY_MS - 1 ) * 1000 ) ), ulMicroSeconds2 );
+    TEST_ASSERT_GREATER_THAN_UINT32( ulMicroSeconds2, ( ulMicroSeconds1 + ( ( testIotTIMER_SLEEP_DELAY_MS + 1 ) * 1000 ) ) );
 
     /* Stop the timer */
-    lRetVal = iot_timer_stop(xTimerHandle);
-    if (lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_timer_stop( xTimerHandle );
+
+    if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
         /* Get the time in micro seconds */
-        lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds1);
-        TEST_ASSERT_EQUAL(IOT_TIMER_NOT_RUNNING, lRetVal);
+        lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds1 );
+        TEST_ASSERT_EQUAL( IOT_TIMER_NOT_RUNNING, lRetVal );
     }
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
 
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 /*-----------------------------------------------------------*/
 
@@ -262,17 +267,17 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Stop)
  * @brief Test Function to test iot_timer_delay
  * and verify that callback is called correctly.
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_Callback)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_Callback )
 {
     IotTimerHandle_t xTimerHandle;
     uint64_t ulMicroSeconds;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware. */
-    if (gIotTimerHandle == NULL)
+    if( gIotTimerHandle == NULL )
     {
-        xTimerHandle = iot_timer_open( ltestIotTimerInstance);
-        TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+        xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+        TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
     }
     else
     {
@@ -280,318 +285,321 @@ TEST( TEST_IOT_TIMER, AFWP_IotTimer_Callback)
     }
 
     /* Set up the callback */
-    iot_timer_set_callback(xTimerHandle,
-                                prvTimerCallback,
-                                NULL);
+    iot_timer_set_callback( xTimerHandle,
+                            prvTimerCallback,
+                            NULL );
 
     /* Set up the delay */
-    lRetVal = iot_timer_delay(xTimerHandle,
-                                    testIotTIMER_DEFAULT_DELAY_US );
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_delay( xTimerHandle,
+                               testIotTIMER_DEFAULT_DELAY_US );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
-     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    /* Get the time in micro seconds */
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Wait for the Delay callback to be called. */
-    lRetVal = xSemaphoreTake(xtestIotTimerSemaphore, portMAX_DELAY);
-    TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+    lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, portMAX_DELAY );
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
     /* Get the time in micro seconds
      * Make sure the current micro-seconds value is greater than the delay
      */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
-    TEST_ASSERT_GREATER_THAN_UINT32(testIotTIMER_DEFAULT_DELAY_US, ulMicroSeconds);
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
+    TEST_ASSERT_GREATER_THAN_UINT32( testIotTIMER_DEFAULT_DELAY_US, ulMicroSeconds );
 
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test no callback when timer stopped
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_NoCallback)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_NoCallback )
 {
     IotTimerHandle_t xTimerHandle;
     uint64_t ulMicroSeconds;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Set up the callback */
-    iot_timer_set_callback(xTimerHandle,
-                                prvTimerCallback,
-                                NULL);
+    iot_timer_set_callback( xTimerHandle,
+                            prvTimerCallback,
+                            NULL );
 
     /* Set up the delay */
-    lRetVal = iot_timer_delay(xTimerHandle,
-                                    testIotTIMER_DEFAULT_DELAY_US );
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_delay( xTimerHandle,
+                               testIotTIMER_DEFAULT_DELAY_US );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
-     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    /* Get the time in micro seconds */
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Stop the timer */
-    lRetVal = iot_timer_stop(xTimerHandle);
-    if (lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_timer_stop( xTimerHandle );
+
+    if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
         /* Wait for the Delay.  Make sure callback is not called. */
-        lRetVal = xSemaphoreTake(xtestIotTimerSemaphore, 2*testIotTIMER_DEFAULT_DELAY_US);
-        TEST_ASSERT_NOT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+        TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
     }
 
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test timer stopped, then started again
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartAgain )
 {
     IotTimerHandle_t xTimerHandle;
     uint64_t ulMicroSeconds;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Set up the callback */
-    iot_timer_set_callback(xTimerHandle,
-                                prvTimerCallback,
-                                NULL);
+    iot_timer_set_callback( xTimerHandle,
+                            prvTimerCallback,
+                            NULL );
 
     /* Set up the delay */
-    lRetVal = iot_timer_delay(xTimerHandle,
-                                    testIotTIMER_DEFAULT_DELAY_US );
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_delay( xTimerHandle,
+                               testIotTIMER_DEFAULT_DELAY_US );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
-     /* Get the time in micro seconds */
-    lRetVal = iot_timer_get_value(xTimerHandle, &ulMicroSeconds);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    /* Get the time in micro seconds */
+    lRetVal = iot_timer_get_value( xTimerHandle, &ulMicroSeconds );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Stop the timer */
-    lRetVal = iot_timer_stop(xTimerHandle);
-    if (lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_timer_stop( xTimerHandle );
+
+    if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
         /* Wait for the Delay.  Make sure callback is not called. */
-        lRetVal = xSemaphoreTake(xtestIotTimerSemaphore, 2*testIotTIMER_DEFAULT_DELAY_US);
-        TEST_ASSERT_NOT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+        TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
 
         /* Start the timer again*/
-        lRetVal = iot_timer_start(xTimerHandle);
-        TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+        lRetVal = iot_timer_start( xTimerHandle );
+        TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
         /* Wait for the Delay.  Make sure callback is called. */
-        lRetVal = xSemaphoreTake(xtestIotTimerSemaphore, 2*testIotTIMER_DEFAULT_DELAY_US);
-        TEST_ASSERT_EQUAL(pdTRUE, lRetVal);
+        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
     }
 
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test timer cancel
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_Cancel)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_Cancel )
 {
     IotTimerHandle_t xTimerHandle;
     uint64_t ulMicroSeconds;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Set up the callback */
-    iot_timer_set_callback(xTimerHandle,
-                                prvTimerCallback,
-                                NULL);
+    iot_timer_set_callback( xTimerHandle,
+                            prvTimerCallback,
+                            NULL );
 
     /* Set up the delay */
-    lRetVal = iot_timer_delay(xTimerHandle,
-                                    testIotTIMER_DEFAULT_DELAY_US );
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_delay( xTimerHandle,
+                               testIotTIMER_DEFAULT_DELAY_US );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Start the timer */
-    lRetVal = iot_timer_start(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_start( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Cancel the timer */
-    lRetVal = iot_timer_cancel(xTimerHandle);
+    lRetVal = iot_timer_cancel( xTimerHandle );
+
     if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
-	    printf("lRetVal = %d\n",lRetVal);
-        TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+        printf( "lRetVal = %d\n", lRetVal );
+        TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
         /* Wait for the Delay.  Make sure callback is not called. */
-        lRetVal = xSemaphoreTake(xtestIotTimerSemaphore, 2*testIotTIMER_DEFAULT_DELAY_US);
-        TEST_ASSERT_NOT_EQUAL(pdTRUE, lRetVal);
-
+        lRetVal = xSemaphoreTake( xtestIotTimerSemaphore, 2 * testIotTIMER_DEFAULT_DELAY_US );
+        TEST_ASSERT_NOT_EQUAL( pdTRUE, lRetVal );
     }
 
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test fuzzing of open call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_OpenFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_OpenFuzzing )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
 
     /* Open timer to initialize hardware with invalid instance. */
-    xTimerHandle = iot_timer_open(-1);
-    TEST_ASSERT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( -1 );
+    TEST_ASSERT_EQUAL( NULL, xTimerHandle );
 }
 
 /**
  * @brief Test Function to test fuzzing of close call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_CloseFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_CloseFuzzing )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
 
     /* Close timer with NULL handle */
-    lRetVal = iot_timer_close(NULL);
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_close( NULL );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Close once with valid handle */
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
     /* Close second time with stale handle */
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 }
 
 /**
  * @brief Test Function to test fuzzing of start call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_StartFuzzing )
 {
     int32_t lRetVal;
 
     /* Call Start Timer with invalid handle */
-    lRetVal = iot_timer_start(NULL);
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_start( NULL );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 }
 
 /**
  * @brief Test Function to test fuzzing of get call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_GetFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_GetFuzzing )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
     uint64_t ulMicroSeconds1 = 0;
 
     /* Get the time in micro seconds, with invalid Handle*/
-    lRetVal = iot_timer_get_value(NULL, &ulMicroSeconds1);
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_get_value( NULL, &ulMicroSeconds1 );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
 
     /* Get the time in micro seconds, with valid handle but NULL buffer */
-    lRetVal = iot_timer_get_value(xTimerHandle, NULL);
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_get_value( xTimerHandle, NULL );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 
     /* Close once with valid handle */
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test fuzzing of stop call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_StopFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_StopFuzzing )
 {
     int32_t lRetVal;
 
     /* Call Stop Timer with invalid handle */
-    lRetVal = iot_timer_stop(NULL);
+    lRetVal = iot_timer_stop( NULL );
+
     if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
     }
 }
 
 /**
  * @brief Test Function to test fuzzing of set_callback call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_CallbackFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_CallbackFuzzing )
 {
     IotTimerHandle_t xTimerHandle;
     int32_t lRetVal;
 
     /* Call set_callback with NULLL handle */
-    iot_timer_set_callback(NULL, prvTimerCallback, NULL);
+    iot_timer_set_callback( NULL, prvTimerCallback, NULL );
 
 
     /* Open timer to initialize hardware. */
-    xTimerHandle = iot_timer_open(ltestIotTimerInstance);
-    TEST_ASSERT_NOT_EQUAL(NULL, xTimerHandle);
+    xTimerHandle = iot_timer_open( ltestIotTimerInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
 
     /* Call set_callback with NULLL handle */
-    iot_timer_set_callback(xTimerHandle, NULL, NULL);
+    iot_timer_set_callback( xTimerHandle, NULL, NULL );
 
     /* Close once with valid handle */
-    lRetVal = iot_timer_close(xTimerHandle);
-    TEST_ASSERT_EQUAL(IOT_TIMER_SUCCESS, lRetVal);
+    lRetVal = iot_timer_close( xTimerHandle );
+    TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 }
 
 /**
  * @brief Test Function to test fuzzing of cancel call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_CancelFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_CancelFuzzing )
 {
     int32_t lRetVal;
 
     /* Call Cancel Timer with invalid handle */
-    lRetVal = iot_timer_cancel(NULL);
+    lRetVal = iot_timer_cancel( NULL );
+
     if( lRetVal != IOT_TIMER_FUNCTION_NOT_SUPPORTED )
     {
-        TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+        TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
     }
 }
 
 /**
  * @brief Test Function to test fuzzing of delay call
  */
-TEST( TEST_IOT_TIMER, AFWP_IotTimer_DelayFuzzing)
+TEST( TEST_IOT_TIMER, AFWP_IotTimer_DelayFuzzing )
 {
     int32_t lRetVal;
 
     /* Call Cancel Timer with invalid handle */
-    lRetVal = iot_timer_delay(NULL,testIotTIMER_DEFAULT_DELAY_US );
-    TEST_ASSERT_EQUAL(IOT_TIMER_INVALID_VALUE, lRetVal);
+    lRetVal = iot_timer_delay( NULL, testIotTIMER_DEFAULT_DELAY_US );
+    TEST_ASSERT_EQUAL( IOT_TIMER_INVALID_VALUE, lRetVal );
 }
-

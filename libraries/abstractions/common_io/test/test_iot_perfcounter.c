@@ -42,10 +42,10 @@
 
 /*-----------------------------------------------------------*/
 
-#define testIotPERFCOUNTER_INT_MAX_VALUE             ( 0xFFFFFFFFUL )
+#define testIotPERFCOUNTER_INT_MAX_VALUE            ( 0xFFFFFFFFUL )
 
-#define testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS     ( 1 )
-#define testIotPERFCOUNTER_SEC_TO_MSEC               ( 1000 )
+#define testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS    ( 1 )
+#define testIotPERFCOUNTER_SEC_TO_MSEC              ( 1000 )
 
 /*-----------------------------------------------------------*/
 
@@ -107,7 +107,7 @@ TEST( TEST_IOT_PERFCOUNTER, AFQP_IotPerfCounterGetValue )
      * By when it's probably better to fail the test if it takes that long.
      * Two reads can be equal, depending on what frequency the counter is running at.
      */
-    TEST_ASSERT_MESSAGE ( ullCounter2 >= ullCounter1, "The value from the second read is expected to be no smaller than the first.");
+    TEST_ASSERT_MESSAGE( ullCounter2 >= ullCounter1, "The value from the second read is expected to be no smaller than the first." );
 
     /* Close the interface. */
     iot_perfcounter_close();
@@ -136,7 +136,7 @@ TEST( TEST_IOT_PERFCOUNTER, AFQP_IotPerfCounterGetValueWithDelay )
     ullCounter1 = iot_perfcounter_get_value();
 
     /* Delay for AT MOST 1 msec. (Assume no interrupt.) */
-    vTaskDelay( testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS  / portTICK_PERIOD_MS );
+    vTaskDelay( testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS / portTICK_PERIOD_MS );
 
     /* Get the value from perf counter again. */
     ullCounter2 = iot_perfcounter_get_value();
@@ -146,7 +146,7 @@ TEST( TEST_IOT_PERFCOUNTER, AFQP_IotPerfCounterGetValueWithDelay )
      * 1. Timer might not have been started correctly.
      * 2. Timer frequency might not be realistic.
      */
-    TEST_ASSERT_MESSAGE( ( ullCounter1 > 0 && ullCounter2 > 0 ) , "Perf counter value did not increase." );
+    TEST_ASSERT_MESSAGE( ( ullCounter1 > 0 && ullCounter2 > 0 ), "Perf counter value did not increase." );
 
     /* Frequency value should never be zero in any counter configuration. */
     TEST_ASSERT_MESSAGE( ( ulFreq > 0 ), "Counter frequency is expected to be not zero." );
@@ -154,7 +154,7 @@ TEST( TEST_IOT_PERFCOUNTER, AFQP_IotPerfCounterGetValueWithDelay )
     /* Convert time elapsed to counter cycles. The result can be zero, if counter is running at unrealistic frequency.
      * Keeping below line for understanding purpose.
      */
-    // ullCounterThreshold = ( uint64_t ) testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS * ulFreq / testIotPERFCOUNTER_SEC_TO_MSEC;
+    /* ullCounterThreshold = ( uint64_t ) testIotPERFCOUNTER_DEFAULT_DELAY_TIME_MS * ulFreq / testIotPERFCOUNTER_SEC_TO_MSEC; */
 
     /* We can never have a golden assertion here, since --
      * 1, if no interrupt during vTaskDelay(), this is always true: ullCounter2 <= ullCounter1 + ullCounterThreshold

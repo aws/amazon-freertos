@@ -227,7 +227,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
     /* consume all semaphores given due to Async read callbacks which the test didn't care about */
     while( pdTRUE == xSemaphoreTake( xtestIotAdcTestSemaphore, 0 ) )
     {
-        ;
     }
 
     /* query channel state for channel x */
@@ -332,14 +331,14 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcChBuffer )
         iot_adc_set_callback( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel, prvAdcChCallback, &xUserCntx );
 
         /* start channel data scan on channel */
-        memset(usChDataBuf, 0, sizeof(usChDataBuf));
+        memset( usChDataBuf, 0, sizeof( usChDataBuf ) );
         lRetVal = iot_adc_start( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         lRetVal = xSemaphoreTake( xtestIotAdcTestSemaphore, ltestIotAdcTestChWaitTime );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
         /* start channel data scan on channel again to make sure we can sample repeatedly */
-        memset(usChDataBuf, 0, sizeof(usChDataBuf));
+        memset( usChDataBuf, 0, sizeof( usChDataBuf ) );
         lRetVal = iot_adc_start( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         lRetVal = xSemaphoreTake( xtestIotAdcTestSemaphore, ltestIotAdcTestChWaitTime );
@@ -404,14 +403,14 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
     iot_adc_set_callback( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel, prvAdcChCallback, &xUserCntx );
 
     /* start chain scan */
-    memset(usChainBuf, 0, sizeof(usChainBuf));
+    memset( usChainBuf, 0, sizeof( usChainBuf ) );
     lRetVal = iot_adc_start( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     lRetVal = xSemaphoreTake( xtestIotAdcTestSemaphore, ltestIotAdcTestChWaitTime );
     TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
     /* start chain scan to make sure we can sample repeatedly */
-    memset(usChainBuf, 0, sizeof(usChainBuf));
+    memset( usChainBuf, 0, sizeof( usChainBuf ) );
     lRetVal = iot_adc_stop( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     lRetVal = iot_adc_start( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
@@ -609,7 +608,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
 
 /*-----------------------------------------------------------*/
 static void xAdcCallbackTmp( uint16_t * pusConvertedData,
-                      void * pvUserContext )
+                             void * pvUserContext )
 {
 }
 

@@ -123,8 +123,9 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryVoltage )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* Get the battery voltage */
-    lRetVal = iot_battery_voltage( xBatteryHandle, &usVoltage);
-    if(lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_battery_voltage( xBatteryHandle, &usVoltage );
+
+    if( lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_BATTERY_SUCCESS, lRetVal );
         TEST_ASSERT_GREATER_THAN_UINT32( 0, usVoltage );
@@ -150,8 +151,9 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryLevel )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* Get the battery level */
-    lRetVal = iot_battery_chargeLevel( xBatteryHandle, &ucLevel);
-    if(lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_battery_chargeLevel( xBatteryHandle, &ucLevel );
+
+    if( lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_BATTERY_SUCCESS, lRetVal );
         TEST_ASSERT_GREATER_THAN_UINT32( 0, ucLevel );
@@ -176,8 +178,9 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryCapacity )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* Get the battery capacity */
-    lRetVal = iot_battery_capacity( xBatteryHandle, &ucCapacity);
-    if(lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_battery_capacity( xBatteryHandle, &ucCapacity );
+
+    if( lRetVal != IOT_BATTERY_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_BATTERY_SUCCESS, lRetVal );
         TEST_ASSERT_GREATER_THAN_UINT32( 0, ucCapacity );
@@ -202,11 +205,11 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryVoltageFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* read voltage with NULL handle*/
-    lRetVal = iot_battery_voltage( NULL, &usVoltage);
+    lRetVal = iot_battery_voltage( NULL, &usVoltage );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     /* read voltage with valid handle null buffer*/
-    lRetVal = iot_battery_voltage( xBatteryHandle, NULL);
+    lRetVal = iot_battery_voltage( xBatteryHandle, NULL );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     /* Close battery interface */
@@ -229,11 +232,11 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryLevelFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* read charge level with NULL handle*/
-    lRetVal = iot_battery_chargeLevel( NULL, &ucLevel);
+    lRetVal = iot_battery_chargeLevel( NULL, &ucLevel );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     /* read charge level with valid handle, null buffer*/
-    lRetVal = iot_battery_chargeLevel( xBatteryHandle, NULL);
+    lRetVal = iot_battery_chargeLevel( xBatteryHandle, NULL );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_battery_close( xBatteryHandle );
@@ -255,11 +258,11 @@ TEST( TEST_IOT_BATTERY, AFQP_IotBatteryCapacityFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xBatteryHandle );
 
     /* read capacity with NULL handle*/
-    lRetVal = iot_battery_capacity( NULL, &ucCapacity);
+    lRetVal = iot_battery_capacity( NULL, &ucCapacity );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     /* read capacity with valid handle, null buffer*/
-    lRetVal = iot_battery_capacity( xBatteryHandle, NULL);
+    lRetVal = iot_battery_capacity( xBatteryHandle, NULL );
     TEST_ASSERT_EQUAL( IOT_BATTERY_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_battery_close( xBatteryHandle );

@@ -43,15 +43,16 @@
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
-uint32_t ultestIotEfuse16BitWordValidIdx = 151;              /**< A valid 16-bit word fuse index. */
-uint32_t ultestIotEfuse16BitWordInvalidIdx = 159;            /**< An invalid 16-bit word fuse index. */
-uint16_t ustestIotEfuse16BitWordWriteVal = 0x5a5a;           /**< test value to write into a 16-bit efuse word */
-uint32_t ultestIotEfuse32BitWordValidIdx = 159;              /**< A valid 32-bit word fuse index. */
-uint32_t ultestIotEfuse32BitWordInvalidIdx = 151;            /**< An invalid 32-bit word fuse index. */
-uint32_t ultestIotEfuse32BitWordWriteVal = 0x5a5a5a5a;       /**< test value to write into a 32-bit efuse word */
+uint32_t ultestIotEfuse16BitWordValidIdx = 151;        /**< A valid 16-bit word fuse index. */
+uint32_t ultestIotEfuse16BitWordInvalidIdx = 159;      /**< An invalid 16-bit word fuse index. */
+uint16_t ustestIotEfuse16BitWordWriteVal = 0x5a5a;     /**< test value to write into a 16-bit efuse word */
+uint32_t ultestIotEfuse32BitWordValidIdx = 159;        /**< A valid 32-bit word fuse index. */
+uint32_t ultestIotEfuse32BitWordInvalidIdx = 151;      /**< An invalid 32-bit word fuse index. */
+uint32_t ultestIotEfuse32BitWordWriteVal = 0x5a5a5a5a; /**< test value to write into a 32-bit efuse word */
 
 
 /*-----------------------------------------------------------*/
@@ -116,11 +117,11 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseOpenClose )
 
     /* Close efuse to deinit hardware. */
     lRetVal = iot_efuse_close( xEfuseHandle );
-    TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal);
+    TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
 
     /* Close again should get IOT_EFUSE_INVALID_VALUE */
     lRetVal = iot_efuse_close( xEfuseHandle );
-    TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal);
+    TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
 }
 
 /**
@@ -138,15 +139,17 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead32BitWord )
     uint32_t ulReadVal;
 
     /* Write to 32-bit wide efuse word using a NULL handle */
-    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulValidIndex, ulWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulValidIndex, ulWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Read a 32-bit wide efuse word using a NULL handle */
-    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, (uint32_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, ( uint32_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
@@ -156,37 +159,42 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead32BitWord )
     TEST_ASSERT_NOT_EQUAL( NULL, xEfuseHandle );
 
     /* Write to 32-bit wide efuse word using an invalid index */
-    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulInvalidIndex, ulWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulInvalidIndex, ulWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Read a 32-bit wide efuse word using an invalid index */
-    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulInvalidIndex, (uint32_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulInvalidIndex, ( uint32_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Write a 32-bit wide efuse word using a valid index */
-    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulValidIndex, ulWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_32bit_word( xEfuseHandle, ulValidIndex, ulWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
     }
 
     /* Read back to check it vlaue is written correctly */
-    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, (uint32_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, ( uint32_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
         TEST_ASSERT_EQUAL( ulWriteVal, ulReadVal );
     }
 
     /* Read a 32-bit wide efuse word using a NULL receive buffer */
-    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, NULL);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_32bit_word( xEfuseHandle, ulValidIndex, NULL );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
@@ -211,15 +219,17 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     uint16_t ulReadVal;
 
     /* Write to 16-bit wide efuse word using a NULL handle*/
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Read a 16-bit wide efuse word using a NULL handle */
-    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, (uint16_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, ( uint16_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
@@ -229,37 +239,42 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     TEST_ASSERT_NOT_EQUAL( NULL, xEfuseHandle );
 
     /* Write to 16-bit wide efuse word using an invalid index */
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulInvalidIndex, usWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulInvalidIndex, usWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Read a 16-bit wide efuse word using an invalid index */
-    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulInvalidIndex, (uint16_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulInvalidIndex, ( uint16_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
 
     /* Write a 16-bit wide efuse word using a valid index */
-    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_write_16bit_word( xEfuseHandle, ulValidIndex, usWriteVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
     }
 
     /* Read back to check it vlaue is written correctly */
-    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, (uint16_t *)&ulReadVal);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, ( uint16_t * ) &ulReadVal );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
         TEST_ASSERT_EQUAL( usWriteVal, ulReadVal );
     }
 
     /* Read a 16-bit wide efuse word using a NULL receive buffer */
-    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, NULL);
-    if(lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED)
+    lRetVal = iot_efuse_read_16bit_word( xEfuseHandle, ulValidIndex, NULL );
+
+    if( lRetVal != IOT_EFUSE_FUNCTION_NOT_SUPPORTED )
     {
         TEST_ASSERT_EQUAL( IOT_EFUSE_INVALID_VALUE, lRetVal );
     }
@@ -268,4 +283,3 @@ TEST( TEST_IOT_EFUSE, AFQP_IotEfuseWriteRead16BitWord )
     lRetVal = iot_efuse_close( xEfuseHandle );
     TEST_ASSERT_EQUAL( IOT_EFUSE_SUCCESS, lRetVal );
 }
-
