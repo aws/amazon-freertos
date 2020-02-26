@@ -30,7 +30,7 @@ import socket
 import threading
 
 GPIO_R = 4
-GPIO_W = 20
+GPIO_W = 23
 
 sample_counts = 50
 sample_duration = 0.2
@@ -82,7 +82,7 @@ def socket_thread(s):
     process_end = True
 
 
-def start_pwm(pi, gpio=20, frequency=1000, duty_cycle=30):
+def start_pwm(pi, gpio=23, frequency=1000, duty_cycle=30):
     """
     Setup gpio and start to generate pwm.
     :param pi: pigpio handler

@@ -47,21 +47,24 @@
 
 
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 uint32_t ultestIotPwmGpioOutputPin = 14;
 uint32_t ultestIotPwmGpioInputPin = 18;
-uint32_t ultestIotPwmGpioFunction = 0x4U; //IOPCTL_PIO_FUNC4;
-uint32_t ulAssistedTestIotPwmGpioInputPin = 17;
+uint32_t ultestIotPwmGpioFunction = 0x4U; /*IOPCTL_PIO_FUNC4; */
+uint32_t ulAssistedTestIotPwmGpioInputPin = 23;
 
-uint32_t ultestIotPwmInstance = 2;          /* Use PWM instance 2 */
-uint32_t ultestIotPwmFrequency = 2000UL;    /* 2KHz frequency */
-uint32_t ultestIotPwmDutyCycle = 20;        /* Default duty cycle */
-uint32_t ultestIotPwmChannel = 0;           /* Default PWM Channel */
+uint32_t ultestIotPwmInstance = 2;            /* Use PWM instance 2 */
+uint32_t ultestIotPwmFrequency = 2000UL;      /* 2KHz frequency */
+uint32_t ultestIotPwmDutyCycle = 20;          /* Default duty cycle */
+uint32_t ultestIotPwmChannel = 0;             /* Default PWM Channel */
+uint32_t ulAssistedTestIotPwmInstance = 2;    /* Use PWM instance 2 for assisted test */
+uint32_t ulAssistedTestIotPwmChannel = 0;     /* Default PWM Channel for assisted test */
 
-volatile uint32_t ultestIotPwmIrqCounter = 0;  /* Count how many pulses we've had */
-#define PWM_TEST_DURATION_MSEC 5000
+volatile uint32_t ultestIotPwmIrqCounter = 0; /* Count how many pulses we've had */
+#define PWM_TEST_DURATION_MSEC    5000
 
 
 /*-----------------------------------------------------------*/
@@ -102,23 +105,24 @@ TEST_GROUP_RUNNER( TEST_IOT_PWM )
     xtestIotPwmGpioSemaphore = xSemaphoreCreateBinary();
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotPwmGpioSemaphore );
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenClose );
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetGetConfig);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_Start);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_Stop);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_NoConfig);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFuzzing);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_CloseFuzzing);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetConfigFuzzing);
-    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_GetConfigFuzzing);
-    //RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_StartFailure);
-    //RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFailure );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetGetConfig );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_Start );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_Stop );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_NoConfig );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFuzzing );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_CloseFuzzing );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetConfigFuzzing );
+    RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_GetConfigFuzzing );
+    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_StartFailure); */
+    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFailure ); */
 }
 
 
 /**
  * @brief Function for testing iot_gpio_set_callback.
  */
-static void prvGpioCallback(uint8_t ucPinState , void * pvPosixParam)
+static void prvGpioCallback( uint8_t ucPinState,
+                             void * pvPosixParam )
 {
     BaseType_t xHigherPriorityTaskWoken;
 
@@ -138,7 +142,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_OpenClose )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Close PWM handle */
@@ -153,12 +157,12 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_OpenClose )
 TEST( TEST_IOT_PWM, AFQP_IotPwm_SetGetConfig )
 {
     IotPwmHandle_t xPwmHandle;
-    IotPwmConfig_t xSetPwmConfig ;
-    IotPwmConfig_t *xGetPwmConfig;
+    IotPwmConfig_t xSetPwmConfig;
+    IotPwmConfig_t * xGetPwmConfig;
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
@@ -167,7 +171,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_SetGetConfig )
     xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
 
     /* Set the pwm configuration */
-    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig);
+    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Get the pwm configuration */
@@ -175,9 +179,9 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_SetGetConfig )
     TEST_ASSERT_NOT_EQUAL( NULL, xGetPwmConfig );
 
     /* Confim Set and Get are the same */
-    TEST_ASSERT_EQUAL( xSetPwmConfig.ulPwmFrequency, xGetPwmConfig->ulPwmFrequency);
-    TEST_ASSERT_EQUAL( xSetPwmConfig.ucPwmDutyCycle, xGetPwmConfig->ucPwmDutyCycle);
-    TEST_ASSERT_EQUAL( xSetPwmConfig.ucPwmChannel, xGetPwmConfig->ucPwmChannel);
+    TEST_ASSERT_EQUAL( xSetPwmConfig.ulPwmFrequency, xGetPwmConfig->ulPwmFrequency );
+    TEST_ASSERT_EQUAL( xSetPwmConfig.ucPwmDutyCycle, xGetPwmConfig->ucPwmDutyCycle );
+    TEST_ASSERT_EQUAL( xSetPwmConfig.ucPwmChannel, xGetPwmConfig->ucPwmChannel );
 
     /* Close PWM handle */
     lRetVal = iot_pwm_close( xPwmHandle );
@@ -195,7 +199,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_Start )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
@@ -204,11 +208,11 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_Start )
     xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
 
     /* Set the pwm configuration */
-    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig);
+    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Close PWM handle */
@@ -227,7 +231,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_Stop )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
@@ -236,15 +240,15 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_Stop )
     xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
 
     /* Set the pwm configuration */
-    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig);
+    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Stop the PWM signal */
-    lRetVal = iot_pwm_stop(xPwmHandle);
+    lRetVal = iot_pwm_stop( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Close PWM handle */
@@ -262,11 +266,11 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_NoConfig )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_NOT_CONFIGURED, lRetVal );
 
     /* Close PWM handle */
@@ -284,7 +288,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_OpenFuzzing )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(-1);
+    xPwmHandle = iot_pwm_open( -1 );
     TEST_ASSERT_EQUAL( NULL, xPwmHandle );
 }
 
@@ -298,7 +302,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_CloseFuzzing )
     int32_t lRetVal;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Close PWM handle */
@@ -333,7 +337,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwm_SetConfigFuzzing )
  */
 TEST( TEST_IOT_PWM, AFQP_IotPwm_GetConfigFuzzing )
 {
-    IotPwmConfig_t *xGetPwmConfig;
+    IotPwmConfig_t * xGetPwmConfig;
 
     xGetPwmConfig = iot_pwm_get_config( NULL );
     TEST_ASSERT_EQUAL( NULL, xGetPwmConfig );
@@ -351,10 +355,10 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmStartFailure )
     int32_t lRetVal;
 
     /* Open pwm handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_NOT_CONFIGURED, lRetVal );
 
     /* Close the pwm handle */
@@ -377,11 +381,11 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmOpenFailure )
     TEST_ASSERT_EQUAL( NULL, xPwmHandle1 );
 
     /* Open pwm handle */
-    xPwmHandle1 = iot_pwm_open( ultestIotPwmInstance);
+    xPwmHandle1 = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle1 );
 
     /* Open pwm handle again. */
-    xPwmHandle2 = iot_pwm_open( ultestIotPwmInstance);
+    xPwmHandle2 = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_EQUAL( NULL, xPwmHandle2 );
 
     /* Close the pwm handle */
@@ -390,7 +394,8 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmOpenFailure )
 }
 
 /*-----------------------------------------------------------*/
-static void prvPwmGpioInterruptCallback(uint8_t ucPinState , void * pvUserContext)
+static void prvPwmGpioInterruptCallback( uint8_t ucPinState,
+                                         void * pvUserContext )
 {
     ultestIotPwmIrqCounter++;
 }
@@ -403,27 +408,27 @@ static void prvPwmGpioInterruptCallback(uint8_t ucPinState , void * pvUserContex
  */
 TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
 {
-    int32_t               lRetVal;
-    uint32_t              expected_count       =0;
-    IotPwmHandle_t        xPwmHandle           = NULL;
-    IotPwmConfig_t        xSetPwmConfig;
+    int32_t lRetVal;
+    uint32_t expected_count = 0;
+    IotPwmHandle_t xPwmHandle = NULL;
+    IotPwmConfig_t xSetPwmConfig;
 
-    IotGpioHandle_t       xtestIotGpioHandleB  = NULL;
-    IotGpioDirection_t    xGpioDirectionB      = eGpioDirectionInput;
-    IotGpioPull_t         xGpioPullB           = eGpioPullNone;
-    IotGpioInterrupt_t    xGpioInterruptB      = eGpioInterruptRising;
+    IotGpioHandle_t xtestIotGpioHandleB = NULL;
+    IotGpioDirection_t xGpioDirectionB = eGpioDirectionInput;
+    IotGpioPull_t xGpioPullB = eGpioPullNone;
+    IotGpioInterrupt_t xGpioInterruptB = eGpioInterruptRising;
 
     /* set up port B for interrupt */
     xtestIotGpioHandleB = iot_gpio_open( ultestIotPwmGpioInputPin );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl(xtestIotGpioHandleB,  eSetGpioInterrupt, &xGpioInterruptB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioInterrupt, &xGpioInterruptB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     iot_gpio_set_callback( xtestIotGpioHandleB, prvPwmGpioInterruptCallback, &xGpioInterruptB );
@@ -432,7 +437,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
     ultestIotPwmIrqCounter = 0;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
@@ -441,15 +446,15 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
     xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
 
     /* Set the pwm configuration */
-    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig);
+    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Delay for 5 sec. */
-    vTaskDelay(PWM_TEST_DURATION_MSEC / portTICK_PERIOD_MS);
+    vTaskDelay( PWM_TEST_DURATION_MSEC / portTICK_PERIOD_MS );
 
     /* Close PWM handle */
     lRetVal = iot_pwm_close( xPwmHandle );
@@ -459,9 +464,9 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
     lRetVal = iot_gpio_close( xtestIotGpioHandleB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    expected_count = ultestIotPwmFrequency * (PWM_TEST_DURATION_MSEC / 1000);
-    TEST_ASSERT_GREATER_THAN( (expected_count - 100), ultestIotPwmIrqCounter);
-    TEST_ASSERT_GREATER_THAN( ultestIotPwmIrqCounter, (expected_count + 100));
+    expected_count = ultestIotPwmFrequency * ( PWM_TEST_DURATION_MSEC / 1000 );
+    TEST_ASSERT_GREATER_THAN( ( expected_count - 100 ), ultestIotPwmIrqCounter );
+    TEST_ASSERT_GREATER_THAN( ultestIotPwmIrqCounter, ( expected_count + 100 ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -473,27 +478,27 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
  */
 TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
 {
-    int32_t               lRetVal;
-    uint32_t              expected_count       =0;
-    IotPwmHandle_t        xPwmHandle           = NULL;
-    IotPwmConfig_t        xSetPwmConfig;
+    int32_t lRetVal;
+    uint32_t expected_count = 0;
+    IotPwmHandle_t xPwmHandle = NULL;
+    IotPwmConfig_t xSetPwmConfig;
 
-    IotGpioHandle_t       xtestIotGpioHandleB  = NULL;
-    IotGpioDirection_t    xGpioDirectionB      = eGpioDirectionInput;
-    IotGpioPull_t         xGpioPullB           = eGpioPullNone;
-    IotGpioInterrupt_t    xGpioInterruptB      = eGpioInterruptRising;
+    IotGpioHandle_t xtestIotGpioHandleB = NULL;
+    IotGpioDirection_t xGpioDirectionB = eGpioDirectionInput;
+    IotGpioPull_t xGpioPullB = eGpioPullNone;
+    IotGpioInterrupt_t xGpioInterruptB = eGpioInterruptRising;
 
     /* set up port B for interrupt */
     xtestIotGpioHandleB = iot_gpio_open( ulAssistedTestIotPwmGpioInputPin );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioDirection, &xGpioDirectionB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioPull, &xGpioPullB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    lRetVal = iot_gpio_ioctl(xtestIotGpioHandleB,  eSetGpioInterrupt, &xGpioInterruptB);
+    lRetVal = iot_gpio_ioctl( xtestIotGpioHandleB, eSetGpioInterrupt, &xGpioInterruptB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
     iot_gpio_set_callback( xtestIotGpioHandleB, prvPwmGpioInterruptCallback, &xGpioInterruptB );
@@ -502,24 +507,24 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
     ultestIotPwmIrqCounter = 0;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open(ultestIotPwmInstance);
+    xPwmHandle = iot_pwm_open( ulAssistedTestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
     xSetPwmConfig.ulPwmFrequency = ultestIotPwmFrequency;
     xSetPwmConfig.ucPwmDutyCycle = ultestIotPwmDutyCycle;
-    xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
+    xSetPwmConfig.ucPwmChannel = ulAssistedTestIotPwmChannel;
 
     /* Set the pwm configuration */
-    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig);
+    lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Start the PWM signal */
-    lRetVal = iot_pwm_start(xPwmHandle);
+    lRetVal = iot_pwm_start( xPwmHandle );
     TEST_ASSERT_EQUAL( IOT_PWM_SUCCESS, lRetVal );
 
     /* Delay for 5 sec. */
-    vTaskDelay(PWM_TEST_DURATION_MSEC / portTICK_PERIOD_MS);
+    vTaskDelay( PWM_TEST_DURATION_MSEC / portTICK_PERIOD_MS );
 
     /* Close PWM handle */
     lRetVal = iot_pwm_close( xPwmHandle );
@@ -529,7 +534,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
     lRetVal = iot_gpio_close( xtestIotGpioHandleB );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    expected_count = ultestIotPwmFrequency * (PWM_TEST_DURATION_MSEC / 1000);
-    TEST_ASSERT_GREATER_THAN( (expected_count - 100), ultestIotPwmIrqCounter);
-    TEST_ASSERT_GREATER_THAN( ultestIotPwmIrqCounter, (expected_count + 100));
+    expected_count = ultestIotPwmFrequency * ( PWM_TEST_DURATION_MSEC / 1000 );
+    TEST_ASSERT_GREATER_THAN( ( expected_count - 100 ), ultestIotPwmIrqCounter );
+    TEST_ASSERT_GREATER_THAN( ultestIotPwmIrqCounter, ( expected_count + 100 ) );
 }
