@@ -1498,9 +1498,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/iot_spi.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/test_iot_internal.c</name>
+			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/iot_test_common_io_internal.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/test_iot_internal.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/iot_test_common_io_internal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
@@ -1828,6 +1828,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/test/iot_test_tls.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/common_io/test/iot_test_common_io_internal.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/iot_test_common_io_internal.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/common_io/test/iot_test_common_io.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/iot_test_common_io.c</locationURI>
@@ -2043,14 +2048,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_pkcs11_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_test_common_io_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_test_common_io_config.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/iot_test_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_test_pkcs11_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/test_iot_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/test_iot_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>

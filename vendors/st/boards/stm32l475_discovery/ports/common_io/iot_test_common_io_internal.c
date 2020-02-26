@@ -27,7 +27,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "test_iot_internal.h"
+#include "iot_test_common_io_internal.h"
 
 /* UART */
 extern uint8_t uctestIotUartPort;

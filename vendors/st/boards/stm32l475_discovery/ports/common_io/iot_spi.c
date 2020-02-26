@@ -187,7 +187,7 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
 {
     IotSPIHandle_t xHandle = NULL;
 
-    if( ( lSpiInstance >= 0 ) && ( lSpiInstance <= SPI_INSTANCE_NUM ) )
+    if( ( lSpiInstance >= 0 ) && ( lSpiInstance < SPI_INSTANCE_NUM ) )
     {
         xHandle = pxSpis[ lSpiInstance ];
 

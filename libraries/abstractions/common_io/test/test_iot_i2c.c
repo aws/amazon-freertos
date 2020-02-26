@@ -32,14 +32,11 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
-/* Driver includes */
 #include "iot_i2c.h"
+#include "iot_test_common_io_internal.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
-
-/* Common IO config includes. */
-#include "test_iot_config.h"
 
 /* Max allowed length of data to write. */
 #ifndef IOT_TEST_COMMON_IO_I2C_MAX_WRITE_LENGTH

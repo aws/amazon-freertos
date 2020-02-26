@@ -180,7 +180,7 @@ static int32_t _doMasterTransfer( IotI2CDescriptor_t * pI2cDescriptor,
 IotI2CHandle_t iot_i2c_open( int32_t lI2CInstance )
 {
     /* Exceeded maximum instance number. */
-    if( lI2CInstance >= _I2C_INSTANCE_NUM )
+    if( lI2CInstance < 0 || lI2CInstance >= _I2C_INSTANCE_NUM )
     {
         return NULL;
     }

@@ -152,7 +152,7 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_i2c.c"
         "${afr_ports_dir}/common_io/iot_spi.c"
         # test code
-        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/test_iot_internal.c>
+        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
 )
 
 # -------------------------------------------------------------------------------------------------
