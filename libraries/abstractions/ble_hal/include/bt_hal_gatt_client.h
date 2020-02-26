@@ -92,20 +92,20 @@ typedef struct
 /* BT GATT client error codes */
 typedef enum
 {
-    eBTGattcCommandSuccess = 0,      /* 0  Command succeeded                 */
-    eBTGattcCommandStarted,          /* 1  Command started OK.               */
-    eBTGattcCommandBusy,             /* 2  Device busy with another command  */
-    eBTGattcCommandStored,           /* 3 request is stored in control block */
-    eBTGattcNoResources,             /* 4  No resources to issue command     */
-    eBTGattcModeUnsupported,         /* 5  Request for 1 or more unsupported modes */
-    eBTGattcIllegalValue,            /* 6  Illegal command /parameter value  */
-    eBTGattcIncorrectState,          /* 7  Device in wrong state for request  */
-    eBTGattcUnknownAddr,             /* 8  Unknown remote BD address         */
-    eBTGattcDeviceTimeout,           /* 9  Device timeout                    */
-    eBTGattcInvalidControllerOutput, /* 10  An incorrect value was received from HCI */
-    eBTGattcSecurityError,           /* 11 Authorization or security failure or not authorized  */
-    eBTGattcDelayedEncryptionCheck,  /* 12 Delayed encryption check */
-    eBTGattcErrProcessing            /* 13 Generic error                     */
+    eBTGattcCommandSuccess = 0,           /* Command succeeded                 */
+    eBTGattcCommandStarted = 1,           /* Command started OK.               */
+    eBTGattcCommandBusy = 2,              /* Device busy with another command  */
+    eBTGattcCommandStored = 3,            /* equest is stored in control block */
+    eBTGattcNoResources = 4,              /* No resources to issue command     */
+    eBTGattcModeUnsupported = 5,          /* Request for 1 or more unsupported modes */
+    eBTGattcIllegalValue = 6,             /* Illegal command /parameter value  */
+    eBTGattcIncorrectState = 7,           /* Device in wrong state for request  */
+    eBTGattcUnknownAddr = 8,              /* Unknown remote BD address         */
+    eBTGattcDeviceTimeout = 9,            /* Device timeout                    */
+    eBTGattcInvalidControllerOutput = 10, /*  An incorrect value was received from HCI */
+    eBTGattcSecurityError = 11,           /* Authorization or security failure or not authorized  */
+    eBTGattcDelayedEncryptionCheck = 12,  /* Delayed encryption check */
+    eBTGattcErrProcessing = 13            /* Generic error                     */
 } BTGattcError_t;
 
 /** BT-GATT Client callback structure. */
