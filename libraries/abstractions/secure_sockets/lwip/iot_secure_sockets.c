@@ -282,7 +282,6 @@ static void vTaskRxSelect( void * param )
 
         if( FD_ISSET( s, &read_fds ) )
         {
-            configASSERT( ctx->rx_callback );
             ctx->rx_callback( ( Socket_t ) ctx );
         }
     }
@@ -290,6 +289,7 @@ static void vTaskRxSelect( void * param )
     prvDecrementRefCount( ctx );
     vTaskDelete( NULL );
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -400,7 +400,6 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     struct sockaddr_in sa_addr = { 0 };
     int ret;
 
-    sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
     sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
     sa_addr.sin_port = pxAddress->usPort;
 
@@ -447,12 +446,14 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
         }
         else
         {
-            configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n", ( unsigned int ) -status, ctx->destination ? ctx->destination : "NULL" ) );
+            configPRINTF( ( "TLS_Connect fail (0x%x, %s)\n",
+                            ( unsigned int ) -status,
+                            ctx->destination ? ctx->destination : "NULL" ) );
         }
     }
     else
     {
-        configPRINTF( ( "Invalid ip socket\n" ) );
+        configPRINTF( ( "LwIP connect fail %d %d\n", ret, errno ) );
     }
 
     return SOCKETS_SOCKET_ERROR;
@@ -569,7 +570,6 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 {
     ss_ctx_t * ctx;
 
-
     if( SOCKETS_INVALID_SOCKET == xSocket )
     {
         return SOCKETS_EINVAL;
@@ -579,7 +579,6 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     ctx->state = SST_RX_CLOSING;
 
     lwip_close( ctx->ip_socket );
-
     prvDecrementRefCount( ctx );
 
     return SOCKETS_ERROR_NONE;
@@ -624,7 +623,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
                ret = lwip_setsockopt( ctx->ip_socket,
                                       SOL_SOCKET,
-                                      lOptionName == SOCKETS_SO_RCVTIMEO ? SO_RCVTIMEO : SO_SNDTIMEO,
+                                      lOptionName == SOCKETS_SO_RCVTIMEO ?
+                                      SO_RCVTIMEO : SO_SNDTIMEO,
                                       ( struct timeval * ) &tv,
                                       sizeof( tv ) );
 
@@ -752,7 +752,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             ctx->ulAlpnProtocolsCount = 1 + xOptionLength;
 
             if( NULL == ( ctx->ppcAlpnProtocols =
-                              ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount * sizeof( char * ) ) ) )
+                              ( char ** ) pvPortMalloc( ctx->ulAlpnProtocolsCount *
+                                                        sizeof( char * ) ) ) )
             {
                 return SOCKETS_ENOMEM;
             }
@@ -764,13 +765,15 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             }
 
             /* Copy each protocol string. */
-            for( ulProtocol = 0; ( ulProtocol < ctx->ulAlpnProtocolsCount - 1 ); ulProtocol++ )
+            for( ulProtocol = 0; ( ulProtocol < ctx->ulAlpnProtocolsCount - 1 );
+                 ulProtocol++ )
             {
                 xLength = strlen( ppcAlpnIn[ ulProtocol ] );
 
                 if( NULL == ( ctx->ppcAlpnProtocols[ ulProtocol ] =
                                   ( char * ) pvPortMalloc( 1 + xLength ) ) )
                 {
+                    ctx->ppcAlpnProtocols[ ulProtocol ] = NULL;
                     return SOCKETS_ENOMEM;
                 }
                 else

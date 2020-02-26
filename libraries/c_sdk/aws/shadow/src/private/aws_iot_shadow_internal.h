@@ -388,7 +388,7 @@ typedef struct _shadowOperation
              *
              * Only used when the flag #AWS_IOT_SHADOW_FLAG_WAITABLE is set.
              */
-            void *( *mallocDocument )( size_t );
+            void * ( *mallocDocument )( size_t );
 
             const char * pDocument; /**< @brief Retrieved Shadow document. */
             size_t documentLength;  /**< @brief Length of retrieved Shadow document. */

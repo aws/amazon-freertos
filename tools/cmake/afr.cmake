@@ -69,6 +69,14 @@ else()
     option(AFR_ENABLE_DEMOS "Build demos for FreeRTOS." OFF)
 endif()
 
+# Provide an option to enable unit tests with mocking
+option(AFR_ENABLE_UNIT_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
+if (AFR_ENABLE_UNIT_TESTS)
+     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+     add_compile_definitions(IOT_BUILD_TESTS=1)
+     add_compile_definitions(AMAZON_FREERTOS_ENABLE_MOCKING)
+endif()
+
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for FreeRTOS. Requires recompiling whole library." OFF)
 if(AFR_ENABLE_TESTS)

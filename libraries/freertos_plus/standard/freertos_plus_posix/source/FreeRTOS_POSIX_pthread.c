@@ -284,7 +284,7 @@ int pthread_attr_setstacksize( pthread_attr_t * attr,
 
 int pthread_create( pthread_t * thread,
                     const pthread_attr_t * attr,
-                    void *( *startroutine )( void * ),
+                    void * ( *startroutine )( void * ),
                     void * arg )
 {
     int iStatus = 0;
