@@ -29,7 +29,6 @@
  */
 
 /* ST Board includes. */
-#include "stm32l475xx.h"
 #include "stm32l4xx_ll_spi.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_spi.h"
@@ -37,7 +36,7 @@
 /* Main includes. */
 #include "iot_spi.h"
 
-/* Total number of SPI instances on this ST board. */
+/* Total number of SPI instances on this ST microcontroller. */
 #define SPI_INSTANCE_NUM            ( ( uint32_t ) 3 )
 #define IOT_SPI_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
 #define IOT_SPI_CLOSED              ( ( uint8_t ) 0 )
@@ -55,7 +54,7 @@ typedef struct IotSPIDescriptor
     IotSPIMasterConfig_t xConfig;                /* Master Configuration */
     IotSPICallback_t xSpiCallback;               /* Callback function */
     void * pvUserContext;                        /* User context passed in callback */
-    uint8_t sOpened;                             /* Bit flags to tract different states. */
+    uint8_t sOpened;                             /* Bit flags to track different states. */
 } IotSPIDescriptor_t;
 /*-----------------------------------------------------------*/
 

@@ -29,7 +29,6 @@
  * @brief file containing the implementation of UART APIs calling STM drivers.
  */
 /* ST HAL API include */
-#include "stm32l475xx.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_uart.h"
 #include "stm32l475e_iot01.h"
@@ -58,7 +57,7 @@ typedef struct IotUARTDescriptor
 
 
 /**
- * @brief The number of USART ports supported by STM32l475_discovery board.
+ * @brief The number of USART ports on this ST microcontroller.
  */
 #define IOT_USART_PORTS              ( ( uint32_t ) 5 )
 #define IOT_UART_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
@@ -420,10 +419,15 @@ int32_t iot_uart_close( IotUARTHandle_t const pxUartPeripheral )
     }
     else
     {
-        /* Abort always returns HAL_OK */
-        HAL_UART_Abort( pxUartPeripheral->pxHuart );
-
-        if( HAL_UART_DeInit( pxUartPeripheral->pxHuart ) == HAL_OK )
+        if( HAL_UART_Abort( pxUartPeripheral->pxHuart ) != HAL_OK )
+        {
+            lError = IOT_UART_BUSY;
+        }
+        else if( HAL_UART_DeInit( pxUartPeripheral->pxHuart ) != HAL_OK )
+        {
+            lError = IOT_UART_BUSY;
+        }
+        else
         {
             vSemaphoreDelete( pxUartPeripheral->xSemphr );
             lError = IOT_UART_SUCCESS;

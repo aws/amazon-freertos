@@ -32,7 +32,6 @@
 #include "iot_config.h"
 
 /* ST Board includes. */
-#include "stm32l475xx.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_i2c.h"
 #include "stm32l475e_iot01.h"
@@ -43,7 +42,7 @@
 /* FreeRTOS includes. */
 #include "semphr.h"
 
-/* Total number of I2C instances on this ST board. */
+/* Total number of I2C instances on this ST microcontroller. */
 #define _I2C_INSTANCE_NUM       ( 3 )
 
 /* Used by the "flags" member of IotI2CDescriptor_t. */
