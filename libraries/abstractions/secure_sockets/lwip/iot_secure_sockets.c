@@ -399,7 +399,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
 
     struct sockaddr_in sa_addr = { 0 };
     int ret;
-
+    sa_addr.sin_family = pxAddress->ucSocketDomain;
     sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
     sa_addr.sin_port = pxAddress->usPort;
 
