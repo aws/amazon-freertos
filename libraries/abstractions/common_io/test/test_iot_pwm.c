@@ -113,8 +113,6 @@ TEST_GROUP_RUNNER( TEST_IOT_PWM )
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_CloseFuzzing );
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetConfigFuzzing );
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_GetConfigFuzzing );
-    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_StartFailure); */
-    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFailure ); */
 }
 
 
