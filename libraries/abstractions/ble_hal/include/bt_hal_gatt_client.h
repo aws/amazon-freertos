@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V4.0.1
+ * FreeRTOS BLE HAL V5.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -92,26 +92,26 @@ typedef struct
 /* BT GATT client error codes */
 typedef enum
 {
-    eBTGattcCommandSuccess = 0,      /* 0  Command succeeded                 */
-    eBTGattcCommandStarted,          /* 1  Command started OK.               */
-    eBTGattcCommandBusy,             /* 2  Device busy with another command  */
-    eBTGattcCommandStored,           /* 3 request is stored in control block */
-    eBTGattcNoResources,             /* 4  No resources to issue command     */
-    eBTGattcModeUnsupported,         /* 5  Request for 1 or more unsupported modes */
-    eBTGattcIllegalValue,            /* 6  Illegal command /parameter value  */
-    eBTGattcIncorrectState,          /* 7  Device in wrong state for request  */
-    eBTGattcUnknownAddr,             /* 8  Unknown remote BD address         */
-    eBTGattcDeviceTimeout,           /* 9  Device timeout                    */
-    eBTGattcInvalidControllerOutput, /* 10  An incorrect value was received from HCI */
-    eBTGattcSecurityError,           /* 11 Authorization or security failure or not authorized  */
-    eBTGattcDelayedEncryptionCheck,  /*12 Delayed encryption check */
-    eBTGattcErrProcessing            /* 12 Generic error                     */
+    eBTGattcCommandSuccess = 0,           /* Command succeeded                 */
+    eBTGattcCommandStarted = 1,           /* Command started OK.               */
+    eBTGattcCommandBusy = 2,              /* Device busy with another command  */
+    eBTGattcCommandStored = 3,            /* Request is stored in control block */
+    eBTGattcNoResources = 4,              /* No resources to issue command     */
+    eBTGattcModeUnsupported = 5,          /* Request for 1 or more unsupported modes */
+    eBTGattcIllegalValue = 6,             /* Illegal command /parameter value  */
+    eBTGattcIncorrectState = 7,           /* Device in wrong state for request  */
+    eBTGattcUnknownAddr = 8,              /* Unknown remote BD address         */
+    eBTGattcDeviceTimeout = 9,            /* Device timeout                    */
+    eBTGattcInvalidControllerOutput = 10, /* An incorrect value was received from HCI */
+    eBTGattcSecurityError = 11,           /* Authorization or security failure or not authorized  */
+    eBTGattcDelayedEncryptionCheck = 12,  /* Delayed encryption check */
+    eBTGattcErrProcessing = 13            /* Generic error                     */
 } BTGattcError_t;
 
 /** BT-GATT Client callback structure. */
 
 /** Callback invoked in response to registerClient */
-typedef void ( * BTRegisterClientCallback_t)( BTStatus_t xStatus,
+typedef void ( * BTRegisterClientCallback_t)( BTGattStatus_t xStatus,
                                               uint8_t ucClientIf,
                                               BTUuid_t * pxAppUuid );
 
@@ -120,12 +120,12 @@ typedef void ( * BTRegisterClientCallback_t)( BTStatus_t xStatus,
  * has been completed.
  */
 typedef void ( * BTSearchCompleteCallback_t)( uint16_t usConnId,
-                                              BTStatus_t xStatus );
+                                              BTGattStatus_t xStatus );
 
 /** Callback invoked in response to [de]registerForNotification */
 typedef void ( * BTRegisterForNotificationCallback_t)( uint16_t usConnId,
                                                        bool bRegistered,
-                                                       BTStatus_t xStatus,
+                                                       BTGattStatus_t xStatus,
                                                        uint16_t usHandle );
 
 /**
@@ -137,37 +137,37 @@ typedef void ( * BTNotifyCallback_t)( uint16_t usConnId,
 
 /** Reports result of a GATT read operation */
 typedef void ( * BTReadCharacteristicCallback_t)( uint16_t usConnId,
-                                                  BTStatus_t xStatus,
+                                                  BTGattStatus_t xStatus,
                                                   BTGattReadParams_t * pxData );
 
 /** GATT write characteristic operation callback */
 typedef void ( * BTWriteCharacteristicCallback_t)( uint16_t usConnId,
-                                                   BTStatus_t xStatus,
+                                                   BTGattStatus_t xStatus,
                                                    uint16_t usHandle );
 
 /** GATT execute prepared write callback */
 typedef void ( * BTExecuteWriteCallback_t)( uint16_t usConnId,
-                                            BTStatus_t xStatus );
+                                            BTGattStatus_t xStatus );
 
 /** Callback invoked in response to readDescriptor */
 typedef void ( * BTReadDescriptorCallback_t)( uint16_t usConnId,
-                                              BTStatus_t xStatus,
+                                              BTGattStatus_t xStatus,
                                               BTGattReadParams_t * pxData );
 
 /** Callback invoked in response to writeDescriptor */
 typedef void ( * BTWriteDescriptorCallback_t)( uint16_t usConnId,
-                                               BTStatus_t xStatus,
+                                               BTGattStatus_t xStatus,
                                                uint16_t usHandle );
 
 /**
  * Callback indicating the status of a listen() operation
  */
-typedef void ( * BTListenCallback_t)( BTStatus_t xStatus,
+typedef void ( * BTListenCallback_t)( BTGattStatus_t xStatus,
                                       uint32_t ulServerIf );
 
 /** Callback invoked when the MTU for a given connection changes */
 typedef void ( * BTConfigureMtuCallback_t)( uint16_t usConnId,
-                                            BTStatus_t xStatus,
+                                            BTGattStatus_t xStatus,
                                             uint32_t ulMtu );
 
 /** GATT get database callback */
