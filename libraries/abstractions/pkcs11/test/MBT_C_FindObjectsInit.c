@@ -34,6 +34,9 @@
 
 #include "iot_test_pkcs11_globals.h"
 
+char* label = "Device Priv TLS Key";
+int labelLen = 19;
+
 void C_FindObjectsInit_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
@@ -41,11 +44,10 @@ void C_FindObjectsInit_normal_behavior()
     CK_ULONG ulCount;
 
     CK_OBJECT_CLASS objClass = CKO_PRIVATE_KEY;
-    char* label = "Device Priv TLS Key";
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, strlen( label ) },
+        { CKA_LABEL, label, labelLen },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -64,11 +66,10 @@ void C_FindObjectsInit_exceptional_behavior_0()
     CK_ULONG ulCount;
 
     CK_OBJECT_CLASS objClass = CKO_PRIVATE_KEY;
-    char* label = "Device Priv TLS Key";
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, strlen( label ) },
+        { CKA_LABEL, label, labelLen },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -87,11 +88,10 @@ void C_FindObjectsInit_exceptional_behavior_1()
     CK_ULONG ulCount;
 
     CK_OBJECT_CLASS objClass = CKO_PRIVATE_KEY;
-    char* label = "Device Priv TLS Key";
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, strlen( label ) },
+        { CKA_LABEL, label, labelLen },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -121,11 +121,10 @@ void C_FindObjectsInit_exceptional_behavior_3()
     CK_ULONG ulCount;
 
     CK_OBJECT_CLASS objClass = CKO_PRIVATE_KEY;
-    char* label = "Device Priv TLS Key";
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, strlen( label ) },
+        { CKA_LABEL, label, labelLen },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 

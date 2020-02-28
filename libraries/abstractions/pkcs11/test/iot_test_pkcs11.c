@@ -44,15 +44,6 @@
 #include "iot_test_pkcs11_config.h"
 #include "mbedtls/x509_crt.h"
 
-/* Model-based testing includes. */
-#include "MBT_SessionMachine.h"
-#include "MBT_SignMachine.h"
-#include "MBT_VerifyMachine.h"
-#include "MBT_DigestMachine.h"
-#include "MBT_GenerationMachine.h"
-#include "MBT_ObjectMachine.h"
-
-
 #if ( pkcs11testRSA_KEY_SUPPORT == 0 ) && ( pkcs11testEC_KEY_SUPPORT == 0 )
     #error "RSA or Elliptic curve keys (or both) must be supported."
 #endif
@@ -88,12 +79,24 @@ typedef enum
     eStateUnknown         /* State of the credentials is unknown. */
 } CredentialsProvisioned_t;
 
+/* PKCS #11 Globals.
+ * These are used to reduce setup and tear down calls, and to
+ * prevent memory leaks in the case of TEST_PROTECT() actions being triggered. */
+CK_SESSION_HANDLE xGlobalSession = 0;
+CK_FUNCTION_LIST_PTR pxGlobalFunctionList = NULL_PTR;
+CK_SLOT_ID xGlobalSlotId = 0;
+CK_MECHANISM_TYPE xMechanismType = 0;
+CK_OBJECT_HANDLE xPublicKey = 0;
+CK_OBJECT_HANDLE xPrivateKey = 0;
+CK_OBJECT_HANDLE xKey = 0;
+CK_BBOOL xCkTrue = CK_TRUE;
+CK_BBOOL xCkFalse = CK_FALSE;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
-/* Function Prototypes. */
-CK_RV prvBeforeRunningTests( void );
-void prvAfterRunningTests_NoObject( void );
-void prvAfterRunningTests_Object( void );
+/* PKCS #11 Global Data Containers. */
+CK_BYTE rsaHashedMessage[pkcs11SHA256_DIGEST_LENGTH] = { 0 };
+CK_BYTE ecdsaSignature[pkcs11RSA_2048_SIGNATURE_LENGTH] = { 0x00 };
+CK_BYTE ecdsaHashedMessage[pkcs11SHA256_DIGEST_LENGTH] = { 0xab };
 
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
@@ -1149,7 +1152,7 @@ static const char cValidRSACertificate[] =
     "-----END CERTIFICATE-----\n";
 
 void resetCredentials() {
-	xCurrentCredentials = eNone;
+	xCurrentCredentials = eStateUnknown;
 }
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,

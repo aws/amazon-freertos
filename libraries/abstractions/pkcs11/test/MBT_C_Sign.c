@@ -34,6 +34,8 @@
 
 #include "iot_test_pkcs11_globals.h"
 
+CK_BYTE rsaSignature[pkcs11RSA_2048_SIGNATURE_LENGTH];
+
 void C_Sign_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
@@ -46,14 +48,15 @@ void C_Sign_normal_behavior()
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
         ulDataLen = sizeof( rsaHashPlusOid );
+        pSignature = rsaSignature;
     }
     else {
         pData = ecdsaHashedMessage;
-        ulDataLen = SHA256_DIGEST_SIZE;
+        ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+        pSignature = ecdsaSignature;
     }
 
-    CK_ULONG pulSignatureLen_val = sizeof( rsaSignature );
-    pSignature = rsaSignature;
+    CK_ULONG pulSignatureLen_val = pkcs11RSA_2048_SIGNATURE_LENGTH;
     pulSignatureLen = &pulSignatureLen_val;
 
     CK_RV rv = pxGlobalFunctionList->C_Sign( hSession, pData, ulDataLen, pSignature, pulSignatureLen );
@@ -73,14 +76,15 @@ void C_Sign_exceptional_behavior_0()
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
         ulDataLen = sizeof( rsaHashPlusOid );
+        pSignature = rsaSignature;
     }
     else {
         pData = ecdsaHashedMessage;
-        ulDataLen = SHA256_DIGEST_SIZE;
+        ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+        pSignature = ecdsaSignature;
     }
 
-    CK_ULONG pulSignatureLen_val = sizeof( rsaSignature );
-    pSignature = rsaSignature;
+    CK_ULONG pulSignatureLen_val = pkcs11RSA_2048_SIGNATURE_LENGTH;
     pulSignatureLen = &pulSignatureLen_val;
 
     CK_RV rv = pxGlobalFunctionList->C_Sign( hSession, pData, ulDataLen, pSignature, pulSignatureLen );
@@ -100,14 +104,15 @@ void C_Sign_exceptional_behavior_1()
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
         ulDataLen = sizeof( rsaHashPlusOid );
+        pSignature = rsaSignature;
     }
     else {
         pData = ecdsaHashedMessage;
-        ulDataLen = SHA256_DIGEST_SIZE;
+        ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+        pSignature = ecdsaSignature;
     }
 
-    CK_ULONG pulSignatureLen_val = sizeof( rsaSignature );
-    pSignature = rsaSignature;
+    CK_ULONG pulSignatureLen_val = pkcs11RSA_2048_SIGNATURE_LENGTH;
     pulSignatureLen = &pulSignatureLen_val;
 
     CK_RV rv = pxGlobalFunctionList->C_Sign( hSession, pData, ulDataLen, pSignature, pulSignatureLen );
@@ -127,14 +132,15 @@ void C_Sign_exceptional_behavior_2()
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
         ulDataLen = sizeof( rsaHashPlusOid );
+        pSignature = rsaSignature;
     }
     else {
         pData = ecdsaHashedMessage;
-        ulDataLen = SHA256_DIGEST_SIZE;
+        ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+        pSignature = ecdsaSignature;
     }
 
     CK_ULONG pulSignatureLen_val = 1;
-    pSignature = rsaSignature;
     pulSignatureLen = &pulSignatureLen_val;
 
     CK_RV rv = pxGlobalFunctionList->C_Sign( hSession, pData, ulDataLen, pSignature, pulSignatureLen );
@@ -167,14 +173,15 @@ void C_Sign_exceptional_behavior_4()
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
         ulDataLen = sizeof( rsaHashPlusOid );
+        pSignature = rsaSignature;
     }
     else {
         pData = ecdsaHashedMessage;
-        ulDataLen = SHA256_DIGEST_SIZE;
+        ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+        pSignature = ecdsaSignature;
     }
 
-    CK_ULONG pulSignatureLen_val = sizeof( rsaSignature );
-    pSignature = rsaSignature;
+    CK_ULONG pulSignatureLen_val = pkcs11RSA_2048_SIGNATURE_LENGTH;
     pulSignatureLen = &pulSignatureLen_val;
 
     CK_RV rv = pxGlobalFunctionList->C_Sign( hSession, pData, ulDataLen, pSignature, pulSignatureLen );

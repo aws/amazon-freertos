@@ -34,6 +34,12 @@
 
 #include "iot_test_pkcs11_globals.h"
 
+char* privLabel = "Test EC Public Key";
+int privLabelLen = 18;
+
+char* pubLabel = "Test EC Private Key";
+int pubLabelLen = 19;
+
 void C_GenerateKeyPair_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
@@ -50,15 +56,13 @@ void C_GenerateKeyPair_normal_behavior()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
-
+    
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType ) },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -67,7 +71,7 @@ void C_GenerateKeyPair_normal_behavior()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -113,15 +117,13 @@ void C_GenerateKeyPair_exceptional_behavior_1()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
 
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType ) },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -130,7 +132,7 @@ void C_GenerateKeyPair_exceptional_behavior_1()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -160,15 +162,13 @@ void C_GenerateKeyPair_exceptional_behavior_2()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
 
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -177,7 +177,7 @@ void C_GenerateKeyPair_exceptional_behavior_2()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -207,15 +207,13 @@ void C_GenerateKeyPair_exceptional_behavior_3()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
 
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -224,7 +222,7 @@ void C_GenerateKeyPair_exceptional_behavior_3()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -254,16 +252,14 @@ void C_GenerateKeyPair_exceptional_behavior_4()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
-
+    
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType ) },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_VERIFY,    &xCkFalse, sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -272,7 +268,7 @@ void C_GenerateKeyPair_exceptional_behavior_4()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -302,15 +298,13 @@ void C_GenerateKeyPair_exceptional_behavior_5()
 
     CK_KEY_TYPE xKeyType = CKK_EC;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
-    const char* privLabel = "Test EC Public Key";
-    const char* pubLabel = "Test EC Private Key";
 
     CK_ATTRIBUTE publicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  strlen( (const char*)pubLabel ) }
+        { CKA_LABEL,     pubLabel,  pubLabelLen }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -319,7 +313,7 @@ void C_GenerateKeyPair_exceptional_behavior_5()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, strlen( (const char*)privLabel ) }
+        { CKA_LABEL,    privLabel, privLabelLen }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;

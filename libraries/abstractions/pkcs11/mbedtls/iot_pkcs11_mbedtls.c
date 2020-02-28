@@ -167,7 +167,7 @@ P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 }
 
 /**
- * @brief Determines if an opeartion is in progress.
+ * @brief Determines if an operation is in progress.
  */
 CK_BBOOL operationActive( P11SessionPtr_t pxSession )
 {

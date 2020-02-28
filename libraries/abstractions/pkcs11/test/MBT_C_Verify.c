@@ -34,15 +34,13 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-CK_BYTE xSignaturePKCS[64] = { 0 };
-
 void C_Verify_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
-    CK_BYTE_PTR pSignature = rsaSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+    CK_BYTE_PTR pSignature = ecdsaSignature;
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -53,9 +51,9 @@ void C_Verify_exceptional_behavior_0()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
-    CK_BYTE_PTR pSignature = rsaSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+    CK_BYTE_PTR pSignature = ecdsaSignature;
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -66,9 +64,9 @@ void C_Verify_exceptional_behavior_1()
 {
     CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
-    CK_BYTE_PTR pSignature = rsaSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+    CK_BYTE_PTR pSignature = ecdsaSignature;
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -79,9 +77,9 @@ void C_Verify_exceptional_behavior_2()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = NULL_PTR;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
     CK_BYTE_PTR pSignature = NULL_PTR;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -90,12 +88,12 @@ void C_Verify_exceptional_behavior_2()
 
 void C_Verify_exceptional_behavior_3()
 {
-    CK_BYTE invalidSignature[ECDSA_SIGNATURE_SIZE] = { 0x00 };
+    CK_BYTE invalidSignature[pkcs11ECDSA_P256_SIGNATURE_LENGTH] = { 0x00 };
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
     CK_BYTE_PTR pSignature = invalidSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -106,8 +104,8 @@ void C_Verify_exceptional_behavior_4()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
-    CK_BYTE_PTR pSignature = rsaSignature;
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+    CK_BYTE_PTR pSignature = ecdsaSignature;
     CK_ULONG ulSignatureLen = 0;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
@@ -120,8 +118,8 @@ void C_Verify_exceptional_behavior_5()
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
     CK_ULONG ulDataLen = 0;
-    CK_BYTE_PTR pSignature = rsaSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_BYTE_PTR pSignature = ecdsaSignature;
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 
@@ -132,9 +130,9 @@ void C_Verify_exceptional_behavior_6()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pData = ecdsaHashedMessage;
-    CK_ULONG ulDataLen = SHA256_DIGEST_SIZE;
-    CK_BYTE_PTR pSignature = rsaSignature;
-    CK_ULONG ulSignatureLen = sizeof( xSignaturePKCS );
+    CK_ULONG ulDataLen = pkcs11SHA256_DIGEST_LENGTH;
+    CK_BYTE_PTR pSignature = ecdsaSignature;
+    CK_ULONG ulSignatureLen = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
 
     CK_RV rv = pxGlobalFunctionList->C_Verify( hSession, pData, ulDataLen, pSignature, ulSignatureLen );
 

@@ -41,7 +41,7 @@ void C_FindObjects_normal_behavior()
     CK_OBJECT_HANDLE_PTR phObject = &phObject_val;
     CK_ULONG ulMaxObjectCount = 1;
     CK_ULONG pulObjectCount_val;
-    CK_ULONG_PTR pulObjectCount = &pulObjectCount;
+    CK_ULONG_PTR pulObjectCount = &pulObjectCount_val;
 
     CK_RV rv = pxGlobalFunctionList->C_FindObjects( hSession, phObject, ulMaxObjectCount, pulObjectCount );
 
@@ -55,7 +55,7 @@ void C_FindObjects_exceptional_behavior_0()
     CK_OBJECT_HANDLE_PTR phObject = &phObject_val;
     CK_ULONG ulMaxObjectCount = 1;
     CK_ULONG pulObjectCount_val;
-    CK_ULONG_PTR pulObjectCount = &pulObjectCount;
+    CK_ULONG_PTR pulObjectCount = &pulObjectCount_val;
 
     CK_RV rv = pxGlobalFunctionList->C_FindObjects( hSession, phObject, ulMaxObjectCount, pulObjectCount );
 
@@ -69,7 +69,7 @@ void C_FindObjects_exceptional_behavior_1()
     CK_OBJECT_HANDLE_PTR phObject = &phObject_val;
     CK_ULONG ulMaxObjectCount = 1;
     CK_ULONG pulObjectCount_val;
-    CK_ULONG_PTR pulObjectCount = &pulObjectCount;
+    CK_ULONG_PTR pulObjectCount = &pulObjectCount_val;
 
     CK_RV rv = pxGlobalFunctionList->C_FindObjects( hSession, phObject, ulMaxObjectCount, pulObjectCount );
 
@@ -82,7 +82,7 @@ void C_FindObjects_exceptional_behavior_2()
     CK_OBJECT_HANDLE_PTR phObject = NULL_PTR;
     CK_ULONG ulMaxObjectCount = 0;
     CK_ULONG pulObjectCount_val;
-    CK_ULONG_PTR pulObjectCount = &pulObjectCount;
+    CK_ULONG_PTR pulObjectCount = &pulObjectCount_val;
 
     CK_RV rv = pxGlobalFunctionList->C_FindObjects( hSession, phObject, ulMaxObjectCount, pulObjectCount );
 
@@ -96,7 +96,7 @@ void C_FindObjects_exceptional_behavior_3()
     CK_OBJECT_HANDLE_PTR phObject = &phObject_val;
     CK_ULONG ulMaxObjectCount = 1;
     CK_ULONG pulObjectCount_val;
-    CK_ULONG_PTR pulObjectCount = &pulObjectCount;
+    CK_ULONG_PTR pulObjectCount = &pulObjectCount_val;
 
     CK_RV rv = pxGlobalFunctionList->C_FindObjects( hSession, phObject, ulMaxObjectCount, pulObjectCount );
 

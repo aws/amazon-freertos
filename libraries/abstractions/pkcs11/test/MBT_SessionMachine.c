@@ -32,7 +32,9 @@
  // 
  //-----------------------------------------------------------------------------
 
-#include "MBT_SessionMachine.h"
+#include "iot_test_pkcs11_globals.h"
+
+TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
 
 TEST_SETUP( Full_PKCS11_ModelBased_SessionMachine )
 {
