@@ -590,7 +590,7 @@ void HAL_I2C_MspInit( I2C_HandleTypeDef * hi2c )
 {
     GPIO_InitTypeDef xGpio_init_structure;
 
-    /* Configure the GPIOs */
+    /* Enable GPIO clock. */
     DISCOVERY_I2Cx_SCL_SDA_GPIO_CLK_ENABLE();
 
     /* Configure I2C Tx, Rx as alternate function */
@@ -679,23 +679,24 @@ void HAL_I2C_ErrorCallback( I2C_HandleTypeDef * hi2c )
 static int32_t _toI2cStatus( HAL_StatusTypeDef halStatus,
                              uint8_t operation )
 {
+    int32_t status = IOT_I2C_INVALID_VALUE;
+
     switch( halStatus )
     {
         case HAL_OK:
-            return IOT_I2C_SUCCESS;
+            status = IOT_I2C_SUCCESS;
 
         case HAL_ERROR:
-            return operation == _I2C_READ_OP ? IOT_I2C_READ_FAILED : IOT_I2C_WRITE_FAILED;
+            status = operation == _I2C_READ_OP ? IOT_I2C_READ_FAILED : IOT_I2C_WRITE_FAILED;
 
         case HAL_BUSY:
-            return IOT_I2C_BUSY;
+            status = IOT_I2C_BUSY;
 
         case HAL_TIMEOUT:
-            return IOT_I2C_BUS_TIMEOUT;
+            status = IOT_I2C_BUS_TIMEOUT;
     }
 
-    /* TODO: it is better to assert(0) here. */
-    return IOT_I2C_SUCCESS;
+    return status;
 }
 
 static int32_t _doMasterTransfer( IotI2CDescriptor_t * pI2cDescriptor,
