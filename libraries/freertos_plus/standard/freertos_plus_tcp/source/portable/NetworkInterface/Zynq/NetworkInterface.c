@@ -1,27 +1,27 @@
 /*
-FreeRTOS+TCP V2.0.11
-Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 /* Standard includes. */
 #include <stdint.h>
@@ -108,7 +108,7 @@ static BaseType_t prvGMACWaitLS( TickType_t xMaxTime );
 static void prvEMACHandlerTask( void *pvParameters );
 
 #if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources( void );
+	static void prvMonitorResources( void );
 #endif
 
 /*-----------------------------------------------------------*/
@@ -134,7 +134,7 @@ XEmacPs_Config mac_config =
 extern int phy_detected;
 
 /* A copy of PHY register 1: 'PHY_REG_01_BMSR' */
-static uint32_t ulPHYLinkStatus = 0;
+static uint32_t ulPHYLinkStatus = 0uL;
 
 #if( ipconfigUSE_LLMNR == 1 )
 	static const uint8_t xLLMNR_MACAddress[] = { 0x01, 0x00, 0x5E, 0x00, 0x00, 0xFC };
@@ -237,7 +237,7 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxBuffer, 
 		}
 	}
 	#endif /* ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM */
-	if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0 )
+	if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0uL )
 	{
 		iptraceNETWORK_INTERFACE_TRANSMIT();
 		emacps_send_message( &xEMACpsif, pxBuffer, bReleaseAfterSend );
@@ -280,7 +280,7 @@ BaseType_t xReturn;
 		}
 		ulPHYLinkStatus = ulReadMDIO( PHY_REG_01_BMSR );
 
-		if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0 )
+		if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0uL )
 		{
 			xReturn = pdTRUE;
 			break;
@@ -312,7 +312,7 @@ BaseType_t xGetPhyLinkStatus( void )
 {
 BaseType_t xReturn;
 
-	if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) == 0 )
+	if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) == 0uL )
 	{
 		xReturn = pdFALSE;
 	}
@@ -326,25 +326,26 @@ BaseType_t xReturn;
 /*-----------------------------------------------------------*/
 
 #if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources()
-    {
-        static UBaseType_t uxLastMinBufferCount = 0u;
-        static UBaseType_t uxCurrentBufferCount = 0u;
-        static size_t uxMinLastSize = 0uL;
-        size_t uxMinSize;
+	static void prvMonitorResources()
+	{
+	static UBaseType_t uxLastMinBufferCount = 0u;
+	static size_t uxMinLastSize = 0uL;
+	UBaseType_t uxCurrentBufferCount;
+	size_t uxMinSize;
 
-        uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
+		uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
 
-        if( uxLastMinBufferCount != uxCurrentBufferCount )
-        {
-            /* The logging produced below may be helpful
-             * while tuning +TCP: see how many buffers are in use. */
-            uxLastMinBufferCount = uxCurrentBufferCount;
-            FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
-                               uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
-        }
+		if( uxLastMinBufferCount != uxCurrentBufferCount )
+		{
+			/* The logging produced below may be helpful
+			 * while tuning +TCP: see how many buffers are in use. */
+			uxLastMinBufferCount = uxCurrentBufferCount;
+			FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
+							   uxGetNumberOfFreeNetworkBuffers(),
+							   uxCurrentBufferCount ) );
+		}
 
-        uxMinSize = xPortGetMinimumEverFreeHeapSize();
+		uxMinSize = xPortGetMinimumEverFreeHeapSize();
 
 		if( uxMinLastSize != uxMinSize )
 		{
@@ -352,23 +353,23 @@ BaseType_t xReturn;
 			FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", xPortGetFreeHeapSize(), uxMinSize ) );
 		}
 
-        #if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
-            {
-                static UBaseType_t uxLastMinQueueSpace = 0;
-                UBaseType_t uxCurrentCount = 0u;
+		#if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+			{
+				static UBaseType_t uxLastMinQueueSpace = 0;
+				UBaseType_t uxCurrentCount = 0u;
 
-                uxCurrentCount = uxGetMinimumIPQueueSpace();
+				uxCurrentCount = uxGetMinimumIPQueueSpace();
 
-                if( uxLastMinQueueSpace != uxCurrentCount )
-                {
-                    /* The logging produced below may be helpful
-                     * while tuning +TCP: see how many buffers are in use. */
-                    uxLastMinQueueSpace = uxCurrentCount;
-                    FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
-                }
-            }
-        #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
-    }
+				if( uxLastMinQueueSpace != uxCurrentCount )
+				{
+					/* The logging produced below may be helpful
+					 * while tuning +TCP: see how many buffers are in use. */
+					uxLastMinQueueSpace = uxCurrentCount;
+					FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
+				}
+			}
+		#endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+	}
 #endif /* ( ipconfigHAS_PRINTF != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -392,11 +393,11 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
 
 	for( ;; )
 	{
-        #if ( ipconfigHAS_PRINTF != 0 )
-            {
-                prvMonitorResources();
-            }
-        #endif /* ipconfigHAS_PRINTF != 0 ) */
+		#if ( ipconfigHAS_PRINTF != 0 )
+			{
+//				prvMonitorResources();
+			}
+		#endif /* ipconfigHAS_PRINTF != 0 ) */
 
 		if( ( xEMACpsif.isr_events & EMAC_IF_ALL_EVENT ) == 0 )
 		{
@@ -429,7 +430,7 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
 			vTaskSetTimeOutState( &xPhyTime );
 			xPhyRemTime = pdMS_TO_TICKS( PHY_LS_HIGH_CHECK_TIME_MS );
 			xResult = 0;
-			if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) == 0u )
+			if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) == 0uL )
 			{
 				/* Indicate that the Link Status is high, so that
 				xNetworkInterfaceOutput() can send packets. */
@@ -444,11 +445,11 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
 			if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != ( xStatus & niBMSR_LINK_STATUS ) )
 			{
 				ulPHYLinkStatus = xStatus;
-				FreeRTOS_printf( ( "prvEMACHandlerTask: PHY LS now %d\n", ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0 ) );
+				FreeRTOS_printf( ( "prvEMACHandlerTask: PHY LS now %d\n", ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0uL ) );
 			}
 
 			vTaskSetTimeOutState( &xPhyTime );
-			if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0 )
+			if( ( ulPHYLinkStatus & niBMSR_LINK_STATUS ) != 0uL )
 			{
 				xPhyRemTime = pdMS_TO_TICKS( PHY_LS_HIGH_CHECK_TIME_MS );
 			}
