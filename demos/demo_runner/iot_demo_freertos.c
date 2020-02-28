@@ -316,14 +316,6 @@ void runDemoTask( void * pArgument )
     void * pConnectionParams = NULL, * pCredentials = NULL;
     int status;
 
-    #ifdef INSERT_DELAY_BEFORE_DEMO
-        {
-            /* DO NOT EDIT - The test framework relies on this delay to ensure that
-             * the "STARTING DEMO" tag below is not missed while the framework opens
-             * the serial port for reading output.*/
-            vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
-        }
-    #endif /* INSERT_DELAY_BEFORE_DEMO */
 
     #ifdef democonfigMEMORY_ANALYSIS
         democonfigMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
