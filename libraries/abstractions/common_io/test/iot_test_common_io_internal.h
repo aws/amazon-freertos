@@ -25,11 +25,11 @@
 
 /*******************************************************************************
  * IOT On-Target Unit Test
- * @File: test_iot_internal.h
+ * @File: iot_test_common_io_internal.h
  * @Brief: File for IOT HAL test board specific configuration setup
  ******************************************************************************/
 
-#include "test_iot_config.h"
+#include "iot_test_common_io_config.h"
 
 #pragma once
 

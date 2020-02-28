@@ -143,6 +143,18 @@ target_sources(
     INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
+# Common I/O
+afr_mcu_port(common_io)
+target_sources(
+    AFR::common_io::mcu_port
+    INTERFACE 
+        "${afr_ports_dir}/common_io/iot_uart.c"
+        "${afr_ports_dir}/common_io/iot_i2c.c"
+        "${afr_ports_dir}/common_io/iot_spi.c"
+        # test code
+        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+)
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -170,6 +182,9 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         PRIVATE
             AFR::wifi
             AFR::utils
+            # TODO: common_io must explicitly linked because nothing else depends on it. 
+            # Once this is a demo, this can be removed
+            AFR::common_io
             -T"${board_dir}/STM32L475VGTx_FLASH.ld"
     )
 
