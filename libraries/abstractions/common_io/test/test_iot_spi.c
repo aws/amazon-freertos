@@ -38,7 +38,7 @@
 
 /* Driver includes */
 #include "iot_spi.h"
-#include "test_iot_internal.h"
+#include "iot_test_common_io_internal.h"
 
 /* FreeRTOS includes */
 #include "FreeRTOS.h"

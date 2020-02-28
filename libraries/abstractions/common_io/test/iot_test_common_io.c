@@ -26,7 +26,7 @@
 /* Test framework includes. */
 #include "unity_fixture.h"
 
-#include "test_iot_internal.h"
+#include "iot_test_common_io_internal.h"
 
 /* Define Test Group. */
 TEST_GROUP( Common_IO );
