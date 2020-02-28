@@ -68,19 +68,11 @@ afr_module_sources(
         "${test_dir}/MBT_C_Verify.c"
         "${test_dir}/MBT_C_VerifyInit.c"
         "${test_dir}/MBT_DigestMachine.c"
-        "${test_dir}/MBT_DigestMachine.h"
         "${test_dir}/MBT_GenerationMachine.c"
-        "${test_dir}/MBT_GenerationMachine.h"
         "${test_dir}/MBT_ObjectMachine.c"
-        "${test_dir}/MBT_ObjectMachine.h"
         "${test_dir}/MBT_SessionMachine.c"
-        "${test_dir}/MBT_SessionMachine.h"
         "${test_dir}/MBT_SignMachine.c"
-        "${test_dir}/MBT_SignMachine.h"
         "${test_dir}/MBT_VerifyMachine.c"
-        "${test_dir}/MBT_VerifyMachine.h"
-        "${test_dir}/iot_test_pkcs11_globals.c"
-        "${test_dir}/iot_test_pkcs11_globals.h"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
