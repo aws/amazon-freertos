@@ -42,9 +42,6 @@
 /* FreeRTOS includes. */
 #include "semphr.h"
 
-/* Total number of I2C instances on this ST microcontroller. */
-#define _I2C_INSTANCE_NUM       ( 3 )
-
 /* Used by the "flags" member of IotI2CDescriptor_t. */
 #define _FLAG_OPENED            ( 0x01 ) /* If the instance is already opened. */
 #define _FLAG_SLAVE_ADDRESS     ( 0x02 ) /* If the slave address has been set. */
@@ -87,7 +84,7 @@ typedef struct IotI2CDescriptor
     uint8_t flags;                 /* Bit flags to tract different states. */
 } IotI2CDescriptor_t;
 
-static IotI2CDescriptor_t _i2cContexts[ _I2C_INSTANCE_NUM ] =
+static IotI2CDescriptor_t _i2cContexts[] =
 {
     {
         .xHandle =
@@ -179,53 +176,52 @@ static int32_t _doMasterTransfer( IotI2CDescriptor_t * pI2cDescriptor,
 
 IotI2CHandle_t iot_i2c_open( int32_t lI2CInstance )
 {
-    /* Exceeded maximum instance number. */
-    if( lI2CInstance < 0 || lI2CInstance >= _I2C_INSTANCE_NUM )
-    {
-        return NULL;
-    }
-
-    IotI2CDescriptor_t * pI2cDescriptor = &_i2cContexts[ lI2CInstance ];
-    I2C_HandleTypeDef * pHalHandle = &( pI2cDescriptor->xHandle );
+    IotI2CDescriptor_t * pI2cDescriptor = NULL;
     HAL_StatusTypeDef halStatus = HAL_OK;
 
-    /* Not opened yet. */
-    if( _isFlagNotSet( pI2cDescriptor, _FLAG_OPENED ) )
+    if( ( lI2CInstance >= 0 ) && ( lI2CInstance < sizeof( _i2cContexts ) / sizeof( IotI2CDescriptor_t ) ) )
     {
-        halStatus = HAL_I2C_Init( pHalHandle );
+        pI2cDescriptor = &_i2cContexts[ lI2CInstance ];
+        I2C_HandleTypeDef * pHalHandle = &( pI2cDescriptor->xHandle );
 
-        if( halStatus == HAL_OK )
+        /* Not opened yet. */
+        if( _isFlagNotSet( pI2cDescriptor, _FLAG_OPENED ) )
         {
-            /* Configure Analog filter. */
-            halStatus = HAL_I2CEx_ConfigAnalogFilter( pHalHandle, I2C_ANALOGFILTER_ENABLE );
-        }
+            halStatus = HAL_I2C_Init( pHalHandle );
 
-        if( halStatus == HAL_OK )
-        {
-            pI2cDescriptor->xSemphr = xSemaphoreCreateBinary();
-
-            /* If semaphore creation fails, set returned handle to NULL. */
-            if( pI2cDescriptor->xSemphr == NULL )
+            if( halStatus == HAL_OK )
             {
+                /* Configure Analog filter. */
+                halStatus = HAL_I2CEx_ConfigAnalogFilter( pHalHandle, I2C_ANALOGFILTER_ENABLE );
+            }
+
+            if( halStatus == HAL_OK )
+            {
+                pI2cDescriptor->xSemphr = xSemaphoreCreateBinary();
+
+                /* If semaphore creation fails, set returned handle to NULL. */
+                if( pI2cDescriptor->xSemphr == NULL )
+                {
+                    pI2cDescriptor = NULL;
+                }
+            }
+            else
+            {
+                /* In failure case, set returned handle to NULL. */
                 pI2cDescriptor = NULL;
             }
         }
         else
         {
-            /* In failure case, set returned handle to NULL. */
+            /* Return NULL handle if opened more than once. */
             pI2cDescriptor = NULL;
         }
-    }
-    else
-    {
-        /* Return NULL handle if opened more than once. */
-        pI2cDescriptor = NULL;
-    }
 
-    if( pI2cDescriptor != NULL )
-    {
-        /* Set opened flag. */
-        pI2cDescriptor->flags |= _FLAG_OPENED;
+        if( pI2cDescriptor != NULL )
+        {
+            /* Set opened flag. */
+            pI2cDescriptor->flags |= _FLAG_OPENED;
+        }
     }
 
     return pI2cDescriptor;
@@ -235,22 +231,22 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
                            IotI2CCallback_t xCallback,
                            void * pvUserContext )
 {
-    IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
-
-    /* Silently returns if input handle is invalid. */
-    if( ( pI2cDescriptor == NULL ) || ( ( pI2cDescriptor->flags & _FLAG_OPENED ) == 0 ) )
+    if( ( pxI2CPeripheral != NULL ) && ( ( pxI2CPeripheral->flags & _FLAG_OPENED ) == 1 ) )
     {
-        return;
+        pxI2CPeripheral->xCallback = xCallback;
+        pxI2CPeripheral->pvUserContext = pvUserContext;
     }
-
-    pI2cDescriptor->xCallback = xCallback;
-    pI2cDescriptor->pvUserContext = pvUserContext;
+    else
+    {
+        /* Silently returns if input handle is invalid. */
+    }
 }
 
 int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
                            uint8_t * const pucBuffer,
                            size_t xBytes )
 {
+    int32_t status = IOT_I2C_SUCCESS;
     IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
     HAL_StatusTypeDef halStatus = HAL_OK;
 
@@ -259,26 +255,30 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
         ( pucBuffer == NULL ) ||
         ( xBytes == 0 ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
     }
-
-    if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
+    else if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
     {
-        return IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+        status = IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+    }
+    else
+    {
+        /* Initialize with the requested number of bytes. */
+        pI2cDescriptor->usReceivedRxBytes = xBytes;
+
+        halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, HAL_I2C_Master_Receive, NULL, HAL_I2C_Master_Sequential_Receive_IT );
+
+        status = _toI2cStatus( halStatus, _I2C_READ_OP );
     }
 
-    /* Initialize with the requested number of bytes. */
-    pI2cDescriptor->usReceivedRxBytes = xBytes;
-
-    halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, HAL_I2C_Master_Receive, NULL, HAL_I2C_Master_Sequential_Receive_IT );
-
-    return _toI2cStatus( halStatus, _I2C_READ_OP );
+    return status;
 }
 
 int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
                             size_t xBytes )
 {
+    int32_t status = IOT_I2C_SUCCESS;
     IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
     HAL_StatusTypeDef halStatus = HAL_OK;
 
@@ -287,26 +287,30 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
         ( pucBuffer == NULL ) ||
         ( xBytes == 0 ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
     }
-
-    if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
+    else if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
     {
-        return IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+        status = IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+    }
+    else
+    {
+        /* Initialize with the requested number of bytes. */
+        pI2cDescriptor->usTransmittedTxBytes = xBytes;
+
+        halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, HAL_I2C_Master_Transmit, NULL, HAL_I2C_Master_Sequential_Transmit_IT );
+
+        status = _toI2cStatus( halStatus, _I2C_WRITE_OP );
     }
 
-    /* Initialize with the requested number of bytes. */
-    pI2cDescriptor->usTransmittedTxBytes = xBytes;
-
-    halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, HAL_I2C_Master_Transmit, NULL, HAL_I2C_Master_Sequential_Transmit_IT );
-
-    return _toI2cStatus( halStatus, _I2C_WRITE_OP );
+    return status;
 }
 
 int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
                             size_t xBytes )
 {
+    int32_t status = IOT_I2C_SUCCESS;
     IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
     HAL_StatusTypeDef halStatus = HAL_OK;
 
@@ -315,26 +319,30 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
         ( pucBuffer == NULL ) ||
         ( xBytes == 0 ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
     }
-
-    if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
+    else if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
     {
-        return IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+        status = IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+    }
+    else
+    {
+        /* Initialize with the requested number of bytes. */
+        pI2cDescriptor->usReceivedRxBytes = xBytes;
+
+        halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, NULL, HAL_I2C_Master_Receive_IT, HAL_I2C_Master_Sequential_Receive_IT );
+
+        status = _toI2cStatus( halStatus, _I2C_READ_OP );
     }
 
-    /* Initialize with the requested number of bytes. */
-    pI2cDescriptor->usReceivedRxBytes = xBytes;
-
-    halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, NULL, HAL_I2C_Master_Receive_IT, HAL_I2C_Master_Sequential_Receive_IT );
-
-    return _toI2cStatus( halStatus, _I2C_READ_OP );
+    return status;
 }
 
 int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
                              uint8_t * const pucBuffer,
                              size_t xBytes )
 {
+    int32_t status = IOT_I2C_SUCCESS;
     IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
     HAL_StatusTypeDef halStatus = HAL_OK;
 
@@ -343,20 +351,23 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
         ( pucBuffer == NULL ) ||
         ( xBytes == 0 ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
     }
-
-    if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
+    else if( _isFlagNotSet( pI2cDescriptor, _FLAG_SLAVE_ADDRESS ) )
     {
-        return IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+        status = IOT_I2C_SLAVE_ADDRESS_NOT_SET;
+    }
+    else
+    {
+        /* Initialize with the requested number of bytes. */
+        pI2cDescriptor->usTransmittedTxBytes = xBytes;
+
+        halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, NULL, HAL_I2C_Master_Transmit_IT, HAL_I2C_Master_Sequential_Transmit_IT );
+
+        status = _toI2cStatus( halStatus, _I2C_WRITE_OP );
     }
 
-    /* Initialize with the requested number of bytes. */
-    pI2cDescriptor->usTransmittedTxBytes = xBytes;
-
-    halStatus = _doMasterTransfer( pI2cDescriptor, pucBuffer, xBytes, NULL, HAL_I2C_Master_Transmit_IT, HAL_I2C_Master_Sequential_Transmit_IT );
-
-    return _toI2cStatus( halStatus, _I2C_WRITE_OP );
+    return status;
 }
 
 int32_t iot_i2c_cancel( IotI2CHandle_t const pxI2CPeripheral )
@@ -390,103 +401,116 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
     if( ( pI2cDescriptor == NULL ) ||
         ( _isFlagNotSet( pI2cDescriptor, _FLAG_OPENED ) ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
     }
-
-    switch( xI2CRequest )
+    else
     {
-        case eI2CSendNoStopFlag:
+        switch( xI2CRequest )
+        {
+            case eI2CSendNoStopFlag:
 
-            pI2cDescriptor->flags |= _FLAG_NO_STOP;
+                pI2cDescriptor->flags |= _FLAG_NO_STOP;
 
-            break;
+                break;
 
-        case eI2CSetSlaveAddr:
+            case eI2CSetSlaveAddr:
 
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                else
+                {
+                    pI2cDescriptor->usSlaveAddr = *( uint16_t * ) pvBuffer;
 
-            pI2cDescriptor->usSlaveAddr = *( uint16_t * ) pvBuffer;
+                    /* Set slave address flag. */
+                    pI2cDescriptor->flags |= _FLAG_SLAVE_ADDRESS;
+                }
 
-            /* Set slave address flag. */
-            pI2cDescriptor->flags |= _FLAG_SLAVE_ADDRESS;
+                break;
 
-            break;
+            case eI2CSetMasterConfig:
 
-        case eI2CSetMasterConfig:
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                /* TODO: here it assumes the state is busy if it is not ready, but other states might also be valid to set master config. */
+                else if( pI2cDescriptor->xHandle.State != HAL_I2C_STATE_READY )
+                {
+                    status = IOT_I2C_BUSY;
+                }
+                else
+                {
+                    pI2cDescriptor->xConfig = *( IotI2CConfig_t * ) pvBuffer;
+                }
 
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
+                break;
 
-            /* TODO: here it assumes the state is busy if it is not ready, but other states might also be valid to set master config. */
-            if( pI2cDescriptor->xHandle.State != HAL_I2C_STATE_READY )
-            {
-                return IOT_I2C_BUSY;
-            }
+            case eI2CGetMasterConfig:
 
-            pI2cDescriptor->xConfig = *( IotI2CConfig_t * ) pvBuffer;
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                else
+                {
+                    *( IotI2CConfig_t * ) pvBuffer = pI2cDescriptor->xConfig;
+                }
 
-            break;
+                break;
 
-        case eI2CGetMasterConfig:
+            case eI2CGetBusState:
 
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                else
+                {
+                    *( IotI2CBusStatus_t * ) pvBuffer = pI2cDescriptor->xHandle.State == HAL_I2C_STATE_READY ? eI2CBusIdle : eI2cBusBusy;
+                }
 
-            *( IotI2CConfig_t * ) pvBuffer = pI2cDescriptor->xConfig;
+                break;
 
-            break;
+            /* TODO: have not tested */
+            case eI2CBusReset:
 
-        case eI2CGetBusState:
+                DISCOVERY_I2Cx_FORCE_RESET();
 
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
+                DISCOVERY_I2Cx_RELEASE_RESET();
 
-            *( IotI2CBusStatus_t * ) pvBuffer = pI2cDescriptor->xHandle.State == HAL_I2C_STATE_READY ? eI2CBusIdle : eI2cBusBusy;
+                break;
 
-            break;
+            case eI2CGetTxNoOfbytes:
 
-        /* TODO: have not tested */
-        case eI2CBusReset:
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                else
+                {
+                    *( uint16_t * ) pvBuffer = pxI2CPeripheral->usTransmittedTxBytes;
+                }
 
-            DISCOVERY_I2Cx_FORCE_RESET();
+                break;
 
-            DISCOVERY_I2Cx_RELEASE_RESET();
+            case eI2CGetRxNoOfbytes:
 
-            break;
+                if( pvBuffer == NULL )
+                {
+                    status = IOT_I2C_INVALID_VALUE;
+                }
+                else
+                {
+                    *( uint16_t * ) pvBuffer = pxI2CPeripheral->usReceivedRxBytes;
+                }
 
-        case eI2CGetTxNoOfbytes:
+                break;
 
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
-
-            *( uint16_t * ) pvBuffer = pxI2CPeripheral->usTransmittedTxBytes;
-
-            break;
-
-        case eI2CGetRxNoOfbytes:
-
-            if( pvBuffer == NULL )
-            {
-                return IOT_I2C_INVALID_VALUE;
-            }
-
-            *( uint16_t * ) pvBuffer = pxI2CPeripheral->usReceivedRxBytes;
-
-            break;
-
-        default:
-            status = IOT_I2C_INVALID_VALUE;
+            default:
+                status = IOT_I2C_INVALID_VALUE;
+        }
     }
 
     return status;
@@ -494,29 +518,32 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
 
 int32_t iot_i2c_close( IotI2CHandle_t const pxI2CPeripheral )
 {
+    int32_t status = IOT_I2C_SUCCESS;
     IotI2CDescriptor_t * pI2cDescriptor = pxI2CPeripheral;
 
     if( ( pI2cDescriptor == NULL ) ||
         ( ( pI2cDescriptor->flags & _FLAG_OPENED ) == 0 ) )
     {
-        return IOT_I2C_INVALID_VALUE;
+        status = IOT_I2C_INVALID_VALUE;
+    }
+    else
+    {
+        /* HAL_I2C_DeInit always returns HAL_OK as long as the handle is not NULL. */
+        HAL_I2C_DeInit( &pI2cDescriptor->xHandle );
+
+        pI2cDescriptor->xCallback = NULL;
+        pI2cDescriptor->pvUserContext = NULL;
+        pI2cDescriptor->usSlaveAddr = _UNSET_SLAVE_ADDRESS;
+        pI2cDescriptor->usTransmittedTxBytes = 0;
+        pI2cDescriptor->usReceivedRxBytes = 0;
+        pI2cDescriptor->flags = _FLAG_INITIALIZER;
+        pI2cDescriptor->xConfig.ulBusFreq = 0;
+        pI2cDescriptor->xConfig.ulMasterTimeout = 0;
+
+        vSemaphoreDelete( pI2cDescriptor->xSemphr );
     }
 
-    HAL_I2C_DeInit( &pI2cDescriptor->xHandle );
-
-    pI2cDescriptor->xCallback = NULL;
-    pI2cDescriptor->pvUserContext = NULL;
-    pI2cDescriptor->usSlaveAddr = _UNSET_SLAVE_ADDRESS;
-    pI2cDescriptor->usTransmittedTxBytes = 0;
-    pI2cDescriptor->usReceivedRxBytes = 0;
-    pI2cDescriptor->flags = _FLAG_INITIALIZER;
-    pI2cDescriptor->xConfig.ulBusFreq = 0;
-    pI2cDescriptor->xConfig.ulMasterTimeout = 0;
-
-    vSemaphoreDelete( pI2cDescriptor->xSemphr );
-
-    /* HAL_I2C_DeInit always returns HAL_OK as long as the handle is not NULL. */
-    return IOT_I2C_SUCCESS;
+    return status;
 }
 
 /*-----------------------------------------------------------*/

@@ -37,7 +37,6 @@
 #include "iot_spi.h"
 
 /* Total number of SPI instances on this ST microcontroller. */
-#define SPI_INSTANCE_NUM            ( ( uint32_t ) 3 )
 #define IOT_SPI_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
 #define IOT_SPI_CLOSED              ( ( uint8_t ) 0 )
 #define IOT_SPI_OPENED              ( ( uint8_t ) 1 )
@@ -187,7 +186,7 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
 {
     IotSPIHandle_t xHandle = NULL;
 
-    if( ( lSpiInstance >= 0 ) && ( lSpiInstance < SPI_INSTANCE_NUM ) )
+    if( ( lSpiInstance >= 0 ) && ( lSpiInstance < sizeof( pxSpis ) / sizeof( IotSPIHandle_t ) ) )
     {
         xHandle = pxSpis[ lSpiInstance ];
 

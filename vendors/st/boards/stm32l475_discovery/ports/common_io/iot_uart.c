@@ -59,7 +59,6 @@ typedef struct IotUARTDescriptor
 /**
  * @brief The number of USART ports on this ST microcontroller.
  */
-#define IOT_USART_PORTS              ( ( uint32_t ) 5 )
 #define IOT_UART_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL )
 #define IOT_UART_CLOSED              ( ( uint8_t ) 0 )
 #define IOT_UART_OPENED              ( ( uint8_t ) 1 )
@@ -248,7 +247,7 @@ IotUARTHandle_t iot_uart_open( int32_t lUartInstance )
 {
     IotUARTHandle_t xHandle = NULL;
 
-    if( ( lUartInstance < IOT_USART_PORTS ) && ( lUartInstance >= 0 ) )
+    if( ( lUartInstance >= 0 ) && ( lUartInstance < sizeof(pxUarts) / sizeof(IotUARTHandle_t) ) )
     {
         xHandle = pxUarts[ lUartInstance ];
 
