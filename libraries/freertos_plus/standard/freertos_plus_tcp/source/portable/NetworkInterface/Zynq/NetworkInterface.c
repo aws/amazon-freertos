@@ -395,7 +395,7 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
 	{
 		#if ( ipconfigHAS_PRINTF != 0 )
 			{
-//				prvMonitorResources();
+				prvMonitorResources();
 			}
 		#endif /* ipconfigHAS_PRINTF != 0 ) */
 
