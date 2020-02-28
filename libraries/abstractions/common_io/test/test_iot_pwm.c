@@ -54,12 +54,14 @@
 uint32_t ultestIotPwmGpioOutputPin = 14;
 uint32_t ultestIotPwmGpioInputPin = 18;
 uint32_t ultestIotPwmGpioFunction = 0x4U; /*IOPCTL_PIO_FUNC4; */
-uint32_t ulAssistedTestIotPwmGpioInputPin = 17;
+uint32_t ulAssistedTestIotPwmGpioInputPin = 23;
 
 uint32_t ultestIotPwmInstance = 2;            /* Use PWM instance 2 */
 uint32_t ultestIotPwmFrequency = 2000UL;      /* 2KHz frequency */
 uint32_t ultestIotPwmDutyCycle = 20;          /* Default duty cycle */
 uint32_t ultestIotPwmChannel = 0;             /* Default PWM Channel */
+uint32_t ulAssistedTestIotPwmInstance = 2;    /* Use PWM instance 2 for assisted test */
+uint32_t ulAssistedTestIotPwmChannel = 0;     /* Default PWM Channel for assisted test */
 
 volatile uint32_t ultestIotPwmIrqCounter = 0; /* Count how many pulses we've had */
 #define PWM_TEST_DURATION_MSEC    5000
@@ -111,8 +113,6 @@ TEST_GROUP_RUNNER( TEST_IOT_PWM )
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_CloseFuzzing );
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_SetConfigFuzzing );
     RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_GetConfigFuzzing );
-    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_StartFailure); */
-    /*RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwm_OpenFailure ); */
 }
 
 
@@ -505,13 +505,13 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
     ultestIotPwmIrqCounter = 0;
 
     /* Open PWM handle */
-    xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
+    xPwmHandle = iot_pwm_open( ulAssistedTestIotPwmInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
     /* Settup the pwm configuration */
     xSetPwmConfig.ulPwmFrequency = ultestIotPwmFrequency;
     xSetPwmConfig.ucPwmDutyCycle = ultestIotPwmDutyCycle;
-    xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
+    xSetPwmConfig.ucPwmChannel = ulAssistedTestIotPwmChannel;
 
     /* Set the pwm configuration */
     lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );

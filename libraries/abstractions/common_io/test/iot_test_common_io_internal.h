@@ -168,6 +168,8 @@ extern uint32_t ultestIotPwmFrequency;            /* PWM freq */
 extern uint32_t ultestIotPwmDutyCycle;            /* PWM duty cycle */
 extern uint32_t ultestIotPwmChannel;              /* PWM Channel */
 extern uint32_t ulAssistedTestIotPwmGpioInputPin; /* PWM assisted tests only */
+extern uint32_t ulAssistedTestIotPwmChannel;      /* PWM Channel for assisted test */
+extern uint32_t ulAssistedTestIotPwmInstance;     /* PWM Instance for assisted test */
 
 /* I2C */
 extern uint8_t uctestIotI2CSlaveAddr;         /* Address of Slave I2C (7-bit address) connected to the bus */
