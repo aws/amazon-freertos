@@ -34,11 +34,10 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-char* privLabel = "Test EC Public Key";
-int privLabelLen = 18;
+#include <string.h>
 
-char* pubLabel = "Test EC Private Key";
-int pubLabelLen = 19;
+char* privLabel = "Test EC Private Key";
+char* pubLabel = "Test EC Public Key";
 
 void C_GenerateKeyPair_normal_behavior()
 {
@@ -62,7 +61,7 @@ void C_GenerateKeyPair_normal_behavior()
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType ) },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -71,7 +70,7 @@ void C_GenerateKeyPair_normal_behavior()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -123,7 +122,7 @@ void C_GenerateKeyPair_exceptional_behavior_1()
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType ) },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -132,7 +131,7 @@ void C_GenerateKeyPair_exceptional_behavior_1()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -168,7 +167,7 @@ void C_GenerateKeyPair_exceptional_behavior_2()
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -177,7 +176,7 @@ void C_GenerateKeyPair_exceptional_behavior_2()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -213,7 +212,7 @@ void C_GenerateKeyPair_exceptional_behavior_3()
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -222,7 +221,7 @@ void C_GenerateKeyPair_exceptional_behavior_3()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -259,7 +258,7 @@ void C_GenerateKeyPair_exceptional_behavior_4()
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_VERIFY,    &xCkFalse, sizeof( CK_BBOOL ) },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -268,7 +267,7 @@ void C_GenerateKeyPair_exceptional_behavior_4()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;
@@ -304,7 +303,7 @@ void C_GenerateKeyPair_exceptional_behavior_5()
         { CKA_KEY_TYPE,  &xKeyType, sizeof( xKeyType )  },
         { CKA_VERIFY,    &xCkTrue,  sizeof( CK_BBOOL )  },
         { CKA_EC_PARAMS, xEcParams, sizeof( xEcParams ) },
-        { CKA_LABEL,     pubLabel,  pubLabelLen }
+        { CKA_LABEL,     pubLabel,  strlen( pubLabel ) }
     };
 
     CK_ATTRIBUTE privateKeyTemplate[] =
@@ -313,7 +312,7 @@ void C_GenerateKeyPair_exceptional_behavior_5()
         { CKA_TOKEN,    &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_PRIVATE,  &xCkTrue,  sizeof( CK_BBOOL ) },
         { CKA_SIGN,     &xCkTrue,  sizeof( CK_BBOOL ) },
-        { CKA_LABEL,    privLabel, privLabelLen }
+        { CKA_LABEL,    privLabel, strlen( privLabel ) }
     };
 
     pPublicKeyTempalte = publicKeyTemplate;

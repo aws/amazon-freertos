@@ -39,9 +39,8 @@ void C_GenerateRandom_normal_behavior()
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE pRandomData_val[100] = { 0 };
     CK_BYTE_PTR pRandomData = pRandomData_val;
-    CK_ULONG ulRandomLen = 100;
 
-    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, ulRandomLen );
+    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, sizeof( pRandomData ) );
 
     TEST_ASSERT_EQUAL( CKR_OK, rv );
 }
@@ -51,9 +50,8 @@ void C_GenerateRandom_exceptional_behavior_0()
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE pRandomData_val[100] = { 0 };
     CK_BYTE_PTR pRandomData = pRandomData_val;
-    CK_ULONG ulRandomLen = 100;
 
-    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, ulRandomLen );
+    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, sizeof( pRandomData ) );
 
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, rv );
 }
@@ -63,9 +61,8 @@ void C_GenerateRandom_exceptional_behavior_1()
     CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
     CK_BYTE pRandomData_val[100] = { 0 };
     CK_BYTE_PTR pRandomData = pRandomData_val;
-    CK_ULONG ulRandomLen = 100;
 
-    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, ulRandomLen );
+    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, sizeof( pRandomData ) );
 
     TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, rv );
 }
@@ -74,9 +71,8 @@ void C_GenerateRandom_exceptional_behavior_2()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_BYTE_PTR pRandomData = NULL_PTR;
-    CK_ULONG ulRandomLen = 100;
 
-    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, ulRandomLen );
+    CK_RV rv = pxGlobalFunctionList->C_GenerateRandom( hSession, pRandomData, sizeof( pRandomData ) );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, rv );
 }

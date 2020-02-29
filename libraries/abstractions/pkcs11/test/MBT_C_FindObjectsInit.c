@@ -34,8 +34,9 @@
 
 #include "iot_test_pkcs11_globals.h"
 
+#include <string.h>
+
 char* label = "Device Priv TLS Key";
-int labelLen = 19;
 
 void C_FindObjectsInit_normal_behavior()
 {
@@ -47,7 +48,7 @@ void C_FindObjectsInit_normal_behavior()
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, labelLen },
+        { CKA_LABEL, label, strlen(label) },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -69,7 +70,7 @@ void C_FindObjectsInit_exceptional_behavior_0()
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, labelLen },
+        { CKA_LABEL, label, strlen( label ) },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -91,7 +92,7 @@ void C_FindObjectsInit_exceptional_behavior_1()
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, labelLen },
+        { CKA_LABEL, label, strlen( label ) },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
@@ -124,7 +125,7 @@ void C_FindObjectsInit_exceptional_behavior_3()
 
     CK_ATTRIBUTE lookupTemplate[] =
     {
-        { CKA_LABEL, label, labelLen },
+        { CKA_LABEL, label, strlen( label ) },
         { CKA_CLASS, &objClass, sizeof( CK_OBJECT_CLASS ) }
     };
 
