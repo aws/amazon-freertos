@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V5.0.0
+ * FreeRTOS BLE HAL V5.0.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -57,7 +57,7 @@
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    0
+#define btPATCH_VERSION    1
 
 /**
  * @brief  Help functions to convert version to string.
