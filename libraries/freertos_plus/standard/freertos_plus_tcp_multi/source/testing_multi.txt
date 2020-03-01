@@ -1,0 +1,74 @@
+
+===========================================================================
+
+FreeRTOS_ARP.c
+
+eARPProcessPacket():
+    pxTargetEndPoint = FreeRTOS_FindEndPointOnIP()
+        checks whether ARP request is for this unit
+
+    pxSourceEndPoint = FreeRTOS_FindEndPointOnIP()
+        only for IP-clash detection
+
+vARPRefreshCacheEntry():
+    #if( ipconfigARP_STORES_REMOTE_ADDRESSES == 0 )
+        FreeRTOS_FindEndPointOnNetMask()
+            to see if the IP-address is within the net-mask
+    #else
+        FreeRTOS_FindEndPointOnNetMask()
+            to see if the IP-addresses are local or not
+    #endif
+
+eARPGetCacheEntry():
+    pxEndPoint = FreeRTOS_FindEndPointOnNetMask()
+        to see if the matching end-point is already up
+
+FreeRTOS_OutputARPRequest():
+    pxEndPoint = FreeRTOS_FindEndPointOnIP( ulIPAddress );
+    if( pxEndPoint == NULL )
+    {
+        pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulIPAddress );
+    }
+        to find the correct end-point and interface
+===========================================================================
+
+FreeRTOS_IP.c
+
+eConsiderFrameForProcessing():
+    FreeRTOS_FindEndPointOnMAC()
+        To see if the target MAC-address matches with any of the end-points
+
+prvAllowIPPacketIPv4():
+    FreeRTOS_FindEndPointOnIP( ulDestinationIPAddress )
+        To see if the packet is targeted at one of the end-points
+
+vReturnEthernetFrame():
+    FreeRTOS_FindEndPointOnNetMask( ulDestinationIPAddress )
+        sets the pxEndPoint if it was NULL
+
+
+===========================================================================
+
+FreeRTOS_TCP_IP.c
+
+prvTCPReturnPacket():
+    FreeRTOS_FindEndPointOnNetMask( ulDestinationIPAddress )
+        sets the pxEndPoint if it was NULL
+
+prvTCPPrepareConnect():
+	FreeRTOS_FindEndPointOnNetMask( ulSourceIPAddress )
+        Before TCP connect, find an end-point and interface
+
+===========================================================================
+
+FreeRTOS_UDP_IP.c
+
+vProcessGeneratedUDPPacket():
+    FreeRTOS_FindEndPointOnNetMask( ulIPAddress )
+        sets pxNetworkBuffer->pxEndPoint in case it was NULL
+
+    FreeRTOS_FindEndPointOnNetMask( ulIPAddress )
+        sets pxNetworkBuffer->pxEndPoint in case an ARP request must be sent
+
+===========================================================================
+
