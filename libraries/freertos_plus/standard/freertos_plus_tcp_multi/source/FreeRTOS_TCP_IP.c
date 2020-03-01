@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.11
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -256,10 +256,6 @@ static void prvTCPAddTxData( FreeRTOS_Socket_t *pxSocket );
  *  Called to handle the closure of a TCP connection.
  */
 static BaseType_t prvTCPHandleFin( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t *pxNetworkBuffer );
-
-#if( ipconfigUSE_TCP_TIMESTAMPS == 1 )
-	static UBaseType_t prvTCPSetTimeStamp( BaseType_t lOffset, FreeRTOS_Socket_t *pxSocket, TCPHeader_t *pxTCPHeader );
-#endif
 
 /*
  * Called from prvTCPHandleState().  Find the TCP payload data and check and
@@ -628,26 +624,6 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 			prvTCPPrepareConnect() prepares 'xPacket' and returns pdTRUE if
 			the Ethernet address of the peer or the gateway is found. */
 			pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,	&( pxSocket->u.xTCP.xPacket.u.ucLastPacket[ ipSIZE_OF_ETH_HEADER + uxHeaderSize ] ) );
-
-			#if( ipconfigUSE_TCP_TIMESTAMPS == 1 )
-			{
-			NetworkEndPoint_t *pxEndPoint = pxSocket->pxEndPoint;
-				/* When TCP time stamps are enabled, but they will only be applied
-				if the peer is outside the netmask, usually on the internet.
-				Packages sent on a LAN are usually too big to carry time stamps. */
-
-				if( pxEndPoint != NULL )
-				{
-					if( ENDPOINT_IS_IPv4( pxEndPoint ) != 0 )
-					{
-						if( ( ( FreeRTOS_ntohl( pxSocket->u.xTCP.ulRemoteIP ) ^ pxEndPoint->ipv4_settings.ulIPAddress ) & pxEndPoint->ipv4_settings.ulNetMask ) != 0uL )
-						{
-							pxSocket->u.xTCP.xTCPWindow.u.bits.bTimeStamps = pdTRUE_UNSIGNED;
-						}
-					}
-				}
-			}
-			#endif
 
 			/* About to send a SYN packet.  Call prvSetSynAckOptions() to set
 			the proper options: The size of MSS and whether SACK's are
@@ -1102,7 +1078,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 			containing the packet header. */
 			vFlip_16( pxProtocolHeaders->xTCPHeader.usSourcePort, pxProtocolHeaders->xTCPHeader.usDestinationPort);
 			#if( ipconfigUSE_IPv6 != 0 )
-			if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
+			if( ( pxSocket != NULL ) && ( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED ) )
 			{
 			}
 			else
@@ -1337,7 +1313,7 @@ ProtocolHeaders_t *pxProtocolHeaders;
 
 			pxIPHeader->ucVersionHeaderLength = 0x45u;
 			usLength = ( uint16_t ) ( sizeof( TCPPacket_t ) - sizeof( pxTCPPacket->xEthernetHeader ) );
-			pxIPHeader->usLength = FreeRTOS_htons( usLength );
+			pxIPHeader->usLength = FreeRTOS_htons( usLength );	/*lint !e845 The right argument to operator '|' is certain to be 0. */
 			pxIPHeader->ucTimeToLive = ( uint8_t ) ipconfigTCP_TIME_TO_LIVE;
 
 			pxIPHeader->ucProtocol = ( uint8_t ) ipPROTOCOL_TCP;
@@ -1604,16 +1580,6 @@ UBaseType_t uxNewMSS;
 					}
 					/* len should be 0 by now. */
 				}
-				#if	ipconfigUSE_TCP_TIMESTAMPS == 1
-					else if( pucPtr[0] == tcpTCP_OPT_TIMESTAMP )
-					{
-						len -= 2;	/* Skip option and length byte. */
-						pucPtr += 2;
-						pxSocket->u.xTCP.xTCPWindow.u.bits.bTimeStamps = pdTRUE_UNSIGNED;
-						pxSocket->u.xTCP.xTCPWindow.rx.ulTimeStamp = ulChar2u32( pucPtr );
-						pxSocket->u.xTCP.xTCPWindow.tx.ulTimeStamp = ulChar2u32( pucPtr + 4 );
-					}
-				#endif	/* ipconfigUSE_TCP_TIMESTAMPS == 1 */
 			}
 			#endif	/* ipconfigUSE_TCP_WIN == 1 */
 
@@ -1686,16 +1652,6 @@ UBaseType_t uxOptionsLength;
 
 	#if( ipconfigUSE_TCP_WIN != 0 )
 	{
-		#if( ipconfigUSE_TCP_TIMESTAMPS == 1 )
-			if( pxSocket->u.xTCP.xTCPWindow.u.bits.bTimeStamps )
-			{
-				uxOptionsLength += prvTCPSetTimeStamp( uxOptionsLength, pxSocket, pxTCPHeader );
-				pxTCPHeader->ucOptdata[ uxOptionsLength      ] = tcpTCP_OPT_SACK_P;	/* 4: Sack-Permitted Option. */
-				pxTCPHeader->ucOptdata[ uxOptionsLength + 1u ] = 2u;
-				uxOptionsLength += 2u;
-			}
-			else
-		#endif
 		{
 			pxTCPHeader->ucOptdata[ uxOptionsLength      ] = tcpTCP_OPT_NOOP;
 			pxTCPHeader->ucOptdata[ uxOptionsLength + 1u ] = tcpTCP_OPT_NOOP;
@@ -2185,18 +2141,6 @@ int32_t lStreamPos;
 			pxProtocolHeaders->xTCPHeader.ucTCPFlags |= ( uint8_t ) tcpTCP_FLAG_PSH;
 		}
 
-		#if	ipconfigUSE_TCP_TIMESTAMPS == 1
-		{
-			if( uxOptionsLength == 0u )
-			{
-				if( pxSocket->u.xTCP.xTCPWindow.u.bits.bTimeStamps )
-				{
-					uxOptionsLength = prvTCPSetTimeStamp( 0, pxSocket, &( pxProtocolHeaders->xTCPHeader ) );
-				}
-			}
-		}
-		#endif
-
 		lDataLen += ipNUMERIC_CAST( int32_t, uxIPHeaderSizeSocket( pxSocket ) + ipSIZE_OF_TCP_HEADER + uxOptionsLength );
 	}
 
@@ -2401,29 +2345,6 @@ uint32_t ulAckNr = FreeRTOS_ntohl( pxTCPHeader->ulAckNr );
 }
 /*-----------------------------------------------------------*/
 
-#if	ipconfigUSE_TCP_TIMESTAMPS == 1
-
-	static UBaseType_t prvTCPSetTimeStamp( BaseType_t lOffset, FreeRTOS_Socket_t *pxSocket, TCPHeader_t *pxTCPHeader )
-	{
-	uint32_t ulTimes[2];
-	uint8_t *ucOptdata = &( pxTCPHeader->ucOptdata[ lOffset ] );
-
-		ulTimes[0]   = ( xTaskGetTickCount ( ) * 1000u ) / configTICK_RATE_HZ;
-		ulTimes[0]   = FreeRTOS_htonl( ulTimes[0] );
-		ulTimes[1]   = FreeRTOS_htonl( pxSocket->u.xTCP.xTCPWindow.rx.ulTimeStamp );
-		ucOptdata[0] = ( uint8_t ) tcpTCP_OPT_TIMESTAMP;
-		ucOptdata[1] = ( uint8_t ) tcpTCP_OPT_TIMESTAMP_LEN;
-		memcpy( &(ucOptdata[2] ), ulTimes, 8u );
-		ucOptdata[10] = ( uint8_t ) tcpTCP_OPT_NOOP;
-		ucOptdata[11] = ( uint8_t ) tcpTCP_OPT_NOOP;
-		/* Do not return the same timestamps 2 times. */
-		pxSocket->u.xTCP.xTCPWindow.rx.ulTimeStamp = 0uL;
-		return 12u;
-	}
-
-#endif
-/*-----------------------------------------------------------*/
-
 /*
  * prvCheckRxData(): called from prvTCPHandleState()
  *
@@ -2458,14 +2379,21 @@ const BaseType_t xIPHeaderLength = xIPHeaderSize( pxNetworkBuffer );
 	if( ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer )->usFrameType == ipIPv6_FRAME_TYPE )
 	{
 	IPHeader_IPv6_t * pxIPHeader = ipPOINTER_CAST( IPHeader_IPv6_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER ] ) );
-		lLength = ( int32_t ) FreeRTOS_ntohs( pxIPHeader->usPayloadLength );
+	uint16_t usLength;
+
+		/* For lint: conversion and cast in 2 steps. */
+		usLength = FreeRTOS_ntohs( pxIPHeader->usPayloadLength );
+		lLength = ( int32_t ) usLength;
 		lLength += ( int32_t ) sizeof( IPHeader_IPv6_t );
 	}
 	else
 	#endif /* ipconfigUSE_IPv6 */
 	{
 	IPHeader_t *pxIPHeader = ipPOINTER_CAST( IPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER ] ) );
-		lLength = ( int32_t ) FreeRTOS_ntohs( pxIPHeader->usLength );
+	uint16_t usLength;
+
+		usLength = FreeRTOS_ntohs( pxIPHeader->usLength );
+		lLength = ( int32_t ) usLength;
 	}
 
 	if( lReceiveLength > lLength )
@@ -2639,15 +2567,6 @@ UBaseType_t uxOptionsLength = pxTCPWindow->ucOptionLength;
 		/* Nothing. */
 	}
 
-	#if(	ipconfigUSE_TCP_TIMESTAMPS == 1 )
-	{
-		if( pxSocket->u.xTCP.xTCPWindow.u.bits.bTimeStamps )
-		{
-			uxOptionsLength += prvTCPSetTimeStamp( uxOptionsLength, pxSocket, pxTCPHeader );
-		}
-	}
-	#endif	/* ipconfigUSE_TCP_TIMESTAMPS == 1 */
-
 	return uxOptionsLength;
 }
 /*-----------------------------------------------------------*/
@@ -2781,9 +2700,11 @@ uint8_t ucTCPFlags = pxTCPHeader->ucTCPFlags;
 uint32_t ulSequenceNumber = FreeRTOS_ntohl( pxTCPHeader->ulSequenceNumber ), ulCount;
 BaseType_t xSendLength = 0, xMayClose = pdFALSE, bRxComplete, bTxDone;
 int32_t lDistance, lSendResult;
+uint16_t usWindow;
 
 	/* Remember the window size the peer is advertising. */
-	pxSocket->u.xTCP.ulWindowSize = ( uint32_t ) FreeRTOS_ntohs( pxTCPHeader->usWindow );
+	usWindow = FreeRTOS_ntohs( pxTCPHeader->usWindow );
+	pxSocket->u.xTCP.ulWindowSize = ( uint32_t ) usWindow;
 	#if( ipconfigUSE_TCP_WIN != 0 )
 	{
 		pxSocket->u.xTCP.ulWindowSize =
@@ -3513,6 +3434,8 @@ BaseType_t xResult = pdPASS;
 
 	if( xResult != pdFAIL )
 	{
+	uint16_t usWindow;
+
 		/* pxSocket is not NULL when xResult != pdFAIL. */
 		configASSERT( pxSocket != NULL );
 		/* Touch the alive timers because we received a message	for this
@@ -3530,8 +3453,8 @@ BaseType_t xResult = pdPASS;
 			prvCheckOptions( pxSocket, pxNetworkBuffer );
 		}
 
-
-		pxSocket->u.xTCP.ulWindowSize = (uint32_t ) FreeRTOS_ntohs( pxProtocolHeaders->xTCPHeader.usWindow );
+		usWindow = FreeRTOS_ntohs( pxProtocolHeaders->xTCPHeader.usWindow );
+		pxSocket->u.xTCP.ulWindowSize = (uint32_t ) usWindow;
 		#if( ipconfigUSE_TCP_WIN == 1 )
 		{
 			/* rfc1323 : The Window field in a SYN (i.e., a <SYN> or <SYN,ACK>)

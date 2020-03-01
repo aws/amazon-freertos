@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.10
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -696,6 +696,23 @@ const int32_t l500ms = 500;
 	pxWindow->tx.ulHighestSequenceNumber = ulSequenceNumber;
 	pxWindow->ulOurSequenceNumber = ulSequenceNumber;
 }
+/*-----------------------------------------------------------*/
+
+#if( ipconfigUSE_TCP_WIN == 1 )
+
+    void vTCPSegmentCleanup( void )
+    {
+        /* Free and clear the TCP segments pointer. This function should only be called
+         * once FreeRTOS+TCP will no longer be used. No thread-safety is provided for this
+         * function. */
+        if( xTCPSegments != NULL )
+        {
+            vPortFreeLarge( xTCPSegments );
+            xTCPSegments = NULL;
+        }
+    }
+
+#endif /* ipconfgiUSE_TCP_WIN == 1 */
 /*-----------------------------------------------------------*/
 
 /*=============================================================================

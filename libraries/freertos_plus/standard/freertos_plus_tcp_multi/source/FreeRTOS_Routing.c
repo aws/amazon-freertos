@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.10
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -178,7 +178,7 @@ NetworkEndPoint_t *pxIterator = NULL;
 #if( ipconfigUSE_IPv6 != 0 )
 	if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
 	{
-		FreeRTOS_printf( ( "FreeRTOS_AddEndPoint: MAC: %02x-%02x IPv4: %pip\n",
+		FreeRTOS_printf( ( "FreeRTOS_AddEndPoint: MAC: %02x-%02x IPv6: %pip\n",
 			pxEndPoint->xMACAddress.ucBytes[ 4 ],
 			pxEndPoint->xMACAddress.ucBytes[ 5 ],
 			pxEndPoint->ipv6_defaults.xIPAddress.ucBytes ) );
@@ -364,12 +364,6 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	/* Find the best fitting end-point to reach a given IP-address. */
 	/*_RB_ Presumably then a broadcast reply could go out on a different end point to that on which the broadcast was received - although that should not be an issue if the nodes are on the same LAN it could be an issue if the nodes are on separate LANs. */
 
-	if( ulWhere == 1uL )
-	{
-	//#warning debugging
-	//    configPRINTF( ( "ulWhere = 1\n" ) );
-	}
-
 	while( pxEndPoint != NULL )
 	{
 		if( ( pxInterface == NULL ) || ( pxEndPoint->pxNetworkInterface == pxInterface ) )
@@ -547,7 +541,18 @@ NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInter
 NetworkEndPoint_t *pxEndPoint = NULL;
 ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuffer );	/*lint !e9018 declaration of symbol with union based type [MISRA 2012 Rule 19.2, advisory]. */
 
-	#warning For logging only, take this away
+	configASSERT( pucEthernetBuffer != NULL );
+	/* Check if 'pucEthernetBuffer()' has the expected alignment,
+	which is 32-bits + 2. */
+	#ifndef _lint
+	{
+		uint32_t ulAddress = ( uint32_t ) pucEthernetBuffer;
+		ulAddress += 2uL;
+		configASSERT( ( ulAddress % 4uL ) == 0uL );
+	}
+	#endif
+
+	//#pragma warning 'name' for logging only, take this away
 	const char *name = "";
 	
 	/* An Ethernet packet has been received. Inspect the contents to see which
@@ -658,7 +663,7 @@ ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuff
 					xDone = pdTRUE;
 				}
 				else
-				if( prvIsIPv4Multicast( ulIPTargetAddress ) != pdFALSE )
+				if( xIsIPv4Multicast( ulIPTargetAddress ) != pdFALSE )
 				{
 					/* Target is a multicast address. */
 					xDone = pdTRUE;
@@ -676,7 +681,7 @@ ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuff
 			{
 				pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
 			}
-			if( ( prvIsIPv4Multicast( ulIPTargetAddress ) == pdFALSE ) && ( xDoLog != 0uL ) )
+			if( ( xIsIPv4Multicast( ulIPTargetAddress ) == pdFALSE ) && ( xDoLog != 0uL ) )
 			{
 				xDoLog--;
 				FreeRTOS_printf( ( "Compare[%s] %d mine %-16lxip (%02x-%02x) from %-16lxip to %-16lxip (%02x-%02x)\n",

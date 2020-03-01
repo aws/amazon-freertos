@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.11
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -451,7 +451,7 @@ NetworkEndPoint_t *pxEndPoint = NULL;
 	}
 	else
 #endif
-	if( ( pxEndPoint = FreeRTOS_FindEndPointOnIP_IPv4( ulAddressToLookup, 0 ) ) != NULL )/*lint !e9084*/	/* ARP lookup loop-back? */
+	if( ( pxEndPoint = FreeRTOS_FindEndPointOnIP_IPv4( ulAddressToLookup, 0 ) ) != NULL )/*lint !e9084 !e838*/	/* ARP lookup loop-back? */
 	{
 		/* Targeted at this device? Make sure that xNetworkInterfaceOutput()
 		in NetworkInterface.c calls xCheckLoopback(). */

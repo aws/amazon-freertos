@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -41,15 +21,6 @@
  *
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
- */
-
- /*
- * Handling of Ethernet PHY's
- * PHY's communicate with an EMAC either through
- * a Media-Independent Interface (MII), or a Reduced Media-Independent Interface (RMII).
- * The EMAC can poll for PHY ports on 32 different addresses. Each of the PHY ports
- * shall be treated independently.
- * 
  */
 
 /* Standard includes. */
@@ -77,14 +48,29 @@
 #endif
 
 #ifndef	ipconfigPHY_LS_HIGH_CHECK_TIME_MS
-	/* Check if the LinkSStatus in the PHY is still high after 15 seconds of not
+	/* Check if the LinkStatus in the PHY is still high after 15 seconds of not
 	receiving packets. */
-	#define ipconfigPHY_LS_HIGH_CHECK_TIME_MS	15000
+	#define ipconfigPHY_LS_HIGH_CHECK_TIME_MS	15000uL
 #endif
 
 #ifndef	ipconfigPHY_LS_LOW_CHECK_TIME_MS
-	/* Check if the LinkSStatus in the PHY is still low every second. */
-	#define ipconfigPHY_LS_LOW_CHECK_TIME_MS	1000
+	/* Check if the LinkStatus in the PHY is still low every second. */
+	#define ipconfigPHY_LS_LOW_CHECK_TIME_MS	1000uL
+#endif
+
+/* As the following 3 macro's are OK in most situations, and so they're not
+included in 'FreeRTOSIPConfigDefaults.h'.
+Users can change their values in the project's 'FreeRTOSIPConfig.h'. */
+#ifndef phyPHY_MAX_RESET_TIME_MS
+	#define phyPHY_MAX_RESET_TIME_MS			1000uL
+#endif
+
+#ifndef phyPHY_MAX_NEGOTIATE_TIME_MS
+	#define phyPHY_MAX_NEGOTIATE_TIME_MS		3000uL
+#endif
+
+#ifndef phySHORT_DELAY_MS
+	#define phySHORT_DELAY_MS					50uL
 #endif
 
 /* Naming and numbering of basic PHY registers. */
@@ -107,7 +93,6 @@
 #define phyBMCR_SPEED_100			0x2000u	/* Select 100Mbps. */
 #define phyBMCR_RESET				0x8000u	/* Reset the PHY. */
 
-
 /* Bit fields for 'phyREG_19_PHYCR', the 'PHY Control Register'. */
 #define PHYCR_MDIX_EN				0x8000u	/* Enable Auto MDIX. */
 #define PHYCR_MDIX_FORCE			0x4000u	/* Force MDIX crossed. */
@@ -115,13 +100,6 @@
 #define phyBMSR_AN_COMPLETE			0x0020u	/* Auto-Negotiation process completed */
 
 #define phyBMSR_LINK_STATUS			0x0004u
-#define phyBMSR_100BASE_T4			0x8000u /* 100BASE-T4 Capable */
-#define phyBMSR_100BASE_TX_FD		0x4000u /* 100BASE-TX Full Duplex Capable */
-#define phyBMSR_100BASE_T4_HD		0x2000u /* 100BASE-TX Half Duplex Capable */
-#define phyBMSR_10BASE_T_FD			0x1000u /* 10BASE-T Full Duplex Capable */
-#define phyBMSR_10BASE_T_HD			0x0800u /* 10BASE-T Half Duplex Capable */
-
-
 
 #define phyPHYSTS_LINK_STATUS		0x0001u	/* PHY Link mask */
 #define phyPHYSTS_SPEED_STATUS		0x0002u	/* PHY Speed mask */
@@ -141,16 +119,18 @@
  * Description of all capabilities that can be advertised to
  * the peer (usually a switch or router).
  */
-#define phyADVERTISE_CSMA			0x0001u	/* Only selector supported. */
+
+#define phyADVERTISE_CSMA			0x0001u	/* Supports IEEE 802.3u: Fast Ethernet at 100 Mbit/s */
 #define phyADVERTISE_10HALF			0x0020u	/* Try for 10mbps half-duplex. */
 #define phyADVERTISE_10FULL			0x0040u	/* Try for 10mbps full-duplex. */
 #define phyADVERTISE_100HALF		0x0080u	/* Try for 100mbps half-duplex. */
 #define phyADVERTISE_100FULL		0x0100u	/* Try for 100mbps full-duplex. */
 
 #define phyADVERTISE_ALL			( phyADVERTISE_10HALF | phyADVERTISE_10FULL | \
-									  phyADVERTISE_100HALF | phyADVERTISE_100FULL )
+									  phyADVERTISE_100HALF | phyADVERTISE_100FULL | \
+									  phyADVERTISE_CSMA )
 
-/* Send a reset commando to a set of PHY-ports. */
+/* Send a reset command to a set of PHY-ports. */
 static uint32_t xPhyReset( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask );
 
 static BaseType_t xHas_1F_PHYSPCS( uint32_t ulPhyID )
@@ -252,7 +232,7 @@ BaseType_t xPhyAddress;
 }
 /*-----------------------------------------------------------*/
 
-/* Send a reset commando to a set of PHY-ports. */
+/* Send a reset command to a set of PHY-ports. */
 static uint32_t xPhyReset( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 uint32_t ulDoneMask, ulConfig;
@@ -273,7 +253,7 @@ BaseType_t xPhyIndex;
 		pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig | phyBMCR_RESET );
 	}
 
-	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( 1000UL );
+	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( phyPHY_MAX_RESET_TIME_MS );
 	vTaskSetTimeOutState( &xTimer );
 
 	/* The reset should last less than a second. */
@@ -300,19 +280,23 @@ BaseType_t xPhyIndex;
 			break;
 		}
 		/* Block for a while */
-		vTaskDelay( pdMS_TO_TICKS( 50ul ) );
+		vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 	}
 
 	/* Clear the reset bits. */
 	for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++ )
 	{
-	BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
+		if( ( ulDoneMask & ( 1ul << xPhyIndex ) ) == 0uL )
+		{
+		BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
 
-		pxPhyObject->fnPhyRead( xPhyAddress, phyREG_00_BMCR, &ulConfig );
-		pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig & ~phyBMCR_RESET );
+			/* The reset operation timed out, clear the bit manually. */
+			pxPhyObject->fnPhyRead( xPhyAddress, phyREG_00_BMCR, &ulConfig );
+			pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, ulConfig & ~phyBMCR_RESET );
+		}
 	}
 
-	vTaskDelay( pdMS_TO_TICKS( 50ul ) );
+	vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 
 	return ulDoneMask;
 }
@@ -325,7 +309,7 @@ BaseType_t xPhyIndex;
 
 	if( pxPhyObject->xPortCount < 1 )
 	{
-		FreeRTOS_printf( ( "xPhyResetAll: No PHY's detected.\n" ) );
+		FreeRTOS_printf( ( "xPhyConfigure: No PHY's detected.\n" ) );
 		return -1;
 	}
 
@@ -336,11 +320,12 @@ BaseType_t xPhyIndex;
     /* Set advertise register. */
 	if( ( pxPhyProperties->ucSpeed == ( uint8_t )PHY_SPEED_AUTO ) && ( pxPhyProperties->ucDuplex == ( uint8_t )PHY_DUPLEX_AUTO ) )
 	{
-		ulAdvertise = phyADVERTISE_CSMA | phyADVERTISE_ALL;
+		ulAdvertise = phyADVERTISE_ALL;
 		/* Reset auto-negotiation capability. */
 	}
 	else
 	{
+		/* Always select protocol 802.3u. */
 		ulAdvertise = phyADVERTISE_CSMA;
 
 		if( pxPhyProperties->ucSpeed == ( uint8_t )PHY_SPEED_AUTO )
@@ -389,7 +374,7 @@ BaseType_t xPhyIndex;
 		}
 	}
 
-	/* Send a reset commando to a set of PHY-ports. */
+	/* Send a reset command to a set of PHY-ports. */
 	xPhyReset( pxPhyObject, xPhyGetMask( pxPhyObject ) );
 
 	for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++ )
@@ -478,6 +463,10 @@ BaseType_t xPhyIndex;
 }
 /*-----------------------------------------------------------*/
 
+/* xPhyFixedValue(): this function is called in case auto-negotiation is disabled.
+The caller has set the values in 'xPhyPreferences' (ucDuplex and ucSpeed).
+The PHY register phyREG_00_BMCR will be set for every connected PHY that matches
+with ulPhyMask. */
 BaseType_t xPhyFixedValue( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 BaseType_t xPhyIndex;
@@ -508,6 +497,9 @@ uint32_t ulValue, ulBitMask = ( uint32_t )1u;
 }
 /*-----------------------------------------------------------*/
 
+/* xPhyStartAutoNegotiation() is the alternative xPhyFixedValue():
+It sets the BMCR_AN_RESTART bit and waits for the auto-negotiation completion
+( phyBMSR_AN_COMPLETE ). */
 BaseType_t xPhyStartAutoNegotiation( EthernetPhy_t *pxPhyObject, uint32_t ulPhyMask )
 {
 uint32_t xPhyIndex, ulDoneMask, ulBitMask;
@@ -519,7 +511,7 @@ TimeOut_t xTimer;
 	{
 		return 0;
 	}
-	for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++ )
+	for( xPhyIndex = 0; xPhyIndex < ( uint32_t ) pxPhyObject->xPortCount; xPhyIndex++ )
 	{
 		if( ( ulPhyMask & ( 1lu << xPhyIndex ) ) != 0lu )
 		{
@@ -530,14 +522,14 @@ TimeOut_t xTimer;
 			pxPhyObject->fnPhyWrite( xPhyAddress, phyREG_00_BMCR, pxPhyObject->ulBCRValue | phyBMCR_AN_RESTART );
 		}
 	}
-	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( 3000UL );
+	xRemainingTime = ( TickType_t ) pdMS_TO_TICKS( phyPHY_MAX_NEGOTIATE_TIME_MS );
 	vTaskSetTimeOutState( &xTimer );
 	ulDoneMask = 0;
 	/* Wait until the auto-negotiation will be completed */
 	for( ;; )
 	{
 		ulBitMask = ( uint32_t )1u;
-		for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
+		for( xPhyIndex = 0; xPhyIndex < ( uint32_t ) pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
 		{
 			if( ( ulPhyMask & ulBitMask ) != 0lu )
 			{
@@ -559,17 +551,17 @@ TimeOut_t xTimer;
 		}
 		if( xTaskCheckForTimeOut( &xTimer, &xRemainingTime ) != pdFALSE )
 		{
-			FreeRTOS_printf( ( "xPhyReset: phyBMCR_RESET timed out ( done 0x%02lX )\n", ulDoneMask ) );
+			FreeRTOS_printf( ( "xPhyStartAutoNegotiation: phyBMCR_RESET timed out ( done 0x%02lX )\n", ulDoneMask ) );
 			break;
 		}
-		vTaskDelay( pdMS_TO_TICKS( 50 ) );
+		vTaskDelay( pdMS_TO_TICKS( phySHORT_DELAY_MS ) );
 	}
 
 	if( ulDoneMask != ( uint32_t)0u )
 	{
 		ulBitMask = ( uint32_t )1u;
 		pxPhyObject->ulLinkStatusMask &= ~( ulDoneMask );
-		for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
+		for( xPhyIndex = 0; xPhyIndex < ( uint32_t ) pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
 		{
 		BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
 		uint32_t ulPhyID = pxPhyObject->ulPhyIDs[ xPhyIndex ];
@@ -651,7 +643,7 @@ TimeOut_t xTimer;
 				pxPhyObject->fnPhyRead( xPhyAddress, PHYREG_10_PHYSTS, &ulRegValue);
 			}
 
-			FreeRTOS_printf( ( ">> Autonego ready: %08lx: %s duplex %u mbit %s status\n",
+			FreeRTOS_printf( ( "Autonego ready: %08lx: %s duplex %u mbit %s status\n",
 				ulRegValue,
 				( ulRegValue & phyPHYSTS_DUPLEX_STATUS ) ? "full" : "half",
 				( ulRegValue & phyPHYSTS_SPEED_STATUS ) ? 10 : 100,
@@ -704,6 +696,9 @@ BaseType_t xNeedCheck = pdFALSE;
 	}
 	else if( xTaskCheckForTimeOut( &( pxPhyObject->xLinkStatusTimer ), &( pxPhyObject->xLinkStatusRemaining ) ) != pdFALSE )
 	{
+		/* Frequent checking the PHY Link Status can affect for the performance of Ethernet controller.
+		As long as packets are received, no polling is needed.
+		Otherwise, polling will be done when the 'xLinkStatusTimer' expires. */
 		for( xPhyIndex = 0; xPhyIndex < pxPhyObject->xPortCount; xPhyIndex++, ulBitMask <<= 1 )
 		{
 		BaseType_t xPhyAddress = pxPhyObject->ucPhyIndexes[ xPhyIndex ];
@@ -728,10 +723,12 @@ BaseType_t xNeedCheck = pdFALSE;
 		vTaskSetTimeOutState( &( pxPhyObject->xLinkStatusTimer ) );
 		if( ( pxPhyObject->ulLinkStatusMask & phyBMSR_LINK_STATUS ) != 0 )
 		{
+			/* The link status is high, so don't poll the PHY too often. */
 			pxPhyObject->xLinkStatusRemaining = pdMS_TO_TICKS( ipconfigPHY_LS_HIGH_CHECK_TIME_MS );
 		}
 		else
 		{
+			/* The link status is low, polling may be done more frequently. */
 			pxPhyObject->xLinkStatusRemaining = pdMS_TO_TICKS( ipconfigPHY_LS_LOW_CHECK_TIME_MS );
 		}
 	}
