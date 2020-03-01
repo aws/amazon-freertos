@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.1
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -926,10 +926,10 @@ BaseType_t xResult;
 			/* Let the new socket use the same end-point. */
 			vSetSocketEndpoint( xSocket, pxEndPoint);
 
-			pxBindAddress->sin_addr = pxEndPoint->ulIPAddress;
+			pxBindAddress->sin_addr = pxEndPoint->ipv4_settings.ulIPAddress;
 			#if( ipconfigUSE_IPv6 != 0 )
 			{
-				memcpy( xBindAddress.sin_addrv6.ucBytes, pxEndPoint->ulIPAddress_IPv6.ucBytes, sizeof( xBindAddress.sin_addrv6.ucBytes ) );
+				memcpy( xBindAddress.sin_addrv6.ucBytes, pxEndPoint->ipv6_settings.xIPAddress.ucBytes, sizeof( xBindAddress.sin_addrv6.ucBytes ) );
 			}
 			#endif /* ipconfigUSE_IPv6 */
 		}

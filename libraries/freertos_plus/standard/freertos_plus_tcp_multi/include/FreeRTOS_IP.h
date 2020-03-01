@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -55,6 +35,21 @@ extern "C" {
 #include "FreeRTOSIPConfigDefaults.h"
 #include "IPTraceMacroDefaults.h"
 
+/* Some constants defining the sizes of several parts of a packet */
+#define ipSIZE_OF_ETH_HEADER			14u
+#define ipSIZE_OF_IPv4_HEADER			20u
+#define ipSIZE_OF_IPv6_HEADER			40u
+#define ipSIZE_OF_IGMP_HEADER			8u
+#define ipSIZE_OF_ICMPv4_HEADER			8u
+#define ipSIZE_OF_ICMPv6_HEADER			24u
+#define ipSIZE_OF_UDP_HEADER			8u
+#define ipSIZE_OF_TCP_HEADER			20u
+
+/* Application level configuration options. */
+#include "FreeRTOSIPConfig.h"
+#include "FreeRTOSIPConfigDefaults.h"
+#include "IPTraceMacroDefaults.h"
+
 #define ipSIZE_OF_IPv4_ADDRESS	4u
 #define ipSIZE_OF_IPv6_ADDRESS	16u
 
@@ -77,9 +72,6 @@ extern "C" {
 
 #endif /* ipconfigUSE_IPv6 */
 
-/* Using this function temporarily untill ipconfigRAND32() has been replaced. */
-BaseType_t xRandom32( uint32_t *pulValue );
-
 /*
  * Generate a randomized TCP Initial Sequence Number per RFC.
  * This function must be provided my the application builder.
@@ -88,17 +80,6 @@ extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
 													uint16_t usSourcePort,
 													uint32_t ulDestinationAddress,
 													uint16_t usDestinationPort );
-
-/* Some constants defining the sizes of several parts of a packet */
-#define ipSIZE_OF_ETH_HEADER			14u
-#define ipSIZE_OF_IPv4_HEADER			20u
-#define ipSIZE_OF_IPv6_HEADER			40u
-#define ipSIZE_OF_IGMP_HEADER			8u
-#define ipSIZE_OF_ICMPv4_HEADER			8u
-#define ipSIZE_OF_ICMPv6_HEADER			24u
-#define ipSIZE_OF_UDP_HEADER			8u
-#define ipSIZE_OF_TCP_HEADER			20u
-
 
 /* The number of octets in the MAC and IP addresses respectively. */
 #define ipMAC_ADDRESS_LENGTH_BYTES ( 6 )
@@ -385,10 +366,10 @@ void FreeRTOS_ClearARP( void );
 #endif/* ( ipconfigUSE_IPv6 != 0 ) */
 
 /* Return pdTRUE if the IPv4 address is a multicast address. */
-BaseType_t prvIsIPv4Multicast( uint32_t ulIPAddress );
+BaseType_t xIsIPv4Multicast( uint32_t ulIPAddress );
 
 #if( ipconfigUSE_IPv6 != 0 )
-	BaseType_t prvIsIPv6Multicast( const IPv6_Address_t *pxIPAddress );
+	BaseType_t xIsIPv6Multicast( const IPv6_Address_t *pxIPAddress );
 #endif/* ( ipconfigUSE_IPv6 != 0 ) */
 
 #if( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
@@ -401,6 +382,15 @@ BaseType_t prvIsIPv4Multicast( uint32_t ulIPAddress );
 
 #endif /* ipconfigDHCP_REGISTER_HOSTNAME */
 
+
+/* This xApplicationGetRandomNumber() will set *pulNumber to a random number,
+and return pdTRUE. When the random number generator is broken, it shall return
+pdFALSE.
+The function is defined in 'iot_secure_sockets.c'.
+If that module is not included in the project, the application must provide an
+implementation of it.
+The macro's ipconfigRAND32() and configRAND32() are not in use anymore. */
+BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber );
 
 /* For backward compatibility define old structure names to the newer equivalent
 structure name. */

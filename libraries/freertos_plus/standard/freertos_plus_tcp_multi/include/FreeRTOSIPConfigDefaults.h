@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -117,10 +97,6 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 #if ( ipconfigNETWORK_MTU < 46 )
 	#error ipconfigNETWORK_MTU must be at least 46.
-#endif
-
-#if ( (ipconfigTCP_MSS + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ) > ipconfigNETWORK_MTU)
-	#error The ipconfigTCP_MSS setting in FreeRTOSIPConfig.h is too large.
 #endif
 
 #ifdef	ipconfigBUFFER_ALLOC_FIXED_SIZE
@@ -278,18 +254,6 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define vPortFreeSocket(ptr)				vPortFree(ptr)
 #endif
 
-/*
- * At several places within the library, random numbers are needed:
- * - DHCP:    For creating a DHCP transaction number
- * - TCP:     Set the Initial Sequence Number: this is the value of the first outgoing
- *            sequence number being used when connecting to a peer.
- *            Having a well randomised ISN is important to avoid spoofing
- * - UDP/TCP: for setting the first port number to be used, in case a socket
- *            uses a 'random' or anonymous port number
- */
-#ifndef ipconfigRAND32
-	#define ipconfigRAND32() rand()
-#endif
 /* --------------------------------------------------------
  * End of: HT Added some macro defaults for the PLUS-UDP project
  * -------------------------------------------------------- */
@@ -416,6 +380,10 @@ Finally the end-point will go in the UP state.
 	/* _HT_ the default value of ipconfigTCP_MSS should somehow
 	depend on the IP version in use. */
 	#define ipconfigTCP_MSS		( ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_TCP_HEADER ) )
+#endif
+
+#if ( (ipconfigTCP_MSS + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ) > ipconfigNETWORK_MTU)
+	#error The ipconfigTCP_MSS setting in FreeRTOSIPConfig.h is too large.
 #endif
 
 /* Each TCP socket has circular stream buffers for Rx and Tx, which
@@ -590,6 +558,10 @@ Finally the end-point will go in the UP state.
 
 #ifndef ipconfigUSE_IPv6
 	#define ipconfigUSE_IPv6 0
+#endif
+
+#ifndef ipconfigUSE_RA
+	#define ipconfigUSE_RA 0
 #endif
 
 #if( ipconfigUSE_IPv6 == 0 ) && ( ipconfigUSE_RA == 1 )

@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -98,6 +78,8 @@ static SemaphoreHandle_t xNetworkBufferSemaphore = NULL;
 	static UBaseType_t bIsValidNetworkDescriptor( const NetworkBufferDescriptor_t * pxDesc );
 #endif /* ipconfigTCP_IP_SANITY */
 
+static void prvShowWarnings( void );
+
 /* The user can define their own ipconfigBUFFER_ALLOC_LOCK() and
 ipconfigBUFFER_ALLOC_UNLOCK() macros, especially for use form an ISR.  If these
 are not defined then default them to call the normal enter/exit critical
@@ -141,7 +123,6 @@ section macros. */
 	}
 	/*-----------------------------------------------------------*/
 
-	static void prvShowWarnings( void );
 	static void prvShowWarnings( void )
 	{
 		UBaseType_t uxCount = uxGetNumberOfFreeNetworkBuffers( );
@@ -153,8 +134,6 @@ section macros. */
 	}
 	/*-----------------------------------------------------------*/
 
-	/*_RB_ When would it not be a valid network buffer descriptor? */
-	/*_HT_ It is tested whether the pointer points to one of the elements within the array xNetworkBuffers. */
 	UBaseType_t bIsValidNetworkDescriptor( const NetworkBufferDescriptor_t * pxDesc )
 	{
 		uint32_t offset = ( uint32_t ) ( ((const char *)pxDesc) - ((const char *)xNetworkBuffers) );
@@ -170,6 +149,11 @@ section macros. */
 	{
 		( void ) pxDesc;
 		return ( UBaseType_t ) pdTRUE;
+	}
+	/*-----------------------------------------------------------*/
+
+	static void prvShowWarnings( void )
+	{
 	}
 	/*-----------------------------------------------------------*/
 
@@ -225,7 +209,7 @@ BaseType_t xReturn, x;
 }
 /*-----------------------------------------------------------*/
 
-NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xByteCount, TickType_t xBlockTimeTicks )
+NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks )
 {
 NetworkBufferDescriptor_t *pxReturn = NULL;
 BaseType_t xInvalid = pdFALSE;
@@ -233,7 +217,7 @@ UBaseType_t uxCount;
 
 	/* The current implementation only has a single size memory block, so
 	the requested size parameter is not used (yet). */
-	( void ) xByteCount;
+	( void ) xRequestedSizeBytes;
 
 	if( xNetworkBufferSemaphore != NULL )
 	{
@@ -263,7 +247,7 @@ UBaseType_t uxCount;
 			{
 				/* _RB_ Can printf() be called from an interrupt?  (comment
 				above says this can be called from an interrupt too) */
-				/* _HT_ The function shall not be called from an ISR.  Comment
+				/* _HT_ The function shall not be called from an ISR. Comment
 				was indeed misleading. Hopefully clear now?
 				So the printf()is OK here. */
 				FreeRTOS_debug_printf( ( "pxGetNetworkBufferWithDescriptor: INVALID BUFFER: %p (valid %lu)\n",
@@ -282,8 +266,9 @@ UBaseType_t uxCount;
 					uxMinimumFreeNetworkBuffers = uxCount;
 				}
 
-				pxReturn->xDataLength = xByteCount;
+				pxReturn->xDataLength = xRequestedSizeBytes;
 				pxReturn->pxEndPoint = NULL;
+				pxReturn->pxInterface = NULL;
 
 				#if( ipconfigTCP_IP_SANITY != 0 )
 				{
@@ -401,18 +386,7 @@ BaseType_t xListItemAlreadyInFreeList;
 		else
 		{
 			( void ) xSemaphoreGive( xNetworkBufferSemaphore );
-			#if( ipconfigTCP_IP_SANITY != 0 )
-			{
-				prvShowWarnings();
-			}
-			#endif /* ipconfigTCP_IP_SANITY */
-			if( xTCPWindowLoggingLevel > 3 )
-			{
-				FreeRTOS_debug_printf( ( "BUF_PUT[%ld]: %p (%p) (now %lu)\n",
-					bIsValidNetworkDescriptor( pxNetworkBuffer ),
-					pxNetworkBuffer, pxNetworkBuffer->pucEthernetBuffer,
-					uxGetNumberOfFreeNetworkBuffers( ) ) );
-			}
+			prvShowWarnings();
 		}
 		iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
 	}
@@ -430,13 +404,11 @@ UBaseType_t uxGetNumberOfFreeNetworkBuffers( void )
 	return listCURRENT_LIST_LENGTH( &xFreeBuffersList );
 }
 
-NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxDescriptor, size_t xByteCount )
+NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxNetworkBuffer, size_t xNewSizeBytes )
 {
 	/* In BufferAllocation_1.c all network buffer are allocated with a
 	maximum size of 'ipTOTAL_ETHERNET_FRAME_SIZE'.No need to resize the
 	network buffer. */
-	pxDescriptor->xDataLength = xByteCount;
-	return pxDescriptor;
+	pxNetworkBuffer->xDataLength = xNewSizeBytes;
+	return pxNetworkBuffer;
 }
-
-

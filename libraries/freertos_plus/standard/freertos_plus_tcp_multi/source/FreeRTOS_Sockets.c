@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.10
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,6 +42,9 @@
 #include "FreeRTOS_DHCP.h"
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_Routing.h"
+
+/*lint -e766 Header file 'tcp_mem_stats.h' not used in module. */
+#include "../tools/tcp_mem_stats.h"
 
 /* The ItemValue of the sockets xBoundSocketListItem member holds the socket's
 port number. */
@@ -290,6 +293,16 @@ Socket_t xReturn;
 		}
 		else
 		{
+			if( xProtocol == FREERTOS_IPPROTO_UDP )
+			{
+				iptraceMEM_STATS_ADD( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+			}	
+			else
+			{
+				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
+				iptraceMEM_STATS_ADD( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+			}
+
 			/* Clear the entire space to avoid nulling individual entries. */
 			memset( pxSocket, 0, uxSocketSize );
 
@@ -375,6 +388,11 @@ Socket_t xReturn;
 				vPortFree( pxSocketSet );
 				pxSocketSet = NULL;
 			}
+			else
+			{
+				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
+				iptraceMEM_STATS_ADD( tcpSOCKET_SET, pxSocketSet, sizeof( *pxSocketSet ) + sizeof( StaticEventGroup_t ) );
+			}
 		}
 
 		return ( SocketSet_t ) pxSocketSet;
@@ -388,6 +406,8 @@ Socket_t xReturn;
 	void FreeRTOS_DeleteSocketSet( SocketSet_t xSocketSet )
 	{
 		SocketSelect_t *pxSocketSet = ( SocketSelect_t*) xSocketSet;
+
+		iptraceMEM_STATS_REMOVE( pxSocketSet );
 
 		vEventGroupDelete( pxSocketSet->xSelectGroup );
 		vPortFree( pxSocketSet );
@@ -596,6 +616,7 @@ BaseType_t xTimed = pdFALSE;
 TimeOut_t xTimeOut;
 int32_t lReturn;
 EventBits_t xEventBits = ( EventBits_t ) 0;
+size_t uxPayloadOffset;
 
 	if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_UDP, pdTRUE ) == pdFALSE )
 	{
@@ -680,9 +701,6 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( lPacketCount != 0 )
 	{
-	#if( ipconfigUSE_IPv6 != 0 )
-	BaseType_t xIsIPV6 = pdFALSE;
-	#endif /* ( ipconfigUSE_IPv6 != 0 ) */
 
 		taskENTER_CRITICAL();
 		{
@@ -698,19 +716,20 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 		}
 		taskEXIT_CRITICAL();
 
+		uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
 		#if( ipconfigUSE_IPv6 != 0 )
 		{
 			UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 			if( pxUDPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 			{
-				xIsIPV6 = pdTRUE;
+				uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv6;
 			}
 		}
 		#endif
 
 		/* The returned value is the data length, which may have been capped to
 		the receive buffer size. */
-		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength;
+		lReturn = ( int32_t ) ( pxNetworkBuffer->xDataLength - uxPayloadOffset );/*lint !e9033 Impermissible cast of composite expression (different essential type categories) [MISRA 2012 Rule 10.8, required]. */
 
 		if( pxSourceAddress != NULL )
 		{
@@ -720,7 +739,6 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 		if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_ZERO_COPY ) == 0u )
 		{
-		size_t uxPayloadOffset;
 			/* The zero copy flag is not set.  Truncate the length if it won't
 			fit in the provided buffer. */
 			if( lReturn > ( int32_t ) uxBufferLength )
@@ -731,16 +749,6 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 			/* Copy the received data into the provided buffer, then release the
 			network buffer. */
-			#if( ipconfigUSE_IPv6 != 0 )
-			if( xIsIPV6 != 0 )
-			{
-				uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv6;
-			}
-			else
-			#endif
-			{
-				uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
-			}
 
 			memcpy( pvBuffer, &( pxNetworkBuffer->pucEthernetBuffer[ uxPayloadOffset ] ), ( size_t )lReturn );
 
@@ -794,7 +802,7 @@ size_t uxMaxPayloadLength = ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv4_HEADER + ipSI
 size_t uxPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER;
 
 #if( ipconfigUSE_IPv6 != 0 )
-	struct freertos_sockaddr6 *pxDestinationAddress_IPv6;
+	struct freertos_sockaddr6 *pxDestinationAddress_IPv6 = NULL;
 #endif
 
 	pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
@@ -878,7 +886,7 @@ size_t uxPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_O
 			UDPPacket_IPv6_t *pxUDPPacket_IPv6 = ipPOINTER_CAST( UDPPacket_IPv6_t *, pxNetworkBuffer->pucEthernetBuffer );
 			#endif
 
-				pxNetworkBuffer->xDataLength = uxTotalDataLength;
+				pxNetworkBuffer->xDataLength = uxTotalDataLength + uxPayloadOffset;
 				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
 				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
 
@@ -887,6 +895,7 @@ size_t uxPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_O
 				{
 					pxNetworkBuffer->ulIPAddress = 0uL;
 					/* lint When xIsIPV6 it true, pxDestinationAddress_IPv6 is initialised. */
+					configASSERT( pxDestinationAddress_IPv6 != NULL );
 					memcpy( pxUDPPacket_IPv6->xIPHeader.xDestinationAddress.ucBytes, pxDestinationAddress_IPv6->sin_addrv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );/*lint !e644 Variable 'pxDestinationAddress_IPv6' (line 797) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]). */
 					memcpy( pxNetworkBuffer->xIPv6_Address.ucBytes, pxDestinationAddress_IPv6->sin_addrv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 					pxUDPPacket->xEthernetHeader.usFrameType = ipIPv6_FRAME_TYPE;
@@ -1271,11 +1280,13 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 			/* Free the input and output streams */
 			if( pxSocket->u.xTCP.rxStream != NULL )
 			{
+				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.rxStream );
 				vPortFreeLarge( pxSocket->u.xTCP.rxStream );
 			}
 
 			if( pxSocket->u.xTCP.txStream != NULL )
 			{
+				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.txStream );
 				vPortFreeLarge( pxSocket->u.xTCP.txStream );
 			}
 
@@ -1338,6 +1349,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 	#endif /* ( ipconfigUSE_TCP == 1 ) && ( ipconfigHAS_DEBUG_PRINTF != 0 ) */
 
 	/* Anf finally, after all resources have been freed, free the socket space */
+	iptraceMEM_STATS_REMOVE( pxSocket );
 	vPortFreeSocket( pxSocket );
 
 	return NULL;
@@ -1818,7 +1830,6 @@ const uint16_t usEphemeralPortCount =
 uint16_t usIterations = usEphemeralPortCount;
 uint32_t ulRandomSeed = 0;
 uint16_t usResult = 0;
-BaseType_t xGotZeroOnce = pdFALSE;
 const List_t *pxList;
 
 #if ipconfigUSE_TCP == 1
@@ -1839,21 +1850,10 @@ const List_t *pxList;
 	point. */
 	do
 	{
-		/* Generate a random seed. */
-		ulRandomSeed = ipconfigRAND32( );
-
 		/* Only proceed if the random number generator succeeded. */
-		if( 0u == ulRandomSeed )
+		if( xApplicationGetRandomNumber( &( ulRandomSeed ) ) == pdFALSE )
 		{
-			if( pdFALSE == xGotZeroOnce )
-			{
-				xGotZeroOnce = pdTRUE;
-				continue;
-			}
-			else
-			{
-				break;
-			}
+			break;
 		}
 
 		/* Map the random to a candidate port. */
@@ -3425,6 +3425,16 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		}
 		else
 		{
+			if( xIsInputStream != 0 )
+			{
+				iptraceMEM_STATS_ADD( tcpRX_STREAM_BUFFER, pxBuffer, uxSize );
+			}
+			else
+			{
+				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
+				iptraceMEM_STATS_ADD( tcpTX_STREAM_BUFFER, pxBuffer, uxSize );
+			}
+
 			/* Clear the markers of the stream */
 			memset( pxBuffer, 0, sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray ) );
 			pxBuffer->LENGTH = ( size_t ) uxLength ;

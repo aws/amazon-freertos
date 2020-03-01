@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -100,17 +80,9 @@ typedef struct xTCP_WINSIZE
  */
 /* Keep this as a multiple of 4 */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	#if( ipconfigUSE_TCP_TIMESTAMPS == 1 )
-		#define ipSIZE_TCP_OPTIONS	( 16u + 12u )
-	#else
-		#define ipSIZE_TCP_OPTIONS	16u
-	#endif
+	#define ipSIZE_TCP_OPTIONS	16u
 #else
-	#if	ipconfigUSE_TCP_TIMESTAMPS == 1
-		#define ipSIZE_TCP_OPTIONS   ( 12u + 12u )
-	#else
-		#define ipSIZE_TCP_OPTIONS   12u
-	#endif
+	#define ipSIZE_TCP_OPTIONS   12u
 #endif
 
 /*
@@ -140,9 +112,6 @@ typedef struct xTCP_WINDOW
 										  * In other words: the sequence number of the left side of the sliding window */
 		uint32_t ulFINSequenceNumber;	 /* The sequence number which carried the FIN flag */
 		uint32_t ulHighestSequenceNumber;/* Sequence number of the right-most byte + 1 */
-#if( ipconfigUSE_TCP_TIMESTAMPS == 1 )
-		uint32_t ulTimeStamp;			 /* The value of the TCP timestamp, transmitted or received */
-#endif
 	} rx, tx;
 	uint32_t ulOurSequenceNumber;		/* The SEQ number we're sending out */
 	uint32_t ulUserDataLength;			/* Number of bytes in Rx buffer which may be passed to the user, after having received a 'missing packet' */
@@ -185,6 +154,9 @@ void vTCPWindowDestroy( TCPWindow_t *pxWindow );
 /* Initialize a window */
 void vTCPWindowInit( TCPWindow_t *pxWindow, uint32_t ulAckNumber, uint32_t ulSequenceNumber, uint32_t ulMSS );
 
+/* Clean up allocated segments. Should only be called when FreeRTOS+TCP will no longer be used. */
+void vTCPSegmentCleanup( void );
+
 /*=============================================================================
  *
  * Rx functions
@@ -198,12 +170,8 @@ int32_t lTCPWindowRxCheck( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uin
 /* When lTCPWindowRxCheck returned false, please call store for this unexpected data */
 BaseType_t xTCPWindowRxStore( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength );
 
-/* When the peer has a close request (FIN flag), the driver will check if
- * there are missing packets in the Rx-queue
- * It will accept the closure of the connection if both conditions are true:
- * - the Rx-queue is empty
- * - we've ACK'd the highest Rx sequence number seen
- */
+/* This function will be called as soon as a FIN is received. It will return true
+ * if there are no 'open' reception segments */
 BaseType_t xTCPWindowRxEmpty( TCPWindow_t *pxWindow );
 
 /* _HT_ Temporary function for testing/debugging

@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -42,7 +22,6 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-
 
 /* The eniire module FreeRTOS_ND.c is skipped when IPv6 is not used. */
 #if( ipconfigUSE_IPv6 != 0 )
@@ -123,7 +102,11 @@ NetworkEndPoint_t *pxEndPoint;
 	if( eReturn == eARPCacheMiss )
 	{
 		pxEndPoint = FreeRTOS_FindEndPointOnIP_IPv6( pxIPAddress );
-		if( pxEndPoint == NULL )
+		if( pxEndPoint != NULL )
+		{
+			*( ppxEndPoint ) = pxEndPoint;
+		}
+		else
 		{
 			pxEndPoint = FreeRTOS_FindGateWay( (BaseType_t ) ipTYPE_IPv6 );
 			if( pxEndPoint != NULL )
@@ -316,6 +299,8 @@ MACAddress_t xMultiCastMacAddress;
 NetworkBufferDescriptor_t *pxDescriptor = pxNetworkBuffer;
 
 	configASSERT( pxEndPoint != NULL );
+	configASSERT( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED );
+
 	uxNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + sizeof( ICMPHeader_IPv6_t ) );
 	if( pxDescriptor->xDataLength < uxNeededSize )
 	{
@@ -338,7 +323,7 @@ NetworkBufferDescriptor_t *pxDescriptor = pxNetworkBuffer;
 	xMultiCastMacAddress.ucBytes[ 4 ] = pxIPAddress->ucBytes[ 14 ];
 	xMultiCastMacAddress.ucBytes[ 5 ] = pxIPAddress->ucBytes[ 15 ];
 
-	/* Set Ethernet header. Will be swapped. */
+	/* Set Ethernet header. Source and Destination will be swapped. */
 	memcpy( pxICMPPacket->xEthernetHeader.xSourceAddress.ucBytes, xMultiCastMacAddress.ucBytes, ipMAC_ADDRESS_LENGTH_BYTES );
 	memcpy( pxICMPPacket->xEthernetHeader.xDestinationAddress.ucBytes, pxEndPoint->xMACAddress.ucBytes, ipMAC_ADDRESS_LENGTH_BYTES );
 	pxICMPPacket->xEthernetHeader.usFrameType = ipIPv6_FRAME_TYPE;
@@ -347,14 +332,15 @@ NetworkBufferDescriptor_t *pxDescriptor = pxNetworkBuffer;
 	pxICMPPacket->xIPHeader.ucVersionTrafficClass = 0x60;
 	pxICMPPacket->xIPHeader.ucTrafficClassFlow = 0;
 	pxICMPPacket->xIPHeader.usFlowLabel = 0;
-	pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( 32u );
+	pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( 32u );/*lint !e845: (Info -- The right argument to operator '|' is certain to be 0. */
 	pxICMPPacket->xIPHeader.ucNextHeader = ipPROTOCOL_ICMP_IPv6;
 	pxICMPPacket->xIPHeader.ucHopLimit = 255;
 
-	configASSERT( pxEndPoint != NULL );
-	configASSERT( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED );
-
-	memcpy( pxICMPPacket->xIPHeader.xSourceAddress.ucBytes, pxEndPoint->ipv6_settings.xIPAddress.ucBytes, 16 );
+	/* Source address "fe80::1" */
+	memset( pxICMPPacket->xIPHeader.xSourceAddress.ucBytes, 0, sizeof pxICMPPacket->xIPHeader.xSourceAddress.ucBytes );
+	pxICMPPacket->xIPHeader.xSourceAddress.ucBytes[  0 ] = 0xfeu;
+	pxICMPPacket->xIPHeader.xSourceAddress.ucBytes[  1 ] = 0x80u;
+	pxICMPPacket->xIPHeader.xSourceAddress.ucBytes[ 15 ] = 0x01u;
 
 	//ff02::1:ff5a:afe7
 	memset( xTargetIPAddress.ucBytes, 0, sizeof( xTargetIPAddress.ucBytes ) );
@@ -426,7 +412,7 @@ NetworkBufferDescriptor_t *pxDescriptor = pxNetworkBuffer;
 		pxICMPPacket->xIPHeader.ucVersionTrafficClass = 0x60;
 		pxICMPPacket->xIPHeader.ucTrafficClassFlow = 0;
 		pxICMPPacket->xIPHeader.usFlowLabel = 0;
-		pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( sizeof( ICMPRouterSolicitation_IPv6_t ) );
+		pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( sizeof( ICMPRouterSolicitation_IPv6_t ) );/*lint !e845: (Info -- The right argument to operator '|' is certain to be 0. */
 		pxICMPPacket->xIPHeader.ucNextHeader = ipPROTOCOL_ICMP_IPv6;
 		pxICMPPacket->xIPHeader.ucHopLimit = 255;
 
@@ -810,9 +796,11 @@ BaseType_t xResult;
 					/* All states were handled. */
 					break;
 			}
-			FreeRTOS_printf( ( "vRAProcess( %ld, %pip) state %d -> %d\n",
+			FreeRTOS_printf( ( "vRAProcess( %ld, %pip) bRouterReplied=%d bIPAddressInUse=%d state %d -> %d\n",
 							   xDoReset,
 							   pxEndPoint->ipv6_defaults.xIPAddress.ucBytes,
+							   pxEndPoint->xRAData.bits.bRouterReplied,
+							   pxEndPoint->xRAData.bits.bIPAddressInUse,
 							   eRAState,
 							   pxEndPoint->xRAData.eRAState ) );
 			if( uxReloadTime != 0uL )
@@ -911,10 +899,9 @@ BaseType_t xResult;
 				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = FREERTOS_SO_UDPCKSUM_OUT;
 				pxNetworkBuffer->ulIPAddress = 0uL;
 				memcpy( pxNetworkBuffer->xIPv6_Address.ucBytes, pxIPAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
-				pxNetworkBuffer->usPort = ipPACKET_CONTAINS_ICMP_DATA;
-//				pxNetworkBuffer->xDataLength = uxNumberOfBytesToSend + sizeof( ICMPEcho_IPv6_t );
 				/* Let vProcessGeneratedUDPPacket() know that this is an ICMP packet. */
 				pxNetworkBuffer->usPort = ipPACKET_CONTAINS_ICMP_DATA;
+				pxNetworkBuffer->xDataLength = uxPacketLength;
 
 				pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
 				pxEthernetHeader->usFrameType = ipIPv6_FRAME_TYPE;
@@ -995,8 +982,12 @@ size_t uxNeededSize;
 				break;
 			case ipICMP_PING_REQUEST_IPv6 :
 				{
-				size_t uxICMPSize = ( size_t ) FreeRTOS_ntohs( pxICMPPacket->xIPHeader.usPayloadLength );
+				size_t uxICMPSize;
+				uint16_t usICMPSize;
 
+					/* Lint would complain about casting '()' immediately. */
+					usICMPSize = FreeRTOS_ntohs( pxICMPPacket->xIPHeader.usPayloadLength );
+					uxICMPSize = ( size_t ) usICMPSize;
 					uxNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + uxICMPSize );
 					if( uxNeededSize > pxNetworkBuffer->xDataLength )
 					{
@@ -1008,6 +999,7 @@ size_t uxNeededSize;
 					prvReturnICMP_IPv6( pxNetworkBuffer, uxICMPSize );
 				}
 				break;
+			#if( ipconfigSUPPORT_OUTGOING_PINGS != 0 )
 			case ipICMP_PING_REPLY_IPv6:
 				{
 				ePingReplyStatus_t eStatus = eSuccess;
@@ -1038,6 +1030,7 @@ size_t uxNeededSize;
 					vApplicationPingReplyHook( eStatus, pxICMPEchoHeader->usIdentifier );
 				}
 				break;
+			#endif	/* ( ipconfigSUPPORT_OUTGOING_PINGS != 0 ) */
 			case ipICMP_NEIGHBOR_SOLICITATION_IPv6 :
 				{
 				size_t uxICMPSize;
@@ -1070,7 +1063,10 @@ size_t uxNeededSize;
 					vNDRefreshCacheEntry( ipPOINTER_CAST( MACAddress_t *, xICMPHeader_IPv6->ucOptionBytes ),
 										  &( xICMPHeader_IPv6->xIPv6_Address ),
 										  pxEndPoint );
-					FreeRTOS_printf( ( "NA from %pip\n", xICMPHeader_IPv6->xIPv6_Address.ucBytes ) );
+					FreeRTOS_printf( ( "NA from %pip\n",
+									   xICMPHeader_IPv6->xIPv6_Address.ucBytes ) );
+
+				#if( ipconfigUSE_RA != 0 )
 					{
 					NetworkInterface_t *pxInterface = pxNetworkBuffer->pxInterface;
 					NetworkEndPoint_t *pxPoint;
@@ -1088,6 +1084,7 @@ size_t uxNeededSize;
 							}
 						}
 					}
+				#endif	/* ( ipconfigUSE_RA != 0 ) */
 				}
 				break;
 			case ipICMP_ROUTER_SOLICITATION_IPv6:
@@ -1144,7 +1141,7 @@ size_t xPacketSize;
 		pxICMPPacket->xIPHeader.ucTrafficClassFlow = 0;
 		pxICMPPacket->xIPHeader.usFlowLabel = 0;
 
-		pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( sizeof( ICMPHeader_IPv6_t ) );
+		pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( sizeof( ICMPHeader_IPv6_t ) );/*lint !e845: (Info -- The right argument to operator '|' is certain to be 0. */
 		pxICMPPacket->xIPHeader.ucNextHeader = ipPROTOCOL_ICMP_IPv6;
 		pxICMPPacket->xIPHeader.ucHopLimit = 255;
 		memcpy( pxICMPPacket->xIPHeader.xSourceAddress.ucBytes, pxEndPoint->ipv6_settings.xIPAddress.ucBytes, 16 );
@@ -1188,7 +1185,7 @@ BaseType_t xIndex, xResult = pdPASS;
 		/* Create an IP-address, based on a net prefix and a random host address. */
 		for( xIndex = 0; xIndex < ARRAY_SIZE( pulRandom ); xIndex++ )
 		{
-			if( xRandom32( &( pulRandom[ xIndex ] ) ) == pdFAIL )
+			if( xApplicationGetRandomNumber( &( pulRandom[ xIndex ] ) ) == pdFAIL )
 			{
 				xResult = pdFAIL;
 				break;

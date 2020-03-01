@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP /multi /IPv6 V2.0.11
+ * FreeRTOS+TCP /multi /IPv6 V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -605,7 +605,7 @@ BaseType_t xGivingUp = pdFALSE;
 
 				/* Check for clashes. */
 				vARPSendGratuitous();
-				vIPReloadDHCP_RATimer( pxEndPoint, pxEndPoint->xDHCPData.ulLeaseTime );
+				vIPReloadDHCP_RATimer( ( struct xNetworkEndPoint * ) pxEndPoint, pxEndPoint->xDHCPData.ulLeaseTime );
 			}
 			else
 			{
@@ -768,27 +768,25 @@ TickType_t xTimeoutTime = ( TickType_t ) 0;
 static void prvInitialiseDHCP( NetworkEndPoint_t *pxEndPoint )
 {
 	/* Initialise the parameters that will be set by the DHCP process. */
-	if( pxEndPoint->xDHCPData.ulTransactionId == 0uL )
+	if( xApplicationGetRandomNumber( &( pxEndPoint->xDHCPData.ulTransactionId ) ) != pdFALSE )
 	{
-		pxEndPoint->xDHCPData.ulTransactionId = ipconfigRAND32();
+		pxEndPoint->xDHCPData.xUseBroadcast = 0;
+		pxEndPoint->xDHCPData.ulOfferedIPAddress = 0UL;
+		pxEndPoint->xDHCPData.ulDHCPServerAddress = 0UL;
+		pxEndPoint->xDHCPData.xDHCPTxPeriod = dhcpINITIAL_DHCP_TX_PERIOD;
+	
+		/* Create the DHCP socket if it has not already been created. */
+		prvCreateDHCPSocket( pxEndPoint );
+		FreeRTOS_printf( ( "prvInitialiseDHCP[%02x:%02x]: start after %lu ticks\n",
+			pxEndPoint->xMACAddress.ucBytes[ 4 ],
+			pxEndPoint->xMACAddress.ucBytes[ 5 ],
+			dhcpINITIAL_TIMER_PERIOD ) );
+		vIPReloadDHCP_RATimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
 	}
 	else
 	{
-		pxEndPoint->xDHCPData.ulTransactionId++;
+		/* There was a problem with the randomiser. */
 	}
-
-	pxEndPoint->xDHCPData.xUseBroadcast = 0;
-	pxEndPoint->xDHCPData.ulOfferedIPAddress = 0UL;
-	pxEndPoint->xDHCPData.ulDHCPServerAddress = 0UL;
-	pxEndPoint->xDHCPData.xDHCPTxPeriod = dhcpINITIAL_DHCP_TX_PERIOD;
-
-	/* Create the DHCP socket if it has not already been created. */
-	prvCreateDHCPSocket( pxEndPoint );
-	FreeRTOS_printf( ( "prvInitialiseDHCP[%02x:%02x]: start after %lu ticks\n",
-		pxEndPoint->xMACAddress.ucBytes[ 4 ],
-		pxEndPoint->xMACAddress.ucBytes[ 5 ],
-		dhcpINITIAL_TIMER_PERIOD ) );
-	vIPReloadDHCP_RATimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
 }
 /*-----------------------------------------------------------*/
 
@@ -1208,13 +1206,17 @@ size_t uxOptionsLength = sizeof( ucDHCPDiscoverOptions );
 	static void prvPrepareLinkLayerIPLookUp( NetworkEndPoint_t *pxEndPoint )
 	{
 	uint8_t ucLinkLayerIPAddress[ 2 ];
+	uint32_t ulNumbers[ 2 ];
 
 		/* After DHCP has failed to answer, prepare everything to start
 		trying-out LinkLayer IP-addresses, using the random method. */
 		pxEndPoint->xDHCPData.xDHCPTxTime = xTaskGetTickCount();
 
-		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
-		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
+		xApplicationGetRandomNumber( &( ulNumbers[ 0 ] ) );
+		xApplicationGetRandomNumber( &( ulNumbers[ 1 ] ) );
+		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 0 ] % 0xFDu );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
+		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 1 ] % 0xFDu );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
+
 
 		pxEndPoint->ipv4_settings.ulGatewayAddress = FreeRTOS_htonl( 0xA9FE0203uL );
 
@@ -1237,7 +1239,8 @@ size_t uxOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		/* Close socket to ensure packets don't queue on it. not needed anymore as DHCP failed. but still need timer for ARP testing. */
 		prvCloseDHCPSocket( pxEndPoint );
 
-		pxEndPoint->xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000uL + ( ipconfigRAND32() & 0x3ffuL ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
+		xApplicationGetRandomNumber( &( ulNumbers[ 0 ] ) );
+		pxEndPoint->xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000uL + ( ulNumbers[ 0 ] & 0x3ffuL ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
 
 		xARPHadIPClash = pdFALSE;	   /* reset flag that shows if have ARP clash. */
 		vARPSendGratuitous();

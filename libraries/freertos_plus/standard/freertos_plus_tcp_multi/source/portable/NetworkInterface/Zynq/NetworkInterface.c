@@ -1,26 +1,26 @@
 /*
-FreeRTOS+TCP V2.0.10
-Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 /* Standard includes. */
@@ -54,9 +54,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Provided memory configured as uncached. */
 #include "uncached_memory.h"
 
-#ifndef	niBMSR_LINK_STATUS
-	#define niBMSR_LINK_STATUS            0x0004UL
+#ifndef niEMAC_HANDLER_TASK_PRIORITY
+	/* Define the priority of the task prvEMACHandlerTask(). */
+	#define niEMAC_HANDLER_TASK_PRIORITY	configMAX_PRIORITIES - 1
 #endif
+
+#define niBMSR_LINK_STATUS         0x0004uL
 
 #ifndef	PHY_LS_HIGH_CHECK_TIME_MS
 	/* Check if the LinkSStatus in the PHY is still high after 15 seconds of not
@@ -89,6 +92,13 @@ FreeRTOSConfig.h as configMINIMAL_STACK_SIZE is a user definable constant. */
 
 static NetworkInterface_t *pxMyInterfaces[ XPAR_XEMACPS_NUM_INSTANCES ];
 
+#if( ipconfigZERO_COPY_RX_DRIVER == 0 || ipconfigZERO_COPY_TX_DRIVER == 0 )
+	#error Please define both 'ipconfigZERO_COPY_RX_DRIVER' and 'ipconfigZERO_COPY_TX_DRIVER' as 1
+#endif
+
+#if( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 0 || ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
+	#warning Please define both 'ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM' and 'ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM' as 1
+#endif
 /*-----------------------------------------------------------*/
 
 /*
@@ -101,6 +111,10 @@ static BaseType_t prvGMACWaitLS( BaseType_t xEMACIndex, TickType_t xMaxTime );
  * A deferred interrupt handler for all MAC/DMA interrupt sources.
  */
 static void prvEMACHandlerTask( void *pvParameters );
+
+#if ( ipconfigHAS_PRINTF != 0 )
+    static void prvMonitorResources( void );
+#endif
 
 /* FreeRTOS+TCP/multi :
 Each network device has 3 access functions:
@@ -152,14 +166,11 @@ XEmacPs_Config mac_configs[ XPAR_XEMACPS_NUM_INSTANCES ] =
 	},
 };
 
-extern int phy_detected[2];
+extern int phy_detected[ XPAR_XEMACPS_NUM_INSTANCES ];
 
 /* A copy of PHY register 1: 'PHY_REG_01_BMSR' */
 static uint32_t ulPHYLinkStates[ XPAR_XEMACPS_NUM_INSTANCES ];
 
-#if( CONFIG_USE_LWIP != 0 )
-	extern unsigned char ucLWIP_Mac_Address[6];// = { 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
-#endif
 
 /* Holds the handle of the task used as a deferred interrupt processor.  The
 handle is used so direct notifications can be sent to the task for all EMAC/DMA
@@ -240,9 +251,9 @@ BaseType_t xEMACIndex = ( BaseType_t )pxInterface->pvArgument;
 					if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
 					{
 						unsigned char ucMACAddress[ 6 ] = { 0x33, 0x33, 0xff, 0, 0, 0 };
-						ucMACAddress[ 3 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 13 ];
-						ucMACAddress[ 4 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 14 ];
-						ucMACAddress[ 5 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 15 ];
+						ucMACAddress[ 3 ] = pxEndPoint->ipv6_settings.xIPAddress.ucBytes[ 13 ];
+						ucMACAddress[ 4 ] = pxEndPoint->ipv6_settings.xIPAddress.ucBytes[ 14 ];
+						ucMACAddress[ 5 ] = pxEndPoint->ipv6_settings.xIPAddress.ucBytes[ 15 ];
 						XEmacPs_SetHash( pxEMAC_PS, ( void * )ucMACAddress );
 					}
 				}
@@ -251,13 +262,6 @@ BaseType_t xEMACIndex = ( BaseType_t )pxInterface->pvArgument;
 			#endif
 		}
 		#endif	/* ipconfigUSE_LLMNR == 1 */
-
-		#if( CONFIG_USE_LWIP == 1 )
-		{
-			/* Also add LLMNR multicast MAC address. */
-			XEmacPs_SetMacAddress( pxEMAC_PS, ( void * )ucLWIP_Mac_Address, 4 );
-		}
-		#endif	/* CONFIG_USE_LWIP == 1 */
 
 		pxEndPoint = FreeRTOS_NextEndPoint( pxInterface, pxEndPoint );
 		if( pxEndPoint != NULL )
@@ -270,7 +274,7 @@ BaseType_t xEMACIndex = ( BaseType_t )pxInterface->pvArgument;
 		// MDIO goes via ETH0 only
 		XEmacPs_SetMdioDivisor( pxEMAC_PS, MDC_DIV_224 );
 		ulLinkSpeed = Phy_Setup( pxEMAC_PS );
-//		XEmacPs_SetOperatingSpeed( pxEMAC_PS, ulLinkSpeed); /* Duplicate */
+		XEmacPs_SetOperatingSpeed( pxEMAC_PS, ulLinkSpeed);
 
 		/* Setting the operating speed of the MAC needs a delay. */
 		vTaskDelay( pdMS_TO_TICKS( 25UL ) );
@@ -306,7 +310,7 @@ BaseType_t xEMACIndex = ( BaseType_t )pxInterface->pvArgument;
 		{
 			pcTaskName = "GEM1";
 		}
-		xTaskCreate( prvEMACHandlerTask, pcTaskName, configEMAC_TASK_STACK_SIZE, ( void * )xEMACIndex, configMAX_PRIORITIES - 1, &xEMACTaskHandles[ xEMACIndex ] );
+		xTaskCreate( prvEMACHandlerTask, pcTaskName, configEMAC_TASK_STACK_SIZE, ( void * )xEMACIndex, niEMAC_HANDLER_TASK_PRIORITY, &( xEMACTaskHandles[ xEMACIndex ] ) );
 	}
 	else
 	{
@@ -418,8 +422,53 @@ BaseType_t xEMACIndex = ( BaseType_t )pxInterface->pvArgument;
 }
 /*-----------------------------------------------------------*/
 
-UBaseType_t uxLastMinBufferCount = 0;
-UBaseType_t uxCurrentBufferCount = 0;
+#if ( ipconfigHAS_PRINTF != 0 )
+    static void prvMonitorResources()
+    {
+        static UBaseType_t uxLastMinBufferCount = 0u;
+        static UBaseType_t uxCurrentBufferCount = 0u;
+        static size_t uxMinLastSize = 0uL;
+        size_t uxMinSize;
+
+        uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
+
+        if( uxLastMinBufferCount != uxCurrentBufferCount )
+        {
+            /* The logging produced below may be helpful
+             * while tuning +TCP: see how many buffers are in use. */
+            uxLastMinBufferCount = uxCurrentBufferCount;
+            FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
+                               uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
+        }
+
+        uxMinSize = xPortGetMinimumEverFreeHeapSize();
+
+		if( uxMinLastSize != uxMinSize )
+		{
+			uxMinLastSize = uxMinSize;
+			FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", xPortGetFreeHeapSize(), uxMinSize ) );
+		}
+
+        #if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+            {
+                static UBaseType_t uxLastMinQueueSpace = 0;
+                UBaseType_t uxCurrentCount = 0u;
+
+                uxCurrentCount = uxGetMinimumIPQueueSpace();
+
+                if( uxLastMinQueueSpace != uxCurrentCount )
+                {
+                    /* The logging produced below may be helpful
+                     * while tuning +TCP: see how many buffers are in use. */
+                    uxLastMinQueueSpace = uxCurrentCount;
+                    FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
+                }
+            }
+        #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+    }
+#endif /* ( ipconfigHAS_PRINTF != 0 ) */
+/*-----------------------------------------------------------*/
+
 
 /* pxZynq_FillInterfaceDescriptor() goes into the NetworkInterface.c of the Zynq driver. */
 
@@ -449,7 +498,6 @@ static void prvEMACHandlerTask( void *pvParameters )
 {
 TimeOut_t xPhyTime;
 TickType_t xPhyRemTime;
-UBaseType_t uxCurrentCount;
 BaseType_t xResult = 0;
 uint32_t xStatus;
 const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
@@ -468,30 +516,11 @@ BaseType_t xEMACIndex = ( BaseType_t )pvParameters;
 
 	for( ;; )
 	{
-		uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
-		if( uxLastMinBufferCount != uxCurrentBufferCount )
-		{
-			/* The logging produced below may be helpful
-			while tuning +TCP: see how many buffers are in use. */
-			uxLastMinBufferCount = uxCurrentBufferCount;
-			FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
-				uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
-		}
-
-		#if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
-		{
-		static UBaseType_t uxLastMinQueueSpace = 0;
-
-			uxCurrentCount = uxGetMinimumIPQueueSpace();
-			if( uxLastMinQueueSpace != uxCurrentCount )
-			{
-				/* The logging produced below may be helpful
-				while tuning +TCP: see how many buffers are in use. */
-				uxLastMinQueueSpace = uxCurrentCount;
-				FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
-			}
-		}
-		#endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+        #if ( ipconfigHAS_PRINTF != 0 )
+            {
+                prvMonitorResources();
+            }
+        #endif /* ipconfigHAS_PRINTF != 0 ) */
 
 		if( ( xEMACpsifs[ xEMACIndex ].isr_events & EMAC_IF_ALL_EVENT ) == 0 )
 		{

@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.2.1
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -68,6 +48,7 @@ heap_4 can be used. */
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_IP_Private.h"
+#include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
 
 /* The obtained network buffer must be large enough to hold a packet that might
@@ -118,7 +99,7 @@ BaseType_t xNetworkBuffersInitialise( void )
 BaseType_t xReturn, x;
 
 	/* Only initialise the buffers and their associated kernel objects if they
-	 * have not been initialised before. */
+	have not been initialised before. */
 	if( xNetworkBufferSemaphore == NULL )
 	{
 		xNetworkBufferSemaphore = xSemaphoreCreateCounting( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS, ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS );
@@ -133,7 +114,7 @@ BaseType_t xReturn, x;
 			#endif /* configQUEUE_REGISTRY_SIZE */
 
 			/* If the trace recorder code is included name the semaphore for viewing
-			 * in FreeRTOS+Trace.  */
+			in FreeRTOS+Trace. */
 			#if( ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 )
 			{
 				extern QueueHandle_t xNetworkEventQueue;
@@ -145,7 +126,7 @@ BaseType_t xReturn, x;
 			vListInitialise( &xFreeBuffersList );
 
 			/* Initialise all the network buffers.  No storage is allocated to
-			 * the buffers yet. */
+			the buffers yet. */
 			for( x = 0; x < ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS; x++ )
 			{
 				/* Initialise and set the owner of the buffer list items. */
@@ -182,22 +163,21 @@ size_t xSize = *pxRequestedSizeBytes;
 	if( xSize < baMINIMAL_BUFFER_SIZE )
 	{
 		/* Buffers must be at least large enough to hold a TCP-packet with
-		 * headers, or an ARP packet, in case TCP is not included. */
+		headers, or an ARP packet, in case TCP is not included. */
 		xSize = baMINIMAL_BUFFER_SIZE;
 	}
 
 	/* Round up xSize to the nearest multiple of N bytes,
-	 * where N equals 'sizeof( size_t )'. */
+	where N equals 'sizeof( size_t )'. */
 	if( ( xSize & ( sizeof( size_t ) - 1u ) ) != 0u )
 	{
 		xSize = ( xSize | ( sizeof( size_t ) - 1u ) ) + 1u;
 	}
-
 	*pxRequestedSizeBytes = xSize;
 
 	/* Allocate a buffer large enough to store the requested Ethernet frame size
-	 * and a pointer to a network buffer structure (hence the addition of
-	 * ipBUFFER_PADDING bytes). */
+	and a pointer to a network buffer structure (hence the addition of
+	ipBUFFER_PADDING bytes). */
 	pucEthernetBuffer = ipPOINTER_CAST( uint8_t *, pvPortMalloc( xSize + ipBUFFER_PADDING ) );
 	configASSERT( pucEthernetBuffer );
 
@@ -205,8 +185,8 @@ size_t xSize = *pxRequestedSizeBytes;
 	
 	{
 		/* Enough space is left at the start of the buffer to place a pointer to
-		 * the network buffer structure that references this Ethernet buffer.
-		 * Return a pointer to the start of the Ethernet buffer itself. */
+		the network buffer structure that references this Ethernet buffer.
+		Return a pointer to the start of the Ethernet buffer itself. */
 		pucEthernetBuffer = &( pucEthernetBuffer[ ipBUFFER_PADDING ] );
 	}
 
@@ -217,8 +197,8 @@ size_t xSize = *pxRequestedSizeBytes;
 void vReleaseNetworkBuffer( uint8_t *pucEthernetBuffer )
 {
 	/* There is space before the Ethernet buffer in which a pointer to the
-	 * network buffer that references this Ethernet buffer is stored.  Remove the
-	 * space before freeing the buffer. */
+	network buffer that references this Ethernet buffer is stored.  Remove the
+	space before freeing the buffer. */
 	if( pucEthernetBuffer != NULL )
 	{
 		pucEthernetBuffer -= ipBUFFER_PADDING;
@@ -238,7 +218,7 @@ size_t xRequestedSizeBytes = xByteCount;	/* To avoid lint complain: function par
 		if( ( xRequestedSizeBytes != 0u ) && ( xRequestedSizeBytes < ( size_t ) baMINIMAL_BUFFER_SIZE ) )
 		{
 			/* ARP packets can replace application packets, so the storage must be
-			 * at least large enough to hold an ARP. */
+			at least large enough to hold an ARP. */
 			xRequestedSizeBytes = baMINIMAL_BUFFER_SIZE;
 		}
 
@@ -274,31 +254,29 @@ size_t xRequestedSizeBytes = xByteCount;	/* To avoid lint complain: function par
 			if( xRequestedSizeBytes > 0 )
 			{
 				/* Extra space is obtained so a pointer to the network buffer can
-				 * be stored at the beginning of the buffer. */
+				be stored at the beginning of the buffer. */
 				pxReturn->pucEthernetBuffer = ipPOINTER_CAST( uint8_t *, pvPortMalloc( xRequestedSizeBytes + ipBUFFER_PADDING ) );
 
 				if( pxReturn->pucEthernetBuffer == NULL )
 				{
 					/* The attempt to allocate storage for the buffer payload failed,
-					 * so the network buffer structure cannot be used and must be
-					 * released. */
+					so the network buffer structure cannot be used and must be
+					released. */
 					vReleaseNetworkBufferAndDescriptor( pxReturn );
 					pxReturn = NULL;
 				}
 				else
 				{
 					/* Store a pointer to the network buffer structure in the
-					 * buffer storage area, then move the buffer pointer on past the
-					 * stored pointer so the pointer value is not overwritten by the
-					 * application when the buffer is used. */
+					buffer storage area, then move the buffer pointer on past the
+					stored pointer so the pointer value is not overwritten by the
+					application when the buffer is used. */
 					*( ipPOINTER_CAST( NetworkBufferDescriptor_t **, pxReturn->pucEthernetBuffer ) ) = pxReturn;
 					pxReturn->pucEthernetBuffer = &( pxReturn->pucEthernetBuffer[ ipBUFFER_PADDING ] );
 
 					/* Store the actual size of the allocated buffer, which may be
-					 * greater than the original requested size. */
+					greater than the original requested size. */
 					pxReturn->xDataLength = xRequestedSizeBytes;
-
-					/* Don't know which interface this is using yet. */
 					pxReturn->pxEndPoint = NULL;
 					pxReturn->pxInterface = NULL;
 
@@ -313,7 +291,7 @@ size_t xRequestedSizeBytes = xByteCount;	/* To avoid lint complain: function par
 			else
 			{
 				/* A descriptor is being returned without an associated buffer being
-				 * allocated. */
+				allocated. */
 			}
 		}
 	}
