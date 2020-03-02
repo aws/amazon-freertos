@@ -190,13 +190,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h"/>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h"/>
@@ -433,7 +426,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c"/>
