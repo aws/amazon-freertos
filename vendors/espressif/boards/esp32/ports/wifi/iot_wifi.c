@@ -59,6 +59,7 @@ static bool wifi_auth_failure;
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
 #define MAX_SECURITY_MODE_LEN      ( 1 )
+#define MAX_AP_CONNECTIONS         ( 4 )
 
 typedef struct StorageRegistry
 {
@@ -1218,7 +1219,11 @@ static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t
 
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-    wifi_config_t wifi_config = { 0 };
+    wifi_config_t wifi_config = {
+        .ap = {
+            .max_connection = MAX_AP_CONNECTIONS,
+        },
+    };
     esp_err_t ret;
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
 
