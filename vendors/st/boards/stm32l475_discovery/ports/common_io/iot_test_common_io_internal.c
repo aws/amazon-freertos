@@ -62,7 +62,7 @@ void SET_TEST_IOT_I2C_CONFIG( int testSet )
 }
 
 /* SPI */
-extern uint8_t ultestIotSpiInstance;
+extern uint32_t ultestIotSpiInstance;
 extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
 extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
 extern uint32_t ultestIotSPIFrequency;

@@ -35,6 +35,8 @@
 /* SPI includes */
 #include "iot_spi.h"
 
+#include "iot_sdio.h"
+
 /*------------------------UART-------------------------------*/
 
 /* UART is supported. */
