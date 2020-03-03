@@ -347,7 +347,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if(  ulCount == 0 )
+    if( ulCount == 0 )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
@@ -381,4 +381,3 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
 /* @[declare pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 
 /*-----------------------------------------------------------*/
-

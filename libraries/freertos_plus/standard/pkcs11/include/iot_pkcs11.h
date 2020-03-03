@@ -295,4 +295,3 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
 #endif
 
 #endif /* ifndef _IOT_PKCS11_H_ */
-

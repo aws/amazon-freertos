@@ -24,6 +24,7 @@
  */
 
 /* FreeRTOS includes. */
+
 /**
  * @file iot_pki_utils.h
  * @brief Helper functions for PKCS #11
@@ -198,5 +199,3 @@ int PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
     return xResult;
 }
 /* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
-
-

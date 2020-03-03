@@ -66,22 +66,22 @@
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize );
- /* @[declare pkcs11_pal_saveobject] */
+/* @[declare pkcs11_pal_saveobject] */
 
 /**
  * @brief Delete an object from NVM.
  */
- /* @[declare pkcs11_pal_destroyobject] */
+/* @[declare pkcs11_pal_destroyobject] */
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
- /* @[declare pkcs11_pal_destroyobject] */
+/* @[declare pkcs11_pal_destroyobject] */
 
 /**
  *   @brief Look up an object handle using it's attributes
  */
- /* @[declare pkcs11_pal_findobject] */
+/* @[declare pkcs11_pal_findobject] */
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                                         uint8_t usLength );
- /* @[declare pkcs11_pal_findobject] */
+/* @[declare pkcs11_pal_findobject] */
 
 
 /**
@@ -89,19 +89,19 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  *   @note  Buffers may be allocated by this call, and should be
  *          freed up by calling PKCS11_PAL_GetObjectValueCleanup().
  */
- /* @[declare pkcs11_pal_getobjectvalue] */
+/* @[declare pkcs11_pal_getobjectvalue] */
 BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                       uint8_t ** ppucData,
                                       uint32_t * pulDataSize,
                                       CK_BBOOL * xIsPrivate );
- /* @[declare pkcs11_pal_getobjectvalue] */
+/* @[declare pkcs11_pal_getobjectvalue] */
 
 /**
  *  @brief Free the buffer allocated in PKCS11_PAL_GetObjectValue() (see PAL).
  */
- /* @[declare pkcs11_pal_getobjectvaluecleanup] */
+/* @[declare pkcs11_pal_getobjectvaluecleanup] */
 void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
                                        uint32_t ulBufferSize );
- /* @[declare pkcs11_pal_getobjectvaluecleanup] */
+/* @[declare pkcs11_pal_getobjectvaluecleanup] */
 
 #endif /* IOT_PKCS11_PAL include guard. */
