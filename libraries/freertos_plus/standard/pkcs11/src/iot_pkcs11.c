@@ -125,6 +125,10 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 /*-----------------------------------------------------------*/
 
 /* @[declare pkcs11_iot_xinitializepkcs11] */
+/* @brief Initialize PKCS #11 Library.
+ *
+ *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
+ */
 CK_RV xInitializePKCS11( void )
 {
     CK_RV xResult;
