@@ -41,7 +41,7 @@
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL
+#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
