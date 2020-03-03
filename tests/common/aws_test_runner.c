@@ -142,7 +142,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_EC );
 	#endif
 
-	#if (testrunnerFULL_PKCS11_MODEL_ENABLED == 1)
+	#if ( testrunnerFULL_PKCS11_MODEL_ENABLED == 1 )
 		RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
 		RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
 		RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine );
