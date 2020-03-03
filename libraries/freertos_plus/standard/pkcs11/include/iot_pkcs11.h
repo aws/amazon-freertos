@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_PKCS11_H_
-#define _AWS_PKCS11_H_
+#ifndef _IOT_PKCS11_H_
+#define _IOT_PKCS11_H_
 
 #include <stdint.h>
 
@@ -161,6 +161,46 @@ typedef struct PKCS11_CertificateTemplate
     CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
+/*------------------------ PKCS #11 wrapper functions -------------------------*/
+
+/**
+ * @functions_page{pkcs11_iot,PKCS #11 Wrapper, PKCS #11 Wrapper}
+ * @functions_brief{PKCS #11 Wrapper}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11}
+ * - @function_name{pkcs11_iot_function_xgetslotlist}
+ * @function_brief{pkcs11_iot_function_xgetslotlist}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11token}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11token}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11session}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11session}
+ * - @function_name{pkcs11_iot_function_xfindobjectwithlabelandclass}
+ * @function_brief{pkcs11_iot_function_xfindobjectwithlabelandclass}
+ * - @function_name{pkcs11_iot_function_vappendsha256algorithmidentifiersequence}
+ * @function_brief{pkcs11_iot_function_vappendsha256algorithmidentifiersequence}
+ */
+
+/**
+ * @function_page{xInitializePkcs11,pkcs11_iot,xinitializepkcs11}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11,this}
+ * @copydoc xInitializePkcs11
+ * @function_page{xGetSlotList,pkcs11_iot,xgetslotlist}
+ * @function_snippet{pkcs11_iot,xgetslotlist,this}
+ * @copydoc xGetSlotList
+ * @function_page{xInitializePkcs11Token,pkcs11_iot,xinitializepkcs11token}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11token,this}
+ * @copydoc xInitializePkcs11Token
+ * @function_page{xInitializePkcs11Session,pkcs11_iot,xinitializepkcs11session}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11session,this}
+ * @copydoc xInitializePkcs11Session
+ * @function_page{xFindObjectWithLabelAndClass,pkcs11_iot,xfindobjectwithlabelandclass}
+ * @function_snippet{pkcs11_iot,xfindobjectwithlabelandclass,this}
+ * @copydoc xFindObjectWithLabelAndClass
+ * @function_page{vAppendSHA256AlgorithmIdentifierSequence,pkcs11_iot,vappendsha256algorithmidentifiersequence}
+ * @function_snippet{pkcs11_iot,vappendsha256algorithmidentifiersequence,this}
+ * @copydoc vAppendSHA256AlgorithmIdentifierSequence
+ */
+
 /**
  * @brief Initializes a PKCS #11 session.
  *
@@ -254,4 +294,5 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
     #pragma pack(pop, cryptoki)
 #endif
 
-#endif /* ifndef _AWS_PKCS11_H_ */
+#endif /* ifndef _IOT_PKCS11_H_ */
+
