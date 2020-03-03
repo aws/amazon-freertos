@@ -94,9 +94,9 @@ CK_BBOOL xCkFalse = CK_FALSE;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
 /* PKCS #11 Global Data Containers. */
-CK_BYTE rsaHashedMessage[pkcs11SHA256_DIGEST_LENGTH] = { 0 };
-CK_BYTE ecdsaSignature[pkcs11RSA_2048_SIGNATURE_LENGTH] = { 0x00 };
-CK_BYTE ecdsaHashedMessage[pkcs11SHA256_DIGEST_LENGTH] = { 0xab };
+CK_BYTE rsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
+CK_BYTE ecdsaSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0x00 };
+CK_BYTE ecdsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
 
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
@@ -1151,8 +1151,9 @@ static const char cValidRSACertificate[] =
     "5GC4F+8LFLzRrZJWs18FMLaCE+zJChw/oeSt+RS0JZDFn+uX9Q==\n"
     "-----END CERTIFICATE-----\n";
 
-void resetCredentials() {
-	xCurrentCredentials = eStateUnknown;
+void resetCredentials()
+{
+    xCurrentCredentials = eStateUnknown;
 }
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,

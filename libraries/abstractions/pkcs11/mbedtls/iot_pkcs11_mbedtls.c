@@ -171,10 +171,10 @@ P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
  */
 CK_BBOOL operationActive( P11SessionPtr_t pxSession )
 {
-    if( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ||
-        pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ||
-        pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ||
-        pxSession->pxFindObjectLabel != NULL )
+    if( ( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ) ||
+        ( pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ) ||
+        ( pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ) ||
+        ( pxSession->pxFindObjectLabel != NULL ) )
     {
         return CK_TRUE;
     }
@@ -2805,7 +2805,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    if ( xResult != CKR_OK && xResult != CKR_SESSION_HANDLE_INVALID )
+    if( ( xResult != CKR_OK ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
@@ -2889,7 +2889,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    if ( xResult != CKR_OK && xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
+    if( ( xResult != CKR_OK ) && ( xResult != CKR_BUFFER_TOO_SMALL ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
@@ -3207,7 +3207,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     }
 
     /* Complete the operation in the context. */
-    if( xResult != CKR_BUFFER_TOO_SMALL && xResult != CKR_SESSION_HANDLE_INVALID )
+    if( ( xResult != CKR_BUFFER_TOO_SMALL ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
     {
         pxSessionObj->xOperationSignMechanism = pkcs11NO_OPERATION;
     }
