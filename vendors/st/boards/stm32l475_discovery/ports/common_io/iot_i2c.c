@@ -685,15 +685,19 @@ static int32_t _toI2cStatus( HAL_StatusTypeDef halStatus,
     {
         case HAL_OK:
             status = IOT_I2C_SUCCESS;
+            break;
 
         case HAL_ERROR:
             status = operation == _I2C_READ_OP ? IOT_I2C_READ_FAILED : IOT_I2C_WRITE_FAILED;
+            break;
 
         case HAL_BUSY:
             status = IOT_I2C_BUSY;
+            break;
 
         case HAL_TIMEOUT:
             status = IOT_I2C_BUS_TIMEOUT;
+            break;
     }
 
     return status;
