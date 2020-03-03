@@ -98,7 +98,7 @@ typedef struct P11Object_t
     CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ]; /* Plus 1 for the null terminator. */
 } P11Object_t;
 
-/* This structure helps the aws_pkcs11_mbedtls.c maintain a mapping of all objects in one place.
+/* This structure helps the iot_pkcs11_mbedtls.c maintain a mapping of all objects in one place.
  * Because some objects exist in device NVM and must be called by their "PAL Handles", and other
  * objects do not have designated NVM storage locations, the ObjectList maintains a list
  * of what object handles are available.
@@ -184,6 +184,138 @@ CK_BBOOL operationActive( P11SessionPtr_t pxSession )
 
 /*
  * PKCS#11 module implementation.
+ */
+
+/**
+ * @functions_page{pkcs11_mbedtls,PKCS #11 mbedTLS, PKCS #11 mbedTLS}
+ * @functions_brief{PKCS #11 mbedTLS implementation}
+ * - @function_name{pkcs11_mbedtls_function_c_initialize}
+ * @function_brief{pkcs11_mbedtls_function_c_initialize}
+ * - @function_name{pkcs11_mbedtls_function_c_finalize}
+ * @function_brief{pkcs11_mbedtls_function_c_finalize}
+ * - @function_name{pkcs11_mbedtls_function_c_getfunctionlist}
+ * @function_brief{pkcs11_mbedtls_function_c_getfunctionlist}
+ * - @function_name{pkcs11_mbedtls_function_c_getslotlist}
+ * @function_brief{pkcs11_mbedtls_function_c_getslotlist}
+ * - @function_name{pkcs11_mbedtls_function_c_gettokeninfo}
+ * @function_brief{pkcs11_mbedtls_function_c_gettokeninfo}
+ * - @function_name{pkcs11_mbedtls_function_c_getmechanisminfo}
+ * @function_brief{pkcs11_mbedtls_function_c_getmechanisminfo}
+ * - @function_name{pkcs11_mbedtls_function_c_inittoken}
+ * @function_brief{pkcs11_mbedtls_function_c_inittoken}
+ * - @function_name{pkcs11_mbedtls_function_c_opensession}
+ * @function_brief{pkcs11_mbedtls_function_c_opensession}
+ * - @function_name{pkcs11_mbedtls_function_c_closesession}
+ * @function_brief{pkcs11_mbedtls_function_c_closesession}
+ * - @function_name{pkcs11_mbedtls_function_c_login}
+ * @function_brief{pkcs11_mbedtls_function_c_login}
+ * - @function_name{pkcs11_mbedtls_function_c_createobject}
+ * @function_brief{pkcs11_mbedtls_function_c_createobject}
+ * - @function_name{pkcs11_mbedtls_function_c_destroyobject}
+ * @function_brief{pkcs11_mbedtls_function_c_destroyobject}
+ * - @function_name{pkcs11_mbedtls_function_c_getattributevalue}
+ * @function_brief{pkcs11_mbedtls_function_c_getattributevalue}
+ * - @function_name{pkcs11_mbedtls_function_c_findobjectsinit}
+ * @function_brief{pkcs11_mbedtls_function_c_findobjectsinit}
+ * - @function_name{pkcs11_mbedtls_function_c_findobjects}
+ * @function_brief{pkcs11_mbedtls_function_c_findobjects}
+ * - @function_name{pkcs11_mbedtls_function_c_findobjectsfinal}
+ * @function_brief{pkcs11_mbedtls_function_c_findobjectsfinal}
+ * - @function_name{pkcs11_mbedtls_function_c_digestinit}
+ * @function_brief{pkcs11_mbedtls_function_c_digestinit}
+ * - @function_name{pkcs11_mbedtls_function_c_digestupdate}
+ * @function_brief{pkcs11_mbedtls_function_c_digestupdate}
+ * - @function_name{pkcs11_mbedtls_function_c_digestfinal}
+ * @function_brief{pkcs11_mbedtls_function_c_digestfinal}
+ * - @function_name{pkcs11_mbedtls_function_c_signinit}
+ * @function_brief{pkcs11_mbedtls_function_c_signinit}
+ * - @function_name{pkcs11_mbedtls_function_c_sign}
+ * - @function_name{pkcs11_mbedtls_function_c_verifyinit}
+ * @function_brief{pkcs11_mbedtls_function_c_verifyinit}
+ * - @function_name{pkcs11_mbedtls_function_c_verify}
+ * @function_brief{pkcs11_mbedtls_function_c_verify}
+ * - @function_name{pkcs11_mbedtls_function_c_generatekeypair}
+ * @function_brief{pkcs11_mbedtls_function_c_generatekeypair}
+ * - @function_name{pkcs11_mbedtls_function_c_generaterandom}
+ * @function_brief{pkcs11_mbedtls_function_c_generaterandom}
+ */
+
+/**
+ * @function_page{C_Initialize,pkcs11_mbedtls,c_initialize}
+ * @function_snippet{pkcs11_mbedtls,c_initialize,this}
+ * @copydoc C_Initialize
+ * @function_page{C_Finalize,pkcs11_mbedtls,c_finalize}
+ * @function_snippet{pkcs11_mbedtls,c_finalize,this}
+ * @copydoc C_Finalize
+ * @function_page{C_GetFunctionList,pkcs11_mbedtls,c_getfunctionlist}
+ * @function_snippet{pkcs11_mbedtls,c_getfunctionlist,this}
+ * @copydoc C_GetFunctionList
+ * @function_page{C_GetSlotList,pkcs11_mbedtls,c_getslotlist}
+ * @function_snippet{pkcs11_mbedtls,c_getslotlist,this}
+ * @copydoc C_GetSlotList
+ * @function_page{C_GetTokenInfo,pkcs11_mbedtls,c_gettokeninfo}
+ * @function_snippet{pkcs11_mbedtls,c_gettokeninfo,this}
+ * @copydoc C_GetTokenInfo
+ * @function_page{C_GetMechanismInfo,pkcs11_mbedtls,c_getmechanisminfo}
+ * @function_snippet{pkcs11_mbedtls,c_getmechanisminfo,this}
+ * @copydoc C_GetMechanismInfo
+ * @function_page{C_InitToken,pkcs11_mbedtls,c_inittoken}
+ * @function_snippet{pkcs11_mbedtls,c_inittoken,this}
+ * @copydoc C_InitToken
+ * @function_page{C_OpenSession,pkcs11_mbedtls,c_opensession}
+ * @function_snippet{pkcs11_mbedtls,c_opensession,this}
+ * @copydoc C_OpenSession
+ * @function_page{C_CloseSession,pkcs11_mbedtls,c_closesession}
+ * @function_snippet{pkcs11_mbedtls,c_closesession,this}
+ * @copydoc C_CloseSession
+ * @function_page{C_Login,pkcs11_mbedtls,c_login}
+ * @function_snippet{pkcs11_mbedtls,c_login,this}
+ * @copydoc C_Login
+ * @function_page{C_CreateObject,pkcs11_mbedtls,c_createobject}
+ * @function_snippet{pkcs11_mbedtls,c_createobject,this}
+ * @copydoc C_CreateObject
+ * @function_page{C_DestroyObject,pkcs11_mbedtls,c_destroyobject}
+ * @function_snippet{pkcs11_mbedtls,c_destroyobject,this}
+ * @copydoc C_DestroyObject
+ * @function_page{C_GetAttributeValue,pkcs11_mbedtls,c_getattributevalue}
+ * @function_snippet{pkcs11_mbedtls,c_getattributevalue,this}
+ * @copydoc C_GetAttributeValue
+ * @function_page{C_FindObjectsInit,pkcs11_mbedtls,c_findobjectsinit}
+ * @function_snippet{pkcs11_mbedtls,c_findobjectsinit,this}
+ * @copydoc C_FindObjectsInit
+ * @function_page{C_FindObjects,pkcs11_mbedtls,c_findobjects}
+ * @function_snippet{pkcs11_mbedtls,c_findobjects,this}
+ * @copydoc C_FindObjects
+ * @function_page{C_FindObjectsFinal,pkcs11_mbedtls,c_findobjectsfinal}
+ * @function_snippet{pkcs11_mbedtls,c_findobjectsfinal,this}
+ * @copydoc C_FindObjectsFinal
+ * @function_page{C_DigestInit,pkcs11_mbedtls,c_digestinit}
+ * @function_snippet{pkcs11_mbedtls,c_digestinit,this}
+ * @copydoc C_DigestInit
+ * @function_page{C_DigestUpdate,pkcs11_mbedtls,c_digestupdate}
+ * @function_snippet{pkcs11_mbedtls,c_digestupdate,this}
+ * @copydoc C_DigestUpdate
+ * @function_page{C_DigestFinal,pkcs11_mbedtls,c_digestfinal}
+ * @function_snippet{pkcs11_mbedtls,c_digestfinal,this}
+ * @copydoc C_DigestFinal
+ * @function_page{C_SignInit,pkcs11_mbedtls,c_signinit}
+ * @function_snippet{pkcs11_mbedtls,c_signinit,this}
+ * @copydoc C_SignInit
+ * @function_page{C_Sign,pkcs11_mbedtls,c_sign}
+ * @function_snippet{pkcs11_mbedtls,c_sign,this}
+ * @copydoc C_Sign
+ * @function_page{C_VerifyInit,pkcs11_mbedtls,c_verifyinit}
+ * @function_snippet{pkcs11_mbedtls,c_verifyinit,this}
+ * @copydoc C_VerifyInit
+ * @function_page{C_Verify,pkcs11_mbedtls,c_verify}
+ * @function_snippet{pkcs11_mbedtls,c_verify,this}
+ * @copydoc C_Verify
+ * @function_page{C_GenerateKeyPair,pkcs11_mbedtls,c_generatekeypair}
+ * @function_snippet{pkcs11_mbedtls,c_generatekeypair,this}
+ * @copydoc C_GenerateKeyPair
+ * @function_page{C_GenerateRandom,pkcs11_mbedtls,c_generaterandom}
+ * @function_snippet{pkcs11_mbedtls,c_generate_random,this}
+ * @copydoc C_GenerateRandom
  */
 
 /**
@@ -505,7 +637,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 }
 
 #if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
-
+    /* @[declare pkcs11_pal_destroyobject] */
     CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xAppHandle )
     {
         uint8_t * pcLabel = NULL;
@@ -589,7 +721,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
         return xResult;
     }
-
+    /* @[declare pkcs11_pal_destroyobject] */
 #endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
 
 #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
@@ -651,7 +783,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 #if !defined( pkcs11configC_INITIALIZE_ALT )
 
 /**
- * @brief Initialize the PKCS #11 module for use.
+ * @brief Initializes Cryptoki.
  *
  * @note C_Initialize is not thread-safe.
  *
@@ -670,6 +802,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
  * See <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_initialize] */
     CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
     { /*lint !e9072 It's OK to have different parameter name. */
         ( void ) ( pvInitArgs );
@@ -687,11 +820,13 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
         return xResult;
     }
+/* @[declare pkcs11_mbedtls_c_initialize] */
 #endif /* if !defined( pkcs11configC_INITIALIZE_ALT ) */
 
 /**
- * @brief Un-initialize the Cryptoki module.
+ * @brief Clean up miscellaneous Cryptoki-associated resources.
  */
+/* @[declare pkcs11_mbedtls_c_finalize] */
 CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 {
     /*lint !e9072 It's OK to have different parameter name. */
@@ -729,10 +864,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_finalize] */
 
 /**
- * @brief Obtain a pointer to the PKCS #11 module's list
- * of function pointers.
+ * @brief Obtains entry points of Cryptoki library functions.
  *
  * All other PKCS #11 functions should be invoked using the returned
  * function list.
@@ -746,6 +881,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_getfunctionlist] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
@@ -761,9 +897,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFun
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_getfunctionlist] */
 
 /**
- * @brief Query the list of slots. A single default slot is implemented.
+ * @brief Obtains a list of slots in the system.
  *
  * This port does not implement the concept of separate slots/tokens.
  *
@@ -778,6 +915,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFun
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_getslotlist] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
                                              CK_SLOT_ID_PTR pxSlotList,
                                              CK_ULONG_PTR pulCount )
@@ -820,10 +958,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_getslotlist] */
 
 
 /**
- * @brief This function is not implemented for this port.
+ * @brief Obtains information about a particular token.
  *
  * C_GetTokenInfo() is only implemented for compatibility with other ports.
  * All inputs to this function are ignored, and calling this
@@ -832,6 +971,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
  *
  * @return CKR_OK.
  */
+/* @[declare pkcs11_mbedtls_c_gettokeninfo] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
                                               CK_TOKEN_INFO_PTR pInfo )
 {
@@ -841,10 +981,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
 
     return CKR_OK;
 }
+/* @[declare pkcs11_mbedtls_c_gettokeninfo] */
 
 /**
- * @brief This function obtains information about a particular
- * mechanism possibly supported by a token.
+ * @brief Obtains information about a particular mechanism.
  *
  *  \param[in]  xSlotID         This parameter is unused in this port.
  *  \param[in]  type            The cryptographic capability for which support
@@ -854,6 +994,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
  *
  * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
  */
+/* @[declare pkcs11_mbedtls_c_getmechanisminfo] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
                                                   CK_MECHANISM_TYPE type,
                                                   CK_MECHANISM_INFO_PTR pInfo )
@@ -891,9 +1032,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_getmechanisminfo] */
 
 /**
- * @brief This function is not implemented for this port.
+ * @brief Initializes a token. This function is not implemented for this port.
  *
  * C_InitToken() is only implemented for compatibility with other ports.
  * All inputs to this function are ignored, and calling this
@@ -901,6 +1043,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
  *
  * @return CKR_OK.
  */
+/* @[declare pkcs11_mbedtls_c_inittoken] */
 CK_DECLARE_FUNCTION( CK_RV, C_InitToken )( CK_SLOT_ID slotID,
                                            CK_UTF8CHAR_PTR pPin,
                                            CK_ULONG ulPinLen,
@@ -914,9 +1057,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_InitToken )( CK_SLOT_ID slotID,
 
     return CKR_OK;
 }
+/* @[declare pkcs11_mbedtls_c_inittoken] */
 
 /**
- * @brief Start a session for a cryptographic command sequence.
+ * @brief Opens a connection between an application and a particular token or sets up an application callback for token insertion.
  *
  * \note PKCS #11 module must have been previously initialized with a call to
  * C_Initialize() before calling C_OpenSession().
@@ -934,6 +1078,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_InitToken )( CK_SLOT_ID slotID,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_opensession] */
 CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
                                              CK_FLAGS xFlags,
                                              CK_VOID_PTR pvApplication,
@@ -1062,9 +1207,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_opensession] */
 
 /**
- * @brief Terminate a session and release resources.
+ * @brief Closes a session.
  *
  * @param[in]   xSession        The session handle to
  *                              be terminated.
@@ -1073,6 +1219,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_closesession] */
 CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
 {
     /*lint !e9072 It's OK to have different parameter name. */
@@ -1117,10 +1264,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_closesession] */
 
 
 /**
- * @brief This function is not implemented for this port.
+ * @brief Logs into a token. This function is not implemented for this port.
  *
  * C_Login() is only implemented for compatibility with other ports.
  * All inputs to this function are ignored, and calling this
@@ -1128,6 +1276,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
  *
  * @return CKR_OK.
  */
+/* @[declare pkcs11_mbedtls_c_login] */
 CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
                                        CK_USER_TYPE userType,
                                        CK_UTF8CHAR_PTR pPin,
@@ -1144,6 +1293,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
      * Defined for compatibility with other PKCS #11 ports. */
     return CKR_OK;
 }
+/* @[declare pkcs11_mbedtls_c_login] */
 
 /* Helper function for parsing the templates of device certificates for
  * C_CreateObject. */
@@ -1987,8 +2137,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
 
 /**
- * @brief Create a PKCS #11 certificate, public key, or private key object
- * by importing it into device storage.
+ * @brief Creates an object.
  *
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
  * @param[in] pxTemplate                 List of attributes of the object to
@@ -2038,6 +2187,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_createobject] */
 CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulCount,
@@ -2081,9 +2231,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_createobject] */
 
 /**
- * @brief Destroy an object.
+ * @brief Destroys an object.
  *
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
  * @param[in] xObject                    Handle of the object to be destroyed.
@@ -2097,6 +2248,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_destroyobject] */
 CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                                CK_OBJECT_HANDLE xObject )
 {
@@ -2109,9 +2261,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_destroyobject] */
 
 /**
- * @brief Query the value of the specified cryptographic object attribute.
+ * @brief Obtains an attribute value of an object.
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
  * @param[in] xObject                    PKCS #11 object handle to be queried.
  * @param[in,out] pxTemplate             Attribute template.
@@ -2149,6 +2302,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_getattributevalue] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                                    CK_OBJECT_HANDLE xObject,
                                                    CK_ATTRIBUTE_PTR pxTemplate,
@@ -2399,9 +2553,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_getattributevalue] */
 
 /**
- * @brief Initializes a search for an object by its label.
+ * @brief Initializes an object search operation.
  *
  * \sa C_FindObjects() and C_FindObjectsFinal() which must be called
  * after C_FindObjectsInit().
@@ -2422,6 +2577,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_findobjectsinit] */
 CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
                                                  CK_ATTRIBUTE_PTR pxTemplate,
                                                  CK_ULONG ulCount )
@@ -2503,9 +2659,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_findobjectsinit] */
 
 /**
- * @brief Find an object.
+ * @brief Initializes an object search operation.
  *
  * \sa C_FindObjectsInit() which must be called before calling C_FindObjects()
  * and C_FindObjectsFinal(), which must be called after.
@@ -2533,6 +2690,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_findobjects] */
 CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject,
                                              CK_ULONG ulMaxObjectCount,
@@ -2644,9 +2802,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_findobjects] */
 
 /**
- * @brief Completes an object search operation.
+ * @brief Finishes an object search operation.
  *
  * \sa C_FindObjectsInit(), C_FindObjects() which must be called before
  * calling C_FindObjectsFinal().
@@ -2662,6 +2821,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_findobjectsfinal] */
 CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
@@ -2690,9 +2850,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_findobjectsfinal] */
 
 /**
- * @brief Begins a digest (hash) operation.
+ * @brief Initializes a message-digesting operation.
  *
  * \sa C_DigestUpdate(), C_DigestFinal()
  *
@@ -2709,6 +2870,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_digestinit] */
 CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
                                             CK_MECHANISM_PTR pMechanism )
 {
@@ -2755,10 +2917,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_digestinit] */
 
 
 /**
- * @brief Continues a multi-part digest (hash) operation.
+ * @brief Continues a multiple-part digesting operation.
  *
  * \sa C_DigestInit(), C_DigestFinal()
  *
@@ -2775,6 +2938,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_digestupdate] */
 CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
                                               CK_BYTE_PTR pPart,
                                               CK_ULONG ulPartLen )
@@ -2813,9 +2977,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_digestupdate] */
 
 /**
- * @brief Complete a multi-part digest (hash) operation.
+ * @brief Finishes a multiple-part digesting operation.
  *
  * \sa C_DigestInit(), C_DigestUpdate()
  *
@@ -2842,6 +3007,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_digestfinal] */
 CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                                              CK_BYTE_PTR pDigest,
                                              CK_ULONG_PTR pulDigestLen )
@@ -2897,9 +3063,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_digestfinal] */
 
 /**
- * @brief Begin creating a digital signature.
+ * @brief Initializes a signature operation.
  *
  * \sa C_Sign() completes signatures initiated by C_SignInit().
  *
@@ -2923,6 +3090,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_signinit] */
 CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                                           CK_MECHANISM_PTR pxMechanism,
                                           CK_OBJECT_HANDLE xKey )
@@ -3063,9 +3231,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_signinit] */
 
 /**
- * @brief Performs a digital signature operation.
+ * @brief Signs single-part data.
  *
  * \sa C_SignInit() initiates signatures signature creation.
  *
@@ -3095,6 +3264,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_sign] */
 CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                       CK_BYTE_PTR pucData,
                                       CK_ULONG ulDataLen,
@@ -3214,9 +3384,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_sign] */
 
 /**
- * @brief Begin a digital signature verification.
+ * @brief Initializes a verification operation.
  *
  * \sa C_Verify() completes verifications initiated by C_VerifyInit().
  *
@@ -3238,6 +3409,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_verifyinit] */
 CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
                                             CK_MECHANISM_PTR pxMechanism,
                                             CK_OBJECT_HANDLE xKey )
@@ -3376,9 +3548,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_verifyinit] */
 
 /**
- * @brief Verifies a digital signature.
+ * @brief Verifies a signature on single-part data.
  *
  * \note C_VerifyInit() must have been called previously.
  *
@@ -3399,6 +3572,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_verify] */
 CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                                         CK_BYTE_PTR pucData,
                                         CK_ULONG ulDataLen,
@@ -3535,6 +3709,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     /* Return the signature verification result. */
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_verify] */
 
 
 /* Checks that the private key template provided for C_GenerateKeyPair
@@ -3714,7 +3889,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
 
 
 /**
- * @brief Generate a new public-private key pair.
+ * @brief Generates a public-key/private-key pair.
  *
  * This port only supports generating elliptic curve P-256
  * key pairs.
@@ -3770,6 +3945,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_generatekeypair] */
 CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                  CK_MECHANISM_PTR pxMechanism,
                                                  CK_ATTRIBUTE_PTR pxPublicKeyTemplate,
@@ -3912,9 +4088,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_generatekeypair] */
 
 /**
- * @brief Generate cryptographically random bytes.
+ * @brief Generates random data.
  *
  * @param xSession[in]          Handle of a valid PKCS #11 session.
  * @param pucRandomData[out]    Pointer to location that random data will be placed.
@@ -3926,6 +4103,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare pkcs11_mbedtls_c_generatekeypair] */
 CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                 CK_BYTE_PTR pucRandomData,
                                                 CK_ULONG ulRandomLen )
@@ -3954,3 +4132,4 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_mbedtls_c_generatekeypair] */
