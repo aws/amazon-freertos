@@ -142,6 +142,15 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
+    #if ( testrunnerFULL_PKCS11_MODEL_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_ObjectMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_VerifyMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SignMachine );
+    #endif
+
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
         RUN_TEST_GROUP( Full_CRYPTO );
     #endif
