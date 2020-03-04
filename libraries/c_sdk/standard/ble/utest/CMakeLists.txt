@@ -21,9 +21,7 @@ create_mock_list(iot_ble_data_transfer_mock
         )
 
 target_include_directories(iot_ble_data_transfer_mock PUBLIC
-        config
         ${abstraction_dir}/ble_hal/include
-        ${AFR_ROOT_DIR}/tests/include
         ${abstraction_dir}/platform/freertos/include
         ${abstraction_dir}/platform/include
         ${abstraction_dir}/platform/include/types
@@ -48,9 +46,7 @@ add_library(iot_ble_data_transfer_real STATIC
             )
 target_include_directories(iot_ble_data_transfer_real PUBLIC
         .
-        config
         ../include
-        ${AFR_ROOT_DIR}/tests/include
         ${abstraction_dir}/ble_hal/include
         ${abstraction_dir}/platform/include
         ${abstraction_dir}/platform/freertos/include
@@ -90,9 +86,7 @@ create_test(iot_ble_data_transfer_utest
 
 target_include_directories(iot_ble_data_transfer_utest PUBLIC
         ../include
-        config
         ${CMAKE_CURRENT_BINARY_DIR}/mocks
-        ${AFR_ROOT_DIR}/tests/include
         ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include
         ${abstraction_dir}/ble_hal/include
         ${abstraction_dir}/platform/freertos/include
