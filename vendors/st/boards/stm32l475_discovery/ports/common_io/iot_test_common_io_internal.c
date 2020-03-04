@@ -31,23 +31,15 @@
 
 /* UART */
 extern uint8_t uctestIotUartPort;
-extern uint32_t ultestIotUartFlowControl;
-extern uint32_t ultestIotUartParity;
-extern uint32_t ultestIotUartWordLength;
-extern uint32_t ultestIotUartStopBits;
 
 void SET_TEST_IOT_UART_CONFIG( int testSet )
 {
     uctestIotUartPort = uartTestPort[ testSet ];
-    ultestIotUartFlowControl = uartIotUartFlowControl[ testSet ];
-    ultestIotUartParity = uartIotUartParity[ testSet ];
-    ultestIotUartWordLength = uartIotUartWordLength[ testSet ];
-    ultestIotUartStopBits = uartIotUartStopBits[ testSet ];
 }
 
 /* I2C */
 extern uint8_t uctestIotI2CSlaveAddr;
-extern uint8_t xtestIotI2CDeviceRegister;
+extern uint8_t uctestIotI2CDeviceRegister;
 extern uint8_t uctestIotI2CWriteVal;
 extern uint8_t uctestIotI2CInstanceIdx;
 extern uint8_t uctestIotI2CInstanceNum;
@@ -55,14 +47,14 @@ extern uint8_t uctestIotI2CInstanceNum;
 void SET_TEST_IOT_I2C_CONFIG( int testSet )
 {
     uctestIotI2CSlaveAddr = i2cTestSlaveAddr[ testSet ];
-    xtestIotI2CDeviceRegister = i2cTestDeviceRegister[ testSet ];
+    uctestIotI2CDeviceRegister = i2cTestDeviceRegister[ testSet ];
     uctestIotI2CWriteVal = i2cTestWriteVal[ testSet ];
     uctestIotI2CInstanceIdx = i2cTestInstanceIdx[ testSet ];
     uctestIotI2CInstanceNum = i2cTestInstanceNum[ testSet ];
 }
 
 /* SPI */
-extern uint8_t ultestIotSpiInstance;
+extern uint32_t ultestIotSpiInstance;
 extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
 extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
 extern uint32_t ultestIotSPIFrequency;
