@@ -2065,7 +2065,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 							pxTemplate[ iAttrib ].ulValueLen = ulLength + 2;
 							*(( CK_BYTE *)(pxTemplate[ iAttrib ].pValue)) = 0x04;
 							*(( CK_BYTE *)(pxTemplate[ iAttrib ].pValue) + 1) = ulLength;
-							memcpy( pxTemplate[ iAttrib ].pValue + 2, pxObjectValue, ulLength );
+							memcpy( (( CK_BYTE *)pxTemplate[ iAttrib ].pValue + 2), pxObjectValue, ulLength );
 						}
 					}
 

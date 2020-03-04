@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cyb06xxa_cm4.icf
+* \file cyb06xxa_cm4_dual.icf
 * \version 2.70
 *
 * Linker file for the IAR compiler.
@@ -44,12 +44,18 @@ define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 /* The symbols below define the location and size of blocks of memory in the target.
  * Use these symbols to specify the memory regions available for allocation.
  */
+
+/* The following symbols control RAM and flash memory allocation for the CM4 core.
+ * You can change the memory allocation by editing RAM and Flash symbols.
+ * Your changes must be aligned with the corresponding symbols for CM0+ core in 'xx_cm0plus.icf',
+ * where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.icf'.
+ */
 /* RAM */
-define symbol __ICFEDIT_region_IRAM1_start__ = 0x08000000;
-define symbol __ICFEDIT_region_IRAM1_end__   = 0x080EA000;
+define symbol __ICFEDIT_region_IRAM1_start__ = 0x08030000;
+define symbol __ICFEDIT_region_IRAM1_end__   = 0x080E7000;
 /* Flash */
-define symbol __ICFEDIT_region_IROM1_start__ = 0x10000000;
-define symbol __ICFEDIT_region_IROM1_end__   = 0x101D0000;
+define symbol __ICFEDIT_region_IROM1_start__ = 0x10050000;
+define symbol __ICFEDIT_region_IROM1_end__   = 0x1016F800;
 
 /* The following symbols define a 32K flash region used for EEPROM emulation.
  * This region can also be used as the general purpose flash.
