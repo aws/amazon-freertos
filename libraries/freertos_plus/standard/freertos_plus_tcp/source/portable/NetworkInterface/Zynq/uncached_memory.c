@@ -152,8 +152,6 @@ static void vInitialiseUncachedMemory( )
 		/* Some objects want to be stored in uncached memory. Hence the 1 MB
 		address range that starts after "_end" is made uncached by setting
 		appropriate attributes in the translation table. */
-		/* FIXME claudio rossi. Modified to prevent data abort exception (misaligned access)
-		when application is compiled with -O1 or more optimization flag. */
 		Xil_SetTlbAttributes( ( uint32_t ) pucStartOfMemory, uncMEMORY_ATTRIBUTE );
 
 		/* For experiments in the SDIO driver, make the remaining uncached memory
