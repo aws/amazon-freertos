@@ -54,7 +54,7 @@
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
  * the request message after being idle for this amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           10000U
+#define otaconfigFILE_REQUEST_WAIT_MS           60000U
 
 /**
  * @brief The OTA agents task priority. Normally it runs at a low priority.
@@ -84,7 +84,7 @@
   *  Please note that this must be set larger than zero.
   *
   */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        32U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST        1U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
