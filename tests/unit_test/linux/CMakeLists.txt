@@ -40,11 +40,14 @@
         )
     target_link_libraries(cmock libunity.a)
 
-    add_library(utils STATIC
-                ${CMAKE_CURRENT_LIST_DIR}/utils/wait_for_event.c)
+    add_library(utils SHARED
+                ${CMAKE_CURRENT_LIST_DIR}/utils/wait_for_event.c
+                ${CMAKE_CURRENT_LIST_DIR}/utils/task_control.c
+                )
     set_target_properties(utils PROPERTIES
-            ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            COMPILE_FLAGS "-Wall -Og"
+            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+            COMPILE_FLAGS "-Wall -Og -pthread"
+            LINK_FLAGS "-Wall -Og -pthread -lpthread"
         )
 
     # add unit test subdirectories here
@@ -52,6 +55,6 @@
 
     add_custom_target(coverage
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmock/coverage.cmake
-            DEPENDS secure_sockets_utest iot_ble_data_transfer_utest cmock unity
+            DEPENDS secure_sockets_utest cmock unity
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )

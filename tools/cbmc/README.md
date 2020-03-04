@@ -13,16 +13,61 @@ analysis tool
 how to run the proofs on your local clone of a:FR.
 
 
-Prerequisites
--------------
+Bulding and running proofs
+--------------------------
+
+For historical reasons, some of the proofs are built and run using CMake
+and CTest. Others use a custom python-based build system. New proofs
+should use CMake. This README describes how to build and run both kinds
+of proof.
+
+
+CMake-based build
+-----------------
+
+Follow the CBMC installation instructions below.
+
+Suppose that the amazon-freertos source tree is located at
+`~/src/amazon-freertos` and you wish to build the proofs into
+`~/build/amazon-freertos`. The following three commands build and run
+the proofs:
+
+```sh
+cmake -S~/src/amazon-freertos -B~/build/amazon-freertos -DCOMPILER=cbmc
+-DBOARD=windows -DVENDOR=pc
+cmake --build ~/build/amazon-freertos --target all-proofs
+cd ~/build/amazon-freertos && ctest -L cbmc
+```
+
+Alternatively, this single command does the same thing, assuming you
+have the Ninja build tool installed:
+
+```sh
+ctest --build-and-test                \
+    ~/src/amazon-freertos             \
+    ~/build/amazon-freertos           \
+    --build-target cbmc               \
+    --build-generator Ninja           \
+    --build-options                   \
+      -DCOMPILER=cbmc                 \
+      -DBOARD=windows                 \
+      -DVENDOR=pc                     \
+    --test-command ctest -j4 -L cbmc --output-on-failure
+```
+
+
+
+Python-based build
+------------------
+
+### Prerequisites
 
 You will need Python 3. On Windows, you will need Visual Studio 2015 or later
 (in particular, you will need the Developer Command Prompt and NMake). On macOS
 and Linux, you will need Make.
 
 
-Installing CBMC
----------------
+### Installing CBMC
 
 - Clone the [CBMC repository](https://github.com/diffblue/cbmc).
 
@@ -52,8 +97,7 @@ Installing CBMC
   `src/goto-cc`, and `src/goto-instrument` directories respectively.
 
 
-Setting up the proofs
----------------------
+### Setting up the proofs
 
 Change into the `proofs` directory. On Windows, run
 ```
@@ -68,8 +112,7 @@ versa), you can pass the `--system linux` or `--system windows` options to those
 programs.
 
 
-Running the proofs
-------------------
+### Running the proofs
 
 Each of the leaf directories under `proofs` is a proof of the memory
 safety of a single entry point in a:FR. The scripts that you ran in the
@@ -80,8 +123,7 @@ run; they eventually write their output to `cbmc.txt`, which should have
 the text `VERIFICATION SUCCESSFUL` at the end.
 
 
-Proof directory structure
--------------------------
+### Proof directory structure
 
 This directory contains the following subdirectories:
 

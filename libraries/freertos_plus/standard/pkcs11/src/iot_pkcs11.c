@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 V1.0.2
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 V1.0.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,8 +32,16 @@
 #include <stdint.h>
 #include <string.h>
 
+/**
+ * @file iot_pkcs11.c
+ * @brief FreeRTOS PKCS #11 Interface.
+ * The following definitions are required by the PKCS #11 standard public
+ * headers.
+ */
+
 /*-----------------------------------------------------------*/
 
+/* @[declare pkcs11_iot_xgetslotlist] */
 CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
                     CK_ULONG * pxSlotCount )
 {
@@ -77,6 +85,7 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
 
     return xResult;
 }
+/* @[declare pkcs11_iot_xgetslotlist] */
 
 /*-----------------------------------------------------------*/
 
@@ -115,6 +124,12 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 
 /*-----------------------------------------------------------*/
 
+/* @[declare pkcs11_iot_xinitializepkcs11] */
+
+/* @brief Initialize PKCS #11 Library.
+ *
+ *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
+ */
 CK_RV xInitializePKCS11( void )
 {
     CK_RV xResult;
@@ -138,11 +153,13 @@ CK_RV xInitializePKCS11( void )
 
     return xResult;
 }
+/* @[declare pkcs11_iot_xinitializepkcs11] */
 
 /*-----------------------------------------------------------*/
 
 /* Perform common token initialization as per the PKCS #11 standard. For
  * compatibility reasons, this may include authentication with a static PIN. */
+/* @[declare pkcs11_iot_xinitializepkcs11token] */
 CK_RV xInitializePkcs11Token( void )
 {
     CK_RV xResult;
@@ -212,9 +229,11 @@ CK_RV xInitializePkcs11Token( void )
 
     return xResult;
 }
+/* @[declare pkcs11_iot_xinitializepkcs11token] */
 
 /*-----------------------------------------------------------*/
 
+/* @[declare pkcs11_iot_xinitializepkcs11session] */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 {
     CK_RV xResult;
@@ -269,7 +288,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 
     return xResult;
 }
-
+/* @[declare pkcs11_iot_xinitializepkcs11session] */
 /*-----------------------------------------------------------*/
 
 /* @brief Finds an object with a given label if it exists.
@@ -288,6 +307,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
  *   the object handle value is not equal to 0 (the invalid handle)
  *   before attempting to use the handle.
  */
+/* @[declare pkcs11_iot_xfindobjectwithlabelandclass] */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                     const char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
@@ -329,8 +349,6 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
     if( CK_TRUE == xFindInit )
     {
-        /* Indicate to the module that the we're done looking for the indicated
-         * type of object. */
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
@@ -341,9 +359,11 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+/* @[declare pkcs11_iot_xfindobjectwithlabelandclass] */
 
 /*-----------------------------------------------------------*/
 
+/* @[declare pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                 uint8_t * x51ByteHashOidBuffer )
 {
@@ -363,5 +383,6 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
 
     return xResult;
 }
+/* @[declare pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 
 /*-----------------------------------------------------------*/

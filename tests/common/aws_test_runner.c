@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201912.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -64,7 +64,7 @@ static void RunTests( void )
 {
     /* Tests can be disabled in aws_test_runner_config.h */
 
-    /* The Amazon FreeRTOS qualification program requires that Wi-Fi and TCP be the
+    /* The FreeRTOS qualification program requires that Wi-Fi and TCP be the
      * first tests in this function. */
     #if ( testrunnerFULL_WIFI_ENABLED == 1 )
         RUN_TEST_GROUP( Full_WiFi );
@@ -142,6 +142,15 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
+    #if ( testrunnerFULL_PKCS11_MODEL_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_ObjectMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_VerifyMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SignMachine );
+    #endif
+
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
         RUN_TEST_GROUP( Full_CRYPTO );
     #endif
@@ -211,6 +220,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( HTTPS_Client_Unit_Sync );
         RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
         RUN_TEST_GROUP( HTTPS_Client_System );
+    #endif
+
+    #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
+        RUN_TEST_GROUP( Common_IO );
     #endif
 }
 /*-----------------------------------------------------------*/

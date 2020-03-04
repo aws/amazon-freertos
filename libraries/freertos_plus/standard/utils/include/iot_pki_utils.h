@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Utils V1.1.1
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Utils V1.1.2
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,27 @@
 #ifndef _IOT_PKI_UTILS_H_
 #define _IOT_PKI_UTILS_H_
 
+/**
+ * @file iot_pki_utils.h
+ * @brief Helper functions for PKCS #11
+ */
+
+/**
+ * @functions_page{pkcs11_utils,PKCS #11 Utilities, PKCS #11 Utilities}
+ * - @function_name{pkcs11_utils_function_pkipkcs11signaturetombedtlssignature}
+ * @function_brief{pkcs11_utils_function_pkipkcs11signaturetombedtlssignature}
+ * - @function_name{pkcs11_utils_function_pkimbedtlssignaturetopkcs11signature}
+ * @function_brief{pkcs11_utils_function_pkimbedtlssignaturetopkcs11signature}
+ */
+
+/**
+ * @function_page{PKI_mbedTLSSignatureToPkcs11Signature,pkcs11_utils,pkimbedtlssignaturetopkcs11signature}
+ * @function_snippet{pkcs11_utils,pkimbedtlssignaturetopkcs11signature,this}
+ * @copydoc PKI_mbedTLSSignatureToPkcs11Signature
+ * @function_page{PKI_pkcs11SignatureTombedTLSSignature,pkcs11_utils,pkipkcs11signaturetombedtlssignature}
+ * @function_snippet{pkcs11_utils,pkipkcs11signaturetombedtlssignature,this}
+ * @copydoc PKI_pkcs11SignatureTombedTLSSignature
+ */
 
 /**
  * @brief Converts an ECDSA P-256 signature from the format provided by mbedTLS

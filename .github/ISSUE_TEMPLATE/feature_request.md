@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Amazon FreeRTOS
+about: Suggest an idea for FreeRTOS
 labels: feature request
 
 ---

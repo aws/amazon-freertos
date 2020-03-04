@@ -11,6 +11,7 @@ doxygen_warnings.txt
 *.elf
 *.hex
 *.bin
+*.pyc
 
 RemoteSystemsTempFiles/*
 

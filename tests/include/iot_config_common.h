@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201912.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -209,7 +209,7 @@ extern uint16_t getDeviceMetricsLength( void );
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t           void *
 
-/* For compatibility with the Amazon FreeRTOS test framework, UnityPrint and similar
+/* For compatibility with the FreeRTOS test framework, UnityPrint and similar
  * must be redefined. */
 extern int snprintf( char *,
                      size_t,
@@ -236,7 +236,7 @@ extern int snprintf( char *,
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    IOT_THREAD_DEFAULT_STACK_SIZE
 #endif
 
-/* Use Amazon FreeRTOS Secure Sockets network for tests. */
+/* Use FreeRTOS Secure Sockets network for tests. */
 #ifndef IOT_TEST_NETWORK_HEADER
     #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_freertos.h"
 #endif
@@ -255,7 +255,7 @@ extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
 #define IOT_TEST_MQTT_SERIALIZER             IotTestNetwork_GetSerializer()
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
- * platforms supported in Amazon FreeRTOS.
+ * platforms supported in FreeRTOS.
  * Set this to the number of connection attempts for the MQTT tests.
  * If undefined, it should default to 1. */
 #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    3

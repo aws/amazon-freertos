@@ -1,5 +1,5 @@
 ## BLE GATT server demo
-This demo demonstrate the Amazon FreeRTOS GATT server by sending a simple counter value to a mobile device application coded against the [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) and [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) device SDK for BLE and Amazon FreeRTOS.
+This demo demonstrate the FreeRTOS GATT server by sending a simple counter value to a mobile device application coded against the [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) and [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) device SDK for BLE and FreeRTOS.
 The libraries in the iOS and Android SDK will seamlessly publish the messages to the cloud through MQTT.
 The mobile application demo can be found in the same [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) and [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) SDK. 
 

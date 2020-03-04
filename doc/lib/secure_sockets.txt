@@ -5,7 +5,7 @@
 
 The Secure Sockets interface is based on the Berkeley sockets interface with the addition of a secure communication option by TLS protocol. At this time, only client APIs are supported.
 
-The Amazon FreeRTOS Secure Socket API allows you to create embedded applications that communicate securely. It is designed for easy onboarding of software developers from various network programming backgrounds. The reference implementation for Secure Sockets supports TLS and TCP/IP over Ethernet and Wi-Fi. 
+The FreeRTOS Secure Socket API allows you to create embedded applications that communicate securely. It is designed for easy onboarding of software developers from various network programming backgrounds. The reference implementation for Secure Sockets supports TLS and TCP/IP over Ethernet and Wi-Fi. 
 
 ## Secure Sockets Library dependencies
 

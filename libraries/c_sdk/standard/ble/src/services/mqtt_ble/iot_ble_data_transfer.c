@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS BLE V2.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS BLE V2.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -462,16 +462,17 @@ static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t * pChannelBuffer,
      */
     if( pChannelBuffer->pBuffer == NULL )
     {
-        pChannelBuffer->pBuffer = IotBle_Malloc( initialLength );
+        size_t resultingLength = requiredLength > initialLength ? requiredLength : initialLength;
+        pChannelBuffer->pBuffer = IotBle_Malloc( resultingLength );
 
         if( pChannelBuffer->pBuffer != NULL )
         {
-            pChannelBuffer->bufferLength = initialLength;
+            pChannelBuffer->bufferLength = resultingLength;
             pChannelBuffer->head = pChannelBuffer->tail = 0;
         }
         else
         {
-            IotLogError( "Failed to allocate a buffer of size %d", initialLength );
+            IotLogError( "Failed to allocate a buffer of size %d", resultingLength );
             result = false;
         }
     }
@@ -563,7 +564,10 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
             resp.eventStatus = eBTStatusSuccess;
         }
 
-        IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        if( pEventParam->xEventType == eBLEWrite )
+        {
+            IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
+        }
     }
 }
 
@@ -615,7 +619,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
 
-        if( pService->channel.isOpen == true )
+        if( pService && ( pService->channel.isOpen == true ) )
         {
             length = ( pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail );
 

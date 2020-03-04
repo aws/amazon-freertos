@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi
+ * FreeRTOS Wi-Fi
  *
  * (C) Copyright 2018-2019 Marvell International Ltd. All Rights Reserved.
  *

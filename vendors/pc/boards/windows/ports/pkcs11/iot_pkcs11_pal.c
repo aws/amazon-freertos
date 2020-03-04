@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Windows Simulator V1.0.4
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 PAL for Windows Simulator V1.0.4
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@
 
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Windows Simulator file save and read implementation
  * for PKCS#11 based on mbedTLS with for software keys. This
  * file deviates from the FreeRTOS style standard for some function names and
@@ -137,6 +137,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
  */
+ /* @[declare pkcs11_pal_saveobject] */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
@@ -191,6 +192,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
     return xHandle;
 }
+ /* @[declare pkcs11_pal_saveobject] */
 
 
 /*-----------------------------------------------------------*/
@@ -208,7 +210,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-
+/* @[declare pkcs11_pal_findobject] */
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                                         uint8_t usLength )
 {
@@ -231,7 +233,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
 
     return xHandle;
 }
-
+ /* @[declare pkcs11_pal_findobject] */
 /*-----------------------------------------------------------*/
 
 /**
@@ -257,6 +259,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
  * error.
  */
+ /* @[declare pkcs11_pal_getobjectvalue] */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                  uint8_t ** ppucData,
                                  uint32_t * pulDataSize,
@@ -359,6 +362,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     return ulReturn;
 }
+ /* @[declare pkcs11_pal_getobjectvalue] */
 
 /**
  * @brief Cleanup after PKCS11_GetObjectValue().
@@ -368,6 +372,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
  * @param[in] ulDataSize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
+ /* @[declare pkcs11_pal_getobjectvaluecleanup] */
+
 void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
                                        uint32_t ulDataSize )
 {
@@ -379,3 +385,5 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
         vPortFree( pucData );
     }
 }
+ /* @[declare pkcs11_pal_getobjectvaluecleanup] */
+

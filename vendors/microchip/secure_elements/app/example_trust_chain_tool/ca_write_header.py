@@ -4,8 +4,8 @@ from string import Template
 
 AWS_CLIENTCREDENTIAL_KEYS_TEMPLATE = Template("""
 /*
- * Amazon FreeRTOS V201906.00 Major
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V201906.00 Major
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,7 +34,7 @@ AWS_CLIENTCREDENTIAL_KEYS_TEMPLATE = Template("""
 /*
  * @brief PEM-encoded client certificate.
  *
- * @todo If you are running one of the Amazon FreeRTOS demo projects, set this
+ * @todo If you are running one of the FreeRTOS demo projects, set this
  * to the certificate that will be used for TLS client authentication.
  *
  * @note Must include the PEM header and footer:
@@ -70,7 +70,7 @@ ${jitr_certificate}
 /*
  * @brief PEM-encoded client private key.
  *
- * @todo If you are running one of the Amazon FreeRTOS demo projects, set this
+ * @todo If you are running one of the FreeRTOS demo projects, set this
  * to the private key that will be used for TLS client authentication.
  *
  * @note Must include the PEM header and footer:

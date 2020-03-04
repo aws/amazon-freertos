@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS HTTPS Client V1.1.1
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS HTTPS Client V1.1.2
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -55,7 +55,7 @@
  * This address MUST NOT start with http:// or https://.
  */
 #ifndef IOT_TEST_HTTPS_SERVER_HOST_NAME
-    #define IOT_TEST_HTTPS_SERVER_HOST_NAME    "httpbin.org"
+    #define IOT_TEST_HTTPS_SERVER_HOST_NAME    "postman-echo.com"
 #endif
 
 /**

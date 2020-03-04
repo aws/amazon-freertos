@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Utils V1.1.1
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Utils V1.1.2
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,12 @@
  * http://www.FreeRTOS.org
  */
 
-/* Amazon FreeRTOS includes. */
+/* FreeRTOS includes. */
+
+/**
+ * @file iot_pki_utils.h
+ * @brief Helper functions for PKCS #11
+ */
 #include "FreeRTOS.h"
 #include "iot_pki_utils.h"
 
@@ -36,6 +41,7 @@
 /*-----------------------------------------------------------*/
 
 /* Convert the EC signature from DER encoded to PKCS #11 format. */
+/* @[declare pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
 int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
                                            uint8_t * pxMbedSignature )
 {
@@ -106,11 +112,12 @@ int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 
     return xReturn;
 }
-
+/* @[declare pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
 /*-----------------------------------------------------------*/
 
 
 /* Convert an EC signature from PKCS #11 format to DER encoded. */
+/* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
 int PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
                                            size_t * pxSigLen )
 {
@@ -191,3 +198,4 @@ int PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
 
     return xResult;
 }
+/* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */

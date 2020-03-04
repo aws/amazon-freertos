@@ -1478,6 +1478,36 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/common_io/include/iot_i2c.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_i2c.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_uart.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_uart.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_spi.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_spi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/iot_uart.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/iot_uart.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/iot_i2c.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/iot_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/iot_spi.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/common_io/iot_spi.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS BLE V2.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS BLE V2.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -131,12 +131,11 @@ void IotBleDataTransfer_PeekReceiveBuffer( IotBleDataTransferChannel_t * pChanne
                                            size_t * pBufferLength );
 
 /**
- * @brief Close a ble data tranfer channel.
+ * @brief Close a ble data transfer channel.
  * Waits for any ongoing send operation to be complete or the timeout is reached and resets the send buffer.
  * Waits for any pending read operation to be complete and deletes the buffer. Future read will return 0 bytes.
  *
  * @param[in] pChannel Pointer to data transfer channel.
- * @return Number of bytes of data returned ( should be <= Number of bytes requested ).
  */
 void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel );
 

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  * Cypress Semiconductor Corporation. All Rights Reserved.
@@ -36,7 +36,7 @@
 
 /* For best security practice, it is recommended to utilize a random number
  * generation solution that is truly randomized and conforms to the guidelines
- * provided in the Amazon FreeRTOS Qualification Guide
+ * provided in the Device Qualification Program for FreeRTOS Guide
  * (https://docs.aws.amazon.com/freertos/latest/qualificationguide/afq-checklist.html).
  * The random number generator method presented in this file by the silicon vendor
  * is not truly random in nature. The current solution takes entropy from
@@ -44,7 +44,7 @@
  * Please contact the silicon vendor for details regarding the method implemented.
  */
 
-/* Amazon FreeRTOS Includes. */
+/* FreeRTOS Includes. */
 #include "FreeRTOS.h"
 
 /* C runtime includes. */

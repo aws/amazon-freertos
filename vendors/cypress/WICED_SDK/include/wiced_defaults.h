@@ -252,7 +252,7 @@ extern "C"
 /************************************************************************
  * Uncomment both to disable TLS completely*/
 
-/* for AmazonFreeRTOS SDK aws tls is used instead of wiced tls */
+/* for FreeRTOS SDK aws tls is used instead of wiced tls */
 #ifdef WICED_AMAZON_FREERTOS_SDK
 #define WICED_DISABLE_TLS
 #define WICED_CONFIG_DISABLE_DTLS

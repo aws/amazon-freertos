@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 V2.0.2
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 V2.0.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -53,6 +53,7 @@
 #endif
 
 
+#include "iot_test_pkcs11_globals.h"
 #include "iot_pkcs11_config.h"
 
 /* Test includes. */
@@ -65,7 +66,6 @@
 #include "mbedtls/oid.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
-
 
 typedef enum
 {
@@ -82,14 +82,21 @@ typedef enum
 /* PKCS #11 Globals.
  * These are used to reduce setup and tear down calls, and to
  * prevent memory leaks in the case of TEST_PROTECT() actions being triggered. */
-CK_SESSION_HANDLE xGlobalSession;
-CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
+CK_SESSION_HANDLE xGlobalSession = 0;
+CK_FUNCTION_LIST_PTR pxGlobalFunctionList = NULL_PTR;
+CK_SLOT_ID xGlobalSlotId = 0;
+CK_MECHANISM_TYPE xMechanismType = 0;
+CK_OBJECT_HANDLE xPublicKey = 0;
+CK_OBJECT_HANDLE xPrivateKey = 0;
+CK_OBJECT_HANDLE xKey = 0;
+CK_BBOOL xCkTrue = CK_TRUE;
+CK_BBOOL xCkFalse = CK_FALSE;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
-/* Function Prototypes. */
-CK_RV prvBeforeRunningTests( void );
-void prvAfterRunningTests_NoObject( void );
-void prvAfterRunningTests_Object( void );
+/* PKCS #11 Global Data Containers. */
+CK_BYTE rsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
+CK_BYTE ecdsaSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0x00 };
+CK_BYTE ecdsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
 
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
@@ -1143,6 +1150,11 @@ static const char cValidRSACertificate[] =
     "JRLZrLL3sfgsN7L1xu//JUoTOkgxdKuYRmPuUdV2hw/VYDzcnKj7/DMXNDvgl3s7\n"
     "5GC4F+8LFLzRrZJWs18FMLaCE+zJChw/oeSt+RS0JZDFn+uX9Q==\n"
     "-----END CERTIFICATE-----\n";
+
+void resetCredentials()
+{
+    xCurrentCredentials = eStateUnknown;
+}
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                      CK_OBJECT_HANDLE_PTR pxCertificateHandle )

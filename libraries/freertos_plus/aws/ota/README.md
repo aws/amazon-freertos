@@ -1,11 +1,11 @@
 ## Porting
-In order to support Amazon FreeRTOS Over-the-Air Updates (OTA) on your microcontroller, it is necessary to implement the Portable Application Layer (PAL). This subdirectory consists of silicon vendor names that have successfully completed and tested at least one PAL. The PAL interface is defined in lib\include\private\aws_ota_pal.h (relative to the top of the repo).
+In order to support FreeRTOS Over-the-Air Updates (OTA) on your microcontroller, it is necessary to implement the Portable Application Layer (PAL). This subdirectory consists of silicon vendor names that have successfully completed and tested at least one PAL. The PAL interface is defined in lib\include\private\aws_ota_pal.h (relative to the top of the repo).
 
 PAL interface documentation is in https://docs.aws.amazon.com/freertos/latest/userguide/porting-ota-pal.html.
 
 ## Unit Testing for an OTA PAL
 
-The first step is to complete the port of your PAL (portable layer; i.e., the interface defined by lib\include\private\aws_ota_pal.h) and confirm that it passes the OTA unit tests in AFQP (i.e., those under tests\common\ota).
+The first step is to complete the port of your PAL (portable layer; i.e., the interface defined by lib\include\private\aws_ota_pal.h) and confirm that it passes the OTA unit tests in DQP_FR (i.e., those under tests\common\ota).
 
 ## AWS IoT Device Setup
 

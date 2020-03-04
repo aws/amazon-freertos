@@ -79,7 +79,7 @@ typedef struct
     bool start;
 } gdma_config_t;
 
-#define MIN_LENGHT_VALUE 0x0001
+#define MIN_LENGTH_VALUE 0x0001
 #define MAX_LENGTH_VALUE 0x3FFFC
 #define MAX_COUNT_VALUE  0xFFFF
 

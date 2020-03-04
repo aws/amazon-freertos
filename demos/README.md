@@ -1,9 +1,9 @@
-Amazon FreeRTOS can be built utilizing a supported IDE toolchain or with cmake.  For additional instructions for each individual board, refer to the top level README for the Getting Started Guides: https://github.com/aws/amazon-freertos/blob/master/README.md
+FreeRTOS can be built utilizing a supported IDE toolchain or with cmake.  For additional instructions for each individual board, refer to the top level README for the Getting Started Guides: https://github.com/aws/amazon-freertos/blob/master/README.md
 
 
 ### Selecting a Demo
 
-There are a variety of demos available for each user to explore the functionality available within Amazon FreeRTOS.  To select which demo to enable, please follow the steps below:
+There are a variety of demos available for each user to explore the functionality available within FreeRTOS.  To select which demo to enable, please follow the steps below:
 
 1. Navigate to  ```./vendors/<VENDOR_NAME>/boards/<BOARD>/aws_demos/common/config_files```  
 2. Open ```aws_demo_config.h``` file. 

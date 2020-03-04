@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.8
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Secure Sockets V1.1.9
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -90,7 +90,7 @@ typedef struct _ss_ctx_t
 
     char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
-    uint32_t refcount;
+    uint32_t ulRefcount;
 } ss_ctx_t;
 
 /*-----------------------------------------------------------*/
@@ -160,17 +160,24 @@ static void prvSocketsClose( ss_ctx_t * ctx )
     vPortFree( ctx );
 }
 
+/*
+ * @brief Decrement ctx refcount and call release function if the count is 1 (
+ *        last user of the ctx)
+ */
 static void prvDecrementRefCount( ss_ctx_t * ctx )
 {
-    if( Atomic_Decrement_u32( &ctx->refcount ) == 1 )
+    if( Atomic_Decrement_u32( &ctx->ulRefcount ) == 1 )
     {
         prvSocketsClose( ctx );
     }
 }
 
+/*
+ * @brief Increment ctx refcount
+ */
 static void prvIncrementRefCount( ss_ctx_t * ctx )
 {
-    Atomic_Increment_u32( &ctx->refcount );
+    Atomic_Increment_u32( &ctx->ulRefcount );
 }
 
 /*
@@ -202,6 +209,8 @@ static BaseType_t prvNetworkRecv( void * pvContext,
     ss_ctx_t * ctx;
 
     ctx = ( ss_ctx_t * ) pvContext;
+
+    configASSERT( ctx->ip_socket >= 0 );
 
     int ret = lwip_recv( ctx->ip_socket,
                          pucReceiveBuffer,
@@ -263,28 +272,17 @@ static void vTaskRxSelect( void * param )
         if( ctx->state == SST_RX_CLOSING )
         {
             ctx->state = SST_RX_CLOSED;
-            /*vTaskDelete( NULL ); */
             break;
         }
 
         if( lwip_select( s + 1, &read_fds, &write_fds, &err_fds, NULL ) == -1 )
         {
-            /*TaskHandle_t rx_handle = ctx->rx_handle; */
-
-            /*ctx->rx_handle   = NULL; */
-            /*ctx->rx_callback = NULL; */
-
-            /*vTaskDelete( rx_handle ); */
-            /*vTaskDelete( NULL ); */
-            ctx->state = SST_RX_CLOSED;
             break;
         }
 
         if( FD_ISSET( s, &read_fds ) )
         {
-            /*configASSERT( ctx->rx_callback ); */
             ctx->rx_callback( ( Socket_t ) ctx );
-            /*vTaskDelay( 10 ); // delay a little bit to yield time for RX */
         }
     }
 
@@ -356,7 +354,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
         if( ctx->ip_socket >= 0 )
         {
-            ctx->refcount = 1;
+            ctx->ulRefcount = 1;
             sockets_allocated--;
             return ( Socket_t ) ctx;
         }
@@ -397,11 +395,11 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     pxAddress->ucSocketDomain = SOCKETS_AF_INET;
 
     ctx = ( ss_ctx_t * ) xSocket;
+    configASSERT( ctx->ip_socket >= 0 );
+
     struct sockaddr_in sa_addr = { 0 };
     int ret;
-
-    sa_addr.sin_family = SOCKETS_AF_INET;
-    /*sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;*/
+    sa_addr.sin_family = pxAddress->ucSocketDomain;
     sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
     sa_addr.sin_port = pxAddress->usPort;
 
@@ -487,6 +485,8 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
 
     ctx->recv_flag = ulFlags;
 
+    configASSERT( ctx->ip_socket >= 0 );
+
     if( ctx->enforce_tls )
     {
         /* Receive through TLS pipe, if negotiated. */
@@ -524,6 +524,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         return SOCKETS_ENOTCONN;
     }
 
+    configASSERT( ctx->ip_socket >= 0 );
     ctx->send_flag = ulFlags;
 
     if( ctx->enforce_tls )
@@ -552,6 +553,7 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
+    configASSERT( ctx->ip_socket >= 0 );
     ret = lwip_shutdown( ctx->ip_socket, ( int ) ulHow );
 
     if( 0 > ret )
@@ -574,10 +576,9 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
-
     ctx->state = SST_RX_CLOSING;
-    lwip_close( ctx->ip_socket );
 
+    lwip_close( ctx->ip_socket );
     prvDecrementRefCount( ctx );
 
     return SOCKETS_ERROR_NONE;
@@ -604,6 +605,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
     }
 
     ctx = ( ss_ctx_t * ) xSocket;
+
+    configASSERT( ctx->ip_socket >= 0 );
 
     switch( lOptionName )
     {

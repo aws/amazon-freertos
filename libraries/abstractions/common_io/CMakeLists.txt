@@ -26,6 +26,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        "${test_dir}/iot_test_common_io_internal.h"
         "${test_dir}/iot_test_common_io.c"
         "${test_dir}/test_iot_i2c.c"
         "${test_dir}/test_iot_uart.c"

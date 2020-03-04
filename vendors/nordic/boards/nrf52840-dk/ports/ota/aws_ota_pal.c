@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS OTA PAL V1.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS OTA PAL V1.0.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Amazon FreeRTOS include. */
+/* FreeRTOS include. */
 #include "FreeRTOS.h"
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_pal.h"
@@ -161,10 +161,17 @@ OTA_Err_t prvErasePages(size_t xFrom, size_t xTo)
         }
         else
         {
-            EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
-            if( xFlashResult & otapalFLASH_FAILURE )
+            /**
+             * If soft device is enabled, the result of sd_flash_page_erase() is posted via event, otherwise sd_flash_page_erase()
+             * is a blocking operation.
+             */
+            if( nrf_sdh_is_enabled() )
             {
-                xStatus = kOTA_Err_RxFileCreateFailed;
+                EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+                if( xFlashResult & otapalFLASH_FAILURE )
+                {
+                    xStatus = kOTA_Err_RxFileCreateFailed;
+                }
             }
         }
     }
@@ -547,12 +554,19 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
 
       if( xErrCode == NRF_SUCCESS )
       {
-          EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
-
-          if( xFlashResult & otapalFLASH_FAILURE )
+          /**
+           * If soft device is enabled, the result of sd_flash_write() is posted via event, otherwise sd_flash_write()
+           * is a blocking operation.
+           */
+          if( nrf_sdh_is_enabled() )
           {
-              xErrCode = NRF_ERROR_INTERNAL;
-              break;
+              EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+
+              if( xFlashResult & otapalFLASH_FAILURE )
+              {
+                  xErrCode = NRF_ERROR_INTERNAL;
+                  break;
+              }
           }
       }
 
