@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019, Arm Limited, All Rights Reserved
+ *  Copyright (C) 2006-2020, Arm Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -25,17 +25,17 @@
 #include "mbedtls/pk_internal.h"
 #include "mbedtls/oid.h"
 
-#define pkcs11DER_ENCODED_OID_P256_LEGNTH	19
+#define pkcs11DER_ENCODED_OID_P256_LEGNTH    19
 
 /* Get a PK algorithm identifier
  *
  *  AlgorithmIdentifier  ::=  SEQUENCE  {
- *	   algorithm			   OBJECT IDENTIFIER,
- *	   parameters			  ANY DEFINED BY algorithm OPTIONAL  }
+ *       algorithm               OBJECT IDENTIFIER,
+ *       parameters              ANY DEFINED BY algorithm OPTIONAL  }
  */
 int pk_get_pk_alg( unsigned char **p,
-						  const unsigned char *end,
-						  mbedtls_pk_type_t *pk_alg, mbedtls_asn1_buf *params );
+                          const unsigned char *end,
+                          mbedtls_pk_type_t *pk_alg, mbedtls_asn1_buf *params );
 
 /*
  * Get the content of the privateKey field of the ECPrivateKey
@@ -52,18 +52,18 @@ int pk_get_pk_alg( unsigned char **p,
  *
  */
 int get_ECPrivateKey_sequence_privatekey_sec1_der(
-									const unsigned char* key,
-									size_t keylen,
-									unsigned char **privatekeystart,
-									size_t * privatekeyderlength );
+                                    const unsigned char* key,
+                                    size_t keylen,
+                                    unsigned char **privatekeystart,
+                                    size_t * privatekeyderlength );
 
 /*
  * Get the uncompressed representation defined by SEC1 §2.3.3
  * as the content of an ECPoint.
  */
 int get_public_key_ECPoint( const unsigned char *key,
-							size_t keylen,
-							unsigned char **startaddr,
-							size_t *length );
+                            size_t keylen,
+                            unsigned char **startaddr,
+                            size_t *length );
 
 #endif /* ifndef __IOT_PKCS11_PSA_INPUT_FORMAT_H__ */
