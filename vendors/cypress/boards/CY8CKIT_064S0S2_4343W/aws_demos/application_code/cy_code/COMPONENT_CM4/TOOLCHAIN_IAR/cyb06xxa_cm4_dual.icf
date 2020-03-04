@@ -51,11 +51,11 @@ define symbol __ICFEDIT_intvec_start__ = 0x00000000;
  * where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.icf'.
  */
 /* RAM */
-define symbol __ICFEDIT_region_IRAM1_start__ = 0x08040000;
-define symbol __ICFEDIT_region_IRAM1_end__   = 0x080EA000;
+define symbol __ICFEDIT_region_IRAM1_start__ = 0x08030000;
+define symbol __ICFEDIT_region_IRAM1_end__   = 0x080E7000;
 /* Flash */
-define symbol __ICFEDIT_region_IROM1_start__ = 0x10040000;
-define symbol __ICFEDIT_region_IROM1_end__   = 0x100E8000;
+define symbol __ICFEDIT_region_IROM1_start__ = 0x10050000;
+define symbol __ICFEDIT_region_IROM1_end__   = 0x1016F800;
 
 /* The following symbols define a 32K flash region used for EEPROM emulation.
  * This region can also be used as the general purpose flash.

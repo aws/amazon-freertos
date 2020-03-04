@@ -87,7 +87,7 @@ ifeq ($(TOOLCHAIN),GCC_ARM)
 CY_BSP_POSTBUILD=arm-none-eabi-objcopy -R .cy_sflash_user_data -R .cy_toc_part2 $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_ELF);
 CY_BSP_POSTBUILD+=arm-none-eabi-objcopy -O ihex $(TFM_CM4_ELF) $(TFM_CM4_HEX);
 else ifeq ($(TOOLCHAIN),IAR)
-# TBD
+CY_BSP_POSTBUILD=${CY_CROSSPATH}/ielftool --ihex $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_HEX);
 else ifeq ($(TOOLCHAIN),ARM)
 CY_BSP_POSTBUILD=fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONFIG_DIR)/$(APPNAME).elf;
 endif
