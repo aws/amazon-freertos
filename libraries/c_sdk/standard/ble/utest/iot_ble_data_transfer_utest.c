@@ -1,20 +1,19 @@
 #include <stdbool.h>
-#include <pthread.h>
 #include <unity.h>
-#include <bt_hal_manager_types.h>
 
-
-#include "iot_ble_data_transfer.h"
-
-#include "FreeRTOS.h"
-#include "FreeRTOSConfig.h"
-#include "types/iot_platform_types.h"
-#include "iot_ble_config.h"
 
 #include "mock_iot_ble.h"
 #include "mock_iot_threads.h"
 #include "mock_iot_logging.h"
 #include "mock_portable.h"
+
+#include <bt_hal_manager_types.h>
+#include "iot_ble_data_transfer.h"
+
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "types/iot_platform_types.h"
+
 
 
 #ifndef IOT_BLE_PREFERRED_MTU_SIZE
