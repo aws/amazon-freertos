@@ -71,9 +71,9 @@ typedef enum
  */
 typedef enum
 {
-    eUartParityNone, /*!< UART parity as none. */
-    eUartParityOdd,  /*!< UART parity as odd. */
-    eUartParityEven, /*!< UART parity as even. */
+    eUartParityNone = 0, /*!< UART parity as none. */
+    eUartParityOdd = 1,  /*!< UART parity as odd. */
+    eUartParityEven = 2, /*!< UART parity as even. */
 } IotUARTParity_t;
 
 /**
@@ -81,9 +81,30 @@ typedef enum
  */
 typedef enum
 {
-    eUartStopBitsOne, /*!< UART character stop is one bit. */
-    eUartStopBitsTwo, /*!< UART character stop is two bits. */
+    eUartStopBitsOne = 0, /*!< UART character stop is one bit. */
+    eUartStopBitsTwo = 1, /*!< UART character stop is two bits. */
 } IotUARTStopBits_t;
+
+/**
+ * @brief UART word length
+ */
+typedef enum
+{
+    eUartWordLength7 = 0,
+    eUartWordLength8 = 1,
+    eUartWordLength9 = 2
+} IotUARTWordLength_t;
+
+
+/**
+ * @brief UART flow control
+ */
+typedef enum
+{
+    eUartFlowControlNone = 0,
+    eUartFlowControlRTS = 1,
+    eUartFlowControlCTS = 2
+} IotUARTFlowControl_t;
 
 /**
  * @brief The callback function for completion of UART operation.
@@ -129,11 +150,11 @@ typedef enum
  */
 typedef struct
 {
-    uint32_t ulBaudrate;         /**< The baud rate to be set for the UART port. */
-    IotUARTParity_t xParity;     /**< The parity to be set for the UART port, defined in IotUARTParity_t. */
-    IotUARTStopBits_t xStopbits; /**< The stop bits to be set for the UART port, defined in IotUARTStopBits_t. */
-    uint8_t ucWordlength;        /**< The word length to be set for the UART port. */
-    uint8_t ucFlowControl;       /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
+    uint32_t ulBaudrate;                /**< The baud rate to be set for the UART port. */
+    IotUARTParity_t xParity;            /**< The parity to be set for the UART port, defined in IotUARTParity_t. */
+    IotUARTStopBits_t xStopbits;        /**< The stop bits to be set for the UART port, defined in IotUARTStopBits_t. */
+    IotUARTWordLength_t ucWordlength;   /**< The word length to be set for the UART port. */
+    IotUARTFlowControl_t ucFlowControl; /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
 } IotUARTConfig_t;
 
 /**

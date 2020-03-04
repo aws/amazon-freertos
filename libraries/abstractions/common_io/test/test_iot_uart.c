@@ -54,8 +54,7 @@
 #define testIotUARTBUFFERSIZE                          ( 32 )
 #define testIotUART_BUFFER_LENGTH_LARGE                ( 200 )
 #define testIotUART_DELAY                              ( 1000 )
-#define testIotUART_7BIT_WORD_LENGTH                   ( 0 )
-#define testIotUART_8BIT_WORD_LENGTH                   ( 1 )
+
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
@@ -64,10 +63,6 @@
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 uint8_t uctestIotUartPort = 0; /** Default UART port for testing */
-uint32_t ultestIotUartFlowControl = 0;
-uint32_t ultestIotUartParity = 0;
-uint32_t ultestIotUartWordLength = 0;
-uint32_t ultestIotUartStopBits = 0;
 
 /*-----------------------------------------------------------*/
 /* Static Globals */
@@ -81,18 +76,18 @@ static StaticSemaphore_t xWriteSemaphoreBuffer;
 static IotUARTConfig_t xSampleConfig1 =
 {
     .ulBaudrate    = testIotUART_BAUD_RATE_FAST,
-    .ucFlowControl = 0, /* no flow control */
+    .ucFlowControl = eUartFlowControlNone,
     .xParity       = eUartParityNone,
     .xStopbits     = eUartStopBitsOne,
-    .ucWordlength  = testIotUART_7BIT_WORD_LENGTH,
+    .ucWordlength  = eUartWordLength7,
 };
 static IotUARTConfig_t xSampleConfig2 =
 {
     .ulBaudrate    = testIotUART_BAUD_RATE_SLOW,
-    .ucFlowControl = 1, /* yes flow control */
+    .ucFlowControl = eUartFlowControlRTS,
     .xParity       = eUartParityOdd,
     .xStopbits     = eUartStopBitsTwo,
-    .ucWordlength  = testIotUART_8BIT_WORD_LENGTH,
+    .ucWordlength  = eUartWordLength8,
 };
 
 

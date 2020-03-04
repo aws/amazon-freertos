@@ -63,6 +63,11 @@ typedef struct IotUARTDescriptor
 #define IOT_UART_CLOSED              ( ( uint8_t ) 0 )
 #define IOT_UART_OPENED              ( ( uint8_t ) 1 )
 
+static uint32_t xParityMap[] = { UART_PARITY_NONE, UART_PARITY_ODD, UART_PARITY_EVEN };
+static uint32_t xWordLengthMap[] = { UART_WORDLENGTH_7B, UART_WORDLENGTH_8B, UART_WORDLENGTH_9B };
+static uint32_t xStopBitsMap[] = { UART_STOPBITS_1, UART_STOPBITS_2 };
+static uint32_t xFlowControlMap[] = { UART_HWCONTROL_NONE, UART_HWCONTROL_RTS, UART_HWCONTROL_CTS };
+
 /**
  * @brief Statically initialized map of STM UART Handle for all 5 ports.
  *
@@ -247,7 +252,7 @@ IotUARTHandle_t iot_uart_open( int32_t lUartInstance )
 {
     IotUARTHandle_t xHandle = NULL;
 
-    if( ( lUartInstance >= 0 ) && ( lUartInstance < sizeof(pxUarts) / sizeof(IotUARTHandle_t) ) )
+    if( ( lUartInstance >= 0 ) && ( lUartInstance < sizeof( pxUarts ) / sizeof( IotUARTHandle_t ) ) )
     {
         xHandle = pxUarts[ lUartInstance ];
 
@@ -452,12 +457,13 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
 
                 if( HAL_UART_GetState( pxUartPeripheral->pxHuart ) == HAL_UART_STATE_READY )
                 {
-                    /* Set the user configurations on STM UART. */
-                    pxUartPeripheral->pxHuart->Init.BaudRate = ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate;
-                    pxUartPeripheral->pxHuart->Init.Parity = ( ( IotUARTConfig_t * ) pvBuffer )->xParity;
-                    pxUartPeripheral->pxHuart->Init.WordLength = ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength;
-                    pxUartPeripheral->pxHuart->Init.StopBits = ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits;
-                    pxUartPeripheral->pxHuart->Init.HwFlowCtl = ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl;
+                    IotUARTConfig_t * pConfigBuffer = ( IotUARTConfig_t * ) pvBuffer;
+
+                    pxUartPeripheral->pxHuart->Init.BaudRate = pConfigBuffer->ulBaudrate;
+                    pxUartPeripheral->pxHuart->Init.Parity = xParityMap[ pConfigBuffer->xParity ];
+                    pxUartPeripheral->pxHuart->Init.WordLength = xWordLengthMap[ pConfigBuffer->ucWordlength ];
+                    pxUartPeripheral->pxHuart->Init.StopBits = xStopBitsMap[ pConfigBuffer->xStopbits ];
+                    pxUartPeripheral->pxHuart->Init.HwFlowCtl = xFlowControlMap[ pConfigBuffer->ucFlowControl ];
 
                     if( UART_SetConfig( pxUartPeripheral->pxHuart ) == HAL_OK )
                     {
@@ -472,16 +478,71 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
                 break;
 
             case eUartGetConfig:
+               {
+                   IotUARTConfig_t * pConfigBuffer = ( IotUARTConfig_t * ) pvBuffer;
 
-                ( ( IotUARTConfig_t * ) pvBuffer )->ulBaudrate = pxUartPeripheral->pxHuart->Init.BaudRate;
-                ( ( IotUARTConfig_t * ) pvBuffer )->xParity = pxUartPeripheral->pxHuart->Init.Parity;
-                ( ( IotUARTConfig_t * ) pvBuffer )->ucWordlength = pxUartPeripheral->pxHuart->Init.WordLength;
-                ( ( IotUARTConfig_t * ) pvBuffer )->xStopbits = pxUartPeripheral->pxHuart->Init.StopBits;
-                ( ( IotUARTConfig_t * ) pvBuffer )->ucFlowControl = pxUartPeripheral->pxHuart->Init.HwFlowCtl;
+                   pConfigBuffer->ulBaudrate = pxUartPeripheral->pxHuart->Init.BaudRate;
 
-                lError = IOT_UART_SUCCESS;
+                   switch( pxUartPeripheral->pxHuart->Init.Parity )
+                   {
+                       case UART_PARITY_NONE:
+                           pConfigBuffer->xParity = eUartParityNone;
+                           break;
 
-                break;
+                       case UART_PARITY_ODD:
+                           pConfigBuffer->xParity = eUartParityOdd;
+                           break;
+
+                       case UART_PARITY_EVEN:
+                           pConfigBuffer->xParity = eUartParityEven;
+                           break;
+                   }
+
+                   switch( pxUartPeripheral->pxHuart->Init.WordLength )
+                   {
+                       case UART_WORDLENGTH_7B:
+                           pConfigBuffer->ucWordlength = eUartWordLength7;
+                           break;
+
+                       case UART_WORDLENGTH_8B:
+                           pConfigBuffer->ucWordlength = eUartWordLength8;
+                           break;
+
+                       case UART_WORDLENGTH_9B:
+                           pConfigBuffer->ucWordlength = eUartWordLength9;
+                           break;
+                   }
+
+                   switch( pxUartPeripheral->pxHuart->Init.StopBits )
+                   {
+                       case UART_STOPBITS_1:
+                           pConfigBuffer->xStopbits = eUartStopBitsOne;
+                           break;
+
+                       case UART_STOPBITS_2:
+                           pConfigBuffer->xStopbits = eUartStopBitsTwo;
+                           break;
+                   }
+
+                   switch( pxUartPeripheral->pxHuart->Init.HwFlowCtl )
+                   {
+                       case UART_HWCONTROL_NONE:
+                           pConfigBuffer->ucFlowControl = eUartFlowControlNone;
+                           break;
+
+                       case UART_HWCONTROL_RTS:
+                           pConfigBuffer->ucFlowControl = eUartFlowControlRTS;
+                           break;
+
+                       case UART_HWCONTROL_CTS:
+                           pConfigBuffer->ucFlowControl = eUartFlowControlCTS;
+                           break;
+                   }
+
+                   lError = IOT_UART_SUCCESS;
+
+                   break;
+               }
 
             case eGetTxNoOfbytes:
 
