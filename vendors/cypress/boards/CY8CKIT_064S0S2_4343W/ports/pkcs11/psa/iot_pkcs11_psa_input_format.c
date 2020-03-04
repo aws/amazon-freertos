@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006-2019, Arm Limited, All Rights Reserved
+ *  Copyright (C) 2006-2020, Arm Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -27,35 +27,35 @@
 /* Get a PK algorithm identifier
  *
  *  AlgorithmIdentifier  ::=  SEQUENCE  {
- *	   algorithm			   OBJECT IDENTIFIER,
- *	   parameters			  ANY DEFINED BY algorithm OPTIONAL  }
+ *       algorithm               OBJECT IDENTIFIER,
+ *       parameters              ANY DEFINED BY algorithm OPTIONAL  }
  */
 int pk_get_pk_alg( unsigned char **p,
-						  const unsigned char *end,
-						  mbedtls_pk_type_t *pk_alg, mbedtls_asn1_buf *params )
+                          const unsigned char *end,
+                          mbedtls_pk_type_t *pk_alg, mbedtls_asn1_buf *params )
 {
-	int ret;
-	mbedtls_asn1_buf alg_oid;
+    int ret;
+    mbedtls_asn1_buf alg_oid;
 
-	memset( params, 0, sizeof(mbedtls_asn1_buf) );
+    memset( params, 0, sizeof(mbedtls_asn1_buf) );
 
-	if( ( ret = mbedtls_asn1_get_alg( p, end, &alg_oid, params ) ) != 0 )
-		return( MBEDTLS_ERR_PK_INVALID_ALG + ret );
+    if( ( ret = mbedtls_asn1_get_alg( p, end, &alg_oid, params ) ) != 0 )
+        return( MBEDTLS_ERR_PK_INVALID_ALG + ret );
 
-	if( mbedtls_oid_get_pk_alg( &alg_oid, pk_alg ) != 0 )
-		return( MBEDTLS_ERR_PK_UNKNOWN_PK_ALG );
+    if( mbedtls_oid_get_pk_alg( &alg_oid, pk_alg ) != 0 )
+        return( MBEDTLS_ERR_PK_UNKNOWN_PK_ALG );
 
-	/*
-	 * No parameters with RSA (only for EC)
-	 */
-	if( *pk_alg == MBEDTLS_PK_RSA &&
-			( ( params->tag != MBEDTLS_ASN1_NULL && params->tag != 0 ) ||
-				params->len != 0 ) )
-	{
-		return( MBEDTLS_ERR_PK_INVALID_ALG );
-	}
+    /*
+     * No parameters with RSA (only for EC)
+     */
+    if( *pk_alg == MBEDTLS_PK_RSA &&
+            ( ( params->tag != MBEDTLS_ASN1_NULL && params->tag != 0 ) ||
+                params->len != 0 ) )
+    {
+        return( MBEDTLS_ERR_PK_INVALID_ALG );
+    }
 
-	return( 0 );
+    return( 0 );
 }
 
 /*
@@ -73,50 +73,50 @@ int pk_get_pk_alg( unsigned char **p,
  *
  */
 int get_ECPrivateKey_sequence_privatekey_sec1_der(
-									const unsigned char* key,
-									size_t keylen,
-									unsigned char **privatekeystart,
-									size_t * privatekeyderlength )
+                                    const unsigned char* key,
+                                    size_t keylen,
+                                    unsigned char **privatekeystart,
+                                    size_t * privatekeyderlength )
 {
-	int ret;
-	int version;
-	size_t len;
-	unsigned char *p = (unsigned char *) key;
-	unsigned char *end = p + keylen;
+    int ret;
+    int version;
+    size_t len;
+    unsigned char *p = (unsigned char *) key;
+    unsigned char *end = p + keylen;
 
-	/*
-	 * RFC 5915, or SEC1 Appendix C.4
-	 *
-	 * ECPrivateKey ::= SEQUENCE {
-	 *	  version		INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
-	 *	  privateKey	 OCTET STRING,
-	 *	  parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
-	 *	  publicKey  [1] BIT STRING OPTIONAL
-	 *	}
-	 */
-	if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-			MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
-	{
-		return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
-	}
+    /*
+     * RFC 5915, or SEC1 Appendix C.4
+     *
+     * ECPrivateKey ::= SEQUENCE {
+     *      version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
+     *      privateKey     OCTET STRING,
+     *      parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
+     *      publicKey  [1] BIT STRING OPTIONAL
+     *    }
+     */
+    if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
+            MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+    {
+        return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
+    }
 
-	end = p + len;
+    end = p + len;
 
-	if( ( ret = mbedtls_asn1_get_int( &p, end, &version ) ) != 0 )
-		return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
+    if( ( ret = mbedtls_asn1_get_int( &p, end, &version ) ) != 0 )
+        return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
 
-	if( version != 1 )
-		return( MBEDTLS_ERR_PK_KEY_INVALID_VERSION );
+    if( version != 1 )
+        return( MBEDTLS_ERR_PK_KEY_INVALID_VERSION );
 
-	if( ( ret = mbedtls_asn1_get_tag( &p, end, &len, MBEDTLS_ASN1_OCTET_STRING ) ) != 0 )
-		return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
+    if( ( ret = mbedtls_asn1_get_tag( &p, end, &len, MBEDTLS_ASN1_OCTET_STRING ) ) != 0 )
+        return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
 
-	/*
-		* Finally get the start address of privatekey and its length.
-		*/
-	*privatekeystart = p;
-	*privatekeyderlength = len;
-	return 0;
+    /*
+        * Finally get the start address of privatekey and its length.
+        */
+    *privatekeystart = p;
+    *privatekeyderlength = len;
+    return 0;
 }
 
 /*
@@ -124,42 +124,42 @@ int get_ECPrivateKey_sequence_privatekey_sec1_der(
  * as the content of an ECPoint.
  */
 int get_public_key_ECPoint( const unsigned char *key,
-							size_t keylen,
-							unsigned char **startaddr,
-							size_t *length )
+                            size_t keylen,
+                            unsigned char **startaddr,
+                            size_t *length )
 {
-	int ret;
-	size_t len;
-	mbedtls_asn1_buf alg_params;
-	mbedtls_pk_type_t pk_alg = MBEDTLS_PK_NONE;
-	unsigned char *p = (unsigned char *) key;
-	const unsigned char *end = key + keylen;
+    int ret;
+    size_t len;
+    mbedtls_asn1_buf alg_params;
+    mbedtls_pk_type_t pk_alg = MBEDTLS_PK_NONE;
+    unsigned char *p = (unsigned char *) key;
+    const unsigned char *end = key + keylen;
 
-	if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
-					MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
-	{
-		return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
-	}
+    if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
+                    MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
+    {
+        return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
+    }
 
-	end = p + len;
+    end = p + len;
 
-	if( ( ret = pk_get_pk_alg( &p, end, &pk_alg, &alg_params ) ) != 0 )
-		return( ret );
+    if( ( ret = pk_get_pk_alg( &p, end, &pk_alg, &alg_params ) ) != 0 )
+        return( ret );
 
-	if( ( ret = mbedtls_asn1_get_bitstring_null( &p, end, &len ) ) != 0 )
-		return( MBEDTLS_ERR_PK_INVALID_PUBKEY + ret );
+    if( ( ret = mbedtls_asn1_get_bitstring_null( &p, end, &len ) ) != 0 )
+        return( MBEDTLS_ERR_PK_INVALID_PUBKEY + ret );
 
-	if( p + len != end )
-		return( MBEDTLS_ERR_PK_INVALID_PUBKEY +
-				MBEDTLS_ERR_ASN1_LENGTH_MISMATCH );
+    if( p + len != end )
+        return( MBEDTLS_ERR_PK_INVALID_PUBKEY +
+                MBEDTLS_ERR_ASN1_LENGTH_MISMATCH );
 
-	/**
-	 * Get the start address of public key and its length.
-	 */
-	if( pk_alg == MBEDTLS_PK_ECKEY_DH || pk_alg == MBEDTLS_PK_ECKEY )
-	{
-		*startaddr = p;
-		*length = end - p;
-	}
-	return 0;
+    /**
+     * Get the start address of public key and its length.
+     */
+    if( pk_alg == MBEDTLS_PK_ECKEY_DH || pk_alg == MBEDTLS_PK_ECKEY )
+    {
+        *startaddr = p;
+        *length = end - p;
+    }
+    return 0;
 }
