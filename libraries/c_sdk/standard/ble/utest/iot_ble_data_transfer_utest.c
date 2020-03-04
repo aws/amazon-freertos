@@ -147,10 +147,10 @@ bool is_connected()
 
 
 void generate_client_write_event( uint8_t service_id,
-                                         IotBleDataTransferAttributes_t attr,
-                                         uint8_t * msg,
-                                         uint32_t len,
-                                         bool response_required)
+                                  IotBleDataTransferAttributes_t attr,
+                                  uint8_t * msg,
+                                  uint32_t len,
+                                  bool response_required )
 {
     LOTServiceVariantTracker_t * service_variant = get_service_tracker_from_short_id( service_id );
 
@@ -179,7 +179,7 @@ void generate_client_write_event( uint8_t service_id,
 }
 
 void generate_client_read_event( uint8_t service_id,
-                                        IotBleDataTransferAttributes_t attr )
+                                 IotBleDataTransferAttributes_t attr )
 {
     LOTServiceVariantTracker_t * service_variant = get_service_tracker_from_short_id( service_id );
 
@@ -211,16 +211,17 @@ void generate_client_read_event( uint8_t service_id,
 void generate_client_ready_event( uint8_t service )
 {
     uint8_t client_ready = true;
-    generate_client_write_event( service, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &client_ready, 1 , false);
+
+    generate_client_write_event( service, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &client_ready, 1, false );
 }
 
-void generate_connect_event(BTStatus_t status)
+void generate_connect_event( BTStatus_t status )
 {
     TEST_ASSERT_MESSAGE( lot_service.connection_callback, "Event can't be tied to unregistered callback" )
     lot_service.connection_callback( status, 0, true, NULL );
 }
 
-void generate_disconnect_event(BTStatus_t status)
+void generate_disconnect_event( BTStatus_t status )
 {
     TEST_ASSERT_MESSAGE( lot_service.connection_callback, "Event can't be tied to unregistered callback" )
     lot_service.connection_callback( status, 0, false, NULL );
@@ -235,48 +236,57 @@ void generate_mtu_changed_event( size_t new_mtu )
 /*
  * Passes an out of range attr handle through server callback assigned for attr arg
  */
-void generate_event_with_bad_handle(uint8_t service_id, IotBleDataTransferAttributes_t attr, bool is_read)
+void generate_event_with_bad_handle( uint8_t service_id,
+                                     IotBleDataTransferAttributes_t attr,
+                                     bool is_read )
 {
-
     LOTServiceVariantTracker_t * service_tracker = get_service_tracker_from_short_id( service_id );
     IotBleAttributeEvent_t event;
-    if (is_read) {
-        IotBleReadEventParams_t read_params = {
-                .connId        = 0,
-                .transId       = 0,
-                .pRemoteBdAddr = 0,
-                .attrHandle    = 0,
-                .offset        = 0
+
+    if( is_read )
+    {
+        IotBleReadEventParams_t read_params =
+        {
+            .connId        = 0,
+            .transId       = 0,
+            .pRemoteBdAddr = 0,
+            .attrHandle    = 0,
+            .offset        = 0
         };
 
         event.pParamRead = &read_params;
         event.xEventType = eBLERead;
-    } else {
+    }
+    else
+    {
         uint8_t dummy = 0xAA;
-        IotBleWriteEventParams_t write_params = {
-                .transId = 0,
-                .pRemoteBdAddr = 0,
-                .pValue = &dummy,
-                .length = 1,
-                .connId = 0,
-                .attrHandle = 0,
-                .offset = 0,
-                .needRsp = 0,
-                .isPrep = 0
+        IotBleWriteEventParams_t write_params =
+        {
+            .transId       = 0,
+            .pRemoteBdAddr = 0,
+            .pValue        = &dummy,
+            .length        = 1,
+            .connId        = 0,
+            .attrHandle    = 0,
+            .offset        = 0,
+            .needRsp       = 0,
+            .isPrep        = 0
         };
 
         event.pParamWrite = &write_params;
-        event.xEventType  = eBLEWrite;
+        event.xEventType = eBLEWrite;
     }
 
     IotBleAttributeEventCallback_t callback = service_tracker->attr_callbacks[ attr ];
     callback( &event );
 }
 
-void generate_event_with_bad_type(uint8_t service_id, IotBleDataTransferAttributes_t attr)
+void generate_event_with_bad_type( uint8_t service_id,
+                                   IotBleDataTransferAttributes_t attr )
 {
     LOTServiceVariantTracker_t * service_tracker = get_service_tracker_from_short_id( service_id );
     IotBleAttributeEvent_t event;
+
     event.xEventType = -1;
     IotBleAttributeEventCallback_t callback = service_tracker->attr_callbacks[ attr ];
     callback( &event );
@@ -291,9 +301,9 @@ IotBleDataTransferChannel_t * get_open_channel( uint16_t service_variant )
     channel = IotBleDataTransfer_Open( service_variant );
 
     TEST_ASSERT_MESSAGE( channel != NULL, "Failed to attain valid channel. Testing requires a some LOT"
-                                                            "variant enabled. Variants:\n"
-                                                            "    IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT\n"
-                                                            "    IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONINGT" );
+                                          "variant enabled. Variants:\n"
+                                          "    IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT\n"
+                                          "    IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONINGT" );
 
     return channel;
 }
@@ -331,21 +341,21 @@ static void channel_callback( IotBleDataTransferChannelEvent_t event,
  * Unity Callbacks
  ******************************************************************************/
 bool IotSemaphore_Create_Callback( IotSemaphore_t * pNewSemaphore,
-                                          uint32_t initialValue,
-                                          uint32_t maxValue,
-                                          int n_calls )
+                                   uint32_t initialValue,
+                                   uint32_t maxValue,
+                                   int n_calls )
 {
     return true;
 }
 
 
 void IotSemaphore_Post_Callback( IotSemaphore_t * pSemaphore,
-                                        int n_calls )
+                                 int n_calls )
 {
 }
 
 void IotSemaphore_Destroy_Callback( IotSemaphore_t * pSemaphore,
-                                           int n_calls )
+                                    int n_calls )
 {
 }
 
@@ -522,6 +532,7 @@ void test_IotBleDataTransfer_Init_HappyPath( void )
 void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 {
     bool ret = false;
+
     IotBle_RegisterEventCb_Stub( NULL );
 
     IotBle_RegisterEventCb_ExpectAnyArgsAndReturn( eBTStatusFail );
@@ -542,6 +553,7 @@ void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 void test_IotBleDataTransfer_Init_WithFailedSemaphoreCreations( void )
 {
     bool ret = false;
+
     IotSemaphore_Create_Stub( NULL );
 
     IotSemaphore_Create_IgnoreAndReturn( false ); /* Can be called variably, depending on # of services */
@@ -557,17 +569,20 @@ void test_IotBleDataTransfer_Init_WithFailedSemaphoreCreations( void )
 void test_IotBleDataTransfer_WithFailedServiceCreation( void )
 {
     bool ret = false;
+
     IotBle_CreateService_Stub( NULL );
 
     IotBle_CreateService_ExpectAnyArgsAndReturn( eBTStatusFail );
     ret = IotBleDataTransfer_Init();
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE( ret );
 
     IotBle_CreateService_Stub( IotBle_CreateService_Callback );
 }
+
 /*******************************************************************************
  * IotBleDataTransfer_Open
  ******************************************************************************/
+
 /*
  * Happy path for opening a service. Then try to reopen it again
  */
@@ -575,6 +590,7 @@ void test_IotBleDataTransfer_Open_HappyPathWithAttemptToReopen( void )
 {
     uint8_t service_variant = -1;
     IotBleDataTransferChannel_t * channel = NULL;
+
     init_transfers();
 
     #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
@@ -586,12 +602,12 @@ void test_IotBleDataTransfer_Open_HappyPathWithAttemptToReopen( void )
         #endif
     #endif
 
-    channel = IotBleDataTransfer_Open(service_variant);
-    TEST_ASSERT(channel);
+    channel = IotBleDataTransfer_Open( service_variant );
+    TEST_ASSERT( channel );
 
-    // Exercise attempt to reopen
-    IotBleDataTransferChannel_t * reopened_channel = IotBleDataTransfer_Open(service_variant);
-    TEST_ASSERT(reopened_channel == NULL);
+    /* Exercise attempt to reopen */
+    IotBleDataTransferChannel_t * reopened_channel = IotBleDataTransfer_Open( service_variant );
+    TEST_ASSERT( reopened_channel == NULL );
 }
 
 /*
@@ -599,9 +615,11 @@ void test_IotBleDataTransfer_Open_HappyPathWithAttemptToReopen( void )
  */
 void test_IotBleDataTransfer_Open_WithServiceDNE( void )
 {
-    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open(-1);
-    TEST_ASSERT(pChannel == NULL);
+    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open( -1 );
+
+    TEST_ASSERT( pChannel == NULL );
 }
+
 /*******************************************************************************
  * IotBleDataTransfer_SetCallback
  ******************************************************************************/
@@ -628,26 +646,27 @@ void test_IotBleDataTransfer_SetCallback_WithEachFailBranch( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
     bool ret = false;
+
     init_transfers();
 
     ret = IotBleDataTransfer_SetCallback( NULL, channel_callback, NULL );
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE( ret );
 
-    IotBleDataTransferChannel_t *pChannel = IotBleDataTransfer_Open(service_variant);
-    IotBleDataTransfer_Reset(pChannel);
+    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open( service_variant );
+    IotBleDataTransfer_Reset( pChannel );
     ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE( ret );
 
     init_transfers();
-    pChannel = get_open_channel(service_variant);
+    pChannel = get_open_channel( service_variant );
     ret = IotBleDataTransfer_SetCallback( pChannel, NULL, NULL );
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE( ret );
 
     init_transfers();
-    pChannel = get_open_channel(service_variant);
+    pChannel = get_open_channel( service_variant );
     ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
     ret = IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
-    TEST_ASSERT_FALSE(ret);
+    TEST_ASSERT_FALSE( ret );
 }
 
 /*******************************************************************************
@@ -675,8 +694,8 @@ void test_IotBleDataTransfer_Send_HappyPath( void )
     n_sent = IotBleDataTransfer_Send( pChannel, msg, sizeof( msg ) );
     TEST_ASSERT_MESSAGE( n_sent == sizeof( msg ), "Did not send all expected bytes" );
 
-    uint8_t full_msg[get_max_data_len()];
-    memset(full_msg, 0xDC, sizeof(full_msg));
+    uint8_t full_msg[ get_max_data_len() ];
+    memset( full_msg, 0xDC, sizeof( full_msg ) );
     IotBle_SendIndication_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     n_sent = IotBleDataTransfer_Send( pChannel, full_msg, sizeof( full_msg ) );
     TEST_ASSERT_MESSAGE( n_sent == sizeof( full_msg ), "Did not send all expected bytes" );
@@ -767,7 +786,6 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMUT_WithFailedRealloc( void )
     n_sent = IotBleDataTransfer_Send( pChannel, msg, sizeof( msg ) );
     TEST_ASSERT( n_sent == get_max_data_len() );
     pvPortMalloc_Stub( pvPortMalloc_Callback );
-
 }
 
 /*
@@ -820,18 +838,19 @@ void test_IotBleDataTransfer_Send_WithChannelDNE( void )
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
     init_transfers();
-    IotBleDataTransferChannel_t *pChannel = IotBleDataTransfer_Open( service_variant );
+    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open( service_variant );
 
-    IotBleDataTransfer_Send(NULL, NULL, 0);
-    TEST_ASSERT(n_sent == 0);
+    IotBleDataTransfer_Send( NULL, NULL, 0 );
+    TEST_ASSERT( n_sent == 0 );
 
-    IotBleDataTransfer_Send(pChannel, NULL, 0);
-    TEST_ASSERT(n_sent == 0);
+    IotBleDataTransfer_Send( pChannel, NULL, 0 );
+    TEST_ASSERT( n_sent == 0 );
 }
 
 /*******************************************************************************
  * IotBleDataTransfer_Receive
  ******************************************************************************/
+
 /*
  * Happy path making sure that
  */
@@ -845,7 +864,7 @@ void test_IotBleDataTransfer_Receive_HappyPath( void )
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t msg_out[] = "Test data from fake client";
     uint8_t msg_out_size = sizeof( msg_out );
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg_out, msg_out_size, true);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg_out, msg_out_size, true );
 
     uint8_t msg_in[ sizeof( msg_out ) ] = { 0 };
     uint8_t msg_in_size = IotBleDataTransfer_Receive( pChannel, msg_in, msg_out_size );
@@ -876,8 +895,8 @@ void test_IotBleDataTransfer_Receive_LessThanRequested( void )
     TEST_ASSERT( msg_in_size == requested_in_size );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( msg_out, msg_in, requested_in_size );
 
-    msg_in_size = IotBleDataTransfer_Receive(pChannel, NULL, msg_out_size);
-    TEST_ASSERT(msg_in_size == remaining_in_size);
+    msg_in_size = IotBleDataTransfer_Receive( pChannel, NULL, msg_out_size );
+    TEST_ASSERT( msg_in_size == remaining_in_size );
 }
 
 /*******************************************************************************
@@ -930,6 +949,7 @@ void test_IotBleDataTransfer_PeekReceiveBuffer_FlushBuffer( void )
 /*******************************************************************************
  * IotBleDataTransfer_Close
  ******************************************************************************/
+
 /*
  * Happy path
  */
@@ -945,6 +965,7 @@ void test_IotBleDataTransfer_Close_HappyPath( void )
 /*******************************************************************************
  * IotBleDataTransfer_Reset
  ******************************************************************************/
+
 /*
  * Happy path
  */
@@ -960,6 +981,7 @@ void test_IotBleDataTransfer_Reset_HappyPath( void )
 /*******************************************************************************
  * IotBleDataTransfer_Cleanup
  ******************************************************************************/
+
 /*
  * Happy path
  */
@@ -1019,6 +1041,7 @@ void test_IotBleDataTransfer_Cleanup_WithFailedServiceDeletion( void )
 /*******************************************************************************
  * Internal Callback Exercises
  ******************************************************************************/
+
 /*
  * Generate the connect/disconnect event to exercise internal callback for connection events
  */
@@ -1032,10 +1055,10 @@ void test_connectionCallback_HappyPath( void )
     TEST_ASSERT( ret );
 
 
-    generate_connect_event(eBTStatusSuccess);
-    generate_disconnect_event(eBTStatusSuccess);
+    generate_connect_event( eBTStatusSuccess );
+    generate_disconnect_event( eBTStatusSuccess );
 
-    generate_connect_event(eBTStatusFail);
+    generate_connect_event( eBTStatusFail );
 }
 
 /*
@@ -1062,6 +1085,7 @@ void test_MTUChangedCallback_HappyPath( void )
 void test_TXMesgCharCallback_HappyPath( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
@@ -1152,27 +1176,29 @@ void test_TXLargeMesgCharCallback_WithUnreadyClient( void )
 void test_TXLargeMesgCharCallback_WithMalroutedEvent( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     LOTServiceVariantTracker_t * service_tracker = get_service_tracker_from_short_id( service_variant );
     uint8_t dummy = 0xAA;
-    IotBleWriteEventParams_t write_params = {
-            .transId = 0,
-            .pRemoteBdAddr = 0,
-            .pValue = &dummy,
-            .length = 1,
-            .connId = 0,
-            .attrHandle = 0,
-            .offset = 0,
-            .needRsp = 0,
-            .isPrep = 0
+    IotBleWriteEventParams_t write_params =
+    {
+        .transId       = 0,
+        .pRemoteBdAddr = 0,
+        .pValue        = &dummy,
+        .length        = 1,
+        .connId        = 0,
+        .attrHandle    = 0,
+        .offset        = 0,
+        .needRsp       = 0,
+        .isPrep        = 0
     };
 
     IotBleAttributeEvent_t event =
-            {
-                .pParamWrite = &write_params,
-                .xEventType = -1
-            };
+    {
+        .pParamWrite = &write_params,
+        .xEventType  = -1
+    };
 
     IotBleAttributeEventCallback_t callback = service_tracker->attr_callbacks[ IOT_BLE_DATA_TRANSFER_TX_CHAR ];
     callback( &event );
@@ -1207,7 +1233,7 @@ void test_RXMesgCharCallback_LargerThanCurrentMTU( void )
 
     init_transfers();
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
-    TEST_ASSERT(pChannel);
+    TEST_ASSERT( pChannel );
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t msg[ 4 * get_max_data_len() ];
@@ -1223,6 +1249,7 @@ void test_RXMesgCharCallback_LargerThanCurrentMTU( void )
 void test_RXMesgCharCallback_WithCloseChannel( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     uint8_t msg[] = "This is test data";
@@ -1234,16 +1261,16 @@ void test_RXMesgCharCallback_WithCloseChannel( void )
  */
 void test_RXLargeMesgCharCallback_FirstMessageLargerThanMTU( void )
 {
-        const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
-        init_transfers();
-        IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
-        TEST_ASSERT(pChannel);
+    init_transfers();
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    TEST_ASSERT( pChannel );
 
-        IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
-        uint8_t msg[ 2 * IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE ];
-        memset( msg, 0xDC, sizeof( msg ) );
-        generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true);
+    IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    uint8_t msg[ 2 * IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE ];
+    memset( msg, 0xDC, sizeof( msg ) );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
 }
 
 /*
@@ -1260,7 +1287,7 @@ void test_RXLargeMesgCharCallback_HappyPath( void )
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t msg[ get_max_data_len() / 2 ];
     memset( msg, 0xDC, sizeof( msg ) );
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
 }
 
 
@@ -1274,7 +1301,7 @@ void test_RXLargeMesgCharCallback_WithRealloc( void )
 
     init_transfers();
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
-    TEST_ASSERT(pChannel);
+    TEST_ASSERT( pChannel );
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
@@ -1282,7 +1309,7 @@ void test_RXLargeMesgCharCallback_WithRealloc( void )
     memset( msg, 0xDC, sizeof( msg ) );
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
     memset( msg, ~0xDC, sizeof( msg ) );
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
 }
 
 /*
@@ -1293,8 +1320,8 @@ void test_RXLargeMesgCharCallback_WithReallocFail( void )
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
     init_transfers();
-    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
-    TEST_ASSERT(pChannel);
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    TEST_ASSERT( pChannel );
 
     pvPortMalloc_Stub( NULL );
     pvPortMalloc_ExpectAnyArgsAndReturn( NULL );
@@ -1302,8 +1329,8 @@ void test_RXLargeMesgCharCallback_WithReallocFail( void )
     pvPortMalloc_ExpectAnyArgsAndReturn( NULL );
     uint8_t msg[ 2 * get_max_data_len() ];
     memset( msg, ~0xDC, sizeof( msg ) );
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ) , true);
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ) , false);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), false );
     pvPortMalloc_Stub( pvPortMalloc_Callback );
 }
 
@@ -1316,13 +1343,12 @@ void test_RXLargeMesgCharCallback_WithServiceDNE( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
-    IotBle_SendResponse_ExpectAnyArgsAndReturn(eBTStatusSuccess);
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, true);
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false);
+    IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false );
 
     init_transfers();
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false);
-
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false );
 }
 
 /*
@@ -1331,12 +1357,13 @@ void test_RXLargeMesgCharCallback_WithServiceDNE( void )
 void test_clientCharCfgDescrCallback_HappyWrite( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t config[ 2 ] = { 0 };
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) , true );
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) , false );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ), true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ), false );
 }
 
 /*
@@ -1345,11 +1372,12 @@ void test_clientCharCfgDescrCallback_HappyWrite( void )
 void test_clientCharCfgDescrCallback_WithExcessiveData( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t config[ 4 ] = { 0 };
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ) , true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ), true );
 }
 
 /*
@@ -1358,6 +1386,7 @@ void test_clientCharCfgDescrCallback_WithExcessiveData( void )
 void test_clientCharCfgDescrCallback_HappyRead( void )
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
@@ -1370,6 +1399,7 @@ void test_clientCharCfgDescrCallback_HappyRead( void )
 void test_ControlCharCallback_HappyWrite()
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
@@ -1377,8 +1407,8 @@ void test_ControlCharCallback_HappyWrite()
 
     IotBle_SendResponse_ExpectAnyArgsAndReturn( eBTStatusSuccess );
     uint8_t config[ 2 ] = { 0xDC, 0xDC };
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, config, sizeof( config ), true);
-    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, config, sizeof( config ), false);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, config, sizeof( config ), true );
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, config, sizeof( config ), false );
 }
 
 /*
@@ -1387,6 +1417,7 @@ void test_ControlCharCallback_HappyWrite()
 void test_ControlCharCallback_HappyRead()
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
@@ -1397,26 +1428,26 @@ void test_ControlCharCallback_HappyRead()
 }
 
 /*
-* Write when channel isn't ready
-*/
+ * Write when channel isn't ready
+ */
 void test_ControlCharCallback_WithUnreadyChannel()
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
-    // Install callback to unready channel
-    IotBleDataTransferChannel_t *pChannel = IotBleDataTransfer_Open(service_variant);
+    /* Install callback to unready channel */
+    IotBleDataTransferChannel_t * pChannel = IotBleDataTransfer_Open( service_variant );
     IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
-    TEST_ASSERT(pChannel);
+    TEST_ASSERT( pChannel );
 
-    // Write with valid handle but channel is not ready, then try again when it is
+    /* Write with valid handle but channel is not ready, then try again when it is */
     uint8_t ready = 0;
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false);
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false );
 
-    // Now write when ready
+    /* Now write when ready */
     ready = 1;
-    generate_client_write_event(service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false);
-
+    generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, &ready, 1, false );
 }
 
 
@@ -1426,15 +1457,17 @@ void test_ControlCharCallback_WithUnreadyChannel()
 void test_ServerCallbacks_With_MalroutedEvents()
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
-    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
-    TEST_ASSERT(pChannel);
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    TEST_ASSERT( pChannel );
 
-    for (IotBleDataTransferAttributes_t attr=IOT_BLE_DATA_TRANSFER_CONTROL_CHAR;
-            attr < IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
-            attr++) {
-        generate_event_with_bad_type(service_variant, attr);
+    for( IotBleDataTransferAttributes_t attr = IOT_BLE_DATA_TRANSFER_CONTROL_CHAR;
+         attr < IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
+         attr++ )
+    {
+        generate_event_with_bad_type( service_variant, attr );
     }
 }
 
@@ -1444,17 +1477,20 @@ void test_ServerCallbacks_With_MalroutedEvents()
 void test_ServerCallbacks_With_BadAttrHandles()
 {
     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
     init_transfers();
 
-    IotBleDataTransferChannel_t *pChannel = get_open_channel(service_variant);
-    TEST_ASSERT(pChannel);
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    TEST_ASSERT( pChannel );
 
 
-    IotBle_SendResponse_IgnoreAndReturn(eBTStatusSuccess);
-    for (IotBleDataTransferAttributes_t attr=IOT_BLE_DATA_TRANSFER_CONTROL_CHAR;
-            attr < IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
-            attr++) {
-        generate_event_with_bad_handle(service_variant, attr, true);
-        generate_event_with_bad_handle(service_variant, attr, false);
+    IotBle_SendResponse_IgnoreAndReturn( eBTStatusSuccess );
+
+    for( IotBleDataTransferAttributes_t attr = IOT_BLE_DATA_TRANSFER_CONTROL_CHAR;
+         attr < IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
+         attr++ )
+    {
+        generate_event_with_bad_handle( service_variant, attr, true );
+        generate_event_with_bad_handle( service_variant, attr, false );
     }
 }
