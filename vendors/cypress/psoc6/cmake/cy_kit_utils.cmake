@@ -401,14 +401,14 @@ function(cy_kit_generate)
 
     if(CY_TFM_PSA)
         # Link to AFR::pkcs11_psa use implementation based on TF-M PSA.
-	target_sources(
-	    AFR::pkcs11_implementation::mcu_port
-	    INTERFACE
-		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
-		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
-		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
-		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
-		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
+        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
+        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
+        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
+        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
         )
     else()
         # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
@@ -714,9 +714,9 @@ function(cy_kit_generate)
             endif()
 
             # Workaround the signing issue by removing the sFlash sections
-	    add_custom_command(
-	        TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-	        COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
+            add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+            COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
             )
             # Generate HEX file
             add_custom_command(
@@ -734,7 +734,18 @@ function(cy_kit_generate)
                 TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
                 COMMAND ${FROMELF_TOOL} --i32 --output="${CY_CM4_IMG}" "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf"
             )
-	else()
+        elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+        find_program(FROMELF_TOOL ielftool)
+            if(NOT FROMELF_TOOL )
+                message(FATAL_ERROR "Cannot find ielftool tool")
+            endif()
+
+            # Generate HEX file
+            add_custom_command(
+                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                COMMAND ${FROMELF_TOOL} --ihex "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_CM4_IMG}"
+            )
+        else()
             message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")
         endif()
 
