@@ -40,7 +40,6 @@ target_compile_definitions(iot_ble_data_transfer_mock PUBLIC
 add_dependencies(iot_ble_data_transfer_mock
                  cmock
                  unity
-                 utils
                 )
 
 # Real libraries
@@ -77,7 +76,6 @@ target_link_libraries(iot_ble_data_transfer_real PUBLIC
 list(APPEND link_list
         -liot_ble_data_transfer_mock
         libiot_ble_data_transfer_real.a
-        libutils.a
         )
 list(APPEND dep_list
         iot_ble_data_transfer_real
