@@ -33,6 +33,11 @@
 #endif
 
 /**
+ * @file iot_pkcs11.h
+ * @brief Wrapper functions for PKCS #11
+ */
+
+/**
  * @brief FreeRTOS PKCS#11 Interface.
  * The following definitions are required by the PKCS#11 standard public
  * headers.
@@ -41,14 +46,34 @@
 #define CK_PTR          *
 
 #ifndef NULL_PTR
+    /**
+     * @brief Null in case null is not already defined.
+     */
     #define NULL_PTR    0
 #endif
 
-/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
- * instead when possible. */
+/**
+ * @brief CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible.
+ */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
+
+/**
+ * @brief Macro for defining a PKCS #11 functions.
+ * 
+ */
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
+
+/**
+ * @brief Macro for defining a PKCS #11 function pointers.
+ * 
+ */
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
+
+/**
+ * @brief Macro for defining a PKCS #11 callback functions.
+ * 
+ */
 #define CK_CALLBACK_FUNCTION( returnType, name )           returnType( CK_PTR name )
 
 /**

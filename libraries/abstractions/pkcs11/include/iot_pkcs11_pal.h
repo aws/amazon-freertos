@@ -25,6 +25,11 @@
 
 #ifndef IOT_PKCS11_PAL
 #define IOT_PKCS11_PAL
+/**
+ * @file iot_pkcs11_pal.h
+ * @brief Port Specific File Access functions for PKCS #11
+ */
+
 /*-----------------------------------------------------------*/
 /*------------ Port Specific File Access API ----------------*/
 /*--------- See iot_pkcs11_pal.c for definitions ------------*/
