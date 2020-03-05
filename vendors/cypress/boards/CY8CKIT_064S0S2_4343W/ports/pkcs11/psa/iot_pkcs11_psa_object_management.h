@@ -36,10 +36,11 @@
 /* PSA includes. */
 #include "psa/crypto.h"
 #include "psa/protected_storage.h"
-#include "flash_layout.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/pk.h"
+
+#define SST_MAX_ASSET_SIZE 2048
 
 /**
  * @brief Object definitions.
