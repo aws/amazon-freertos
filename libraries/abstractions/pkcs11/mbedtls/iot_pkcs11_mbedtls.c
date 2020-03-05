@@ -97,7 +97,20 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  */
 #define pkcs11NO_OPERATION            ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFF )
 
+/**
+ * @ingroup pkcs11_macros
+ * @brief Max size of a public key.
+ * TODO: How long is a typical RSA key anyhow?
+ */
+#define MAX_PUBLIC_KEY_SIZE           3000
 
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief Mmax key length of a key.
+ * TODO: How long is a typical RSA key anyhow?
+ */
+#define MAX_LENGTH_KEY                3000
 /**
  * @ingroup pkcs11_macros
  * @brief The size of the buffer malloc'ed for the exported public key in C_GenerateKeyPair.
@@ -165,8 +178,10 @@ typedef struct P11Struct_t
                                                             The array position indicates the "App Handle"  */
 } P11Struct_t, * P11Context_t;
 
-/* The global PKCS #11 module object.
- * Entropy/randomness and object lists are shared across PKCS #11 sessions. */
+/**
+ * @brief The global PKCS #11 module object.
+ * Entropy/randomness and object lists are shared across PKCS #11 sessions. 
+ */
 static P11Struct_t xP11Context;
 
 /**
@@ -519,7 +534,7 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
  * @brief Searches the PKCS #11 module's object list for label and provides handle.
  *
  * @param[in] pcLabel            Array containing label.
- * @param[in] xLableLength       Length of the label, in bytes.
+ * @param[in] xLabelLength       Length of the label, in bytes.
  * @param[out] pxPalHandle       Pointer to the PAL handle to be provided.
  *                               CK_INVALID_HANDLE if no object found.
  * @param[out] pxAppHandle       Pointer to the application handle to be provided.
@@ -626,7 +641,7 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 /**
  * @brief Add an object that exists in NVM to the application object array.
  *
- * @param[in[ xPalHandle         The handle used by the PKCS #11 PAL for object.
+ * @param[in] xPalHandle         The handle used by the PKCS #11 PAL for object.
  * @param[out] pxAppHandle       Updated to contain the application handle corresponding to xPalHandle.
  * @param[in]  pcLabel           Pointer to object label.
  * @param[in] xLabelLength       Length of the PKCS #11 label.
@@ -1021,6 +1036,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
 /**
  * @brief Obtains information about a particular token.
  *
+ * @param[in]  xSlotID         This parameter is unused in this port.
+ * @param[out] pInfo           This parameter is unused in this port.
+ * 
  * C_GetTokenInfo() is only implemented for compatibility with other ports.
  * All inputs to this function are ignored, and calling this
  * function on this port does provide any information about
@@ -1029,11 +1047,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
  * @return CKR_OK.
  */
 /* @[declare_pkcs11_mbedtls_c_gettokeninfo] */
-CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
+CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID xSlotID,
                                               CK_TOKEN_INFO_PTR pInfo )
 {
     /* Avoid compiler warnings about unused variables. */
-    ( void ) slotID;
+    ( void ) xSlotID;
     ( void ) pInfo;
 
     return CKR_OK;
@@ -1052,7 +1070,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
  * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
  */
 /* @[declare_pkcs11_mbedtls_c_getmechanisminfo] */
-CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
+CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID xSlotID,
                                                   CK_MECHANISM_TYPE type,
                                                   CK_MECHANISM_INFO_PTR pInfo )
 {
@@ -1355,10 +1373,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
 /**
  * @brief Helper function for parsing the templates of device certificates for C_CreateObject.
  *
- * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
- * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
- * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
- *
+ * @param[in] pxTemplate    Pointer to PKCS #11 attribute template.
+ * @param[in] ulCount       length of templates array.
+ * @param[in] pxObject      Pointer to PKCS #11 object.
  * @return CKR_OK.
  */
 CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
@@ -1459,7 +1476,14 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
 #define PKCS11_INVALID_KEY_TYPE    ( ( CK_KEY_TYPE ) 0xFFFFFFFF )                 /**< @brief Macro to signify an invalid PKCS #11 key type. */
 
-/* Helper to search an attribute for the key type attribute. */
+/**
+ * @brief Helper to search an attribute for the key type attribute.
+ * 
+ * @param[out] pxKeyType pointer to key type.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * 
+ */
 void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
                     CK_ATTRIBUTE_PTR pxTemplate,
                     CK_ULONG ulCount )
@@ -1481,7 +1505,14 @@ void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
     }
 }
 
-/* Helper to search a template for the label attribute. */
+/**
+ * @brief Helper to search a template for the label attribute.
+ * 
+ * @param[out] ppxLabel pointer to label.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * 
+ */
 void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
                   CK_ATTRIBUTE_PTR pxTemplate,
                   CK_ULONG ulCount )
@@ -1503,10 +1534,19 @@ void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
     }
 }
 
-/* Because public and private keys are stored in the same slot for this port,
+
+/**
+ * @brief Helper to search a template for the label attribute.
+ * 
+ * @param[in] pxPalHandle opaque handle to PKCS #11 object.
+ * @param[in] pxMbedContext mbedTLS pk context for parsing.
+ * @param[in] pxLabel label of PKCS #11 object.
+ * 
+ * @note Because public and private keys are stored in the same slot for this port,
  * importing one after the other requires a read of what was previously in the slot,
  * combination of the public and private key in DER format, and re-import of the
- * combination. */
+ * combination.
+ */
 CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
                                   mbedtls_pk_context * pxMbedContext,
                                   CK_ATTRIBUTE_PTR pxLabel )
@@ -1564,8 +1604,16 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
     return xResult;
 }
 
-/* Helper function for checking attribute templates of elliptic curve
- * private keys before import with C_CreateObject. */
+/**
+ * @brief Helper function for checking attribute templates of elliptic curve
+ * private keys before import with C_CreateObject.
+ * @param[in] pxMbedContext mbedTLS pk context for parsing.
+ * @param[out] ppxLabel label of PKCS #11 object.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * @param[in] pxObject PKCS #11 object handle.
+ * 
+ */
 CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                              CK_ATTRIBUTE_PTR * ppxLabel,
                              CK_ATTRIBUTE_PTR pxTemplate,
@@ -1661,8 +1709,16 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 }
 
 
-/* Helper function for parsing RSA Private Key attribute templates
- * for C_CreateObject. */
+/**
+ * @brief Helper function for parsing RSA Private Key attribute templates
+ * for C_CreateObject.
+ * @param[in] pxMbedContext mbedTLS pk context for parsing.
+ * @param[out] ppxLabel label of PKCS #11 object.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * @param[in] pxObject PKCS #11 object handle.
+ * 
+ */
 CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                               CK_ATTRIBUTE_PTR * ppxLabel,
                               CK_ATTRIBUTE_PTR pxTemplate,
@@ -1801,15 +1857,18 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
 
     return xResult;
 }
-
-/* Helper function for importing private keys using template
- * C_CreateObject. */
+/**
+ * @brief Helper function for importing private keys using template
+ * C_CreateObject.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * @param[in] pxObject PKCS #11 object handle.
+ * 
+ */
 CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount,
                            CK_OBJECT_HANDLE_PTR pxObject )
 {
-    /* TODO: How long is a typical RSA key anyhow?  */
-#define MAX_LENGTH_KEY    3000                    /**< Macro for max key length of a key. */
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength = 0;
     int lActualKeyLength = 0;
@@ -1977,8 +2036,16 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     return xResult;
 }
 
-/* Helper function for importing elliptic curve public keys from
- * template using C_CreateObject. */
+/**
+ * @brief Helper function for importing elliptic curve public keys from
+ * template using C_CreateObject.
+ * @param[in] pxMbedContext mbedTLS pk context for parsing.
+ * @param[out] ppxLabel label of PKCS #11 object.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * @param[in] pxObject PKCS #11 object handle.
+ * 
+ */
 CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
                             CK_ATTRIBUTE_PTR * ppxLabel,
                             CK_ATTRIBUTE_PTR pxTemplate,
@@ -2073,13 +2140,18 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
-/* Helper function for importing public keys using
- * C_CreateObject. */
+/**
+ * @brief Helper function for importing public keys using
+ * C_CreateObject.
+ * @param[in] pxTemplate templates to search for a key in.
+ * @param[in] ulCount length of templates array.
+ * @param[in] pxObject PKCS #11 object handle.
+ * 
+ */
 CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                           CK_ULONG ulCount,
                           CK_OBJECT_HANDLE_PTR pxObject )
 {
-#define MAX_PUBLIC_KEY_SIZE    3000              /**< Max size of a Public key. */
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength;
     CK_BYTE_PTR pxDerKey = NULL;
@@ -3630,7 +3702,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
  *                                          expected to be the hash of the data.
  * @param[in] ulDataLen                     Length of pucData.
  * @param[in] pucSignature                  The signature to be verified.
- * @param[in] ulSignatureLength             Length of pucSignature in bytes.
+ * @param[in] ulSignatureLen                Length of pucSignature in bytes.
  *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
@@ -3775,10 +3847,17 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 }
 /* @[declare_pkcs11_mbedtls_c_verify] */
 
-
-/* Checks that the private key template provided for C_GenerateKeyPair
+/**
+ * @brief Checks that the private key template provided for C_GenerateKeyPair
  * contains all necessary attributes, and does not contain any invalid
- * attributes. */
+ * attributes.
+ *
+ * @param[out] ppxLabel                       Pointer to PKCS #11 label.
+ * @param[in] pxTemplate                      PKCS #11 templates to search.
+ * @param[in] ulTemplateLength                Length of template array.
+ *
+ * @return CKR_OK if successful.
+ */ 
 CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulTemplateLength )
@@ -3862,9 +3941,17 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     return xResult;
 }
 
-/* Checks that the public key template provided for C_GenerateKeyPair
+/**
+ * @brief  Checks that the public key template provided for C_GenerateKeyPair
  * contains all necessary attributes, and does not contain any invalid
- * attributes. */
+ * attributes.
+ *
+ * @param[out] ppxLabel                       Pointer to PKCS #11 label.
+ * @param[in] pxTemplate                      PKCS #11 templates to search.
+ * @param[in] ulTemplateLength                Length of template array.
+ *
+ * @return CKR_OK if successful.
+ */ 
 CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulTemplateLength )
@@ -4157,17 +4244,17 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 /**
  * @brief Generates random data.
  *
- * @param xSession[in]          Handle of a valid PKCS #11 session.
- * @param pucRandomData[out]    Pointer to location that random data will be placed.
+ * @param[in] xSession          Handle of a valid PKCS #11 session.
+ * @param[out] pucRandomData    Pointer to location that random data will be placed.
  *                              It is the responsiblity of the application to allocate
  *                              this memory.
- * @param ulRandomLength[in]    Length of data (in bytes) to be generated.
+ * @param[in] ulRandomLen       Length of data (in bytes) to be generated.
  *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-/* @[declare_pkcs11_mbedtls_c_generaterandom] */
+/* @[declare_pkcs11_mbedtls_c_generate_random] */
 CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                 CK_BYTE_PTR pucRandomData,
                                                 CK_ULONG ulRandomLen )
@@ -4196,4 +4283,4 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
-/* @[declare_pkcs11_mbedtls_c_generaterandom] */
+/* @[declare_pkcs11_mbedtls_c_generate_random] */
