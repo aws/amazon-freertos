@@ -74,8 +74,8 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
     psa_ps_status_t uxStatus;
     psa_ecc_curve_t curve_id;
     const mbedtls_ecp_keypair *ec;
-    unsigned char *pcPrivateKeyDerStart = NULL;
-    size_t xPrivateKeySizeDer = 0;
+    unsigned char pcPrivateKeyRaw[MBEDTLS_ECP_MAX_BYTES];
+    size_t xPrivateKeySizeRaw = 0;
     unsigned char *pcPublicKeyUncompressedData = NULL;
     size_t xPublicKeySizeUncompressed = 0;
     uint8_t * pucKeyData = NULL;
@@ -191,20 +191,17 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
 
                     case MBEDTLS_PK_ECKEY:
                     case MBEDTLS_PK_ECDSA:
-                        ec = (mbedtls_ecp_keypair *) (pvContext->pk_ctx );
+                        ec = mbedtls_pk_ec(*pvContext);
                         curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
                         uxKeyType = PSA_KEY_TYPE_ECC_KEYPAIR(curve_id);
                         uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-                        if ( 0 != get_ECPrivateKey_sequence_privatekey_sec1_der(
-                                         ( const unsigned char* )pucData,
-                                         ulDataSize,
-                                         &pcPrivateKeyDerStart,
-                                         &xPrivateKeySizeDer ) )
+                        xPrivateKeySizeRaw = ( ec->grp.nbits + 7 ) / 8;
+                        if( mbedtls_mpi_write_binary( &ec->d, pcPrivateKeyRaw, xPrivateKeySizeRaw ) != 0 )
                         {
                             uxStatus = PSA_ERROR_GENERIC_ERROR;
                         }
-                        pucKeyData = pcPrivateKeyDerStart;
-                        ulKeyDataSize = xPrivateKeySizeDer;
+                        pucKeyData = pcPrivateKeyRaw;
+                        ulKeyDataSize = xPrivateKeySizeRaw;
                         break;
                     default:
                         uxAlgorithm = 0;
