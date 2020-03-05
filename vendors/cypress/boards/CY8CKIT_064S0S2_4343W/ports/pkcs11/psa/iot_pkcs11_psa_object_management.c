@@ -35,7 +35,7 @@
 #include "iot_pkcs11_psa_object_management.h"
 #include "iot_pkcs11_psa_input_format.h"
 
-P11KeyConfig_t P11KeyConfig __attribute__(( section( "tasks_share" ) )) =
+P11KeyConfig_t P11KeyConfig =
 {.uxDeviceCertificate = 5U,
  .uxJitpCertificate = 6U,
  .uxRootCertificate = 7U,

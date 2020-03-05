@@ -47,7 +47,7 @@
 #include "mbedtls/pk_internal.h"
 
 #define PKCS11_PRINT( X )            vLoggingPrintf X
-#define PKCS11_WARNING_PRINT( X )    vLoggingPrintf  X
+#define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 #define pkcs11NO_OPERATION           ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFUL )
 
 /*
