@@ -61,6 +61,10 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * @brief mbedTLS sign function pointer.
+ *
+ */
 typedef int ( * pfnMbedTlsSign )( void * ctx,
                                   mbedtls_md_type_t md_alg,
                                   const unsigned char * hash,
@@ -113,11 +117,11 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  * @ingroup pkcs11_macros
  * @brief Private defines for checking that attribute templates are complete.
  */
-#define LABEL_IN_TEMPLATE             ( 1U )
-#define PRIVATE_IN_TEMPLATE           ( 1U << 1 )
-#define SIGN_IN_TEMPLATE              ( 1U << 2 )
-#define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )
-#define VERIFY_IN_TEMPLATE            ( 1U << 4 )
+#define LABEL_IN_TEMPLATE             ( 1U )           /**< Bit set for label in template. */
+#define PRIVATE_IN_TEMPLATE           ( 1U << 1 )      /**< Bit set for private key in in template. */
+#define SIGN_IN_TEMPLATE              ( 1U << 2 )      /**< Bit set for sign in template. */
+#define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )      /**< Bit set for EC params in template. */
+#define VERIFY_IN_TEMPLATE            ( 1U << 4 )      /**< Bit set for verify in template. */
 
 /**
  * @ingroup pkcs11_datatypes
@@ -143,18 +147,22 @@ typedef struct P11Object_t
  */
 typedef struct P11ObjectList_t
 {
-    SemaphoreHandle_t xMutex; /**< @brief Mutex that protects write operations to the xObjects array. */
-    P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ];
+    SemaphoreHandle_t xMutex;                              /**< @brief Mutex that protects write operations to the xObjects array. */
+    P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ];   /**< @brief List of PKCS #11 objects. */
 } P11ObjectList_t;
 
-/* PKCS #11 Module Object */
+/**
+ * @ingroup pkcs11_datatypes
+ * @brief PKCS #11 Module Object
+ *
+ */
 typedef struct P11Struct_t
 {
-    CK_BBOOL xIsInitialized;                     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
-    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /* CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
-    mbedtls_entropy_context xMbedEntropyContext; /* Entropy context for PKCS #11 module - used to collect entropy for RNG. */
-    P11ObjectList_t xObjectList;                 /* List of PKCS #11 objects that have been found/created since module initialization.
-                                                  * The array position indicates the "App Handle"  */
+    CK_BBOOL xIsInitialized;                     /**< @brief Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
+    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /**< @brief CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
+    mbedtls_entropy_context xMbedEntropyContext; /**< @brief Entropy context for PKCS #11 module - used to collect entropy for RNG. */
+    P11ObjectList_t xObjectList;                 /**< @brief List of PKCS #11 objects that have been found/created since module initialization.
+                                                            The array position indicates the "App Handle"  */
 } P11Struct_t, * P11Context_t;
 
 /* The global PKCS #11 module object.
@@ -162,24 +170,25 @@ typedef struct P11Struct_t
 static P11Struct_t xP11Context;
 
 /**
+ * @ingroup pkcs11_datatypes
  * @brief Session structure.
  */
 typedef struct P11Session
 {
-    CK_ULONG ulState;                            /* Stores the session flags. */
-    CK_BBOOL xOpened;                            /* Set to CK_TRUE upon opening PKCS #11 session. */
-    CK_MECHANISM_TYPE xOperationDigestMechanism; /* Indicates if a digest operation is in progress. */
-    CK_BBOOL xFindObjectInit;
-    CK_BBOOL xFindObjectComplete;
-    CK_BYTE * pxFindObjectLabel;                 /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
-    uint8_t xFindObjectLabelLength;
-    CK_MECHANISM_TYPE xOperationVerifyMechanism; /* The mechanism of verify operation in progress. Set during C_VerifyInit. */
-    SemaphoreHandle_t xVerifyMutex;              /* Protects the verification key from being modified while in use. */
-    mbedtls_pk_context xVerifyKey;               /* Verification key.  Set during C_VerifyInit. */
-    CK_MECHANISM_TYPE xOperationSignMechanism;   /* Mechanism of the sign operation in progress. Set during C_SignInit. */
-    SemaphoreHandle_t xSignMutex;                /* Protects the signing key from being modified while in use. */
-    mbedtls_pk_context xSignKey;                 /* Signing key.  Set during C_SignInit. */
-    mbedtls_sha256_context xSHA256Context;       /* Context for in progress digest operation. */
+    CK_ULONG ulState;                            /**< @brief Stores the session flags. */
+    CK_BBOOL xOpened;                            /**< @brief Set to CK_TRUE upon opening PKCS #11 session. */
+    CK_MECHANISM_TYPE xOperationDigestMechanism; /**< @brief Indicates if a digest operation is in progress. */
+    CK_BYTE * pxFindObjectLabel;                 /**< @brief Pointer to the label for the search in progress. Should be NULL if no search in progress. */
+    uint8_t xFindObjectLabelLength;              /**< @brief Find object length flag. */
+    CK_BBOOL xFindObjectInit;                    /**< @brief Unused and to be removed. */
+    CK_BBOOL xFindObjectComplete;                /**< @brief Unused and to be removed. */
+    CK_MECHANISM_TYPE xOperationVerifyMechanism; /**< @brief The mechanism of verify operation in progress. Set during C_VerifyInit. */
+    SemaphoreHandle_t xVerifyMutex;              /**< @brief Protects the verification key from being modified while in use. */
+    mbedtls_pk_context xVerifyKey;               /**< @brief Verification key.  Set during C_VerifyInit. */
+    CK_MECHANISM_TYPE xOperationSignMechanism;   /**< @brief Mechanism of the sign operation in progress. Set during C_SignInit. */
+    SemaphoreHandle_t xSignMutex;                /**< @brief Protects the signing key from being modified while in use. */
+    mbedtls_pk_context xSignKey;                 /**< @brief Signing key.  Set during C_SignInit. */
+    mbedtls_sha256_context xSHA256Context;       /**< @brief Context for in progress digest operation. */
 } P11Session_t, * P11SessionPtr_t;
 
 
@@ -187,10 +196,10 @@ typedef struct P11Session
 /**
  * @brief Helper definitions.
  */
-#define PKCS11_MODULE_IS_INITIALIZED    ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )
-#define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ? CKR_OK : CKR_SESSION_CLOSED )
-#define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID )
-#define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )
+#define PKCS11_MODULE_IS_INITIALIZED    ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )                                                                                          /**< Checks if PKCS #11 module is initialized. */
+#define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ? CKR_OK : CKR_SESSION_CLOSED )                           /**< Checks if the current session is open */
+#define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID ) /**< Checks if the current session is valid */
+#define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )                /**< Checks if the current session is valid and initialized. */
 /*-----------------------------------------------------------*/
 /*--------- See iot_pkcs11_pal.c for definitions ------------*/
 
@@ -434,8 +443,11 @@ static CK_FUNCTION_LIST prvP11FunctionList =
 
 /*-----------------------------------------------------------*/
 
-/* Note: Before prvMbedTLS_Initialize can be called, CRYPTO_Init()
- * must be called to initialize the mbedTLS mutex & heap management functions. */
+/**
+ * @brief Initialize mbedTLS
+ * @note: Before prvMbedTLS_Initialize can be called, CRYPTO_Init()
+ * must be called to initialize the mbedTLS mutex & heap management functions.
+*/
 CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
@@ -472,7 +484,10 @@ CK_RV prvMbedTLS_Initialize( void )
     return xResult;
 }
 
-/* Searches a template for the CKA_CLASS attribute. */
+/**
+ * @brief Searches a template for the CKA_CLASS attribute.
+ *
+*/
 CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
                          CK_ULONG ulCount,
                          CK_OBJECT_CLASS * pxClass )
@@ -762,9 +777,15 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
 
-/* Returns True if the object is not stored in NVM & must be looked up in header file.
- * Returns false if object is an NVM supported object. */
-
+/**
+ * @brief Checks to see if the PKCS #11 object is NVM supported.
+ *
+ * @param[in] pucLabel            PKCS #11 object label
+ * @param[in] xLength             Length of the label, in bytes.
+ * @param[out] ppucCertData       pointer to certificate data.
+ * @returns True if the object is not stored in NVM & must be looked up in header file.
+ * False if object is an NVM supported object.
+ */
     BaseType_t xIsObjectWithNoNvmStorage( uint8_t * pucLabel,
                                           size_t xLength,
                                           uint8_t ** ppucCertData )
@@ -1331,8 +1352,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
 }
 /* @[declare_pkcs11_mbedtls_c_login] */
 
-/* Helper function for parsing the templates of device certificates for
- * C_CreateObject. */
+/**
+ * @brief Helper function for parsing the templates of device certificates for C_CreateObject.
+ *
+ * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
+ * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
+ * @param[in] pxTemplate Pointer to PKCS #11 attribute template.
+ *
+ * @return CKR_OK.
+ */
 CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
                             CK_ULONG ulCount,
                             CK_OBJECT_HANDLE_PTR pxObject )
@@ -1429,7 +1457,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
     return xResult;
 }
 
-#define PKCS11_INVALID_KEY_TYPE    ( ( CK_KEY_TYPE ) 0xFFFFFFFF )
+#define PKCS11_INVALID_KEY_TYPE    ( ( CK_KEY_TYPE ) 0xFFFFFFFF )                 /**< @brief Macro to signify an invalid PKCS #11 key type. */
 
 /* Helper to search an attribute for the key type attribute. */
 void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
@@ -1781,7 +1809,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_OBJECT_HANDLE_PTR pxObject )
 {
     /* TODO: How long is a typical RSA key anyhow?  */
-#define MAX_LENGTH_KEY    3000
+#define MAX_LENGTH_KEY    3000                    /**< Macro for max key length of a key. */
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength = 0;
     int lActualKeyLength = 0;
@@ -2051,7 +2079,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                           CK_ULONG ulCount,
                           CK_OBJECT_HANDLE_PTR pxObject )
 {
-#define MAX_PUBLIC_KEY_SIZE    3000
+#define MAX_PUBLIC_KEY_SIZE    3000              /**< Max size of a Public key. */
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength;
     CK_BYTE_PTR pxDerKey = NULL;
@@ -3937,7 +3965,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
  *                                          public key should possess.
  *                                          Public key template must have the following attributes:
  *                                          - CKA_LABEL
- *                                              - Label should be no longer than #pkcs11configMAX_LABEL_LENGTH
+ *                                              - Label should be no longer than pkcs11configMAX_LABEL_LENGTH
  *                                              and must be supported by port's PKCS #11 PAL.
  *                                          - CKA_EC_PARAMS
  *                                              - Must equal pkcs11DER_ENCODED_OID_P256.
@@ -3956,7 +3984,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
  *                                          private key should possess.
  *                                          Private key template must have the following attributes:
  *                                          - CKA_LABEL
- *                                              - Label should be no longer than #pkcs11configMAX_LABEL_LENGTH
+ *                                              - Label should be no longer than pkcs11configMAX_LABEL_LENGTH
  *                                              and must be supported by port's PKCS #11 PAL.
  *                                          - CKA_PRIVATE
  *                                              - Must be set to true.
