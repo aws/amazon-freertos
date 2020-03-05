@@ -176,6 +176,17 @@ target_link_libraries(
         AFR::ota_http
 )
 
+# Common I/O
+afr_mcu_port(common_io)
+target_sources(
+    AFR::common_io::mcu_port
+    INTERFACE 
+        "${afr_ports_dir}/common_io/iot_uart.c"
+        "${afr_ports_dir}/common_io/iot_i2c.c"
+        # test code
+        $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+)
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -199,6 +210,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
             AFR::wifi
             AFR::utils
             AFR::posix::mcu_port
+            AFR::common_io
             ${link_extra_flags}
     )
     add_custom_command(

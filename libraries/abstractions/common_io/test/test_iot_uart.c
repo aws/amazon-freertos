@@ -523,6 +523,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
     uint8_t cSmallBuf[ 2 ] = { 'H', 'I' };
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
     uint8_t uSmallBuflen = sizeof( cSmallBuf ) / sizeof( uint8_t );
+    int32_t lTransferAmount = 0;
 
     strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
@@ -541,7 +542,11 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 
         /* Wait to make sure operation was really canceled. */
         xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-        TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
+
+        lCancel = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lCancel );
+
+        TEST_ASSERT_TRUE( pdFALSE == xCallbackReturn || lTransferAmount < testIotUART_BUFFER_LENGTH );
     }
 
     lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
