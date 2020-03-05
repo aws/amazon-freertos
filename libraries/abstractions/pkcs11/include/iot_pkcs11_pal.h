@@ -25,6 +25,7 @@
 
 #ifndef IOT_PKCS11_PAL
 #define IOT_PKCS11_PAL
+
 /**
  * @file iot_pkcs11_pal.h
  * @brief Port Specific File Access functions for PKCS #11
@@ -56,7 +57,7 @@
  * @function_page{PKCS11_PAL_SaveObject,pkcs11_pal,saveobject}
  * @function_snippet{pkcs11_pal,saveobject,this}
  * @copydoc PKCS11_PAL_SaveObject
-   @function_page{PKCS11_PAL_DestroyObject,pkcs11_pal,destroyobject}
+ * @function_page{PKCS11_PAL_DestroyObject,pkcs11_pal,destroyobject}
  * @function_snippet{pkcs11_pal,destroyobject,this}
  * @copydoc PKCS11_PAL_DestroyObject
  * @function_page{PKCS11_PAL_FindObject,pkcs11_pal,findobject}
@@ -90,7 +91,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
 /**
  * @brief Delete an object from NVM.
- * 
+ *
  * @param[in] xHandle       Handle to a PKCS #11 object.
  */
 /* @[declare_pkcs11_pal_destroyobject] */

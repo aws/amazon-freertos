@@ -43,12 +43,13 @@
  * headers.
  */
 
-#define CK_PTR          *
+#define CK_PTR    *
 
 #ifndef NULL_PTR
-    /**
-     * @brief Null in case null is not already defined.
-     */
+
+/**
+ * @brief Null in case null is not already defined.
+ */
     #define NULL_PTR    0
 #endif
 
@@ -60,19 +61,19 @@
 
 /**
  * @brief Macro for defining a PKCS #11 functions.
- * 
+ *
  */
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 
 /**
  * @brief Macro for defining a PKCS #11 function pointers.
- * 
+ *
  */
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
 
 /**
  * @brief Macro for defining a PKCS #11 callback functions.
- * 
+ *
  */
 #define CK_CALLBACK_FUNCTION( returnType, name )           returnType( CK_PTR name )
 
@@ -175,7 +176,7 @@
 #include "pkcs11.h"
 
 /** @brief Certificate Template
- * The object class must be the first attribute in the array. 
+ * The object class must be the first attribute in the array.
  */
 typedef struct PKCS11_CertificateTemplate
 {

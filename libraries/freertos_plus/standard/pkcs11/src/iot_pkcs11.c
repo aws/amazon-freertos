@@ -35,7 +35,7 @@
 /**
  * @file iot_pkcs11.c
  * @brief FreeRTOS PKCS #11 Interface.
- * 
+ *
  * This file contains wrapper functions for common PKCS #11 operations.
  */
 
