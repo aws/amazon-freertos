@@ -149,16 +149,17 @@
 
 #include "pkcs11.h"
 
-/* Certificate Template */
-/* The object class must be the first attribute in the array. */
+/** @brief Certificate Template
+ * The object class must be the first attribute in the array. 
+ */
 typedef struct PKCS11_CertificateTemplate
 {
-    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_CERTIFICATE. */
-    CK_ATTRIBUTE xSubject;         /* CKA_SUBJECT, this parameter is required by the PKCS #11 standard. */
-    CK_ATTRIBUTE xCertificateType; /* CKA_CERTIFICATE_TYPE, set to CKC_X_509. */
-    CK_ATTRIBUTE xValue;           /* CKA_VALUE, the DER byte array of the certificate contents. */
-    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
-    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
+    CK_ATTRIBUTE xObjectClass;     /**< @brief CKA_CLASS, set to CKO_CERTIFICATE. */
+    CK_ATTRIBUTE xSubject;         /**< @brief CKA_SUBJECT, this parameter is required by the PKCS #11 standard. */
+    CK_ATTRIBUTE xCertificateType; /**< @brief CKA_CERTIFICATE_TYPE, set to CKC_X_509. */
+    CK_ATTRIBUTE xValue;           /**< @brief CKA_VALUE, the DER byte array of the certificate contents. */
+    CK_ATTRIBUTE xLabel;           /**< @brief CKA_LABEL. */
+    CK_ATTRIBUTE xTokenObject;     /**< @brief CKA_TOKEN. */
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
 /*------------------------ PKCS #11 wrapper functions -------------------------*/
@@ -181,9 +182,9 @@ typedef struct PKCS11_CertificateTemplate
  */
 
 /**
- * @function_page{xInitializePkcs11,pkcs11_iot,xinitializepkcs11}
+ * @function_page{xInitializePKCS11,pkcs11_iot,xinitializepkcs11}
  * @function_snippet{pkcs11_iot,xinitializepkcs11,this}
- * @copydoc xInitializePkcs11
+ * @copydoc xInitializePKCS11
  * @function_page{xGetSlotList,pkcs11_iot,xgetslotlist}
  * @function_snippet{pkcs11_iot,xgetslotlist,this}
  * @copydoc xGetSlotList
@@ -208,8 +209,9 @@ typedef struct PKCS11_CertificateTemplate
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11] */
 CK_RV xInitializePKCS11( void );
-
+/* @[declare_pkcs11_iot_xinitializepkcs11] */
 
 /**
  * @brief Get a list of available PKCS #11 slots.
@@ -225,8 +227,10 @@ CK_RV xInitializePKCS11( void );
  *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
  *
  */
+/* @[declare_pkcs11_iot_xgetslotlist] */
 CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
                     CK_ULONG * pxSlotCount );
+/* @[declare_pkcs11_iot_xgetslotlist] */
 
 /**
  * \brief Initializes the PKCS #11 module and opens a session.
@@ -237,7 +241,9 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
  * \return  CKR_OK upon success.  PKCS #11 error code on failure.
  *          Note that PKCS #11 error codes are positive.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11session] */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
+/* @[declare_pkcs11_iot_xinitializepkcs11session] */
 
 /**
  *  \brief Initializes a PKCS #11 module and token.
@@ -245,7 +251,9 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
  *  \return CKR_OK upon success.  PKCS #11 error code on failure.
  *          Note that PKCS #11 error codes are positive.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11token] */
 CK_RV xInitializePkcs11Token( void );
+/* @[declare_pkcs11_iot_xinitializepkcs11token] */
 
 /**
  * \brief Searches for an object with a matching label and class provided.
@@ -263,10 +271,12 @@ CK_RV xInitializePkcs11Token( void );
  * \note This function assumes that there is only one
  * object that meets the CLASS/LABEL criteria.
  */
+/* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                     const char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
+/* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 
 /**
  * \brief Appends digest algorithm sequence to SHA-256 hash for RSA signatures
@@ -278,17 +288,19 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *      digestAlgorithm DigestAlgorithmIdentifier,
  *      digest Digest }
  *
- * \param[in] pc32ByteHashedMessage     A 32-byte buffer containing the SHA-256
+ * \param[in] puc32ByteHashedMessage     A 32-byte buffer containing the SHA-256
  *                                      hash of the data to be signed.
- * \param[out] pc51ByteHashOidBuffer    A 51-byte output buffer containing the
+ * \param[out] puc51ByteHashOidBuffer    A 51-byte output buffer containing the
  *                                      DigestInfo structure.  This memory
  *                                      must be allocated by the caller.
  *
  * \return CKR_OK if successful, CKR_ARGUMENTS_BAD if NULL pointer passed in.
  *
  */
-CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                                uint8_t * x51ByteHashOidBuffer );
+/* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * puc32ByteHashedMessage,
+                                                uint8_t * puc51ByteHashOidBuffer );
+/* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 
 #ifdef _WIN32
     #pragma pack(pop, cryptoki)

@@ -83,7 +83,7 @@ The public key corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
 @configpossible Any String smaller then pkcs11configMAX_LABEL_LENGTH.<br>
 @configdefault `Device Pub TLS Key`
 
-@section pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+@section pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
 @brief The PKCS #11 label for the device certificate.
 Device certificate corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
 
