@@ -78,7 +78,7 @@
  *
  * @param[in] pxLabel       Attribute containing label of the object to be stored.
  * @param[in] pucData       The object data to be saved.
- * @param[in] ulDataSize   Size (in bytes) of object data.
+ * @param[in] ulDataSize    Size (in bytes) of object data.
  *
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
