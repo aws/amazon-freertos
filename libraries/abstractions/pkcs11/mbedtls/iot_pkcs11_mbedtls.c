@@ -88,7 +88,7 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  * @brief Macro for logging warnings in PKCS #11.
  *
  */
-#define PKCS11_WARNING_PRINT( X )   /* vLoggingPrintf X */
+#define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 
 /**
  * @ingroup pkcs11_macros
