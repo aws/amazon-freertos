@@ -526,7 +526,8 @@ void test_IotBleDataTransfer_Init_HappyPath( void )
 }
 
 /*
- * Force various failures of callback registration within _registerCallbacks
+ * Excercise all possible failures of IotBle_RegisterEventCb which is called within the internal function
+ * _registerCallbacks
  */
 void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 {
