@@ -21,12 +21,9 @@ INPUT = doc \
         libraries/3rdparty/pkcs11 \
         libraries/abstractions/pkcs11 \
         libraries/freertos_plus/standard/pkcs11/include \
-        libraries/freertos_plus/standard/pkcs11/src \
         libraries/abstractions/pkcs11/mbedtls \
         libraries/abstractions/pkcs11/include \
         libraries/freertos_plus/standard/utils/include/ \
-        libraries/freertos_plus/standard/utils/src/ \
-        vendors/pc/boards/windows/ports/pkcs11 
 
 # Library file names.
 FILE_PATTERNS = *pkcs*.c *pkcs*.h *pkcs*.txt *pki*.c *pki*.h
