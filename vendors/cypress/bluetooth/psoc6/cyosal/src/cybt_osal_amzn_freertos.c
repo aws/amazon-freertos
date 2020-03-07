@@ -50,8 +50,6 @@ const uint32_t millis_to_tick_ratio = (uint32_t)( 1000 / configTICK_RATE_HZ );
  *               Function Definitions
  ******************************************************/
 
-extern signed portBASE_TYPE xTaskIsTaskFinished( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
-
 wiced_result_t wiced_rtos_init_semaphore( wiced_semaphore_t* sem )
 {
     SemaphoreHandle_t xsemaphore = NULL;

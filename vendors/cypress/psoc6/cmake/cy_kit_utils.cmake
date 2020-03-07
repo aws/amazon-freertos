@@ -106,6 +106,12 @@ function(cy_kit_generate)
        set(CY_TFM_PSA "1")
     endif()
 
+    # is BLE supported?
+    string(FIND "${ARG_DEFINES}" "BLE_SUPPORTED" check_ble_supported)
+    if (NOT ("${check_ble_supported}" STREQUAL "-1"))
+       set(BLE_SUPPORTED "1")
+    endif()
+
     #--------------------------------------------------------------------
     # Utilities
     #
