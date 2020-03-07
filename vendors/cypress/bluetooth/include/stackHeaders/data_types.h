@@ -18,11 +18,6 @@
 #ifndef DATA_TYPES_H
 #define DATA_TYPES_H
 
-#include <string.h>
-#ifdef __ARM_ARCH
-#include <cmsis_compiler.h>
-#endif
-
 #ifndef NULL
 #define NULL     0
 #endif
@@ -57,18 +52,22 @@ typedef UINT32          TIME_STAMP;
 typedef UINT8           BOOL8;
 typedef UINT32          BOOL32;
 
+typedef unsigned long long __int64;
+
 #ifndef TRUE
 #define TRUE   (!FALSE)
 #endif
 
 typedef unsigned char   UBYTE;
 
-#ifdef __ARM_ARCH
-/* From CMSIS */
-#define INLINE __INLINE
-#define PACKED __PACKED
+#ifdef __arm
+#define PACKED  __packed
+#define INLINE  __inline
 #else
-#error "Unsupported compiler"
+#define PACKED
+#ifndef INLINE
+#define INLINE
+#endif
 #endif
 
 #ifndef BIG_ENDIAN

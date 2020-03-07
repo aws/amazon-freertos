@@ -339,6 +339,7 @@ wiced_bt_gatt_status_t prvGattsReqCb( wiced_bt_gatt_attribute_request_t *p_data 
           break;
 
         case GATTS_REQ_TYPE_WRITE_REQ:
+        case GATTS_REQ_TYPE_PREP_WRITE:
           data_ptr = (wiced_bt_gatt_attribute_request_t*)pvPortMalloc(sizeof(wiced_bt_gatt_attribute_request_t) + p_data->data.write_req.val_len);
           write_data_ptr = data_ptr + 1;
           memcpy(data_ptr, p_data, sizeof(wiced_bt_gatt_attribute_request_t));
@@ -361,7 +362,7 @@ wiced_bt_gatt_status_t prvGattsReqCb( wiced_bt_gatt_attribute_request_t *p_data 
         case GATTS_REQ_TYPE_WRITE_EXEC:
             if ( xGattServerCb.pxRequestExecWriteCb )
                 xGattServerCb.pxRequestExecWriteCb( p_data->conn_id, 0, &xRemoteAddr, p_data->data.exec_write );
-            return WICED_BT_GATT_SUCCESS;
+            return WICED_BT_GATT_PENDING;
             break;
 
         case GATTS_REQ_TYPE_MTU:
@@ -605,11 +606,11 @@ uint8_t prvConvertPermissionsToWICED( BTCharPermissions_t xPermissions )
     ucWICEDPermissions |= ( xPermissions & eBTPermRead ) ? LEGATTDB_PERM_READABLE : 0 ;
     ucWICEDPermissions |= ( xPermissions & eBTPermReadEncrypted ) ? LEGATTDB_PERM_READABLE : 0 ; // @TODO: Not supported by WICED
     ucWICEDPermissions |= ( xPermissions & eBTPermReadEncryptedMitm ) ? (LEGATTDB_PERM_AUTH_READABLE | LEGATTDB_PERM_READABLE) : 0 ;
-    ucWICEDPermissions |= ( xPermissions & eBTPermWrite ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ) : 0 ;
-    ucWICEDPermissions |= ( xPermissions & eBTPermWriteEncrypted ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ) : 0 ; // @TODO: Not supported by WICED
-    ucWICEDPermissions |= ( xPermissions & eBTPermWriteEncryptedMitm ) ? LEGATTDB_PERM_WRITABLE : 0 ;
-    ucWICEDPermissions |= ( xPermissions & eBTPermWriteSigned ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ) : 0 ; //@TODO: Is this the correct mapping?
-    ucWICEDPermissions |= ( xPermissions & eBTPermWriteSignedMitm ) ? LEGATTDB_PERM_WRITABLE : 0 ; //@TODO: Is this the correct mapping?
+    ucWICEDPermissions |= ( xPermissions & eBTPermWrite ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ | LEGATTDB_PERM_RELIABLE_WRITE) : 0 ;
+    ucWICEDPermissions |= ( xPermissions & eBTPermWriteEncrypted ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ | LEGATTDB_PERM_RELIABLE_WRITE) : 0 ; // @TODO: Not supported by WICED
+    ucWICEDPermissions |= ( xPermissions & eBTPermWriteEncryptedMitm ) ? (LEGATTDB_PERM_WRITABLE | LEGATTDB_PERM_RELIABLE_WRITE) : 0 ;
+    ucWICEDPermissions |= ( xPermissions & eBTPermWriteSigned ) ? (LEGATTDB_PERM_WRITE_CMD | LEGATTDB_PERM_WRITE_REQ | LEGATTDB_PERM_RELIABLE_WRITE) : 0 ; //@TODO: Is this the correct mapping?
+    ucWICEDPermissions |= ( xPermissions & eBTPermWriteSignedMitm ) ? (LEGATTDB_PERM_WRITABLE | LEGATTDB_PERM_RELIABLE_WRITE) : 0 ; //@TODO: Is this the correct mapping?
 
     return ucWICEDPermissions;
 }

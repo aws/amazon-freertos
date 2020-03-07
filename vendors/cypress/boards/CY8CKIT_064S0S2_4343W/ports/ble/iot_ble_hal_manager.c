@@ -453,9 +453,10 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             break;
 
         case BTM_BLE_ADVERT_STATE_CHANGED_EVT:
+
             bStart = (BTM_BLE_ADVERT_OFF == p_event_data->ble_advert_state_changed) ? 0 : 1;
             if ( xBTBleAdapterCallbacks.pxAdvStatusCb )
-                xBTBleAdapterCallbacks.pxAdvStatusCb( eBTStatusSuccess, 0, bStart);
+                xBTBleAdapterCallbacks.pxAdvStatusCb( eBTStatusSuccess, 1, bStart);
             break;
 
         case BTM_BLE_PHY_UPDATE_EVT:
