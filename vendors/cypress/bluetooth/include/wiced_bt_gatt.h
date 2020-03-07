@@ -711,7 +711,7 @@ typedef union
 /**
  * Structure used by wiced_bt_gattdb APIS, to parse GATTDB
  */
-typedef __PACKED_STRUCT
+typedef PACKED struct
 {
     uint16_t handle;        /**< atribute Handle  */
     uint8_t  perm;          /**< attribute permission.*/

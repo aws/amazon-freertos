@@ -14,7 +14,7 @@
 #define BT_BASE_KEY 140
 
 /** NVRAM entry for bonded device */
-typedef __PACKED_STRUCT {
+typedef PACKED struct  {
     wiced_bt_device_address_t   bd_addr;        /**< Device address */
     uint16_t                    length;         /**< Length of key_blobs (link key information) */
     uint8_t                     key_blobs[1];   /**< Link keys (actual length specified by 'length' field) */
