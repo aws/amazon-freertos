@@ -12,7 +12,7 @@
 #include "wiced_bt_dev.h"
 
 /** NVRAM entry for bonded device */
-typedef __PACKED_STRUCT {
+typedef PACKED struct {
     wiced_bt_device_address_t   bd_addr;        /**< Device address */
     uint8_t                     addr_type;      /**< BLE_ADDR_PUBLIC or BLE_ADDR_RANDOM */
     uint8_t                     device_type;    /**< BT_DEVICE_TYPE_BREDR or BT_DEVICE_TYPE_BLE */
