@@ -62,7 +62,7 @@
  * @param[in] xNetworkRecv Callback for receiving data on an open TCP socket.
  * @param[in] xNetworkSend Callback for sending data on an open TCP socket.
  * @param[in] pvCallerContext Opaque pointer provided by caller for above callbacks.
- * @param[out] xTLSCHandshakeSuccessful Indicates whether TLS handshake was successfully completed.
+ * @param[out] xTLSHandshakeState Indicates the state of the TLS handshake.
  * @param[out] xMbedSslCtx Connection context for mbedTLS.
  * @param[out] xMbedSslConfig Configuration context for mbedTLS.
  * @param[out] xMbedX509CA Server certificate context for mbedTLS.
@@ -83,7 +83,7 @@ typedef struct TLSContext
     NetworkRecv_t xNetworkRecv;
     NetworkSend_t xNetworkSend;
     void * pvCallerContext;
-    BaseType_t xTLSHandshakeSuccessful;
+    BaseType_t xTLSHandshakeState;
 
     /* mbedTLS. */
     mbedtls_ssl_context xMbedSslCtx;
@@ -99,6 +99,10 @@ typedef struct TLSContext
     CK_OBJECT_HANDLE xP11PrivateKey;
     CK_KEY_TYPE xKeyType;
 } TLSContext_t;
+
+#define TLS_HANDSHAKE_NOT_STARTED    ( 0 )      /* Must be 0 */
+#define TLS_HANDSHAKE_STARTED        ( 1 )
+#define TLS_HANDSHAKE_SUCCESSFUL     ( 2 )
 
 #define TLS_PRINT( X )    vLoggingPrintf X
 
@@ -122,14 +126,16 @@ static void prvFreeContext( TLSContext_t * pxCtx )
         mbedtls_ssl_free( &pxCtx->xMbedSslCtx );
         mbedtls_ssl_config_free( &pxCtx->xMbedSslConfig );
 
-        /* Cleanup PKCS#11. */
-        if( ( NULL != pxCtx->pxP11FunctionList ) &&
-            ( NULL != pxCtx->pxP11FunctionList->C_CloseSession ) )
+        /* Cleanup PKCS11 only if the handshake was started. */
+        if( ( TLS_HANDSHAKE_NOT_STARTED != pxCtx->xTLSHandshakeState ) &&
+            ( NULL != pxCtx->pxP11FunctionList ) &&
+            ( NULL != pxCtx->pxP11FunctionList->C_CloseSession ) &&
+            ( CK_INVALID_HANDLE != pxCtx->xP11Session ) )
         {
             pxCtx->pxP11FunctionList->C_CloseSession( pxCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
         }
 
-        pxCtx->xTLSHandshakeSuccessful = pdFALSE;
+        pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_NOT_STARTED;
     }
 }
 
@@ -533,6 +539,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     /* Put the module in authenticated mode. */
     if( CKR_OK == xResult )
     {
+        pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_STARTED;
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Login( pxCtx->xP11Session,
                                                                     CKU_USER,
                                                                     ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
@@ -868,7 +875,7 @@ BaseType_t TLS_Connect( void * pvContext )
     /* Keep track of successful completion of the handshake. */
     if( 0 == xResult )
     {
-        pxCtx->xTLSHandshakeSuccessful = pdTRUE;
+        pxCtx->xTLSHandshakeState = TLS_HANDSHAKE_SUCCESSFUL;
     }
     else if( xResult > 0 )
     {
@@ -894,7 +901,7 @@ BaseType_t TLS_Recv( void * pvContext,
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
     size_t xRead = 0;
 
-    if( ( NULL != pxCtx ) && ( pdTRUE == pxCtx->xTLSHandshakeSuccessful ) )
+    if( ( NULL != pxCtx ) && ( TLS_HANDSHAKE_SUCCESSFUL == pxCtx->xTLSHandshakeState ) )
     {
         /* This routine will return however many bytes are returned from from mbedtls_ssl_read
          * immediately unless MBEDTLS_ERR_SSL_WANT_READ is returned, in which case we try again. */
@@ -943,7 +950,7 @@ BaseType_t TLS_Send( void * pvContext,
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
     size_t xWritten = 0;
 
-    if( ( NULL != pxCtx ) && ( pdTRUE == pxCtx->xTLSHandshakeSuccessful ) )
+    if( ( NULL != pxCtx ) && ( TLS_HANDSHAKE_SUCCESSFUL == pxCtx->xTLSHandshakeState ) )
     {
         while( xWritten < xMsgLength )
         {
@@ -993,10 +1000,7 @@ void TLS_Cleanup( void * pvContext )
 
     if( NULL != pxCtx )
     {
-        if( pdTRUE == pxCtx->xTLSHandshakeSuccessful )
-        {
-            prvFreeContext( pxCtx );
-        }
+        prvFreeContext( pxCtx );
 
         /* Free memory. */
         vPortFree( pxCtx );
