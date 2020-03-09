@@ -130,7 +130,7 @@ static const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
 static const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
 static const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
 
-static char bleDeviceName[ IOT_BLE_MAX_DEVICE_NAME_LENGTH + 1 ] = { 0 };
+static char bleDeviceName[ IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH + 1 ] = { 0 };
 
 static bool isBLEOn = false;
 
@@ -917,7 +917,7 @@ BTStatus_t IotBle_SetDeviceName( const char * pName,
 {
     BTStatus_t status;
 
-    if( length <= IOT_BLE_MAX_DEVICE_NAME_LENGTH )
+    if( length <= IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH )
     {
         /* Copy the device name to a buffer, so that device name does not change between
          * stack disable-enable cycles.
