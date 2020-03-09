@@ -649,7 +649,7 @@ BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr,
  * API can be used to set the device name before turning on BLE by calling IotBle_On(),
  * or when BLE is running. When BLE is advertising mode, setting device name should take into effect
  * immediately for the current advertisement. The device name needs to be set only once and
- * is available across BLE turn off-turn on cylces. API should be called only after IotBle_Init().
+ * is available across BLE turn off-turn on cycles. API should be called only after IotBle_Init().
  *
  * @param[in] pName Pointer to the device name string.
  * @param[in] length Length of the device name string without null terminator.
