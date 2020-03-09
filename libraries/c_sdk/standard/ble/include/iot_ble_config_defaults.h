@@ -373,8 +373,8 @@
     #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
 #endif
 
-#define IOT_BLE_MESG_ENCODER              ( _IotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER              ( _IotSerializerCborDecoder )
+#define IOT_BLE_MESG_ENCODER                    ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER                    ( _IotSerializerCborDecoder )
 
 /**
  * @brief Default configuration for memory allocation of data transfer service buffers.
