@@ -923,7 +923,7 @@ BTStatus_t IotBle_SetDeviceName( const char * pName,
          * stack disable-enable cycles.
          */
         strncpy( bleDeviceName, pName, length );
-        bleDeviceName[ length + 1 ] = '\0';
+        bleDeviceName[ length ] = '\0';
         status = eBTStatusSuccess;
     }
     else
