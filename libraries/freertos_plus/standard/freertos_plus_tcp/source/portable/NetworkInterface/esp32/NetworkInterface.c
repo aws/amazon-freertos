@@ -44,8 +44,12 @@ enum if_state_t {
 static const char *TAG = "NetInterface";
 volatile static uint32_t xInterfaceState = INTERFACE_DOWN;
 
+/* protect the function declaration itself instead of using
+   #if everywhere.                                        */
 #if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources();
+    static void prvPrintResourceStats();    
+#else
+    #define prvPrintResourceStats()
 #endif
 
 BaseType_t xNetworkInterfaceInitialise( void )
@@ -82,9 +86,8 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         }
     }
 
-#if ( ipconfigHAS_PRINTF != 0 )
-    prvMonitorResources();
-#endif
+    prvPrintResourceStats();
+    
     if (xReleaseAfterSend == pdTRUE) {
         vReleaseNetworkBufferAndDescriptor(pxNetworkBuffer);
     }
@@ -112,9 +115,7 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
     IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
     const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
 
-#if ( ipconfigHAS_PRINTF != 0 )
-    prvMonitorResources();
-#endif
+    prvPrintResourceStats();
 
     if( eConsiderFrameForProcessing( buffer ) != eProcessBuffer ) {
         ESP_LOGD(TAG, "Dropping packet");
@@ -146,7 +147,7 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
 }
 
 #if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources()
+    static void prvPrintResourceStats()
     {
         static UBaseType_t uxLastMinBufferCount = 0u;
         static UBaseType_t uxCurrentBufferCount = 0u;
