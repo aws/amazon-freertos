@@ -34,7 +34,7 @@
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "esp_wifi_internal.h"
-#include "tcpip_adapter.h"
+prvMonitorResources();#include "tcpip_adapter.h"
 
 enum if_state_t {
     INTERFACE_DOWN = 0,
@@ -47,10 +47,9 @@ volatile static uint32_t xInterfaceState = INTERFACE_DOWN;
 /* protect the function declaration itself instead of using
    #if everywhere.                                        */
 #if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources();
-    #define PRINT_RESOURCE_LOGS prvMonitorResources();
+    static void prvMonitorResources();    
 #else
-    #define PRINT_RESOURCE_LOGS
+    #define prvMonitorResources()
 #endif
 
 BaseType_t xNetworkInterfaceInitialise( void )
@@ -88,7 +87,7 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
     }
 
     /* Print the necessary debugging logs */
-    PRINT_RESOURCE_LOGS;
+    prvMonitorResources();
     
     if (xReleaseAfterSend == pdTRUE) {
         vReleaseNetworkBufferAndDescriptor(pxNetworkBuffer);
@@ -117,7 +116,7 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
     IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
     const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
 
-    PRINT_RESOURCE_LOGS;
+    prvMonitorResources();
 
     if( eConsiderFrameForProcessing( buffer ) != eProcessBuffer ) {
         ESP_LOGD(TAG, "Dropping packet");
