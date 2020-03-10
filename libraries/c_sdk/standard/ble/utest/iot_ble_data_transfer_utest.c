@@ -526,7 +526,7 @@ void test_IotBleDataTransfer_Init_HappyPath( void )
 }
 
 /**
- * @brief Force various failures of callback registration within _registerCallbacks
+ * @brief Exercies all of callback registration failure paths within _registerCallbacks
  */
 void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 {
@@ -547,7 +547,7 @@ void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 }
 
 /**
- * @brief Force failure of channel initialization
+ * @brief Excercise failure of channel initialization
  */
 void test_IotBleDataTransfer_Init_WithFailedSemaphoreCreations( void )
 {
@@ -639,7 +639,7 @@ void test_IotBleDataTransfer_SetCallback_HappyPath( void )
 
 
 /**
- * @brief Exercise the fail paths for this call
+ * @brief Exercise the all fail paths for this call
  */
 void test_IotBleDataTransfer_SetCallback_WithEachFailBranch( void )
 {
@@ -673,7 +673,7 @@ void test_IotBleDataTransfer_SetCallback_WithEachFailBranch( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path
+ * @brief Happy path. Send a message
  */
 void test_IotBleDataTransfer_Send_HappyPath( void )
 {
@@ -737,7 +737,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU( void )
 }
 
 /**
- * @brief test with failed resize malloc after big send
+ * @brief test with failed malloc for big send. Hereafter, a 'big send' is one that is larger than
+ *        the currently negotiated MTU
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedMalloc( void )
 {
@@ -760,7 +761,7 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedMalloc( void )
 
 /**
  * @brief Send a large message over multiple packets, such that a remainder needs to be stored in the send buffer.
- * Force failure of buffer resizing
+ *        Force failure of buffer resizing
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMUT_WithFailedRealloc( void )
 {
@@ -787,8 +788,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMUT_WithFailedRealloc( void )
 }
 
 /**
- * @brief Send a large message that requires multiple packet transmissions, but call to internal _send helper fails
- * because SendIndication fails
+ * @brief Send a large message that requires multiple packet transmissions, but call to internal
+ *        _send helper fails because SendIndication fails
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedIndication( void )
 {
@@ -807,8 +808,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedIndication( voi
 
 
 /**
- * @brief Send a large message that requires multiple packet transmissions but there's a timeout after waiting for the
- * sendComplete semaphore to be available
+ * @brief Send a large message that requires multiple packet transmissions but
+ *        there's a timeout after waiting for the sendComplete semaphore to be available
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithTimeout( void )
 {
@@ -850,7 +851,7 @@ void test_IotBleDataTransfer_Send_WithChannelDNE( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path making sure that
+ * @brief Happy path. Receive message from client
  */
 void test_IotBleDataTransfer_Receive_HappyPath( void )
 {
@@ -902,7 +903,7 @@ void test_IotBleDataTransfer_Receive_LessThanRequested( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path
+ * @brief Happy path. Peek into receive buffer
  */
 void test_IotBleDataTransfer_PeekReceiveBuffer_HappyPath( void )
 {
@@ -949,7 +950,7 @@ void test_IotBleDataTransfer_PeekReceiveBuffer_FlushBuffer( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path
+ * @brief Happy path. Close channel
  */
 void test_IotBleDataTransfer_Close_HappyPath( void )
 {
@@ -965,7 +966,7 @@ void test_IotBleDataTransfer_Close_HappyPath( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path
+ * @brief Happy path. Reset channel
  */
 void test_IotBleDataTransfer_Reset_HappyPath( void )
 {
@@ -981,7 +982,7 @@ void test_IotBleDataTransfer_Reset_HappyPath( void )
  ******************************************************************************/
 
 /**
- * @brief Happy path
+ * @brief Happy path. Service cleanup
  */
 void test_IotBleDataTransfer_Cleanup_HappyPath( void )
 {
@@ -1000,7 +1001,7 @@ void test_IotBleDataTransfer_Cleanup_HappyPath( void )
 }
 
 /**
- * @brief First call to unregister fails and short circuits failure
+ * @brief Excercise all fail paths due from failed calls to IotBle_UnRegisterEventCb
  */
 void test_IotBleDataTransfer_Cleanup_WithFailedDeregistrations( void )
 {
@@ -1091,8 +1092,9 @@ void test_TXMesgCharCallback_HappyPath( void )
 }
 
 /**
- * @brief More reasonably, large data couldn't fit in the small char characteristic and in one indication. So client
- * asks for the rest of the data and server sends over multiple, fully filled per mtu, packets
+ * @brief Send a large message
+ * @desc More reasonably, large data couldn't fit in the small char characteristic and in one indication. So client
+ *       asks for the rest of the data and server sends over multiple, fully filled per mtu, packets
  */
 void test_TXLargeMesgCharCallback_HappyPath( void )
 {
@@ -1135,7 +1137,7 @@ void test_TXLargeMesgCharCallback_LargerThanTwoMTUs( void )
 }
 
 /**
- * @brief Client tries to read data that requires 2 separae packets. The first one is successful, the second is not
+ * @brief Client tries to read data that requires 2 separate packets. The first one is successful, the second is not
  */
 void test_TXLargeMesgCharCallback_LargerThanTwoMTUs_WithFailedSecondTransmit( void )
 {
@@ -1311,7 +1313,8 @@ void test_RXLargeMesgCharCallback_WithRealloc( void )
 }
 
 /**
- * @brief The incoming message is larger than currently allocated receive buf. A resize is necessary but fails
+ * @brief The incoming message is larger than currently allocated receive buf.
+ * A resize is necessary but fails
  */
 void test_RXLargeMesgCharCallback_WithReallocFail( void )
 {
@@ -1335,7 +1338,7 @@ void test_RXLargeMesgCharCallback_WithReallocFail( void )
 
 /**
  * @brief Client writes to large char characteristic but the service hasn't been created yet. Then retry with service created
- * but with channel closed
+ *        but with channel closed
  */
 void test_RXLargeMesgCharCallback_WithServiceDNE( void )
 {
