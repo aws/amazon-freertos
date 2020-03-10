@@ -98,8 +98,8 @@ bool cleanup_transfers()
     return ret;
 }
 
-/*
- * Individual tests need a way to restore to a known state so they don't stomp on each other
+/**
+ * @brief Individual tests need a way to restore to a known state so they don't stomp on each other
  */
 bool init_transfers()
 {
@@ -514,8 +514,8 @@ int suiteTearDown( int numFailures )
  * IotBleDataTransfer_Init
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path. typical usage as recommended in docs
  */
 void test_IotBleDataTransfer_Init_HappyPath( void )
 {
@@ -525,8 +525,8 @@ void test_IotBleDataTransfer_Init_HappyPath( void )
     TEST_ASSERT_TRUE_MESSAGE( ret, "Failed to initialize data" );
 }
 
-/*
- * Force various failures of callback registration within _registerCallbacks
+/**
+ * @brief Force various failures of callback registration within _registerCallbacks
  */
 void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
 {
@@ -546,8 +546,8 @@ void test_IotBleDataTransfer_Init_WithRegisterEventFails( void )
     IotBle_RegisterEventCb_Stub( IotBle_RegisterEventCb_Callback );
 }
 
-/*
- * Force failure of channel initialization
+/**
+ * @brief Force failure of channel initialization
  */
 void test_IotBleDataTransfer_Init_WithFailedSemaphoreCreations( void )
 {
@@ -562,8 +562,8 @@ void test_IotBleDataTransfer_Init_WithFailedSemaphoreCreations( void )
     IotSemaphore_Create_Stub( IotSemaphore_Create_Callback );
 }
 
-/*
- * Service creation fails
+/**
+ * @brief Service creation fails
  */
 void test_IotBleDataTransfer_WithFailedServiceCreation( void )
 {
@@ -582,8 +582,8 @@ void test_IotBleDataTransfer_WithFailedServiceCreation( void )
  * IotBleDataTransfer_Open
  ******************************************************************************/
 
-/*
- * Happy path for opening a service. Then try to reopen it again
+/**
+ * @brief Happy path for opening a service. Then try to reopen it again
  */
 void test_IotBleDataTransfer_Open_HappyPathWithAttemptToReopen( void )
 {
@@ -609,8 +609,8 @@ void test_IotBleDataTransfer_Open_HappyPathWithAttemptToReopen( void )
     TEST_ASSERT( reopened_channel == NULL );
 }
 
-/*
- * Try opening a service that doesn't exist
+/**
+ * @brief Try opening a service that doesn't exist
  */
 void test_IotBleDataTransfer_Open_WithServiceDNE( void )
 {
@@ -623,8 +623,8 @@ void test_IotBleDataTransfer_Open_WithServiceDNE( void )
  * IotBleDataTransfer_SetCallback
  ******************************************************************************/
 
-/*
- * Happy path with ready channel. Don't care for context here
+/**
+ * @brief Happy path with ready channel. Don't care for context here
  */
 void test_IotBleDataTransfer_SetCallback_HappyPath( void )
 {
@@ -638,8 +638,8 @@ void test_IotBleDataTransfer_SetCallback_HappyPath( void )
 }
 
 
-/*
- * Exercise the fail paths for this call
+/**
+ * @brief Exercise the fail paths for this call
  */
 void test_IotBleDataTransfer_SetCallback_WithEachFailBranch( void )
 {
@@ -672,8 +672,8 @@ void test_IotBleDataTransfer_SetCallback_WithEachFailBranch( void )
  * IotBleDataTransfer_Send
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path
  */
 void test_IotBleDataTransfer_Send_HappyPath( void )
 {
@@ -700,8 +700,8 @@ void test_IotBleDataTransfer_Send_HappyPath( void )
     TEST_ASSERT_MESSAGE( n_sent == sizeof( full_msg ), "Did not send all expected bytes" );
 }
 
-/*
- * Client sends some data but attempt to send indication fails
+/**
+ * @brief Client sends some data but attempt to send indication fails
  */
 void test_IotBleDataTransfer_Send_WithIndicationFail( void )
 {
@@ -718,8 +718,8 @@ void test_IotBleDataTransfer_Send_WithIndicationFail( void )
     TEST_ASSERT( n_sent == 0 );
 }
 
-/*
- * Attempt to send a message that is larger than the current negotiated MTU size
+/**
+ * @brief Attempt to send a message that is larger than the current negotiated MTU size
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU( void )
 {
@@ -736,9 +736,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU( void )
     TEST_ASSERT_MESSAGE( n_sent == sizeof( msg ), "Did not send all expected bytes" );
 }
 
-/*
- * Send max-capacity packet, then needs to resize send buffer to send remainder of message, but buffer resizing fails
- * Currently this means that the remainder issued by call the _Send
+/**
+ * @brief test with failed resize malloc after big send
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedMalloc( void )
 {
@@ -759,8 +758,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedMalloc( void )
     pvPortMalloc_Stub( pvPortMalloc_Callback );
 }
 
-/*
- * Send a large message over multiple packets, such that a remainder needs to be stored in the send buffer.
+/**
+ * @brief Send a large message over multiple packets, such that a remainder needs to be stored in the send buffer.
  * Force failure of buffer resizing
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMUT_WithFailedRealloc( void )
@@ -787,8 +786,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMUT_WithFailedRealloc( void )
     pvPortMalloc_Stub( pvPortMalloc_Callback );
 }
 
-/*
- * Send a large message that requires multiple packet transmissions, but call to internal _send helper fails
+/**
+ * @brief Send a large message that requires multiple packet transmissions, but call to internal _send helper fails
  * because SendIndication fails
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedIndication( void )
@@ -807,8 +806,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithFailedIndication( voi
 }
 
 
-/*
- * Send a large message that requires multiple packet transmissions but there's a timeout after waiting for the
+/**
+ * @brief Send a large message that requires multiple packet transmissions but there's a timeout after waiting for the
  * sendComplete semaphore to be available
  */
 void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithTimeout( void )
@@ -828,8 +827,8 @@ void test_IotBleDataTransfer_Send_LargerThanCurrentMTU_WithTimeout( void )
     TEST_ASSERT( n_sent == 0 );
 }
 
-/*
- * Attempt to send when channel doesn't exist or wasn't opened
+/**
+ * @brief Attempt to send when channel doesn't exist or wasn't opened
  */
 void test_IotBleDataTransfer_Send_WithChannelDNE( void )
 {
@@ -850,8 +849,8 @@ void test_IotBleDataTransfer_Send_WithChannelDNE( void )
  * IotBleDataTransfer_Receive
  ******************************************************************************/
 
-/*
- * Happy path making sure that
+/**
+ * @brief Happy path making sure that
  */
 void test_IotBleDataTransfer_Receive_HappyPath( void )
 {
@@ -872,8 +871,8 @@ void test_IotBleDataTransfer_Receive_HappyPath( void )
     TEST_ASSERT_EQUAL_UINT8_ARRAY( msg_out, msg_in, msg_out_size );
 }
 
-/*
- * Server receives more bytes than it request to read, then flushes an empty rx buffer
+/**
+ * @brief Server receives more bytes than it request to read, then flushes an empty rx buffer
  */
 void test_IotBleDataTransfer_Receive_LessThanRequested( void )
 {
@@ -902,8 +901,8 @@ void test_IotBleDataTransfer_Receive_LessThanRequested( void )
  * IotBleDataTransfer_PeekReceiveBuffer
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path
  */
 void test_IotBleDataTransfer_PeekReceiveBuffer_HappyPath( void )
 {
@@ -927,8 +926,8 @@ void test_IotBleDataTransfer_PeekReceiveBuffer_HappyPath( void )
 }
 
 
-/*
- * Client tries to peak into null receive buffer
+/**
+ * @brief Client tries to peak into null receive buffer
  */
 void test_IotBleDataTransfer_PeekReceiveBuffer_FlushBuffer( void )
 {
@@ -949,8 +948,8 @@ void test_IotBleDataTransfer_PeekReceiveBuffer_FlushBuffer( void )
  * IotBleDataTransfer_Close
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path
  */
 void test_IotBleDataTransfer_Close_HappyPath( void )
 {
@@ -965,8 +964,8 @@ void test_IotBleDataTransfer_Close_HappyPath( void )
  * IotBleDataTransfer_Reset
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path
  */
 void test_IotBleDataTransfer_Reset_HappyPath( void )
 {
@@ -981,8 +980,8 @@ void test_IotBleDataTransfer_Reset_HappyPath( void )
  * IotBleDataTransfer_Cleanup
  ******************************************************************************/
 
-/*
- * Happy path
+/**
+ * @brief Happy path
  */
 void test_IotBleDataTransfer_Cleanup_HappyPath( void )
 {
@@ -1000,8 +999,8 @@ void test_IotBleDataTransfer_Cleanup_HappyPath( void )
     IotBle_UnRegisterEventCb_Stub( IotBle_UnregisterEventCb_Callback );
 }
 
-/*
- * First call to unregister fails and short circuits failure
+/**
+ * @brief First call to unregister fails and short circuits failure
  */
 void test_IotBleDataTransfer_Cleanup_WithFailedDeregistrations( void )
 {
@@ -1021,8 +1020,8 @@ void test_IotBleDataTransfer_Cleanup_WithFailedDeregistrations( void )
     IotBle_UnRegisterEventCb_Stub( IotBle_UnregisterEventCb_Callback );
 }
 
-/*
- * Channel cleanup fails
+/**
+ * @brief Channel cleanup fails
  */
 void test_IotBleDataTransfer_Cleanup_WithFailedServiceDeletion( void )
 {
@@ -1041,8 +1040,8 @@ void test_IotBleDataTransfer_Cleanup_WithFailedServiceDeletion( void )
  * Internal Callback Exercises
  ******************************************************************************/
 
-/*
- * Generate the connect/disconnect event to exercise internal callback for connection events
+/**
+ * @brief Generate the connect/disconnect event to exercise internal callback for connection events
  */
 void test_connectionCallback_HappyPath( void )
 {
@@ -1060,8 +1059,8 @@ void test_connectionCallback_HappyPath( void )
     generate_connect_event( eBTStatusFail );
 }
 
-/*
- * Generate the MTU changed event to exercise internal callbacks
+/**
+ * @brief Generate the MTU changed event to exercise internal callbacks
  */
 void test_MTUChangedCallback_HappyPath( void )
 {
@@ -1078,8 +1077,8 @@ void test_MTUChangedCallback_HappyPath( void )
     generate_mtu_changed_event( mtu );
 }
 
-/*
- * No server-tx data that wasn't fit into an indication, but client reads attempts a small read any way
+/**
+ * @brief No server-tx data that wasn't fit into an indication, but client reads attempts a small read any way
  */
 void test_TXMesgCharCallback_HappyPath( void )
 {
@@ -1091,8 +1090,8 @@ void test_TXMesgCharCallback_HappyPath( void )
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR );
 }
 
-/*
- * More reasonably, large data couldn't fit in the small char characteristic and in one indication. So client
+/**
+ * @brief More reasonably, large data couldn't fit in the small char characteristic and in one indication. So client
  * asks for the rest of the data and server sends over multiple, fully filled per mtu, packets
  */
 void test_TXLargeMesgCharCallback_HappyPath( void )
@@ -1114,8 +1113,8 @@ void test_TXLargeMesgCharCallback_HappyPath( void )
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR );
 }
 
-/*
- * Client reads remaining data from server, but remainder is still too large to fit within mtu
+/**
+ * @brief Client reads remaining data from server, but remainder is still too large to fit within mtu
  */
 void test_TXLargeMesgCharCallback_LargerThanTwoMTUs( void )
 {
@@ -1135,8 +1134,8 @@ void test_TXLargeMesgCharCallback_LargerThanTwoMTUs( void )
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR );
 }
 
-/*
- * Client tries to read data that requires 2 separae packets. The first one is successful, the second is not
+/**
+ * @brief Client tries to read data that requires 2 separae packets. The first one is successful, the second is not
  */
 void test_TXLargeMesgCharCallback_LargerThanTwoMTUs_WithFailedSecondTransmit( void )
 {
@@ -1157,8 +1156,8 @@ void test_TXLargeMesgCharCallback_LargerThanTwoMTUs_WithFailedSecondTransmit( vo
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR );
 }
 
-/*
- * Client tries to read from closed channel. They've yet to indicate that they are ready
+/**
+ * @brief Client tries to read from closed channel. They've yet to indicate that they are ready
  */
 void test_TXLargeMesgCharCallback_WithUnreadyClient( void )
 {
@@ -1169,8 +1168,8 @@ void test_TXLargeMesgCharCallback_WithUnreadyClient( void )
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR );
 }
 
-/*
- * Server gets a malrouted event
+/**
+ * @brief Server gets a malrouted event
  */
 void test_TXLargeMesgCharCallback_WithMalroutedEvent( void )
 {
@@ -1206,8 +1205,8 @@ void test_TXLargeMesgCharCallback_WithMalroutedEvent( void )
     callback( &event );
 }
 
-/*
- * Client sends some data to server
+/**
+ * @brief Client sends some data to server
  */
 void test_RXMesgCharCallback_HappyPath( void )
 {
@@ -1223,8 +1222,8 @@ void test_RXMesgCharCallback_HappyPath( void )
 }
 
 
-/*
- * Client sends message that was couldn't fit within current MTU.
+/**
+ * @brief Client sends message that was couldn't fit within current MTU.
  */
 void test_RXMesgCharCallback_LargerThanCurrentMTU( void )
 {
@@ -1242,8 +1241,8 @@ void test_RXMesgCharCallback_LargerThanCurrentMTU( void )
 }
 
 
-/*
- * Client sends message but channel isn't open.
+/**
+ * @brief Client sends message but channel isn't open.
  */
 void test_RXMesgCharCallback_WithCloseChannel( void )
 {
@@ -1255,8 +1254,8 @@ void test_RXMesgCharCallback_WithCloseChannel( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), false );
 }
 
-/*
- * First message, which results in alloc of rx buffer, requires buffer bigge than initially defined rx buffer size
+/**
+ * @brief First message, which results in alloc of rx buffer, requires buffer bigge than initially defined rx buffer size
  */
 void test_RXLargeMesgCharCallback_FirstMessageLargerThanMTU( void )
 {
@@ -1272,8 +1271,8 @@ void test_RXLargeMesgCharCallback_FirstMessageLargerThanMTU( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
 }
 
-/*
- * First client write large message that can fit into the #defined initial receive buffer size
+/**
+ * @brief First client write large message that can fit into the #defined initial receive buffer size
  */
 void test_RXLargeMesgCharCallback_HappyPath( void )
 {
@@ -1290,8 +1289,8 @@ void test_RXLargeMesgCharCallback_HappyPath( void )
 }
 
 
-/*
- * First client large write can fit into the #defined initial receive buffer size, but a subsequent one can't.
+/**
+ * @brief First client large write can fit into the #defined initial receive buffer size, but a subsequent one can't.
  * Currently, this results in a buffer realloc resizing
  */
 void test_RXLargeMesgCharCallback_WithRealloc( void )
@@ -1311,8 +1310,8 @@ void test_RXLargeMesgCharCallback_WithRealloc( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
 }
 
-/*
- * The incoming message is larger than currently allocated receive buf. A resize is necessary but fails
+/**
+ * @brief The incoming message is larger than currently allocated receive buf. A resize is necessary but fails
  */
 void test_RXLargeMesgCharCallback_WithReallocFail( void )
 {
@@ -1334,8 +1333,8 @@ void test_RXLargeMesgCharCallback_WithReallocFail( void )
 }
 
 
-/*
- * Client writes to large char characteristic but the service hasn't been created yet. Then retry with service created
+/**
+ * @brief Client writes to large char characteristic but the service hasn't been created yet. Then retry with service created
  * but with channel closed
  */
 void test_RXLargeMesgCharCallback_WithServiceDNE( void )
@@ -1350,8 +1349,8 @@ void test_RXLargeMesgCharCallback_WithServiceDNE( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false );
 }
 
-/*
- * Client sends appropriately long data to update the configuration descriptor
+/**
+ * @brief Client sends appropriately long data to update the configuration descriptor
  */
 void test_clientCharCfgDescrCallback_HappyWrite( void )
 {
@@ -1365,8 +1364,8 @@ void test_clientCharCfgDescrCallback_HappyWrite( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ), false );
 }
 
-/*
- * Client attempts to write excessively long data into configuration descriptor
+/**
+ * @brief Client attempts to write excessively long data into configuration descriptor
  */
 void test_clientCharCfgDescrCallback_WithExcessiveData( void )
 {
@@ -1379,8 +1378,8 @@ void test_clientCharCfgDescrCallback_WithExcessiveData( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR, config, sizeof( config ), true );
 }
 
-/*
- * Client reads configuration descriptor
+/**
+ * @brief Client reads configuration descriptor
  */
 void test_clientCharCfgDescrCallback_HappyRead( void )
 {
@@ -1392,8 +1391,8 @@ void test_clientCharCfgDescrCallback_HappyRead( void )
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR );
 }
 
-/*
- * Client writes control CONTROL CHAR characteristic with callback installed
+/**
+ * @brief Client writes control CONTROL CHAR characteristic with callback installed
  */
 void test_ControlCharCallback_HappyWrite()
 {
@@ -1410,8 +1409,8 @@ void test_ControlCharCallback_HappyWrite()
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR, config, sizeof( config ), false );
 }
 
-/*
- * Client reads control CONTROL CHAR characteristic but provides invalid attr handle.
+/**
+ * @brief Client reads control CONTROL CHAR characteristic but provides invalid attr handle.
  */
 void test_ControlCharCallback_HappyRead()
 {
@@ -1426,8 +1425,8 @@ void test_ControlCharCallback_HappyRead()
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_CONTROL_CHAR );
 }
 
-/*
- * Write when channel isn't ready
+/**
+ * @brief Write when channel isn't ready
  */
 void test_ControlCharCallback_WithUnreadyChannel()
 {
@@ -1450,8 +1449,8 @@ void test_ControlCharCallback_WithUnreadyChannel()
 }
 
 
-/*
- * Send malrouted events to various gatt server characteristic callbacks
+/**
+ * @brief Send malrouted events to various gatt server characteristic callbacks
  */
 void test_ServerCallbacks_With_MalroutedEvents()
 {
@@ -1470,8 +1469,8 @@ void test_ServerCallbacks_With_MalroutedEvents()
     }
 }
 
-/*
- * Send various read/write events to gatt server characteristic callbacks with bad handles
+/**
+ * @brief Send various read/write events to gatt server characteristic callbacks with bad handles
  */
 void test_ServerCallbacks_With_BadAttrHandles()
 {
