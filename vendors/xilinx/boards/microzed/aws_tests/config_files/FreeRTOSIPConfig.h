@@ -59,8 +59,10 @@
  * then set ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM to 1 to prevent the software
  * stack repeating the checksum calculations. */
 #define ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM		( 1 )
-#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM     1
+#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM		( 1 )
 
+#define ipconfigZERO_COPY_RX_DRIVER					( 1 )
+#define ipconfigZERO_COPY_TX_DRIVER					( 1 )
 
 /* Several API's will block until the result is known, or the action has been
  * performed, for example FreeRTOS_send() and FreeRTOS_recv().  The timeouts can be
