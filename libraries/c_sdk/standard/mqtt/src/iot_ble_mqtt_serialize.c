@@ -27,6 +27,9 @@
  * @file iot_ble_mqtt_serialize.c
  * @brief MQTT library for BLE.
  */
+
+#include <inttypes.h>
+
 /* The config header is always included first. */
 #include "iot_config.h"
 
@@ -1208,7 +1211,7 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( _mqttPacket_t * pSuback )
                 case 0x02:
                     IotLog( IOT_LOG_DEBUG,
                             &_logHideAll,
-                            "Topic accepted, max QoS %hhu.", subscriptionStatus );
+                            "Topic accepted, max QoS %" PRId64 ".", subscriptionStatus );
                     ret = IOT_MQTT_SUCCESS;
                     break;
 
@@ -1228,7 +1231,7 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( _mqttPacket_t * pSuback )
                 default:
                     IotLog( IOT_LOG_DEBUG,
                             &_logHideAll,
-                            "Bad SUBSCRIBE status %hhu.", subscriptionStatus );
+                            "Bad SUBSCRIBE status %" PRId64 ".", subscriptionStatus );
 
                     ret = IOT_MQTT_BAD_RESPONSE;
                     break;

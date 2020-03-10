@@ -294,7 +294,7 @@ static void _mqttSubscriptionCallback( void * param1,
         /* Check for errors from snprintf. */
         if( acknowledgementLength < 0 )
         {
-            IotLogWarn( "Failed to generate acknowledgement message for PUBLISH *.*s.",
+            IotLogWarn( "Failed to generate acknowledgement message for PUBLISH %.*s.",
                         ( int ) messageNumberLength,
                         pPayload + messageNumberIndex );
         }

@@ -29,6 +29,7 @@
  */
 
 #include <string.h>
+#include <inttypes.h>
 
 #include "iot_config.h"
 #include "iot_ble_config.h"
@@ -592,7 +593,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter ( %" PRId64 " ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -719,7 +720,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter ( %" PRId64 " ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -744,7 +745,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "New Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "New Network index parameter ( %" PRId64 " ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -848,7 +849,7 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter %" PRId64 " is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }

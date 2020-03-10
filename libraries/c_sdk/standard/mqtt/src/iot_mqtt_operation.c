@@ -168,7 +168,7 @@ static bool _checkRetryLimit( _mqttOperation_t * pOperation )
          * accounts for the final check for a PUBACK. */
         IotMqtt_Assert( pOperation->u.operation.retry.count == pOperation->u.operation.retry.limit + 1 );
 
-        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) No response received after %lu retries.",
+        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) No response received after %u retries.",
                      pMqttConnection,
                      pOperation,
                      pOperation->u.operation.retry.limit );
@@ -505,7 +505,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         pOperation->u.operation.jobReference--;
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
-                     " from %ld to %ld.",
+                     " from %d to %d.",
                      pMqttConnection,
                      IotMqtt_OperationType( pOperation->u.operation.type ),
                      pOperation,
@@ -563,8 +563,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
         IotLogDebug( "(MQTT connection %p, %s operation %p) Removed operation from connection lists.",
                      pMqttConnection,
                      IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation,
-                     pMqttConnection );
+                     pOperation );
 
         IotListDouble_Remove( &( pOperation->link ) );
     }
