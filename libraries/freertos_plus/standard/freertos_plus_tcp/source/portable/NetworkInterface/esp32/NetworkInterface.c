@@ -44,8 +44,13 @@ enum if_state_t {
 static const char *TAG = "NetInterface";
 volatile static uint32_t xInterfaceState = INTERFACE_DOWN;
 
+/* protect the function declaration itself instead of using
+   #if everywhere.                                        */
 #if ( ipconfigHAS_PRINTF != 0 )
     static void prvMonitorResources();
+    #define PRINT_RESOURCE_LOGS prvMonitorResources();
+#else
+    #define PRINT_RESOURCE_LOGS
 #endif
 
 BaseType_t xNetworkInterfaceInitialise( void )
@@ -82,9 +87,9 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         }
     }
 
-#if ( ipconfigHAS_PRINTF != 0 )
-    prvMonitorResources();
-#endif
+    /* Print the necessary debugging logs */
+    PRINT_RESOURCE_LOGS;
+    
     if (xReleaseAfterSend == pdTRUE) {
         vReleaseNetworkBufferAndDescriptor(pxNetworkBuffer);
     }
@@ -112,9 +117,7 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
     IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
     const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
 
-#if ( ipconfigHAS_PRINTF != 0 )
-    prvMonitorResources();
-#endif
+    PRINT_RESOURCE_LOGS;
 
     if( eConsiderFrameForProcessing( buffer ) != eProcessBuffer ) {
         ESP_LOGD(TAG, "Dropping packet");
