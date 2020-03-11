@@ -28,8 +28,6 @@
  * @brief Implementation of the user-facing functions of the FreeRTOS HTTPS Client library.
  */
 
-#include <inttypes.h>
-
 /* The config header is always included first. */
 #include "iot_config.h"
 
@@ -2000,7 +1998,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t * pHttpsConnec
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
 
-    IotLogDebug( "The remaining content length on the network is %" PRIu64 ".",
+    IotLogDebug( "The remaining content length on the network is %llu.",
                  pHttpsResponse->httpParserInfo.responseParser.content_length );
 
     HTTPS_FUNCTION_CLEANUP_END();
