@@ -41,6 +41,10 @@
 #include "FreeRTOS_DNS.h"
 #include "NetworkBufferManagement.h"
 
+/* A tool to measure RAM usage. By default, it is disabled
+and it won't add any code. */
+#include "../tools/tcp_mem_stats.h"
+
 /* The ItemValue of the sockets xBoundSocketListItem member holds the socket's
 port number. */
 #define socketSET_SOCKET_PORT( pxSocket, usPort ) listSET_LIST_ITEM_VALUE( ( &( ( pxSocket )->xBoundSocketListItem ) ), ( usPort ) )
@@ -299,6 +303,15 @@ Socket_t xReturn;
 		}
 		else
 		{
+			if( xProtocol == FREERTOS_IPPROTO_UDP )
+			{
+				iptraceMEM_STATS_CREATE( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+			}	
+			else
+			{
+				iptraceMEM_STATS_CREATE( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+			}
+
 			/* Clear the entire space to avoid nulling individual entries */
 			memset( pxSocket, '\0', uxSocketSize );
 
@@ -383,6 +396,10 @@ Socket_t xReturn;
 				vPortFree( ( void* ) pxSocketSet );
 				pxSocketSet = NULL;
 			}
+			else
+			{
+				iptraceMEM_STATS_CREATE( tcpSOCKET_SET, pxSocketSet, sizeof( *pxSocketSet ) + sizeof( StaticEventGroup_t ) );
+			}
 		}
 
 		return ( SocketSet_t ) pxSocketSet;
@@ -396,6 +413,8 @@ Socket_t xReturn;
 	void FreeRTOS_DeleteSocketSet( SocketSet_t xSocketSet )
 	{
 		SocketSelect_t *pxSocketSet = ( SocketSelect_t*) xSocketSet;
+
+		iptraceMEM_STATS_REMOVE( pxSocketSet );
 
 		vEventGroupDelete( pxSocketSet->xSelectGroup );
 		vPortFree( ( void* ) pxSocketSet );
@@ -1165,11 +1184,13 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 			/* Free the input and output streams */
 			if( pxSocket->u.xTCP.rxStream != NULL )
 			{
+				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.rxStream );
 				vPortFreeLarge( pxSocket->u.xTCP.rxStream );
 			}
 
 			if( pxSocket->u.xTCP.txStream != NULL )
 			{
+				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.txStream );
 				vPortFreeLarge( pxSocket->u.xTCP.txStream );
 			}
 
@@ -1234,6 +1255,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 	#endif /* ( ipconfigUSE_TCP == 1 ) && ( ipconfigHAS_DEBUG_PRINTF != 0 ) */
 
 	/* Anf finally, after all resources have been freed, free the socket space */
+	iptraceMEM_STATS_REMOVE( pxSocket );
 	vPortFreeSocket( pxSocket );
 
 	return 0;
@@ -2960,6 +2982,15 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		}
 		else
 		{
+			if( xIsInputStream != 0 )
+			{
+				iptraceMEM_STATS_CREATE( tcpRX_STREAM_BUFFER, pxBuffer, uxSize );
+			}
+			else
+			{
+				iptraceMEM_STATS_CREATE( tcpTX_STREAM_BUFFER, pxBuffer, uxSize );
+			}
+
 			/* Clear the markers of the stream */
 			memset( pxBuffer, '\0', sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray ) );
 			pxBuffer->LENGTH = ( size_t ) uxLength ;

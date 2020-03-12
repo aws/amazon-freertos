@@ -309,6 +309,10 @@ extern uint32_t ulRand();
 
 #define portINLINE                               __inline
 
+/* TCP memory statistics. See plus_tcp/tools/tcp_mem_stats. */
+#define ipconfigUSE_TCP_MEM_STATS				1
+#define ipconfigTCP_MEM_STATS_MAX_ALLOCATION	64
+
 void vApplicationMQTTGetKeys( const char ** ppcRootCA,
                               const char ** ppcClientCert,
                               const char ** ppcClientPrivateKey );

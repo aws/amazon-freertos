@@ -3,6 +3,7 @@ afr_module(INTERNAL)
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+set(tools_dir "${CMAKE_CURRENT_LIST_DIR}/tools")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -16,6 +17,7 @@ afr_module_sources(
         "${src_dir}/FreeRTOS_TCP_IP.c"
         "${src_dir}/FreeRTOS_TCP_WIN.c"
         "${src_dir}/FreeRTOS_UDP_IP.c"
+		"${tools_dir}/tcp_mem_stats.c"
         "${inc_dir}/FreeRTOS_ARP.h"
         "${inc_dir}/FreeRTOS_DHCP.h"
         "${inc_dir}/FreeRTOS_DNS.h"
@@ -31,6 +33,7 @@ afr_module_sources(
         "${inc_dir}/IPTraceMacroDefaults.h"
         "${inc_dir}/NetworkBufferManagement.h"
         "${inc_dir}/NetworkInterface.h"
+		"${tools_dir}/tcp_mem_stats.h"
 
 )
 
