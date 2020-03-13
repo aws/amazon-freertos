@@ -34,6 +34,7 @@
 #include "iot_pkcs11.h"
 
 /* PSA includes. */
+#include "psa/client.h"
 #include "psa/crypto.h"
 #include "psa/protected_storage.h"
 
@@ -66,12 +67,12 @@ typedef enum eObjectHandles
  */
 typedef struct
 {
-    psa_ps_uid_t uxDeviceCertificate;  /* UID that indicates the device certificate data in PSA protected storage service. */
+    psa_storage_uid_t uxDeviceCertificate;  /* UID that indicates the device certificate data in PSA protected storage service. */
     psa_key_handle_t uxDevicePrivateKey;  /* Device private key handle that returned by PSA crypto service. */
     psa_key_handle_t uxDevicePublicKey;  /* Device public key handle that returned by PSA crypto service. */
     psa_key_handle_t uxCodeVerifyKey;  /* Key handle of the key that used by over-the-air update code to verify an incoming signed image. */
-    psa_ps_uid_t uxJitpCertificate; /* UID that indicates the JITP certificate data in PSA protected storage service. */
-    psa_ps_uid_t uxRootCertificate; /* UID that indicates the Root certificate data in PSA protected storage service. */
+    psa_storage_uid_t uxJitpCertificate; /* UID that indicates the JITP certificate data in PSA protected storage service. */
+    psa_storage_uid_t uxRootCertificate; /* UID that indicates the Root certificate data in PSA protected storage service. */
     uint32_t ulDeviceCertificateMark;
     uint32_t ulDevicePrivateKeyMark;
     uint32_t ulDevicePublicKeyMark;
@@ -124,7 +125,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
 */
 CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     uint8_t * ppucData,
-    uint32_t * pulDataSize,
+    size_t * pulDataSize,
     CK_BBOOL * pIsPrivate );
 
 /**
