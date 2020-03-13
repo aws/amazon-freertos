@@ -754,9 +754,21 @@ function(cy_kit_generate)
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy "${CY_TFM_HEX}"    "${CY_CM0_IMG}"
             COMMAND "python3" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
+        )
+        #convert signed hex files to binary format
+        #CLANG and IAR do not provide a tool, search for a generic objcopy
+        if(NOT GCC_OBJCOPY )
+            find_program(GCC_OBJCOPY objcopy arm-none-eabi-objcopy)
+            if(NOT GCC_OBJCOPY )
+                message(FATAL_ERROR "Cannot find objcopy.")
+            endif()
+        endif()
+        add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_SIGNED_IMG}"  "${CY_APP_CM0_BIN}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_SIGNED_IMG}"  "${CY_APP_CM4_BIN}"
         )
+
     endif(CY_TFM_PSA)
 
 endfunction(cy_kit_generate)
