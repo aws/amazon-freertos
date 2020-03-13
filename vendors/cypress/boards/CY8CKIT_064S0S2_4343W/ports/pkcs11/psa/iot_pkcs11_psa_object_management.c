@@ -63,15 +63,11 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     psa_key_handle_t uxKeyHandle;
     CK_ULONG uxKeyType;
-    psa_key_policy_t policy = psa_key_policy_init();
+    psa_key_attributes_t attributes = psa_key_attributes_init();
     psa_algorithm_t uxAlgorithm;
-    CK_RV xBytesWritten = 0;
-    CK_RV xReturn;
     uint32_t ulPresentMark = ( pkcs11OBJECT_PRESENT_MAGIC | ( ulDataSize ) );
-    uint8_t * pemBuffer;
-    size_t pemLength;
-    const psa_ps_create_flags_t uxFlags = PSA_PS_FLAG_NONE;
-    psa_ps_status_t uxStatus;
+    const psa_storage_create_flags_t uxFlags = PSA_STORAGE_FLAG_NONE;
+    psa_status_t uxStatus = PSA_SUCCESS;
     psa_ecc_curve_t curve_id;
     const mbedtls_ecp_keypair *ec;
     unsigned char pcPrivateKeyRaw[MBEDTLS_ECP_MAX_BYTES];
@@ -94,7 +90,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
             uxStatus = psa_ps_set( P11KeyConfig.uxDeviceCertificate,
                                    ulDataSize, pucData, uxFlags );
 
-            if( uxStatus == PSA_PS_SUCCESS )
+            if( uxStatus == PSA_SUCCESS )
             {
                 xHandle = eAwsDeviceCertificate;
 
@@ -113,7 +109,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
             uxStatus = psa_ps_set( P11KeyConfig.uxJitpCertificate,
                                    ulDataSize, pucData, uxFlags);
 
-            if( uxStatus == PSA_PS_SUCCESS )
+            if( uxStatus == PSA_SUCCESS )
             {
                 xHandle = eAwsDeviceCertificate;
 
@@ -132,7 +128,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
             uxStatus = psa_ps_set( P11KeyConfig.uxRootCertificate,
                                    ulDataSize, pucData, uxFlags);
 
-            if( uxStatus == PSA_PS_SUCCESS )
+            if( uxStatus == PSA_SUCCESS )
             {
                 xHandle = eAwsDeviceCertificate;
 
@@ -157,72 +153,63 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
              * TODO: Replace the volatile key APIs with persistent key APIs
              * after TF-M support that.
              */
-            uxStatus = psa_allocate_key( &uxKeyHandle );
-
             /*
              * Device private key is only used to make a signature,
              * only support RSA alg, only support MBEDTLS_RSA_PKCS_V15
              * padding mode, only support SHA256 md alg.
              */
-            if ( uxStatus == PSA_SUCCESS )
+            uxPrivateKeyTypePKCS11 = mbedtls_pk_get_type( pvContext );
+            switch ( uxPrivateKeyTypePKCS11 )
             {
-                uxPrivateKeyTypePKCS11 = mbedtls_pk_get_type( pvContext );
-                switch ( uxPrivateKeyTypePKCS11 )
-                {
-                    case MBEDTLS_PK_RSA:
-                        uxKeyType = PSA_KEY_TYPE_RSA_KEYPAIR;
-                        pucKeyData = pucData;
-                        ulKeyDataSize = ulDataSize;
-                        switch ( ( ( mbedtls_rsa_context * ) ( pvContext->pk_ctx ) )->padding )
-                        {
-                            case MBEDTLS_RSA_PKCS_V15:
-                                uxAlgorithm = PSA_ALG_RSA_PKCS1V15_SIGN( PSA_ALG_SHA_256 );
-                                break;
+                case MBEDTLS_PK_RSA:
+                    uxKeyType = PSA_KEY_TYPE_RSA_KEY_PAIR;
+                    pucKeyData = pucData;
+                    ulKeyDataSize = ulDataSize;
+                    switch ( ( ( mbedtls_rsa_context * ) ( pvContext->pk_ctx ) )->padding )
+                    {
+                        case MBEDTLS_RSA_PKCS_V15:
+                            uxAlgorithm = PSA_ALG_RSA_PKCS1V15_SIGN( PSA_ALG_SHA_256 );
+                            break;
 
-                            case MBEDTLS_RSA_PKCS_V21:
-                                uxAlgorithm = PSA_ALG_RSA_PSS( PSA_ALG_SHA_256 );
-                                break;
+                        case MBEDTLS_RSA_PKCS_V21:
+                            uxAlgorithm = PSA_ALG_RSA_PSS( PSA_ALG_SHA_256 );
+                            break;
 
-                            default:
-                                uxAlgorithm = 0;
-                                break;
-                        }
-                        break;
+                        default:
+                            uxAlgorithm = 0;
+                            break;
+                    }
+                    break;
 
-                    case MBEDTLS_PK_ECKEY:
-                    case MBEDTLS_PK_ECDSA:
-                        ec = mbedtls_pk_ec(*pvContext);
-                        curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
-                        uxKeyType = PSA_KEY_TYPE_ECC_KEYPAIR(curve_id);
-                        uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-                        xPrivateKeySizeRaw = ( ec->grp.nbits + 7 ) / 8;
-                        if( mbedtls_mpi_write_binary( &ec->d, pcPrivateKeyRaw, xPrivateKeySizeRaw ) != 0 )
-                        {
-                            uxStatus = PSA_ERROR_GENERIC_ERROR;
-                        }
-                        pucKeyData = pcPrivateKeyRaw;
-                        ulKeyDataSize = xPrivateKeySizeRaw;
-                        break;
-                    default:
-                        uxAlgorithm = 0;
-                        uxKeyType = 0;
-                        break;
-                }
+                case MBEDTLS_PK_ECKEY:
+                case MBEDTLS_PK_ECDSA:
+                    ec = mbedtls_pk_ec(*pvContext);
+                    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
+                    uxKeyType = PSA_KEY_TYPE_ECC_KEY_PAIR(curve_id);
+                    uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
+                    xPrivateKeySizeRaw = ( ec->grp.nbits + 7 ) / 8;
+                    if( mbedtls_mpi_write_binary( &ec->d, pcPrivateKeyRaw, xPrivateKeySizeRaw ) != 0 )
+                    {
+                        uxStatus = PSA_ERROR_GENERIC_ERROR;
+                    }
+                    pucKeyData = pcPrivateKeyRaw;
+                    ulKeyDataSize = xPrivateKeySizeRaw;
+                    break;
+                default:
+                    uxAlgorithm = 0;
+                    uxKeyType = 0;
+                    break;
             }
             if ( uxStatus == PSA_SUCCESS )
             {
-                psa_key_policy_set_usage( &policy,
-                                        PSA_KEY_USAGE_SIGN,
-                                        uxAlgorithm );
+                psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_SIGN_HASH);
+                psa_set_key_algorithm( &attributes, uxAlgorithm);
+                psa_set_key_type( &attributes, uxKeyType );
 
-                uxStatus = psa_set_key_policy( uxKeyHandle, &policy );
-            }
-            if ( uxStatus == PSA_SUCCESS )
-            {
-                uxStatus = psa_import_key( uxKeyHandle,
-                                           uxKeyType,
+                uxStatus = psa_import_key( &attributes,
                                            ( const uint8_t * )pucKeyData,
-                                           ulKeyDataSize );
+                                           ulKeyDataSize,
+                                           &uxKeyHandle );
 
             }
             if ( uxStatus == PSA_SUCCESS )
@@ -238,59 +225,53 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
             ( strcmp( pxLabel->pValue,
                     pkcs11configLABEL_CODE_VERIFICATION_KEY ) == 0 ) )
         {
-            uxStatus = psa_allocate_key( &uxKeyHandle );
 
             /*
              * Code verify key is only used to make a verify,
              * only SHA256 md alg.
              */
-            if ( uxStatus == PSA_SUCCESS )
+            switch ( mbedtls_pk_get_type( pvContext ) )
             {
-                switch ( mbedtls_pk_get_type( pvContext ) )
-                {
-                    case MBEDTLS_PK_RSA:
-                        /**
-                         * The RSA private key should contains the public key. So it should not goes here.
-                         */
-                        break;
+                case MBEDTLS_PK_RSA:
+                    /**
+                     * The RSA private key should contains the public key. So it should not goes here.
+                     */
+                    uxAlgorithm = 0;
+                    uxKeyType = 0;
+                    break;
 
-                    case MBEDTLS_PK_ECKEY:
-                    case MBEDTLS_PK_ECDSA:
-                        ec = (mbedtls_ecp_keypair *) (pvContext->pk_ctx );
-                        curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
-                        uxKeyType = PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve_id);
-                        uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-                        if( 0 !=get_public_key_ECPoint( pucData,
-                                                        ulDataSize,
-                                                        &pcPublicKeyUncompressedData,
-                                                        &xPublicKeySizeUncompressed ) )
-                        {
-                            uxStatus = PSA_ERROR_GENERIC_ERROR;
-                        }
+                case MBEDTLS_PK_ECKEY:
+                case MBEDTLS_PK_ECDSA:
+                    ec = (mbedtls_ecp_keypair *) (pvContext->pk_ctx );
+                    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
+                    uxKeyType = PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve_id);
+                    uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
+                    if( 0 !=get_public_key_ECPoint( pucData,
+                                                    ulDataSize,
+                                                    &pcPublicKeyUncompressedData,
+                                                    &xPublicKeySizeUncompressed ) )
+                    {
+                        uxStatus = PSA_ERROR_GENERIC_ERROR;
+                    }
 
-                        pucKeyData = pcPublicKeyUncompressedData;
-                        ulKeyDataSize = xPublicKeySizeUncompressed;
-                        break;
-                    default:
-                        uxAlgorithm = 0;
-                        break;
-                }
+                    pucKeyData = pcPublicKeyUncompressedData;
+                    ulKeyDataSize = xPublicKeySizeUncompressed;
+                    break;
+                default:
+                    uxAlgorithm = 0;
+                    uxKeyType = 0;
+                    break;
             }
             if ( uxStatus == PSA_SUCCESS )
             {
-                psa_key_policy_set_usage( &policy,
-                                          PSA_KEY_USAGE_VERIFY,
-                                          uxAlgorithm );
+                psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_VERIFY_HASH );
+                psa_set_key_algorithm( &attributes, uxAlgorithm );
+                psa_set_key_type( &attributes, uxKeyType );
 
-                uxStatus = psa_set_key_policy( uxKeyHandle, &policy );
-            }
-            if ( uxStatus == PSA_SUCCESS )
-            {
-                uxStatus = psa_import_key( uxKeyHandle,
-                                            uxKeyType,
-                                            ( const uint8_t * )pucKeyData,
-                                            ulKeyDataSize );
-
+                uxStatus = psa_import_key( &attributes,
+                                           ( const uint8_t * )pucKeyData,
+                                           ulKeyDataSize,
+                                           &uxKeyHandle );
             }
 
             if ( uxStatus == PSA_SUCCESS )
@@ -306,54 +287,48 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
             ( strcmp( pxLabel->pValue,
                     pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) == 0 ) )
         {
-            uxStatus = psa_allocate_key( &uxKeyHandle );
-
             /*
              * Code verify key is only used to make a verify,
              * only SHA256 md alg.
              */
-            if ( uxStatus == PSA_SUCCESS )
+            switch ( mbedtls_pk_get_type( pvContext ) )
             {
-                switch ( mbedtls_pk_get_type( pvContext ) )
-                {
-                    case MBEDTLS_PK_RSA:
-                        break;
+                case MBEDTLS_PK_RSA:
+                    uxAlgorithm = 0;
+                    uxKeyType = 0;
+                    break;
 
-                    case MBEDTLS_PK_ECKEY:
-                    case MBEDTLS_PK_ECDSA:
-                        ec = (mbedtls_ecp_keypair *) (pvContext->pk_ctx );
-                        curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
-                        uxKeyType = PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve_id);
-                        uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-                        if( 0 !=get_public_key_ECPoint( pucData,
-                                                        ulDataSize,
-                                                        &pcPublicKeyUncompressedData,
-                                                        &xPublicKeySizeUncompressed ) )
-                        {
-                            uxStatus = PSA_ERROR_GENERIC_ERROR;
-                        }
-                        pucKeyData = pcPublicKeyUncompressedData;
-                        ulKeyDataSize = xPublicKeySizeUncompressed;
-                        break;
-                    default:
-                        uxAlgorithm = 0;
-                        break;
-                }
+                case MBEDTLS_PK_ECKEY:
+                case MBEDTLS_PK_ECDSA:
+                    ec = (mbedtls_ecp_keypair *) (pvContext->pk_ctx );
+                    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
+                    uxKeyType = PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve_id);
+                    uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
+                    if( 0 !=get_public_key_ECPoint( pucData,
+                                                    ulDataSize,
+                                                    &pcPublicKeyUncompressedData,
+                                                    &xPublicKeySizeUncompressed ) )
+                    {
+                        uxStatus = PSA_ERROR_GENERIC_ERROR;
+                    }
+                    pucKeyData = pcPublicKeyUncompressedData;
+                    ulKeyDataSize = xPublicKeySizeUncompressed;
+                    break;
+                default:
+                    uxAlgorithm = 0;
+                    uxKeyType = 0;
+                    break;
             }
             if( uxStatus == PSA_SUCCESS )
             {
-                psa_key_policy_set_usage( &policy,
-                                          PSA_KEY_USAGE_VERIFY,
-                                          uxAlgorithm );
+                psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_VERIFY_HASH );
+                psa_set_key_algorithm( &attributes, uxAlgorithm );
+                psa_set_key_type( &attributes, uxKeyType );
 
-                uxStatus = psa_set_key_policy( uxKeyHandle, &policy );
-            }
-            if ( uxStatus == PSA_SUCCESS )
-            {
-                uxStatus = psa_import_key( uxKeyHandle,
-                                           uxKeyType,
+                uxStatus = psa_import_key( &attributes,
                                            ( const uint8_t * )pucKeyData,
-                                           ulKeyDataSize );
+                                           ulKeyDataSize,
+                                           &uxKeyHandle );
 
             }
 
@@ -396,12 +371,12 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
 */
 CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     uint8_t * ppucData,
-    uint32_t * pulDataSize,
+    size_t * pulDataSize,
     CK_BBOOL * pIsPrivate )
 {
     CK_RV ulReturn = CKR_OBJECT_HANDLE_INVALID;
-    uint32_t ulDataSize = 0;
-    psa_ps_status_t uxStatus;
+    size_t ulDataSize = 0;
+    psa_status_t uxStatus;
 
     /*
      * Read client certificate.
@@ -414,8 +389,8 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( ( P11KeyConfig.ulDeviceCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC )
         {
             ulDataSize = ( uint32_t ) P11KeyConfig.ulDeviceCertificateMark & pkcs11OBJECT_LENGTH_MASK;
-            uxStatus = psa_ps_get( P11KeyConfig.uxDeviceCertificate, 0, ulDataSize, ppucData );
-            if ( uxStatus == PSA_PS_SUCCESS )
+            uxStatus = psa_ps_get( P11KeyConfig.uxDeviceCertificate, 0, ulDataSize, ppucData, &ulDataSize );
+            if ( uxStatus == PSA_SUCCESS )
             {
                 *pulDataSize = ulDataSize;
                 *pIsPrivate = CK_FALSE;
@@ -435,8 +410,8 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( ( P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC )
         {
             ulDataSize = ( uint32_t ) P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_LENGTH_MASK;
-            uxStatus = psa_ps_get( P11KeyConfig.uxJitpCertificate, 0, ulDataSize, ppucData );
-            if ( uxStatus == PSA_PS_SUCCESS )
+            uxStatus = psa_ps_get( P11KeyConfig.uxJitpCertificate, 0, ulDataSize, ppucData, &ulDataSize );
+            if ( uxStatus == PSA_SUCCESS )
             {
                 *pulDataSize = ulDataSize;
                 *pIsPrivate = CK_FALSE;
@@ -456,8 +431,8 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( ( P11KeyConfig.ulRootCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC )
         {
             ulDataSize = ( uint32_t ) P11KeyConfig.ulRootCertificateMark & pkcs11OBJECT_LENGTH_MASK;
-            uxStatus = psa_ps_get( P11KeyConfig.uxRootCertificate, 0, ulDataSize, ppucData );
-            if ( uxStatus == PSA_PS_SUCCESS )
+            uxStatus = psa_ps_get( P11KeyConfig.uxRootCertificate, 0, ulDataSize, ppucData, &ulDataSize );
+            if ( uxStatus == PSA_SUCCESS )
             {
                 *pulDataSize = ulDataSize;
                 *pIsPrivate = CK_FALSE;
