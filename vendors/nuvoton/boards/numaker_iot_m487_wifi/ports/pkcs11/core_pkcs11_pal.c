@@ -47,11 +47,16 @@
 /* flash driver includes. */
 #include "NuMicro.h"
 
+#ifndef pkcs11configLABEL_DEVICE_RESERVE_KEY
+#define pkcs11configLABEL_DEVICE_RESERVE_KEY "Device Reserve key"
+#endif
+
 //#define pkcs11FILE_NAME_PUBLISHER_CERTIFICATE    "FreeRTOS_Publisher_Certificate.dat"
 //#define pkcs11FILE_NAME_PUBLISHER_KEY            "FreeRTOS_Publisher_Key.dat"
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+#define pkcs11palFILE_NAME_RESERVE_KEY                "FreeRTOS_P11_ReserveKey.dat"
 
 #define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    2048
 #define pkcs11OBJECT_FLASH_CERT_PRESENT      ( 0x1A2B3C4DUL )
@@ -62,7 +67,8 @@ enum eObjectHandles
     eAwsDevicePrivateKey = 1,
     eAwsDevicePublicKey,
     eAwsDeviceCertificate,
-    eAwsCodeSigningKey
+    eAwsCodeSigningKey,
+    eAwsDeviceReserveKey,
 };
 
 /**
@@ -176,6 +182,13 @@ static void prvLabelToFilenameHandle( uint8_t * pcLabel,
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;
         }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_RESERVE_KEY,
+                              sizeof( pkcs11configLABEL_DEVICE_RESERVE_KEY ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_RESERVE_KEY;
+            *pHandle = eAwsDeviceReserveKey;
+        }        
         else
         {
             *pcFileName = NULL;
@@ -233,6 +246,10 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
     {
         certFlashAddr = P11KeyConfig.CodeSignKey;
     }
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        certFlashAddr = P11KeyConfig.ReserveKey;
+    }    
     else
     {
         certFlashAddr = NULL;
@@ -289,7 +306,11 @@ static BaseType_t prvFLASH_ReadFile( char * pcFileName,
     {
         pCertFlash = (P11CertData_t *)P11KeyConfig.CodeSignKey;        
     }
-
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_RESERVE_KEY ) == 0 )
+    {
+        pCertFlash = (P11CertData_t *)P11KeyConfig.ReserveKey;        
+    }
+    
     if( ( pCertFlash !=0 ) && ( pCertFlash->ulDeviceCertificateMark == pkcs11OBJECT_FLASH_CERT_PRESENT ) )
     {
         pCertData = ( uint8_t * ) pCertFlash->cCertificateData;
@@ -439,6 +460,11 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     else if( xHandle == eAwsCodeSigningKey )
     {
         pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsDeviceReserveKey )
+    {
+        pcFileName = pkcs11palFILE_NAME_RESERVE_KEY;
         *pIsPrivate = CK_FALSE;
     }
     else
