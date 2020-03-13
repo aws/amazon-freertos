@@ -457,7 +457,6 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
     if( xResult == CKR_OK )
     {
         xPalHandle = PKCS11_PSA_SaveObject( pxClass, pxLabel, pxCertificateValue, xCertificateLength, NULL );
-
         if( xPalHandle == 0 ) /*Invalid handle. */
         {
             xResult = CKR_DEVICE_MEMORY;
@@ -796,7 +795,6 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
 #define MAX_PRIVATE_KEY_SIZE    1300
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength = 0;
-    int compare = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
     CK_KEY_TYPE xKeyType;
@@ -1536,12 +1534,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
         /*
          * Tear down the session.
          */
-        pxSession->uxSignKey = NULL;
+        pxSession->uxSignKey = PSA_NULL_HANDLE;
         if( NULL != pxSession->xSignMutex )
         {
             vSemaphoreDelete( pxSession->xSignMutex );
         }
-        pxSession->uxVerifyKey = NULL;
+        pxSession->uxVerifyKey = PSA_NULL_HANDLE;
         if( NULL != pxSession->xVerifyMutex )
         {
             vSemaphoreDelete( pxSession->xVerifyMutex );
@@ -1862,22 +1860,18 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_ULONG iAttrib;
     mbedtls_pk_context xKeyContext = { 0 };
-    mbedtls_pk_type_t xKeyType = MBEDTLS_PK_NONE;
-    mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0;
     CK_OBJECT_CLASS xClass;
     uint8_t * pxObjectValue = NULL;
     uint8_t ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
-    int lMbedTLSResult = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     size_t xSize;
     uint8_t * pcLabel = NULL;
     psa_status_t uxStatus;
-    psa_key_policy_t policy;
-    mbedtls_ecp_group ecp_group;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     mbedtls_ecp_point ecp_point;
     uint8_t ucGetData[ pkcs11OBJECT_MAX_SIZE ];
-    uint32_t ulLength = pkcs11OBJECT_MAX_SIZE;
+    size_t ulLength = pkcs11OBJECT_MAX_SIZE;
 
     if( xResult == CKR_OK )
     {
@@ -1942,6 +1936,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                                 default:
                                     xResult = CKR_OBJECT_HANDLE_INVALID;
+                                    xClass = CKO_PUBLIC_KEY;
                                     break;
                             }
                             memcpy( pxTemplate[ iAttrib ].pValue, &xClass, sizeof( CK_OBJECT_CLASS ) );
@@ -2018,7 +2013,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                             /* Get the key policy from which the key type can be derived. */
                             if( xResult == CKR_OK )
                             {
-                                uxStatus = psa_get_key_policy( ulKeyHandle, &policy );
+                                uxStatus = psa_get_key_attributes( ulKeyHandle, &attributes );
                                 if ( uxStatus != PSA_SUCCESS )
                                 {
                                     xResult = CKR_FUNCTION_FAILED;
@@ -2026,12 +2021,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                             }
                             if( xResult == CKR_OK )
                             {
-                                if( PSA_ALG_IS_ECDSA( policy.alg ) )
+                                psa_algorithm_t alg = psa_get_key_algorithm(&attributes);
+                                if( PSA_ALG_IS_ECDSA( alg ) )
                                 {
                                     xPkcsKeyType = CKK_EC;
                                 }
-                                else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( policy.alg ) ||
-                                        PSA_ALG_IS_RSA_PSS( policy.alg ) )
+                                else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( alg ) ||
+                                        PSA_ALG_IS_RSA_PSS( alg ) )
                                 {
                                     xPkcsKeyType = CKK_RSA;
                                 }
@@ -2039,6 +2035,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                 {
                                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                                 }
+                                psa_reset_key_attributes( &attributes );
                             }
                             if( xResult == CKR_OK )
                             {
@@ -2256,12 +2253,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     BaseType_t xDone = pdFALSE;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    CK_BYTE_PTR pcObjectValue = NULL;
-    uint32_t xObjectLength = 0;
-    CK_BBOOL xIsPrivate = CK_TRUE;
-    CK_BYTE xByte = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
-    uint32_t ulIndex;
 
     /*
      * Check parameters.
@@ -2484,7 +2476,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                                             CK_BYTE_PTR pDigest,
                                             CK_ULONG_PTR pulDigestLen )
 {
-    psa_ps_status_t uxStatus;
+    psa_status_t uxStatus;
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
@@ -2568,7 +2560,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalHandle;
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
-    psa_key_policy_t policy;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_status_t uxStatus;
 
     /*lint !e9072 It's OK to have different parameter name. */
@@ -2612,20 +2604,21 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
             {
                 pxSession->uxSignKey = P11KeyConfig.uxDevicePrivateKey;
 
-                /* Get the key's algorithm by getting the key policy. */
-                uxStatus = psa_get_key_policy( P11KeyConfig.uxDevicePrivateKey, &policy );
+                /* Get the key's algorithm by getting the key attributes. */
+                uxStatus = psa_get_key_attributes( P11KeyConfig.uxDevicePrivateKey, &attributes );
                 if ( uxStatus != PSA_SUCCESS )
                 {
                     xResult = CKR_FUNCTION_FAILED;
                 }
                 else
                 {
-                    pxSession->xSignAlgorithm = policy.alg;
+                    pxSession->xSignAlgorithm = psa_get_key_algorithm( &attributes );
+                    psa_reset_key_attributes(&attributes);
                 }
             }
             else
             {
-                pxSession->uxSignKey = NULL;
+                pxSession->uxSignKey = PSA_NULL_HANDLE;
                 xResult = CKR_KEY_HANDLE_INVALID;
             }
             xSemaphoreGive( pxSession->xSignMutex );
@@ -2712,7 +2705,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
     CK_ULONG xSignatureLength = 0;
     CK_ULONG xExpectedInputLength = 0;
-    int lMbedTLSResult;
     psa_status_t uxStatus;
     CK_BYTE_PTR pucDataToBeSigned = pucData;
     CK_LONG ulDataLengthToBeSigned = ulDataLen;
@@ -2775,23 +2767,23 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
             {
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
-                    if ( pxSessionObj->uxSignKey == NULL )
+                    if ( pxSessionObj->uxSignKey == PSA_NULL_HANDLE )
                     {
                         xResult = CKR_KEY_HANDLE_INVALID;
                     }
                     else
                     {
-                        uxStatus = psa_asymmetric_sign( pxSessionObj->uxSignKey,
-                                                        pxSessionObj->xSignAlgorithm,
-                                                        ( const uint8_t * )pucDataToBeSigned,
-                                                        ( size_t )ulDataLengthToBeSigned,
-                                                        ( uint8_t * )pucSignature,
-                                                        ( size_t )*pulSignatureLen,
-                                                        ( size_t * )pulSignatureLen );
+                        uxStatus = psa_sign_hash( pxSessionObj->uxSignKey,
+                                                  pxSessionObj->xSignAlgorithm,
+                                                  ( const uint8_t * )pucDataToBeSigned,
+                                                  ( size_t )ulDataLengthToBeSigned,
+                                                  ( uint8_t * )pucSignature,
+                                                  ( size_t )*pulSignatureLen,
+                                                  ( size_t * )pulSignatureLen );
 
                         if( uxStatus != PSA_SUCCESS )
                         {
-                            PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", lMbedTLSResult ) );
+                            PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", uxStatus ) );
                             xResult = CKR_FUNCTION_FAILED;
                         }
                     }
@@ -2847,7 +2839,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
-    psa_key_policy_t policy;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_status_t uxStatus;
 
     pxSession = prvSessionPointerFromHandle( xSession );
@@ -2871,7 +2863,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
         if( xPalHandle == CK_INVALID_HANDLE )
         {
-            pxSession->uxSignKey = NULL;
+            pxSession->uxSignKey = PSA_NULL_HANDLE;
             xResult = CKR_KEY_HANDLE_INVALID;
         }
     }
@@ -2883,32 +2875,34 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
             if ( xPalHandle == eAwsDevicePublicKey )
             {
                 pxSession->uxVerifyKey = P11KeyConfig.uxDevicePublicKey;
-                uxStatus = psa_get_key_policy( P11KeyConfig.uxDevicePublicKey, &policy );
+                uxStatus = psa_get_key_attributes( P11KeyConfig.uxDevicePublicKey, &attributes );
                 if ( uxStatus != PSA_SUCCESS )
                 {
                     xResult = CKR_FUNCTION_FAILED;
                 }
                 else
                 {
-                    pxSession->xVerifyAlgorithm = policy.alg;
+                    pxSession->xVerifyAlgorithm = psa_get_key_algorithm( &attributes );
+                    psa_reset_key_attributes( &attributes );
                 }
             }
             else if( xPalHandle == eAwsCodeSigningKey )
             {
                 pxSession->uxVerifyKey = P11KeyConfig.uxCodeVerifyKey;
-                uxStatus = psa_get_key_policy( P11KeyConfig.uxCodeVerifyKey, &policy );
+                uxStatus = psa_get_key_attributes( P11KeyConfig.uxCodeVerifyKey, &attributes );
                 if ( uxStatus != PSA_SUCCESS )
                 {
                     xResult = CKR_FUNCTION_FAILED;
                 }
                 else
                 {
-                    pxSession->xVerifyAlgorithm = policy.alg;
+                    pxSession->xVerifyAlgorithm = psa_get_key_algorithm( &attributes );
+                    psa_reset_key_attributes( &attributes );
                 }
             }
             else
             {
-                pxSession->uxVerifyKey = NULL;
+                pxSession->uxVerifyKey = PSA_NULL_HANDLE;
                 xResult = CKR_KEY_HANDLE_INVALID;
             }
 
@@ -2985,7 +2979,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj;
-    int lMbedTLSResult;
     psa_status_t uxStatus;
 
     pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
@@ -3039,18 +3032,18 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
         if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
         {
             /* Verify the signature. If a public key is present, use it. */
-            if ( pxSessionObj->uxVerifyKey == NULL )
+            if ( pxSessionObj->uxVerifyKey == PSA_NULL_HANDLE )
             {
                 xResult = CKR_KEY_HANDLE_INVALID;
             }
             else
             {
-                uxStatus = psa_asymmetric_verify( pxSessionObj->uxVerifyKey,
-                                                    pxSessionObj->xVerifyAlgorithm,
-                                                    ( const uint8_t * )pucData,
-                                                    ( size_t )ulDataLen,
-                                                    ( const uint8_t * )pucSignature,
-                                                    ( size_t )ulSignatureLen );
+                uxStatus = psa_verify_hash( pxSessionObj->uxVerifyKey,
+                                            pxSessionObj->xVerifyAlgorithm,
+                                            ( const uint8_t * )pucData,
+                                            ( size_t )ulDataLen,
+                                            ( const uint8_t * )pucSignature,
+                                            ( size_t )ulSignatureLen );
 
                 if( uxStatus == PSA_SUCCESS )
                 {
@@ -3328,9 +3321,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     psa_status_t uxStatus;
     psa_key_handle_t key_handle_private;
     psa_key_handle_t key_handle_public;
-    psa_key_type_t uxKeyType;
-    psa_algorithm_t uxAlgorithm;
-    psa_key_policy_t policy = psa_key_policy_init();
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     CK_ATTRIBUTE_PTR pxPrivateLabel = NULL;
     CK_ATTRIBUTE_PTR pxPublicLabel = NULL;
     uint8_t * pUncompressedECPoint = pvPortMalloc( pkcs11KEY_ECPOINT_LENGTH );
@@ -3384,29 +3375,22 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        /* Allocate the private key. */
-        uxStatus = psa_allocate_key( &key_handle_private );
-        if ( uxStatus == PSA_SUCCESS )
-        {
-            uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-            psa_key_policy_set_usage( &policy, PSA_KEY_USAGE_SIGN, uxAlgorithm );
-            uxStatus = psa_set_key_policy( key_handle_private, &policy );
-        }
-        if ( uxStatus == PSA_SUCCESS )
-        {
-            /*
-            * Please refer https://tools.ietf.org/html/rfc8422
-            * NISTP256 is equivalent to SECP256r1.
-            * To keep consistent with mbedtls based implementation, set the key
-            * type as ECC_KEYPAIR(SECP256R1).
-            * Generate key pair with the private key handle.
-            */
-            uxStatus = psa_generate_key( key_handle_private,
-                                         PSA_KEY_TYPE_ECC_KEYPAIR( PSA_ECC_CURVE_SECP256R1 ),
-                                         ( size_t )256,
-                                         NULL,
-                                         0 );
-        }
+        attributes = psa_key_attributes_init();
+
+        psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
+        psa_set_key_algorithm(&attributes, PSA_ALG_ECDSA( PSA_ALG_SHA_256 ));
+        /*
+         * Please refer https://tools.ietf.org/html/rfc8422
+         * NISTP256 is equivalent to SECP256r1.
+         * To keep consistent with mbedtls based implementation, set the key
+         * type as ECC_KEYPAIR(SECP256R1).
+         * Generate key pair with the private key handle.
+         */
+        psa_set_key_type(&attributes, PSA_KEY_TYPE_ECC_KEY_PAIR( PSA_ECC_CURVE_SECP256R1));
+        psa_set_key_bits(&attributes, 256);
+
+        uxStatus = psa_generate_key( &attributes, &key_handle_private);
+
         if ( uxStatus == PSA_SUCCESS )
         {
             /*
@@ -3421,25 +3405,17 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         }
         if ( uxStatus == PSA_SUCCESS )
         {
-            /* Allocate the public key. */
-            uxStatus = psa_allocate_key( &key_handle_public );
-        }
-        if ( uxStatus == PSA_SUCCESS )
-        {
-            uxKeyType = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_CURVE_SECP256R1);
-            uxAlgorithm = PSA_ALG_ECDSA( PSA_ALG_SHA_256 );
-            psa_key_policy_set_usage( &policy,
-                                      PSA_KEY_USAGE_VERIFY,
-                                      uxAlgorithm );
-            uxStatus = psa_set_key_policy( key_handle_public, &policy );
-        }
-        if ( uxStatus == PSA_SUCCESS )
-        {
+            attributes = psa_key_attributes_init();
+
+            psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_VERIFY_HASH);
+            psa_set_key_algorithm( &attributes, PSA_ALG_ECDSA( PSA_ALG_SHA_256 ));
+            psa_set_key_type( &attributes, PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_CURVE_SECP256R1));
+
             /* Import the public key with data exported by psa_export_public_key. */
-            uxStatus = psa_import_key( key_handle_public,
-                                       uxKeyType,
+            uxStatus = psa_import_key( &attributes,
                                        pUncompressedECPoint,
-                                       uxPublicKeyLength );
+                                       uxPublicKeyLength,
+                                       &key_handle_public );
         }
         if ( uxStatus == PSA_SUCCESS )
         {
