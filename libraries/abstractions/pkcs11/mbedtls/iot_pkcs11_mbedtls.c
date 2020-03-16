@@ -196,8 +196,6 @@ typedef struct P11Session
     CK_MECHANISM_TYPE xOperationDigestMechanism; /**< @brief Indicates if a digest operation is in progress. */
     CK_BYTE * pxFindObjectLabel;                 /**< @brief Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;              /**< @brief Find object length flag. */
-    CK_BBOOL xFindObjectInit;                    /**< @brief Unused and to be removed. */
-    CK_BBOOL xFindObjectComplete;                /**< @brief Unused and to be removed. */
     CK_MECHANISM_TYPE xOperationVerifyMechanism; /**< @brief The mechanism of verify operation in progress. Set during C_VerifyInit. */
     SemaphoreHandle_t xVerifyMutex;              /**< @brief Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;               /**< @brief Verification key.  Set during C_VerifyInit. */
@@ -2874,13 +2872,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         if( 1u != ulMaxObjectCount )
         {
             PKCS11_WARNING_PRINT( ( "WARN: Searching for more than 1 object not supported. \r\n" ) );
-        }
-
-        if( ( pdFALSE == xDone ) && ( ( CK_BBOOL ) CK_TRUE == pxSession->xFindObjectComplete ) )
-        {
-            *pulObjectCount = 0;
-            xResult = CKR_OK;
-            xDone = pdTRUE;
         }
     }
 

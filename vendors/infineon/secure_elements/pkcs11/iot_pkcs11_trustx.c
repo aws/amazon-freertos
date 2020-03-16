@@ -113,8 +113,6 @@ typedef struct P11Session
     CK_ULONG ulState;
     CK_BBOOL xOpened;
     CK_MECHANISM_TYPE xOperationInProgress;
-    CK_BBOOL xFindObjectInit;
-    CK_BBOOL xFindObjectComplete;
     CK_BYTE * pxFindObjectLabel; /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;
     CK_MECHANISM_TYPE xVerifyMechanism;
@@ -2255,13 +2253,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     if( 1u != ulMaxObjectCount )
     {
         PKCS11_WARNING_PRINT( ( "WARN: Searching for more than 1 object not supported. \r\n" ) );
-    }
-
-    if( ( pdFALSE == xDone ) && ( ( CK_BBOOL ) CK_TRUE == pxSession->xFindObjectComplete ) )
-    {
-        *pulObjectCount = 0;
-        xResult = CKR_OK;
-        xDone = pdTRUE;
     }
 
     if( ( pdFALSE == xDone ) )
