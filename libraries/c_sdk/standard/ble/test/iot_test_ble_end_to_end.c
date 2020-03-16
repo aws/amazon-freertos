@@ -47,7 +47,7 @@
 #include "unity.h"
 
 
-#define BLE_TEST_CONNECTION_TIMEOUT_MS  ( 15000 )
+#define BLE_TEST_CONNECTION_TIMEOUT_MS    ( 15000 )
 
 /*-----------------------------------------------------------*/
 
@@ -101,10 +101,9 @@ static BTStatus_t _BLEInit( void )
 
 static void _BLEConnectionCallback( BTStatus_t status,
                                     uint16_t connId,
-                                       bool connected,
-                                       BTBdaddr_t * pBa )
+                                    bool connected,
+                                    BTBdaddr_t * pBa )
 {
-
     if( connected == true )
     {
         IotBle_StopAdv( NULL );
@@ -113,9 +112,9 @@ static void _BLEConnectionCallback( BTStatus_t status,
     {
         ( void ) IotBle_StartAdv( NULL );
     }
+
     bBLEConnected = connected;
     IotSemaphore_Post( &bleConnectionSem );
-
 }
 
 
@@ -126,7 +125,6 @@ static BTStatus_t _BLEEnable( void )
 
     if( !bBLEEnabled )
     {
-
         TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &bleConnectionSem, 0, 1 ) );
 
         eventCb.pConnectionCb = _BLEConnectionCallback;
@@ -139,7 +137,7 @@ static BTStatus_t _BLEEnable( void )
 
         TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
 
-        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ));
+        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ) );
 
         TEST_ASSERT_TRUE( bBLEConnected );
 
@@ -157,12 +155,11 @@ static BTStatus_t _BLEDisable( void )
 
     if( bBLEEnabled )
     {
-
         status = IotBle_Off();
 
         TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
 
-        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ));
+        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ) );
 
         TEST_ASSERT_FALSE( bBLEConnected );
 
@@ -186,7 +183,6 @@ TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
 
 TEST_SETUP( Full_BLE_END_TO_END_CONNECTIVITY )
 {
-
 }
 
 /*-----------------------------------------------------------*/
@@ -274,9 +270,8 @@ TEST( Full_BLE_END_TO_END_CONNECTIVITY, EnableBLE )
 
 TEST( Full_BLE_END_TO_END_CONNECTIVITY, SetDeviceName )
 {
-
     TEST_ASSERT_EQUAL( eBTStatusSuccess,
-            IotBle_SetDeviceName( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, strlen( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) ) );
+                       IotBle_SetDeviceName( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, strlen( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) ) );
 }
 
 TEST( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 )
