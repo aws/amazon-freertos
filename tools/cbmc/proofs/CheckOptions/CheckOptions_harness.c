@@ -20,7 +20,7 @@
 #include "FreeRTOS_ARP.h"
 #include "FreeRTOS_TCP_WIN.h"
 
-#include "cbmc.h"
+include "cbmc.h"
 
 void prvCheckOptions( FreeRTOS_Socket_t *pxSocket,
 		      NetworkBufferDescriptor_t *pxNetworkBuffer );
