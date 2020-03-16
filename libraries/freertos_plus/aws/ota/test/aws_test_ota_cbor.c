@@ -32,9 +32,6 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-/* MQTT include. */
-#include "iot_mqtt_agent.h"
-
 /* CBOR and OTA includes. */
 #include "aws_iot_ota_agent.h"
 #include "mqtt/aws_iot_ota_cbor.h"
@@ -49,13 +46,6 @@
 /* Crypto includes. */
 #include "iot_crypto.h"
 #include "mbedTLS/sha1.h"
-
-/*-----------------------------------------------------------*/
-
-/* Global symbol required by OTA agent. */
-MQTTPublishData_t xMsgMetaData;
-
-/*-----------------------------------------------------------*/
 
 static void prvSaveCborTestFile( char * pcFileName,
                                  uint8_t * pucCborData,
