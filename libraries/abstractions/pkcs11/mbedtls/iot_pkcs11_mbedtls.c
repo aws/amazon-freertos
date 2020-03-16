@@ -47,6 +47,7 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
 #include "threading_alt.h"
+#include "mbedtls/error.h"
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
@@ -71,9 +72,9 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
                                   size_t hash_len,
                                   unsigned char * sig,
                                   size_t * sig_len,
-                                  int ( * f_rng )( void *,
-                                                   unsigned char *,
-                                                   size_t ),
+                                  int ( *f_rng )( void *,
+                                                  unsigned char *,
+                                                  size_t ),
                                   void * p_rng );
 
 /**
@@ -954,7 +955,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
  */
 /* @[declare_pkcs11_mbedtls_c_getfunctionlist] */
 CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     if( NULL == ppxFunctionList )
@@ -990,7 +991,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFun
 CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
                                              CK_SLOT_ID_PTR pxSlotList,
                                              CK_ULONG_PTR pulCount )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     /* Since the mbedTLS implementation of PKCS#11 does not depend
@@ -1158,7 +1159,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
                                              CK_VOID_PTR pvApplication,
                                              CK_NOTIFY xNotify,
                                              CK_SESSION_HANDLE_PTR pxSession )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
     CK_BBOOL xSessionMemAllocated = CK_FALSE;
@@ -2329,7 +2330,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulCount,
                                               CK_OBJECT_HANDLE_PTR pxObject )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_OBJECT_CLASS xClass;
 
@@ -2832,7 +2833,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject,
                                              CK_ULONG ulMaxObjectCount,
                                              CK_ULONG_PTR pulObjectCount )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
     BaseType_t xDone = pdFALSE;
@@ -2953,7 +2954,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
  */
 /* @[declare_pkcs11_mbedtls_c_findobjectsfinal] */
 CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -3400,7 +3401,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                       CK_ULONG ulDataLen,
                                       CK_BYTE_PTR pucSignature,
                                       CK_ULONG_PTR pulSignatureLen )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
     CK_ULONG xSignatureLength = 0;
@@ -3409,6 +3410,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     CK_BBOOL xSignatureGenerated = CK_FALSE;
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
     int lMbedTLSResult;
+    char cMbedTlsErrorStr[ 134 ];
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pucData ) )
     {
@@ -3472,7 +3474,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
                     if( lMbedTLSResult != CKR_OK )
                     {
-                        PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", lMbedTLSResult ) );
+                        mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
+                        PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", cMbedTlsErrorStr ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
@@ -3712,6 +3715,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj;
     int lMbedTLSResult;
+    char cMbedTlsErrorStr[ 134 ];
 
     pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
@@ -3802,7 +3806,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_SIGNATURE_INVALID;
-                PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+                mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
+                PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", cMbedTlsErrorStr ) );
             }
 
             if( xResult == CKR_OK )
@@ -3821,7 +3826,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                     if( lMbedTLSResult != 0 )
                     {
                         xResult = CKR_SIGNATURE_INVALID;
-                        PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+                        mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
+                        PKCS11_PRINT( ( "Failed to parse EC signature: %w \r\n", cMbedTlsErrorStr ) );
                     }
                 }
             }
