@@ -32,7 +32,6 @@
 
 /* Demo includes */
 #include "aws_demo.h"
-#include "aws_dev_mode_key_provisioning.h"
 
 /* AWS System includes. */
 #include "bt_hal_manager.h"
@@ -112,11 +111,6 @@ int app_main( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-        /* A simple example to demonstrate key and certificate provisioning in
-         * microcontroller flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
-
         #if BLE_ENABLED
             /* Initialize BLE. */
             ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
