@@ -210,9 +210,9 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_Serializer_CBOR );
-        RUN_TEST_GROUP( Full_Serializer_JSON );
-        RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
+        RUN_TEST_GROUP( Serializer_Unit_CBOR );
+        RUN_TEST_GROUP( Serializer_Unit_JSON );
+        RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
     #endif
 
     #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1 )
