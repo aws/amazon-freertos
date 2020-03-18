@@ -810,12 +810,12 @@ wiced_result_t network_tcp_receive( wiced_tcp_socket_t* socket, wiced_packet_t**
 
         if ( socket->accept_handler == NULL )
         {
-            netconn_set_recvtimeout( socket->conn_handler, timeout );
+            netconn_set_recvtimeout( socket->conn_handler, (int)timeout );
             status = netconn_recv( socket->conn_handler, &netbuf );
         }
         else
         {
-            netconn_set_recvtimeout( socket->accept_handler, timeout );
+            netconn_set_recvtimeout( socket->accept_handler, (int)timeout );
             status = netconn_recv( socket->accept_handler, &netbuf );
         }
 
@@ -866,12 +866,12 @@ wiced_result_t network_udp_receive( wiced_udp_socket_t* socket, wiced_packet_t**
 
         if ( socket->accept_handler == NULL )
         {
-            netconn_set_recvtimeout( socket->conn_handler, timeout );
+            netconn_set_recvtimeout( socket->conn_handler, (int)timeout );
             status = netconn_recv( socket->conn_handler, packet );
         }
         else
         {
-            netconn_set_recvtimeout( socket->accept_handler, timeout );
+            netconn_set_recvtimeout( socket->accept_handler, (int)timeout );
             status = netconn_recv( socket->accept_handler, packet );
         }
     }
@@ -1257,7 +1257,7 @@ wiced_result_t wiced_udp_receive( wiced_udp_socket_t* socket, wiced_packet_t** p
 
     WICED_LINK_CHECK( socket->interface );
 
-    netconn_set_recvtimeout( socket->conn_handler, timeout );
+    netconn_set_recvtimeout( socket->conn_handler, (int)timeout );
 
     status = netconn_recv( socket->conn_handler, packet );
     if ( status != ERR_OK )

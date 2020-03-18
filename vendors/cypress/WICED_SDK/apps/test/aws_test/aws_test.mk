@@ -74,7 +74,6 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \
@@ -143,7 +142,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_receive.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_metrics.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/aws_test_shadow.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
@@ -159,6 +157,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_AWS_PATH)defender/test/unit/aws_iot_tests_defender_unit.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/iot_test_crypto.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
@@ -172,7 +171,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/iot_json_utils.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_deserializer_json.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_cbor.c \
