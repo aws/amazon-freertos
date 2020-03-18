@@ -425,6 +425,7 @@
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_unit.c</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
