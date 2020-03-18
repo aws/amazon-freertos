@@ -165,7 +165,7 @@ static void _receiveThread( void * pArgument )
     }
 
     /* Call the MQTT receive callback to process the ACK packet. */
-    IotMqtt_ReceiveCallback( ( IotNetworkConnection_t ) &receiveContext,
+    IotMqtt_ReceiveCallback( &receiveContext,
                              _pMqttConnection );
 
     IotMutex_Unlock( &_lastPacketMutex );
@@ -177,7 +177,7 @@ static void _receiveThread( void * pArgument )
  * @brief A send function that always "succeeds". It also sets the receive
  * timer to respond with an ACK when necessary.
  */
-static size_t _sendSuccess( IotNetworkConnection_t pNetworkConnection,
+static size_t _sendSuccess( void * pNetworkConnection,
                             const uint8_t * pMessage,
                             size_t messageLength )
 {
@@ -200,7 +200,7 @@ static size_t _sendSuccess( IotNetworkConnection_t pNetworkConnection,
     IotMutex_Lock( &_lastPacketMutex );
 
     /* Read the remaining length. */
-    mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( ( IotNetworkConnection_t ) &receiveContext,
+    mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( &receiveContext,
                                                               &_networkInterface );
     IotTest_Assert( mqttPacket.remainingLength != MQTT_REMAINING_LENGTH_INVALID );
 
@@ -280,7 +280,7 @@ static size_t _sendSuccess( IotNetworkConnection_t pNetworkConnection,
 /**
  * @brief Simulates a network receive function.
  */
-static size_t _receive( IotNetworkConnection_t pNetworkConnection,
+static size_t _receive( void * pNetworkConnection,
                         uint8_t * pBuffer,
                         size_t bytesRequested )
 {
