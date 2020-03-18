@@ -1,0 +1,46 @@
+ 
+ * Having two iperf clients simultaneously connecting to a WICED iperf server 
+  does not function as expected.
+  
+* Trying to connect three or more iperf clients to a WICED iperf server 
+  simultaneously will cause undefined behaviour.
+  
+* Similarly to the two above-mentioned bugs, the `-P' flag will not work when
+  connecting to a WICED iperf server.
+  
+* Unable to set the MSS value using `-M' parameter using LwIP.
+
+* There seems to sometimes be a thread-related bug when running under Unix. See
+  Valgrind output below.
+==23600== HEAP SUMMARY:
+==23600==     in use at exit: 288 bytes in 1 blocks
+==23600==   total heap usage: 36 allocs, 35 frees, 19,974 bytes allocated
+==23600== 
+==23600== 288 bytes in 1 blocks are possibly lost in loss record 1 of 1
+==23600==    at 0x4C279F2: calloc (vg_replace_malloc.c:467)
+==23600==    by 0x4011844: _dl_allocate_tls (dl-tls.c:300)
+==23600==    by 0x5354B68: pthread_create@@GLIBC_2.2.5 (allocatestack.c:571)
+==23600==    by 0x40EA7A: thread_start (Thread.c:137)
+==23600==    by 0x40E00F: main (main.cpp:247)
+==23600== 
+==23600== LEAK SUMMARY:
+==23600==    definitely lost: 0 bytes in 0 blocks
+==23600==    indirectly lost: 0 bytes in 0 blocks
+==23600==      possibly lost: 288 bytes in 1 blocks
+==23600==    still reachable: 0 bytes in 0 blocks
+==23600==         suppressed: 0 bytes in 0 blocks
+==23600== 
+==23600== For counts of detected and suppressed errors, rerun with: -v
+==23600== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 4 from 4)
+
+* I am unsure if the 'TCP window size' and 'UDP buffer size' reported by iperf
+  running on WICED are correct. Since (using LwIP at least) we are unable to
+  retrieve these values using the conventional `getsockopt' function, I had to
+  hard-code the values.
+  
+* UDP TX performance on Windows seems to be extremely poor. Whilst Windows seems
+  to be able to maintain the specified transmission rate (specified using the 
+  `-b' parameter), a large number of packets are dropped somewhere and do not
+  reach the server.
+  
+* Windows build exits early when doing a bidirectional speed test.
