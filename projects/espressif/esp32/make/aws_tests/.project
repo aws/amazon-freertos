@@ -4166,6 +4166,16 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_api.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_subscription.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_subscription.c</locationURI>
