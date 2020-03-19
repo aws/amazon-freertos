@@ -1862,7 +1862,7 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/c_sdk/standard/mqtt/test/access/</GroupName>
+					<GroupName>libraries/c_sdk/standard/mqtt/test/mock/</GroupName>
 					<Files>
 						<File>
 							<FileName>iot_tests_mqtt_mock.h</FileName>
