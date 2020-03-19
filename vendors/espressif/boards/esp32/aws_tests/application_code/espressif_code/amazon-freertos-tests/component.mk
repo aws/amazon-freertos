@@ -133,7 +133,7 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
 	${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/ble_hal/test/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/https/src \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/src \
-        ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/mock \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/mock \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src/private \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/src \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/src
