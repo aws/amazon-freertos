@@ -37,7 +37,7 @@ function(create_test test_name test_src link_list dep_list)
     endforeach()
     target_link_libraries(${test_name} -lgcov)
 
-    target_link_directories(secure_sockets_utest  PUBLIC
+    target_link_directories(${test_name}  PUBLIC
                             ${CMAKE_CURRENT_BINARY_DIR}/lib
             )
     add_test(NAME ${test_name}
