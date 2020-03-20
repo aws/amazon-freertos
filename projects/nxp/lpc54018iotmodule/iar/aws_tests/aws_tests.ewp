@@ -394,6 +394,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -2060,6 +2061,15 @@
 					</group>
 					<group>
 						<name>test</name>
+						<group>
+							<name>mock</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
+							</file>
+						</group>
 						<group>
 							<name>unit</name>
 							<file>
