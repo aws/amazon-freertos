@@ -3361,11 +3361,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_cbor.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_end_to_end.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_end_to_end.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</locationURI>
@@ -4169,6 +4164,16 @@
 			<name>libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_api.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_subscription.c</name>

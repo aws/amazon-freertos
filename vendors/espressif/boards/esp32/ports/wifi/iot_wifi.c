@@ -263,24 +263,64 @@ BaseType_t WIFI_IsConnected( void )
 
 WIFIReturnCode_t WIFI_Off( void )
 {
-    return eWiFiSuccess;
+    esp_err_t ret;
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if (wifi_conn_state == true) {
+            ret = esp_wifi_disconnect();
+            if (ret == ESP_OK) {
+                // Wait for wifi disconnected event
+                xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+            } else {
+                ESP_LOGE(TAG, "%s:Failed to disconnect wifi %d", __func__, ret);
+                goto err;
+            }
+        }
+
+        if ((ret = esp_wifi_deinit()) != ESP_OK) {
+            if (ret == ESP_ERR_WIFI_NOT_STOPPED) {
+                ret = esp_wifi_stop();
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "%s:Failed to stop wifi %d", __func__, ret);
+                    goto err;
+                }
+                if (esp_wifi_deinit() != ESP_OK) {
+                    ESP_LOGE(TAG, "%s:Failed to deinit %d", __func__, ret);
+                    goto err;
+                }
+            } else {
+                ESP_LOGE(TAG, "%s:Failed to deinit %d", __func__, ret);
+                goto err;
+            }
+        }
+        if (wifi_event_group) {
+            vEventGroupDelete(wifi_event_group);
+            wifi_event_group = NULL;
+        }
+        xSemaphoreGive( xWiFiSem );
+        return eWiFiSuccess;
+err:
+        xSemaphoreGive( xWiFiSem );
+        return eWiFiFailure;
+    }
+    return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_On( void )
 {
-    static bool wifi_inited;
-
-    // Check if WiFi is already initialized
-    if (wifi_inited == true) {
-        return eWiFiSuccess;
+    static bool event_loop_inited;
+    esp_err_t ret;
+    // Check if Event Loop is already initialized
+    if (event_loop_inited == false) {
+        ret = esp_event_loop_init(event_handler, NULL);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
+            goto err;
+        }
+        event_loop_inited = true;
     }
 
-    esp_err_t ret = esp_event_loop_init(event_handler, NULL);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
-        goto err;
-    }
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ret = esp_wifi_init(&cfg);
@@ -303,9 +343,10 @@ WIFIReturnCode_t WIFI_On( void )
 
     /* Create sync mutex */
     static StaticSemaphore_t xSemaphoreBuffer;
-    xWiFiSem = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
+    if (xWiFiSem == NULL) {
+        xWiFiSem = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
+    }
 
-    wifi_inited = true;
     return eWiFiSuccess;
 err:
     return eWiFiFailure;

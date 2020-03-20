@@ -1644,6 +1644,11 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</locationURI>

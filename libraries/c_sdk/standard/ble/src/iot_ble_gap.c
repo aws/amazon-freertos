@@ -125,39 +125,14 @@ static IotBleAdvertisementParams_t _advParams =
 };
 
 
-const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
-const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
-const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
-const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
+static const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
+static const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
+static const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
+static const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
 
-const BTProperty_t _deviceProperties[] =
-{
-    {
-        .xType = eBTpropertyBdname,
-        .xLen = sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1,
-        .pvVal = ( void * ) IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
-    },
-    {
-        .xType = eBTpropertyBondable,
-        .xLen = 1,
-        .pvVal = ( void * ) &bIsBondable
-    },
-    {
-        .xType = eBTpropertySecureConnectionOnly,
-        .xLen = 1,
-        .pvVal = ( void * ) &bSecureConnection
-    },
-    {
-        .xType = eBTpropertyIO,
-        .xLen = 1,
-        .pvVal = ( void * ) &xIO
-    },
-    {
-        .xType = eBTpropertyLocalMTUSize,
-        .xLen = 1,
-        .pvVal = ( void * ) &usMtu
-    }
-};
+static char bleDeviceName[ IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH + 1 ] = { 0 };
+
+static bool isBLEOn = false;
 
 /* 2 is the Maximum number of UUID that can be advertised in the same advertisement message */
 #define _BLE_MAX_UUID_PER_ADV_MESSAGE    2
@@ -186,6 +161,10 @@ static void _advStatusCb( BTStatus_t status,
                           uint8_t adapterIf,
                           bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
+
+static BTStatus_t _setDeviceProperty( BTPropertyType_t type,
+                                      const void * pValue,
+                                      size_t length );
 
 static const BTCallbacks_t _BTManagerCb =
 {
@@ -466,6 +445,44 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
                                                                pServiceUuide,
                                                                countService );
 
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.cbStatus;
+    }
+
+    return status;
+}
+
+static BTStatus_t _setDeviceProperty( BTPropertyType_t type,
+                                      const void * pValue,
+                                      size_t length )
+{
+    BTStatus_t status;
+    BTProperty_t property =
+    {
+        .xType = type,
+        .xLen  = length,
+        .pvVal = ( void * ) pValue
+    };
+
+    status = _BTInterface.pBTInterface->pxSetDeviceProperty( &property );
+
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.cbStatus;
+
+        if( status != eBTStatusSuccess )
+        {
+            IotLogError( "Callback error in stting property type %d , error returned %d.", type, status );
+        }
+    }
+    else
+    {
+        IotLogError( "Failed to set property type %d, error returned %d.", type, status );
+    }
+
     return status;
 }
 
@@ -510,8 +527,6 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pBdAddr,
 BTStatus_t IotBle_On( void )
 {
     BTStatus_t status = eBTStatusSuccess;
-    uint16_t index;
-    uint32_t nbProperties = sizeof( _deviceProperties ) / sizeof( _deviceProperties[ 0 ] );
 
     status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
 
@@ -542,29 +557,29 @@ BTStatus_t IotBle_On( void )
         }
     }
 
-    /* Set GAP properties. */
     if( status == eBTStatusSuccess )
     {
-        for( index = 0; index < nbProperties; index++ )
-        {
-            status = _BTInterface.pBTInterface->pxSetDeviceProperty( &_deviceProperties[ index ] );
+        status = _setDeviceProperty( eBTpropertyBdname, &bleDeviceName, strlen( bleDeviceName ) );
+    }
 
-            if( status == eBTStatusSuccess )
-            {
-                IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-                status = _BTInterface.cbStatus;
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertySecureConnectionOnly, &bSecureConnection, sizeof( bool ) );
+    }
 
-                if( status != eBTStatusSuccess )
-                {
-                    IotLogError( "Callback error in property %d, error returned %d.", index, status );
-                }
-            }
-            else
-            {
-                IotLogError( "Unable to set device property %d, error returned %d.", index, status );
-                break;
-            }
-        }
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyBondable, &bIsBondable, sizeof( bool ) );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyIO, &xIO, sizeof( BTIOtypes_t ) );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyLocalMTUSize, &usMtu, sizeof( uint32_t ) );
     }
 
     /* Initialize the GATT server. */
@@ -601,12 +616,10 @@ BTStatus_t IotBle_On( void )
         #endif
 
         status = _setAdvData( &_advParams );
-        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
 
         if( status == eBTStatusSuccess )
         {
             status = _setAdvData( &_scanRespParams );
-            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         }
     }
 
@@ -620,6 +633,11 @@ BTStatus_t IotBle_On( void )
             IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
             status = _BTInterface.cbStatus;
         }
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        isBLEOn = true;
     }
 
     return status;
@@ -753,6 +771,8 @@ BTStatus_t IotBle_Off( void )
         status = _BTInterface.pBTInterface->pxBtManagerCleanup();
     }
 
+    isBLEOn = false;
+
     return status;
 }
 
@@ -836,11 +856,15 @@ void _initializeLists( void )
     }
 }
 
+
+
 /*-----------------------------------------------------------*/
 
 BTStatus_t IotBle_Init( void )
 {
     BTStatus_t status = eBTStatusSuccess;
+    char * pDeviceName = IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME;
+
 
     _initializeLists();
 
@@ -876,8 +900,62 @@ BTStatus_t IotBle_Init( void )
         }
     }
 
+    /*
+     * If a BLE device name is provided in the config, use it to set the local BLE device name.
+     */
+
+    if( ( pDeviceName != NULL ) && ( strcmp( pDeviceName, "" ) != 0 ) )
+    {
+        status = IotBle_SetDeviceName( pDeviceName, strlen( pDeviceName ) );
+    }
+
     return status;
 }
+
+BTStatus_t IotBle_SetDeviceName( const char * pName,
+                                 size_t length )
+{
+    BTStatus_t status;
+
+    if( length <= IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH )
+    {
+        /* Copy the device name to a buffer, so that device name does not change between
+         * stack disable-enable cycles.
+         */
+        strncpy( bleDeviceName, pName, length );
+        bleDeviceName[ length ] = '\0';
+        status = eBTStatusSuccess;
+    }
+    else
+    {
+        status = eBTStatusNoMem;
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        if( isBLEOn )
+        {
+            /* If BLE is running, set the device property and advertisement data to propagate the
+             * name change immediately in the advertisement.
+             */
+
+            status = _setDeviceProperty( eBTpropertyBdname, bleDeviceName, strlen( bleDeviceName ) );
+
+            if( status == eBTStatusSuccess )
+            {
+                status = _setAdvData( &_advParams );
+            }
+
+            if( status == eBTStatusSuccess )
+            {
+                status = _setAdvData( &_scanRespParams );
+            }
+        }
+    }
+
+    return status;
+}
+
 
 /*-----------------------------------------------------------*/
 

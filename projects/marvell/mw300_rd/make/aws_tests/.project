@@ -3341,11 +3341,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_cbor.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_end_to_end.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_end_to_end.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</locationURI>
