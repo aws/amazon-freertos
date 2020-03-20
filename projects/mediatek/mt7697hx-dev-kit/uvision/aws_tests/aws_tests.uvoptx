@@ -3646,8 +3646,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</PathWithFileName>
-      <FilenameWithoutPath>aws_test_greengrass_discovery.c</FilenameWithoutPath>
+      <PathWithFileName>../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</PathWithFileName>
+      <FilenameWithoutPath>aws_test_ggd_system.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

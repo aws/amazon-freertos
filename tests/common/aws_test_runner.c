@@ -83,7 +83,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_GGD_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_GGD );
+        RUN_TEST_GROUP( GGD_Unit );
+        RUN_TEST_GROUP( GGD_System );
     #endif
 
     #if ( testrunnerFULL_GGD_HELPER_ENABLED == 1 )
