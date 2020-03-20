@@ -508,7 +508,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_cbor.c"/>

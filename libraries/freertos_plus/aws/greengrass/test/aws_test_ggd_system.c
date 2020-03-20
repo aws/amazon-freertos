@@ -55,15 +55,15 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
                                                  BaseType_t * pxJSONFileRetrieveCompleted,
                                                  uint32_t ulJSONFileSize );
 
-TEST_GROUP( Full_GGD );
+TEST_GROUP( GGD_System );
 
-TEST_SETUP( Full_GGD )
+TEST_SETUP( GGD_System )
 {
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
-TEST_TEAR_DOWN( Full_GGD )
+TEST_TEAR_DOWN( GGD_System )
 {
     if( xSocket != SOCKETS_INVALID_SOCKET )
     {
@@ -76,14 +76,14 @@ TEST_TEAR_DOWN( Full_GGD )
 }
 
 
-TEST_GROUP_RUNNER( Full_GGD )
+TEST_GROUP_RUNNER( GGD_System )
 {
-    RUN_TEST_CASE( Full_GGD, JSONRequestStart );
-    RUN_TEST_CASE( Full_GGD, JSONRequestAbort );
-    RUN_TEST_CASE( Full_GGD, GetIPandCertificateFromJSON );
-    RUN_TEST_CASE( Full_GGD, JSONRequestGetSize );
-    RUN_TEST_CASE( Full_GGD, JSONRequestGetFile );
-    RUN_TEST_CASE( Full_GGD, GetGGCIPandCertificate );
+    RUN_TEST_CASE( GGD_System, JSONRequestStart );
+    RUN_TEST_CASE( GGD_System, JSONRequestAbort );
+    RUN_TEST_CASE( GGD_System, GetIPandCertificateFromJSON );
+    RUN_TEST_CASE( GGD_System, JSONRequestGetSize );
+    RUN_TEST_CASE( GGD_System, JSONRequestGetFile );
+    RUN_TEST_CASE( GGD_System, GetGGCIPandCertificate );
 }
 
 static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
@@ -108,7 +108,7 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
     return xStatus;
 }
 
-TEST( Full_GGD, JSONRequestAbort )
+TEST( GGD_System, JSONRequestAbort )
 {
     /** @brief check for stability for all meaningfull values of socket.
      * 1. Invalid
@@ -142,7 +142,7 @@ TEST( Full_GGD, JSONRequestAbort )
 }
 
 
-TEST( Full_GGD, GetGGCIPandCertificate )
+TEST( GGD_System, GetGGCIPandCertificate )
 {
     BaseType_t i;
     BaseType_t xStatus;
@@ -244,7 +244,7 @@ TEST( Full_GGD, GetGGCIPandCertificate )
 }
 
 
-TEST( Full_GGD, GetIPandCertificateFromJSON )
+TEST( GGD_System, GetIPandCertificateFromJSON )
 {
     uint32_t ulJSONFileSize = strlen( cJSON_FILE );
     BaseType_t xStatus;
@@ -404,7 +404,7 @@ TEST( Full_GGD, GetIPandCertificateFromJSON )
     /** @}*/
 }
 
-TEST( Full_GGD, JSONRequestGetFile )
+TEST( GGD_System, JSONRequestGetFile )
 {
     BaseType_t xStatus;
     uint32_t ulBufferSize = testrunnerBUFFER_SIZE;
@@ -554,7 +554,7 @@ TEST( Full_GGD, JSONRequestGetFile )
     /** @}*/
 }
 
-TEST( Full_GGD, JSONRequestGetSize )
+TEST( GGD_System, JSONRequestGetSize )
 {
     BaseType_t xStatus;
     uint32_t ulJSONFileSize;
@@ -594,7 +594,7 @@ TEST( Full_GGD, JSONRequestGetSize )
     /** @}*/
 }
 
-TEST( Full_GGD, JSONRequestStart )
+TEST( GGD_System, JSONRequestStart )
 {
     BaseType_t xStatus;
 

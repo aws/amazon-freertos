@@ -1418,7 +1418,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
 			<Filter>libraries\c_sdk\standard\serializer\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c">
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c">
 			<Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c">

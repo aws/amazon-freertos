@@ -2650,7 +2650,7 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c</name>

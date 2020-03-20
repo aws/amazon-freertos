@@ -1818,9 +1818,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_unit.c</name>
