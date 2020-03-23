@@ -65,19 +65,17 @@
  * performed, for example FreeRTOS_send() and FreeRTOS_recv().  The timeouts can be
  * set per socket, using setsockopt().  If not set, the times below will be
  * used as defaults. */
-#define ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME    ( 10000 )
-#define ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME       ( 10000 )
+#define ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME    (10000)
+#define ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME       (10000)
 
 /* Include support for DNS caching.  For TCP, having a small DNS cache is very
  * useful.  When a cache is present, ipconfigDNS_REQUEST_ATTEMPTS can be kept low
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket.
- */
-#define ipconfigUSE_DNS_CACHE                      ( 1 )
-#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
-#define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
+ * a socket. */
+#define ipconfigUSE_DNS_CACHE                      (1)
+#define ipconfigDNS_REQUEST_ATTEMPTS               (2)
 
 /* The IP stack executes it its own task (although any application task can make
  * use of its services through the published sockets API). ipconfigUDP_TASK_PRIORITY
@@ -88,14 +86,14 @@
  * FreeRTOSConfig.h, not FreeRTOSIPConfig.h. Consideration needs to be given as to
  * the priority assigned to the task executing the IP stack relative to the
  * priority assigned to tasks that use the IP stack. */
-#define ipconfigIP_TASK_PRIORITY                   ( configMAX_PRIORITIES - 2 )
+#define ipconfigIP_TASK_PRIORITY                   (configMAX_PRIORITIES - 2)
 
 /* The size, in words (not bytes), of the stack allocated to the FreeRTOS+TCP
  * task.  This setting is less important when the FreeRTOS Win32 simulator is used
  * as the Win32 simulator only stores a fixed amount of information on the task
  * stack.  FreeRTOS includes optional stack overflow detection, see:
  * http://www.freertos.org/Stacks-and-stack-overflow-checking.html. */
-#define ipconfigIP_TASK_STACK_SIZE_WORDS           ( configMINIMAL_STACK_SIZE * 5 )
+#define ipconfigIP_TASK_STACK_SIZE_WORDS           (configMINIMAL_STACK_SIZE * 5)
 
 /* ipconfigRAND32() is called by the IP stack to generate random numbers for
  * things such as a DHCP transaction number or initial sequence number.  Random
@@ -124,7 +122,7 @@ uint32_t ulRand(void);
  * ipconfigMAX_SEND_BLOCK_TIME_TICKS is specified in RTOS ticks.  A time in
  * milliseconds can be converted to a time in ticks by dividing the time in
  * milliseconds by portTICK_PERIOD_MS. */
-#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS    ( 5000 / portTICK_PERIOD_MS )
+#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS    (5000 / portTICK_PERIOD_MS)
 
 /* If ipconfigUSE_DHCP is 1 then FreeRTOS+TCP will attempt to retrieve an IP
  * address, netmask, DNS server address and gateway address from a DHCP server.  If
@@ -150,7 +148,7 @@ uint32_t ulRand(void);
  * static IP address passed as a parameter to FreeRTOS_IPInit() if the
  * re-transmission time interval reaches ipconfigMAXIMUM_DISCOVER_TX_PERIOD without
  * a DHCP reply being received. */
-#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD     ( 120000 / portTICK_PERIOD_MS )
+#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD     (120000 / portTICK_PERIOD_MS)
 
 /* The ARP cache is a table that maps IP addresses to MAC addresses.  The IP
  * stack can only send a UDP message to a remove IP address if it knowns the MAC
@@ -166,7 +164,7 @@ uint32_t ulRand(void);
 /* ARP requests that do not result in an ARP response will be re-transmitted a
  * maximum of ipconfigMAX_ARP_RETRANSMISSIONS times before the ARP request is
  * aborted. */
-#define ipconfigMAX_ARP_RETRANSMISSIONS           ( 5 )
+#define ipconfigMAX_ARP_RETRANSMISSIONS           (5)
 
 /* ipconfigMAX_ARP_AGE defines the maximum time between an entry in the ARP
  * table being created or refreshed and the entry being removed because it is stale.
@@ -185,19 +183,19 @@ uint32_t ulRand(void);
  * ipconfigINCLUDE_FULL_INET_ADDR is set to 1 then both FreeRTOS_inet_addr() and
  * FreeRTOS_indet_addr_quick() are available.  If ipconfigINCLUDE_FULL_INET_ADDR is
  * not set to 1 then only FreeRTOS_indet_addr_quick() is available. */
-#define ipconfigINCLUDE_FULL_INET_ADDR            1
+#define ipconfigINCLUDE_FULL_INET_ADDR            0
 
 /* ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS defines the total number of network buffer that
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    8
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    ETHER_CFG_EMAC_TX_DESCRIPTORS
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can
  * be queued for processing at any one time.  The event queue must be a minimum of
  * 5 greater than the total number of network buffers. */
-#define ipconfigEVENT_QUEUE_LENGTH     ( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5 )
+#define ipconfigEVENT_QUEUE_LENGTH     (ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5)
 
 /* The address of a socket is the combination of its IP address and its port
  * number.  FreeRTOS_bind() is used to manually allocate a port number to a socket
@@ -219,10 +217,10 @@ uint32_t ulRand(void);
 #define ipconfigTCP_TIME_TO_LIVE                       128
 
 /* USE_TCP: Use TCP and all its features. */
-#define ipconfigUSE_TCP                                ( 1 )
+#define ipconfigUSE_TCP                                (1)
 
 /* USE_WIN: Let TCP use windowing mechanism. */
-#define ipconfigUSE_TCP_WIN                            ( 1 )
+#define ipconfigUSE_TCP_WIN                            (0)
 
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
@@ -280,27 +278,27 @@ uint32_t ulRand(void);
 
 /* Each TCP socket has a circular buffers for Rx and Tx, which have a fixed
  * maximum size.  Define the size of Rx buffer for TCP sockets. */
-#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 1460 * 8 )
+#define ipconfigTCP_RX_BUFFER_LENGTH                   ( 1460 * 8)
 
 /* Define the size of Tx buffer for TCP sockets. */
-#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 1460 * 8 )
+#define ipconfigTCP_TX_BUFFER_LENGTH                   ( 1460 * 8)
 
 /* When using call-back handlers, the driver may check if the handler points to
  * real program memory (RAM or flash) or just has a random non-zero value. */
 #define ipconfigIS_VALID_PROG_ADDRESS( x )    ( ( x ) != NULL )
 
 /* Include support for TCP keep-alive messages. */
-#define ipconfigTCP_KEEP_ALIVE                   ( 1 )
-#define ipconfigTCP_KEEP_ALIVE_INTERVAL          ( 20 ) /* Seconds. */
+#define ipconfigTCP_KEEP_ALIVE                   (1)
+#define ipconfigTCP_KEEP_ALIVE_INTERVAL          (20) /* Seconds. */
 
 /* The socket semaphore is used to unblock the MQTT task. */
-#define ipconfigSOCKET_HAS_USER_SEMAPHORE        ( 0 )
+#define ipconfigSOCKET_HAS_USER_SEMAPHORE        (0)
 
-#define ipconfigSOCKET_HAS_USER_WAKE_CALLBACK    ( 1 )
-#define ipconfigUSE_CALLBACKS                    ( 0 )
+#define ipconfigSOCKET_HAS_USER_WAKE_CALLBACK    (1)
+#define ipconfigUSE_CALLBACKS                    (0)
 
-#define ipconfigZERO_COPY_TX_DRIVER              ( 0 )
-#define ipconfigZERO_COPY_RX_DRIVER              ( 0 )
+#define ipconfigZERO_COPY_TX_DRIVER              (0)
+#define ipconfigZERO_COPY_RX_DRIVER              (0)
 
 /* Possible optimisation for expert users - requires network driver support.
  * When ipconfigUSE_LINKED_RX_MESSAGES is set to non-zero value then
@@ -311,7 +309,7 @@ uint32_t ulRand(void);
  * When ipconfigUSE_LINKED_RX_MESSAGES is set to 0 then only one buffer will
  * be sent at a time.  This is the default way for +TCP to pass messages from
  * the MAC to the TCP/IP stack. */
-#define ipconfigUSE_LINKED_RX_MESSAGES           ( 0 )
+#define ipconfigUSE_LINKED_RX_MESSAGES           (0)
 
 #define portINLINE                               __inline
 

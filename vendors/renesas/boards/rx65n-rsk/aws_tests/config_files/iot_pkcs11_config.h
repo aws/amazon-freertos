@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V1.1.4
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -78,7 +78,7 @@
  * If set to 0, OTA code signing certificate is built in via
  * aws_ota_codesigner_certificate.h.
  */
-#define pkcs11configOTA_SUPPORTED                          0
+#define pkcs11configOTA_SUPPORTED                          1
 
 /**
  * @brief Set to 1 if PAL supports storage for JITP certificate,
@@ -134,4 +134,5 @@
  */
 #define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED              ( 1 )
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V1.1.4
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -36,11 +36,11 @@
 /**
  * @brief The number of your network interface here.
  */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
+#define ggdconfigCORE_NETWORK_INTERFACE     (0)
 
 /**
  * @brief Size of the array used by jsmn to store the tokens.
  */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
+#define ggdconfigJSON_MAX_TOKENS            (128)
 
 #endif /* _AWS_GGD_CONFIG_H_ */

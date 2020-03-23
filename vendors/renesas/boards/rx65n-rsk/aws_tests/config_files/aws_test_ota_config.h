@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V1.1.4
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -47,7 +47,7 @@
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM     1 /* FIX ME. */
+#define otatestpalUSE_FILE_SYSTEM     0 /* FIX ME. */
 
 /**
  * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
@@ -73,7 +73,7 @@
  * @brief Define a valid and invalid signature verification method for this
  * platform (Windows). These are used for generating test JSON docs.
  */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-rsa"    /* FIX ME. */
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"  /* FIX ME. */
+#define otatestVALID_SIG_METHOD                         "sig-sha256-ecdsa"    /* FIX ME. */
+#define otatestINVALID_SIG_METHOD                       "sig-sha256-rsa"  /* FIX ME. */
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */
