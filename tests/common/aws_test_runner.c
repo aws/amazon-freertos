@@ -92,6 +92,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SHADOW_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_Shadow_Unit );
         RUN_TEST_GROUP( Full_Shadow );
     #endif
 
