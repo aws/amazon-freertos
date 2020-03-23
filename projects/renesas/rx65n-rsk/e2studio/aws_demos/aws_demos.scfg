@@ -14,7 +14,7 @@
 <option id="board" value="RSKRX65N-2MB (1.01)"/>
 </general>
 <tool id="Summary" version="1.0.0.0">
-<option id="com.renesas.smc.code.type" value="Normal Folder"/>
+<option id="com.renesas.smc.code.type" value="Linked File"/>
 </tool>
 <tool id="Clock">
 <Item current="true" id="vccSetting.isSelected"/>
@@ -110,9 +110,9 @@
 <Item current="120.0 MHz" id="pclkadivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="pclkadivider.Condition"/>
 <Item current="comboBox1-2" error="false" id="pclkadivider.comboBox"/>
-<Item current="false" id="uckdivider.selectBox"/>
+<Item current="true" id="uckdivider.selectBox"/>
 <Item current="240.0 MHz" id="uckdivider.InputValue"/>
-<Item current="" id="uckdivider.OutputValue"/>
+<Item current="48.0 MHz" id="uckdivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="uckdivider.Condition"/>
 <Item current="comboBox1-5" error="false" id="uckdivider.comboBox"/>
 <Item current="true" id="iclkdivider.isSelected"/>
@@ -175,12 +175,12 @@
 <Item current="MHz" id="bck.unitTxt"/>
 <Item current="120.0" id="bck.CurrentValue"/>
 <Item current="false" id="bck.Disabled"/>
-<Item current="false" id="uclk.isSelected"/>
-<Item current="" id="uclk.InputValue"/>
-<Item current="0" id="uclk.OutputValue"/>
-<Item current="-" id="uclk.frequencyTxt"/>
+<Item current="true" id="uclk.isSelected"/>
+<Item current="48.0 MHz" id="uclk.InputValue"/>
+<Item current="48.0 MHz" id="uclk.OutputValue"/>
+<Item current="48.0" id="uclk.frequencyTxt"/>
 <Item current="MHz" id="uclk.unitTxt"/>
-<Item current="true" id="uclk.Disabled"/>
+<Item current="false" id="uclk.Disabled"/>
 <Item current="true" id="cacmclk.isSelected"/>
 <Item current="24 MHz" id="cacmclk.InputValue"/>
 <Item current="24 MHz" id="cacmclk.OutputValue"/>
@@ -226,31 +226,36 @@
 <Item current="MHz" id="sdclk.unitTxt"/>
 <Item current="true" id="sdclk.Disabled"/>
 <Item current="true" id="sdclk.SelectBoxDisabled"/>
+<Item current="48.0" id="uclk.CurrentValue"/>
 </tool>
 <tool id="Pins" version="1.0.1.0">
-<pinItem allocation="22" comments="" direction="None" id="XTAL" locked="false" status="0"/>
-<pinItem allocation="59" comments="" direction="None" id="RXD8" locked="false" status="0"/>
-<pinItem allocation="81" comments="" direction="None" id="ET0_TX_EN" locked="false" status="0"/>
-<pinItem allocation="83" comments="" direction="None" id="ET0_TX_ER" locked="false" status="0"/>
-<pinItem allocation="101" comments="" direction="None" id="ET0_MDC" locked="false" status="0"/>
-<pinItem allocation="76" comments="" direction="None" id="ET0_COL" locked="false" status="0"/>
-<pinItem allocation="74" comments="" direction="None" id="ET0_CRS" locked="false" status="0"/>
-<pinItem allocation="58" comments="" direction="None" id="TXD8" locked="false" status="0"/>
-<pinItem allocation="24" comments="" direction="None" id="EXTAL" locked="false" status="0"/>
-<pinItem allocation="86" comments="" direction="None" id="ET0_RX_DV" locked="false" status="0"/>
-<pinItem allocation="27" comments="" direction="None" id="ET0_LINKSTA" locked="false" status="0"/>
-<pinItem allocation="84" comments="" direction="None" id="ET0_RX_ER" locked="false" status="0"/>
-<pinItem allocation="77" comments="" direction="None" id="ET0_ETXD3" locked="false" status="0"/>
-<pinItem allocation="78" comments="" direction="None" id="ET0_ETXD2" locked="false" status="0"/>
-<pinItem allocation="79" comments="" direction="None" id="ET0_ETXD1" locked="false" status="0"/>
-<pinItem allocation="80" comments="" direction="None" id="ET0_ETXD0" locked="false" status="0"/>
-<pinItem allocation="85" comments="" direction="None" id="ET0_RX_CLK" locked="false" status="0"/>
-<pinItem allocation="91" comments="" direction="None" id="ET0_ERXD3" locked="false" status="0"/>
-<pinItem allocation="89" comments="" direction="None" id="ET0_ERXD2" locked="false" status="0"/>
-<pinItem allocation="88" comments="" direction="None" id="ET0_ERXD1" locked="false" status="0"/>
-<pinItem allocation="87" comments="" direction="None" id="ET0_ERXD0" locked="false" status="0"/>
-<pinItem allocation="82" comments="" direction="None" id="ET0_TX_CLK" locked="false" status="0"/>
-<pinItem allocation="102" comments="" direction="None" id="ET0_MDIO" locked="false" status="0"/>
+<pinItem allocation="22" comments="" direction="None" id="XTAL" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="59" comments="" direction="None" id="RXD8" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="81" comments="" direction="None" id="ET0_TX_EN" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="83" comments="" direction="None" id="ET0_TX_ER" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="101" comments="" direction="None" id="ET0_MDC" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="76" comments="" direction="None" id="ET0_COL" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="74" comments="" direction="None" id="ET0_CRS" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="58" comments="" direction="None" id="TXD8" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="24" comments="" direction="None" id="EXTAL" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="86" comments="" direction="None" id="ET0_RX_DV" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="27" comments="" direction="None" id="ET0_LINKSTA" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="84" comments="" direction="None" id="ET0_RX_ER" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="77" comments="" direction="None" id="ET0_ETXD3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="78" comments="" direction="None" id="ET0_ETXD2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="79" comments="" direction="None" id="ET0_ETXD1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="80" comments="" direction="None" id="ET0_ETXD0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="85" comments="" direction="None" id="ET0_RX_CLK" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="91" comments="" direction="None" id="ET0_ERXD3" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="89" comments="" direction="None" id="ET0_ERXD2" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="88" comments="" direction="None" id="ET0_ERXD1" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="87" comments="" direction="None" id="ET0_ERXD0" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="82" comments="" direction="None" id="ET0_TX_CLK" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="102" comments="" direction="None" id="ET0_MDIO" isUsedBySoftware="false" locked="false" status="0"/>
+<pinItem allocation="173" comments="" direction="None" id="AN000" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="174" comments="" direction="None" id="VREFH0" isUsedBySoftware="true" locked="false" status="65280"/>
+<pinItem allocation="176" comments="" direction="None" id="ADTRG0#" isUsedBySoftware="true" locked="false" status="0"/>
+<pinItem allocation="172" comments="" direction="None" id="VREFL0" isUsedBySoftware="true" locked="false" status="65280"/>
 <pinnumItem comment="OnTFT-G2" id="110"/>
 <pinnumItem comment="OnTFT-G3" id="112"/>
 <pinnumItem comment="LED2" id="113"/>
@@ -595,52 +600,8 @@
 <Item id="PERIA_INTA255" priority="15"/>
 </tool>
 <tool id="SWComponent" version="1.0.0.0">
-<configuration inuse="true" name="r_bsp">
-<component description="依存モジュール: なし&#10;The r_bsp package provides a foundation for code to be built on top of. It provides startup code, iodefines, and MCU information for different boards. There are 2 folders that make up the r_bsp package. The 'mcu' folder contains files that are common to a MCU group. These files provide functionality such as easy register access, CPU functions, and a file named 'mcu_info.h' for each MCU group. The 'mcu_info.h' file has information about the MCU on the board and is configured based on the information given in r_bsp_config.h. The information in 'mcu_info.h' is used to help configure Renesas middleware that uses the r_bsp package. The 'board' folder has a folder with startup code for each supported board.  Which MCU and board is chosen is decided by the settings in 'platform.h'. The user can choose which board they are using by uncommenting the include path that applies to their board. For example, if you are using the RSK+RX62N then you would uncomment the #include &quot;./board/rskrx62n/r_bsp.h&quot; include path. Users are encouraged to add their own boards to the 'board' directory. BSPs are configured by using the r_bsp_config.h file. Each board will have a reference configuration file named r_bsp_config_reference.h. The user should copy this file to their project, rename it to r_bsp_config.h, and use the options inside the file to configure the BSP for their project." detailDescription="Board Support Packages." display="r_bsp" id="r_bsp5.20" version="5.20">
-<gridItem id="BSP_CFG_STARTUP_DISABLE" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_STACK_ENABLE" selectedIndex="1"/>
-<gridItem id="BSP_CFG_USTACK_BYTES" selectedIndex="0x1000"/>
-<gridItem id="BSP_CFG_ISTACK_BYTES" selectedIndex="0x400"/>
-<gridItem id="BSP_CFG_HEAP_BYTES" selectedIndex="0x400"/>
-<gridItem id="BSP_CFG_IO_LIB_ENABLE" selectedIndex="1"/>
-<gridItem id="BSP_CFG_USER_CHARGET_ENABLED" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_CHARGET_FUNCTION" selectedIndex="my_sw_charget_function"/>
-<gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_CHARPUT_FUNCTION" selectedIndex="my_sw_charput_function"/>
-<gridItem id="BSP_CFG_RUN_IN_USER_MODE" selectedIndex="0"/>
-<gridItem id="BSP_CFG_ID_CODE_LONG_1" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_ID_CODE_LONG_2" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_ID_CODE_LONG_3" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_ID_CODE_LONG_4" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_ROM_CACHE_ENABLE" selectedIndex="0"/>
-<gridItem id="BSP_CFG_TRUSTED_MODE_FUNCTION" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_FAW_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_ROMCODE_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_CODE_FLASH_BANK_MODE" selectedIndex="0"/>
-<gridItem id="BSP_CFG_CODE_FLASH_START_BANK" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_LOCKING_ENABLED" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_LOCKING_TYPE" selectedIndex="bsp_lock_t"/>
-<gridItem id="BSP_CFG_USER_LOCKING_HW_LOCK_FUNCTION" selectedIndex="my_hw_locking_function"/>
-<gridItem id="BSP_CFG_USER_LOCKING_HW_UNLOCK_FUNCTION" selectedIndex="my_hw_unlocking_function"/>
-<gridItem id="BSP_CFG_USER_LOCKING_SW_LOCK_FUNCTION" selectedIndex="my_sw_locking_function"/>
-<gridItem id="BSP_CFG_USER_LOCKING_SW_UNLOCK_FUNCTION" selectedIndex="my_sw_unlocking_function"/>
-<gridItem id="BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_WARM_START_PRE_C_FUNCTION" selectedIndex="my_sw_warmstart_prec_function"/>
-<gridItem id="BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED" selectedIndex="0"/>
-<gridItem id="BSP_CFG_USER_WARM_START_POST_C_FUNCTION" selectedIndex="my_sw_warmstart_postc_function"/>
-<gridItem id="BSP_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
-<gridItem id="BSP_CFG_EBMAPCR_1ST_PRIORITY" selectedIndex="0"/>
-<gridItem id="BSP_CFG_EBMAPCR_2ND_PRIORITY" selectedIndex="3"/>
-<gridItem id="BSP_CFG_EBMAPCR_3RD_PRIORITY" selectedIndex="1"/>
-<gridItem id="BSP_CFG_EBMAPCR_4TH_PRIORITY" selectedIndex="2"/>
-<gridItem id="BSP_CFG_EBMAPCR_5TH_PRIORITY" selectedIndex="4"/>
-<gridItem id="BSP_CFG_FIT_IPL_MAX" selectedIndex="15"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration inuse="true" name="r_byteq">
-<component description="依存モジュール: r_bsp バージョン 3.10&#10;This module allocates a queue control block in an Open() call to handle indexing for buffers provided by the user application. Additional functions are provided to put and get data from the buffer queue, inspect the number of bytes available or in use, and to flush the queue. There is no limit to the number of queues supported, and queue control blocks can be allocated statically at build time or dynamically at run time." detailDescription="Byte-based circular buffer library." display="r_byteq" id="r_byteq1.80" version="1.80">
+<component description="Dependency : r_bsp version(s) 3.10&#10;This module allocates a queue control block in an Open() call to handle indexing for buffers provided by the user application. Additional functions are provided to put and get data from the buffer queue, inspect the number of bytes available or in use, and to flush the queue. There is no limit to the number of queues supported, and queue control blocks can be allocated statically at build time or dynamically at run time." detailDescription="Byte-based circular buffer library." display="r_byteq" id="r_byteq1.80" version="1.80">
 <gridItem id="BYTEQ_CFG_PARAM_CHECKING_ENABLE" selectedIndex="0"/>
 <gridItem id="BYTEQ_CFG_USE_HEAP_FOR_CTRL_BLKS" selectedIndex="0"/>
 <gridItem id="BYTEQ_CFG_MAX_CTRL_BLKS" selectedIndex="32"/>
@@ -648,7 +609,7 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration id="46eb7c1e-a9e9-4727-a675-cd2793e0d8cf" inuse="true" name="FreeRTOS_Object">
+<configuration id="55b7159b-f091-4a51-9b10-2201f2a689af" inuse="true" name="FreeRTOS_Object">
 <allocatable id="OBJECT" name="OBJECT">
 <allocatable id="TASK" name="TASK">
 <option defaultValue="0" id="LinkNum" value=""/>
@@ -673,12 +634,9 @@
 </allocatable>
 </allocatable>
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to create and configure new object of FreeRTOS." detailDescription="" display="FreeRTOS_Object" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.object" version="1.0.0"/>
-<allocator description="FreeRTOS Object component for RX" display="FreeRTOS_Object" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.object.rx" type="object">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="1c2fea2b-a2bc-46e1-a6fd-d14561236f0a" inuse="true" name="FreeRTOS_Kernel">
+<configuration id="840193d3-c0ac-449c-8362-682addb03044" inuse="true" name="FreeRTOS_Kernel">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="FreeRTOS_kernel" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.kernel" version="1.0.0">
 <gridItem id="configENABLE_BACKWARD_COMPATIBILITY" selectedIndex="1"/>
 <gridItem id="configUSE_PREEMPTION" selectedIndex="1"/>
@@ -686,7 +644,7 @@
 <gridItem id="configMAX_PRIORITIES" selectedIndex="7"/>
 <gridItem id="configTICK_RATE_HZ" selectedIndex="1000"/>
 <gridItem id="configMINIMAL_STACK_SIZE" selectedIndex="( unsigned short ) 512"/>
-<gridItem id="configTOTAL_HEAP_SIZE" selectedIndex="( size_t ) ( 256U * 1024U )"/>
+<gridItem id="configTOTAL_HEAP_SIZE" selectedIndex="( size_t ) ( 128U * 1024U )"/>
 <gridItem id="configMAX_TASK_NAME_LEN" selectedIndex="12"/>
 <gridItem id="configUSE_TRACE_FACILITY" selectedIndex="1"/>
 <gridItem id="configUSE_16_BIT_TICKS" selectedIndex="0"/>
@@ -708,7 +666,7 @@
 <gridItem id="configUSE_MALLOC_FAILED_HOOK" selectedIndex="1"/>
 <gridItem id="configCHECK_FOR_STACK_OVERFLOW" selectedIndex="0"/>
 <gridItem id="configUSE_TIMERS" selectedIndex="1"/>
-<gridItem id="configTIMER_TASK_PRIORITY" selectedIndex="configMAX_PRIORITIES - 1"/>
+<gridItem id="configTIMER_TASK_PRIORITY" selectedIndex="6"/>
 <gridItem id="configTIMER_QUEUE_LENGTH" selectedIndex="5"/>
 <gridItem id="configTIMER_TASK_STACK_DEPTH" selectedIndex="configMINIMAL_STACK_SIZE * 6"/>
 <gridItem id="configKERNEL_INTERRUPT_PRIORITY" selectedIndex="1"/>
@@ -780,23 +738,17 @@
 <gridItem id="configPLATFORM_NAME" selectedIndex="&quot;RenesasRX65N&quot;"/>
 <gridItem id="configINCLUDE_PLATFORM_H_INSTEAD_OF_IODEFINE_H" selectedIndex="1"/>
 </component>
-<allocator description="FreeRTOS Amazon kernel component" display="AWS_kernel" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.kernel.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="7c8ff464-2c08-48c7-bab0-d198e4db1a68" inuse="true" name="AWS_device_shadow">
+<configuration id="de7e3037-66e5-436b-bc0b-3642416e76c6" inuse="true" name="AWS_device_shadow">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_device_shadow" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.device_shadow" version="1.0.0">
 <gridItem id="shadowConfigJSON_JSMN_TOKENS" selectedIndex="64"/>
 <gridItem id="shadowConfigJSON_CLIENT_TOKEN" selectedIndex="&quot;clientToken&quot;"/>
 <gridItem id="shadowConfigUNIQUE_CLIENT_TOKEN_CHECK" selectedIndex="1"/>
 </component>
-<allocator description="FreeRTOS Amazon device shadow component" display="AWS_shadow" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.device_shadow.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="aef4e026-3276-45f8-8f86-e416aa54a6c0" inuse="true" name="AWS_tcp_ip">
+<configuration id="8e060c63-bec6-4558-943b-a1f3cc9678cb" inuse="true" name="AWS_tcp_ip">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_tcp_ip" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.tcp_ip" version="1.0.0">
 <gridItem id="ipconfigHAS_DEBUG_PRINTF" selectedIndex="1"/>
 <gridItem id="ipconfigHAS_PRINTF" selectedIndex="0"/>
@@ -820,7 +772,7 @@
 <gridItem id="ipconfigMAX_ARP_RETRANSMISSIONS" selectedIndex="5"/>
 <gridItem id="ipconfigMAX_ARP_AGE" selectedIndex="150"/>
 <gridItem id="ipconfigINCLUDE_FULL_INET_ADDR" selectedIndex="1"/>
-<gridItem id="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" selectedIndex="8"/>
+<gridItem id="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" selectedIndex="ETHER_CFG_EMAC_TX_DESCRIPTORS"/>
 <gridItem id="ipconfigEVENT_QUEUE_LENGTH" selectedIndex="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5"/>
 <gridItem id="ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND" selectedIndex="0"/>
 <gridItem id="ipconfigUDP_TIME_TO_LIVE" selectedIndex="128"/>
@@ -848,19 +800,16 @@
 <gridItem id="ipconfigZERO_COPY_RX_DRIVER" selectedIndex="1"/>
 <gridItem id="ipconfigUSE_LINKED_RX_MESSAGES" selectedIndex="1"/>
 </component>
-<allocator description="FreeRTOS Amazon component" display="AWS_tcp_ip" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.tcp_ip.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="21c046a0-2474-482f-9b48-fb21a0bcf300" inuse="true" name="AWS_mqtt">
+<configuration id="01cb9bd9-f6ba-44ab-8751-c83c229c2fff" inuse="true" name="AWS_mqtt">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_mqtt" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.mqtt" version="1.0.0">
 <gridItem id="mqttconfigENABLE_METRICS" selectedIndex="0"/>
 <gridItem id="mqttOPERATION_TIMEOUT_MS" selectedIndex="120000"/>
 <gridItem id="mqttconfigKEEP_ALIVE_INTERVAL_SECONDS" selectedIndex="100"/>
 <gridItem id="mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS" selectedIndex="pdMS_TO_TICKS( 300000 )"/>
 <gridItem id="mqttconfigKEEP_ALIVE_TIMEOUT_TICKS" selectedIndex="1000"/>
-<gridItem id="mqttconfigMQTT_TASK_STACK_DEPTH" selectedIndex="2048"/>
+<gridItem id="mqttconfigMQTT_TASK_STACK_DEPTH" selectedIndex="6144"/>
 <gridItem id="mqttconfigMQTT_TASK_PRIORITY" selectedIndex="configMAX_PRIORITIES - 3"/>
 <gridItem id="mqttconfigMAX_BROKERS" selectedIndex="2"/>
 <gridItem id="mqttconfigMAX_PARALLEL_OPS" selectedIndex="5"/>
@@ -872,134 +821,25 @@
 <gridItem id="mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS" selectedIndex="8"/>
 <gridItem id="mqttconfigENABLE_DEBUG_LOGS" selectedIndex="1"/>
 </component>
-<allocator description="FreeRTOS Amazon mqtt component" display="AWS_mqtt" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.mqtt.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="f7e8c596-34b7-4347-bea1-e542d2b40577" inuse="true" name="AWS_secure_socket">
+<configuration id="c897ceb4-133e-42f8-bc55-9172c1e2e94a" inuse="true" name="AWS_secure_socket">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_secure_socket" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.secure_socket" version="1.0.0">
 <gridItem id="socketsconfigBYTE_ORDER" selectedIndex="0"/>
 <gridItem id="socketsconfigDEFAULT_SEND_TIMEOUT" selectedIndex="10000"/>
 <gridItem id="socketsconfigDEFAULT_RECV_TIMEOUT" selectedIndex="10000"/>
 </component>
-<allocator description="FreeRTOS Amazon secure socket component" display="AWS_secure_socket" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.secure_socket.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="7b9017e6-94f5-4a54-8233-fffb30714610" inuse="true" name="AWS_ggd">
+<configuration id="eac8fd91-1f0f-4c91-bcea-793176f77cd0" inuse="true" name="AWS_ggd">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_ggd" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.ggd" version="1.0.0">
 <gridItem id="ggdconfigCORE_NETWORK_INTERFACE" selectedIndex="0"/>
 <gridItem id="ggdconfigJSON_MAX_TOKENS" selectedIndex="128"/>
 </component>
-<allocator description="FreeRTOS Amazon gdd component" display="AWS_ggd" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.ggd.rx" type="gridConfiguration">
-<context/>
-</allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration inuse="true" name="r_s12ad_rx">
-<component description="依存モジュール: r_bsp バージョン 5.20&#10;This A/D driver supports the temperature sensor, internal reference voltage sensor, and all analog channels available on the MCU. Single scan and continuous scanning are supported. Group and Double Trigger modes are supported. Triggers may be synchronous, asynchronous, or initiated by software. " detailDescription="Multi-Channel A/D and Sensor Driver." display="r_s12ad_rx" id="r_s12ad_rx4.20" version="4.20">
-<gridItem id="AN000" selectedIndex="0"/>
-<gridItem id="AN001" selectedIndex="0"/>
-<gridItem id="AN002" selectedIndex="0"/>
-<gridItem id="AN003" selectedIndex="0"/>
-<gridItem id="AN004" selectedIndex="0"/>
-<gridItem id="AN005" selectedIndex="0"/>
-<gridItem id="AN006" selectedIndex="0"/>
-<gridItem id="AN007" selectedIndex="0"/>
-<gridItem id="AN008" selectedIndex="0"/>
-<gridItem id="AN009" selectedIndex="0"/>
-<gridItem id="AN010" selectedIndex="0"/>
-<gridItem id="AN011" selectedIndex="0"/>
-<gridItem id="AN012" selectedIndex="0"/>
-<gridItem id="AN013" selectedIndex="0"/>
-<gridItem id="AN014" selectedIndex="0"/>
-<gridItem id="AN015" selectedIndex="0"/>
-<gridItem id="AN016" selectedIndex="0"/>
-<gridItem id="AN017" selectedIndex="0"/>
-<gridItem id="AN018" selectedIndex="0"/>
-<gridItem id="AN019" selectedIndex="0"/>
-<gridItem id="AN020" selectedIndex="0"/>
-<gridItem id="AN021" selectedIndex="0"/>
-<gridItem id="AN022" selectedIndex="0"/>
-<gridItem id="AN023" selectedIndex="0"/>
-<gridItem id="AN024" selectedIndex="0"/>
-<gridItem id="AN025" selectedIndex="0"/>
-<gridItem id="AN026" selectedIndex="0"/>
-<gridItem id="AN027" selectedIndex="0"/>
-<gridItem id="AN028" selectedIndex="0"/>
-<gridItem id="AN029" selectedIndex="0"/>
-<gridItem id="AN030" selectedIndex="0"/>
-<gridItem id="AN031" selectedIndex="0"/>
-<gridItem id="VREFH0" selectedIndex="0"/>
-<gridItem id="VREFL0" selectedIndex="0"/>
-<gridItem id="ADTRG0#" selectedIndex="0"/>
-<gridItem id="ADST0" selectedIndex="0"/>
-<gridItem id="PGAVSS0" selectedIndex="0"/>
-<gridItem id="S12AD0" selectedIndex="0"/>
-<gridItem id="AN100" selectedIndex="0"/>
-<gridItem id="AN101" selectedIndex="0"/>
-<gridItem id="AN102" selectedIndex="0"/>
-<gridItem id="AN103" selectedIndex="0"/>
-<gridItem id="AN104" selectedIndex="0"/>
-<gridItem id="AN105" selectedIndex="0"/>
-<gridItem id="AN106" selectedIndex="0"/>
-<gridItem id="AN107" selectedIndex="0"/>
-<gridItem id="AN108" selectedIndex="0"/>
-<gridItem id="AN109" selectedIndex="0"/>
-<gridItem id="AN110" selectedIndex="0"/>
-<gridItem id="AN111" selectedIndex="0"/>
-<gridItem id="AN112" selectedIndex="0"/>
-<gridItem id="AN113" selectedIndex="0"/>
-<gridItem id="AN114" selectedIndex="0"/>
-<gridItem id="AN115" selectedIndex="0"/>
-<gridItem id="AN116" selectedIndex="0"/>
-<gridItem id="AN117" selectedIndex="0"/>
-<gridItem id="AN118" selectedIndex="0"/>
-<gridItem id="AN119" selectedIndex="0"/>
-<gridItem id="AN120" selectedIndex="0"/>
-<gridItem id="ANEX0" selectedIndex="0"/>
-<gridItem id="ANEX1" selectedIndex="0"/>
-<gridItem id="ADTRG1#" selectedIndex="0"/>
-<gridItem id="ADST1" selectedIndex="0"/>
-<gridItem id="PGAVSS1" selectedIndex="0"/>
-<gridItem id="S12AD1" selectedIndex="0"/>
-<gridItem id="AN200" selectedIndex="0"/>
-<gridItem id="AN201" selectedIndex="0"/>
-<gridItem id="AN202" selectedIndex="0"/>
-<gridItem id="AN203" selectedIndex="0"/>
-<gridItem id="AN204" selectedIndex="0"/>
-<gridItem id="AN205" selectedIndex="0"/>
-<gridItem id="AN206" selectedIndex="0"/>
-<gridItem id="AN207" selectedIndex="0"/>
-<gridItem id="AN208" selectedIndex="0"/>
-<gridItem id="AN209" selectedIndex="0"/>
-<gridItem id="AN210" selectedIndex="0"/>
-<gridItem id="AN211" selectedIndex="0"/>
-<gridItem id="AN216" selectedIndex="0"/>
-<gridItem id="AN217" selectedIndex="0"/>
-<gridItem id="ADTRG2#" selectedIndex="0"/>
-<gridItem id="ADST2" selectedIndex="0"/>
-<gridItem id="S12AD2" selectedIndex="0"/>
-<gridItem id="ADC_CFG_PARAM_CHECKING_ENABLE" selectedIndex="0"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
-<configuration inuse="true" name="r_flash_rx">
-<component description="依存モジュール: r_bsp バージョン 5.20&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.20" version="4.20">
-<gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_ENABLE" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
-</component>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
-</configuration>
 <configuration inuse="true" name="r_ether_rx">
-<component description="依存モジュール: r_bsp バージョン 5.20&#10;The Ethernet fit module provides a method to send and receive Ethernet / IEEE802.3 frame using Ethernet controller (ETHERC), Ethernet DMA controller (EDMAC)." detailDescription="Ethernet Driver." display="r_ether_rx" id="r_ether_rx1.17" version="1.17">
+<component description="Dependency : r_bsp version(s) 5.20&#10;The Ethernet fit module provides a method to send and receive Ethernet / IEEE802.3 frame using Ethernet controller (ETHERC), Ethernet DMA controller (EDMAC)." detailDescription="Ethernet Driver." display="r_ether_rx" id="r_ether_rx1.17" version="1.17">
 <gridItem id="CLKOUT25M" selectedIndex="0"/>
 <gridItem id="ET0_TX_CLK" selectedIndex="1"/>
 <gridItem id="ET0_RX_CLK" selectedIndex="1"/>
@@ -1093,8 +933,152 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
+<configuration inuse="true" name="r_bsp">
+<component description="Dependencies : None&#10;The r_bsp package provides a foundation for code to be built on top of. It provides startup code, iodefines, and MCU information for different boards. There are 2 folders that make up the r_bsp package. The 'mcu' folder contains files that are common to a MCU group. These files provide functionality such as easy register access, CPU functions, and a file named 'mcu_info.h' for each MCU group. The 'mcu_info.h' file has information about the MCU on the board and is configured based on the information given in r_bsp_config.h. The information in 'mcu_info.h' is used to help configure Renesas middleware that uses the r_bsp package. The 'board' folder has a folder with startup code for each supported board.  Which MCU and board is chosen is decided by the settings in 'platform.h'. The user can choose which board they are using by uncommenting the include path that applies to their board. For example, if you are using the RSK+RX64M then you would uncomment the #include &quot;./board/generic_rx64m/r_bsp.h&quot; include path. Users are encouraged to add their own boards to the 'board' directory. BSPs are configured by using the r_bsp_config.h file. Each board will have a reference configuration file named r_bsp_config_reference.h. The user should copy this file to their project, rename it to r_bsp_config.h, and use the options inside the file to configure the BSP for their project." detailDescription="Board Support Packages." display="r_bsp" id="r_bsp5.40" version="5.40">
+<gridItem id="BSP_CFG_STARTUP_DISABLE" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_STACK_ENABLE" selectedIndex="1"/>
+<gridItem id="BSP_CFG_USTACK_BYTES" selectedIndex="0x1000"/>
+<gridItem id="BSP_CFG_ISTACK_BYTES" selectedIndex="0x400"/>
+<gridItem id="BSP_CFG_HEAP_BYTES" selectedIndex="0x400"/>
+<gridItem id="BSP_CFG_IO_LIB_ENABLE" selectedIndex="1"/>
+<gridItem id="BSP_CFG_USER_CHARGET_ENABLED" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_CHARGET_FUNCTION" selectedIndex="my_sw_charget_function"/>
+<gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_CHARPUT_FUNCTION" selectedIndex="my_sw_charput_function"/>
+<gridItem id="BSP_CFG_RUN_IN_USER_MODE" selectedIndex="0"/>
+<gridItem id="BSP_CFG_ID_CODE_LONG_1" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_ID_CODE_LONG_2" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_ID_CODE_LONG_3" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_ID_CODE_LONG_4" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_ROM_CACHE_ENABLE" selectedIndex="0"/>
+<gridItem id="BSP_CFG_TRUSTED_MODE_FUNCTION" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_FAW_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_ROMCODE_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
+<gridItem id="BSP_CFG_CODE_FLASH_BANK_MODE" selectedIndex="0"/>
+<gridItem id="BSP_CFG_CODE_FLASH_START_BANK" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_LOCKING_ENABLED" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_LOCKING_TYPE" selectedIndex="bsp_lock_t"/>
+<gridItem id="BSP_CFG_USER_LOCKING_HW_LOCK_FUNCTION" selectedIndex="my_hw_locking_function"/>
+<gridItem id="BSP_CFG_USER_LOCKING_HW_UNLOCK_FUNCTION" selectedIndex="my_hw_unlocking_function"/>
+<gridItem id="BSP_CFG_USER_LOCKING_SW_LOCK_FUNCTION" selectedIndex="my_sw_locking_function"/>
+<gridItem id="BSP_CFG_USER_LOCKING_SW_UNLOCK_FUNCTION" selectedIndex="my_sw_unlocking_function"/>
+<gridItem id="BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_WARM_START_PRE_C_FUNCTION" selectedIndex="my_sw_warmstart_prec_function"/>
+<gridItem id="BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED" selectedIndex="0"/>
+<gridItem id="BSP_CFG_USER_WARM_START_POST_C_FUNCTION" selectedIndex="my_sw_warmstart_postc_function"/>
+<gridItem id="BSP_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
+<gridItem id="BSP_CFG_EBMAPCR_1ST_PRIORITY" selectedIndex="0"/>
+<gridItem id="BSP_CFG_EBMAPCR_2ND_PRIORITY" selectedIndex="3"/>
+<gridItem id="BSP_CFG_EBMAPCR_3RD_PRIORITY" selectedIndex="1"/>
+<gridItem id="BSP_CFG_EBMAPCR_4TH_PRIORITY" selectedIndex="2"/>
+<gridItem id="BSP_CFG_EBMAPCR_5TH_PRIORITY" selectedIndex="4"/>
+<gridItem id="BSP_CFG_FIT_IPL_MAX" selectedIndex="15"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration inuse="true" name="r_s12ad_rx">
+<component description="Dependency : r_bsp version(s) 5.20&#10;This A/D driver supports the temperature sensor, internal reference voltage sensor, and all analog channels available on the MCU. Single scan and continuous scanning are supported. Group and Double Trigger modes are supported. Triggers may be synchronous, asynchronous, or initiated by software. The RX210 Sample and Hold, Self-Diagnosis, and Disconnect Detection Assist features are supported as well." detailDescription="Multi-Channel A/D and Sensor Driver." display="r_s12ad_rx" id="r_s12ad_rx4.00" version="4.00">
+<gridItem id="AN000" selectedIndex="1"/>
+<gridItem id="AN001" selectedIndex="0"/>
+<gridItem id="AN002" selectedIndex="0"/>
+<gridItem id="AN003" selectedIndex="0"/>
+<gridItem id="AN004" selectedIndex="0"/>
+<gridItem id="AN005" selectedIndex="0"/>
+<gridItem id="AN006" selectedIndex="0"/>
+<gridItem id="AN007" selectedIndex="0"/>
+<gridItem id="AN008" selectedIndex="0"/>
+<gridItem id="AN009" selectedIndex="0"/>
+<gridItem id="AN010" selectedIndex="0"/>
+<gridItem id="AN011" selectedIndex="0"/>
+<gridItem id="AN012" selectedIndex="0"/>
+<gridItem id="AN013" selectedIndex="0"/>
+<gridItem id="AN014" selectedIndex="0"/>
+<gridItem id="AN015" selectedIndex="0"/>
+<gridItem id="AN016" selectedIndex="0"/>
+<gridItem id="AN017" selectedIndex="0"/>
+<gridItem id="AN018" selectedIndex="0"/>
+<gridItem id="AN019" selectedIndex="0"/>
+<gridItem id="AN020" selectedIndex="0"/>
+<gridItem id="AN021" selectedIndex="0"/>
+<gridItem id="AN022" selectedIndex="0"/>
+<gridItem id="AN023" selectedIndex="0"/>
+<gridItem id="AN024" selectedIndex="0"/>
+<gridItem id="AN025" selectedIndex="0"/>
+<gridItem id="AN026" selectedIndex="0"/>
+<gridItem id="AN027" selectedIndex="0"/>
+<gridItem id="AN028" selectedIndex="0"/>
+<gridItem id="AN029" selectedIndex="0"/>
+<gridItem id="AN030" selectedIndex="0"/>
+<gridItem id="AN031" selectedIndex="0"/>
+<gridItem id="VREFH0" selectedIndex="0"/>
+<gridItem id="VREFL0" selectedIndex="0"/>
+<gridItem id="ADTRG0#" selectedIndex="1"/>
+<gridItem id="ADST0" selectedIndex="0"/>
+<gridItem id="PGAVSS0" selectedIndex="0"/>
+<gridItem id="S12AD0" selectedIndex="1"/>
+<gridItem id="AN100" selectedIndex="0"/>
+<gridItem id="AN101" selectedIndex="0"/>
+<gridItem id="AN102" selectedIndex="0"/>
+<gridItem id="AN103" selectedIndex="0"/>
+<gridItem id="AN104" selectedIndex="0"/>
+<gridItem id="AN105" selectedIndex="0"/>
+<gridItem id="AN106" selectedIndex="0"/>
+<gridItem id="AN107" selectedIndex="0"/>
+<gridItem id="AN108" selectedIndex="0"/>
+<gridItem id="AN109" selectedIndex="0"/>
+<gridItem id="AN110" selectedIndex="0"/>
+<gridItem id="AN111" selectedIndex="0"/>
+<gridItem id="AN112" selectedIndex="0"/>
+<gridItem id="AN113" selectedIndex="0"/>
+<gridItem id="AN114" selectedIndex="0"/>
+<gridItem id="AN115" selectedIndex="0"/>
+<gridItem id="AN116" selectedIndex="0"/>
+<gridItem id="AN117" selectedIndex="0"/>
+<gridItem id="AN118" selectedIndex="0"/>
+<gridItem id="AN119" selectedIndex="0"/>
+<gridItem id="AN120" selectedIndex="0"/>
+<gridItem id="ANEX0" selectedIndex="0"/>
+<gridItem id="ANEX1" selectedIndex="0"/>
+<gridItem id="ADTRG1#" selectedIndex="0"/>
+<gridItem id="ADST1" selectedIndex="0"/>
+<gridItem id="PGAVSS1" selectedIndex="0"/>
+<gridItem id="S12AD1" selectedIndex="0"/>
+<gridItem id="AN200" selectedIndex="0"/>
+<gridItem id="AN201" selectedIndex="0"/>
+<gridItem id="AN202" selectedIndex="0"/>
+<gridItem id="AN203" selectedIndex="0"/>
+<gridItem id="AN204" selectedIndex="0"/>
+<gridItem id="AN205" selectedIndex="0"/>
+<gridItem id="AN206" selectedIndex="0"/>
+<gridItem id="AN207" selectedIndex="0"/>
+<gridItem id="AN208" selectedIndex="0"/>
+<gridItem id="AN209" selectedIndex="0"/>
+<gridItem id="AN210" selectedIndex="0"/>
+<gridItem id="AN211" selectedIndex="0"/>
+<gridItem id="AN216" selectedIndex="0"/>
+<gridItem id="AN217" selectedIndex="0"/>
+<gridItem id="ADTRG2#" selectedIndex="0"/>
+<gridItem id="ADST2" selectedIndex="0"/>
+<gridItem id="S12AD2" selectedIndex="0"/>
+<gridItem id="ADC_CFG_PARAM_CHECKING_ENABLE" selectedIndex="0"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
+<configuration inuse="true" name="r_flash_rx">
+<component description="Dependency : r_bsp version(s) 5.20, 5.30, 5.40&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.40" version="4.40">
+<gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_ENABLE" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
+</component>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+<source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+</configuration>
 <configuration inuse="true" name="r_sci_rx">
-<component description="依存モジュール: r_bsp バージョン 5.20&#10;依存モジュール: r_byteq バージョン 1.40, 1.50, 1.60, 1.70, 1.71&#10;This module allows any number of SCI channels on the MCU to run in full duplex Asynchronous mode, single master Simple SPI mode, or master Synchronous mode simultaneously. The driver is interrupt driven and non-blocking. Transmit and receive buffer queues are used in Asynchronous mode and their sizes may be configured independently for each channel. Resources for unused channels or modes may be removed via settings in the driver's config.h file." detailDescription="Multi-Channel Multi-Mode SCI Driver." display="r_sci_rx" id="r_sci_rx3.20" version="3.20">
+<component description="Dependency : r_bsp version(s) 5.20&#10;Dependency : r_byteq version(s) 1.40, 1.50, 1.60, 1.70, 1.71&#10;This module allows any number of SCI channels on the MCU to run in full duplex Asynchronous mode, single master Simple SPI mode, or master Synchronous mode simultaneously. The driver is interrupt driven and non-blocking. Transmit and receive buffer queues are used in Asynchronous mode and their sizes may be configured independently for each channel. Resources for unused channels or modes may be removed via settings in the driver's config.h file." detailDescription="Multi-Channel Multi-Mode SCI Driver." display="r_sci_rx" id="r_sci_rx3.21" version="3.21">
 <gridItem id="SCK0" selectedIndex="0"/>
 <gridItem id="RXD0/SMISO0" selectedIndex="0"/>
 <gridItem id="TXD0/SMOSI0" selectedIndex="0"/>
@@ -1125,11 +1109,11 @@
 <gridItem id="TXD5/SMOSI5" selectedIndex="0"/>
 <gridItem id="CTS5#/RTS5#/SS5#" selectedIndex="0"/>
 <gridItem id="SCI5" selectedIndex="0"/>
-<gridItem id="SCK6" selectedIndex="0"/>
+<gridItem id="SCK6" selectedIndex="1"/>
 <gridItem id="RXD6/SMISO6" selectedIndex="0"/>
 <gridItem id="TXD6/SMOSI6" selectedIndex="0"/>
 <gridItem id="CTS6#/RTS6#/SS6#" selectedIndex="0"/>
-<gridItem id="SCI6" selectedIndex="0"/>
+<gridItem id="SCI6" selectedIndex="1"/>
 <gridItem id="SCK7" selectedIndex="0"/>
 <gridItem id="RXD7/SMISO7" selectedIndex="0"/>
 <gridItem id="TXD7/SMOSI7" selectedIndex="0"/>
