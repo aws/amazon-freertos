@@ -199,6 +199,7 @@ extern uint16_t getDeviceMetricsLength( void );
 
 /* Set Thing Name. */
 #define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_DEFENDER_THING_NAME     clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */
 #define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
