@@ -19,10 +19,10 @@
 
 /***********************************************************************************************************************
 * File Name    : r_smc_cgc.h
-* Version      : 1.5.1
+* Version      : 1.6.1
 * Device(s)    : R5F565NEDxFC
 * Description  : This file implements cgc setting.
-* Creation Date: 2019-11-24
+* Creation Date: 2020-03-23
 ***********************************************************************************************************************/
 
 #ifndef SMC_CGC_H
@@ -202,7 +202,6 @@ Macro definitions (Register bit)
 /***********************************************************************************************************************
 Macro definitions
 ***********************************************************************************************************************/
-#define _21_CGC_SOSCWTCR_VALUE              (0x21U)   /* Sub-Clock Oscillator Wait Time */
 
 /***********************************************************************************************************************
 Typedef definitions
@@ -213,4 +212,6 @@ Global functions
 ***********************************************************************************************************************/
 void R_CGC_Create(void);
 void R_CGC_Create_UserInit();
+/* Start user code for function. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 #endif

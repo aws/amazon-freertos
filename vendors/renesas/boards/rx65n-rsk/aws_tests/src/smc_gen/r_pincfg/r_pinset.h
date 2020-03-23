@@ -14,13 +14,13 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : r_pinset.h.h
 * Version      : 1.0.1
 * Description  : Declares all pin code headers into a single file
-* Creation Date: 2019-11-24
+* Creation Date: 2020-03-23
 ***********************************************************************************************************************/
 
 #ifndef R_PINSET_H
@@ -29,7 +29,7 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "r_sci_rx_pinset.h"
 #include "r_ether_rx_pinset.h"
+#include "r_sci_rx_pinset.h"
 
 #endif /* R_PINSET_H */

@@ -19,10 +19,10 @@
 
 /***********************************************************************************************************************
 * File Name    : r_cg_macrodriver.h
-* Version      : 1.2.5
+* Version      : 1.2.7
 * Device(s)    : R5F565NEDxFC
 * Description  : Macro header file for code generation.
-* Creation Date: 2019-11-24
+* Creation Date: 2020-03-23
 ***********************************************************************************************************************/
 
 #ifndef MACRODRIVER_H

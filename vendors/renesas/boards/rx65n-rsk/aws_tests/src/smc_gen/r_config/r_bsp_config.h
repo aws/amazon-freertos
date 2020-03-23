@@ -328,7 +328,7 @@ Configuration Options
 /* USB Clock Divider Select.
    Available divisors = /2, /3, /4, /5
 */
-#define BSP_CFG_UCK_DIV                 (2) /* Generated value. Do not edit this manually */
+#define BSP_CFG_UCK_DIV                 (5) /* Generated value. Do not edit this manually */
 
 /* Configure BCLK output pin (only effective when external bus enabled)
    Values 0=no output, 1 = BCK frequency, 2= BCK/2 frequency
