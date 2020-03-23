@@ -88,7 +88,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_GGD_HELPER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_GGD_Helper );
+        RUN_TEST_GROUP( GGD_Helper_System );
     #endif
 
     #if ( testrunnerFULL_SHADOW_ENABLED == 1 )
