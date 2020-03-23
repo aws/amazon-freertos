@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.4.8
+ * FreeRTOS V1.1.8
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,11 +32,6 @@
 #define _AWS_OTA_AGENT_CONFIG_H_
 
 /**
- * @brief Special OTA Agent printing definition (moved from lib/include/aws_iot_ota_agent.h).
- */
-#define OTA_DEBUG_LOG_LEVEL                     1
-
-/**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
 #define otaconfigSTACK_SIZE                     3584U
@@ -59,7 +54,7 @@
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
  * the request message after being idle for this amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           2500U
+#define otaconfigFILE_REQUEST_WAIT_MS           10000U
 
 /**
  * @brief The OTA agent task priority. Normally it runs at a low priority.
@@ -88,6 +83,59 @@
  *  Please note that this must be set larger than zero.
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        	128U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST         128U
+
+/**
+ * @brief The maximum number of requests allowed to send without a response before we abort.
+ *
+ * This configuration parameter sets the maximum number of times the requests are made over
+ * the selected communication channel before aborting and returning error.
+ *
+ */
+#define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U
+
+/**
+ * @brief The number of data buffers reserved by the OTA agent.
+ *
+ * This configurations parameter sets the maximum number of static data buffers used by
+ * the OTA agent for job and file data blocks received.
+ */
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       4U
+
+/**
+ * @brief The protocol selected for OTA control operations.
+
+ * This configurations parameter sets the default protocol for all the OTA control
+ * operations like requesting OTA job, updating the job status etc.
+ *
+ * Note - Only MQTT is supported at this time for control operations.
+ */
+#define configENABLED_CONTROL_PROTOCOL       ( OTA_DATA_OVER_MQTT )
+
+/**
+ * @brief The protocol selected for OTA data operations.
+
+ * This configurations parameter sets the protocols selected for the data operations
+ * like requesting file blocks from the service.
+ *
+ * Note - Both MQTT and HTTP is supported for data transfer. This configuration parameter
+ * can be set to following -
+ * Enable data over MQTT - ( OTA_DATA_OVER_MQTT )
+ * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
+ * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+ */
+#define configENABLED_DATA_PROTOCOLS  ( OTA_DATA_OVER_MQTT )
+
+ /**
+  * @brief The preferred protocol selected for OTA data operations.
+  *
+  * Primary data protocol will be the protocol used for downloading file if more than
+  * one protocol is selected while creating OTA job. Default primary data protocol is MQTT
+  * and following update here to switch to HTTP as primary.
+  *
+  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
+  */
+
+#define configOTA_PRIMARY_DATA_PROTOCOL  ( OTA_DATA_OVER_MQTT )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
