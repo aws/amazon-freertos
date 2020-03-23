@@ -2064,9 +2064,6 @@
 						<group>
 							<name>mock</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
 							</file>
 						</group>

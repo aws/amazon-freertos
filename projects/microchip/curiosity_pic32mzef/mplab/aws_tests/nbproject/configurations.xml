@@ -110,7 +110,6 @@
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<logicalFolder name="mock" displayName="mock" projectFiles="true">
-								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</itemPath>
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</itemPath>
 							</logicalFolder>
 							<logicalFolder name="unit" displayName="unit" projectFiles="true">
