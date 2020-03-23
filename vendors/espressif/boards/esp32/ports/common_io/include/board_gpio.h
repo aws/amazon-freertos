@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2020 Espressif Systems (Shanghai) Co., Ltd.
  * All rights reserved.
