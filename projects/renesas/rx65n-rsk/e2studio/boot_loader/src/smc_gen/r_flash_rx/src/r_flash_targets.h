@@ -26,9 +26,11 @@
 *           02.08.2017 1.00    First Release
 *           27.02.2018 1.10    Added RX66T
 *           23.10.2018 1.20    Added RX72T
-*         : 19.04.2019 4.00    Removed support for flash type 2.
-*         : 07.06.2019 4.10    Added RX23W
-*         : 19.07.2019 4.20    Added RX72M
+*           19.04.2019 4.00    Removed support for flash type 2.
+*           07.06.2019 4.10    Added RX23W
+*           19.07.2019 4.20    Added RX72M
+*           09.09.2019 4.30    Added RX13T
+*           27.09.2019 4.40    Added RX23E-A
 ***********************************************************************************************************************/
 
 #ifndef FLASH_TARGETS_HEADER_FILE
@@ -60,11 +62,17 @@ Macro definitions
 #elif defined(BSP_MCU_RX130)
     #define MCU_RX130
     #define MCU_RX13_ALL
+#elif defined(BSP_MCU_RX13T)
+    #define MCU_RX13T
+    #define MCU_RX13_ALL
 #elif defined(BSP_MCU_RX231)
     #define MCU_RX231
     #define MCU_RX23_ALL
 #elif defined(BSP_MCU_RX230)
     #define MCU_RX230
+    #define MCU_RX23_ALL
+#elif defined(BSP_MCU_RX23E_A)
+    #define MCU_RX23E_A
     #define MCU_RX23_ALL
 #elif defined(BSP_MCU_RX23T)
     #define MCU_RX23T

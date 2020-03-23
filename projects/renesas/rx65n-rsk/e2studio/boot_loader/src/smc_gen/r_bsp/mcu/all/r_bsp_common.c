@@ -48,6 +48,7 @@
 *                               - BSP_PRV_CKSEL_LOCO
 *                               Renamed following function.
 *                               - delay_wait
+*         : 26.07.2019 2.01     Modified comment of API function to Doxygen style.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -76,14 +77,15 @@ Exported global variables (to be accessed by other files)
 Private global variables and functions
 ***********************************************************************************************************************/
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_GetVersion
-* Description  : Returns the current version of this module. The version number is encoded where the top 2 bytes are the
-*                major version number and the bottom 2 bytes are the minor version number. For example, Version 4.25
-*                would be returned as 0x00040019.
-* Arguments    : none
-* Return Value : Version of this module.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_GetVersion
+ ******************************************************************************************************************//**
+ * @brief Returns the current version of the r_bsp.
+ * @return Version of the r_bsp.
+ * @details This function will return the version of the currently installed r_bsp. The version number is encoded 
+ * where the top 2 bytes are the major version number and the bottom 2 bytes are the minor version number. For 
+ * example, Version 4.25 would be returned as 0x00040019.
+ */
 uint32_t R_BSP_GetVersion (void)
 {
     /* These version macros are defined in platform.h. */
@@ -96,7 +98,6 @@ uint32_t R_BSP_GetVersion (void)
 * Description  : This asm loop executes a known number (5) of CPU cycles. If a value of '4' is passed
 *                in as an argument, then this function would consume 20 CPU cycles before returning.
 * Arguments    : loop_cnt - A single 32-bit value is provided as the number of loops to execute.
-*              :
 * Return Value : None
 ***********************************************************************************************************************/
 R_BSP_PRAGMA_STATIC_INLINE_ASM(delay_wait)
@@ -114,33 +115,34 @@ void delay_wait (unsigned long loop_cnt)
 } /* End of function delay_wait() */
 
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_GetIClkFreqHz
-* Description  : Return the current ICLK frequency in Hz.
-* Arguments    : None
-* Return Value : uint32_t - the system ICLK frequency in Hz
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_GetIClkFreqHz
+ ******************************************************************************************************************//**
+ * @brief Returns the system clock frequency.
+ * @return System clock frequency specified by the r_bsp.
+ * @details This function returns the system clock frequency. For example, when the system clock is set to 120 MHz in 
+ * r_bsp_config_h and the r_bsp has completed to specify the clock setting, then even if the user changed the system 
+ * clock frequency to 60 MHz, the return value is '60000000'.
+ */
 uint32_t R_BSP_GetIClkFreqHz(void)
 {
     return get_iclk_freq_hz();  // Get the MCU specific ICLK frequency
 } /* End of function R_BSP_GetIClkFreqHz() */
 
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_SoftwareDelay
-* Description  : Delay the specified duration in units and return.
-* Arguments    : uint32_t delay  - the number of 'units' to delay
-*              : bsp_delay_units_t units - the 'base' for the units specified. Valid values are:
-*                  BSP_DELAY_MICROSECS, BSP_DELAY_MILLISECS, BSP_DELAY_SECS.
-*
-*                Accuracy is good, however the minimum possible delay depends on the current ICLK frequency
-*                and the overhead clock cycles required for this function to run.
-*                For example, given a 16 MHz ICLK and 180 clock cycles for this function, the minimum
-*                possible delay would be: 1/16000000 * 180 = 11.25 uS
-*
-* Return Value : true if delay executed.
-*                false if delay/units combination resulted in overflow or the delay cannot be achieved
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_SoftwareDelay
+ ******************************************************************************************************************//**
+ * @brief Delay the specified duration in units and return.
+ * @param[in] delay The number of 'units' to delay.
+ * @param[in] units The 'base' for the units specified.
+ * @retval true True if delay executed.
+ * @retval false False if delay/units combination resulted in overflow/underflow.
+ * @details This is function that may be called for all MCU targets to implement a specific wait time.
+ * The actual delay time is plus the overhead at a specified duration. The overhead changes under the influence of 
+ * the compiler, operating frequency and ROM cache. When the operating frequency is low, or the specified duration in 
+ * units of microsecond level, please note that the error becomes large.
+ */
 bool R_BSP_SoftwareDelay(uint32_t delay, bsp_delay_units_t units)
 {
     volatile uint32_t iclk_rate;

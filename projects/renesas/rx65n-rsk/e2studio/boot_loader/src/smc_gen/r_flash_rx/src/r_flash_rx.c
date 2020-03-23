@@ -32,6 +32,7 @@
 *              : 23.02.2018 3.20    Removed unused variable warnings in R_FlashCodeCopy().
 *              : 19.04.2019 4.00    Added support for GNUC and ICCRX.
 *                                   Removed support for flash type 2.
+*              : 09.09.2019 4.30    Added copy in the case of ICCRX big endian to the function R_FlashCodeCopy().
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -166,22 +167,44 @@ void R_FlashCodeCopy(void)
     p_rom_section = (uint8_t *) R_BSP_SECTOP(PFRAM_init);
 
     /* Copy code from ROM to RAM. */
+#if defined(__LIT)
     for (bytes_copied = 0; bytes_copied < R_BSP_SECSIZE(PFRAM_init); bytes_copied++)
     {
         p_ram_section[bytes_copied] = p_rom_section[bytes_copied];
     }
+#elif defined(__BIG)
+    for (bytes_copied = 0; bytes_copied < R_BSP_SECSIZE(PFRAM_init); bytes_copied+=4)
+    {
+        /* Copy over data 4 byte at a time. */
+        p_ram_section[bytes_copied]   = p_rom_section[bytes_copied+3];
+        p_ram_section[bytes_copied+1] = p_rom_section[bytes_copied+2];
+        p_ram_section[bytes_copied+2] = p_rom_section[bytes_copied+1];
+        p_ram_section[bytes_copied+3] = p_rom_section[bytes_copied];
+    }
+#endif /* defined(__LIT) */
 #endif /* (FLASH_CFG_CODE_FLASH_RUN_FROM_ROM == 0) */
 
 #ifdef FLASH_IN_DUAL_BANK_MODE
     /* Initialize pointers */
-    p_rom_section = (uint8_t *)R_BSP_SECTOP(PFRAM2);
-    p_ram_section = (uint8_t *)R_BSP_SECTOP(PFRAM2_init);
+    p_ram_section = (uint8_t *)R_BSP_SECTOP(PFRAM2);
+    p_rom_section = (uint8_t *)R_BSP_SECTOP(PFRAM2_init);
 
     /* Copy code from ROM to RAM. */
+#if defined(__LIT)
     for (bytes_copied = 0; bytes_copied < R_BSP_SECSIZE(PFRAM2_init); bytes_copied++)
     {
         p_ram_section[bytes_copied] = p_rom_section[bytes_copied];
     }
+#elif defined(__BIG)
+    for (bytes_copied = 0; bytes_copied < R_BSP_SECSIZE(PFRAM2_init); bytes_copied+=4)
+    {
+        /* Copy over data 4 byte at a time. */
+        p_ram_section[bytes_copied]   = p_rom_section[bytes_copied+3];
+        p_ram_section[bytes_copied+1] = p_rom_section[bytes_copied+2];
+        p_ram_section[bytes_copied+2] = p_rom_section[bytes_copied+1];
+        p_ram_section[bytes_copied+3] = p_rom_section[bytes_copied];
+    }
+#endif /* defined(__LIT) */
 #endif /* FLASH_IN_DUAL_BANK_MODE */
 
 #endif /* defined(__CCRX__) || defined(__GNUC__) */

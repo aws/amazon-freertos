@@ -23,6 +23,19 @@
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
+*         : 26.07.2019 1.10     Added the following function.
+*                               - R_BSP_SINCOSF
+*                               - R_BSP_ATAN2HYPOTF
+*                               - R_BSP_CalcSine_Cosine
+*                               - R_BSP_CalcAtan_SquareRoot
+*         : 31.07.2019 1.11     Modified the compile condition of the below functions.
+*                               - R_BSP_InitTFU
+*                               - R_BSP_CalcSine_Cosine
+*                               - R_BSP_CalcAtan_SquareRoot
+*         : 08.10.2019 1.12     Modified the followind definition of intrinsic function of TFU for ICCRX.
+*                               - R_BSP_INIT_TFU
+*                               - R_BSP_SINCOSF
+*                               - R_BSP_ATAN2HYPOTF
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -693,11 +706,50 @@ Macro definitions
 
 #elif defined(__ICCRX__)
 
-/* void R_BSP_InitTFU(void) (This macro uses API function of BSP.) */
-#define R_BSP_INIT_TFU()      R_BSP_InitTFU()
+/* Invalid for ICCRX.
+   Because the initilaze function of TFU is called automatically when the TFU function is called. */
+#define R_BSP_INIT_TFU()      
 
 #endif
+
+/* ---------- Calculating the Sine and Cosine of an angle at the same time(single precision) ---------- */
+#if defined(__CCRX__)
+
+/* void __sincosf(float f, float *sin, float *cos) */
+#define R_BSP_SINCOSF(x, y, z)    __sincosf((float)(x), (float *)(y), (float *)(z))
+
+#elif defined(__GNUC__)
+
+/* void R_BSP_CalcSine_Cosine(float f, float *sin, float *cos) (This macro uses API function of BSP.) */
+#define R_BSP_SINCOSF(x, y, z)    R_BSP_CalcSine_Cosine((float)(x), (float *)(y), (float *)(z))
+
+#elif defined(__ICCRX__)
+
+/* void R_BSP_CalcSine_Cosine(float f, float *sin, float *cos) (This macro uses API function of BSP.) */
+#define R_BSP_SINCOSF(x, y, z)    __sincosf((float)(x), (float *)(y), (float *)(z))
+
 #endif
+
+/* ---------- Initializing Arithmetic Unit for Trigonometric Functions ---------- */
+#if defined(__CCRX__)
+
+/* void __atan2hypotf(float y, float x, float *atan2, float *hypot) */
+#define R_BSP_ATAN2HYPOTF(w, x, y, z)    __atan2hypotf((float)(w), (float)(x), (float *)(y), (float *)(z))
+
+#elif defined(__GNUC__)
+
+/* void R_BSP_CalcAtan_SquareRoot(float y, float x, float *atan2, float *hypot)
+   (This macro uses API function of BSP.) */
+#define R_BSP_ATAN2HYPOTF(w, x, y, z)    R_BSP_CalcAtan_SquareRoot((float)(w), (float)(x), (float *)(y), (float *)(z))
+
+#elif defined(__ICCRX__)
+
+/* void R_BSP_CalcAtan_SquareRoot(float y, float x, float *atan2, float *hypot)
+   (This macro uses API function of BSP.) */
+#define R_BSP_ATAN2HYPOTF(w, x, y, z)    __atan2hypotf((float)(w), (float)(x), (float *)(y), (float *)(z))
+
+#endif
+#endif /* BSP_MCU_TRIGONOMETRIC */
 
 /***********************************************************************************************************************
 Exported global variables
@@ -754,7 +806,13 @@ void *R_BSP_GetDEPC(void);
 #endif
 #endif
 #ifdef BSP_MCU_TRIGONOMETRIC
+#ifdef __TFU
 R_BSP_ATTRIB_INLINE_ASM void R_BSP_InitTFU(void);
+#ifdef __FPU
+R_BSP_ATTRIB_INLINE_ASM void R_BSP_CalcSine_Cosine(float f, float *sin, float *cos);
+R_BSP_ATTRIB_INLINE_ASM void R_BSP_CalcAtan_SquareRoot(float y, float x, float *atan2, float *hypot);
+#endif /* __FPU */
+#endif /* __TFU */
 #endif
 
 /* End of multiple inclusion prevention macro */
