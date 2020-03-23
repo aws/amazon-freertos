@@ -26,6 +26,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "$<${AFR_IS_TESTING}:${src_dir}>"
 )
 
 afr_module_dependencies(
@@ -42,11 +43,6 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/unit/aws_iot_tests_defender_unit.c"
         "${test_dir}/system/aws_iot_tests_defender_system.c"
-)
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${src_dir}/private"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
