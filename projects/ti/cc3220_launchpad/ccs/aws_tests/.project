@@ -988,11 +988,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</locationURI>
