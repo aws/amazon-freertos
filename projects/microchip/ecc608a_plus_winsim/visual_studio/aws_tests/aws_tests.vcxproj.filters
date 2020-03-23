@@ -110,7 +110,9 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
+		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
 		<Filter Include="libraries\c_sdk\aws\shadow\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\shadow\test"/>
 		<Filter Include="libraries\c_sdk\aws\shadow\test\system"/>
@@ -1346,8 +1348,11 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c">
-			<Filter>libraries\c_sdk\aws\defender\test</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
+			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\system\aws_iot_tests_defender_system.c">
+			<Filter>libraries\c_sdk\aws\defender\test\system</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c">
 			<Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
@@ -1725,6 +1730,9 @@
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
+			<Filter>libraries\3rdparty\tinycbor</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
