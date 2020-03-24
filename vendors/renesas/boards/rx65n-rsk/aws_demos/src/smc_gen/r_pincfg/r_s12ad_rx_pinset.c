@@ -17,7 +17,7 @@
 * Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
-* File Name    : r_sci_rx_pinset.h
+* File Name    : r_s12ad_rx_pinset.c
 * Version      : 1.0.2
 * Device(s)    : R5F565NEDxFC
 * Tool-Chain   : RXC toolchain
@@ -25,18 +25,36 @@
 * Creation Date: 2020-03-24
 ***********************************************************************************************************************/
 
-#ifndef R_SCI_RX_H
-#define R_SCI_RX_H
-
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include "r_s12ad_rx_pinset.h"
+#include "platform.h"
 
 /***********************************************************************************************************************
 Global variables and functions
 ***********************************************************************************************************************/
 
-void R_SCI_PinSet_SCI2(void);
-void R_SCI_PinSet_SCI8(void);
+/***********************************************************************************************************************
+* Function Name: R_ADC_PinSet_S12AD0
+* Description  : This function initializes pins for r_s12ad_rx module
+* Arguments    : none
+* Return Value : none
+***********************************************************************************************************************/
+void R_ADC_PinSet_S12AD0()
+{
+    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
 
-#endif
+    /* Set AN000 pin */
+    PORT4.PCR.BIT.B0 = 0U;
+    PORT4.PDR.BIT.B0 = 0U;
+    PORT4.PMR.BIT.B0 = 0U;
+    MPC.P40PFS.BYTE = 0x80U;
+
+    /* Set ADTRG0# pin */
+    MPC.P07PFS.BYTE = 0x09U;
+    PORT0.PMR.BIT.B7 = 1U;
+
+    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
+}
+
