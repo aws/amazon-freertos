@@ -23,7 +23,6 @@
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
-*         : 08.10.2019 1.10     Added include file and macro definitions for Renesas RTOS (RI600V4 or RI600PX).
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -44,14 +43,6 @@ Includes   <System Includes> , "Project Includes"
 #elif BSP_CFG_RTOS_USED == 2    /* SEGGER embOS */
 #elif BSP_CFG_RTOS_USED == 3    /* Micrium MicroC/OS */
 #elif BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#include "kernel.h"
-#include "kernel_id.h"
-
-#define RENESAS_RI600V4  0
-#define RENESAS_RI600PX  1
-
-#undef  BSP_CFG_RTOS_SYSTEM_TIMER
-#define BSP_CFG_RTOS_SYSTEM_TIMER      _RI_CLOCK_TIMER
 #else
 #endif
 

@@ -34,9 +34,6 @@
 *         : 28.02.2019 2.02     Deleted the following enumeration constant.
 *                               - BSP_LOCK_SMCIx (x = 0 to 12.)
 *                               Fixed coding style.
-*         : 08.10.2019 2.03     Added the following enumeration constant.
-*                               - BSP_LOCK_SWINT
-*                               - BSP_LOCK_SWINT2
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -174,8 +171,6 @@ typedef enum
     BSP_LOCK_TEMPSCONST,
     BSP_LOCK_GLCDC,
     BSP_LOCK_DRW2D,
-    BSP_LOCK_SWINT,
-    BSP_LOCK_SWINT2,
     BSP_NUM_LOCKS //This entry is not a valid lock. It is used for sizing g_bsp_Locks[] array below. Do not touch!
 } mcu_lock_t;
 

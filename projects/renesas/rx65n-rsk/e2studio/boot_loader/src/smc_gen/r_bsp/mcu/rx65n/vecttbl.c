@@ -37,7 +37,6 @@
 *                                Added support for GNUC and ICCRX.
 *                                Fixed coding style.
 *         : 31.07.2019 3.01      Fixed initialization for option-setting memory.
-*         : 08.10.2019 3.01      Changed for added support of Renesas RTOS (RI600V4 or RI600PX).
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -167,10 +166,6 @@ const uint32_t __ROMCODEreg __attribute__ ((section(".ofs8"))) = BSP_CFG_ROMCODE
 /***********************************************************************************************************************
 * The following array fills in the exception vector table.
 ***********************************************************************************************************************/
-#if BSP_CFG_RTOS_USED == 4  /* Renesas RI600V4 & RI600PX */
-     /* System configurator generates the ritble.src as interrupt & exception vector tables. */
-#else /* BSP_CFG_RTOS_USED!=4 */
-
 #if defined(__CCRX__) || defined(__GNUC__)
 R_BSP_ATTRIB_SECTION_CHANGE_EXCEPTVECT void (* const Except_Vectors[])(void) =
 {
@@ -222,8 +217,6 @@ R_BSP_ATTRIB_SECTION_CHANGE_RESETVECT void (* const Reset_Vector[])(void) =
 };
 R_BSP_ATTRIB_SECTION_CHANGE_END
 #endif /* defined(__CCRX__), defined(__GNUC__) */
-
-#endif/* BSP_CFG_RTOS_USED */
 
 #endif /* BSP_CFG_STARTUP_DISABLE == 0 */
 

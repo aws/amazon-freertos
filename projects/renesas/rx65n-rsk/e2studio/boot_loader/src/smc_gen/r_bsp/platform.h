@@ -139,8 +139,6 @@
 *         : 08.04.2019 5.20     Added support for GENERIC_RX72M.
 *         : 26.07.2019 5.30     Added support for GENERIC_RX13T.
 *         : 31.07.2019 5.40     Added support for GENERIC_RX23E-A.
-*         : 08.10.2019 5.50     Added support for GENERIC_RX72N, and GENERIC_RX66N.
-*                               Deleted the board folders of RSKRX63N.
 ***********************************************************************************************************************/
 
 /* Multiple inclusion prevention macro */
@@ -150,14 +148,14 @@
 /***********************************************************************************************************************
 DEFINE YOUR SYSTEM - UNCOMMENT THE INCLUDE PATH FOR THE PLATFORM YOU ARE USING.
 ***********************************************************************************************************************/
+/* RSKRX63N */
+//#include "./board/rskrx63n/r_bsp.h"
+
 /* GENERIC_RX64M */
 //#include "./board/generic_rx64m/r_bsp.h"
 
 /* GENERIC_RX65N */
 #include "./board/generic_rx65n/r_bsp.h"
-
-/* GENERIC_RX66N */
-//#include "./board/generic_rx66n/r_bsp.h"
 
 /* GENERIC_RX66T */
 //#include "./board/generic_rx66t/r_bsp.h"
@@ -167,9 +165,6 @@ DEFINE YOUR SYSTEM - UNCOMMENT THE INCLUDE PATH FOR THE PLATFORM YOU ARE USING.
 
 /* GENERIC_RX72M */
 //#include "./board/generic_rx72m/r_bsp.h"
-
-/* GENERIC_RX72N */
-//#include "./board/generic_rx72n/r_bsp.h"
 
 /* GENERIC_RX72T */
 //#include "./board/generic_rx72t/r_bsp.h"

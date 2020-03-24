@@ -1,17 +1,3 @@
-                                                                          
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                           
-                                                                          
 /***********************************************************************************************************************
 * DISCLAIMER
 * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
@@ -32,7 +18,7 @@
 ***********************************************************************************************************************/
 /*******************************************************************************
 *
-* Device     : RX/RX600/RX65N
+* Device     : RX/RX600/RX651
 *
 * File Name  : iodefine.h
 *
@@ -62,7 +48,7 @@
 /********************************************************************************/
 /*                                                                              */
 /*  DESCRIPTION : Definition of ICU Register                                    */
-/*  CPU TYPE    : RX65N                                                         */
+/*  CPU TYPE    : RX651                                                         */
 /*                                                                              */
 /*  Usage : IR,DTCER,IER,IPR of ICU Register                                    */
 /*     The following IR, DTCE, IEN, IPR macro functions simplify usage.         */
@@ -107,8 +93,8 @@
 /*                                                                              */
 /*                                                                              */
 /********************************************************************************/
-#ifndef __RX65NIODEFINE_HEADER__
-#define __RX65NIODEFINE_HEADER__
+#ifndef __RX651IODEFINE_HEADER__
+#define __RX651IODEFINE_HEADER__
 
 #define	IEN_BSC_BUSERR		IEN0
 #define	IEN_RAM_RAMERR		IEN2

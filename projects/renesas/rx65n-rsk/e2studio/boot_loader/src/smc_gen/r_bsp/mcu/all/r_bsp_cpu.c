@@ -28,14 +28,10 @@
 *         : 26.07.2019 3.10     Added the API function(R_BSP_SoftwareReset).
 *                               Modified comment of API function to Doxygen style.
 *                               Added the vbatt_voltage_stability_wait function.
-*                               Modified the following functions.
+*                               Modified the following function.
 *                               - R_BSP_RegisterProtectEnable
 *                               - R_BSP_RegisterProtectDisable
 *         : 31.07.2019 3.11     Deleted the compile condition for R_BSP_SoftwareReset.
-*         : 08.10.2019 3.12     Changed the following functions.
-*                               - R_BSP_InterruptsDisable
-*                               - R_BSP_InterruptsEnable
-*                               - R_BSP_CpuInterruptLevelWrite
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -105,22 +101,12 @@ static const    uint16_t s_prcr_masks[BSP_REG_PROTECT_TOTAL_ITEMS-1] =
  * @details This function globally disables interrupts. This is performed by clearing the 'I' bit in the CPU's 
  * Processor Status Word (PSW) register.
  * @note The 'I' bit of the PSW can only be modified when in Supervisor Mode. If the CPU is in User Mode and this 
- * function is called, this function does nothing.
+ * function is called then a Privileged Instruction Exception will occur.
  */
 void R_BSP_InterruptsDisable (void)
 {
-    uint32_t    pmode;
-
-    /* Read current processor mode. */
-    pmode = (R_BSP_GET_PSW() & 0x00100000);
-
-    /* Check current processor mode. */
-    if (0 == pmode)
-    {
-        /* Use the compiler intrinsic function to clear the I flag. */
-        R_BSP_CLRPSW_I();
-    }
-
+    /* Use the compiler intrinsic function to clear the I flag. */
+    R_BSP_CLRPSW_I();
 } /* End of function R_BSP_InterruptsDisable() */
 
 /**********************************************************************************************************************
@@ -130,22 +116,12 @@ void R_BSP_InterruptsDisable (void)
  * @details This function globally enables interrupts. This is performed by setting the 'I' bit in the CPU's Processor 
  * Status Word (PSW) register.
  * @note The 'I' bit of the PSW can only be modified when in Supervisor Mode. If the CPU is in User Mode and this 
- * function is called, this function does nothing.
+ * function is called then a Privileged Instruction Exception will occur.
  */
 void R_BSP_InterruptsEnable (void)
 {
-    uint32_t    pmode;
-
-    /* Read current processor mode. */
-    pmode = (R_BSP_GET_PSW() & 0x00100000);
-
-    /* Check current processor mode. */
-    if (0 == pmode)
-    {
-        /* Use the compiler intrinsic function to set the I flag. */
-        R_BSP_SETPSW_I();
-    }
-
+    /* Use the compiler intrinsic function to set the I flag. */
+    R_BSP_SETPSW_I();
 } /* End of function R_BSP_InterruptsEnable() */
 
 /**********************************************************************************************************************
@@ -175,137 +151,127 @@ uint32_t R_BSP_CpuInterruptLevelRead (void)
  * @brief Writes the CPU's Interrupt Priority Level.
  * @param[in] level The level to write to the CPU's IPL.
  * @retval true Successful, CPU's IPL has been written.
- * @retval false Failure, provided 'level' has invalid IPL value or called when the CPU is in User Mode.
+ * @retval false Failure, provided 'level' has invalid IPL value.
  * @details This function writes the CPU's Interrupt Priority Level. This level is stored in the IPL bits of the 
  * Processor Status Word (PSW) register. This function does check to make sure that the IPL being written is valid. 
  * The maximum and minimum valid settings for the CPU IPL are defined in mcu_info.h using the BSP_MCU_IPL_MAX and 
  * BSP_MCU_IPL_MIN macros.
  * @note The CPU's IPL can only be modified by the user when in Supervisor Mode. If the CPU is in User Mode and this
- * function is called, this function does not control IPL and return false.
+ * function is called then a Privileged Instruction Exception will occur.
  */
 bool R_BSP_CpuInterruptLevelWrite (uint32_t level)
 {
     bool ret;
-    uint32_t pmode;
 
     /* The R_BSP_SET_IPL() function use the MVTIPL instruction.
        The MVTIPL instruction needs to set an immediate value to src. */
 
-    ret = false;
+    ret = true;
 
-    /* Read current processor mode. */
-    pmode = (R_BSP_GET_PSW() & 0x00100000);
-
-    /* Check current processor mode. */
-    if (0 == pmode)
+    /* Use the compiler intrinsic function to set the CPU IPL. */
+    switch (level)
     {
-        ret = true;
+        case (0):
 
-        /* Use the compiler intrinsic function to set the CPU IPL. */
-        switch (level)
-        {
-            case (0):
+            /* IPL = 0 */
+            R_BSP_SET_IPL(0);
+            break;
 
-                /* IPL = 0 */
-                R_BSP_SET_IPL(0);
-                break;
+        case (1):
 
-            case (1):
+            /* IPL = 1 */
+            R_BSP_SET_IPL(1);
+            break;
 
-                /* IPL = 1 */
-                R_BSP_SET_IPL(1);
-                break;
+        case (2):
 
-            case (2):
+            /* IPL = 2 */
+            R_BSP_SET_IPL(2);
+            break;
 
-                /* IPL = 2 */
-                R_BSP_SET_IPL(2);
-                break;
+        case (3):
 
-            case (3):
+            /* IPL = 3 */
+            R_BSP_SET_IPL(3);
+            break;
 
-                /* IPL = 3 */
-                R_BSP_SET_IPL(3);
-                break;
+        case (4):
 
-            case (4):
+            /* IPL = 4 */
+            R_BSP_SET_IPL(4);
+            break;
 
-                /* IPL = 4 */
-                R_BSP_SET_IPL(4);
-                break;
+        case (5):
 
-            case (5):
+            /* IPL = 5 */
+            R_BSP_SET_IPL(5);
+            break;
 
-                /* IPL = 5 */
-                R_BSP_SET_IPL(5);
-                break;
+        case (6):
 
-            case (6):
+            /* IPL = 6 */
+            R_BSP_SET_IPL(6);
+            break;
 
-                /* IPL = 6 */
-                R_BSP_SET_IPL(6);
-                break;
+        case (7):
 
-            case (7):
+            /* IPL = 7 */
+            R_BSP_SET_IPL(7);
+            break;
 
-                /* IPL = 7 */
-                R_BSP_SET_IPL(7);
-                break;
+#if 7 < BSP_MCU_IPL_MAX
+        case (8):
 
-    #if 7 < BSP_MCU_IPL_MAX
-            case (8):
+            /* IPL = 8 */
+            R_BSP_SET_IPL(8);
+            break;
 
-                /* IPL = 8 */
-                R_BSP_SET_IPL(8);
-                break;
+        case (9):
 
-            case (9):
+            /* IPL = 9 */
+            R_BSP_SET_IPL(9);
+            break;
 
-                /* IPL = 9 */
-                R_BSP_SET_IPL(9);
-                break;
+        case (10):
 
-            case (10):
+            /* IPL = 10 */
+            R_BSP_SET_IPL(10);
+            break;
 
-                /* IPL = 10 */
-                R_BSP_SET_IPL(10);
-                break;
+        case (11):
 
-            case (11):
+            /* IPL = 11 */
+            R_BSP_SET_IPL(11);
+            break;
 
-                /* IPL = 11 */
-                R_BSP_SET_IPL(11);
-                break;
+        case (12):
 
-            case (12):
+            /* IPL = 12 */
+            R_BSP_SET_IPL(12);
+            break;
 
-                /* IPL = 12 */
-                R_BSP_SET_IPL(12);
-                break;
+        case (13):
 
-            case (13):
+            /* IPL = 13 */
+            R_BSP_SET_IPL(13);
+            break;
 
-                /* IPL = 13 */
-                R_BSP_SET_IPL(13);
-                break;
+        case (14):
 
-            case (14):
+            /* IPL = 14 */
+            R_BSP_SET_IPL(14);
+            break;
 
-                /* IPL = 14 */
-                R_BSP_SET_IPL(14);
-                break;
+        case (15):
 
-            case (15):
+            /* IPL = 15 */
+            R_BSP_SET_IPL(15);
+            break;
+#endif /* BSP_MCU_IPL_MAX */
 
-                /* IPL = 15 */
-                R_BSP_SET_IPL(15);
-                break;
-    #endif /* BSP_MCU_IPL_MAX */
-
-            default:
-                ret = false;
-                break;
-        }
+        default:
+            ret = false;
+            break;
     }
 
     return ret;

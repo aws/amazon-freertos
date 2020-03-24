@@ -32,10 +32,6 @@
 *                               - R_BSP_InitTFU
 *                               - R_BSP_CalcSine_Cosine
 *                               - R_BSP_CalcAtan_SquareRoot
-*         : 08.10.2019 1.12     Modified the followind definition of intrinsic function of TFU for ICCRX.
-*                               - R_BSP_INIT_TFU
-*                               - R_BSP_SINCOSF
-*                               - R_BSP_ATAN2HYPOTF
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -706,9 +702,8 @@ Macro definitions
 
 #elif defined(__ICCRX__)
 
-/* Invalid for ICCRX.
-   Because the initilaze function of TFU is called automatically when the TFU function is called. */
-#define R_BSP_INIT_TFU()      
+/* void R_BSP_InitTFU(void) (This macro uses API function of BSP.) */
+#define R_BSP_INIT_TFU()      R_BSP_InitTFU()
 
 #endif
 
@@ -726,7 +721,7 @@ Macro definitions
 #elif defined(__ICCRX__)
 
 /* void R_BSP_CalcSine_Cosine(float f, float *sin, float *cos) (This macro uses API function of BSP.) */
-#define R_BSP_SINCOSF(x, y, z)    __sincosf((float)(x), (float *)(y), (float *)(z))
+#define R_BSP_SINCOSF(x, y, z)    R_BSP_CalcSine_Cosine((float)(x), (float *)(y), (float *)(z))
 
 #endif
 
@@ -746,7 +741,7 @@ Macro definitions
 
 /* void R_BSP_CalcAtan_SquareRoot(float y, float x, float *atan2, float *hypot)
    (This macro uses API function of BSP.) */
-#define R_BSP_ATAN2HYPOTF(w, x, y, z)    __atan2hypotf((float)(w), (float)(x), (float *)(y), (float *)(z))
+#define R_BSP_ATAN2HYPOTF(w, x, y, z)    R_BSP_CalcAtan_SquareRoot((float)(w), (float)(x), (float *)(y), (float *)(z))
 
 #endif
 #endif /* BSP_MCU_TRIGONOMETRIC */

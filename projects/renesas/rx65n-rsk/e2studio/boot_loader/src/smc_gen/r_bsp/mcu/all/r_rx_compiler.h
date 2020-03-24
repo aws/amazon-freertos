@@ -23,37 +23,12 @@
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
-*         : 08.10.2019 1.01     Modified definition of __RX_DPFPU_INSNS__ to __RX_DFPU_INSNS__ for GNUC.
-*                               Modified definition of TFU for GNUC.
-*                               Modified comment of TFU for ICCRX.
-*                               Added include of r_bsp_config.h.
-*                               Changed the following definitions for added support of Renesas RTOS(RI600V4 or RI600PX).
-*                               - R_BSP_SECNAME_INTVECTTBL
-*                               - R_BSP_SECNAME_EXCEPTVECTTBL
-*                               - R_BSP_SECNAME_FIXEDVECTTBL
-*                               - R_BSP_PRAGMA_INTERRUPT
-*                               - R_BSP_PRAGMA_STATIC_INTERRUPT
-*                               - R_BSP_PRAGMA_INTERRUPT_FUNCTION
-*                               - R_BSP_ATTRIB_STATIC_INTERRUPT
-*                               - R_BSP_PRAGMA_INTERRUPT_DEFAULT
-*                               - R_BSP_PRAGMA_STATIC_INTERRUPT_DEFAULT
-*                               Changed the following definitions to definition without __no_init for ICCRX so that 
-*                               there is no warning when the initial value is specified.
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_C1
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_C2
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_C4
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_C8
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_D1
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_D2
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_D4
-*                               - _R_BSP_ATTRIB_SECTION_CHANGE_D8
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 Includes   <System Includes> , "Project Includes"
 ***********************************************************************************************************************/
 #include "r_bsp_common.h"
-#include "r_bsp_config.h"
 
 /***********************************************************************************************************************
 Macro definitions
@@ -127,9 +102,13 @@ Macro definitions
 #endif
 #endif
 
-/* #define __TFU 1 */ /* This is automatically defined by GNUC. */
+#if defined(__TFU__)   /* Not yet supported. */
+#if !defined(__TFU)
+#define __TFU 1
+#endif
+#endif
 
-#if defined(__RX_DFPU_INSNS__)
+#if defined(__RX_DPFPU_INSNS__)   /* Not yet supported. */
 #if !defined(__DPFPU)
 #define __DPFPU 1
 #endif
@@ -147,7 +126,7 @@ Macro definitions
 /* #define __RXV1 1 */ /* This is automatically defined by ICCRX. */
 /* #define __RXV2 1 */ /* This is automatically defined by ICCRX. */
 /* #define __RXV3 1 */ /* This is automatically defined by ICCRX. */
-/* #define __TFU 1 */ /* This is automatically defined by ICCRX. */
+/* #define __TFU 1 */ /* Not yet supported. */
 /* #define __DPFPU 1 */ /* Not yet supported. */
 
 #endif
@@ -220,26 +199,13 @@ Macro definitions
 /* ---------- Names ---------- */
 #if defined(__CCRX__)
 
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_SECNAME_INTVECTTBL       "INTERRUPT_VECTOR"
-#else /* BSP_CFG_RTOS_USED != 4 */
 #define R_BSP_SECNAME_INTVECTTBL       "C$VECT"
-#endif /* BSP_CFG_RTOS_USED */
-
 #if defined(__RXV2) || defined(__RXV3)
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_SECNAME_EXCEPTVECTTBL    "FIX_INTERRUPT_VECTOR"
-#else /* BSP_CFG_RTOS_USED != 4 */
 #define R_BSP_SECNAME_EXCEPTVECTTBL    "EXCEPTVECT"
-#endif /* BSP_CFG_RTOS_USED */
 #define R_BSP_SECNAME_RESETVECT        "RESETVECT"
-#else /* __RXV1 */
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_SECNAME_FIXEDVECTTBL     "FIX_INTERRUPT_VECTOR"
-#else /* BSP_CFG_RTOS_USED != 4 */
+#else
 #define R_BSP_SECNAME_FIXEDVECTTBL     "FIXEDVECT"
-#endif /* BSP_CFG_RTOS_USED */
-#endif /* defined(__RXV2) || defined(__RXV3) */
+#endif
 #define R_BSP_SECNAME_UBSETTINGS       "UBSETTINGS"
 
 #elif defined(__GNUC__)
@@ -410,14 +376,14 @@ extern void * const                   exvectors_start[];
 #define _R_BSP_ATTRIB_SECTION_CHANGE_B2(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(B##section_tag##_2)
 #define _R_BSP_ATTRIB_SECTION_CHANGE_B4(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(B##section_tag) /* No postfix '_4' because the CC-RX does not add it */
 #define _R_BSP_ATTRIB_SECTION_CHANGE_B8(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(B##section_tag##_8)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_C1(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(C##section_tag##_1)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_C2(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(C##section_tag##_2)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_C4(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(C##section_tag) /* No postfix '_4' because the CC-RX does not add it */
-#define _R_BSP_ATTRIB_SECTION_CHANGE_C8(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(C##section_tag##_8)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_D1(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(D##section_tag##_1)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_D2(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(D##section_tag##_2)
-#define _R_BSP_ATTRIB_SECTION_CHANGE_D4(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(D##section_tag) /* No postfix '_4' because the CC-RX does not add it */
-#define _R_BSP_ATTRIB_SECTION_CHANGE_D8(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_F(D##section_tag##_8)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_C1(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(C##section_tag##_1)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_C2(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(C##section_tag##_2)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_C4(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(C##section_tag) /* No postfix '_4' because the CC-RX does not add it */
+#define _R_BSP_ATTRIB_SECTION_CHANGE_C8(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(C##section_tag##_8)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_D1(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(D##section_tag##_1)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_D2(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(D##section_tag##_2)
+#define _R_BSP_ATTRIB_SECTION_CHANGE_D4(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(D##section_tag) /* No postfix '_4' because the CC-RX does not add it */
+#define _R_BSP_ATTRIB_SECTION_CHANGE_D8(section_tag)           __R_BSP_ATTRIB_SECTION_CHANGE_V(D##section_tag##_8)
 #define _R_BSP_ATTRIB_SECTION_CHANGE_P(section_tag)            __R_BSP_ATTRIB_SECTION_CHANGE_F(P##section_tag)
 
 #define R_BSP_ATTRIB_SECTION_CHANGE(type, section_tag, ...)    _R_BSP_ATTRIB_SECTION_CHANGE_##type##__VA_ARGS__(section_tag)
@@ -429,14 +395,6 @@ extern void * const                   exvectors_start[];
 #if defined(__CCRX__)
 
 /* Standard */
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_PRAGMA_INTERRUPT(function_name, vector)                 extern void function_name(void);
-
-#define R_BSP_PRAGMA_STATIC_INTERRUPT(function_name, vector)          void function_name(void);
-
-#define R_BSP_PRAGMA_INTERRUPT_FUNCTION(function_name)                extern void function_name(void);
-
-#else /* BSP_CFG_RTOS_USED != 4*/
 #define R_BSP_PRAGMA_INTERRUPT(function_name, vector)                 R_BSP_PRAGMA(interrupt function_name(vect=vector))\
                                                                       extern void function_name(void);
 #define R_BSP_PRAGMA_STATIC_INTERRUPT(function_name, vector)          R_BSP_PRAGMA(interrupt function_name(vect=vector))\
@@ -444,18 +402,11 @@ extern void * const                   exvectors_start[];
 
 #define R_BSP_PRAGMA_INTERRUPT_FUNCTION(function_name)                R_BSP_PRAGMA(interrupt function_name)\
                                                                       extern void function_name(void);
-#endif /* BSP_CFG_RTOS_USED */
-
 #define R_BSP_PRAGMA_STATIC_INTERRUPT_FUNCTION(function_name)         R_BSP_PRAGMA(interrupt function_name)\
                                                                       static void function_name(void);
 
 #define R_BSP_ATTRIB_INTERRUPT                                        extern /* only this one because of no corresponding keyword */
-
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_ATTRIB_STATIC_INTERRUPT                                 
-#else /* BSP_CFG_RTOS_USED !=4 */
 #define R_BSP_ATTRIB_STATIC_INTERRUPT                                 static /* only this one because of no corresponding keyword */
-#endif /* BSP_CFG_RTOS_USED */
 
 /* Fast */
 #define R_BSP_PRAGMA_FAST_INTERRUPT(function_name, vector)            R_BSP_PRAGMA(interrupt function_name(vect=vector, fint))\
@@ -472,17 +423,10 @@ extern void * const                   exvectors_start[];
 #define R_BSP_ATTRIB_STATIC_FAST_INTERRUPT                            static /* only this one because of no corresponding keyword */
 
 /* Default */
-#if BSP_CFG_RTOS_USED == 4    /* Renesas RI600V4 & RI600PX */
-#define R_BSP_PRAGMA_INTERRUPT_DEFAULT(function_name)                 extern void function_name(void);
-
-#define R_BSP_PRAGMA_STATIC_INTERRUPT_DEFAULT(function_name)          void function_name(void);
-#else /* BSP_CFG_RTOS_USED != 4 */
 #define R_BSP_PRAGMA_INTERRUPT_DEFAULT(function_name)                 R_BSP_PRAGMA(interrupt function_name)\
                                                                       extern void function_name(void);
-
 #define R_BSP_PRAGMA_STATIC_INTERRUPT_DEFAULT(function_name)          R_BSP_PRAGMA(interrupt function_name)\
                                                                       static void function_name(void);
-#endif /* BSP_CFG_RTOS_USED */
 
 #elif defined(__GNUC__)
 

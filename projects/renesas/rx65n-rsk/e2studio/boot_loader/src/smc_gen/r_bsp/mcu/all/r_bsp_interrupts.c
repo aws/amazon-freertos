@@ -34,7 +34,6 @@
 *                               - bsp_fit_interrupt_enable
 *                               - bsp_fit_interrupt_disable
 *                               Fixed coding style.
-*         : 08.10.2019 1.11     Added process for software interrupt.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -151,13 +150,6 @@ void bsp_interrupt_open (void)
     /* Initialize mapped interrupts. */
     bsp_mapped_interrupt_open();
 #endif
-
-#if (defined(BSP_CFG_SWINT_UNIT1_ENABLE) && (BSP_CFG_SWINT_UNIT1_ENABLE == 1))
-    R_BSP_SoftwareInterruptOpen(BSP_SWINT_UNIT1);
-#endif /* (defined(BSP_CFG_SWINT_UNIT1_ENABLE) && (BSP_CFG_SWINT_UNIT1_ENABLE == 1)) */
-#if (defined(BSP_CFG_SWINT_UNIT2_ENABLE) && (BSP_CFG_SWINT_UNIT2_ENABLE == 1))
-    R_BSP_SoftwareInterruptOpen(BSP_SWINT_UNIT2);
-#endif /* (defined(BSP_CFG_SWINT_UNIT2_ENABLE) && (BSP_CFG_SWINT_UNIT2_ENABLE == 1)) */
 } /* End of function bsp_interrupt_open() */
 
 /**********************************************************************************************************************
