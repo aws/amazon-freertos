@@ -228,7 +228,7 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
-)
+) 
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
@@ -292,6 +292,7 @@ target_include_directories(
     AFR::common_io::mcu_port
     INTERFACE
         "${afr_ports_dir}/common_io/include"
+        "/Users/lundinc/Documents/amazon-freertos/libraries/abstractions/common_io/test"
 )
       
 
