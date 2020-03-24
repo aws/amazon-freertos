@@ -60,7 +60,7 @@
     <ToolConnectMode>RFPSet</ToolConnectMode>
     <ToolConnectPinOut>0</ToolConnectPinOut>
     <ToolConnectPinLvl>0</ToolConnectPinLvl>
-    <ToolDisconnectReset>High</ToolDisconnectReset>
+    <ToolDisconnectReset>Low</ToolDisconnectReset>
     <ToolInterface>IFTYPE_UART2</ToolInterface>
     <ToolSpeed>1000000</ToolSpeed>
     <ToolWideVoltage>False</ToolWideVoltage>

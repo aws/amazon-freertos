@@ -6,7 +6,8 @@
   <Device>RX650</Device>
   <OperationTab>
     <Endian>RFLG_ENDIAN_LITTLE</Endian>
-    <ProgramFile>D:\IDT17\devicetester_freertos_win\amazon-freertos\projects\renesas\rx65n-rsk\e2studio\aws_demos\HardwareDebug\userprog.mot</ProgramFile>
+    <ProgramFile>
+    </ProgramFile>
   </OperationTab>
   <OperationSettingTab>
     <FillCode>False</FillCode>
@@ -60,7 +61,7 @@
     <ToolConnectMode>RFPSet</ToolConnectMode>
     <ToolConnectPinOut>0</ToolConnectPinOut>
     <ToolConnectPinLvl>0</ToolConnectPinLvl>
-    <ToolDisconnectReset>High</ToolDisconnectReset>
+    <ToolDisconnectReset>Low</ToolDisconnectReset>
     <ToolInterface>IFTYPE_UART2</ToolInterface>
     <ToolSpeed>1000000</ToolSpeed>
     <ToolWideVoltage>False</ToolWideVoltage>
