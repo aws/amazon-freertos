@@ -161,8 +161,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-		RUN_TEST_GROUP( Defender_Unit );
-		RUN_TEST_GROUP( Defender_System );
+        RUN_TEST_GROUP( Defender_Unit );
+        RUN_TEST_GROUP( Defender_System );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )
