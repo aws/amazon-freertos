@@ -44,7 +44,7 @@
 #endif
 
 /**
- * @brief The length of @ref AWS_IOT_TEST_SHADOW_THING_NAME.
+ * @brief The length of @ref AWS_IOT_TEST_DEFENDER_THING_NAME.
  */
 #define THING_NAME_LENGTH    ( sizeof( AWS_IOT_TEST_DEFENDER_THING_NAME ) - 1 )
 
