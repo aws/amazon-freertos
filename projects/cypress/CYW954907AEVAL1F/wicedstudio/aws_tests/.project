@@ -1648,6 +1648,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
