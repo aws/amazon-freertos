@@ -36,11 +36,11 @@
 /**
  * @brief The number of your network interface here.
  */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
+#define ggdconfigCORE_NETWORK_INTERFACE     (0)
 
 /**
  * @brief Size of the array used by jsmn to store the tokens.
  */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
+#define ggdconfigJSON_MAX_TOKENS            (128)
 
 #endif /* _AWS_GGD_CONFIG_H_ */

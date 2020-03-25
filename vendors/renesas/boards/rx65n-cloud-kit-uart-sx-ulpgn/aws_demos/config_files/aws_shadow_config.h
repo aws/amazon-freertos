@@ -35,7 +35,7 @@
  * @brief Number of jsmn tokens to use in parsing.  Each jsmn token contains 4 ints.
  * Ensure that the number of tokens does not overflow the calling task's stack,
  * but is also sufficient to parse the largest expected JSON documents. */
-#define shadowConfigJSON_JSMN_TOKENS    ( 64 )
+#define shadowConfigJSON_JSMN_TOKENS    (64)
 
 
 /**
