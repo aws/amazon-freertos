@@ -273,18 +273,18 @@ afr_mcu_port(common_io)
 target_sources(
     AFR::common_io::mcu_port
     INTERFACE 
-    # "${afr_ports_dir}/common_io/iot_adc.c"
-    #    "${afr_ports_dir}/common_io/iot_efuse.c"
-     #   "${afr_ports_dir}/common_io/iot_flash.c"
-       "${afr_ports_dir}/common_io/iot_gpio.c"
-       "${afr_ports_dir}/common_io/iot_i2c.c"
-    #   "${afr_ports_dir}/common_io/iot_i2s.c"
-    #   "${afr_ports_dir}/common_io/iot_pwm.c"
-    #   "${afr_ports_dir}/common_io/iot_reset.c"
-    #   "${afr_ports_dir}/common_io/iot_rtc.c"
-    #   "${afr_ports_dir}/common_io/iot_timer.c"
-       "${afr_ports_dir}/common_io/iot_uart.c"
-     #    "${afr_ports_dir}/common_io/iot_watchdog.c"
+        "${afr_ports_dir}/common_io/iot_adc.c"
+        "${afr_ports_dir}/common_io/iot_efuse.c"
+        "${afr_ports_dir}/common_io/iot_flash.c"
+        "${afr_ports_dir}/common_io/iot_gpio.c"
+        "${afr_ports_dir}/common_io/iot_i2c.c"
+        "${afr_ports_dir}/common_io/iot_i2s.c"
+        "${afr_ports_dir}/common_io/iot_pwm.c"
+        "${afr_ports_dir}/common_io/iot_reset.c"
+        "${afr_ports_dir}/common_io/iot_rtc.c"
+        "${afr_ports_dir}/common_io/iot_timer.c"
+        "${afr_ports_dir}/common_io/iot_uart.c"
+        "${afr_ports_dir}/common_io/iot_watchdog.c"
          $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
       
 )     
@@ -292,7 +292,7 @@ target_include_directories(
     AFR::common_io::mcu_port
     INTERFACE
         "${afr_ports_dir}/common_io/include"
-        "/Users/lundinc/Documents/amazon-freertos/libraries/abstractions/common_io/test"
+        "${AFR_ROOT_DIR}/libraries/abstractions/common_io/test"
 )
       
 

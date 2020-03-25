@@ -28,6 +28,7 @@
 #include "task.h"
 
 #include "iot_test_common_io_internal.h"
+#include "iot_i2c.h"
 
 /* UART */
 const uint8_t uartTestPort[ UART_TEST_SET ] = { 2 };
@@ -40,5 +41,24 @@ const uint32_t uartIotUartStopBits[ UART_TEST_SET ] = { 0 };
 void SET_TEST_IOT_UART_CONFIG( int testSet )
 {
     uctestIotUartPort = uartTestPort[ testSet ];
+}
+
+/* I2C */
+const uint8_t i2cTestSlaveAddr[ I2C_TEST_SET ] = { 0xD4 };
+const uint8_t i2cTestDeviceRegister[ I2C_TEST_SET ] = { 0x73 };
+const uint8_t i2cTestWriteVal[ I2C_TEST_SET ] = { 0b01101010 };
+const uint8_t i2cTestInstanceIdx[ I2C_TEST_SET ] = { 0 };
+const uint8_t i2cTestInstanceNum[ I2C_TEST_SET ] = { 1 };
+
+/* Not used by tests in this code base. */
+IotI2CHandle_t gIotI2cHandle[ 4 ] = { NULL, NULL, NULL, NULL };
+
+void SET_TEST_IOT_I2C_CONFIG( int testSet )
+{
+    uctestIotI2CSlaveAddr = i2cTestSlaveAddr[ testSet ];
+    uctestIotI2CDeviceRegister = i2cTestDeviceRegister[ testSet ];
+    uctestIotI2CWriteVal = i2cTestWriteVal[ testSet ];
+    uctestIotI2CInstanceIdx = i2cTestInstanceIdx[ testSet ];
+    uctestIotI2CInstanceNum = i2cTestInstanceNum[ testSet ];
 }
 

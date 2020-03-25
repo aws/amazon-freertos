@@ -46,4 +46,23 @@ extern const uint32_t uartIotUartParity[ UART_TEST_SET ];
 extern const uint32_t uartIotUartWordLength[ UART_TEST_SET ];
 extern const uint32_t uartIotUartStopBits[ UART_TEST_SET ];
 
+/* How many I2C ports are being test. */
+#define I2C_TEST_SET                        1
+
+#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1
+
+#if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED == 1 )
+    #define IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP    1
+    #define IOT_TEST_COMMON_IO_I2C_SUPPORTED_CANCEL          0
+#endif
+
+extern uint8_t uctestIotI2CSlaveAddr;         /* Address of Slave I2C (7-bit address) connected to the bus */
+extern uint8_t uctestIotI2CDeviceRegister;    /* Slave I2C register address used in read/write tests */
+extern uint8_t uctestIotI2CWriteVal;          /* Write value that will be used in the register write test */
+extern uint8_t uctestIotI2CInstanceIdx;       /* I2C instance used in the test */
+extern uint8_t uctestIotI2CInstanceNum;       /* The total number of I2C instances on the device */
+extern uint8_t ucAssistedTestIotI2CSlaveAddr; /* The slave address to be set for the assisted test. */
+
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    0
+
 #endif /* ifndef _TEST_IOT_CONFIG_H_ */
