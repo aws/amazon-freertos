@@ -269,12 +269,12 @@ TEST( Defender_Unit, Start_should_return_err_if_already_started )
 
 TEST( Defender_Unit, SetPeriod_too_short )
 {
-    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_PERIOD_TOO_SHORT, AwsIotDefender_SetPeriod( 299 ) );
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_PERIOD_TOO_SHORT, AwsIotDefender_SetPeriod( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS - 1 ) );
 }
 
 TEST( Defender_Unit, SetPeriod_with_proper_value )
 {
-    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( 301 ) );
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS + 1 ) );
 
     TEST_ASSERT_EQUAL( 301, AwsIotDefender_GetPeriod() );
 }
