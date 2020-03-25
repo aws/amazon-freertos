@@ -276,7 +276,7 @@ TEST( Defender_Unit, SetPeriod_with_proper_value )
 {
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS + 1 ) );
 
-    TEST_ASSERT_EQUAL( 301, AwsIotDefender_GetPeriod() );
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS + 1, AwsIotDefender_GetPeriod() );
 }
 
 TEST( Defender_Unit, SetPeriod_after_started )
