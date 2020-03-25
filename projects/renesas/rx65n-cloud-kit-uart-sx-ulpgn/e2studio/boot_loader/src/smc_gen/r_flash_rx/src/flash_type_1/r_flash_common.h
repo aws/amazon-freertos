@@ -19,7 +19,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2015 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2015-2019 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name    : r_flash_common.h
@@ -37,6 +37,9 @@
 *                22.07.2016 2.00      Modified for BSPless flash.
 *                02.08.2017 2.10     Removed #include "r_mcu_config.h". Now in
 *                                    targets.h (r_flash_rx_if.h includes)
+*                09.09.2019 4.30     Added definition of read and program/erase
+*                                    address for RX13T.
+*                                    Removed unnecessary comment line.
 *******************************************************************************/
 #ifndef R_FLASH_COMMON_H_
 #define R_FLASH_COMMON_H_
@@ -45,7 +48,6 @@
 Includes <System Includes> , "Project Includes"
 ******************************************************************************/
 #include "r_flash_rx_config.h"
-//#include "r_mcu_config.h"
 
 
 /******************************************************************************
@@ -79,6 +81,10 @@ Typedef definitions
 
 #if defined(MCU_RX23_ALL) || defined(MCU_RX24_ALL)
 #define DATAFLASH_WRITE_BASE_END_ADDR       (0xFE001FFF)
+#elif defined(MCU_RX13T)
+#undef DATAFLASH_READ_BASE_END_ADDR
+#define DATAFLASH_READ_BASE_END_ADDR        (0x00100FFF)
+#define DATAFLASH_WRITE_BASE_END_ADDR       (0x000F1FFF)
 #else
 #define DATAFLASH_WRITE_BASE_END_ADDR       (0x000F2FFF)
 #endif

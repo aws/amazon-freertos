@@ -95,20 +95,8 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_config&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_byteq&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_byteq/src&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_s12ad_rx&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_s12ad_rx/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_wifi_sx_ulpgn&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_wifi_sx_ulpgn/src&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx/src&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_1&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_3&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_4&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_flash_rx/src/targets&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_sci_rx&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_sci_rx/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/general&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/src/smc_gen/r_pincfg&quot;"/>
 								</option>

@@ -14,7 +14,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2016 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2016-2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : r_flash_fcu.h
@@ -25,6 +25,7 @@
 * History : DD.MM.YYYY Version Description
 *           05.10.2016 1.00    First Release
 *           07.03.2017 1.10    Set value for FLASH_FRDY_CMD_TIMEOUT for flash type 4 (was not in early flash manual).
+*           09.09.2019 4.30    Removed unnecessary comment line.
 ***********************************************************************************************************************/
 
 #ifndef RX_FLASH_FCU_HEADER_FILE
@@ -38,7 +39,6 @@ Macro definitions
 #define FCU_FIRMWARE_STORAGE_AREA       (0xFEFFF000)
 #define FCU_RAM_AREA                    (0x007F8000)
 #define FCU_RAM_SIZE                    (4096)
-//#define FAW_REG_ADDR                    (0xFE7F5D64)
 
 /*FACI Commands*/
 #define FLASH_FACI_CMD_PROGRAM              (0xE8)

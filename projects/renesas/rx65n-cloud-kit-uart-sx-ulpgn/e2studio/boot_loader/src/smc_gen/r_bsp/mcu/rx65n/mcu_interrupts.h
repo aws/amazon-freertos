@@ -53,6 +53,13 @@
 *                                Fixed coding style.
 *         : 08.04.2019 2.01      Added the following enumeration constant.
 *                                - BSP_INT_SRC_GR_INT_IE0_TOP
+*         : 26.07.2019 2.10      Added the following command.
+*                                - BSP_INT_CMD_FIT_INTERRUPT_ENABLE
+*                                - BSP_INT_CMD_FIT_INTERRUPT_DISABLE
+*                                Added the following error code.
+*                                - BSP_INT_ERR_INVALID_IPL
+*                                Added the following enumeration constant.
+*                                - BSP_INT_SRC_EMPTY
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -72,8 +79,9 @@ typedef enum
     BSP_INT_ERR_NO_REGISTERED_CALLBACK,     /* There is not a registered callback for this interrupt source */
     BSP_INT_ERR_INVALID_ARG,                /* Illegal argument input */
     BSP_INT_ERR_UNSUPPORTED,                /* Operation is not supported by this API */
-    BSP_INT_ERR_GROUP_STILL_ENABLED         /* Not all group interrupts were disabled so group interrupt was not 
+    BSP_INT_ERR_GROUP_STILL_ENABLED,        /* Not all group interrupts were disabled so group interrupt was not 
                                                disabled */
+    BSP_INT_ERR_INVALID_IPL                 /* Illegal IPL value input */
 } bsp_int_err_t;
 
 /* Available interrupts to register a callback for. */
@@ -189,6 +197,7 @@ typedef enum
     BSP_INT_SRC_AL1_DRW2D_DRW_IRQ,
 
     BSP_INT_SRC_GR_INT_END,
+    BSP_INT_SRC_EMPTY,
     BSP_INT_SRC_TOTAL_ITEMS               /* DO NOT MODIFY! This is used for sizing the interrupt callback array. */
 } bsp_int_src_t;
 
@@ -205,12 +214,20 @@ typedef enum
     BSP_INT_CMD_GROUP_INTERRUPT_DISABLE,  /* Disables a group interrupt when a group interrupt source is given.
                                              This will only disable a group interrupt when all interrupt
                                              sources for that group are already disabled. */
+    BSP_INT_CMD_FIT_INTERRUPT_ENABLE,     /* Enables interrupt by control of IPL. */
+    BSP_INT_CMD_FIT_INTERRUPT_DISABLE     /* Disables interrupt by control of IPL. */
 } bsp_int_cmd_t;
 
 /* Type to be used for pdata argument in Control function. */
 typedef union
 {
-    uint32_t ipl;                         /* Used when enabling an interrupt to set that interrupt's priority level */
+    uint32_t ipl;                         /* Used at the following times.
+                                             - When enabling an interrupt to set that interrupt's priority level 
+                                               by BSP_INT_CMD_GROUP_INTERRUPT_ENABLE command.
+                                             - When disabling an interrupt to save that interrupt's priority level 
+                                               by BSP_INT_CMD_FIT_INTERRUPT_DISABLE command.
+                                             - When enabling an interrupt to set that interrupt's priority level 
+                                               by BSP_INT_CMD_FIT_INTERRUPT_ENABLE command. */
 } bsp_int_ctrl_t;
 
 /* Easy to use typedef for callback functions. */

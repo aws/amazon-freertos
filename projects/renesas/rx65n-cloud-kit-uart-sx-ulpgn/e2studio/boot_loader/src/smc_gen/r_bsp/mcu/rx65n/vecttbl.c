@@ -36,6 +36,7 @@
 *                                (Exception functions moved to the common file (r_bsp_interrupts.c).)
 *                                Added support for GNUC and ICCRX.
 *                                Fixed coding style.
+*         : 31.07.2019 3.01      Fixed initialization for option-setting memory.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -122,19 +123,23 @@ const uint32_t __ROMCODEreg = BSP_CFG_ROMCODE_REG_VALUE;
 
 #elif defined(__GNUC__)
 
-const uint32_t __MDEreg     __attribute__ ((section(".ofs1"))) = (BSP_PRV_MDE_VALUE & BSP_PRV_BANK_MODE_VALUE);
-const uint32_t __OFS0reg    __attribute__ ((section(".ofs1"))) = BSP_CFG_OFS0_REG_VALUE;
-const uint32_t __OFS1reg    __attribute__ ((section(".ofs1"))) = BSP_CFG_OFS1_REG_VALUE;
+const st_ofsm_sec_ofs1_t __ofsm_sec_ofs1   __attribute__ ((section(".ofs1"))) = {
+    (BSP_PRV_MDE_VALUE & BSP_PRV_BANK_MODE_VALUE), /* __MDEreg */
+    BSP_CFG_OFS0_REG_VALUE, /* __OFS0reg */
+    BSP_CFG_OFS1_REG_VALUE  /* __OFS1reg */
+};
 const uint32_t __TMINFreg   __attribute__ ((section(".ofs2"))) = 0xffffffff;
 #if defined(BSP_MCU_RX65N_2MB)
 const uint32_t __BANKSELreg __attribute__ ((section(".ofs3"))) = BSP_PRV_START_BANK_VALUE;
 #endif
 const uint32_t __SPCCreg    __attribute__ ((section(".ofs4"))) = 0xffffffff;
 const uint32_t __TMEFreg    __attribute__ ((section(".ofs5"))) = BSP_CFG_TRUSTED_MODE_FUNCTION;
-const uint32_t __OSIS1reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_1;
-const uint32_t __OSIS2reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_2;
-const uint32_t __OSIS3reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_3;
-const uint32_t __OSIS4reg   __attribute__ ((section(".ofs6"))) = BSP_CFG_ID_CODE_LONG_4;
+const st_ofsm_sec_ofs6_t __ofsm_sec_ofs6   __attribute__ ((section(".ofs6"))) = {
+    BSP_CFG_ID_CODE_LONG_1, /* __OSIS1reg */
+    BSP_CFG_ID_CODE_LONG_2, /* __OSIS2reg */
+    BSP_CFG_ID_CODE_LONG_3, /* __OSIS3reg */
+    BSP_CFG_ID_CODE_LONG_4  /* __OSIS4reg */
+};
 const uint32_t __FAWreg     __attribute__ ((section(".ofs7"))) = BSP_CFG_FAW_REG_VALUE;
 const uint32_t __ROMCODEreg __attribute__ ((section(".ofs8"))) = BSP_CFG_ROMCODE_REG_VALUE;
 

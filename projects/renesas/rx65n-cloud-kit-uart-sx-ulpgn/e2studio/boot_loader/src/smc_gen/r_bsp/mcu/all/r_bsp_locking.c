@@ -26,6 +26,7 @@
 *         : 28.02.2019 2.00     Merged processing of all devices.
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
+*         : 26.07.2019 2.01     Modified comment of API function to Doxygen style.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -50,16 +51,24 @@ Exported global variables (to be accessed by other files)
 Private global variables and functions
 ***********************************************************************************************************************/
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_SoftwareLock
-* Description  : Attempt to acquire the lock that has been sent in.
-* Arguments    : plock -
-*                    Pointer to lock structure with lock to try and acquire.
-* Return Value : true -
-*                    Lock was acquired.
-*                false -
-*                    Lock was not acquired.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_SoftwareLock
+ ******************************************************************************************************************//**
+ * @brief Attempts to reserve a lock.
+ * @param[in] plock Pointer to lock structure with lock to try and acquire.
+ * @retval true Successful, lock was available and acquired.
+ * @retval false Failure, lock was already acquired and is not available.
+ * @details This function implements an atomic locking mechanism. Locks can be used in numerous ways. Two common uses 
+ * of locks are to protect critical sections of code and to protect against duplicate resource allocation.
+ * For protecting critical sections of code the user would require that the code first obtain the critical section's 
+ * lock before executing. An example of protecting against duplicate resource allocation would be if the user had two 
+ * FIT modules that used the same peripheral. For example, the user may have one FIT module that uses the SCI 
+ * peripheral in UART mode and another FIT module that uses the SCI peripheral in I2C mode. To make sure that both 
+ * modules cannot use the same SCI channel, locks can be used.
+ * Care should be taken when using locks as they do not provide advanced features one might expect from an RTOS
+ * semaphore or mutex. If used improperly locks can lead to deadlock in the user's system.
+ * Users can override the default locking mechanisms.
+ */
 bool R_BSP_SoftwareLock (BSP_CFG_USER_LOCKING_TYPE * const plock)
 {
 #if BSP_CFG_USER_LOCKING_ENABLED == 0
@@ -98,16 +107,15 @@ bool R_BSP_SoftwareLock (BSP_CFG_USER_LOCKING_TYPE * const plock)
 #endif
 } /* End of function R_BSP_SoftwareLock() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_SoftwareUnlock
-* Description  : Release hold on lock.
-* Arguments    : plock -
-*                    Pointer to lock structure with lock to release.
-* Return Value : true -
-*                    Lock was released.
-*                false -
-*                    Lock was not released.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_SoftwareUnlock
+ ******************************************************************************************************************//**
+ * @brief Releases a lock.
+ * @param[in] plock Pointer to lock structure with lock to release.
+ * @retval true Successful, lock was released. Or the lock has been already released.
+ * @retval false Failure, lock could not be released.
+ * @details This function releases a lock that was previously acquired using the R_BSP_SoftwareLock() function.
+ */
 bool R_BSP_SoftwareUnlock (BSP_CFG_USER_LOCKING_TYPE * const plock)
 {
 #if BSP_CFG_USER_LOCKING_ENABLED == 0
@@ -122,17 +130,24 @@ bool R_BSP_SoftwareUnlock (BSP_CFG_USER_LOCKING_TYPE * const plock)
 } /* End of function R_BSP_SoftwareUnlock() */
 
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_HardwareLock
-* Description  : Attempt to acquire the lock that has been sent in. This function takes in a peripheral index into the
-*                array that holds hardware locks.
-* Arguments    : hw_index -
-*                    Index in locks array to the hardware resource to lock.
-* Return Value : true -
-*                    Lock was acquired.
-*                false -
-*                    Lock was not acquired.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_HardwareLock
+ ******************************************************************************************************************//**
+ * @brief Attempts to reserve a hardware peripheral lock.
+ * @param[in] hw_index Index of lock to acquire from the hardware lock array.
+ * @retval true Successful, lock was available and acquired.
+ * @retval false Failure, lock was already acquired and is not available.
+ * @details This function attempts to acquire the lock for a hardware resource of the MCU. Instead of sending in a 
+ * pointer to a lock as with the R_BSP_SoftwareLock() function, the user sends in an index to an array that holds 1 
+ * lock per MCU hardware resource. This array is shared amongst all FIT modules and user code therefore allowing 
+ * multiple FIT modules (and user code) to use the same locks. The user can see the available hardware resources by 
+ * looking at the mcu_lock_t enum in mcu_locks.h. These enum values are also the index into the hardware lock array.
+ * The same atomic locking mechanisms from the R_BSP_SoftwareLock() function are used with this function as well.
+ * @note Each entry in the mcu_lock_t enum in mcu_locks.h will be allocated a lock. On RX MCUs, each lock is required 
+ * to be 4-bytes. If RAM space is an issue then the user can remove the entries from the mcu_lock_t enum they are not 
+ * using. For example, if the user is not using the CRC peripheral then they could delete the BSP_LOCK_CRC entry. The 
+ * user will save 4-bytes per deleted entry.
+ */
 bool R_BSP_HardwareLock (mcu_lock_t const hw_index)
 {
 #if BSP_CFG_USER_LOCKING_ENABLED == 0
@@ -144,16 +159,20 @@ bool R_BSP_HardwareLock (mcu_lock_t const hw_index)
 #endif
 } /* End of function R_BSP_HardwareLock() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_HardwareUnlock
-* Description  : Release hold on lock.
-* Arguments    : hw_index -
-*                    Index in locks array to the hardware resource to unlock.
-* Return Value : true -
-*                    Lock was released.
-*                false -
-*                    Lock was not released.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_HardwareUnlock
+ ******************************************************************************************************************//**
+ * @brief Releases a hardware peripheral lock.
+ * @param[in] hw_index Index of lock to release from the hardware lock array.
+ * @retval true Successful, lock was released.
+ * @retval false Failure, lock could not be released.
+ * @details This function attempts to release the lock for a hardware resource of the MCU that was previously acquired 
+ * using the R_BSP_HardwareLock() function.
+ * @note Each entry in the mcu_lock_t enum in mcu_locks.h will be allocated a lock. On RX MCUs, each lock is required 
+ * to be 4-bytes. If RAM space is an issue then the user can remove the entries from the mcu_lock_t enum that they are 
+ * not using. For example, if the user is not using the CRC peripheral then they could delete the BSP_LOCK_CRC entry. 
+ * The user will save 4-bytes per deleted entry.
+ */
 bool R_BSP_HardwareUnlock (mcu_lock_t const hw_index)
 {
 #if BSP_CFG_USER_LOCKING_ENABLED == 0

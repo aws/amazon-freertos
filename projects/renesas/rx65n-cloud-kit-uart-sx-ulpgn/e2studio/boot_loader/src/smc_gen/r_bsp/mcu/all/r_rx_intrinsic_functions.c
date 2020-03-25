@@ -23,6 +23,17 @@
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
+*         : 26.07.2019 1.01     Fixed the below functions.
+*                               - R_BSP_MulAndAccOperation_2byte
+*                               - R_BSP_MulAndAccOperation_FixedPoint1
+*                               - R_BSP_MulAndAccOperation_FixedPoint2
+*                               Added the below functions.
+*                               - R_BSP_CalcSine_Cosine
+*                               - R_BSP_CalcAtan_SquareRoot
+*         : 31.07.2019 1.02     Modified the compile condition of the below functions.
+*                               - R_BSP_InitTFU
+*                               - R_BSP_CalcSine_Cosine
+*                               - R_BSP_CalcAtan_SquareRoot
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -352,14 +363,21 @@ signed long long R_BSP_GetACC(void)
 #if defined(__GNUC__)
 long R_BSP_MulAndAccOperation_2byte(short* data1, short* data2, unsigned long count)
 {
-    unsigned long index;
-    __builtin_rx_mullo(0, 0);
-    for(index = 0; index < count; index++)
-    {
-        __builtin_rx_maclo(data1[index], data2[index]);
-        __builtin_rx_machi(data1[index], data2[index]);
-    }
-    return (long)(R_BSP_GetACC() >> 16);
+  signed long register *ldata1 = (signed long *)data1;
+  signed long register *ldata2 = (signed long *)data2;
+  /* this is much more then an "intrinsic", no inline asm because of loop */
+  /* will implement this.. interesting function as described in ccrx manual */
+  __builtin_rx_mullo(0, 0);
+  while (count > 1)
+  {
+    __builtin_rx_maclo(*ldata1, *ldata2);
+    __builtin_rx_machi(*ldata1, *ldata2);
+    ldata1++;
+    ldata2++;
+    count -= 2;
+  }
+  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
+  return __builtin_rx_mvfacmi();
 }
 #endif /* defined(__GNUC__) */
 
@@ -379,15 +397,22 @@ long R_BSP_MulAndAccOperation_2byte(short* data1, short* data2, unsigned long co
 #if defined(__GNUC__)
 short R_BSP_MulAndAccOperation_FixedPoint1(short* data1, short* data2, unsigned long count)
 {
-    unsigned long index;
-    __builtin_rx_mullo(0, 0);
-    for(index = 0; index < count; index++)
-    {
-        __builtin_rx_maclo(data1[index], data2[index]);
-        __builtin_rx_machi(data1[index], data2[index]);
-    }
-    __builtin_rx_racw(1);
-    return (short)(R_BSP_GetACC() >> 32);
+  signed long register *ldata1 = (signed long *)data1;
+  signed long register *ldata2 = (signed long *)data2;
+  /* this is much more then an "intrinsic", no inline asm because of loop */
+  /* will implement this.. interesting function as described in ccrx manual */
+  __builtin_rx_mullo(0, 0);
+  while (count > 1)
+  {
+    __builtin_rx_maclo(*ldata1, *ldata2);
+    __builtin_rx_machi(*ldata1, *ldata2);
+    ldata1++;
+    ldata2++;
+    count -= 2;
+  }
+  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
+  __builtin_rx_racw(1);
+  return __builtin_rx_mvfachi();
 }
 #endif /* defined(__GNUC__) */
 
@@ -407,15 +432,22 @@ short R_BSP_MulAndAccOperation_FixedPoint1(short* data1, short* data2, unsigned 
 #if defined(__GNUC__)
 short R_BSP_MulAndAccOperation_FixedPoint2(short* data1, short* data2, unsigned long count)
 {
-    unsigned long index;
-    __builtin_rx_mullo(0, 0);
-    for(index = 0; index < count; index++)
-    {
-        __builtin_rx_maclo(data1[index], data2[index]);
-        __builtin_rx_machi(data1[index], data2[index]);
-    }
-    __builtin_rx_racw(2);
-    return (short)(R_BSP_GetACC() >> 32);
+  signed long register *ldata1 = (signed long *)data1;
+  signed long register *ldata2 = (signed long *)data2;
+  /* this is much more then an "intrinsic", no inline asm because of loop */
+  /* will implement this.. interesting function as described in ccrx manual */
+  __builtin_rx_mullo(0, 0);
+  while (count > 1)
+  {
+    __builtin_rx_maclo(*ldata1, *ldata2);
+    __builtin_rx_machi(*ldata1, *ldata2);
+    ldata1++;
+    ldata2++;
+    count -= 2;
+  }
+  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
+  __builtin_rx_racw(2);
+  return __builtin_rx_mvfachi();
 }
 #endif /* defined(__GNUC__) */
 
@@ -884,6 +916,7 @@ void *R_BSP_GetDEPC(void)
 #endif /* BSP_MCU_DOUBLE_PRECISION_FLOATING_POINT */
 
 #ifdef BSP_MCU_TRIGONOMETRIC
+#ifdef __TFU
 /***********************************************************************************************************************
 * Function Name: R_BSP_InitTFU
 * Description  : Initialize arithmetic unit for trigonometric functions.
@@ -901,5 +934,56 @@ void R_BSP_InitTFU(void)
     R_BSP_ASM(    POP       R1             )
     R_BSP_ASM_END
 } /* End of function R_BSP_InitTFU() */
-#endif
+
+#ifdef __FPU
+/***********************************************************************************************************************
+* Function Name: R_BSP_CalcSine_Cosine
+* Description  : Uses the trigonometric function unit to calculate the sine and cosine of an angle at the same time
+*                (single precision).
+* Arguments    : f - Value in radians from which to calculate the sine and cosine
+*              : sin - Address for storing the result of the sine operation
+*              : cos - Address for storing the result of the cosine operation
+* Return Value : none
+***********************************************************************************************************************/
+R_BSP_PRAGMA_INLINE_ASM(R_BSP_CalcSine_Cosine)
+void R_BSP_CalcSine_Cosine(float f, float *sin, float *cos)
+{
+    R_BSP_ASM_BEGIN
+    R_BSP_ASM(    PUSH.L    R4             )
+    R_BSP_ASM(    MOV.L     #81410H, R4    )
+    R_BSP_ASM(    MOV.L     R1, 4[R4]      )
+    R_BSP_ASM(    MOV.L     4[R4], [R2]    )
+    R_BSP_ASM(    MOV.L     [R4], [R3]     )
+    R_BSP_ASM(    POP       R4             )
+    R_BSP_ASM_END
+} /* End of function R_BSP_CalcSine_Cosine() */
+
+/***********************************************************************************************************************
+* Function Name: R_BSP_CalcAtan_SquareRoot
+* Description  : Uses the trigonometric function unit to calculate the arc tangent of x and y and the square root of 
+*                the sum of squares of these values at the same time (single precision).
+* Arguments    : y - Coordinate y (the numerator of the tangent)
+*                x - Coordinate x (the denominator of the tangent)
+*                atan2 - Address for storing the result of the arc tangent operation for y/x
+*                hypot - Address for storing the result of the square root of the sum of squares of x and y
+* Return Value : none
+***********************************************************************************************************************/
+R_BSP_PRAGMA_INLINE_ASM(R_BSP_CalcAtan_SquareRoot)
+void R_BSP_CalcAtan_SquareRoot(float y, float x, float *atan2, float *hypot)
+{
+    R_BSP_ASM_BEGIN
+    R_BSP_ASM(    PUSHM     R5-R6              )
+    R_BSP_ASM(    MOV.L     #81418H, R5        )
+    R_BSP_ASM(    MOV.L     R2, [R5]           )
+    R_BSP_ASM(    MOV.L     R1, 4[R5]          )
+    R_BSP_ASM(    MOV.L     4[R5], [R3]        )
+    R_BSP_ASM(    MOV.L     [R5], R6           )
+    R_BSP_ASM(    FMUL      #3F1B74EEH, R6     )
+    R_BSP_ASM(    MOV.L     R6, [R4]           )
+    R_BSP_ASM(    POPM      R5-R6              )
+    R_BSP_ASM_END
+} /* End of function R_BSP_CalcAtan_SquareRoot() */
+#endif /* __FPU */
+#endif /* __TFU */
+#endif /* BSP_MCU_TRIGONOMETRIC */
 

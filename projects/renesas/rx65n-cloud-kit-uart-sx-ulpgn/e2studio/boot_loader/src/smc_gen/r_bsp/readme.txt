@@ -1,7 +1,6 @@
 r_bsp Package
 =============
 
-
 Overview
 --------
 The r_bsp package provides a foundation for code to be built on top of. It provides startup code, iodefines, and MCU

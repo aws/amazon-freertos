@@ -33,6 +33,7 @@
 *                                - BSP_PRV_FPU_DENOM
 *                                Added following macro definitions.
 *                                - BSP_PRV_DPSW_INIT
+*         :26.07.2019 3.01       Added vbatt_voltage_stability_wait function.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -201,6 +202,7 @@ R_BSP_POR_FUNCTION(R_BSP_STARTUP_FUNCTION)
 #endif
 #endif
 
+    /* Initializes the trigonometric function unit. */
 #ifdef BSP_MCU_TRIGONOMETRIC
 #ifdef __TFU
     R_BSP_INIT_TFU();
@@ -208,6 +210,11 @@ R_BSP_POR_FUNCTION(R_BSP_STARTUP_FUNCTION)
 #endif
 
 #endif /* defined(__CCRX__), defined(__GNUC__) */
+
+    /* Wait for power voltage stabilization of VBATT function. */
+#if (defined(BSP_CFG_VBATT_ENABLE) && (BSP_CFG_VBATT_ENABLE == 0))
+    vbatt_voltage_stability_wait();
+#endif
 
     /* Switch to high-speed operation */ 
     mcu_clock_setup();
