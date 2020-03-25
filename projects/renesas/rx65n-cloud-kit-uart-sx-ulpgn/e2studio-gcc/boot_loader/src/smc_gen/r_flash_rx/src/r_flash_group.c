@@ -39,6 +39,9 @@
 *                                   Removed support for flash type 2.
 *              : 19.07.2019 4.20    Modified get_cf_addr_info().
 *                                   Added volatile to g_current_parameters.
+*              : 09.09.2019 4.30    Fixed error processing for r_flash_erase(), r_flash_blankcheck(), r_flash_write().
+*                                   Modified the switch statement of r_flash_control() to the if statement. 
+*              : 27.09.2019 4.40    Added NULL check for "blank_check_result" in r_flash_blankcheck().
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -468,8 +471,14 @@ flash_err_t r_flash_erase(flash_block_address_t block_start_address, uint32_t nu
     err = flash_erase((uint32_t)block_start_address, num_blocks);
     if (FLASH_SUCCESS != err)
     {
+#if (FLASH_TYPE == 1)
+        flash_reset();
+        flash_pe_mode_exit();
+        flash_release_state();      // unlock driver
+#else
         flash_reset();
         flash_release_state();      // unlock driver
+#endif
         return err;
     }
 
@@ -892,6 +901,8 @@ flash_err_t set_erase_params(flash_block_address_t block_start_address, uint32_t
 *                    Flash peripheral is busy with another operation or not initialized
 *                FLASH_ERR_FAILURE -
 *                    Operation failed for some other reason
+*                FLASH_ERR_NULL_PTR -
+*                    Blank check result pointer is NULL.
 ***********************************************************************************************************************/
 FLASH_PE_MODE_SECTION
 flash_err_t r_flash_blankcheck(uint32_t address, uint32_t num_bytes, flash_res_t *result)
@@ -922,6 +933,32 @@ flash_err_t r_flash_blankcheck(uint32_t address, uint32_t num_bytes, flash_res_t
         return err;
     }
 
+    /* Parameter check (blankcheck result parameter) */
+#if (FLASH_CFG_PARAM_CHECKING_ENABLE == 1)
+    if (FLASH_TYPE_DATA_FLASH == flash_type)    // DATA FLASH
+    {
+        if (g_current_parameters.bgo_enabled_df == false)
+        {
+            if ((NULL == result) || (FIT_NO_PTR == result))
+            {
+                flash_release_state();      // unlock driver
+                return FLASH_ERR_NULL_PTR;
+            }
+        }
+    }
+    else                                        // CODE FLASH
+    {
+        if (g_current_parameters.bgo_enabled_cf == false)
+        {
+            if ((NULL == result) || (FIT_NO_PTR == result))
+            {
+                flash_release_state();      // unlock driver
+                return FLASH_ERR_NULL_PTR;
+            }
+        }
+    }
+#endif
+
     /* Enter program/erase mode */
     err = flash_pe_mode_enter(flash_type);
     if (FLASH_SUCCESS != err)
@@ -931,16 +968,18 @@ flash_err_t r_flash_blankcheck(uint32_t address, uint32_t num_bytes, flash_res_t
         return err;
     }
 
-
-    /* Initialize the result */
-    *result = FLASH_RES_INVALID;
-
     /* Start the blankcheck operation */
     err = flash_blankcheck(address, num_bytes, result);
     if (FLASH_SUCCESS != err)
     {
+#if (FLASH_TYPE == 1)
+        flash_reset();
+        flash_pe_mode_exit();
+        flash_release_state();      // unlock driver
+#else
         flash_reset();
         flash_release_state();      // unlock driver
+#endif
         return err;
     }
 
@@ -1108,8 +1147,14 @@ flash_err_t r_flash_write(uint32_t src_address, uint32_t dest_address, uint32_t 
     err = flash_write(src_address, dest_address, num_bytes);
     if (FLASH_SUCCESS != err)
     {
+#if (FLASH_TYPE == 1)
+        flash_reset();
+        flash_pe_mode_exit();
+        flash_release_state();      // unlock driver
+#else
         flash_reset();
         flash_release_state();      // unlock driver
+#endif
         return err;
     }
 
@@ -1370,16 +1415,16 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
     flash_err_t err = FLASH_SUCCESS;
 
 
-    if (cmd == FLASH_CMD_RESET)
+    if (FLASH_CMD_RESET == cmd)
     {
 #if ((FLASH_TYPE == 1) && ((FLASH_CFG_CODE_FLASH_BGO == 1) || (FLASH_CFG_DATA_FLASH_BGO == 1)))
         /* cannot do reset if command in progress */
-        if ((g_flash_state == FLASH_ERASING) || (g_flash_state == FLASH_BLANKCHECK))
+        if ((FLASH_ERASING == g_flash_state) || (FLASH_BLANKCHECK == g_flash_state))
         {
             flash_stop();   // can abort an outstanding erase or blankcheck command
         }
 
-        while (g_flash_state != FLASH_READY)
+        while (FLASH_READY != g_flash_state)
             ;
 #endif
         flash_reset();
@@ -1388,146 +1433,140 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
     }
 
     /* Normally return BUSY when not in READY state. But allow for exceptions. */
-    if (g_flash_state == FLASH_INITIALIZATION)
+    if (FLASH_INITIALIZATION == g_flash_state)
     {
-        if (cmd != FLASH_CMD_CONFIG_CLOCK)      // allow clock config during Open()
+        if (FLASH_CMD_CONFIG_CLOCK != cmd)      // allow clock config during Open()
         {
             return FLASH_ERR_BUSY;
         }
     }
-    else if ((g_flash_state != FLASH_READY) && (cmd != FLASH_CMD_STATUS_GET))
+    else if ((FLASH_READY != g_flash_state) && (FLASH_CMD_STATUS_GET != cmd))
     {
         return FLASH_ERR_BUSY;      // allow get status any time
     }
 
-
     /* Process commands */
 
-    switch (cmd)
+    if (FLASH_CMD_STATUS_GET == cmd)
     {
+        /* GET OPERATION COMPLETE STATUS */
+        err = flash_get_status();
+    }
+
 #if ((FLASH_CFG_CODE_FLASH_ENABLE == 1) && (FLASH_CFG_CODE_FLASH_BGO == 1)) || (FLASH_CFG_DATA_FLASH_BGO == 1)
-    case FLASH_CMD_SET_BGO_CALLBACK:
+    else if (FLASH_CMD_SET_BGO_CALLBACK == cmd)
+    {
         /* SET USER CALLBACK FUNCTION */
         FLASH_RETURN_IF_PCFG_NULL;
         err = flash_interrupt_config (true, pcfg);
-    break;
-#endif
+    }
+#endif // ((FLASH_CFG_CODE_FLASH_ENABLE == 1) && (FLASH_CFG_CODE_FLASH_BGO == 1)) || (FLASH_CFG_DATA_FLASH_BGO == 1)
 
-    case FLASH_CMD_STATUS_GET:
-        /* GET OPERATION COMPLETE STATUS */
-        err = flash_get_status();
-    break;
+#if (FLASH_CFG_CODE_FLASH_ENABLE == 1)
 
-
-#if (FLASH_HAS_ROM_CACHE && FLASH_CFG_CODE_FLASH_ENABLE)
-    case FLASH_CMD_ROM_CACHE_ENABLE:
+#if (FLASH_HAS_ROM_CACHE == 1)
+    else if (FLASH_CMD_ROM_CACHE_ENABLE == cmd)
+    {
         FLASH.ROMCIV.BIT.ROMCIV = 1;                // start invalidation
-        while (FLASH.ROMCIV.BIT.ROMCIV != 0)        // wait for invalidation to complete
+        while (0 != FLASH.ROMCIV.BIT.ROMCIV)        // wait for invalidation to complete
         {
             R_BSP_NOP();
         }
         FLASH.ROMCE.BIT.ROMCEN = 1;                 // enable cache
-        if (FLASH.ROMCE.BIT.ROMCEN != 1)
+        if (1 != FLASH.ROMCE.BIT.ROMCEN)
         {
             err = FLASH_ERR_FAILURE;
         }
-        break;
-
-    case FLASH_CMD_ROM_CACHE_DISABLE:
+    }
+    else if (FLASH_CMD_ROM_CACHE_DISABLE == cmd)
+    {
         FLASH.ROMCE.BIT.ROMCEN = 0;                 // disable cache
-        break;
-
-    case FLASH_CMD_ROM_CACHE_STATUS:
+    }
+    else if (FLASH_CMD_ROM_CACHE_STATUS == cmd)
+    {
         *pCacheStatus = FLASH.ROMCE.BIT.ROMCEN;     // enabled/disabled state
-        break;
-#endif // FLASH_HAS_ROM_CACHE
+    }
+#endif // (FLASH_HAS_ROM_CACHE == 1)
 
-
-#if (FLASH_HAS_NON_CACHED_RANGES && FLASH_CFG_CODE_FLASH_ENABLE)
-    case FLASH_CMD_SET_NON_CACHED_RANGE0:
+#if (FLASH_HAS_NON_CACHED_RANGES == 1)
+    else if (FLASH_CMD_SET_NON_CACHED_RANGE0 == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         err = set_non_cached_regs(pNonCached, (flash_non_cached_regs_t *)&FLASH.NCRG0);
-        break;
-
-    case FLASH_CMD_SET_NON_CACHED_RANGE1:
+    }
+    else if (FLASH_CMD_SET_NON_CACHED_RANGE1 == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         err = set_non_cached_regs(pNonCached, (flash_non_cached_regs_t *)&FLASH.NCRG1);
-        break;
-
-    case FLASH_CMD_GET_NON_CACHED_RANGE0:
+    }
+    else if (FLASH_CMD_GET_NON_CACHED_RANGE0 == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         pNonCached->start_addr = FLASH.NCRG0;
         size_reg_value = (uint32_t)FLASH.NCRC0.BIT.NCSZ + 1;
         pNonCached->size = (flash_non_cached_size_t) (size_reg_value << 4);
         pNonCached->type_mask = FLASH.NCRC0.LONG & FLASH_NON_CACHED_MASK;
-        break;
-
-    case FLASH_CMD_GET_NON_CACHED_RANGE1:
+    }
+    else if (FLASH_CMD_GET_NON_CACHED_RANGE1 == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         pNonCached->start_addr = FLASH.NCRG1;
         size_reg_value = (uint32_t)FLASH.NCRC1.BIT.NCSZ + 1;
         pNonCached->size = (flash_non_cached_size_t) (size_reg_value << 4);
         pNonCached->type_mask = FLASH.NCRC1.LONG & FLASH_NON_CACHED_MASK;
-        break;
-#endif // FLASH_HAS_NON_CACHED_RANGES
+    }
+#endif // (FLASH_HAS_NON_CACHED_RANGES == 1)
 
-
-#if (FLASH_HAS_BOOT_SWAP && FLASH_CFG_CODE_FLASH_ENABLE)
+#if (FLASH_HAS_BOOT_SWAP == 1)
 #if (FLASH_IN_DUAL_BANK_MODE == 0)
-    case FLASH_CMD_SWAPSTATE_GET:
+    else if (FLASH_CMD_SWAPSTATE_GET == cmd)
+    {
         /* GET CURRENT STARTUP AREA (NOT NECESSARILY PRESERVED THROUGH RESET */
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_ROM_LT_32K;
         *pSwapInfo = R_CF_GetCurrentSwapState();
-    break;
-
-
-    case FLASH_CMD_SWAPSTATE_SET:
+    }
+    else if (FLASH_CMD_SWAPSTATE_SET == cmd)
+    {
         /* SET CURRENT STARTUP AREA (NOT NECESSARILY PRESERVED THROUGH RESET */
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_ROM_LT_32K;
         FLASH_RETURN_IF_BAD_SAS;
         R_CF_SetCurrentSwapState(*pSwapInfo);
-    break;
-#endif // FLASH_IN_DUAL_BANK_MODE
-
-
-    case FLASH_CMD_SWAPFLAG_GET:
+    }
+#endif // (FLASH_IN_DUAL_BANK_MODE == 0)
+    else if (FLASH_CMD_SWAPFLAG_GET == cmd)
+    {
         /* GET CURRENT STARTUP AREA EFFECTIVE AT RESET */
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_ROM_LT_32K;
         *pSwapInfo = R_CF_GetCurrentStartupArea();
-    break;
-
-
-    case FLASH_CMD_SWAPFLAG_TOGGLE:
+    }
+    else if (FLASH_CMD_SWAPFLAG_TOGGLE == cmd)
+    {
         /* TOGGLE CURRENT STARTUP AREA EFFECTIVE AT RESET */
         FLASH_RETURN_IF_BGO_AND_NO_CALLBACK;
         FLASH_RETURN_IF_ROM_LT_32K;
-
         /* Lock the driver */
         if (FLASH_SUCCESS != flash_lock_state(FLASH_WRITING))       // TODO: ACCESS STATE?
         {
             return FLASH_ERR_BUSY;
         }
         err = R_CF_ToggleStartupArea();
-
 #if (FLASH_CFG_CODE_FLASH_BGO == 0)
         flash_release_state();              // Unlock driver
-#endif
-        break;
-#endif // FLASH_HAS_BOOT_SWAP
+#endif // (FLASH_CFG_CODE_FLASH_BGO == 0)
+    }
+#endif // (FLASH_HAS_BOOT_SWAP == 1)
 
-
-#if (FLASH_HAS_CF_ACCESS_WINDOW && FLASH_CFG_CODE_FLASH_ENABLE)
-
-    case FLASH_CMD_ACCESSWINDOW_GET:
+#if (FLASH_HAS_CF_ACCESS_WINDOW == 1)
+    else if (FLASH_CMD_ACCESSWINDOW_GET == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         err = R_CF_GetAccessWindow(pAccessInfo);
-    break;
-
-
-    case FLASH_CMD_ACCESSWINDOW_SET:
+    }
+    else if (FLASH_CMD_ACCESSWINDOW_SET == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_BGO_AND_NO_CALLBACK;
 #if (FLASH_CFG_PARAM_CHECKING_ENABLE == 1)
@@ -1538,92 +1577,92 @@ flash_err_t r_flash_control(flash_cmd_t cmd, void *pcfg)
          *   access_info.end_addr =  (uint32_t)(FLASH_CF_BLOCK_2);
          */
         if ((pAccessInfo->start_addr > pAccessInfo->end_addr)
-         || (pAccessInfo->start_addr < (uint32_t)FLASH_CF_LOWEST_VALID_BLOCK)
-         || ((pAccessInfo->start_addr & ACCESS_BAD_ADDR_MASK) != 0)
-         || (((pAccessInfo->end_addr & ACCESS_BAD_ADDR_MASK) != 0) && (pAccessInfo->end_addr != (uint32_t)FLASH_CF_BLOCK_END)))
+         || ((uint32_t)FLASH_CF_LOWEST_VALID_BLOCK > pAccessInfo->start_addr)
+         || (0 != (ACCESS_BAD_ADDR_MASK & pAccessInfo->start_addr))
+         || ((0 != (ACCESS_BAD_ADDR_MASK & pAccessInfo->end_addr)) && ((uint32_t)FLASH_CF_BLOCK_END != pAccessInfo->end_addr)))
         {
             return(FLASH_ERR_ACCESSW);
         }
-#endif
+#endif // (FLASH_CFG_PARAM_CHECKING_ENABLE == 1)
         /* Lock the driver */
         if (FLASH_SUCCESS != flash_lock_state(FLASH_WRITING))       // TODO: ACCESS STATE?
         {
             return FLASH_ERR_BUSY;
         }
-
         err = R_CF_SetAccessWindow(pAccessInfo);
 #if (FLASH_CFG_CODE_FLASH_BGO == 0)
         flash_release_state();              // Unlock the driver
-#endif
-    break;
-#endif // FLASH_HAS_CF_ACCESS_WINDOW
+#endif // (FLASH_CFG_CODE_FLASH_BGO == 0)
+    }
+#endif // (FLASH_HAS_CF_ACCESS_WINDOW == 1)
 
-
-#if (FLASH_HAS_SEQUENTIAL_CF_BLOCKS_LOCK && FLASH_CFG_CODE_FLASH_ENABLE)
-    case FLASH_CMD_LOCKBIT_ENABLE:
+#if (FLASH_HAS_SEQUENTIAL_CF_BLOCKS_LOCK == 1)
+    else if (FLASH_CMD_LOCKBIT_ENABLE == cmd)
+    {
         g_lkbit_mode = FLASH_LOCKBIT_MODE_NORMAL;
-        break;
-
-    case FLASH_CMD_LOCKBIT_DISABLE:
+    }
+    else if (FLASH_CMD_LOCKBIT_DISABLE == cmd)
+    {
         g_lkbit_mode = FLASH_LOCKBIT_MODE_OVERRIDE;
-        break;
-
-    case FLASH_CMD_LOCKBIT_READ:
+    }
+    else if (FLASH_CMD_LOCKBIT_READ == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_BGO_AND_NO_CALLBACK;
         err = flash_lockbit_read(pLockbitCfg->block_start_address, &(pLockbitCfg->result));
-        break;
-
-    case FLASH_CMD_LOCKBIT_WRITE:
+    }
+    else if (FLASH_CMD_LOCKBIT_WRITE == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         FLASH_RETURN_IF_BGO_AND_NO_CALLBACK;
         err = flash_api_lockbit_set(pLockbitCfg->block_start_address, pLockbitCfg->num_blocks);
-        break;
-#endif
+    }
+#endif // (FLASH_HAS_SEQUENTIAL_CF_BLOCKS_LOCK == 1)
 
+#endif // (FLASH_CFG_CODE_FLASH_ENABLE == 1)
 
-#if (FLASH_HAS_FCU)
-    case FLASH_CMD_CONFIG_CLOCK:
+#if (FLASH_HAS_FCU == 1)
+    else if (FLASH_CMD_CONFIG_CLOCK == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
-        if ((*pFlashClkHz > FLASH_FREQ_HI) || (*pFlashClkHz < FLASH_FREQ_LO))
+        if ((FLASH_FREQ_HI < *pFlashClkHz) || (FLASH_FREQ_LO > *pFlashClkHz))
         {
             err = FLASH_ERR_FREQUENCY;
         }
         else
         {
             speed_mhz = *pFlashClkHz / 1000000;
-            if ((*pFlashClkHz % 1000000) != 0)
+            if (0 != (*pFlashClkHz % 1000000))
             {
                 speed_mhz++;    // must round up to nearest MHz
             }
-
             FLASH.FPCKAR.WORD = (uint16_t)(0x1E00) + (uint16_t)speed_mhz;
 #if ((FLASH_TYPE == 4) && (MCU_DATA_FLASH_SIZE_BYTES != 0))
             FLASH.EEPFCLK = (uint8_t)speed_mhz;
-#endif
+#endif // ((FLASH_TYPE == 4) && (MCU_DATA_FLASH_SIZE_BYTES != 0))
         }
-        break;
-#endif
+    }
+#endif // (FLASH_HAS_FCU == 1)
 
-
-#if (FLASH_IN_DUAL_BANK_MODE)
-    case FLASH_CMD_BANK_TOGGLE:
+#if (FLASH_IN_DUAL_BANK_MODE == 1)
+    else if (FLASH_CMD_BANK_TOGGLE == cmd)
+    {
         err = flash_toggle_banksel_reg();
-        break;
-
-    case FLASH_CMD_BANK_GET:
+    }
+    else if (FLASH_CMD_BANK_GET == cmd)
+    {
         FLASH_RETURN_IF_PCFG_NULL;
         banksel_val = *((uint32_t *)BANKSEL_ADDR);
-        *pBank = ((banksel_val & BANKSWP_MASK) == 0) ? FLASH_BANK0_FFE00000 : FLASH_BANK0_FFF00000;
-        break;
-#endif
+        *pBank = (0 == (banksel_val & BANKSWP_MASK)) ? FLASH_BANK0_FFE00000 : FLASH_BANK0_FFF00000;
+    }
+#endif // (FLASH_IN_DUAL_BANK_MODE == 1)
 
-    default:
+    else
+    {
         err = FLASH_ERR_PARAM;
     }
 
     return err;
 }
-
 
 FLASH_SECTION_CHANGE_END /* end FLASH SECTION FRAM */

@@ -57,8 +57,4 @@
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
-#define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    "https://kadbucket3.s3.amazonaws.com/abcdef.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAWMGK3ZUMFF6BTDWM%2F20191126%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20191126T021146Z&X-Amz-Signature=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-#define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    "https://kadbucket3.s3.amazonaws.com/abcdef.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Credential=AKIAWMGK3ZUMFF6BTDWM%2F20191126%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20191126T021146Z&X-Amz-Signature=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
-
-
 #endif /* ifndef IOT_CONFIG_H_ */

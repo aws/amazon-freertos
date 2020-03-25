@@ -1476,9 +1476,9 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_ota_types.h</name>
+			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/include/aws_ota_types.h</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</name>
@@ -1486,29 +1486,49 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_ota_agent_internal.h</name>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_ota_agent_internal.h</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_ota_cbor.c</name>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_ota_cbor.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_ota_cbor.h</name>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_ota_cbor.h</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</name>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_ota_pal.h</name>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_ota_pal.h</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
@@ -1576,29 +1596,29 @@
 			<locationURI>AFR_HOME/vendors/renesas/amazon_freertos_common/compiler_support/gnuc/implicitlyinclude.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/platform.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/platform.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/platform.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/platform.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_byteq/r_byteq_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_byteq/r_byteq_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_byteq/r_byteq_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_byteq/r_byteq_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/r_flash_rx_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/r_flash_rx_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/r_flash_rx_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/r_flash_rx_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/r_s12ad_rx_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/r_s12ad_rx_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/r_s12ad_rx_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/r_s12ad_rx_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/r_sci_rx_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/r_sci_rx_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/r_sci_rx_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/r_sci_rx_if.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
@@ -1666,414 +1686,414 @@
 			<locationURI>AFR_HOME/vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_byteq/ref/r_byteq_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_byteq/ref/r_byteq_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_byteq/ref/r_byteq_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_byteq/ref/r_byteq_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_byteq/src/r_byteq.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_byteq/src/r_byteq.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_byteq/src/r_byteq.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_byteq/src/r_byteq.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_byteq/src/r_byteq_private.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_byteq/src/r_byteq_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_byteq/src/r_byteq_private.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_byteq/src/r_byteq_private.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/ref/r_flash_rx_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/ref/r_flash_rx_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/ref/r_flash_rx_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/ref/r_flash_rx_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_fcu.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_fcu.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_fcu.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_fcu.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_fcu.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_fcu.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_fcu.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_fcu.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_group.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_group.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_group.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_group.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_group.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_group.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_group.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_group.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_rx.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_rx.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_rx.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_rx.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_rx.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_rx.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_rx.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_rx.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_targets.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_targets.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/r_flash_targets.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/r_flash_targets.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/ref/r_s12ad_rx_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/ref/r_s12ad_rx_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/ref/r_s12ad_rx_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/ref/r_s12ad_rx_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/r_s12ad_rx.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/r_s12ad_rx.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/r_s12ad_rx.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/r_s12ad_rx.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/r_s12ad_rx_private.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/r_s12ad_rx_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/r_s12ad_rx_private.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/r_s12ad_rx_private.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/ref/r_sci_rx_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/ref/r_sci_rx_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/ref/r_sci_rx_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/ref/r_sci_rx_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx_platform.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx_platform.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx_platform.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx_platform.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx_private.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/r_sci_rx_private.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/r_sci_rx_private.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/hwsetup.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/hwsetup.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/hwsetup.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/hwsetup.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/hwsetup.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/hwsetup.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/hwsetup.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/hwsetup.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp_interrupt_config_reference.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp_interrupt_config_reference.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/board/generic_rx65n/r_bsp_interrupt_config_reference.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/board/generic_rx65n/r_bsp_interrupt_config_reference.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/dbsct.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/dbsct.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/dbsct.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/dbsct.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/linker_script_rvectors.inc</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/linker_script_rvectors.inc</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/linker_script_rvectors.inc</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/linker_script_rvectors.inc</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowlvl.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowlvl.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowlvl.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowlvl.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowlvl.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowlvl.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowlvl.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowlvl.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowsrc.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowsrc.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowsrc.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowsrc.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowsrc.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowsrc.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/lowsrc.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/lowsrc.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/mcu_locks.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/mcu_locks.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/mcu_locks.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/mcu_locks.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_common.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_common.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_common.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_common.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_common.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_common.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_common.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_common.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_cpu.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_cpu.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_cpu.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_cpu.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_interrupts.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_interrupts.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_interrupts.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_interrupts.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_interrupts.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_interrupts.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_interrupts.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_interrupts.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_locking.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_locking.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_locking.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_locking.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_mcu_startup.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_mcu_startup.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_mcu_startup.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_mcu_startup.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_mcu_startup.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_mcu_startup.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_bsp_mcu_startup.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_bsp_mcu_startup.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rtos.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rtos.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rtos.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rtos.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_compiler.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_compiler.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_compiler.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_compiler.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_intrinsic_functions.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_intrinsic_functions.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_intrinsic_functions.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_intrinsic_functions.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_intrinsic_functions.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_intrinsic_functions.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_rx_intrinsic_functions.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_rx_intrinsic_functions.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_typedefs.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_typedefs.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/r_typedefs.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/r_typedefs.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/reset_program.S</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/reset_program.S</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/reset_program.S</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/reset_program.S</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/resetprg.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/resetprg.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/resetprg.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/resetprg.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/sbrk.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/sbrk.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/sbrk.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/sbrk.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/sbrk.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/sbrk.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/sbrk.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/sbrk.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_clocks.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_clocks.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_clocks.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_clocks.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_clocks.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_clocks.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_clocks.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_clocks.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_info.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_info.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_info.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_info.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_init.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_init.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_init.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_init.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_init.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_init.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_init.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_init.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_interrupts.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_interrupts.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_interrupts.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_interrupts.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_interrupts.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_interrupts.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_interrupts.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_interrupts.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_locks.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_locks.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_locks.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_locks.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts_private.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/mcu_mapped_interrupts_private.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/mcu_mapped_interrupts_private.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/r_bsp_cpu.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/r_bsp_cpu.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/r_bsp_cpu.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/r_bsp_cpu.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/r_bsp_locking.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/r_bsp_locking.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/r_bsp_locking.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/r_bsp_locking.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/vecttbl.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/vecttbl.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/vecttbl.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/vecttbl.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/vecttbl.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/vecttbl.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/vecttbl.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/vecttbl.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash_extra.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash_extra.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash_extra.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash_extra.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash_extra.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash_extra.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_codeflash_extra.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_codeflash_extra.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_dataflash.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_dataflash.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_dataflash.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_dataflash.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_dataflash.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_dataflash.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_dataflash.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_dataflash.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_common.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_common.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_common.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_common.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_type1.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_type1.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_type1.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_type1.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_type1_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_type1_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_type1_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_type1_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_utils.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_utils.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_1/r_flash_utils.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_1/r_flash_utils.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_3/r_flash_type3.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_3/r_flash_type3.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_3/r_flash_type3.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_3/r_flash_type3.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_3/r_flash_type3_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_3/r_flash_type3_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_3/r_flash_type3_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_3/r_flash_type3_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_4/r_flash_type4.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_4/r_flash_type4.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_4/r_flash_type4.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_4/r_flash_type4.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_4/r_flash_type4_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_4/r_flash_type4_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/flash_type_4/r_flash_type4_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/flash_type_4/r_flash_type4_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/targets/rx65n/r_flash_rx65n.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/targets/rx65n/r_flash_rx65n.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_flash_rx/src/targets/rx65n/r_flash_rx65n.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_flash_rx/src/targets/rx65n/r_flash_rx65n.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n_if.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n_if.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n_if.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/targets/rx65n/r_s12ad_rx65n_if.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n_data.c</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n_data.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n_data.c</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n_data.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n_private.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_sci_rx/src/targets/rx65n/r_sci_rx65n_private.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_sci_rx/src/targets/rx65n/r_sci_rx65n_private.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/general/r_cg_hardware_setup.c</name>
@@ -2201,9 +2221,9 @@
 			<locationURI>SMC_GENERATED_LOC/r_wifi_sx_ulpgn/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/register_access/ccrx/iodefine.h</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/register_access/ccrx/iodefine.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v122/r_bsp/mcu/rx65n/register_access/ccrx/iodefine.h</locationURI>
+			<locationURI>AFR_HOME/vendors/renesas/rx_driver_package/v123/r_bsp/mcu/rx65n/register_access/ccrx/iodefine.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/renesas/boards/rx65n-cloud-kit-uart-sx-ulpgn/aws_demos/gcc/src/smc_gen/r_wifi_sx_ulpgn/ref/r_wifi_sx_ulpgn_config_reference.h</name>
@@ -2253,7 +2273,7 @@
 		</filter>
 		<filter>
 			<id>1565245033075</id>
-			<name>vendors/renesas/rx_driver_package/v122/r_flash_rx/src/targets</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_flash_rx/src/targets</name>
 			<type>9</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
@@ -2262,7 +2282,7 @@
 		</filter>
 		<filter>
 			<id>1565245048954</id>
-			<name>vendors/renesas/rx_driver_package/v122/r_s12ad_rx/src/targets</name>
+			<name>vendors/renesas/rx_driver_package/v123/r_s12ad_rx/src/targets</name>
 			<type>9</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>

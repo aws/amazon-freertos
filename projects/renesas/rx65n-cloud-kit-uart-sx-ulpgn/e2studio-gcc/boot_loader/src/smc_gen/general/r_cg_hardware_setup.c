@@ -19,10 +19,10 @@
 
 /***********************************************************************************************************************
 * File Name    : r_cg_hardware_setup.c
-* Version      : 1.2.5
+* Version      : 1.2.7
 * Device(s)    : R5F565NEDxFP
 * Description  : Initialization file for code generation configurations.
-* Creation Date: 2020-01-23
+* Creation Date: 2020-03-25
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -75,6 +75,9 @@ void R_Systeminit(void)
     /* Enable writing to MPC pin function control registers */
     MPC.PWPR.BIT.B0WI = 0U;
     MPC.PWPR.BIT.PFSWE = 1U;
+
+    /* Write 0 to the target bits in the POECR2 registers */
+    POE3.POECR2.WORD = 0x0000U;
 
     /* Initialize clocks settings */
     R_CGC_Create();

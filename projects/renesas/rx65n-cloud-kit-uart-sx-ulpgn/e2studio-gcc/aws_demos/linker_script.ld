@@ -28,7 +28,7 @@ SECTIONS
 	.rvectors ALIGN(4) :
 	{
 		_rvectors_start = .;
-		INCLUDE ../../../../../../vendors/renesas/rx_driver_package/v122/r_bsp/mcu/all/linker_script_rvectors.inc
+		INCLUDE ../../../../../../vendors/renesas/rx_driver_package/v123/r_bsp/mcu/all/linker_script_rvectors.inc
 		_rvectors_end = .;
 	} >ROM
 	.init :

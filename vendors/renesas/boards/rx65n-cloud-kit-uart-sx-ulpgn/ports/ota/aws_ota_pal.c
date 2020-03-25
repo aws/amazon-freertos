@@ -57,7 +57,7 @@ const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-
  * This function should be implemented if signature verification is not offloaded
  * to non-volatile memory io functions.
  * 
- * This function is called from prvPAL_Close(). 
+ * This function is called from prvPAL_Close().
  * 
  * @param[in] C OTA file context information.
  * 
@@ -320,9 +320,9 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
 		OTA_LOG_L1("OTA flashing queue send error.\r\n");
 		eResult = kOTA_Err_OutOfMemory;
 	}
-	
+
 	xSemaphoreGive(xSemaphoreWriteBlock);
-	
+
 	return eResult;
 }
 /*-----------------------------------------------------------*/

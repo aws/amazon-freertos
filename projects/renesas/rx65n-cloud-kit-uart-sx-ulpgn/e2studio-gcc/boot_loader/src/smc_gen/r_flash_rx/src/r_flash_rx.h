@@ -41,6 +41,9 @@
 *           19.04.2019 4.00    Removed support for flash type 2.
 *           07.06.2019 4.10    Added RX23W.
 *           19.07.2019 4.20    Added RX72M.
+*           09.09.2019 4.30    Added RX13T.
+*           27.09.2019 4.40    Added RX23E-A.
+*                              Added include path for rx230.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_RX_HEADER_FILE
@@ -58,8 +61,14 @@
     #include "./src/targets/rx113/r_flash_rx113.h"
 #elif defined(MCU_RX130)
     #include "./src/targets/rx130/r_flash_rx130.h"
-#elif defined(MCU_RX231) || defined(MCU_RX230)
+#elif defined(MCU_RX13T)
+    #include "./src/targets/rx13t/r_flash_rx13t.h"
+#elif defined(MCU_RX230)
+    #include "./src/targets/rx230/r_flash_rx230.h"
+#elif defined(MCU_RX231)
     #include "./src/targets/rx231/r_flash_rx231.h"
+#elif defined(MCU_RX23E_A)
+    #include "./src/targets/rx23e-a/r_flash_rx23e-a.h"
 #elif defined(MCU_RX23T)
     #include "./src/targets/rx23t/r_flash_rx23t.h"
 #elif defined(MCU_RX23W)
@@ -76,10 +85,10 @@
     #include "./src/targets/rx66t/r_flash_rx66t.h"
 #elif defined(MCU_RX71M)
     #include "./src/targets/rx71m/r_flash_rx71m.h"
-#elif defined(MCU_RX72T)
-    #include "./src/targets/rx72t/r_flash_rx72t.h"
 #elif defined(MCU_RX72M)
     #include "./src/targets/rx72m/r_flash_rx72m.h"
+#elif defined(MCU_RX72T)
+    #include "./src/targets/rx72t/r_flash_rx72t.h"
 #else
     #error "!!! No 'targets' folder for this MCU Group !!!"
 #endif

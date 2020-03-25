@@ -25,6 +25,7 @@
 *         : 28.02.2019 3.00     Merged processing of all devices.
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
+*         : 26.07.2019 3.01     Fixed coding style.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -56,16 +57,16 @@ Exported global variables (to be accessed by other files)
 Private global variables and functions
 ***********************************************************************************************************************/
 /* Declare memory heap area */
-static u_heap_type_t gs_heap_area;
+static u_heap_type_t s_heap_area;
 
 /* End address allocated by sbrk (CC-RX and GNURX+NEWLIB) */
-static int8_t *gsp_brk=(int8_t *)&gs_heap_area;
+static int8_t *sp_brk=(int8_t *)&s_heap_area;
 
 #if defined(__GNUC__)
 /* Start address of allocated heap area (GNURX+OPTLIB only) */
-int8_t *_heap_of_memory=(int8_t *)&gs_heap_area;
+int8_t *_heap_of_memory=(int8_t *)&s_heap_area;
 /* End address of allocated heap area (GNURX+OPTLIB only) */
-int8_t *_last_heap_object=(int8_t *)&gs_heap_area;
+int8_t *_last_heap_object=(int8_t *)&s_heap_area;
 #endif /* defined(__GNUC__) */
 
 /***********************************************************************************************************************
@@ -80,7 +81,7 @@ int8_t  *sbrk(size_t size)
 {
     int8_t  *p_area;
 
-    if ((gsp_brk + size) > (gs_heap_area.heap + BSP_CFG_HEAP_BYTES))
+    if ((sp_brk + size) > (s_heap_area.heap + BSP_CFG_HEAP_BYTES))
     {
         /* Empty area size  */
         p_area = (int8_t *)-1;
@@ -88,10 +89,10 @@ int8_t  *sbrk(size_t size)
     else
     {
         /* Area assignment */
-        p_area = gsp_brk;
+        p_area = sp_brk;
 
         /* End address update */
-        gsp_brk += size;
+        sp_brk += size;
     }
 
     /* Return result */
@@ -107,7 +108,7 @@ int8_t  *sbrk(size_t size)
 ***********************************************************************************************************************/
 int8_t *_top_of_heap(void)
 {
-    return (int8_t *)(gs_heap_area.heap + BSP_CFG_HEAP_BYTES);
+    return (int8_t *)(s_heap_area.heap + BSP_CFG_HEAP_BYTES);
 } /* End of function End of function sbrk()() */
 #endif /* defined(__GNUC__) */
 

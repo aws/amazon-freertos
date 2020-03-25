@@ -145,6 +145,8 @@
 *                                FLASH_ERR_ALIGNED, FLASH_ERR_BOUNDARY, FLASH_ERR_OVERFLOW)
 *           07.06.2019 4.10    Added support for RX23W.
 *           19.07.2019 4.20    Added support for RX72M.
+*           09.09.2019 4.30    Added support for RX13T.
+*           27.09.2019 4.40    Added support for RX23E-A.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_INTERFACE_HEADER_FILE
@@ -162,7 +164,7 @@ Macro definitions
 ***********************************************************************************************************************/
 /* Driver Version Number. */
 #define FLASH_RX_VERSION_MAJOR           (4)
-#define FLASH_RX_VERSION_MINOR           (20)
+#define FLASH_RX_VERSION_MINOR           (40)
 
 
 /***********************************************************************************************************************
@@ -178,7 +180,7 @@ Typedef definitions
 #if (defined(MCU_RX110) || defined(MCU_RX111) || defined(MCU_RX113) || \
      defined(MCU_RX130) || defined(MCU_RX231) || defined(MCU_RX23T) || \
      defined(MCU_RX24T) || defined(MCU_RX24U) || defined(MCU_RX230) || \
-     defined(MCU_RX23W))
+     defined(MCU_RX23W) || defined(MCU_RX13T) || defined(MCU_RX23E_A))
 #define FLASH_TYPE              FLASH_TYPE_1
 
 #elif (defined(MCU_RX64M) || defined(MCU_RX66T) || defined(MCU_RX71M) || \
@@ -224,8 +226,7 @@ Typedef definitions
 #define FLASH_HAS_NON_CACHED_RANGES     1
 #endif
 
-#if (defined(MCU_RX61_ALL) || defined(MCU_RX62_ALL) || defined(MCU_RX63_ALL) || \
-     defined(MCU_RX64_ALL) || defined(MCU_RX65_ALL) || defined(MCU_RX66_ALL) || \
+#if (defined(MCU_RX64_ALL) || defined(MCU_RX65_ALL) || defined(MCU_RX66_ALL) || \
      defined(MCU_RX71_ALL) || defined(MCU_RX72_ALL))
 #define FLASH_HAS_DIFF_CF_BLOCK_SIZES   1
 #endif

@@ -25,6 +25,13 @@
 *         : 28.02.2019 3.00     Merged processing of all devices.
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
+*         : 26.07.2019 3.10     Added the API function(R_BSP_SoftwareReset).
+*                               Modified comment of API function to Doxygen style.
+*                               Added the vbatt_voltage_stability_wait function.
+*                               Modified the following function.
+*                               - R_BSP_RegisterProtectEnable
+*                               - R_BSP_RegisterProtectDisable
+*         : 31.07.2019 3.11     Deleted the compile condition for R_BSP_SoftwareReset.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -67,10 +74,10 @@ Private global variables and functions
 ***********************************************************************************************************************/
 #ifdef BSP_MCU_REGISTER_WRITE_PROTECTION
 /* Used for holding reference counters for protection bits. */
-static volatile uint16_t gs_protect_counters[BSP_REG_PROTECT_TOTAL_ITEMS];
+static volatile uint16_t s_protect_counters[BSP_REG_PROTECT_TOTAL_ITEMS];
 
 /* Masks for setting or clearing the PRCR register. Use -1 for size because PWPR in MPC is used differently. */
-static const    uint16_t gs_prcr_masks[BSP_REG_PROTECT_TOTAL_ITEMS-1] = 
+static const    uint16_t s_prcr_masks[BSP_REG_PROTECT_TOTAL_ITEMS-1] = 
 {
 #ifdef BSP_MCU_RCPC_PRC0
     0x0001,         /* PRC0. */
@@ -87,36 +94,44 @@ static const    uint16_t gs_prcr_masks[BSP_REG_PROTECT_TOTAL_ITEMS-1] =
 };
 #endif
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_InterruptsDisable
-* Description  : Globally disable interrupts.
-* Arguments    : none
-* Return Value : none
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_InterruptsDisable
+ ******************************************************************************************************************//**
+ * @brief Globally disables interrupts.
+ * @details This function globally disables interrupts. This is performed by clearing the 'I' bit in the CPU's 
+ * Processor Status Word (PSW) register.
+ * @note The 'I' bit of the PSW can only be modified when in Supervisor Mode. If the CPU is in User Mode and this 
+ * function is called then a Privileged Instruction Exception will occur.
+ */
 void R_BSP_InterruptsDisable (void)
 {
     /* Use the compiler intrinsic function to clear the I flag. */
     R_BSP_CLRPSW_I();
 } /* End of function R_BSP_InterruptsDisable() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_InterruptsEnable
-* Description  : Globally enable interrupts.
-* Arguments    : none
-* Return Value : none
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_InterruptsEnable
+ ******************************************************************************************************************//**
+ * @brief Globally enable interrupts.
+ * @details This function globally enables interrupts. This is performed by setting the 'I' bit in the CPU's Processor 
+ * Status Word (PSW) register.
+ * @note The 'I' bit of the PSW can only be modified when in Supervisor Mode. If the CPU is in User Mode and this 
+ * function is called then a Privileged Instruction Exception will occur.
+ */
 void R_BSP_InterruptsEnable (void)
 {
     /* Use the compiler intrinsic function to set the I flag. */
     R_BSP_SETPSW_I();
 } /* End of function R_BSP_InterruptsEnable() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_CpuInterruptLevelRead
-* Description  : Reads the processor interrupt priority level.
-* Arguments    : none
-* Return Value : The current processor IPL
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_CpuInterruptLevelRead
+ ******************************************************************************************************************//**
+ * @brief Reads the CPU's Interrupt Priority Level.
+ * @return The CPU's Interrupt Priority Level.
+ * @details This function reads the CPU's Interrupt Priority Level. This level is stored in the IPL bits of the 
+ * Processor Status Word (PSW) register.
+ */
 uint32_t R_BSP_CpuInterruptLevelRead (void)
 {
     /* Use the compiler intrinsic function to read the CPU IPL. */
@@ -130,16 +145,20 @@ uint32_t R_BSP_CpuInterruptLevelRead (void)
     return psw_value;
 } /* End of function R_BSP_CpuInterruptLevelRead() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_CpuInterruptLevelWrite
-* Description  : Writes the processor interrupt priority level.
-* Arguments    : level -
-*                    The level to set the processor's IPL to.
-* Return Value : true -
-*                    The level was set successfully.
-*                false -
-*                    Invalid level input. 
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_CpuInterruptLevelWrite
+ ******************************************************************************************************************//**
+ * @brief Writes the CPU's Interrupt Priority Level.
+ * @param[in] level The level to write to the CPU's IPL.
+ * @retval true Successful, CPU's IPL has been written.
+ * @retval false Failure, provided 'level' has invalid IPL value.
+ * @details This function writes the CPU's Interrupt Priority Level. This level is stored in the IPL bits of the 
+ * Processor Status Word (PSW) register. This function does check to make sure that the IPL being written is valid. 
+ * The maximum and minimum valid settings for the CPU IPL are defined in mcu_info.h using the BSP_MCU_IPL_MAX and 
+ * BSP_MCU_IPL_MIN macros.
+ * @note The CPU's IPL can only be modified by the user when in Supervisor Mode. If the CPU is in User Mode and this
+ * function is called then a Privileged Instruction Exception will occur.
+ */
 bool R_BSP_CpuInterruptLevelWrite (uint32_t level)
 {
     bool ret;
@@ -217,7 +236,7 @@ bool R_BSP_CpuInterruptLevelWrite (uint32_t level)
 
             /* IPL = 10 */
             R_BSP_SET_IPL(10);
-             break;
+            break;
 
         case (11):
 
@@ -258,45 +277,48 @@ bool R_BSP_CpuInterruptLevelWrite (uint32_t level)
     return ret;
 } /* End of function R_BSP_CpuInterruptLevelWrite() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_RegisterProtectEnable
-* Description  : Enables register protection. Registers that are protected cannot be written to. Register protection is 
-*                enabled by using the Protect Register (PRCR) and the MPC's Write-Protect Register (PWPR).
-* Arguments    : regs_to_unprotect -
-*                    Which registers to disable write protection for. See typedef defines of bsp_reg_protect_t.
-* Return Value : none
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_RegisterProtectEnable
+ ******************************************************************************************************************//**
+ * @brief Enables write protection for selected registers.
+ * @param[in] regs_to_protect Which registers to enable write protection for.
+ * @details This function enables write protection for the input registers. Only certain MCU registers have the 
+ * ability to be write protected. To see which registers are available to be protected by this function look at the 
+ * bsp_reg_protect_t enum in r_bsp_cpu.h for your MCU.
+ * This function, and R_BSP_RegisterProtectDisable(), use counters for each entry in the bsp_reg_protect_t enum so 
+ * that users can call these functions multiple times without problem. This function uses the interrupt disable / 
+ * enable function by controlling the Processor Interrupt Priority Level (IPL) of the R_BSP_InterruptControl function, 
+ * because counter control is the critical section. If the function is executed while the processor mode is supervisor 
+ * mode, interrupts that are at or below the specified interrupt priority level will be disabled by controlling the 
+ * IPL. If the function is executed while the processor mode is user mode, the IPL controlling does not execute. An 
+ * example of why this is needed is shown below in the Special Notes section below.
+ * @note 
+ * (1) About why counters are needed. \n
+ * See Section 5.7 in the application note for details.\n
+ * (2) Notes on user mode \n
+ * The R_BSP_InterruptControl function used to secure atomicity in the critical section of the counter control with 
+ * this function is valid only in supervisor mode. When this function is executed in user mode, the 
+ * R_BSP_InterruptControl function is executed but atomicity is not to secure.
+ */
 void R_BSP_RegisterProtectEnable (bsp_reg_protect_t regs_to_protect)
 {
 #ifdef BSP_MCU_REGISTER_WRITE_PROTECTION
     volatile uint32_t    ipl_value;
-    bool                 ret;
-
-    /* Get the current Processor Interrupt Priority Level (IPL). */
-    ipl_value = R_BSP_CpuInterruptLevelRead();
 
     /* Set IPL to the maximum value to disable all interrupts,
      * so the scheduler can not be scheduled in critical region.
      * Note: Please set this macro more than IPR for other FIT module interrupts. */
-    if (ipl_value < BSP_CFG_FIT_IPL_MAX)
-    {
-        ret = R_BSP_CpuInterruptLevelWrite(BSP_CFG_FIT_IPL_MAX);
-        if (false == ret)
-        {
-            /* check return value */
-            R_BSP_NOP();
-        }
-    }
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_DISABLE, (uint32_t *)&ipl_value);
 
     /* Is it safe to disable write access? */
-    if (0 != gs_protect_counters[regs_to_protect])
+    if (0 != s_protect_counters[regs_to_protect])
     {
         /* Decrement the protect counter */
-        gs_protect_counters[regs_to_protect]--;
+        s_protect_counters[regs_to_protect]--;
     }
 
     /* Is it safe to disable write access? */
-    if (0 == gs_protect_counters[regs_to_protect])
+    if (0 == s_protect_counters[regs_to_protect])
     {
         if (BSP_REG_PROTECT_MPC != regs_to_protect)
         {
@@ -310,7 +332,7 @@ void R_BSP_RegisterProtectEnable (bsp_reg_protect_t regs_to_protect)
                b1     PRC1  - Please check the user's manual.
                b0     PRC0  - Please check the user's manual.
             */
-            SYSTEM.PRCR.WORD = (uint16_t)((SYSTEM.PRCR.WORD | BSP_PRV_PRCR_KEY) & (~gs_prcr_masks[regs_to_protect]));
+            SYSTEM.PRCR.WORD = (uint16_t)((SYSTEM.PRCR.WORD | BSP_PRV_PRCR_KEY) & (~s_prcr_masks[regs_to_protect]));
         }
         else
         {
@@ -329,15 +351,7 @@ void R_BSP_RegisterProtectEnable (bsp_reg_protect_t regs_to_protect)
     }
 
     /* Restore the IPL. */
-    if (ipl_value < BSP_CFG_FIT_IPL_MAX)
-    {
-        ret = R_BSP_CpuInterruptLevelWrite(ipl_value);
-        if (false == ret)
-        {
-            /* check return value */
-            R_BSP_NOP();
-        }
-    }
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_ENABLE, (uint32_t *)&ipl_value);
 
 #else /* BSP_MCU_REGISTER_WRITE_PROTECTION */
     /* No registers to protect. */
@@ -346,38 +360,36 @@ void R_BSP_RegisterProtectEnable (bsp_reg_protect_t regs_to_protect)
 #endif /* BSP_MCU_REGISTER_WRITE_PROTECTION */
 } /* End of function R_BSP_RegisterProtectEnable() */
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_RegisterProtectDisable
-* Description  : Disables register protection. Registers that are protected cannot be written to. Register protection is
-*                disabled by using the Protect Register (PRCR) and the MPC's Write-Protect Register (PWPR).
-* Arguments    : regs_to_unprotect -
-*                    Which registers to disable write protection for. See typedef defines of bsp_reg_protect_t.
-* Return Value : none
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_RegisterProtectDisable
+ ******************************************************************************************************************//**
+ * @brief Disables write protection for selected registers.
+ * @param[in] regs_to_unprotect Which registers to disable write protection for.
+ * @details This function disables write protection for the input registers. Only certain MCU registers have the 
+ * ability to be write protected. To see which registers are available to be protected by this function look at the 
+ * bsp_reg_protect_t enum in r_bsp_cpu.h for your MCU.
+ * This function, and R_BSP_RegisterProtectEnable(), use counters for each entry in the bsp_reg_protect_t enum so that 
+ * users can call these functions multiple times without problem. This function uses the interrupt disable / 
+ * enable function by controlling the Processor Interrupt Priority Level (IPL) of the R_BSP_InterruptControl function, 
+ * because counter control is the critical section. If the function is executed while the processor mode is supervisor 
+ * mode, interrupts that are at or below the specified interrupt priority level will be disabled by controlling the 
+ * IPL. If the function is executed while the processor mode is user mode, the IPL controlling does not execute.
+ * @note The R_BSP_InterruptControl function used to secure atomicity in the critical section of the counter control 
+ * with this function is valid only in supervisor mode. When this function is executed in user mode, the 
+ * R_BSP_InterruptControl function is executed but atomicity is not to secure.
+ */
 void R_BSP_RegisterProtectDisable (bsp_reg_protect_t regs_to_unprotect)
 {
 #ifdef BSP_MCU_REGISTER_WRITE_PROTECTION
     volatile uint32_t    ipl_value;
-    bool                 ret;
-
-    /* Get the current Processor Interrupt Priority Level (IPL). */
-    ipl_value = R_BSP_CpuInterruptLevelRead();
 
     /* Set IPL to the maximum value to disable all interrupts,
      * so the scheduler can not be scheduled in critical region.
      * Note: Please set this macro more than IPR for other FIT module interrupts. */
-    if (ipl_value < BSP_CFG_FIT_IPL_MAX)
-    {
-        ret = R_BSP_CpuInterruptLevelWrite(BSP_CFG_FIT_IPL_MAX);
-        if (false == ret)
-        {
-            /* check return value */
-            R_BSP_NOP();
-        }
-    }
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_DISABLE, (uint32_t *)&ipl_value);
 
     /* If this is first entry then disable protection. */
-    if (0 == gs_protect_counters[regs_to_unprotect])
+    if (0 == s_protect_counters[regs_to_unprotect])
     {
         if (BSP_REG_PROTECT_MPC != regs_to_unprotect)
         {
@@ -391,7 +403,7 @@ void R_BSP_RegisterProtectDisable (bsp_reg_protect_t regs_to_unprotect)
                b1     PRC1  - Please check the user's manual.
                b0     PRC0  - Please check the user's manual.
             */
-            SYSTEM.PRCR.WORD = (uint16_t)((SYSTEM.PRCR.WORD | BSP_PRV_PRCR_KEY) | gs_prcr_masks[regs_to_unprotect]);
+            SYSTEM.PRCR.WORD = (uint16_t)((SYSTEM.PRCR.WORD | BSP_PRV_PRCR_KEY) | s_prcr_masks[regs_to_unprotect]);
         }
         else
         {
@@ -405,18 +417,10 @@ void R_BSP_RegisterProtectDisable (bsp_reg_protect_t regs_to_unprotect)
     }
 
     /* Increment the protect counter */
-    gs_protect_counters[regs_to_unprotect]++;
+    s_protect_counters[regs_to_unprotect]++;
 
     /* Restore the IPL. */
-    if (ipl_value < BSP_CFG_FIT_IPL_MAX)
-    {
-        ret = R_BSP_CpuInterruptLevelWrite(ipl_value);
-        if (false == ret)
-        {
-            /* check return value */
-            R_BSP_NOP();
-        }
-    }
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_ENABLE, (uint32_t *)&ipl_value);
 
 #else /* BSP_MCU_REGISTER_WRITE_PROTECTION */
     /* No registers to protect. */
@@ -426,33 +430,49 @@ void R_BSP_RegisterProtectDisable (bsp_reg_protect_t regs_to_unprotect)
 } /* End of function R_BSP_RegisterProtectDisable() */
 
 #ifdef BSP_MCU_VOLTAGE_LEVEL_SETTING
-/***********************************************************************************************************************
-* Function Name: R_BSP_VoltageLevelSetting
-* Description  : Writes the voltage level setting.
-* Arguments    : ctrl_ptn -
-*                    Register Setting Patterns
-*                [Options]
-*                    BSP_VOL_USB_POWEROFF
-*                    BSP_VOL_USB_POWERON
-*                    BSP_VOL_AD_NEGATIVE_VOLTAGE_INPUT
-*                    BSP_VOL_AD_NEGATIVE_VOLTAGE_NOINPUT
-*                    BSP_VOL_RIIC_4_5V_OROVER
-*                    BSP_VOL_RIIC_UNDER_4_5V
-* Return Value : true -
-*                    The pattern was set successfully. The VOLSR register was updated.
-*                false -
-*                    The function was called under one of the following conditions, so the VOLSR register setting was 
-*                    not updated.
-*                    - Setting patterns that cannot be selected at the same time were specified.
-*                    - A setting pattern related to the USB was selected when the USB was not in the module stop state.
-*                    - A setting pattern related to the AD was selected when the AD was not in the module stop state.
-*                    - A setting pattern related to the RIIC was selected when the RIIC was not in the module stop 
-*                      state.
-* Note         : When specifying a setting pattern related to the USB, call the function before the USB is released 
-*                from the module stop state. When specifying a setting pattern related to the AD, call the function 
-*                before the AD is released from the module stop state. Also when specifying a setting pattern related 
-*                to the RIIC, call the function before the RIIC is released from the module stop state.
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_VoltageLevelSetting
+ ******************************************************************************************************************//**
+ * @brief This API function is used excessively with the RX66T and RX72T. It makes settings to the voltage level 
+ * setting register (VOLSR) that are necessary in order to use the USB, AD, and RIIC peripheral modules. Call this 
+ * function only when it is necessary to change the register settings.
+ * @param[in] ctrl_ptn Register Setting Patterns
+ * The following setting patterns cannot be selected at the same time.
+ * When specifying more than one pattern at the same time, use the "|" (OR) operator.
+ * - BSP_VOL_USB_POWEROFF and BSP_VOL_USB_POWERON
+ * - BSP_VOL_AD_NEGATIVE_VOLTAGE_INPUT and BSP_VOL_AD_NEGATIVE_VOLTAGE_NOINPUT
+ * - BSP_VOL_RIIC_4_5V_OROVER and BSP_VOL_RIIC_UNDER_4_5V
+ *
+ *   BSP_VOL_USB_POWEROFF: Updates the USBVON bit to 0.
+ *
+ *   BSP_VOL_USB_POWERON: Updates the USBVON bit to 1.
+ *
+ *   BSP_VOL_AD_NEGATIVE_VOLTAGE_INPUT: Updates the PGAVLS bit to 0.
+ *
+ *   BSP_VOL_AD_NEGATIVE_VOLTAGE_NOINPUT: Updates the PGAVLS bit to 1.
+ *
+ *   BSP_VOL_RIIC_4_5V_OROVER: Updates the RICVLS bit to 0.
+ *
+ *   BSP_VOL_RIIC_UNDER_4_5V: Updates the RICVLS bit to 1.
+ * @retval true Processing completed, register successfully updated.
+ * @retval false The function was called under the following conditions, so the register setting was not updated.
+ * - Setting patterns that cannot be selected at the same time were selected.
+ * - A setting pattern related to the USB was selected when the USB was not in the module stop state.
+ * - A setting pattern related to the AD was selected when the AD was not in the module stop state.
+ * - A setting pattern related to the RIIC was selected when the RIIC was not in the module stop state.
+ * @details This function initializes the voltage level setting register (VOLSR), which is necessary in order to use 
+ * the USB, AD and RIIC peripheral modules. When specifying a setting pattern related to the USB, call this function 
+ * before the USB is released from the module stop state. When specifying a setting pattern related to the AD, call 
+ * this function before the AD (unit 0 and unit 1) is released from the module stop state. When specifying a setting 
+ * pattern related to the RIIC, call this function before the RIIC is released from the module stop state. If the 
+ * function is called with a setting pattern related to the USB specified after the USB is released from the module 
+ * stop state, the function returns "false" as the return value and does not update the register settings. If the 
+ * function is called with a setting pattern related to the AD specified after the AD (unit 0 and unit 1) is released 
+ * from the module stop state, the function returns "false" as the return value and does not update the register 
+ * settings. Finally, if the function is called with a setting pattern related to the RIIC specified after the RIIC is 
+ * released from the module stop state, the function returns "false" as the return value and does not update the 
+ * register settings.
+ */
 bool R_BSP_VoltageLevelSetting (uint8_t ctrl_ptn)
 {
     uint8_t  *p_volsr_addr;
@@ -551,6 +571,28 @@ bool R_BSP_VoltageLevelSetting (uint8_t ctrl_ptn)
 }  /* End of function R_BSP_VoltageLevelSetting() */ 
 #endif /* BSP_MCU_VOLTAGE_LEVEL_SETTING */
 
+/**********************************************************************************************************************
+ * Function Name: R_BSP_SoftwareReset
+ ******************************************************************************************************************//**
+ * @details Reset the MCU by Software Reset.
+ */
+void R_BSP_SoftwareReset(void)
+{
+#ifdef BSP_MCU_REGISTER_WRITE_PROTECTION
+    /* Protect off. */
+    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_LPC_CGC_SWR);
+#endif
+
+    /* Resets the MCU. */
+    SYSTEM.SWRR = 0xA501;
+
+    /* WAIT_LOOP */
+    while(1)
+    {
+         R_BSP_NOP();
+    }
+} /* End of function R_BSP_SoftwareReset() */
+
 /***********************************************************************************************************************
 * Function Name: bsp_register_protect_open
 * Description  : Initializes variables needed for register protection functionality.
@@ -566,7 +608,7 @@ void bsp_register_protect_open (void)
     /* WAIT_LOOP */
     for (i = 0; i < BSP_REG_PROTECT_TOTAL_ITEMS; i++)
     {
-        gs_protect_counters[i] = 0;
+        s_protect_counters[i] = 0;
     }
 #else
     /* No registers to protect. */

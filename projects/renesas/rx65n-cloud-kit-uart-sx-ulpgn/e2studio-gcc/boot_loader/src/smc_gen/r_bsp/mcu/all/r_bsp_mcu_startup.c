@@ -24,6 +24,8 @@
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 2.00     Merged processing of all devices.
 *                               Fixed coding style.
+*         : 26.07.2019 2.01     Modified comment of API function to Doxygen style.
+*                               Added Initialization the trigonometric function unit in R_BSP_StartupOpen function.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -55,17 +57,25 @@ Exported global variables (to be accessed by other files)
 Private global variables and functions
 ***********************************************************************************************************************/
 
-/***********************************************************************************************************************
-* Function Name: R_BSP_StartupOpen
-* Description  : The R_BSP_StartupOpen function initializes interrupt callbacks, register protection, and hardware 
-*                and pins. These processes are necessary to use the BSP and the Peripheral FIT module.
-*                Therefore, when BSP startup module is disabled, the R_BSP_StartupOpen function call executed 
-*                at the beginning of the user's main function.
-* Arguments    : none
-* Return Value : none
-***********************************************************************************************************************/
+/**********************************************************************************************************************
+ * Function Name: R_BSP_StartupOpen
+ ******************************************************************************************************************//**
+ * @brief Specifies settings to use the BSP and peripheral FIT modules. Call this function only when the BSP startup 
+ * is disabled.
+ * @details This function performs initialization for the interrupt callback, register protection, and the hardware 
+ * and pins. These processing are needed for using the BSP and peripheral FIT modules. Thus, this function must be 
+ * called in the beginning of the main function. Call this function only when the BSP startup is disabled.
+ * @note The R_BSP_StartupOpen function performs a part of processing in the startup function.
+ * See Section 5.18 in the application note for more information.
+ */
 void R_BSP_StartupOpen (void)
 {
+    /* Initializes the trigonometric function unit. */
+#ifdef BSP_MCU_TRIGONOMETRIC
+#ifdef __TFU
+    R_BSP_INIT_TFU();
+#endif
+#endif
     /* Initialize RAM. */
     bsp_ram_initialize();
 

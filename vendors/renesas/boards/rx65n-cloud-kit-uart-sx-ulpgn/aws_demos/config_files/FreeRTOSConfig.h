@@ -52,11 +52,11 @@
 #define configENABLE_BACKWARD_COMPATIBILITY        1
 #define configUSE_PREEMPTION                       1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    0
-#define configMAX_PRIORITIES                       (7)
-#define configTICK_RATE_HZ                         (1000)
-#define configMINIMAL_STACK_SIZE                   (( unsigned short ) 512)
-#define configTOTAL_HEAP_SIZE                      (( size_t ) ( 256U * 1024U ))
-#define configMAX_TASK_NAME_LEN                    (12)
+#define configMAX_PRIORITIES                       ( 7 )
+#define configTICK_RATE_HZ                         ( 1000 )
+#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 512 )
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 256U * 1024U ) )
+#define configMAX_TASK_NAME_LEN                    ( 12 )
 #define configUSE_TRACE_FACILITY                   1
 #define configUSE_16_BIT_TICKS                     0
 #define configIDLE_SHOULD_YIELD                    1
@@ -84,9 +84,9 @@
 
 /* Software timer related definitions. */
 #define configUSE_TIMERS                           1
-#define configTIMER_TASK_PRIORITY                  (configMAX_PRIORITIES - 1)
+#define configTIMER_TASK_PRIORITY                  ( configMAX_PRIORITIES - 1 )
 #define configTIMER_QUEUE_LENGTH                   5
-#define configTIMER_TASK_STACK_DEPTH               (configMINIMAL_STACK_SIZE * 6)
+#define configTIMER_TASK_STACK_DEPTH               ( configMINIMAL_STACK_SIZE * 6 )
 
 /* The interrupt priority used by the kernel itself for the tick interrupt and
 the pended interrupt.  This would normally be the lowest priority. */
@@ -117,7 +117,7 @@ void vConfigureTimerForRunTimeStats( void );
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                   0
-#define configMAX_CO_ROUTINE_PRIORITIES         (2)
+#define configMAX_CO_ROUTINE_PRIORITIES         ( 2 )
 
 /* Currently the TCP/IP stack is using dynamic allocation, and the MQTT task is
  * using static allocation. */
@@ -203,7 +203,7 @@ extern void vLoggingPrint( const char * pcMessage );
 
 /* Only used when running in the FreeRTOS Windows simulator.  Defines the
  * priority of the task used to simulate Ethernet interrupts. */
-#define configMAC_ISR_SIMULATOR_PRIORITY     (configMAX_PRIORITIES - 1)
+#define configMAC_ISR_SIMULATOR_PRIORITY     ( configMAX_PRIORITIES - 1 )
 
 /* This demo creates a virtual network connection by accessing the raw Ethernet
  * or WiFi data to and from a real network connection.  Many computers have more
@@ -268,9 +268,9 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configNET_MASK3                      0
 
 /* The UDP port to which print messages are sent. */
-#define configPRINT_PORT                     (15000)
+#define configPRINT_PORT                     ( 15000 )
 
-#define configPROFILING                      (0)
+#define configPROFILING                      ( 0 )
 
 /* Pseudo random number generater used by some demo tasks. */
 uint32_t ulRand(void);
