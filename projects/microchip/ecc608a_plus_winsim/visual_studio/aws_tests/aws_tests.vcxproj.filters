@@ -137,7 +137,6 @@
 		<Filter Include="libraries\abstractions\secure_sockets\test"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
-		<Filter Include="libraries\3rdparty\mbedtls\utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
@@ -632,6 +631,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aria.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
@@ -657,6 +659,12 @@
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chacha20.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chachapoly.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h">
@@ -719,6 +727,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hkdf.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
@@ -746,6 +757,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\nist_kw.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
@@ -761,6 +775,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs11.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
@@ -774,6 +791,9 @@
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h">
+			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\poly1305.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h">
@@ -1516,6 +1536,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aria.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
@@ -1535,6 +1558,12 @@
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\chacha20.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\chachapoly.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c">
@@ -1588,6 +1617,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hkdf.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
@@ -1612,6 +1644,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\nist_kw.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
@@ -1625,6 +1660,9 @@
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs11.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c">
@@ -1643,6 +1681,9 @@
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\poly1305.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c">
@@ -1720,8 +1761,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
-			<Filter>libraries\3rdparty\mbedtls\utils</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\mbedtls_utils.c">
+			<Filter>libraries\abstractions\pkcs11\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
 			<Filter>libraries\3rdparty\unity\src</Filter>
