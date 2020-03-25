@@ -2878,12 +2878,12 @@
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
