@@ -411,6 +411,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/tinycbor/compilersupport_p.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/compilersupport_p.h</locationURI>
