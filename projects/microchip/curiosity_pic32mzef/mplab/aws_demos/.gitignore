@@ -1,4 +1,4 @@
-Debug
-dist
-build
+Debug/
+dist/
+build/
 *.mk
