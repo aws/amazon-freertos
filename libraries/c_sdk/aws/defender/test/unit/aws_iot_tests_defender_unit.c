@@ -51,11 +51,12 @@
  */
 #define THING_NAME_LENGTH    ( sizeof( AWS_IOT_TEST_DEFENDER_THING_NAME ) - 1 )
 
- /**
-  * @brief The default invalid metrics group for SetMetrics_with_invalid_metrics_group unit test
-  */
+/**
+ * @brief The default invalid metrics group
+ * Used by the SetMetrics_with_invalid_metrics_group unit test
+ */
 #ifndef AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP
-	#define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10000 )
+    #define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10000 )
 #endif
 
 /* Empty callback structure passed to startInfo. */
