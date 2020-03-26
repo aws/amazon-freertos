@@ -49,15 +49,13 @@
 /**
  * @brief The length of @ref AWS_IOT_TEST_DEFENDER_THING_NAME.
  */
-#define THING_NAME_LENGTH    ( sizeof( AWS_IOT_TEST_DEFENDER_THING_NAME ) - 1 )
+#define THING_NAME_LENGTH                                 ( sizeof( AWS_IOT_TEST_DEFENDER_THING_NAME ) - 1 )
 
 /**
  * @brief Default Invalid Metrics Group.
  * Used by the SetMetrics_with_invalid_metrics_group unit test.
  */
-#ifndef AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP
-    #define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10000 )
-#endif
+#define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10000 )
 
 /* Empty callback structure passed to startInfo. */
 static const AwsIotDefenderCallback_t _emptyCallback = { .function = NULL, .pCallbackContext = NULL };
