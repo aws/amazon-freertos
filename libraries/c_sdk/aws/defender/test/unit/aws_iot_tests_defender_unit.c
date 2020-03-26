@@ -142,7 +142,7 @@ TEST_GROUP_RUNNER( Defender_Unit )
 
     /*
      * Setup: defender not started yet
-     * Action: call SetPeriod API with small value less than 300
+     * Action: call SetPeriod API with small value less than AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
      * Expectation:
      * - SetPeriod API return "period too short" error
      */
@@ -150,7 +150,7 @@ TEST_GROUP_RUNNER( Defender_Unit )
 
     /*
      * Setup: defender not started yet
-     * Action: call SetPeriod API with 301
+     * Action: call SetPeriod API with AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS + 1
      * Expectation:
      * - SetPeriod API return success
      */
@@ -158,7 +158,7 @@ TEST_GROUP_RUNNER( Defender_Unit )
 
     /*
      * Setup: defender is started
-     * Action: call SetPeriod API with 600
+     * Action: call SetPeriod API with 2 * AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
      * Expectation:
      * - SetPeriod API return success
      */
@@ -184,7 +184,7 @@ TEST( Defender_Unit, SetMetrics_with_invalid_metrics_group )
     uint8_t i = 0;
 
     /* Input a dummy, invalid metrics group. */
-    AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( 10000,
+    AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP,
                                                              AWS_IOT_DEFENDER_METRICS_ALL );
 
     /* SetMetrics should return "invalid input". */
@@ -289,7 +289,7 @@ TEST( Defender_Unit, SetPeriod_after_started )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS,
                        AwsIotDefender_Start( &_startInfo ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( 600 ) );
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( 2 * AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS ) );
 
-    TEST_ASSERT_EQUAL( 600, AwsIotDefender_GetPeriod() );
+    TEST_ASSERT_EQUAL( 2 * AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS, AwsIotDefender_GetPeriod() );
 }
