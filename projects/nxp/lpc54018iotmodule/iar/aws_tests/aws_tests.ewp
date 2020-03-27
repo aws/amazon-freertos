@@ -393,6 +393,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
@@ -409,7 +410,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\private</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
@@ -2220,9 +2220,18 @@
 					</group>
 					<group>
 						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c</name>
-						</file>
+						<group>
+							<name>unit</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c</name>
+							</file>
+						</group>
+						<group>
+							<name>system</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\system\aws_iot_tests_defender_system.c</name>
+							</file>
+						</group>
 					</group>
 				</group>
 				<group>
@@ -3160,6 +3169,9 @@
 				<name>tinycbor</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c</name>
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c</name>

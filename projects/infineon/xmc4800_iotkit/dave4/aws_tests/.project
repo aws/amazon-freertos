@@ -1039,9 +1039,14 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</name>
+			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</locationURI>
+			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c</name>
@@ -2457,6 +2462,11 @@
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>

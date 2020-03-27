@@ -1512,9 +1512,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</name>
+			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c</name>
@@ -2560,6 +2565,11 @@
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
