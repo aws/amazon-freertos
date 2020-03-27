@@ -227,14 +227,14 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocumen
                                     &pMessage,
                                     &messageLength ) == true )
     {
-        IotLogWarn( "Code %lu: %.*s.",
+        IotLogWarn( "Code %u: %.*s.",
                     code,
                     messageLength,
                     pMessage );
     }
     else
     {
-        IotLogWarn( "Code %lu; failed to parse message from error document.\n%.*s",
+        IotLogWarn( "Code %u; failed to parse message from error document.\n%.*s",
                     code,
                     errorDocumentLength,
                     pErrorDocument );
