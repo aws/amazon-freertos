@@ -272,7 +272,7 @@ endif()
 afr_mcu_port(common_io)
 target_sources(
     AFR::common_io::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/common_io/iot_adc.c"
         "${afr_ports_dir}/common_io/iot_efuse.c"
         "${afr_ports_dir}/common_io/iot_flash.c"
@@ -282,6 +282,7 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_pwm.c"
         "${afr_ports_dir}/common_io/iot_reset.c"
         "${afr_ports_dir}/common_io/iot_rtc.c"
+        "${afr_ports_dir}/common_io/iot_spi.c"
         "${afr_ports_dir}/common_io/iot_timer.c"
         "${afr_ports_dir}/common_io/iot_uart.c"
         "${afr_ports_dir}/common_io/iot_watchdog.c"
