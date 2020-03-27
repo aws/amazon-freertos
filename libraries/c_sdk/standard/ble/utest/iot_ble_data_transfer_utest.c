@@ -1282,7 +1282,7 @@ void test_RXMesgCharCallback_Read( void )
 
     IotBle_SendResponse_StubAndCallback( IotBle_SendResponse_Callback );
     uint8_t msg[] = "Invalid read on RX characteristic";
-    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), true );
+    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR );
     TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
 
@@ -1397,7 +1397,7 @@ void test_RXLargeMesgCharCallback_Read( void )
     IotBle_SendResponse_StubAndCallback( IotBle_SendResponse_Callback );
     uint8_t msg[ get_max_data_len() / 2 ];
     memset( msg, 0xDC, sizeof( msg ) );
-    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, msg, sizeof( msg ), true );
+    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR );
     TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
 
