@@ -499,7 +499,7 @@ void setUp( void )
     IotBle_RegisterEventCb_Stub( IotBle_RegisterEventCb_Callback );
     IotBle_UnRegisterEventCb_Stub( IotBle_UnregisterEventCb_Callback );
 
-      n_ble_response_calls = 0;
+    n_ble_send_response_calls = 0;
 
     IotLog_Generic_Ignore();
 }
@@ -1280,8 +1280,7 @@ void test_RXMesgCharCallback_Read( void )
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
     IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
 
-    IotBle_SendResponse_StubAndCallback( IotBle_SendResponse_Callback );
-    uint8_t msg[] = "Invalid read on RX characteristic";
+    IotBle_SendResponse_Stub( IotBle_SendResponse_Callback );
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR );
     TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
@@ -1394,9 +1393,7 @@ void test_RXLargeMesgCharCallback_Read( void )
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
     IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
 
-    IotBle_SendResponse_StubAndCallback( IotBle_SendResponse_Callback );
-    uint8_t msg[ get_max_data_len() / 2 ];
-    memset( msg, 0xDC, sizeof( msg ) );
+    IotBle_SendResponse_Stub( IotBle_SendResponse_Callback );
     generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR );
     TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
