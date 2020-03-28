@@ -1118,7 +1118,7 @@ static void vTaskDelete_cb( TaskHandle_t task_handle,
                             int num_calls )
 {
     free_cb( handle, 1 );
-    /*task_kill( tsk ); */
+    task_kill( tsk );
 }
 
 /* helper function to create a fake implementation of xTaskCreate */
