@@ -382,9 +382,14 @@ typedef union xTCP_UDP_HANDLER
 BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptionName, const void *pvOptionValue, size_t uxOptionLength );
 BaseType_t FreeRTOS_closesocket( Socket_t xSocket );
 
+BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination );
+const char *FreeRTOS_inet_ntop( BaseType_t xAddressFamily, const void *pvSource, char *pcDestination, socklen_t uxSize );
+
 #if ipconfigINCLUDE_FULL_INET_ADDR == 1
+	/* Translate from 192.168.1.1 to a 32-bit number. */
 	uint32_t FreeRTOS_inet_addr( const char * pcIPAddress );
-	BaseType_t FreeRTOS_inet_pton4( const char *pcSource, uint8_t *pucDest );
+	BaseType_t FreeRTOS_inet_pton4( const char *pcSource, void *pvDestination );
+	const char *FreeRTOS_inet_ntop4( const void *pvSource, char *pcDestination, socklen_t uxSize );
 #endif
 
 #if( ipconfigUSE_IPv6 != 0 )
@@ -392,7 +397,8 @@ BaseType_t FreeRTOS_closesocket( Socket_t xSocket );
 	 * Convert a string like 'fe80::8d11:cd9b:8b66:4a80'
 	 * to a 16-byte IPv6 address
 	 */
-	BaseType_t FreeRTOS_inet_pton6( const char *pcSource, uint8_t *pucDest );
+	BaseType_t FreeRTOS_inet_pton6( const char *pcSource, void *pvDestination );
+	const char *FreeRTOS_inet_ntop6( const void *pvSource, char *pcDestination, socklen_t uxSize );
 #endif /* ipconfigUSE_IPv6 */
 
 /*

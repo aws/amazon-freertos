@@ -468,7 +468,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                 FreeRTOS_printf( ( "prvEMACHandlerTask: PHY LS assume %d\n", xPHYLinkStatus ) );
             }
         }
-        else if( ( xTaskCheckForTimeOut( &xPhyTime, &xPhyRemTime ) != pdFALSE ) || ( FreeRTOS_IsNetworkUp( NULL ) == pdFALSE ) )
+        else if( ( xTaskCheckForTimeOut( &xPhyTime, &xPhyRemTime ) != pdFALSE ) || ( FreeRTOS_IsNetworkUp() == pdFALSE ) )
         {
         BaseType_t xStatus;
             R_ETHER_LinkProcess( 0 );

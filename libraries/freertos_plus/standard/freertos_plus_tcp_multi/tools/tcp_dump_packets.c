@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <io.h>
 #include <ctype.h>
 
 /* FreeRTOS includes. */
@@ -46,42 +45,67 @@
 #include "FreeRTOS_Stream_Buffer.h"
 #include "FreeRTOS_IP_Private.h"
 
+#if( ipconfigUSE_DUMP_PACKETS != 0 )
+
 #include "tcp_dump_packets.h"
 
-#define	dumpITEM_COUNT					32
+/* The priority of the windows thread. */
 #define dumpPROCESS_THREAD_PRIORITY		THREAD_PRIORITY_NORMAL
-#define dumpBYTES_PER_ROW				16
+
+/* There is a stream buffer between the FreeRTOS tasks sending network packets,
+and the Windows thread that writes these packets to disk. The macro 'dumpITEM_COUNT'
+determines the number of full-size packets that can be stored in this stream buffer. */
+#ifndef dumpITEM_COUNT
+	#define	dumpITEM_COUNT				32
+#endif
+
+/* Packets are written in hex notation, no more than 16 bytes on a row. */
+#ifndef dumpBYTES_PER_ROW
+	#define dumpBYTES_PER_ROW			16
+#endif
+
+/* The TCP port number reserved for a DNS server. */
 #define dnsDNS_PORT						0x0035u
 
-#define tcpTCP_FLAG_FIN				0x0001u /* No more data from sender */
-#define tcpTCP_FLAG_SYN				0x0002u /* Synchronize sequence numbers */
-#define tcpTCP_FLAG_RST				0x0004u /* Reset the connection */
-#define tcpTCP_FLAG_PSH				0x0008u /* Push function: please push buffered data to the recv application */
-#define tcpTCP_FLAG_ACK				0x0010u /* Acknowledgment field is significant */
+/* Some const values describing the 'flags' in a TCP packet. */
+#define tcpTCP_FLAG_FIN					0x0001u /* No more data from sender */
+#define tcpTCP_FLAG_SYN					0x0002u /* Synchronize sequence numbers */
+#define tcpTCP_FLAG_RST					0x0004u /* Reset the connection */
+#define tcpTCP_FLAG_PSH					0x0008u /* Push function: please push buffered data to the recv application */
+#define tcpTCP_FLAG_ACK					0x0010u /* Acknowledgment field is significant */
 
+/* A macro to add a type, both as a numeric value, as well as a string. */
 #define ADD_TYPE( FLAGS ) \
-	vAddType( flag_##FLAGS, #FLAGS )
+	prvAddType( flag_##FLAGS, #FLAGS )
 
+/*-----------------------------------------------------------*/
 
 static char pcTypeString[ 255 ];
 static uint32_t ulTypeMask;
 
+/* The name of the C source file to be written. */
 static char pcCodeFileName[ MAX_PATH ];
+
+/* The name of the header file to be written. */
 static char pcHeaderFileName[ MAX_PATH ];
 
+/* A stream buffer between the FreeRTOS tasks and the Windows thread. */
 static StreamBuffer_t *xPacketBuffer;
+
+/* A process handle of the Windows thread. */
 static HANDLE pvProcessHandle;
+
 static UBaseType_t uxNextPacketNumber;
 static BaseType_t xFirstPacket = 1;
+
+/* Bollean 'xDumpingReady' becomes true once all desired packet have been collected.
+Further packets will be dropped (ignored). */
 static volatile BaseType_t xDumpingReady = pdFALSE;
 
 static DumpEntries_t *pxCurrentEntries;
 
-static DWORD WINAPI prvWritePackets( LPVOID lpParameter );
-static void vAddProtocolTags( uint8_t *pucEthernetBuffer, BaseType_t xIPType );
-static void vDetermineMessageType( uint8_t *pucBuffer, BaseType_t xIncoming );
-static void vActualDump( uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming );
-static void vAddType( uint32_t ulFlags, const char *pcFlagName );
+static uint16_t usSourcePort;
+static uint16_t usDestinationPort;
 
 typedef struct xBufferheader
 {
@@ -132,6 +156,18 @@ const char pcHeaderHeader[] =
 	"	uint16_t usDestination;\n"
 	"} DumpPacket_t;\n\n";
 
+/*-----------------------------------------------------------*/
+
+/* The Windows thread that actually writes the network packets to a C source and header file. */
+static DWORD WINAPI prvWritePackets( LPVOID lpParameter );
+
+static void prvAddProtocolTags( uint8_t *pucEthernetBuffer, BaseType_t xIPType );
+static void prvDetermineMessageType( uint8_t *pucBuffer, BaseType_t xIncoming );
+static void prvActualDump( uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming );
+static void prvAddType( uint32_t ulFlags, const char *pcFlagName );
+
+/*-----------------------------------------------------------*/
+
 void dump_packet_init( const char *pcFileName, DumpEntries_t *pxEntries )
 {
 size_t uxIndex;
@@ -178,6 +214,7 @@ size_t uxIndex;
 		}
 	}
 }
+/*-----------------------------------------------------------*/
 
 void dump_packet( const uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming )
 {
@@ -212,6 +249,7 @@ void dump_packet( const uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncomin
 		}
 	}
 }
+/*-----------------------------------------------------------*/
 
 static DWORD WINAPI prvWritePackets( LPVOID lpParameter )
 {
@@ -238,11 +276,12 @@ static DWORD WINAPI prvWritePackets( LPVOID lpParameter )
 
 				uxStreamBufferGet( xPacketBuffer, 0u, NULL, sizeof( xHeader ), pdFALSE );
 				xActualCount = uxStreamBufferGet( xPacketBuffer, 0u, pcBuffer, xHeader.uxLength, pdFALSE );
-				vActualDump( pcBuffer, xActualCount, xHeader.bIncoming );
+				prvActualDump( pcBuffer, xActualCount, xHeader.bIncoming );
 			}
 		}
 	}
 }
+/*-----------------------------------------------------------*/
 
 static int _fprintf( FILE *pxHandle, const char* pcFormat, ... )
 {
@@ -257,6 +296,7 @@ BaseType_t iCount;
 
 	return iCount;
 }
+/*-----------------------------------------------------------*/
 
 static void vWriteHeaderFile()
 {
@@ -274,8 +314,9 @@ FILE *outfile;
 		fclose ( outfile );
 	}
 }
+/*-----------------------------------------------------------*/
 
-static void vAddType( uint32_t ulFlags, const char *pcFlagName )
+static void prvAddType( uint32_t ulFlags, const char *pcFlagName )
 {
 size_t uxLength = strlen( pcTypeString );
 char pcString[ 64 ];
@@ -292,11 +333,9 @@ BaseType_t iCount;
 		snprintf( pcTypeString + uxLength, sizeof pcTypeString - 1, " | %s", pcFlagName );
 	}
 }
+/*-----------------------------------------------------------*/
 
-uint16_t usSourcePort;
-uint16_t usDestinationPort;
-
-static void vAddProtocolTags( uint8_t *pucEthernetBuffer, BaseType_t xIPType )
+static void prvAddProtocolTags( uint8_t *pucEthernetBuffer, BaseType_t xIPType )
 {
 ProtocolHeaders_t *pxProtocolHeaders;
 #if( ipconfigUSE_IPv6 != 0 )
@@ -329,7 +368,6 @@ IPHeader_t * pxIPHeader;
 		ucProtocol = pxIPPacket->xIPHeader.ucProtocol;
 		pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *, &( pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + uxHeaderLength ] ) );
 	}
-
 
 	switch( ucProtocol )
 	{
@@ -387,8 +425,9 @@ IPHeader_t * pxIPHeader;
 #endif
 	}
 }
+/*-----------------------------------------------------------*/
 
-static void vDetermineMessageType( uint8_t *pucBuffer, BaseType_t xIncoming )
+static void prvDetermineMessageType( uint8_t *pucBuffer, BaseType_t xIncoming )
 {
 EthernetHeader_t *pxEthernetHeader;
 
@@ -433,7 +472,7 @@ EthernetHeader_t *pxEthernetHeader;
 		case ipIPv4_FRAME_TYPE :
 			{
 				ADD_TYPE( FRAME_4 );
-				vAddProtocolTags( pucBuffer, 4 );
+				prvAddProtocolTags( pucBuffer, 4 );
 			}
 			break;
 			
@@ -441,7 +480,7 @@ EthernetHeader_t *pxEthernetHeader;
 		case ipIPv6_FRAME_TYPE :
 			{
 				ADD_TYPE( FRAME_6 );
-				vAddProtocolTags( pucBuffer, 6 );
+				prvAddProtocolTags( pucBuffer, 6 );
 			}
 			break;
 	#endif
@@ -451,8 +490,9 @@ EthernetHeader_t *pxEthernetHeader;
 			break;
 	}
 }
+/*-----------------------------------------------------------*/
 
-static void vActualDump( uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming )
+static void prvActualDump( uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming )
 {
 char pcString[ 513 ];
 size_t uxOffset;
@@ -470,7 +510,7 @@ BaseType_t xUseIt = pdFALSE;
 		return;
 	}
 
-	vDetermineMessageType( pucBuffer, xIncoming );
+	prvDetermineMessageType( pucBuffer, xIncoming );
 
 	for( uxIndex = 0; uxIndex < pxCurrentEntries->uxEntryCount; uxIndex++ )
 	{
@@ -509,7 +549,8 @@ BaseType_t xUseIt = pdFALSE;
 			else
 			{
 				/*
-					DumpPacket_t *xPacketList[] =
+					Create a list with pointers to each network packet.
+					DumpPacket_t *xPacketList[ dumpPACKET_COUNT ] =
 					{
 						&xPacket_0000,
 						&xPacket_0001,
@@ -610,3 +651,7 @@ BaseType_t xUseIt = pdFALSE;
 	fclose( outfile );
 	uxNextPacketNumber++;
 }
+/*-----------------------------------------------------------*/
+
+#endif	/* ( ipconfigUSE_DUMP_PACKETS != 0 ) */
+

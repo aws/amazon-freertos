@@ -157,14 +157,21 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 
 /*
  * Lookup a IPv4 node in a blocking-way.
+ * It returns a 32-bit IP-address, 0 when not found.
+ * gethostbyname() is already deprecated.
  */
 uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
 
+/* getaddrinfo() replaces gethostbyname(). It can also return IPv6 addresses when enabled. */
 BaseType_t FreeRTOS_getaddrinfo( const char *pcName,						/* The name of the node or device */
 								 const char *pcService,						/* Ignored for now. */
 								 const struct freertos_addrinfo *pxHints,	/* If not NULL: preferences. */
 								 struct freertos_addrinfo **ppxResult );	/* An allocated struct, containing the results. */
 
+/* When FreeRTOS_getaddrinfo() is succesfull, ppxResult will point to an
+ * allocated structure.  This pointer must be released by by the user by calling
+ * FreeRTOS_freeaddrinfo().
+ */
 void FreeRTOS_freeaddrinfo(struct freertos_addrinfo *pxResult);
 
 

@@ -98,7 +98,18 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	#if( ipconfigUSE_IPv6 != 0 )
 	if( xIsIPV6 != 0 )
 	{
+		// #pragma warning Take away
+		memset( pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes, 0, 6 );
 		eReturned = eNDGetCacheEntry( &( pxNetworkBuffer->xIPv6_Address ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ), &( pxEndPoint ) );
+		FreeRTOS_printf( ( "xIPv6_Address %pip DestAddrs %02d-%02d-%02d-%02d-%02d-%02d EndPoint %d\n",
+			pxNetworkBuffer->xIPv6_Address.ucBytes,
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[0],
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[1],
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[2],
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[3],
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[4],
+			pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[5],
+			( pxEndPoint != NULL ) ? 1 : 0 ) );
 		if( pxNetworkBuffer->pxEndPoint == NULL )
 		{
 			pxNetworkBuffer->pxEndPoint = pxEndPoint;

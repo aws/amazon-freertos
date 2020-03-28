@@ -393,34 +393,8 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 }
 /*-----------------------------------------------------------*/
 
-/* Return pdTRUE if all end-points are up.
-When pxInterface is null, all end-points can be iterated. */
-BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface )
-{
-BaseType_t xResult = pdTRUE;
-NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
-
-	while( pxEndPoint != NULL )
-	{
-		if( ( pxInterface == NULL ) ||
-			( pxEndPoint->pxNetworkInterface == pxInterface ) )
-
-		{
-			if( pxEndPoint->bits.bEndPointUp == pdFALSE_UNSIGNED )
-			{
-				xResult = pdFALSE;
-				break;
-			}
-		}
-		pxEndPoint = pxEndPoint->pxNext;
-	}
-
-	return xResult;
-}
-/*-----------------------------------------------------------*/
-
-	/* A helper function to fill in a network end-point,
-	and add it to a network interface. */
+/* A helper function to fill in a network end-point,
+and add it to a network interface. */
 void FreeRTOS_FillEndPoint(	NetworkInterface_t *pxNetworkInterface,
 							NetworkEndPoint_t *pxEndPoint,
 							const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ],

@@ -62,8 +62,17 @@ extern "C" {
 
 	typedef struct xIPv6_Address IPv6_Address_t;
 
-	extern const struct xIPv6_Address in6addr_any;
-	extern const struct xIPv6_Address in6addr_loopback;
+	#ifndef _MSC_VER
+		extern const struct xIPv6_Address in6addr_any;
+		extern const struct xIPv6_Address in6addr_loopback;
+	#else
+		/* Microsoft visual C already has these objects defined.
+		Name them slightly different. */
+		extern const struct xIPv6_Address FreeRTOS_in6addr_any;
+		extern const struct xIPv6_Address FreeRTOS_in6addr_loopback;
+		#define in6addr_any			FreeRTOS_in6addr_any
+		#define in6addr_loopback	FreeRTOS_in6addr_loopback
+	#endif
 
 	/* Note that 'xCompareIPv6_Address' will also check if 'pxRight' is
 	the special unicast address: ff02::1:ffnn:nnnn, where nn:nnnn are
@@ -339,11 +348,15 @@ void FreeRTOS_OutputARPRequest( uint32_t ulIPAddress );
 /* Return true if a given end-point is up and running.
 When FreeRTOS_IsNetworkUp() is called with NULL as a parameter,
 it will return pdTRUE when all end-points are up. */
-BaseType_t FreeRTOS_IsNetworkUp( struct xNetworkEndPoint *pxEndPoint );
+BaseType_t FreeRTOS_IsEndPointUp( struct xNetworkEndPoint *pxEndPoint );
 
 /* Return pdTRUE if all end-points are up.
-When pxInterface is null, all end-points can be iterated. */
+When pxInterface is null, all end-points will be checked. */
 BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface );
+
+/* For backward compatibility: FreeRTOS_IsNetworkUp() returns true
+as soon as all end-points are up. */
+BaseType_t FreeRTOS_IsNetworkUp( void );
 
 #if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
 	UBaseType_t uxGetMinimumIPQueueSpace( void );

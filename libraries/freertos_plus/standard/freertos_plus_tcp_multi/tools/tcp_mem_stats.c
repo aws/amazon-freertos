@@ -47,33 +47,40 @@
 #include "tcp_mem_stats.h"
 
 #ifndef ipconfigTCP_MEM_STATS_MAX_ALLOCATION
-	#define ipconfigTCP_MEM_STATS_MAX_ALLOCATION     256u
+	#define ipconfigTCP_MEM_STATS_MAX_ALLOCATION     128u
 	#pragma warning "ipconfigTCP_MEM_STATS_MAX_ALLOCATION undefined?"
 #endif
 
 #if( ipconfigUSE_TCP_MEM_STATS != 0 )
 
+/* When a streambuffer is allocated, 4 extra bytes will be reserved. */
+
 #define STREAM_BUFFER_ROUNDUP_BYTES		4
 
-typedef struct xTCP_STATS
-{
-    size_t uxMallocSize;
-} TCP_STATS_t;
+#define STATS_PRINTF( MSG ) \
+	xCurrentLine++; \
+	configPRINTF( MSG )
 
+#define ETH_MAX_PACKET_SIZE		( ( ipconfigNETWORK_MTU + ipSIZE_OF_ETH_HEADER + ipBUFFER_PADDING + 31 ) & ~0x1FuL )
+/*-----------------------------------------------------------*/
+
+/* Objects are allocated and deleted. This structure stores the type
+and the size of the object. */
 typedef struct xTCP_ALLOCATION
 {
-    TCP_MEMORY_t xMemType;
-    void *pxObject;
-    UBaseType_t uxNumber;
-    size_t uxSize;
+	TCP_MEMORY_t xMemType;
+	void *pxObject;
+	UBaseType_t uxNumber;
+	size_t uxSize;
 } TCP_ALLOCATION_t;
 /*-----------------------------------------------------------*/
 
+
 static void vWriteHeader( void );
 
-static TCP_STATS_t xTCPStats;
+static size_t uxCurrentMallocSize;
 static TCP_ALLOCATION_t xAllocations[ ipconfigTCP_MEM_STATS_MAX_ALLOCATION ];
-static size_t xAllocationCount;
+static size_t uxAllocationCount;
 static BaseType_t xFirstItem = pdTRUE;
 UBaseType_t uxNextObjectNumber;
 static BaseType_t xCurrentLine = 0;
@@ -84,65 +91,76 @@ static BaseType_t xLoggingStopped = 0;
 
 static void vAddAllocation( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize )
 {
-    size_t uxIndex;
-    for( uxIndex = 0; uxIndex < xAllocationCount; uxIndex++ )
-    {
-        if( xAllocations[ uxIndex ].pxObject == pxObject )
-        {
-            /* Already added, strange. */
-			FreeRTOS_printf( ( "vAddAllocation: Pointer %p already added\n", pxObject ) );
-            return;
-        }
-    }
-    if( xAllocationCount >= ipconfigTCP_MEM_STATS_MAX_ALLOCATION )
-    {
-        /* Too many allocations. */
-        return;
-    }
-    xAllocations[ uxIndex ].pxObject = pxObject;
-    xAllocations[ uxIndex ].xMemType = xMemType;
-    xAllocations[ uxIndex ].uxSize = uxSize;
-	xAllocations[ uxIndex ].uxNumber = uxNextObjectNumber++;
-    xAllocationCount++;
+size_t uxIndex;
+
+	vTaskSuspendAll();
+	{
+		for( uxIndex = 0; uxIndex < uxAllocationCount; uxIndex++ )
+		{
+			if( xAllocations[ uxIndex ].pxObject == pxObject )
+			{
+				/* Already added, strange. */
+				FreeRTOS_printf( ( "vAddAllocation: Pointer %p already added\n", pxObject ) );
+				return;
+			}
+		}
+		if( uxAllocationCount >= ipconfigTCP_MEM_STATS_MAX_ALLOCATION )
+		{
+			/* The table is full. */
+			return;
+		}
+		xAllocations[ uxIndex ].pxObject = pxObject;
+		xAllocations[ uxIndex ].xMemType = xMemType;
+		xAllocations[ uxIndex ].uxSize = uxSize;
+		xAllocations[ uxIndex ].uxNumber = uxNextObjectNumber++;
+		uxAllocationCount++;
+	}
+	xTaskResumeAll();
 }
 /*-----------------------------------------------------------*/
 
 static TCP_ALLOCATION_t *pxRemoveAllocation( void *pxObject )
 {
 size_t uxSource = 0, uxTarget = 0;
-static TCP_ALLOCATION_t xReturn = { 0 };
+static TCP_ALLOCATION_t xAllocation = { 0 };
 BaseType_t xFound = pdFALSE;
+TCP_ALLOCATION_t *pxReturn;
 
-    for( ; uxSource < xAllocationCount; uxSource++ )
-    {
-        if( xAllocations[ uxSource ].pxObject == pxObject )
-        {
-            /* This is entry will be removed. */
-            memcpy( &( xReturn ), &( xAllocations[ uxSource ] ), sizeof xReturn );
-            xFound = pdTRUE;
-        }
-        else
-        {
-            xAllocations[ uxTarget ] = xAllocations[ uxSource ];
-			uxTarget++;
-        }
-    }
-    if( xFound != pdFALSE )
-    {
-		xAllocationCount--;
-        return &( xReturn );
-    }
-    else
-    {
-        return NULL;
-    }
+	vTaskSuspendAll();
+	{
+		for( ; uxSource < uxAllocationCount; uxSource++ )
+		{
+			if( xAllocations[ uxSource ].pxObject == pxObject )
+			{
+				/* This is entry will be removed. */
+				memcpy( &( xAllocation ), &( xAllocations[ uxSource ] ), sizeof xAllocation );
+				xFound = pdTRUE;
+			}
+			else
+			{
+				xAllocations[ uxTarget ] = xAllocations[ uxSource ];
+				uxTarget++;
+			}
+		}
+		if( xFound != pdFALSE )
+		{
+			uxAllocationCount--;
+			pxReturn = &( xAllocation );
+		}
+		else
+		{
+			pxReturn = NULL;
+		}
+	}
+	xTaskResumeAll();
+	return pxReturn;
 }
 /*-----------------------------------------------------------*/
 
 static const char *pcTypeName( TCP_MEMORY_t xMemType )
 {
-    switch( xMemType )
-    {
+	switch( xMemType )
+	{
 	case tcpSOCKET_TCP:         return "TCP-Socket";
 	case tcpSOCKET_UDP:         return "UDP-Socket";
 	case tcpSOCKET_SET:			return "SocketSet";
@@ -150,21 +168,14 @@ static const char *pcTypeName( TCP_MEMORY_t xMemType )
 	case tcpRX_STREAM_BUFFER:   return "RX-Buffer";
 	case tcpTX_STREAM_BUFFER:   return "TX-Buffer";
 	case tcpNETWORK_BUFFER:     return "networkBuffer";
-    }
-    return "Unknown object";
+	}
+	return "Unknown object";
 }
 /*-----------------------------------------------------------*/
 
-#define STATS_PRINTF( MSG ) \
-	xCurrentLine++; \
-	configPRINTF( MSG )
-
-#define ETH_MAX_PACKET_SIZE		( ( ipconfigNETWORK_MTU + ipSIZE_OF_ETH_HEADER + ipBUFFER_PADDING + 31 ) & ~0x1FuL )
-	
 static void vWriteHeader()
 {
 size_t uxPacketSize;
-size_t uxRXSize;
 size_t uxTXSize;
 size_t uxStaticSize = 0;
 BaseType_t xFirstLineNr = 0;
@@ -181,7 +192,6 @@ size_t uxTara = sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray );
 	STATS_PRINTF( ( "TCPMemStat,USE_TCP,%u\n",							ipconfigUSE_TCP ) );
 	STATS_PRINTF( ( "TCPMemStat,USE_TCP_WIN,%u\n",						ipconfigUSE_TCP_WIN ) );
 
-	uxRXSize = ( size_t ) ipconfigTCP_RX_BUFFER_LENGTH;
 	uxTXSize = ( size_t ) FreeRTOS_round_up( ipconfigTCP_TX_BUFFER_LENGTH, ipconfigTCP_MSS );
 
 	STATS_PRINTF( ( "TCPMemStat,TCP_RX_BUFFER_LENGTH,%u,Plus %u bytes\n", ipconfigTCP_RX_BUFFER_LENGTH, uxTara + STREAM_BUFFER_ROUNDUP_BYTES ) );
@@ -214,7 +224,6 @@ size_t uxTara = sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray );
 			xCurrentLine,
 			xCurrentLine ) );
 		uxStaticSize += uxBytes;
-//FreeRTOS_printf( ( "ETH_MAX_PACKET_SIZE = %lu\n", ETH_MAX_PACKET_SIZE ) );
 	}
 	else
 	{
@@ -244,7 +253,6 @@ size_t uxTara = sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray );
 	{
 	size_t uxBytes;
 	size_t uxEntrySize;
-	size_t uxCacheSize;
 
 		uxBytes = ipconfigEVENT_QUEUE_LENGTH * sizeof( IPStackEvent_t );
 		STATS_PRINTF( ( "TCPMemStat,EVENT_QUEUE_LENGTH,%u,%u,=B%d*C%d\n",
@@ -273,7 +281,6 @@ size_t uxTara = sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray );
 		#if( ipconfigUSE_DNS_CACHE == 1 )
 		{
 			uxEntrySize = 3u * sizeof( uint32_t ) + ( ( ipconfigDNS_CACHE_NAME_LENGTH + 3 ) & ~0x3u );
-			uxCacheSize = ipconfigDNS_CACHE_ENTRIES * uxEntrySize;
 			STATS_PRINTF( ( "TCPMemStat,DNS_CACHE_ENTRIES,%u,%u,=B%d*C%d\n",
 				ipconfigDNS_CACHE_ENTRIES,
 				uxEntrySize,
@@ -315,7 +322,7 @@ size_t uxTara = sizeof( *pxBuffer ) - sizeof( pxBuffer->ucArray );
 }
 /*-----------------------------------------------------------*/
 
-void vTCPMemStatAdd( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize )
+void vTCPMemStatCreate( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize )
 {
 	if( xLoggingStopped == pdFALSE )
 	{
@@ -337,24 +344,25 @@ void vTCPMemStatAdd( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize )
 
 		if( xFirstDumpLine == 0 )
 		{
-			xFirstDumpLine = xCurrentLine;
+			xFirstDumpLine = xCurrentLine + 1;
 		}
 
-		STATS_PRINTF( ( "TCPMemStat,CREATE,%s,%lu,%lu,%u,%u,%u%s\n",
+		xCurrentLine++;
+		configPRINTF( ( "TCPMemStat,CREATE,%s,%lu,%lu,%u,%u,%u%s\n",
 			pcTypeName( xMemType ),
 			uxSize,
-			xTCPStats.uxMallocSize + uxSize,
+			uxCurrentMallocSize + uxSize,
 			uxNextObjectNumber,
 			xPortGetMinimumEverFreeHeapSize(),
 			xPortGetFreeHeapSize(),
 			pcExtra ) );
-		xTCPStats.uxMallocSize += uxSize;
+		uxCurrentMallocSize += uxSize;
 		vAddAllocation( xMemType, pxObject, uxSize );
 	}
 }
 /*-----------------------------------------------------------*/
 
-void vTCPMemStatRemove( void *pxObject )
+void vTCPMemStatDelete( void *pxObject )
 {
 	if( xLoggingStopped == pdFALSE )
 	{
@@ -362,7 +370,7 @@ void vTCPMemStatRemove( void *pxObject )
 
 		if( xFirstDumpLine == 0 )
 		{
-			xFirstDumpLine = xCurrentLine;
+			xFirstDumpLine = xCurrentLine + 1;
 		}
 		if( pxFound == NULL )
 		{
@@ -370,20 +378,21 @@ void vTCPMemStatRemove( void *pxObject )
 		}
 		else
 		{
-			STATS_PRINTF( ( "TCPMemStat,REMOVE,%s,-%lu,%lu,%x,%u,%u\n",
+			xCurrentLine++;
+			configPRINTF( ( "TCPMemStat,REMOVE,%s,-%lu,%lu,%x,%u,%u\n",
 				pcTypeName( pxFound->xMemType ),
 				pxFound->uxSize,
-				xTCPStats.uxMallocSize - pxFound->uxSize,
+				uxCurrentMallocSize - pxFound->uxSize,
 				pxFound->uxNumber,
 				xPortGetMinimumEverFreeHeapSize(),
 				xPortGetFreeHeapSize() ) );
-			if( xTCPStats.uxMallocSize < pxFound->uxSize )
+			if( uxCurrentMallocSize < pxFound->uxSize )
 			{
-				xTCPStats.uxMallocSize = 0uL;
+				uxCurrentMallocSize = 0uL;
 			}
 			else
 			{
-				xTCPStats.uxMallocSize -= pxFound->uxSize;
+				uxCurrentMallocSize -= pxFound->uxSize;
 			}
 		}
 	}
@@ -400,11 +409,11 @@ void vTCPMemStatClose()
 		xLoggingStopped = pdTRUE;
 
 		STATS_PRINTF( ( "TCPMemStat,Totals,,,=MAX(D%d:D%d),,=MIN(F%d:F%d),=MAX(G%d:G%d)\n",
-			xFirstDumpLine + 1,
+			xFirstDumpLine,
 			xLastLineNr,
-			xFirstDumpLine + 1,
+			xFirstDumpLine,
 			xLastLineNr,
-			xFirstDumpLine + 1,
+			xFirstDumpLine,
 			xLastLineNr ) );
 		STATS_PRINTF( ( "TCPMemStat,Maximum RAM usage:,,,=SUM(D%d;D%d)\n",
 			xLastHeaderLineNr + 1,
@@ -413,4 +422,4 @@ void vTCPMemStatClose()
 }
 /*-----------------------------------------------------------*/
 
-#endif
+#endif	/* ( ipconfigUSE_TCP_MEM_STATS != 0 ) */

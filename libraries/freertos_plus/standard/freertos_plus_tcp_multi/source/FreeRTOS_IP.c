@@ -1853,7 +1853,7 @@ uint32_t ulIP;
 					/* Is it the multicast address FF00::/8 ? */
 					( xIsIPv6Multicast ( pxDestinationIPAddress ) != pdFALSE ) ||
 					/* Or (during DHCP negotiation) we have no IP-address yet? */
-					( FreeRTOS_IsNetworkUp( NULL ) == 0 ) )
+					( FreeRTOS_IsNetworkUp() == 0 ) )
 				{
 					/* Packet is not for this node, or the network is still not up,
 					release it */
@@ -1952,7 +1952,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 				( ( FreeRTOS_ntohl( ulDestinationIPAddress ) & 0xff ) != 0xff ) &&
 				( xIsIPv4Multicast( ulDestinationIPAddress ) == pdFALSE ) &&
 				/* Or (during DHCP negotiation) we have no IP-address yet? */
-				( FreeRTOS_IsNetworkUp( NULL ) != pdFALSE ) )
+				( FreeRTOS_IsNetworkUp() != pdFALSE ) )
 			{
 FreeRTOS_printf( ( "prvAllowIPPacketIPv4: drop %lxip => %lxip\n", FreeRTOS_ntohl( pxIPHeader->ulDestinationIPAddress ), FreeRTOS_ntohl( ulDestinationIPAddress ) ) );
 				/* Packet is not for this node, release it */
@@ -3022,7 +3022,14 @@ BaseType_t xIPIsNetworkTaskReady( void )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t FreeRTOS_IsNetworkUp( struct xNetworkEndPoint *pxEndPoint )
+BaseType_t FreeRTOS_IsNetworkUp()
+{
+	/* IsNetworkUp() is kept for backward compatibility. */
+	return FreeRTOS_IsEndPointUp( NULL );
+}
+/*-----------------------------------------------------------*/
+
+BaseType_t FreeRTOS_IsEndPointUp( struct xNetworkEndPoint *pxEndPoint )
 {
 BaseType_t xReturn;
 
@@ -3037,6 +3044,32 @@ BaseType_t xReturn;
 		xReturn = FreeRTOS_AllEndPointsUp( NULL );
 	}
 	return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+/* Return pdTRUE if all end-points of a given interface are up.
+When pxInterface is null, all end-points can be iterated. */
+BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface )
+{
+BaseType_t xResult = pdTRUE;
+NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
+
+	while( pxEndPoint != NULL )
+	{
+		if( ( pxInterface == NULL ) ||
+			( pxEndPoint->pxNetworkInterface == pxInterface ) )
+
+		{
+			if( pxEndPoint->bits.bEndPointUp == pdFALSE_UNSIGNED )
+			{
+				xResult = pdFALSE;
+				break;
+			}
+		}
+		pxEndPoint = pxEndPoint->pxNext;
+	}
+
+	return xResult;
 }
 /*-----------------------------------------------------------*/
 

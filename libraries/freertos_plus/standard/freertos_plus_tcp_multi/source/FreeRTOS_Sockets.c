@@ -44,7 +44,11 @@
 #include "FreeRTOS_Routing.h"
 
 /*lint -e766 Header file 'tcp_mem_stats.h' not used in module. */
-#include "../tools/tcp_mem_stats.h"
+
+/* A tool to measure RAM usage. By default, it is disabled
+and it won't add any code.
+See also tools/tcp_mem_stats.md */
+#include "tcp_mem_stats.h"
 
 /* The ItemValue of the sockets xBoundSocketListItem member holds the socket's
 port number. */
@@ -295,12 +299,12 @@ Socket_t xReturn;
 		{
 			if( xProtocol == FREERTOS_IPPROTO_UDP )
 			{
-				iptraceMEM_STATS_ADD( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+				iptraceMEM_STATS_CREATE( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
 			}	
 			else
 			{
-				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
-				iptraceMEM_STATS_ADD( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+				/* Lint wants at least a comment, in case the macro is empty. */
+				iptraceMEM_STATS_CREATE( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
 			}
 
 			/* Clear the entire space to avoid nulling individual entries. */
@@ -390,8 +394,8 @@ Socket_t xReturn;
 			}
 			else
 			{
-				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
-				iptraceMEM_STATS_ADD( tcpSOCKET_SET, pxSocketSet, sizeof( *pxSocketSet ) + sizeof( StaticEventGroup_t ) );
+				/* Lint wants at least a comment, in case the macro is empty. */
+				iptraceMEM_STATS_CREATE( tcpSOCKET_SET, pxSocketSet, sizeof( *pxSocketSet ) + sizeof( StaticEventGroup_t ) );
 			}
 		}
 
@@ -407,7 +411,7 @@ Socket_t xReturn;
 	{
 		SocketSelect_t *pxSocketSet = ( SocketSelect_t*) xSocketSet;
 
-		iptraceMEM_STATS_REMOVE( pxSocketSet );
+		iptraceMEM_STATS_DELETE( pxSocketSet );
 
 		vEventGroupDelete( pxSocketSet->xSelectGroup );
 		vPortFree( pxSocketSet );
@@ -1280,13 +1284,13 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 			/* Free the input and output streams */
 			if( pxSocket->u.xTCP.rxStream != NULL )
 			{
-				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.rxStream );
+				iptraceMEM_STATS_DELETE( pxSocket->u.xTCP.rxStream );
 				vPortFreeLarge( pxSocket->u.xTCP.rxStream );
 			}
 
 			if( pxSocket->u.xTCP.txStream != NULL )
 			{
-				iptraceMEM_STATS_REMOVE( pxSocket->u.xTCP.txStream );
+				iptraceMEM_STATS_DELETE( pxSocket->u.xTCP.txStream );
 				vPortFreeLarge( pxSocket->u.xTCP.txStream );
 			}
 
@@ -1349,7 +1353,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 	#endif /* ( ipconfigUSE_TCP == 1 ) && ( ipconfigHAS_DEBUG_PRINTF != 0 ) */
 
 	/* Anf finally, after all resources have been freed, free the socket space */
-	iptraceMEM_STATS_REMOVE( pxSocket );
+	iptraceMEM_STATS_DELETE( pxSocket );
 	vPortFreeSocket( pxSocket );
 
 	return NULL;
@@ -1932,123 +1936,261 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 
 /*-----------------------------------------------------------*/
 
-#if ipconfigINCLUDE_FULL_INET_ADDR == 1
-	BaseType_t FreeRTOS_inet_pton4( const char *pcSource, uint8_t *pucDest )
-	{
-	BaseType_t xResult;
-	uint32_t ulIPAddress = FreeRTOS_inet_addr( pcSource );
+BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination )
+{
+BaseType_t xResult;
 
-		if( ulIPAddress == 0uL )
+	/* Printable string to struct sockaddr. */
+	switch( xAddressFamily )
+	{
+		case FREERTOS_AF_INET4:
+			xResult = FreeRTOS_inet_pton4( pcSource, pvDestination );
+			break;
+		case FREERTOS_AF_INET6:
+			xResult = FreeRTOS_inet_pton6( pcSource, pvDestination );
+			break;
+		default:
+			xResult = -pdFREERTOS_ERRNO_EAFNOSUPPORT;
+			break;
+	}
+	return xResult;
+}
+/*-----------------------------------------------------------*/
+
+const char *FreeRTOS_inet_ntop( BaseType_t xAddressFamily, const void *pvSource, char *pcDestination, socklen_t uxSize )
+{
+const char *pcResult;
+
+	/* Printable struct sockaddr to string. */
+	switch( xAddressFamily )
+	{
+		case FREERTOS_AF_INET4:
+			pcResult = FreeRTOS_inet_ntop4( pvSource, pcDestination, uxSize );
+			break;
+		case FREERTOS_AF_INET6:
+			pcResult = FreeRTOS_inet_ntop6( pvSource, pcDestination, uxSize );
+			break;
+		default:
+			pcResult = NULL;
+			break;
+	}
+	return pcResult;
+}
+/*-----------------------------------------------------------*/
+
+const char *FreeRTOS_inet_ntop4( const void *pvSource, char *pcDestination, socklen_t uxSize )
+{
+uint32_t ulIPAddress;
+const char *pcReturn;
+
+	if( uxSize < 16u )
+	{
+		/* There must be space for "255.255.255.255". */
+		pcReturn = NULL;
+	}
+	else
+	{
+		memcpy( &( ulIPAddress ), pvSource, sizeof( ulIPAddress ) );
+		FreeRTOS_inet_ntoa( ulIPAddress, pcDestination );
+		pcReturn = pcDestination;
+	}
+	return pcReturn;
+}
+/*-----------------------------------------------------------*/
+
+#if( ipconfigUSE_IPv6 != 0 )
+	const char *FreeRTOS_inet_ntop6( const void *pvSource, char *pcDestination, socklen_t uxSize )
+	{
+	BaseType_t xIndex;
+	BaseType_t xZeroStart = -1;
+	BaseType_t xZeroLength = 0;
+	BaseType_t xCurStart = 0;
+	BaseType_t xCurLength = 0;
+	socklen_t uxTargetIndex = 0;
+	const uint16_t *pusAddress = pvSource;	/*lint !e9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]. */
+
+		if( uxSize < 3u )
 		{
-			xResult = 0;
+			/* Can not even print :: */
 		}
 		else
 		{
-			/* Translate "192.168.2.100" to an array of 4 uint8_t's,
-			network-endian. */
-			pucDest[ 0 ] = ( uint8_t ) ( ulIPAddress >> 24 );
-			pucDest[ 1 ] = ( uint8_t ) ( ( ulIPAddress >> 16 ) & 0xffu );
-			pucDest[ 2 ] = ( uint8_t ) ( ( ulIPAddress >> 8 ) & 0xffu );
-			pucDest[ 3 ] = ( uint8_t ) ( ulIPAddress & 0xffu );
-			xResult = 1;
-		}
-
-		return xResult;
-	}
-#endif /* ipconfigINCLUDE_FULL_INET_ADDR */
-/*-----------------------------------------------------------*/
-
-#if ipconfigINCLUDE_FULL_INET_ADDR == 1
-
-	uint32_t FreeRTOS_inet_addr( const char * pcIPAddress )
-	{
-	const uint32_t ulDecimalBase = 10u;
-	uint8_t ucOctet[ socketMAX_IP_ADDRESS_OCTETS ];
-	const char *pcPointerOnEntering;
-	uint32_t ulReturn = 0UL, ulValue;
-	UBaseType_t uxOctetNumber;
-	BaseType_t xResult = pdPASS;
-
-		/* Translate "192.168.2.100" to a 32-bit number, network-endian. */
-		for( uxOctetNumber = 0u; uxOctetNumber < socketMAX_IP_ADDRESS_OCTETS; uxOctetNumber++ )
-		{
-			ulValue = 0uL;
-			pcPointerOnEntering = pcIPAddress;
-
-			while( ( *pcIPAddress >= '0' ) && ( *pcIPAddress <= '9' ) )
+			for( xIndex = 0; xIndex < 8; xIndex++ )
 			{
-			char cChar;
-				/* Move previous read characters into the next decimal
-				position. */
-				ulValue *= ulDecimalBase;
+			uint16_t usValue = pusAddress[ xIndex ];
 
-				/* Add the binary value of the ascii character. */
-				cChar = pcIPAddress[ 0 ] - '0';/*lint !e9034: (Note -- Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required]. */
-				ulValue += ( uint32_t )cChar;/*lint !e571: (Warning -- Suspicious cast) */
-
-				/* Move to next character in the string. */
-				pcIPAddress++;
-			}
-
-			/* Check characters were read. */
-			if( pcIPAddress == pcPointerOnEntering )
-			{
-				xResult = pdFAIL;
-			}
-
-			/* Check the value fits in an 8-bit number. */
-			if( ulValue > 0xffUL )
-			{
-				xResult = pdFAIL;
-			}
-			else
-			{
-				ucOctet[ uxOctetNumber ] = ( uint8_t ) ulValue;
-
-				/* Check the next character is as expected. */
-				if( uxOctetNumber < ( socketMAX_IP_ADDRESS_OCTETS - 1u ) )
+				if( usValue == 0u )
 				{
-					if( *pcIPAddress != '.' )
+					if( xCurLength == 0 )
 					{
-						xResult = pdFAIL;
+						xCurStart = xIndex;
 					}
-					else
+					/* Count consecutive zeros. */
+					xCurLength++;
+				}
+				if( ( usValue != 0u ) || ( xIndex == 7 ) )
+				{
+					if( ( xCurLength > 1 ) && ( xZeroLength < xCurLength ) )
 					{
-						/* Move past the dot. */
-						pcIPAddress++;
+						/* Remember the number of consecutive zeros. */
+						xZeroLength = xCurLength;
+						/* Remember index where the zero's started. */
+						xZeroStart = xCurStart;
 					}
+					xCurLength = 0;
 				}
 			}
 
-			if( xResult == pdFAIL )
+			for( xIndex = 0; xIndex < 8; )
 			{
-				/* No point going on. */
-				break;
+				if( xIndex == xZeroStart )
+				{
+					xIndex += xZeroLength - 1;
+					if( uxTargetIndex >= ( uxSize - 1u ) )
+					{
+						break;
+					}
+					pcDestination[ uxTargetIndex ] = ':';
+					uxTargetIndex++;
+					if( xIndex == 7 )
+					{
+						if( uxTargetIndex >= ( uxSize - 1u ) )
+						{
+							break;	/*lint !e9011: more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+						}
+						pcDestination[ uxTargetIndex ] = ':';
+						uxTargetIndex++;
+					}
+				}
+				else
+				{
+				BaseType_t xLength;
+					if( xIndex > 0 )
+					{
+						if( uxTargetIndex >= ( uxSize - 1u ) )
+						{
+							break;	/*lint !e9011: more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+						}
+						pcDestination[ uxTargetIndex ] = ':';
+						uxTargetIndex++;
+					}
+					if( uxTargetIndex >= ( uxSize - 4u ) )
+					{
+						break;	/*lint !e9011: more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+					}
+					xLength = snprintf( &( pcDestination[ uxTargetIndex ] ), 5, "%x", FreeRTOS_ntohs( pusAddress[ xIndex ] ) );	/*lint !e586 !e534: function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
+					if( xLength > 0 )
+					{
+						uxTargetIndex += xLength;
+					}
+				}
+				xIndex++;
+			}
+		}
+		pcDestination[ uxTargetIndex ] = '\0';
+		return pcDestination;
+	}
+#endif	/* ( ipconfigUSE_IPv6 != 0 ) */
+/*-----------------------------------------------------------*/
+
+BaseType_t FreeRTOS_inet_pton4( const char *pcSource, void *pvDestination )
+{
+const uint32_t ulDecimalBase = 10u;
+uint8_t ucOctet[ socketMAX_IP_ADDRESS_OCTETS ];
+uint32_t ulReturn = 0UL, ulValue;
+UBaseType_t uxOctetNumber;
+BaseType_t xResult = pdPASS;
+const char *pcIPAddress = pcSource;
+
+	/* Translate "192.168.2.100" to a 32-bit number, network-endian. */
+	for( uxOctetNumber = 0u; uxOctetNumber < socketMAX_IP_ADDRESS_OCTETS; uxOctetNumber++ )
+	{
+		ulValue = 0uL;
+
+		while( ( *pcIPAddress >= '0' ) && ( *pcIPAddress <= '9' ) )
+		{
+		char cChar;
+			/* Move previous read characters into the next decimal
+			position. */
+			ulValue *= ulDecimalBase;
+
+			/* Add the binary value of the ascii character. */
+			cChar = pcIPAddress[ 0 ] - '0';/*lint !e9034: (Note -- Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required]. */
+			ulValue += ( uint32_t )cChar;/*lint !e571: (Warning -- Suspicious cast) */
+
+			/* Move to next character in the string. */
+			pcIPAddress++;
+		}
+
+		/* Check characters were read. */
+		if( pcIPAddress == pcSource )
+		{
+			xResult = pdFAIL;
+		}
+
+		/* Check the value fits in an 8-bit number. */
+		if( ulValue > 0xffUL )
+		{
+			xResult = pdFAIL;
+		}
+		else
+		{
+			ucOctet[ uxOctetNumber ] = ( uint8_t ) ulValue;
+
+			/* Check the next character is as expected. */
+			if( uxOctetNumber < ( socketMAX_IP_ADDRESS_OCTETS - 1u ) )
+			{
+				if( *pcIPAddress != '.' )
+				{
+					xResult = pdFAIL;
+				}
+				else
+				{
+					/* Move past the dot. */
+					pcIPAddress++;
+				}
 			}
 		}
 
-		if( *pcIPAddress != ( char ) 0 )
+		if( xResult == pdFAIL )
 		{
-			/* Expected the end of the string. */
-			xResult = pdFAIL;
+			/* No point going on. */
+			break;
 		}
-
-		if( uxOctetNumber != socketMAX_IP_ADDRESS_OCTETS )
-		{
-			/* Didn't read enough octets. */
-			xResult = pdFAIL;
-		}
-
-		if( xResult == pdPASS )
-		{
-			/* lint: ucOctet has been set because xResult == pdPASS. */
-			ulReturn = FreeRTOS_inet_addr_quick( ucOctet[ 0 ], ucOctet[ 1 ], ucOctet[ 2 ], ucOctet[ 3 ] );	/*lint !e644 Variable (line 1861) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]) */
-		}
-
-		return ulReturn;
 	}
 
-#endif /* ipconfigINCLUDE_FULL_INET_ADDR */
+	if( *pcIPAddress != ( char ) 0 )
+	{
+		/* Expected the end of the string. */
+		xResult = pdFAIL;
+	}
+
+	if( uxOctetNumber != socketMAX_IP_ADDRESS_OCTETS )
+	{
+		/* Didn't read enough octets. */
+		xResult = pdFAIL;
+	}
+
+	if( xResult == pdPASS )
+	{
+		/* lint: ucOctet has been set because xResult == pdPASS. */
+		ulReturn = FreeRTOS_inet_addr_quick( ucOctet[ 0 ], ucOctet[ 1 ], ucOctet[ 2 ], ucOctet[ 3 ] );	/*lint !e644 Variable (line 1861) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]) */
+	}
+	memcpy( pvDestination, &( ulReturn ), sizeof( ulReturn ) );
+
+	return 1;
+}
+/*-----------------------------------------------------------*/
+
+uint32_t FreeRTOS_inet_addr( const char * pcIPAddress )
+{
+uint32_t ulReturn = 0UL;
+
+	/* inet_pton AF_INET target is a 4-byte 'struct in_addr'. */
+	( void ) FreeRTOS_inet_pton4( pcIPAddress, &( ulReturn ) );
+
+	return ulReturn;
+}
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_IPv6 != 0 )
@@ -2056,7 +2198,7 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 	 * Convert a string like 'fe80::8d11:cd9b:8b66:4a80'
 	 * to a 16-byte IPv6 address
 	 */
-	BaseType_t FreeRTOS_inet_pton6( const char *pcSource, uint8_t *pucDest )
+	BaseType_t FreeRTOS_inet_pton6( const char *pcSource, void *pvDestination )
 	{
 	uint8_t *pucTarget, *pucEnd, *pucColon;
 	//const char *curtok;
@@ -2065,6 +2207,7 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 	uint8_t ucNew;
 	BaseType_t xResult;
 	BaseType_t xHadDigit;
+	uint8_t *pucDest = pvDestination;	/*lint !e9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]. */
 
 		pucTarget = pucDest;
 		memset( pucTarget, 0, ipSIZE_OF_IPv6_ADDRESS );
@@ -3427,12 +3570,12 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		{
 			if( xIsInputStream != 0 )
 			{
-				iptraceMEM_STATS_ADD( tcpRX_STREAM_BUFFER, pxBuffer, uxSize );
+				iptraceMEM_STATS_CREATE( tcpRX_STREAM_BUFFER, pxBuffer, uxSize );
 			}
 			else
 			{
-				/* In case 'iptraceMEM_STATS_ADD' is undefined, lint will complain about an empty else-branch. */
-				iptraceMEM_STATS_ADD( tcpTX_STREAM_BUFFER, pxBuffer, uxSize );
+				/* Lint wants at least a comment, in case the macro is empty. */
+				iptraceMEM_STATS_CREATE( tcpTX_STREAM_BUFFER, pxBuffer, uxSize );
 			}
 
 			/* Clear the markers of the stream */

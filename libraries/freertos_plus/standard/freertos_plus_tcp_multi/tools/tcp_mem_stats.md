@@ -1,4 +1,4 @@
-tcp_mem_stats.c
+tcp_mem_stats.c : FreeRTOS+TCP Memory Statistics
 
 This module can be used in any project on any platform that uses FreeRTOS+TCP.
 
@@ -30,12 +30,14 @@ How to include 'tcp_mem_stats' into a project:
 	#define ipconfigTCP_MEM_STATS_MAX_ALLOCATION		( 128 )
 	#include "../tools/tcp_mem_stats.h"
 
-Later on, the module can disabled by setting `ipconfigUSE_TCP_MEM_STATS` to `0`.
+Later on, the module can disabled by setting `#define ipconfigUSE_TCP_MEM_STATS 0`.
 
-The summaries at the bottom will only be written when `iptraceMEM_STATS_CLOSE()` is called.
-The application is is responsible for calling iptraceMEM_STATS_CLOSE().
+`ipconfigTCP_MEM_STATS_MAX_ALLOCATION` is the maximum number of objects that can be followed at any time.
+A socket that has 2 stream buffers counts as 3 objects ( needing 3 x 16 = 48 bytes to store their properties ).
 
-The summary looks like this:
+The **summary** at the bottom will only be written when `iptraceMEM_STATS_CLOSE()` is called.
+The application is responsible for calling `iptraceMEM_STATS_CLOSE()`.
+The summary at the bottom looks like this:
 
 	Totals,,,=MAX(D25:D31),,=MIN(F25:F31),=MAX(G25:G31)
 	Maximum RAM usage:,,,=SUM(D20;D32)

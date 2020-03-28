@@ -24,17 +24,17 @@ typedef enum xTCP_MEMORY
 
 #if( ipconfigUSE_TCP_MEM_STATS != 0 )
 
-	void vTCPMemStatAdd( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize );
+	void vTCPMemStatCreate( TCP_MEMORY_t xMemType, void *pxObject, size_t uxSize );
 
-	void vTCPMemStatRemove( void *pxObject );
+	void vTCPMemStatDelete( void *pxObject );
 
 	void vTCPMemStatClose( void );
 
-	#define iptraceMEM_STATS_ADD( xMemType, pxObject, uxSize ) \
-		vTCPMemStatAdd( xMemType, pxObject, uxSize )
+	#define iptraceMEM_STATS_CREATE( xMemType, pxObject, uxSize ) \
+		vTCPMemStatCreate( xMemType, pxObject, uxSize )
 
-	#define iptraceMEM_STATS_REMOVE( pxObject ) \
-		vTCPMemStatRemove( pxObject )
+	#define iptraceMEM_STATS_DELETE( pxObject ) \
+		vTCPMemStatDelete( pxObject )
 
 	#define iptraceMEM_STATS_CLOSE() \
 		vTCPMemStatClose()

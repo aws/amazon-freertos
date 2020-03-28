@@ -30,6 +30,7 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
+#include "task.h"
 #include "list.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_IP_Private.h"
@@ -39,6 +40,8 @@
 #include "unity_fixture.h"
 #include "unity.h"
 #include "iot_freertos_tcp_test_access_declare.h"
+
+#include "iot_freertos_tcp_test_access_tcp_define.h"
 
 /**
  * @brief Configuration for this test group.

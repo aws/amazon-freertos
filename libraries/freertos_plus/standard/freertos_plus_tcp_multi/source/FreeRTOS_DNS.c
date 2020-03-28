@@ -2266,4 +2266,10 @@ BaseType_t xReturn;
 
 #endif /* ipconfigUSE_DNS != 0 */
 
+/*-----------------------------------------------------------*/
+
+/* Provide access to private members for testing. */
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+	#include "iot_freertos_tcp_test_access_dns_define.h"
+#endif
 
