@@ -46,8 +46,8 @@
                 )
     set_target_properties(utils PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            COMPILE_FLAGS "-Wall -Og -pthread"
-            LINK_FLAGS "-Wall -Og -pthread -lpthread"
+            COMPILE_FLAGS "-Wall -Og -pthread -ggdb3"
+            LINK_FLAGS "-Wall -Og -pthread -lpthread -ggdb3"
         )
 
     # add unit test subdirectories here
