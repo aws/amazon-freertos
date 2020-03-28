@@ -474,7 +474,6 @@ static BTStatus_t IotBle_SendResponse_Callback( IotBleEventResponse_t * pResp,
                                                 uint32_t transId,
                                                 int numCalls )
 {
-
     n_ble_send_response_calls++;
     return eBTStatusSuccess;
 }
@@ -1387,7 +1386,7 @@ void test_RXLargeMesgCharCallback_WithServiceDNE( void )
  */
 void test_RXLargeMesgCharCallback_Read( void )
 {
-     const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
 
     init_transfers();
     IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
