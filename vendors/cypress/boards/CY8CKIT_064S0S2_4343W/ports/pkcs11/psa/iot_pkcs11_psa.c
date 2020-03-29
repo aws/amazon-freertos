@@ -1151,6 +1151,11 @@ CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
     SemaphoreHandle_t xMutex = NULL;
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+    psa_status_t status;
+    psa_key_handle_t key_handle;
+    struct psa_storage_info_t ps_info;
+#endif
 
     if( xP11Context.xIsInitialized == CK_TRUE )
     {
@@ -1175,8 +1180,40 @@ CK_RV prvMbedTLS_Initialize( void )
     {
         CRYPTO_Init();
 
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+#define PSA_KEY_ID_VENDOR_DEVICE_KEY (PSA_KEY_ID_VENDOR_MIN + 1)
+
+        status = psa_open_key(PSA_KEY_ID_VENDOR_DEVICE_KEY, &key_handle);
+        if (status == PSA_SUCCESS) {
+            P11KeyConfig.uxDevicePrivateKey = key_handle;
+            P11KeyConfig.ulDevicePrivateKeyMark = pkcs11OBJECT_PRESENT_MAGIC + sizeof(key_handle);
+        }
+        else 
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+            PKCS11_PRINT( ( "ERROR: Failed to open vendor key(%x) err=0x%x. \r\n", PSA_KEY_ID_VENDOR_DEVICE_KEY, status ) );
+        }
+
+        if( xResult == CKR_OK )
+        {
+            /* Retrieve device certificate info */
+            status = psa_ps_get_info( P11KeyConfig.uxDeviceCertificate, &ps_info);
+            if (status == PSA_SUCCESS) {
+                P11KeyConfig.ulDeviceCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
+
+                /* PSA Crypto library should haven been initialised successfully in secure world. */
+                xP11Context.xIsInitialized = CK_TRUE;
+            }
+            else
+            {
+               xResult = CKR_ARGUMENTS_BAD;
+               PKCS11_PRINT( ( "ERROR: Failed to retrieve device certificate information  err=0x%x. \r\n",  status ) );
+            }
+        }
+#else
         /* PSA Crypto library should haven been initialised successfully in secure world. */
         xP11Context.xIsInitialized = CK_TRUE;
+#endif /* pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED */
     }
     return xResult;
 }

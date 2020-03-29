@@ -128,4 +128,14 @@
  */
 #define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
+/**
+ * @brief Set to 1 if vendor provisioned device certificate is supported
+ *
+ * If set to 0, imported certificate will be used for client authentication
+ * aws_ota_codesigner_certificate.h.
+ *
+ */
+#define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    0
+
+
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
