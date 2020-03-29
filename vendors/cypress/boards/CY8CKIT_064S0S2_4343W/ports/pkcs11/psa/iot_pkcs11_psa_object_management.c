@@ -35,8 +35,19 @@
 #include "iot_pkcs11_psa_object_management.h"
 #include "iot_pkcs11_psa_input_format.h"
 
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+#define CY_DEVICE_CERTIFICATE_SLOT (0x100)
+
+extern int convert_pem_to_der( const unsigned char * pucInput, size_t xLen,
+                        unsigned char * pucOutput, size_t * pxOlen );
+#endif
+
 P11KeyConfig_t P11KeyConfig =
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+{.uxDeviceCertificate = CY_DEVICE_CERTIFICATE_SLOT,
+#else
 {.uxDeviceCertificate = 5U,
+#endif
  .uxJitpCertificate = 6U,
  .uxRootCertificate = 7U,
 };
@@ -388,6 +399,33 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
          */
         if( ( P11KeyConfig.ulDeviceCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC )
         {
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+            size_t xPemLen = ( size_t ) P11KeyConfig.ulDeviceCertificateMark & pkcs11OBJECT_LENGTH_MASK;
+            uint8_t * pucPemObject = pvPortMalloc(xPemLen);
+            size_t xDerLen = *pulDataSize;
+            int iConversionReturn;
+
+            if ( pucPemObject != NULL )
+            {
+                uxStatus = psa_ps_get( P11KeyConfig.uxDeviceCertificate, 0, xPemLen, pucPemObject, &xPemLen );
+                if ( uxStatus == PSA_SUCCESS )
+                {
+                    /* Convert the certificate to DER format */
+                    iConversionReturn = convert_pem_to_der(pucPemObject, xPemLen, ppucData, &xDerLen);
+                    if (iConversionReturn == 0)
+                    {
+                        *pulDataSize = xDerLen;
+                        *pIsPrivate = CK_FALSE;
+                        ulReturn = CKR_OK;
+                    }
+                }
+                vPortFree(pucPemObject);
+            }
+            else
+            {
+                ulReturn = CKR_HOST_MEMORY;
+            }
+#else /* pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED */
             ulDataSize = ( uint32_t ) P11KeyConfig.ulDeviceCertificateMark & pkcs11OBJECT_LENGTH_MASK;
             uxStatus = psa_ps_get( P11KeyConfig.uxDeviceCertificate, 0, ulDataSize, ppucData, &ulDataSize );
             if ( uxStatus == PSA_SUCCESS )
@@ -396,6 +434,7 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                 *pIsPrivate = CK_FALSE;
                 ulReturn = CKR_OK;
             }
+#endif /* pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED */
         }
     }
 
