@@ -272,8 +272,10 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
+#if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();
+#endif
 
         /* Start the demo tasks. */
         DEMO_RUNNER_RunDemos();
