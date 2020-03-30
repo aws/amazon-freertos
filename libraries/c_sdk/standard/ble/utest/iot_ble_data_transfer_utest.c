@@ -33,7 +33,7 @@ void initCallbacks();
  ******************************************************************************/
 static int32_t malloc_free_calls = 0;
 static uint32_t n_dummy_callback_calls = 0;
-
+static uint32_t n_ble_send_response_calls = 0;
 
 
 /*******************************************************************************
@@ -469,6 +469,15 @@ static BTStatus_t IotBle_UnregisterEventCb_Callback( IotBleEvents_t event,
     return eBTStatusSuccess;
 }
 
+static BTStatus_t IotBle_SendResponse_Callback( IotBleEventResponse_t * pResp,
+                                                uint16_t connId,
+                                                uint32_t transId,
+                                                int numCalls )
+{
+    n_ble_send_response_calls++;
+    return eBTStatusSuccess;
+}
+
 /*******************************************************************************
  * Unity fixtures
  ******************************************************************************/
@@ -488,6 +497,8 @@ void setUp( void )
 
     IotBle_RegisterEventCb_Stub( IotBle_RegisterEventCb_Callback );
     IotBle_UnRegisterEventCb_Stub( IotBle_UnregisterEventCb_Callback );
+
+    n_ble_send_response_calls = 0;
 
     IotLog_Generic_Ignore();
 }
@@ -1223,7 +1234,6 @@ void test_RXMesgCharCallback_HappyPath( void )
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), true );
 }
 
-
 /**
  * @brief Client sends message that was couldn't fit within current MTU.
  */
@@ -1254,6 +1264,24 @@ void test_RXMesgCharCallback_WithCloseChannel( void )
 
     uint8_t msg[] = "This is test data";
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR, msg, sizeof( msg ), false );
+}
+
+
+/**
+ * @brief Read request on RX characteristic is invalid and should not
+ * trigger a response from datatransfer service.
+ */
+void test_RXMesgCharCallback_Read( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    init_transfers();
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
+
+    IotBle_SendResponse_Stub( IotBle_SendResponse_Callback );
+    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_CHAR );
+    TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
 
 /**
@@ -1350,6 +1378,23 @@ void test_RXLargeMesgCharCallback_WithServiceDNE( void )
 
     init_transfers();
     generate_client_write_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR, NULL, 0, false );
+}
+
+/**
+ * @brief Read request on RX Large characteristic is invalid and should not
+ * trigger a response from datatransfer service.
+ */
+void test_RXLargeMesgCharCallback_Read( void )
+{
+    const uint8_t service_variant = IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT;
+
+    init_transfers();
+    IotBleDataTransferChannel_t * pChannel = get_open_channel( service_variant );
+    IotBleDataTransfer_SetCallback( pChannel, channel_callback, NULL );
+
+    IotBle_SendResponse_Stub( IotBle_SendResponse_Callback );
+    generate_client_read_event( service_variant, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR );
+    TEST_ASSERT_EQUAL( 0, n_ble_send_response_calls );
 }
 
 /**

@@ -102,8 +102,8 @@
             .xCharacteristic =                                                        \
             {                                                                         \
                 .xUuid        = _UUID128( _RX_CHAR_UUID( identifier ) ),              \
-                .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ), \
-                .xProperties  = ( eBTPropRead | eBTPropWrite )                        \
+                .xPermissions = ( IOT_BLE_CHAR_WRITE_PERM ),                          \
+                .xProperties  = ( eBTPropWrite )                                      \
             }                                                                         \
         },                                                                            \
         {                                                                             \
@@ -128,8 +128,8 @@
             .xCharacteristic =                                                        \
             {                                                                         \
                 .xUuid        = _UUID128( _RX_LARGE_UUID( identifier ) ),             \
-                .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ), \
-                .xProperties  = ( eBTPropRead | eBTPropWrite )                        \
+                .xPermissions = ( IOT_BLE_CHAR_WRITE_PERM ),                          \
+                .xProperties  = ( eBTPropWrite )                                      \
             }                                                                         \
         }                                                                             \
     }
