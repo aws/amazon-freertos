@@ -75,13 +75,11 @@ else
 TFM_PSOC64_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm
 TFM_PSOC64_SECURE_PATH=$(TFM_PSOC64_PATH)/security
 TFM_POLICY_FILE=$(TFM_PSOC64_SECURE_PATH)/$(CY_SECURE_POLICY_NAME)_debug_2M.json
-TFM_SIGN_SCRIPT=$(TFM_PSOC64_SECURE_PATH)/sign.py
+TFM_SIGN_SCRIPT=cysecuretools
 TFM_DEVICE_NAME=cy8ckit-064b0s2-4343w
 TFM_CM0_HEX=$(CY_CONFIG_DIR)/cm0.hex
 TFM_CM4_ELF=$(CY_CONFIG_DIR)/cm4.elf
 TFM_CM4_HEX=$(CY_CONFIG_DIR)/cm4.hex
-TFM_CM0_SIGNED=$(CY_CONFIG_DIR)/cm0_signed.hex
-TFM_CM4_SIGNED=$(CY_CONFIG_DIR)/cm4_signed.hex
 
 ifeq ($(TOOLCHAIN),GCC_ARM)
 CY_BSP_POSTBUILD=$(CY_CROSSPATH)/arm-none-eabi-objcopy -R .cy_sflash_user_data -R .cy_toc_part2 $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_ELF);
@@ -93,37 +91,22 @@ CY_BSP_POSTBUILD=$(CY_CROSSPATH)/fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONF
 endif
 
 CY_BSP_POSTBUILD+=cp $(TFM_PSOC64_PATH)/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex $(TFM_CM0_HEX);
-CY_BSP_POSTBUILD+=$(CY_PYTHON_PATH) $(TFM_SIGN_SCRIPT) -s $(TFM_CM0_HEX) -n $(TFM_CM4_HEX) -p $(TFM_POLICY_FILE) -d $(TFM_DEVICE_NAME)
+CY_BSP_POSTBUILD+=$(TFM_SIGN_SCRIPT) --policy "${TFM_POLICY_FILE}" --target "${TFM_DEVICE_NAME}" sign-image --hex "${TFM_CM0_HEX}" --image-type BOOT --image-id 1
+CY_BSP_POSTBUILD+=$(TFM_SIGN_SCRIPT) --policy "${TFM_POLICY_FILE}" --target "${TFM_DEVICE_NAME}" sign-image --hex "${TFM_CM4_HEX}" --image-type BOOT --image-id 16
 
 # BSP programming flow
 CY_BSP_PROGRAM=true
-CY_OPENOCD_PROGRAM_ERASE= -s ${CY_OPENOCD_DIR}/scripts \
+CY_OPENOCD_PROGRAM_FLASH= -s ${CY_OPENOCD_DIR}/scripts \
                           -f interface/kitprog3.cfg \
                           -f target/psoc6_2m_secure.cfg \
-                          -c "init; reset init" \
-                          -c "flash erase_address 0x101c0000 0x10000" \
-                          -c "shutdown"
-
-CY_OPENOCD_PROGRAM_TFM_S= -s $(CY_OPENOCD_DIR)/scripts \
-                         -f interface/kitprog3.cfg \
-                         -c "set ENABLE_ACQUIRE 0" \
-                         -f target/psoc6_2m_secure.cfg \
-                         -c "init; reset init; flash write_image erase $(TFM_CM0_SIGNED)" \
-                         -c "resume; reset; exit"
-
-CY_OPENOCD_PROGRAM_TFM_NS= -s $(CY_OPENOCD_DIR)/scripts \
-                         -f interface/kitprog3.cfg \
-                         -c "set ENABLE_ACQUIRE 0" \
-                         -f target/psoc6_2m_secure.cfg \
-                         -c "init; reset init; flash write_image erase $(TFM_CM4_SIGNED)" \
-                         -c "resume; reset; exit"
+                          -c "init; reset; flash erase_address 0x101c0000 0x10000" \
+                          -c "init; reset; flash write_image erase ${TFM_CM0_HEX}" \
+                          -c "init; reset; flash write_image erase ${TFM_CM4_HEX}" \
+                          -c "reset; exit"
 
 program: build qprogram
 	@echo;\
 	echo "Programming PSoC64 ... ";\
-	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_ERASE)
-	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_TFM_S)
-	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_TFM_NS)
-
+	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_FLASH)
 
 endif

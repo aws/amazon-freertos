@@ -36,12 +36,12 @@
             ],
             "destroy_flash" : [
                 {
-                    "start" : 268435456,
-                    "size" : 851968
+                    "start" : 270270464,
+                    "size" : 65536
                 },
                 {
-                    "start" : 269483520,
-                    "size" : 16
+                    "start" : 268763136,
+                    "size" : 1179648
                 }
             ],
             "key" : 5
@@ -50,13 +50,21 @@
     "wounding" :
     {
     },
+    "tfm_attestation_data":
+    {
+        "verification_service_url": "www.trustedfirmware.org",
+        "attestation_profile_definition": "PSA_IOT_PROFILE_1",
+        "hw_version": "060456527282910010",
+        "implementation_id": [170, 170, 170, 170, 170, 170, 170, 170, 187, 187, 187, 187, 187, 187, 187, 187,
+                              204, 204, 204, 204, 204, 204, 204, 204, 221, 221, 221, 221, 221, 221, 221, 221]
+    },
     "boot_upgrade" :
     {
         "title": "upgrade_policy",
         "firmware": [
             {
                 "boot_auth": [
-                    3
+                    5
                 ],
                 "id": 0,
                 "launch": 1,
@@ -64,7 +72,7 @@
                 "smif_id": 0,
                 "upgrade": false,
                 "upgrade_auth": [
-                    3
+                    5
                 ],
                 "resources": [
                     {
@@ -92,7 +100,6 @@
                     { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
                 ],
                 "id": 1,
-                "launch": 16,
                 "monotonic": 0,
                 "smif_id": 0,
                 "multi_image" : 1,
@@ -161,7 +168,11 @@
                     }
                 ]
             }
-        ]
+        ],
+        "reprovision": {
+            "boot_loader": true,
+            "keys_and_policies": true
+        }
     },
     "cy_bootloader":
     {
@@ -169,8 +180,18 @@
     },
     "provisioning":
     {
-        "packet_dir": "../packet",
+        "packet_dir": "./packets",
         "chain_of_trust": []
+    },
+    "pre_build": {
+        "oem_public_key": "./common/prebuilt/oem_state.json",
+        "hsm_public_key": "./common/prebuilt/hsm_state.json",
+        "hsm_private_key": "./common/prebuilt/hsm_state.json",
+        "provision_group_private_key": false,
+        "group_private_key": "./keys/grp_priv_key.json",
+        "provision_device_private_key": false,
+        "device_private_key": "./keys/dev_priv_key.json",
+        "cy_auth": "./common/prebuilt/cy_auth.jwt"
     }
 }
 
