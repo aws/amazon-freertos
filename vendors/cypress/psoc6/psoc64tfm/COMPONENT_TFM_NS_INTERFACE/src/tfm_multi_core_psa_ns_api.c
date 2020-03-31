@@ -40,8 +40,19 @@
 
 static void mailbox_wait_reply(mailbox_msg_handle_t handle)
 {
+    /*
+     * If the system can support multiple outstanding NS PSA Client calls, call
+     * tfm_ns_mailbox_wait_reply() to sleep and wait for reply. The NS side
+     * should implement tfm_ns_mailbox_hal_wait_reply() and wake-up mechanism.
+     * Otherwise, by default, call tfm_ns_mailbox_is_msg_replied() to simply
+     * poll the reply status of the mailbox message of current thread.
+     */
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
+    tfm_ns_mailbox_wait_reply(handle);
+#else
     while (!tfm_ns_mailbox_is_msg_replied(handle)) {
     }
+#endif
 }
 
 /**** API functions ****/
