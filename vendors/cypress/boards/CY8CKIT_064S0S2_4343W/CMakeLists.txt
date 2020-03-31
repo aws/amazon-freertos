@@ -44,7 +44,6 @@ set(LINKER_SCRIPT_NAME "cyb06xxa_cm4_dual")
 
 set(CY_TFM_HEX "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
 set(CY_TFM_POLICY_FILE "${cy_psoc6_dir}/psoc64tfm/security/policy_multi_img_CM0p_CM4_debug_2M.json")
-set(CY_TFM_SIGN_SCRIPT "${cy_psoc6_dir}/psoc64tfm/security/sign.py")
 set(CY_DEVICE_NAME "cy8ckit-064s0s2-4343w")
 
 # Python path definition

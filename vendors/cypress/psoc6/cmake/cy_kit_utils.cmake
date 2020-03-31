@@ -785,8 +785,6 @@ function(cy_kit_generate)
         set(CY_CM0_IMG "${CMAKE_BINARY_DIR}/cm0.hex")
         set(CY_CM4_IMG "${CMAKE_BINARY_DIR}/cm4.hex")
         # for file suitable for uploading to AWS
-        set(CY_CM0_SIGNED_IMG "${CMAKE_BINARY_DIR}/cm0_signed.hex")
-        set(CY_CM4_SIGNED_IMG "${CMAKE_BINARY_DIR}/cm4_signed.hex")
         set(CY_APP_CM0_BIN "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}_cm0.bin")
         set(CY_APP_CM4_BIN "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}_cm4.bin")
         set(CY_CM0_UPGRADE_IMG "${CMAKE_BINARY_DIR}/cm0_upgrade.hex")
@@ -799,9 +797,6 @@ function(cy_kit_generate)
         endif()
         if(NOT CY_TFM_POLICY_FILE)
             message(FATAL_ERROR "You must define CY_TFM_POLICY_FILE in your board CMakeLists.txt for CY_TFM_PSA")
-        endif()
-        if(NOT CY_TFM_SIGN_SCRIPT)
-            message(FATAL_ERROR "You must define CY_TFM_SIGN_SCRIPT in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
         if(NOT CY_DEVICE_NAME)
             message(FATAL_ERROR "You must define CY_DEVICE_NAME in your board CMakeLists.txt for CY_TFM_PSA")
@@ -850,10 +845,21 @@ function(cy_kit_generate)
         endif()
 
         # Sign both TFM and AFR images
+        find_program(CY_SIGN_SCRIPT cysecuretools)
+        if(NOT CY_SIGN_SCRIPT )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
+
         add_custom_command(
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy "${CY_TFM_HEX}"    "${CY_CM0_IMG}"
-            COMMAND "${CY_PYTHON_PATH}" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
+            COMMAND "${CMAKE_COMMAND}" -E copy "${CY_CM0_IMG}"    "${CY_CM0_UPGRADE_IMG}"
+            COMMAND "${CMAKE_COMMAND}" -E copy "${CY_CM4_IMG}"    "${CY_CM4_UPGRADE_IMG}"
+            COMMAND "${CY_SIGN_SCRIPT}" --policy "${CY_TFM_POLICY_FILE}" --target "${CY_DEVICE_NAME}" sign-image --hex "${CY_CM0_IMG}" --image-type BOOT --image-id 1
+            COMMAND "${CY_SIGN_SCRIPT}" --policy "${CY_TFM_POLICY_FILE}" --target "${CY_DEVICE_NAME}" sign-image --hex "${CY_CM4_IMG}" --image-type BOOT --image-id 16
+            COMMAND "${CY_SIGN_SCRIPT}" --policy "${CY_TFM_POLICY_FILE}" --target "${CY_DEVICE_NAME}" sign-image --hex "${CY_CM0_UPGRADE_IMG}" --image-type UPGRADE --image-id 1
+            COMMAND "${CY_SIGN_SCRIPT}" --policy "${CY_TFM_POLICY_FILE}" --target "${CY_DEVICE_NAME}" sign-image --hex "${CY_CM4_UPGRADE_IMG}" --image-type UPGRADE --image-id 16
+
         )
         #convert signed hex files to binary format
         #CLANG and IAR do not provide a tool, search for a generic objcopy
@@ -865,12 +871,13 @@ function(cy_kit_generate)
         endif()
         add_custom_command(
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_SIGNED_IMG}"  "${CY_APP_CM0_BIN}"
-            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_SIGNED_IMG}"  "${CY_APP_CM4_BIN}"
 
             # Adding conversion upgrade.hex to upgrade.bin
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_UPGRADE_IMG}"  "${CY_APP_CM0_UPGRADE_BIN}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_UPGRADE_IMG}"  "${CY_APP_CM4_UPGRADE_BIN}"
+
+            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_IMG}"  "${CY_APP_CM0_BIN}"
+            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_IMG}"  "${CY_APP_CM4_BIN}"
         )
 
         if(OTA_SUPPORT)
