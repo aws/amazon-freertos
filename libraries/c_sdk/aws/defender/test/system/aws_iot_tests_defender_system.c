@@ -35,12 +35,15 @@
 
 /* Platform metrics include. */
 #include "platform/iot_metrics.h"
+#include "iot_secure_sockets.h"
 
 /* Platform network include. */
 #include "platform/iot_network.h"
 
 /* Defender internal includes. */
 #include "private/aws_iot_defender_internal.h"
+
+#include "aws_test_tcp.h"
 
 #include "iot_init.h"
 
@@ -72,6 +75,11 @@
 
 /* Use a big number to represent no event happened in defender. */
 #define NO_EVENT                             10000
+
+static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
+                                                                 tcptestECHO_SERVER_ADDR1,
+                                                                 tcptestECHO_SERVER_ADDR2,
+                                                                 tcptestECHO_SERVER_ADDR3 );
 
 /* Empty callback structure passed to startInfo. */
 static const AwsIotDefenderCallback_t _emptyCallback = { .function = NULL, .pCallbackContext = NULL };
@@ -122,6 +130,8 @@ static void _resetCalbackInfo( void );
 
 static IotMqttError_t _startMqttConnection( void );
 static void _stopMqttConnection( void );
+
+static Socket_t _createSocketToEchoServer();
 
 TEST_GROUP( Defender_System );
 
@@ -218,6 +228,8 @@ TEST_GROUP_RUNNER( Defender_System )
      */
     RUN_TEST_CASE( Defender_System, Metrics_TCP_connections_all_are_published );
 
+    RUN_TEST_CASE( Defender_System, Metrics_TCP_connections_all_are_published_multiple_sockets );
+
     /*
      * Setup: set "tcp connections" with "total count"; register test callback
      * Action: call Start API
@@ -300,6 +312,40 @@ TEST( Defender_System, Metrics_TCP_connections_all_are_published )
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1 );
+}
+
+
+TEST( Defender_System, Metrics_TCP_connections_all_are_published_multiple_sockets )
+{
+    AwsIotDefenderError_t error = AWS_IOT_DEFENDER_SUCCESS;
+    IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
+
+    /* start actual MQTT connection */
+    mqttError = _startMqttConnection();
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, mqttError );
+    _startInfo.mqttConnection = _mqttConnection;
+
+    Socket_t socket = _createSocketToEchoServer();
+
+    if( TEST_PROTECT() )
+    {
+        /* Set "all metrics" for TCP connections metrics group. */
+        error = AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
+                                           AWS_IOT_DEFENDER_METRICS_ALL );
+        TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
+        /* Set test callback to verify report. */
+        _startInfo.callback = _testCallback;
+        /* Start defender. */
+        error = AwsIotDefender_Start( &_startInfo );
+        TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
+        /* Wait certain time for _reportAccepted to be true. */
+        _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
+        _verifyMetricsCommon();
+        _verifyTcpConnections( 2 );
+    }
+
+    SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
+    SOCKETS_Close( socket );
 }
 
 TEST( Defender_System, Metrics_TCP_connections_total_are_published )
@@ -760,3 +806,28 @@ static void _verifyTcpConnections( int total )
 }
 
 /*-----------------------------------------------------------*/
+
+static Socket_t _createSocketToEchoServer()
+{
+    static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
+    static const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
+
+    Socket_t socket;
+    SocketsSockaddr_t echoServerAddress;
+    int32_t error = 0;
+
+    echoServerAddress.usPort = SOCKETS_htons( tcptestECHO_PORT );
+    echoServerAddress.ulAddress = _ECHO_SERVER_IP;
+
+    socket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
+    TEST_ASSERT_NOT_EQUAL( SOCKETS_INVALID_SOCKET, socket );
+
+    /* Set a time out so a missing reply does not cause the task to block indefinitely. */
+    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
+    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
+
+    error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
+    TEST_ASSERT_EQUAL( 0, error );
+
+    return socket;
+}
