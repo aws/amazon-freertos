@@ -103,7 +103,6 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.S)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.s)\
 	$(wildcard $(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files/*.c)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)\
 
 INCLUDES+=\
@@ -112,8 +111,23 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_APP_PATH)/GeneratedSource\
 	$(CY_AFR_BOARD_APP_PATH)/startup\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files\
-	$(CY_AFR_BOARD_PATH)/ports/pkcs11\
 	$(CY_AFR_BOARD_PATH)/ports/wifi
+
+ifneq ($(CY_TFM_PSA_SUPPORTED),)
+SOURCES+=\
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
+
+INCLUDES+=\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11
+else
+SOURCES+=\
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)
+
+INCLUDES+=\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
+    $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+endif
+
 
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
@@ -215,7 +229,6 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
 
@@ -233,6 +246,14 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+
+ifneq ($(CY_TFM_PSA_SUPPORTED),)
+SOURCES+=\
+    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+
+endif
+
+
 
 ################################################################################
 # libraries (c_sdk)
