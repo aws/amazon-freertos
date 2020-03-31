@@ -84,12 +84,12 @@ TFM_CM0_SIGNED=$(CY_CONFIG_DIR)/cm0_signed.hex
 TFM_CM4_SIGNED=$(CY_CONFIG_DIR)/cm4_signed.hex
 
 ifeq ($(TOOLCHAIN),GCC_ARM)
-CY_BSP_POSTBUILD=arm-none-eabi-objcopy -R .cy_sflash_user_data -R .cy_toc_part2 $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_ELF);
-CY_BSP_POSTBUILD+=arm-none-eabi-objcopy -O ihex $(TFM_CM4_ELF) $(TFM_CM4_HEX);
+CY_BSP_POSTBUILD=$(CY_CROSSPATH)/arm-none-eabi-objcopy -R .cy_sflash_user_data -R .cy_toc_part2 $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_ELF);
+CY_BSP_POSTBUILD+=$(CY_CROSSPATH)/arm-none-eabi-objcopy -O ihex $(TFM_CM4_ELF) $(TFM_CM4_HEX);
 else ifeq ($(TOOLCHAIN),IAR)
 CY_BSP_POSTBUILD=${CY_CROSSPATH}/ielftool --ihex $(CY_CONFIG_DIR)/$(APPNAME).elf $(TFM_CM4_HEX);
 else ifeq ($(TOOLCHAIN),ARM)
-CY_BSP_POSTBUILD=fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONFIG_DIR)/$(APPNAME).elf;
+CY_BSP_POSTBUILD=$(CY_CROSSPATH)/fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONFIG_DIR)/$(APPNAME).elf;
 endif
 
 CY_BSP_POSTBUILD+=cp $(TFM_PSOC64_PATH)/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex $(TFM_CM0_HEX);
