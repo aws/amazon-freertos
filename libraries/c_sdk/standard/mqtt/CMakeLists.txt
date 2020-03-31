@@ -8,9 +8,27 @@ afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
-set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+set(c_sdk_mqtt_dir "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C/libraries/standard/mqtt")
+set(local_src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(c_sdk_src_dir "${c_sdk_mqtt_dir}/src")
+set(local_inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(c_sdk_inc_dir "${c_sdk_mqtt_dir}/include")
+set(local_test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+set(c_sdk_test_dir "${c_sdk_mqtt_dir}/test")
+
+#temporary change to set the build flag 
+set(BUILD_FROM_UNIFIED_WS 1)
+
+#set the corresponding source directory
+if(${BUILD_FROM_UNIFIED_WS})
+    set(src_dir "${c_sdk_src_dir}")
+    set(inc_dir "${c_sdk_inc_dir}")
+    set(test_dir "${c_sdk_test_dir}")
+else()
+    set(src_dir "${local_src_dir}")
+    set(inc_dir "${local_inc_dir}")
+    set(test_dir "${local_test_dir}")
+endif()
 
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
@@ -31,24 +49,27 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_network.c"
         "${src_dir}/iot_mqtt_operation.c"
         "${src_dir}/iot_mqtt_serialize.c"
+        "${src_dir}/iot_mqtt_helper.c"
+        "${src_dir}/iot_mqtt_lightweight_api.c"
         "${src_dir}/iot_mqtt_static_memory.c"
         "${src_dir}/iot_mqtt_subscription.c"
         "${src_dir}/iot_mqtt_validate.c"
         ${extra_mqtt_sources}
 )
 
-if(TARGET AFR::secure_sockets::mcu_port)
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE
-        "${src_dir}/iot_mqtt_agent.c"
-)
-endif()
+#if(TARGET AFR::secure_sockets::mcu_port)
+#afr_module_sources(
+#    ${AFR_CURRENT_MODULE}
+#    PRIVATE
+#        "${local_src_dir}/iot_mqtt_agent.c"
+#)
+#endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+#        "${local_inc_dir}"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}
@@ -78,18 +99,18 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
-        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
+#        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
         "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
 
-if(TARGET AFR::secure_sockets::mcu_port)
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${test_dir}/iot_test_mqtt_agent.c"
-)
-endif()
+#if(TARGET AFR::secure_sockets::mcu_port)
+#afr_module_sources(
+#    ${AFR_CURRENT_MODULE}
+#    INTERFACE
+#        "${test_dir}/iot_test_mqtt_agent.c"
+#)
+#endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}

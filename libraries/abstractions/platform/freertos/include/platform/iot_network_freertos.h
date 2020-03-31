@@ -180,4 +180,29 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection );
 extern const IotNetworkInterface_t IotNetworkAfr;
 /** @endcond */
 
+/**
+ * @cond DOXYGEN_IGNORE
+ * Doxygen should ignore this section.
+ *
+ * Forward declarations of the network types.
+ */
+struct IotNetworkServerInfo;
+struct IotNetworkCredentials;
+struct _networkConnection;
+
+/**
+ * @brief The format for remote server host and port on this system.
+ */
+typedef struct IotNetworkServerInfo * _IotNetworkServerInfo_t;
+
+/**
+ * @brief The format for network credentials on this system.
+ */
+typedef struct IotNetworkCredentials * _IotNetworkCredentials_t;
+
+/**
+ * @brief The handle of a network connection on this system.
+ */
+typedef struct _networkConnection * _IotNetworkConnection_t;
+
 #endif /* ifndef _IOT_NETWORK_AFR_H_ */

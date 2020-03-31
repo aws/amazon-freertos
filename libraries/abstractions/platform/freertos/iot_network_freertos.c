@@ -225,7 +225,7 @@ static void _networkReceiveTask( void * pArgument )
  *
  * @return #IOT_NETWORK_SUCCESS or #IOT_NETWORK_SYSTEM_ERROR.
  */
-static IotNetworkError_t _tlsSetup( const IotNetworkCredentials_t * pAfrCredentials,
+static IotNetworkError_t _tlsSetup( const struct IotNetworkCredentials * pAfrCredentials,
                                     Socket_t tcpSocket,
                                     const char * pHostName,
                                     size_t hostnameLength )
@@ -316,8 +316,8 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     _networkConnection_t * pNewNetworkConnection = NULL;
 
     /* Cast function parameters to correct types. */
-    const IotNetworkServerInfo_t * pServerInfo = pConnectionInfo;
-    const IotNetworkCredentials_t * pAfrCredentials = pCredentialInfo;
+    const struct IotNetworkServerInfo * pServerInfo = pConnectionInfo;
+    const struct IotNetworkCredentials * pAfrCredentials = pCredentialInfo;
     _networkConnection_t ** pNetworkConnection = ( _networkConnection_t ** ) pConnection;
 
     /* Check host name length against the maximum length allowed by Secure

@@ -155,4 +155,46 @@ typedef struct IotMetricsTcpConnection
     char pRemoteAddress[ IOT_METRICS_IP_ADDRESS_LENGTH ];
 } IotMetricsTcpConnection_t;
 
+/*--------------------------- Network stack types ---------------------------*/
+/*--------------------------- Network stack types ---------------------------*/
+
+/**
+ * @ingroup platform_datatypes_handles
+ * @brief The type used to represent network server info, configured with the
+ * type `_IotNetworkServerInfo_t`.
+ *
+ * For the provided ports, `_IotNetworkServerInfo_t` will be automatically configured.
+ * For other ports, `_IotNetworkServerInfo_t` should be set in `iot_config.h`.
+ *
+ * All of the provided ports configure this to #IotNetworkServerInfo, which provides
+ * the necessary information to connect to a TCP peer. For other network protocols,
+ * this type should be set to an alternate structure as needed by the other protocol.
+ */
+typedef _IotNetworkServerInfo_t    IotNetworkServerInfo_t;
+
+/**
+ * @ingroup platform_datatypes_handles
+ * @brief The type used to represent network credentials, configured with the
+ * type `_IotNetworkCredentials_t`.
+ *
+ * For the provided ports, `_IotNetworkCredentials_t` will be automatically configured.
+ * For other ports, `_IotNetworkCredentials_t` should be set in `iot_config.h`.
+ *
+ * All of the provided ports configure this to #IotNetworkCredentials, which provides
+ * the necessary information to connect to a TLS server over TCP. For other network
+ * protocols, this type should be set to an alternate structure as needed by the other
+ * protocol.
+ */
+typedef _IotNetworkCredentials_t   IotNetworkCredentials_t;
+
+/**
+ * @ingroup platform_datatypes_handles
+ * @brief The type used to represent network connections, configured with the
+ * type `_IotNetworkConnection_t`.
+ *
+ * For the provided ports, `_IotNetworkConnection_t` will be automatically configured.
+ * For other ports, `_IotNetworkConnection_t` should be set in `iot_config.h`.
+ */
+typedef _IotNetworkConnection_t    IotNetworkConnection_t;
+
 #endif /* ifndef IOT_PLATFORM_TYPES_H_ */

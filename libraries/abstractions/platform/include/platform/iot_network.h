@@ -295,7 +295,7 @@ typedef struct IotNetworkServerInfo
 {
     const char * pHostName; /**< @brief Server host name. Must be NULL-terminated. */
     uint16_t port;          /**< @brief Server port in host-order. */
-} IotNetworkServerInfo_t;
+};
 
 /**
  * @ingroup platform_datatypes_paramstructs
@@ -338,6 +338,6 @@ typedef struct IotNetworkCredentials
     size_t clientCertSize;    /**< @brief Size associated with #IotNetworkCredentials_t.pClientCert. */
     const char * pPrivateKey; /**< @brief String representing the client certificate's private key. */
     size_t privateKeySize;    /**< @brief Size associated with #IotNetworkCredentials_t.pPrivateKey. */
-} IotNetworkCredentials_t;
+};
 
 #endif /* ifndef IOT_NETWORK_H_ */
