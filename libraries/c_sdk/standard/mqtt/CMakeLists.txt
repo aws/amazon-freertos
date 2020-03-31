@@ -16,19 +16,11 @@ set(c_sdk_inc_dir "${c_sdk_mqtt_dir}/include")
 set(local_test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 set(c_sdk_test_dir "${c_sdk_mqtt_dir}/test")
 
-#temporary change to set the build flag 
-set(BUILD_FROM_UNIFIED_WS 1)
-
-#set the corresponding source directory
-if(${BUILD_FROM_UNIFIED_WS})
-    set(src_dir "${c_sdk_src_dir}")
-    set(inc_dir "${c_sdk_inc_dir}")
-    set(test_dir "${c_sdk_test_dir}")
-else()
-    set(src_dir "${local_src_dir}")
-    set(inc_dir "${local_inc_dir}")
-    set(test_dir "${local_test_dir}")
-endif()
+#set the directories to point to the C-SDK directories from
+#Unified workspace.
+set(src_dir "${c_sdk_src_dir}")
+set(inc_dir "${c_sdk_inc_dir}")
+set(test_dir "${c_sdk_test_dir}")
 
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
@@ -57,6 +49,7 @@ afr_module_sources(
         ${extra_mqtt_sources}
 )
 
+#Disable compiling of shim layer.
 #if(TARGET AFR::secure_sockets::mcu_port)
 #afr_module_sources(
 #    ${AFR_CURRENT_MODULE}
@@ -69,7 +62,6 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
-#        "${local_inc_dir}"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}
@@ -99,11 +91,11 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
-#        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
         "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
 
+#Disable compiling of Shim layer tests.
 #if(TARGET AFR::secure_sockets::mcu_port)
 #afr_module_sources(
 #    ${AFR_CURRENT_MODULE}
