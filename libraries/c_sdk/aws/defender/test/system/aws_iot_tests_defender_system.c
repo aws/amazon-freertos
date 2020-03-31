@@ -809,8 +809,8 @@ static void _verifyTcpConnections( int total )
 
 static Socket_t _createSocketToEchoServer()
 {
-    static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
-    static const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
+    const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
+    const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
 
     Socket_t socket;
     SocketsSockaddr_t echoServerAddress;
