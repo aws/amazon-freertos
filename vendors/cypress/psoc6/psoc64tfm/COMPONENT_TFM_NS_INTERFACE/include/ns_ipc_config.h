@@ -16,4 +16,7 @@
 #define IPC_TX_CHAN                            IPC_PSA_CLIENT_CALL_CHAN
 #define IPC_TX_NOTIFY_MASK                     IPC_PSA_CLIENT_CALL_NOTIFY_MASK
 
+#define PSA_CLIENT_REPLY_NVIC_IRQn             IPC_PSA_CLIENT_REPLY_IPC_INTR
+#define PSA_CLIENT_REPLY_IRQ_PRIORITY          3
+
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -55,6 +55,57 @@ uint32_t os_wrapper_thread_get_priority(void *handle, uint32_t *priority);
  * \brief Exits the calling thread
  */
 void os_wrapper_thread_exit(void);
+
+/**
+ * \brief Set the event flags for synchronizing a thread specified by handle.
+ *
+ * \note This function may not be allowed to be called from Interrupt Service
+ *       Routines.
+ *
+ * \param[in] handle    Thread handle to be notified
+ * \param[in] flags     Event flags value
+ *
+ * \return Returns \ref OS_WRAPPER_SUCCESS on success, or \ref OS_WRAPPER_ERROR
+ *         in case of error
+ */
+uint32_t os_wrapper_thread_set_flag(void *handle, uint32_t flags);
+
+/**
+ * \brief Set the event flags in an interrupt handler for synchronizing a thread
+ *        specified by handle.
+ *
+ * \param[in] handle    Thread handle to be notified
+ * \param[in] flags     Event flags value
+ *
+ * \return Returns \ref OS_WRAPPER_SUCCESS on success, or \ref OS_WRAPPER_ERROR
+ *         in case of error
+ */
+uint32_t os_wrapper_thread_set_flag_isr(void *handle, uint32_t flags);
+
+/**
+ * \brief Wait for the event flags for synchronizing threads.
+ *
+ * \note This function may not be allowed to be called from Interrupt Service
+ *       Routines.
+ *
+ * \param[in] flags     Specify the flags to wait for
+ * \param[in] timeout   Timeout value
+ *
+ * \return Returns \ref OS_WRAPPER_SUCCESS on success, or \ref OS_WRAPPER_ERROR
+ *         in case of error
+ */
+uint32_t os_wrapper_thread_wait_flag(uint32_t flags, uint32_t timeout);
+
+/**
+ * \brief Trigger OS scheduling
+ *
+ * \param[in] yield re-schedule status
+ *         \ref 1 if re-schedule is requried
+ *         \ref 0, otherwise
+ *
+ * \return no
+ */
+void  os_wrapper_isr_yield(uint32_t yield);
 
 #ifdef __cplusplus
 }
