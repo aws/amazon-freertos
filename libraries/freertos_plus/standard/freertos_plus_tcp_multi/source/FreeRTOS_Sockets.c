@@ -1971,6 +1971,7 @@ const char *pcResult;
 			pcResult = FreeRTOS_inet_ntop6( pvSource, pcDestination, uxSize );
 			break;
 		default:
+			/* errno should be set to pdFREERTOS_ERRNO_EAFNOSUPPORT. */
 			pcResult = NULL;
 			break;
 	}
@@ -2007,6 +2008,7 @@ const char *pcReturn;
 	BaseType_t xCurStart = 0;
 	BaseType_t xCurLength = 0;
 	socklen_t uxTargetIndex = 0;
+	const char *pcReturn;
 	const uint16_t *pusAddress = pvSource;	/*lint !e9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]. */
 
 		if( uxSize < 3u )
@@ -2015,6 +2017,7 @@ const char *pcReturn;
 		}
 		else
 		{
+			/* Look for the longest rtain of zero's 0:0:0... */
 			for( xIndex = 0; xIndex < 8; xIndex++ )
 			{
 			uint16_t usValue = pusAddress[ xIndex ];
@@ -2023,6 +2026,7 @@ const char *pcReturn;
 				{
 					if( xCurLength == 0 )
 					{
+						/* Remember the position of the first zero. */
 						xCurStart = xIndex;
 					}
 					/* Count consecutive zeros. */
@@ -2030,6 +2034,7 @@ const char *pcReturn;
 				}
 				if( ( usValue != 0u ) || ( xIndex == 7 ) )
 				{
+					
 					if( ( xCurLength > 1 ) && ( xZeroLength < xCurLength ) )
 					{
 						/* Remember the number of consecutive zeros. */
@@ -2087,8 +2092,17 @@ const char *pcReturn;
 				xIndex++;
 			}
 		}
-		pcDestination[ uxTargetIndex ] = '\0';
-		return pcDestination;
+		if( xIndex < 8 )
+		{
+			/* Didn't reach the last nnibble: clear the string. */ 
+			pcReturn = NULL;
+		}
+		else
+		{
+			pcDestination[ uxTargetIndex ] = '\0';
+			pcReturn = pcDestination;
+		}
+		return pcReturn;
 	}
 #endif	/* ( ipconfigUSE_IPv6 != 0 ) */
 /*-----------------------------------------------------------*/
@@ -2176,9 +2190,13 @@ const char *pcIPAddress = pcSource;
 		/* lint: ucOctet has been set because xResult == pdPASS. */
 		ulReturn = FreeRTOS_inet_addr_quick( ucOctet[ 0 ], ucOctet[ 1 ], ucOctet[ 2 ], ucOctet[ 3 ] );	/*lint !e644 Variable (line 1861) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]) */
 	}
+	else
+	{
+		ulReturn = 0uL;
+	}
 	memcpy( pvDestination, &( ulReturn ), sizeof( ulReturn ) );
 
-	return 1;
+	return xResult;
 }
 /*-----------------------------------------------------------*/
 
@@ -2200,23 +2218,22 @@ uint32_t ulReturn = 0UL;
 	 */
 	BaseType_t FreeRTOS_inet_pton6( const char *pcSource, void *pvDestination )
 	{
-	uint8_t *pucTarget, *pucEnd, *pucColon;
+	uint8_t *pucEnd, *pucColon;
 	//const char *curtok;
 	char ch;
 	uint32_t ulValue = 0uL;
 	uint8_t ucNew;
 	BaseType_t xResult;
 	BaseType_t xHadDigit;
-	uint8_t *pucDest = pvDestination;	/*lint !e9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]. */
+	uint8_t *pucTarget = pvDestination;	/*lint !e9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]. */
 
-		pucTarget = pucDest;
 		memset( pucTarget, 0, ipSIZE_OF_IPv6_ADDRESS );
 		pucEnd = &( pucTarget[ ipSIZE_OF_IPv6_ADDRESS ] );
 		pucColon = NULL;
 		xResult = 0;
 
 		/* Leading :: requires some special handling. */
-		if( ( pcSource[ 0 ] == ':' ) && ( pcSource[ 1 ] == ':') )
+		if( ( pcSource[ 0 ] == ':' ) && ( pcSource[ 1 ] == ':') && ( pcSource[ 2 ] == '\0') )
 		{
 			xResult = 1;
 		}
@@ -2321,6 +2338,11 @@ uint32_t ulReturn = 0UL;
 			{
 				xResult = 1;
 			}
+		}
+		if( xResult != 1 )
+		{
+			pucTarget = pvDestination;
+			pucTarget[ 0 ] = '\0';
 		}
 		return xResult;
 	}

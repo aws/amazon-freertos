@@ -348,11 +348,11 @@ void FreeRTOS_OutputARPRequest( uint32_t ulIPAddress );
 /* Return true if a given end-point is up and running.
 When FreeRTOS_IsNetworkUp() is called with NULL as a parameter,
 it will return pdTRUE when all end-points are up. */
-BaseType_t FreeRTOS_IsEndPointUp( struct xNetworkEndPoint *pxEndPoint );
+BaseType_t FreeRTOS_IsEndPointUp( const struct xNetworkEndPoint *pxEndPoint );
 
 /* Return pdTRUE if all end-points are up.
 When pxInterface is null, all end-points will be checked. */
-BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface );
+BaseType_t FreeRTOS_AllEndPointsUp( const struct xNetworkInterface *pxInterface );
 
 /* For backward compatibility: FreeRTOS_IsNetworkUp() returns true
 as soon as all end-points are up. */

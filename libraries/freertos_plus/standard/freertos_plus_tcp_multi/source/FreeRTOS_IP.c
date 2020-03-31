@@ -3029,7 +3029,7 @@ BaseType_t FreeRTOS_IsNetworkUp()
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t FreeRTOS_IsEndPointUp( struct xNetworkEndPoint *pxEndPoint )
+BaseType_t FreeRTOS_IsEndPointUp( const struct xNetworkEndPoint *pxEndPoint )
 {
 BaseType_t xReturn;
 
@@ -3047,9 +3047,9 @@ BaseType_t xReturn;
 }
 /*-----------------------------------------------------------*/
 
-/* Return pdTRUE if all end-points of a given interface are up.
-When pxInterface is null, all end-points can be iterated. */
-BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface )
+/* Return pdTRUE if all end-points belonging to a given interface are up.
+When pxInterface is null, all end-points will be checked. */
+BaseType_t FreeRTOS_AllEndPointsUp( const struct xNetworkInterface *pxInterface )
 {
 BaseType_t xResult = pdTRUE;
 NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
