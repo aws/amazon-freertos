@@ -148,7 +148,7 @@ void prvI2CCallback( IotI2COperationStatus_t xOpStatus,
     if( xOpStatus == eI2CCompleted )
     {
         xSemaphoreGiveFromISR( xtestIotI2CSemaphore, &xHigherPriorityTaskWoken );
-        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        portYIELD_FROM_ISR( );
     }
 }
 
@@ -172,7 +172,7 @@ static void prvChainToReadCallback( IotI2COperationStatus_t xOpStatus,
         else
         {
             xSemaphoreGiveFromISR( xtestIotI2CSemaphore, &xHigherPriorityTaskWoken );
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+            portYIELD_FROM_ISR( );
         }
     }
 }

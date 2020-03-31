@@ -106,6 +106,7 @@ set(
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
     "${esp_idf_dir}/components/vfs/include"
+    "${esp_idf_dir}/components/esp_ringbuf/include/"
     "${extra_components_dir}/freertos/include"
     "${extra_components_dir}/mbedtls/port/include"
 )
@@ -227,7 +228,7 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
-)
+) 
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
@@ -285,13 +286,16 @@ target_sources(
         "${afr_ports_dir}/common_io/iot_timer.c"
         "${afr_ports_dir}/common_io/iot_uart.c"
         "${afr_ports_dir}/common_io/iot_watchdog.c"
-)
-
+         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+      
+)     
 target_include_directories(
     AFR::common_io::mcu_port
     INTERFACE
         "${afr_ports_dir}/common_io/include"
+        "${AFR_ROOT_DIR}/libraries/abstractions/common_io/test"
 )
+      
 
 target_compile_options(
     AFR::common_io::mcu_port
@@ -328,6 +332,7 @@ target_link_libraries(
         AFR::pkcs11
         AFR::ota_mqtt
         AFR::ota_http
+        AFR::common_io
 )
 
 # -------------------------------------------------------------------------------------------------
