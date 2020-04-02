@@ -585,7 +585,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_crt.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\mbedtls_utils.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c"/>

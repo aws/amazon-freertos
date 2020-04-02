@@ -2797,12 +2797,12 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/abstractions/pkcs11/test/</GroupName>
+					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
 					<Files>
 						<File>
 							<FileName>mbedtls_utils.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/test/mbedtls_utils.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
 						</File>
 					</Files>
 				</Group>

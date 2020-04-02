@@ -1883,9 +1883,9 @@
 			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/test/mbedtls_utils.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/test/mbedtls_utils.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>

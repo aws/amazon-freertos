@@ -136,7 +136,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
         ${mbedtls_library}
         ${mbedtls_include}
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/test/mbedtls_utils.c"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
     # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"

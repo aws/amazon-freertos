@@ -1490,12 +1490,6 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h</name>
 					</file>
 				</group>
-				<group>
-					<name>test</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\mbedtls_utils.c</name>
-					</file>
-				</group>
 			</group>
 			<group>
 				<name>wifi</name>
@@ -1929,6 +1923,12 @@
 		</group>
 		<group>
 			<name>3rdparty</name>
+			<group>
+				<name>mbedtls_utils</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c</name>
+				</file>
+			</group>
 			<group>
 				<name>mbedtls</name>
 				<group>

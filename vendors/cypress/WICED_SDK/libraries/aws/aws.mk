@@ -136,7 +136,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c                                     \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/wifi/iot_wifi.c           \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls/iot_pkcs11_mbedtls.c                              \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/test/mbedtls_utils.c                              \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_utils.c                              \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/src/iot_crypto.c                                               \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/iot_pkcs11_pal.c   \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c

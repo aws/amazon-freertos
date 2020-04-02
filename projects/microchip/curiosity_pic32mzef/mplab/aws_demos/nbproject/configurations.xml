@@ -245,9 +245,6 @@
 					<logicalFolder name="include" displayName="include" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</itemPath>
 					</logicalFolder>
-					<logicalFolder name="test" displayName="test" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/pkcs11/test/mbedtls_utils.c</itemPath>
-					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="wifi" displayName="wifi" projectFiles="true">
 					<logicalFolder name="include" displayName="include" projectFiles="true">
@@ -410,6 +407,9 @@
 				</logicalFolder>
 			</logicalFolder>
 			<logicalFolder name="3rdparty" displayName="3rdparty" projectFiles="true">
+				<logicalFolder name="mbedtls_utils" displayName="mbedtls_utils" projectFiles="true">
+					<itemPath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</itemPath>
+				</logicalFolder>
 				<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
 					<logicalFolder name="library" displayName="library" projectFiles="true">
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/base64.c</itemPath>

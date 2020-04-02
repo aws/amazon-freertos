@@ -2999,9 +2999,9 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/test/mbedtls_utils.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/test/mbedtls_utils.c</locationURI>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>

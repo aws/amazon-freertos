@@ -97,6 +97,7 @@
 		<Filter Include="libraries\freertos_plus\aws\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
+		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="vendors\microchip\boards\ecc608a_plus_winsim\ports\ota"/>
@@ -1761,8 +1762,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\mbedtls_utils.c">
-			<Filter>libraries\abstractions\pkcs11\test</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c">
+			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
 			<Filter>libraries\3rdparty\unity\src</Filter>
