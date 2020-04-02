@@ -156,7 +156,6 @@ typedef struct IotMetricsTcpConnection
 } IotMetricsTcpConnection_t;
 
 /*--------------------------- Network stack types ---------------------------*/
-/*--------------------------- Network stack types ---------------------------*/
 
 /**
  * @ingroup platform_datatypes_handles

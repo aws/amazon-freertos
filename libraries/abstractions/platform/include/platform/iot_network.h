@@ -291,7 +291,7 @@ typedef struct IotNetworkInterface
  * structure contains commonly-used parameters, but may be replaced with an
  * alternative.
  */
-typedef struct IotNetworkServerInfo
+struct IotNetworkServerInfo
 {
     const char * pHostName; /**< @brief Server host name. Must be NULL-terminated. */
     uint16_t port;          /**< @brief Server port in host-order. */
@@ -305,7 +305,7 @@ typedef struct IotNetworkServerInfo
  * structure contains commonly-used parameters, but may be replaced with an
  * alternative.
  */
-typedef struct IotNetworkCredentials
+struct IotNetworkCredentials
 {
     /**
      * @brief Set this to a non-NULL value to use ALPN.
@@ -333,11 +333,11 @@ typedef struct IotNetworkCredentials
     bool disableSni;
 
     const char * pRootCa;     /**< @brief String representing a trusted server root certificate. */
-    size_t rootCaSize;        /**< @brief Size associated with #IotNetworkCredentials_t.pRootCa. */
+    size_t rootCaSize;        /**< @brief Size associated with #struct IotNetworkCredentials.pRootCa. */
     const char * pClientCert; /**< @brief String representing the client certificate. */
-    size_t clientCertSize;    /**< @brief Size associated with #IotNetworkCredentials_t.pClientCert. */
+    size_t clientCertSize;    /**< @brief Size associated with #struct IotNetworkCredentials.pClientCert. */
     const char * pPrivateKey; /**< @brief String representing the client certificate's private key. */
-    size_t privateKeySize;    /**< @brief Size associated with #IotNetworkCredentials_t.pPrivateKey. */
+    size_t privateKeySize;    /**< @brief Size associated with #struct IotNetworkCredentials.pPrivateKey. */
 };
 
 #endif /* ifndef IOT_NETWORK_H_ */

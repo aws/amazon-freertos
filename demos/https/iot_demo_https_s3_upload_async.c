@@ -356,10 +356,10 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
     connConfig.caCertLen = sizeof( IOT_DEMO_HTTPS_TRUSTED_ROOT_CA );
     connConfig.userBuffer.pBuffer = _pConnUserBuffer;
     connConfig.userBuffer.bufferLen = sizeof( _pConnUserBuffer );
-    connConfig.pClientCert = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pClientCert;
-    connConfig.clientCertLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->clientCertSize;
-    connConfig.pPrivateKey = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pPrivateKey;
-    connConfig.privateKeyLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->privateKeySize;
+    connConfig.pClientCert = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->pClientCert;
+    connConfig.clientCertLen = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->clientCertSize;
+    connConfig.pPrivateKey = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->pPrivateKey;
+    connConfig.privateKeyLen = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->privateKeySize;
     connConfig.pNetworkInterface = pNetworkInterface;
 
     asyncInfo.callbacks.writeCallback = _writeCallback;

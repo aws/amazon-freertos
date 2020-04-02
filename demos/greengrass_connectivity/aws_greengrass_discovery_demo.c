@@ -143,8 +143,8 @@ static IotMqttError_t _mqttConnect( GGD_HostAddressData_t * pxHostAddressData,
                                     IotMqttConnection_t * pMqttConnection )
 {
     IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
-    IotNetworkServerInfo_t xServerInfo = { 0 };
-    IotNetworkCredentials_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    struct IotNetworkServerInfo xServerInfo = { 0 };
+    struct IotNetworkCredentials xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetworkInfo_t xNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t xMqttConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     uint32_t connectAttempt = 0;

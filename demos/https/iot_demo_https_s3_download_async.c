@@ -1094,10 +1094,10 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     _connConfig.caCertLen = sizeof( IOT_DEMO_HTTPS_TRUSTED_ROOT_CA );
     _connConfig.userBuffer.pBuffer = _pConnUserBuffer;
     _connConfig.userBuffer.bufferLen = sizeof( _pConnUserBuffer );
-    _connConfig.pClientCert = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pClientCert;
-    _connConfig.clientCertLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->clientCertSize;
-    _connConfig.pPrivateKey = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->pPrivateKey;
-    _connConfig.privateKeyLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->privateKeySize;
+    _connConfig.pClientCert = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->pClientCert;
+    _connConfig.clientCertLen = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->clientCertSize;
+    _connConfig.pPrivateKey = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->pPrivateKey;
+    _connConfig.privateKeyLen = ( ( IotNetworkCredentials_t ) pNetworkCredentialInfo )->privateKeySize;
     _connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Initialize the request pool by setting up constant request information shared by all requests. */

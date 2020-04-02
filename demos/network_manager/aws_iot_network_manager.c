@@ -217,12 +217,12 @@ static void _initializeTCPIPCredentials( void );
  * @brief The credentials placeholder for a TCP/IP network.
  *
  */
-static IotNetworkCredentials_t tcpIPCredentials = { 0 };
+static struct IotNetworkCredentials tcpIPCredentials = { 0 };
 
 /*
  * @brief Connection parameters placeholder for a TCP/IP network.
  */
-static IotNetworkServerInfo_t tcpIPConnectionParams = { 0 };
+static struct IotNetworkServerInfo tcpIPConnectionParams = { 0 };
 
 #if WIFI_ENABLED
     static IotNMNetwork_t wifiNetwork =

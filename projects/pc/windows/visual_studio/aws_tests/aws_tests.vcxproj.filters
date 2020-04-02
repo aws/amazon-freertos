@@ -70,10 +70,21 @@
     <Filter Include="libraries\c_sdk\standard\serializer" />
     <Filter Include="libraries\c_sdk\standard\serializer\src\json" />
     <Filter Include="libraries\c_sdk\standard\serializer\include" />
+    <Filter Include="libraries\c_sdk\standard\https\src" />
+    <Filter Include="libraries\c_sdk\standard\https" />
+    <Filter Include="libraries\freertos_plus\aws\greengrass\src" />
+    <Filter Include="libraries\freertos_plus\aws\greengrass" />
+    <Filter Include="libraries\freertos_plus\aws" />
+    <Filter Include="libraries\freertos_plus\aws\greengrass\include" />
+    <Filter Include="libraries\freertos_plus\aws\ota\include" />
+    <Filter Include="libraries\freertos_plus\aws\ota" />
+    <Filter Include="libraries\freertos_plus\aws\ota\src" />
     <Filter Include="libraries\3rdparty\mbedtls\library" />
     <Filter Include="libraries\3rdparty\mbedtls" />
     <Filter Include="libraries\3rdparty" />
     <Filter Include="vendors\pc\boards\windows\ports\ota" />
+    <Filter Include="libraries\freertos_plus\aws\ota\src\mqtt" />
+    <Filter Include="libraries\freertos_plus\aws\ota\src\http" />
     <Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX" />
     <Filter Include="libraries\abstractions\posix\include" />
     <Filter Include="libraries\abstractions\posix" />
@@ -83,11 +94,16 @@
     <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix" />
     <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include" />
     <Filter Include="libraries\c_sdk\standard\common\test" />
+    <Filter Include="libraries\c_sdk\standard\https\test\unit" />
+    <Filter Include="libraries\c_sdk\standard\https\test" />
+    <Filter Include="libraries\c_sdk\standard\https\test\system" />
     <Filter Include="libraries\c_sdk\standard\mqtt\test\mock" />
     <Filter Include="libraries\c_sdk\standard\mqtt\test" />
     <Filter Include="libraries\c_sdk\standard\mqtt\test\unit" />
     <Filter Include="libraries\c_sdk\standard\mqtt\test\system" />
     <Filter Include="libraries\c_sdk\standard\serializer\test" />
+    <Filter Include="libraries\freertos_plus\aws\greengrass\test" />
+    <Filter Include="libraries\freertos_plus\aws\ota\test" />
     <Filter Include="libraries\freertos_plus\standard\crypto\test" />
     <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\test" />
     <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\test" />
@@ -329,6 +345,42 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h">
       <Filter>libraries\c_sdk\standard\serializer\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
+      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_types.h">
+      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent_internal.h">
+      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.h">
+      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_pal.h">
+      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h">
+      <Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h">
+      <Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h">
+      <Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h">
+      <Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
       <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -773,11 +825,38 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c">
       <Filter>libraries\c_sdk\standard\serializer\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c">
+      <Filter>libraries\c_sdk\standard\https\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
+      <Filter>libraries\c_sdk\standard\https\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c">
+      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c">
+      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
       <Filter>libraries\3rdparty\mbedtls\library</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c">
       <Filter>vendors\pc\boards\windows\ports\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c">
+      <Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c">
+      <Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
+      <Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
@@ -818,6 +897,24 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c">
       <Filter>libraries\c_sdk\standard\common\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_client.c">
+      <Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_utils.c">
+      <Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c">
+      <Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c">
+      <Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c">
+      <Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c">
+      <Filter>libraries\c_sdk\standard\https\test\system</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
       <Filter>libraries\c_sdk\standard\serializer\test</Filter>
     </ClCompile>
@@ -826,6 +923,24 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
       <Filter>libraries\c_sdk\standard\serializer\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_cbor.c">
+      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c">
+      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c">
+      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c">
       <Filter>libraries\freertos_plus\standard\crypto\test</Filter>
@@ -1115,6 +1230,9 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
       <Filter>libraries\3rdparty\tinycbor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c">
+      <Filter>libraries\3rdparty\tinycbor</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
       <Filter>libraries\3rdparty\tinycbor</Filter>
     </ClCompile>
@@ -1144,12 +1262,12 @@
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_helper.c" />
+    <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_lightweight_api.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock\iot_tests_mqtt_mock.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c" />
-    <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\iot_test_mqtt_agent.c" />
   </ItemGroup>
 </Project>

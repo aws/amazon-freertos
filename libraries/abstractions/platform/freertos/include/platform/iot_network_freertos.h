@@ -67,7 +67,7 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
 #define IOT_NETWORK_CONNECTION_AFR_INITIALIZER     { 0 }
 
 /**
- * @brief Generic initializer for an #IotNetworkServerInfo_t.
+ * @brief Generic initializer for an #struct IotNetworkServerInfo.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -75,7 +75,7 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
 #define IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER    { 0 }
 
 /**
- * @brief Initialize an #IotNetworkServerInfo_t for use with AWS IoT.
+ * @brief Initialize an #struct IotNetworkServerInfo for use with AWS IoT.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -87,7 +87,7 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
     }
 
 /**
- * @brief Generic initializer for an #IotNetworkCredentials_t.
+ * @brief Generic initializer for an #struct IotNetworkCredentials.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -95,7 +95,7 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
 #define IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER    { 0 }
 
 /**
- * @brief Initialize an #IotNetworkCredentials_t for use with AWS IoT.
+ * @brief Initialize an #struct IotNetworkCredentials for use with AWS IoT.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.

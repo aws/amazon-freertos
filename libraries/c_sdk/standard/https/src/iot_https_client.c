@@ -1337,17 +1337,17 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
 
     /* The maximum string length of the ALPN protocols is configured in IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH.
-     * The +1 is for the NULL terminator needed by IotNetworkCredentials_t.pAlpnProtos. */
+     * The +1 is for the NULL terminator needed by struct IotNetworkCredentials.pAlpnProtos. */
     char pAlpnProtos[ IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH + 1 ] = { 0 };
 
     /* The maximum string length of the Server host name is configured in IOT_HTTPS_MAX_HOST_NAME_LENGTH.
-     * This +1 is for the NULL terminator needed by IotNetworkServerInfo_t.pHostName. */
+     * This +1 is for the NULL terminator needed by struct IotNetworkServerInfo.pHostName. */
     char pHostName[ IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1 ] = { 0 };
     bool connectionMutexCreated = false;
-    IotNetworkServerInfo_t networkServerInfo = { 0 };
-    IotNetworkCredentials_t networkCredentials = { 0 };
+    struct IotNetworkServerInfo networkServerInfo = { 0 };
+    struct IotNetworkCredentials networkCredentials = { 0 };
     _httpsConnection_t * pHttpsConnection = NULL;
-    IotNetworkCredentials_t * pNetworkCredentials = NULL;
+    IotNetworkCredentials_t pNetworkCredentials = NULL;
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pConnInfo->userBuffer.pBuffer );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pConnInfo->pNetworkInterface );
@@ -1402,7 +1402,7 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     pHttpsConnection->pNetworkInterface = pConnInfo->pNetworkInterface;
 
     /* The address from the connection configuration information is copied to a local buffer because a NULL pointer
-     * is required in IotNetworkServerInfo_t.pHostName. IotNetworkServerInfo_t contains the server information needed
+     * is required in struct IotNetworkServerInfo.pHostName. struct IotNetworkServerInfo contains the server information needed
      * by the network interface to create the connection. */
     memcpy( pHostName, pConnInfo->pAddress, pConnInfo->addressLen );
     pHostName[ pConnInfo->addressLen ] = '\0';
@@ -1424,7 +1424,7 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
 
         if( pConnInfo->pAlpnProtocols != NULL )
         {
-            /* The alpn protocol strings in IotNetworkCredentials_t require a NULL terminator, so the alpn protocol
+            /* The alpn protocol strings in struct IotNetworkCredentials require a NULL terminator, so the alpn protocol
              * string in the connection configuration information is copied to a local buffer to append the NULL
              * terminator. */
             memcpy( pAlpnProtos, pConnInfo->pAlpnProtocols, pConnInfo->alpnProtocolsLen );

@@ -255,8 +255,8 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
  * IotMqttPublishInfo_t willInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
  *
  * // Example network abstraction types.
- * IotNetworkServerInfo_t serverInfo = { ... };
- * IotNetworkCredentials_t credentialInfo = { ... };
+ * struct IotNetworkServerInfo serverInfo = { ... };
+ * struct IotNetworkCredentials credentialInfo = { ... };
  * IotNetworkInterface_t networkInterface = { ... };
  *
  * // Example using a generic network implementation.

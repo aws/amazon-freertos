@@ -36,8 +36,8 @@
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
 
-static IotNetworkServerInfo_t _serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentials_t _credential = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static struct IotNetworkServerInfo _serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static struct IotNetworkCredentials _credential = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 static bool _mqttConnectionStarted = false;
 
