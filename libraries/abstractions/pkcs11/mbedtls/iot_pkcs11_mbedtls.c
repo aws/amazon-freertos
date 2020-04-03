@@ -47,7 +47,7 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
 #include "threading_alt.h"
-#include "mbedtls/error.h"
+#include "mbedtls/mbedtls_error.h"
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
@@ -3410,7 +3410,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     CK_BBOOL xSignatureGenerated = CK_FALSE;
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
     int lMbedTLSResult;
-    char cMbedTlsErrorStr[ 134 ];
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pucData ) )
     {
@@ -3474,8 +3473,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
                     if( lMbedTLSResult != CKR_OK )
                     {
-                        mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-                        PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", cMbedTlsErrorStr ) );
+                        PKCS11_PRINT( ( "mbedTLS sign failed with error %s : %s \r\n",
+                                        mbedtls_strerror_highlevel( lMbedTLSResult ),
+                                        mbedtls_strerror_lowlevel( lMbedTLSResult ) ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
@@ -3715,7 +3715,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj;
     int lMbedTLSResult;
-    char cMbedTlsErrorStr[ 134 ];
 
     pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
@@ -3806,8 +3805,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_SIGNATURE_INVALID;
-                mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-                PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", cMbedTlsErrorStr ) );
+                PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
+                                mbedtls_strerror_highlevel( lMbedTLSResult ),
+                                mbedtls_strerror_lowlevel( lMbedTLSResult ) ) );
             }
 
             if( xResult == CKR_OK )
@@ -3826,8 +3826,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                     if( lMbedTLSResult != 0 )
                     {
                         xResult = CKR_SIGNATURE_INVALID;
-                        mbedtls_strerror( lMbedTLSResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-                        PKCS11_PRINT( ( "Failed to parse EC signature: %w \r\n", cMbedTlsErrorStr ) );
+                        PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
+                                        mbedtls_strerror_highlevel( lMbedTLSResult ),
+                                        mbedtls_strerror_lowlevel( lMbedTLSResult ) ) );
                     }
                 }
             }

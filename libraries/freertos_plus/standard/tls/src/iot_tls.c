@@ -44,10 +44,12 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/pk_internal.h"
 #include "mbedtls/debug.h"
-#include "mbedtls/error.h"
 #ifdef MBEDTLS_DEBUG_C
     #define tlsDEBUG_VERBOSE    4
 #endif
+
+/* Custom mbedtls include. */
+#include "mbedtls/mbedtls_error.h"
 
 /* C runtime includes. */
 #include <string.h>
@@ -197,14 +199,14 @@ static int prvGenerateRandomBytes( void * pvCtx,
 {
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
     BaseType_t xResult;
-    char cMbedTlsErrorStr[ 134 ];
 
     xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
 
     if( xResult != CKR_OK )
     {
-        mbedtls_strerror( xResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-        TLS_PRINT( ( "ERROR: Failed to generate random bytes %s \r\n", cMbedTlsErrorStr ) );
+        TLS_PRINT( ( "ERROR: Failed to generate random bytes %s : %s \r\n",
+                     mbedtls_strerror_highlevel( xResult ),
+                     mbedtls_strerror_lowlevel( xResult ) ) );
         xResult = TLS_ERROR_RNG;
     }
 
@@ -739,7 +741,6 @@ BaseType_t TLS_Connect( void * pvContext )
 {
     BaseType_t xResult = 0;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
-    char cMbedTlsErrorStr[ 134 ];
 
     /* Ensure that the FreeRTOS heap is used. */
     CRYPTO_ConfigureHeap();
@@ -758,8 +759,9 @@ BaseType_t TLS_Connect( void * pvContext )
 
         if( 0 != xResult )
         {
-            mbedtls_strerror( xResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-            TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %s \r\n", cMbedTlsErrorStr ) );
+            TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %s : %s \r\n",
+                         mbedtls_strerror_highlevel( xResult ),
+                         mbedtls_strerror_lowlevel( xResult ) ) );
         }
     }
     else
@@ -785,8 +787,9 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             /* Default root certificates should be in aws_default_root_certificate.h */
-            mbedtls_strerror( xResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-            TLS_PRINT( ( "ERROR: Failed to parse default server certificates %s \r\n", cMbedTlsErrorStr ) );
+            TLS_PRINT( ( "ERROR: Failed to parse default server certificates %s : %s \r\n",
+                         mbedtls_strerror_highlevel( xResult ),
+                         mbedtls_strerror_lowlevel( xResult ) ) );
         }
     }
 
@@ -800,8 +803,9 @@ BaseType_t TLS_Connect( void * pvContext )
 
         if( 0 != xResult )
         {
-            mbedtls_strerror( xResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-            TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %s \r\n", cMbedTlsErrorStr ) );
+            TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %s : %s \r\n",
+                         mbedtls_strerror_highlevel( xResult ),
+                         mbedtls_strerror_lowlevel( xResult ) ) );
         }
     }
 
@@ -873,8 +877,9 @@ BaseType_t TLS_Connect( void * pvContext )
                  * ensure that upstream clean-up code doesn't accidentally use
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
-                mbedtls_strerror( xResult, cMbedTlsErrorStr, sizeof( cMbedTlsErrorStr ) );
-                TLS_PRINT( ( "ERROR: Handshake failed with error code %s \r\n", cMbedTlsErrorStr ) );
+                TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
+                             mbedtls_strerror_highlevel( xResult ),
+                             mbedtls_strerror_lowlevel( xResult ) ) );
                 break;
             }
         }
