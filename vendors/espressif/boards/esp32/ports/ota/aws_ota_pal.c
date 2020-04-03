@@ -47,9 +47,12 @@
 #define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
 
+/* Check configuration for memory constraints provided SPIRAM is not enabled */
+#if !CONFIG_SPIRAM_SUPPORT
 #if (configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP) && (configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_BLE)
     #error "Cannot enable OTA data over HTTP together with BLE because of not enough heap."
 #endif
+#endif // !CONFIG_SPIRAM_SUPPORT
 
 /*
  * Includes 4 bytes of version field, followed by 64 bytes of signature

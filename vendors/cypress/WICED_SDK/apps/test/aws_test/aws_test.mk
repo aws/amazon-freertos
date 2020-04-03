@@ -146,13 +146,15 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/system/aws_iot_tests_shadow_system.c \
-                      $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/test/aws_test_greengrass_discovery.c \
+                      $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/test/aws_test_ggd_system.c \
+                      $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/test/aws_test_ggd_unit.c \
                       $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/test/aws_test_helper_secure_connect.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_api.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_collector.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
-                      $(AFR_C_SDK_AWS_PATH)defender/test/aws_iot_tests_defender_api.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/test/system/aws_iot_tests_defender_system.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/test/unit/aws_iot_tests_defender_unit.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/iot_test_crypto.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \

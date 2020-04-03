@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V1.4.2
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.4.2
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -29,21 +29,14 @@
  */
 
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
+#ifndef _IOT_BLE_CONFIG_H_
+#define _IOT_BLE_CONFIG_H_
 
-/* Device complete name for this peripheral device */
-#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "nRF52840"
+/* Device name for this peripheral device. */
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "mockboard"
 
-
-/* Enable WIFI provisioning GATT service */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
-
-/* MTU size. */
-#define IOT_BLE_PREFERRED_MTU_SIZE          ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
-
+#include "iot_config.h"
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 
-#include "sdk_config.h"
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _IOT_BLE_CONFIG_H_ */

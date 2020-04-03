@@ -538,11 +538,6 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/uncached_memory.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
@@ -813,9 +808,14 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</name>
+			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/test/system/aws_iot_tests_defender_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c</name>
@@ -878,11 +878,6 @@
 			<locationURI>AFR_ROOT/libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/test/mock/iot_tests_mqtt_mock.c</locationURI>
@@ -938,9 +933,14 @@
 			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</name>
+			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_unit.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_unit.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</name>
@@ -1871,6 +1871,11 @@
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>

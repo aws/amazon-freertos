@@ -195,19 +195,20 @@ extern const char * getDeviceMetrics( void );
  * @brief Length of the metrics emitted by device.
  */
 extern uint16_t getDeviceMetricsLength( void );
-#define AWS_IOT_METRICS_USERNAME_LENGTH    getDeviceMetricsLength()
+#define AWS_IOT_METRICS_USERNAME_LENGTH     getDeviceMetricsLength()
 
 /* Set Thing Name. */
-#define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_SHADOW_THING_NAME      clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_DEFENDER_THING_NAME    clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT             AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG      ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG       ( 1 )
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t           void *
+#define IotMetricsConnectionId_t            void *
 
 /* For compatibility with the FreeRTOS test framework, UnityPrint and similar
  * must be redefined. */

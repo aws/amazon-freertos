@@ -275,7 +275,7 @@ int RunDefenderDemo( bool awsIotMqttMode,
 
         if( mqttStatus != IOT_MQTT_SUCCESS )
         {
-            IotLogError( "Failed to Create MQTT Connection:%d", IotMqtt_strerror( mqttStatus ) );
+            IotLogError( "Failed to Create MQTT Connection, error: %s", IotMqtt_strerror( mqttStatus ) );
             IotMqtt_Cleanup();
             defenderResult = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
         }
