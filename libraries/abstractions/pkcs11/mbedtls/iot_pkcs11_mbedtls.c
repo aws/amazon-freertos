@@ -47,7 +47,10 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
 #include "threading_alt.h"
+
+/* Custom mbedtls utils include. */
 #include "mbedtls/mbedtls_error.h"
+
 
 /* Credential includes. */
 #include "aws_clientcredential.h"

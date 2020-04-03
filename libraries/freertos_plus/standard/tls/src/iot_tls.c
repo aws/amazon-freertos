@@ -48,7 +48,7 @@
     #define tlsDEBUG_VERBOSE    4
 #endif
 
-/* Custom mbedtls include. */
+/* Custom mbedtls utls include. */
 #include "mbedtls/mbedtls_error.h"
 
 /* C runtime includes. */
