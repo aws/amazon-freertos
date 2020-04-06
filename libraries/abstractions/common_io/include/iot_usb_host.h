@@ -49,7 +49,7 @@
 #define IOT_USB_HOST_FUNCTION_NOT_SUPPORTED     ( 7 )       /*!< USB host function not supported. */
 #define IOT_USB_HOST_NOTHING_TO_CANCEL          ( 8 )       /*!< No operation in progress to cancel. */
 
-#define IOT_USB_HOST_MAX_ENDPOINTS (4)
+#define IOT_USB_HOST_MAX_ENDPOINTS (4)      /*!< Maximum endpoint number for each interface. */
 
 /**
  * @brief common host notify event types in host callback.
@@ -62,7 +62,7 @@ typedef enum
     eUSBHostResetEvent,                 /*!< USB reset is done. */
     eUSBHostSuspendEvent,               /*!< USB suspend happened. */
     eUSBHostResumeEvent,                /*!< USB resume happened. */
-    eUSBHostRmoteWakeEvent,             /*!< USB remote wakeup is activated. */
+    eUSBHostRemoteWakeEvent,            /*!< USB remote wakeup is activated. */
 } IotUsbHostEvent_t;
 
 /**
