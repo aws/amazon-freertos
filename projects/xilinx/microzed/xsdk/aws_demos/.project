@@ -1498,6 +1498,11 @@
 			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/mbedtls_error.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
