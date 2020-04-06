@@ -212,7 +212,7 @@ const char * mbedtls_strerror_highlevel( int errnum )
 
     if( errnum < 0 )
     {
-        errnum = -ret;
+        errnum = -errnum;
     }
 
     if( errnum & 0xFF80 )
@@ -699,7 +699,6 @@ const char * mbedtls_strerror_highlevel( int errnum )
             if( use_ret == -( MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE ) )
             {
                 rc = "SSL - A fatal alert message was received from our peer";
-                return;
             }
 
             if( use_ret == -( MBEDTLS_ERR_SSL_PEER_VERIFY_FAILED ) )
