@@ -49,7 +49,10 @@ typedef struct IotAdcTestUserContext_s
 } testIotAdcTestUserContext_t;
 
 #define testIotADC_CH_DATA_BUF_LEN    5
+
+/* static global variables */
 static SemaphoreHandle_t xtestIotAdcTestSemaphore = NULL;
+static IotAdcHandle_t xAdcHandle;
 
 /* global variables for channel test control */
 /* ADC module instance, default to 0 */
@@ -60,9 +63,10 @@ uint8_t uctestIotAdcChListLen = 1;
 uint8_t * puctestIotAdcChList = NULL;
 /* ADC module instance for assisted test, need to be configured to the channel with external access */
 uint8_t ucAssistedTestIotAdcChannel = 0;
-
 /* ADC Channel Scan Wait time in ms */
 uint32_t ltestIotAdcTestChWaitTime = 1000;
+
+
 
 /* Define Test Group. */
 TEST_GROUP( TEST_IOT_ADC );
@@ -73,6 +77,9 @@ TEST_GROUP( TEST_IOT_ADC );
  */
 TEST_SETUP( TEST_IOT_ADC )
 {
+    /* Allocate the ADC peripheral during setup phase */
+    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 }
 
 /*-----------------------------------------------------------*/
@@ -82,6 +89,17 @@ TEST_SETUP( TEST_IOT_ADC )
  */
 TEST_TEAR_DOWN( TEST_IOT_ADC )
 {
+    /* Release the ADC hardware during teardown */
+    int32_t lRetVal;
+
+    lRetVal = iot_adc_close( xAdcHandle );
+
+    if (lRetVal == IOT_ADC_NOT_OPEN)
+    {
+        return;
+    }
+
+    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -132,14 +150,7 @@ static void prvAdcChCallback( uint16_t * pusConvertedData,
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcOpenClose )
 {
-    IotAdcHandle_t xAdcHandle;
-    int32_t lRetVal;
-
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
-
-    lRetVal = iot_adc_close( xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
+    /* No content, test is covered by setup / teardown */
 }
 
 
@@ -150,12 +161,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOpenClose )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcConfig )
 {
-    IotAdcHandle_t xAdcHandle;
     IotAdcConfig_t xAdcConfig;
     int32_t lRetVal;
-
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     xAdcConfig.ulAdcSampleTime = 100;
     xAdcConfig.ucAdcResolution = 12;
@@ -168,9 +175,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcConfig )
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     TEST_ASSERT_GREATER_THAN( 0, xAdcConfig.ulAdcSampleTime );
     TEST_ASSERT_GREATER_THAN( 0, xAdcConfig.ucAdcResolution );
-
-    lRetVal = iot_adc_close( xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -180,9 +184,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcConfig )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
 {
-    IotAdcConfig_t xAdcConfig;
     IotAdcChStatus_t xAdcChStatus;
-    IotAdcChBuffer_t xChBuf;
     testIotAdcTestUserContext_t xUserCntx;
     int32_t lRetVal;
     uint8_t ucChX, ucChY;
@@ -192,11 +194,10 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
     ucChX = puctestIotAdcChList[ 0 ];
     ucChY = puctestIotAdcChList[ 1 ];
 
-    xUserCntx.xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
-
+    xUserCntx.xAdcHandle = xAdcHandle;
     xUserCntx.ucAdcChannel = ucChX;
     xUserCntx.ucDataSize = 1;
+
     /* set channel callback */
     iot_adc_set_callback( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel, prvAdcChCallback, &xUserCntx );
 
@@ -236,9 +237,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
     /* since channel x is stop, expected to return idle */
     TEST_ASSERT_EQUAL( ucChX, xAdcChStatus.ucAdcChannel );
     TEST_ASSERT_EQUAL( eChStateIdle, xAdcChStatus.xAdcChState );
-
-    lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -248,15 +246,11 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcReadSample )
 {
-    IotAdcHandle_t xAdcHandle;
     int32_t lRetVal;
     uint16_t usSample;
 
     /* make sure ADC channel list has been configured */
     TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
-
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     /* read sample from ADC channels */
     for( int i = 0; i < uctestIotAdcChListLen; i++ )
@@ -265,9 +259,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcReadSample )
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         TEST_ASSERT_GREATER_THAN( 0, usSample );
     }
-
-    lRetVal = iot_adc_close( xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -277,21 +268,14 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcReadSample )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcPrintReadSample )
 {
-    IotAdcHandle_t xAdcHandle;
     int32_t lRetVal;
     uint16_t usSample;
 
     /* make sure ADC channel list has been configured */
     TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
 
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
-
     /* read sample from ADC channels */
     lRetVal = iot_adc_read_sample( xAdcHandle, ucAssistedTestIotAdcChannel, &usSample );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
-
-    lRetVal = iot_adc_close( xAdcHandle );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 
     /* print ADC sample with an assert failure */
@@ -308,9 +292,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcChBuffer )
     uint8_t ucCh;
     int32_t lRetVal;
 
-    /* open ADC module for operation */
-    xUserCntx.xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
+    /* use global handle */
+    xUserCntx.xAdcHandle = xAdcHandle;
 
     TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
 
@@ -348,10 +331,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcChBuffer )
         lRetVal = iot_adc_stop( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     }
-
-    /* close ADC module */
-    lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -364,9 +343,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
     uint8_t ucCh;
     int32_t lRetVal;
 
-    /* open ADC module for operation */
-    xUserCntx.xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
+    /* use global handle */
+    xUserCntx.xAdcHandle = xAdcHandle;
 
     /* Chain size has to be greater than 1, otherwise no need to use Chain operation */
     TEST_ASSERT_GREATER_THAN( 1, uctestIotAdcChListLen );
@@ -389,9 +367,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
 
     if( lRetVal == IOT_ADC_FUNCTION_NOT_SUPPORTED )
     {
-        /* close ADC module */
-        lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-        TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         return;
     }
 
@@ -421,10 +396,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
     /* stop chain scan */
     lRetVal = iot_adc_stop( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
-
-    /* close ADC module */
-    lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -432,15 +403,13 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
 TEST( TEST_IOT_ADC, AFQP_IotAdcOperation )
 {
     testIotAdcTestUserContext_t xUserCntx;
-    IotAdcChBuffer_t xChBuf;
-    uint16_t usChDataBuf[ testIotADC_CH_DATA_BUF_LEN ];
     uint8_t ucCh;
     int32_t lRetVal;
 
-    /* open ADC module for operation */
-    xUserCntx.xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
     TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
+
+    /* use global handle */
+    xUserCntx.xAdcHandle = xAdcHandle;
 
     for( int i = 0; i < uctestIotAdcChListLen; i++ )
     {
@@ -461,10 +430,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOperation )
         lRetVal = iot_adc_stop( xUserCntx.xAdcHandle, xUserCntx.ucAdcChannel );
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     }
-
-    /* close ADC module */
-    lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -474,22 +439,19 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOperation )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcOpenCloseFuzzy )
 {
-    IotAdcHandle_t xAdcHandle, xAdcHandleTmp;
+    IotAdcHandle_t xAdcHandleFuzz;
     int32_t lRetVal;
 
     /* invliad ADC instance number */
-    xAdcHandle = iot_adc_open( 0xFFFFFFFF );
-    TEST_ASSERT_EQUAL( NULL, xAdcHandle );
+    xAdcHandleFuzz = iot_adc_open( 0xFFFFFFFF );
+    TEST_ASSERT_EQUAL( NULL, xAdcHandleFuzz );
 
-    xAdcHandle = iot_adc_open( -1 );
-    TEST_ASSERT_EQUAL( NULL, xAdcHandle );
+    xAdcHandleFuzz = iot_adc_open( -1 );
+    TEST_ASSERT_EQUAL( NULL, xAdcHandleFuzz );
 
-    /* open same ADC instance twice */
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
-
-    xAdcHandleTmp = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_EQUAL( NULL, xAdcHandleTmp );
+    /* open same ADC instance twice (already open during setup) */
+    xAdcHandleFuzz = iot_adc_open( uctestIotAdcInstance );
+    TEST_ASSERT_EQUAL( NULL, xAdcHandleFuzz );
 
     /* close ADC instance with NULL handle */
     lRetVal = iot_adc_close( NULL );
@@ -510,12 +472,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOpenCloseFuzzy )
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcIoctlSetConfigFuzzy )
 {
-    IotAdcHandle_t xAdcHandle;
     IotAdcConfig_t xAdcConfig;
     int32_t lRetVal;
-
-    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     xAdcConfig.ucAdcResolution = 100; /* no such resolution */
     lRetVal = iot_adc_ioctl( xAdcHandle, eSetAdcConfig, &xAdcConfig );
@@ -535,9 +493,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcIoctlSetConfigFuzzy )
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
     TEST_ASSERT_EQUAL( 3, xAdcConfig.ulAdcSampleTime );
     TEST_ASSERT_EQUAL( 12, xAdcConfig.ucAdcResolution );
-
-    lRetVal = iot_adc_close( xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -553,9 +508,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
     uint8_t ucCh;
     int32_t lRetVal;
 
-    /* open ADC module for operation */
-    xUserCntx.xAdcHandle = iot_adc_open( uctestIotAdcInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
+    /* use global handle */
+    xUserCntx.xAdcHandle = xAdcHandle;
 
     /* Chain size has to be greater than 1, otherwise no need to use Chain operation */
     TEST_ASSERT_GREATER_THAN( 1, uctestIotAdcChListLen );
@@ -573,9 +527,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
 
     if( lRetVal == IOT_ADC_FUNCTION_NOT_SUPPORTED )
     {
-        /* close ADC module */
-        lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-        TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         return;
     }
 
@@ -593,39 +544,31 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
 
     if( lRetVal == IOT_ADC_FUNCTION_NOT_SUPPORTED )
     {
-        /* close ADC module */
-        lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-        TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
         return;
     }
 
     TEST_ASSERT_EQUAL( IOT_ADC_INVALID_VALUE, lRetVal );
-
-    /* close ADC module */
-    lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
-static void xAdcCallbackTmp( uint16_t * pusConvertedData,
-                             void * pvUserContext )
-{
-}
 
 /**
  * @brief Fuzzy Test Function for iot_adc_open and iot_adc_close.
  */
 TEST( TEST_IOT_ADC, AFQP_IotAdcOperationFuzzy )
 {
-    IotAdcHandle_t xAdcHandle = NULL;
     uint8_t ucAdcChannel = 0xFF; /* fake channel number */
-    IotAdcCallback_t xAdcCallback = xAdcCallbackTmp;
     IotAdcConfig_t xAdcConfig;
-    IotAdcChStatus_t xAdcChStatus = { ucAdcChannel, 0 };
     IotAdcChBuffer_t xAdcChBuffer = { ucAdcChannel, NULL, 0 };
     IotAdcChain_t xAdcChain = { ucAdcChannel, NULL, 0, 0x0 };
     uint16_t usDataBuf[ 5 ];
     int32_t lRetVal;
+
+    /* Start by closing the global handle allcoated during setup */
+    lRetVal = iot_adc_close( xAdcHandle );
+    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
+    /* Set handle to NULL */
+    xAdcHandle = NULL;
 
     lRetVal = iot_adc_start( xAdcHandle, ucAdcChannel );
     TEST_ASSERT_EQUAL( IOT_ADC_INVALID_VALUE, lRetVal );
@@ -730,9 +673,6 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOperationFuzzy )
 
     /* stop shall succeed unless handle is not valid */
     lRetVal = iot_adc_stop( xAdcHandle, ucAdcChannel );
-    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
-
-    lRetVal = iot_adc_close( xAdcHandle );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
 }
 
