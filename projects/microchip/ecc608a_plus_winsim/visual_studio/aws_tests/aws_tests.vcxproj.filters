@@ -1582,6 +1582,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\mbedtls_error.c">
+			<Filter>libraries\3rdparty\mbedtls\library</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>

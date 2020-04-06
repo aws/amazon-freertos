@@ -1395,6 +1395,9 @@
                         <name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c</name>
                     </file>
                     <file>
+                        <name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\mbedtls_error.c</name>
+                    </file>
+                    <file>
                         <name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c</name>
                     </file>
                     <file>
