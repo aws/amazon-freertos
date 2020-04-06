@@ -205,19 +205,19 @@
 #endif
 
 
-const char * mbedtls_strerror_highlevel( int ret )
+const char * mbedtls_strerror_highlevel( int errnum )
 {
     const char * rc = NULL;
     int use_ret;
 
-    if( ret < 0 )
+    if( errnum < 0 )
     {
-        ret = -ret;
+        errnum = -ret;
     }
 
-    if( ret & 0xFF80 )
+    if( errnum & 0xFF80 )
     {
-        use_ret = ret & 0xFF80;
+        use_ret = errnum & 0xFF80;
 
         /* High level error codes */
         /* */
@@ -1015,12 +1015,12 @@ const char * mbedtls_strerror_lowlevel( int errnum )
     const char * rc = NULL;
     int use_ret;
 
-    if( ret < 0 )
+    if( errnum < 0 )
     {
-        ret = -ret;
+        errnum = -errnum;
     }
 
-    use_ret = ret & ~0xFF80;
+    use_ret = errnum & ~0xFF80;
 
     if( use_ret == 0 )
     {
