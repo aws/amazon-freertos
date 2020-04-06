@@ -2213,6 +2213,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/mbedtls_error.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/mbedtls_error.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
