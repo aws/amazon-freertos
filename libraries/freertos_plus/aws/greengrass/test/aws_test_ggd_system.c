@@ -45,7 +45,7 @@
  * @brief The initial delay in milliseconds that is doubled each retry of request.
  */
 #ifndef IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY
-    #define IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY    ( ( uint32_t ) 300 )
+    #define IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY    ( ( uint32_t ) 1100 )
 #endif
 
 /**
