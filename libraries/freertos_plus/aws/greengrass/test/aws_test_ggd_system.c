@@ -54,7 +54,7 @@
 #ifndef IOT_TEST_GGD_REQUEST_RETRY_COUNT
     #define IOT_TEST_GGD_REQUEST_RETRY_COUNT    ( 1 )
 #endif
- /** @endcond */
+/** @endcond */
 
 #if IOT_TEST_GGD_REQUEST_RETRY_COUNT < 1
     #error "IOT_TEST_GGD_REQUEST_RETRY_COUNT must be at least 1."
@@ -74,6 +74,12 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
                                                  uint32_t * pulByteRead,
                                                  BaseType_t * pxJSONFileRetrieveCompleted,
                                                  uint32_t ulJSONFileSize );
+
+/* Wrapper function to retry request in case of failure with exponential backoff */
+static BaseType_t prvGGD_JSONRequestStart( const char * pcHostAddress,
+                                           uint16_t usGGDPort,
+                                           const char * pcThingName,
+                                           Socket_t * pxSocket)
 
 TEST_GROUP( GGD_System );
 
@@ -128,16 +134,17 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
     return xStatus;
 }
 
-static BaseType_t _ggdJSONRequestStart( const char * pcHostAddress,
-                                         uint16_t usGGDPort,
-                                         const char * pcThingName,
-                                         Socket_t * pxSocket )
+static BaseType_t prvGGD_JSONRequestStart( const char * pcHostAddress,
+                                        uint16_t usGGDPort,
+                                        const char * pcThingName,
+                                        Socket_t * pxSocket )
 {
     BaseType_t xStatus;
+
     RETRY_EXPONENTIAL( xStatus = GGD_JSONRequestStart( pcHostAddress, usGGDPort, pcThingName, pxSocket ),
                        pdPASS,
                        IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY,
-                       IOT_TEST_GGD_REQUEST_RETRY_COUNT);
+                       IOT_TEST_GGD_REQUEST_RETRY_COUNT );
     return xStatus;
 }
 
@@ -154,7 +161,7 @@ TEST( GGD_System, JSONRequestAbort )
         xSocket = SOCKETS_INVALID_SOCKET;
         GGD_JSONRequestAbort( &xSocket );
 
-        _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                               clientcredentialGREENGRASS_DISCOVERY_PORT,
                               clientcredentialIOT_THING_NAME,
                               &xSocket );
@@ -318,7 +325,7 @@ TEST( GGD_System, GetIPandCertificateFromJSON )
         TEST_ASSERT_EQUAL_INT32( strlen( cCERTIFICATE ) + 1, xHostAddressData.ulCertificateSize );
 
         xAutoSearchFlag = pdTRUE;
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -450,7 +457,7 @@ TEST( GGD_System, JSONRequestGetFile )
         /** @brief Check return status and value in ideal case.
          *  @{
          */
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -479,7 +486,7 @@ TEST( GGD_System, JSONRequestGetFile )
         /** @brief Retrieve the JSON file in separate chunks.
          *  @{
          */
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -517,7 +524,7 @@ TEST( GGD_System, JSONRequestGetFile )
         /** @brief Check fail if we receive more bytes than expected.
          *  @{
          */
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -597,7 +604,7 @@ TEST( GGD_System, JSONRequestGetSize )
         /** @brief Check return status and value in ideal case
          *  @{
          */
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -636,7 +643,7 @@ TEST( GGD_System, JSONRequestStart )
         /** @brief Check return status and value in ideal case
          *  @{
          */
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         &xSocket );
@@ -654,7 +661,7 @@ TEST( GGD_System, JSONRequestStart )
      */
     if( TEST_PROTECT() )
     {
-        xStatus = _ggdJSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         clientcredentialIOT_THING_NAME,
                                         NULL );
@@ -663,7 +670,7 @@ TEST( GGD_System, JSONRequestStart )
 
     if( TEST_PROTECT() )
     {
-        xStatus = _ggdJSONRequestStart( NULL,
+        xStatus = prvGGD_JSONRequestStart( NULL,
                                         clientcredentialGREENGRASS_DISCOVERY_PORT,
                                         NULL,
                                         &xSocket );
