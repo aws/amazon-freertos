@@ -2125,7 +2125,7 @@
 		<link>
 			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
