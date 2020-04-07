@@ -1,5 +1,5 @@
 /*
- * FreeRTOS WiFi V1.0.5
+ * FreeRTOS Error Code Stringification utilities for mbed TLS v2.16.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,7 @@
 
 /**
  * @file mbedtls_error.h
- * @brief Wi-Fi Interface.
+ * @brief Stringification utilities for high-level and low-level codes of mbed TLS.
  */
 
 
