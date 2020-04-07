@@ -787,12 +787,15 @@ TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
     xUartHandle_2 = iot_uart_open( uctestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle_2 );
 
-    xUartHandle_3 = iot_uart_open( uctestIotUartPort );
-    TEST_ASSERT_EQUAL( NULL, xUartHandle_3 );
+    if( TEST_PROTECT() )
+    {
+        xUartHandle_3 = iot_uart_open( uctestIotUartPort );
+        TEST_ASSERT_EQUAL( NULL, xUartHandle_3 );
 
-    lCancel = iot_uart_cancel( NULL );
-    TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lCancel );
-
+        lCancel = iot_uart_cancel( NULL );
+        TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lCancel );
+    }
+    
     lClose = iot_uart_close( xUartHandle_2 );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 
