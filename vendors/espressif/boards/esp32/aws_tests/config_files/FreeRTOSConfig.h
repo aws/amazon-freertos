@@ -37,8 +37,10 @@
 
 #ifndef __ASSEMBLER__
     #include <stdlib.h> /* for abort() */
-    #include "rom/ets_sys.h"
+    #include "esp32/rom/ets_sys.h"
     #include <sys/reent.h>
+    #include "soc/cpu.h"
+    #include "esp_attr.h"
 
     #if CONFIG_SYSVIEW_ENABLE
         #include "SEGGER_SYSVIEW_FreeRTOS.h"
@@ -48,6 +50,8 @@
     /* Unit testing include. */
     #include "unity_internals.h"
 #endif /* def __ASSEMBLER__ */
+
+#define pdTICKS_TO_MS( xTicks )   ( ( uint32_t ) ( xTicks ) * 1000 / configTICK_RATE_HZ )
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -312,6 +316,23 @@
                                 unsigned uxPriority,
                                 void * const pxCreatedTask,
                                 const int xCoreID );
+
+    static inline bool IRAM_ATTR xPortCanYield(void)
+    {
+        uint32_t ps_reg = 0;
+
+        //Get the current value of PS (processor status) register
+        RSR(PS, ps_reg);
+
+        /*
+         * intlevel = (ps_reg & 0xf);
+         * excm  = (ps_reg >> 4) & 0x1;
+         * CINTLEVEL is max(excm * EXCMLEVEL, INTLEVEL), where EXCMLEVEL is 3.
+         * However, just return true, only intlevel is zero.
+         */
+
+        return ((ps_reg & PS_INTLEVEL_MASK) == 0);
+    }
 
     #define xTaskGetIdleTaskHandleForCPU(i) xTaskGetIdleTaskHandle()
 

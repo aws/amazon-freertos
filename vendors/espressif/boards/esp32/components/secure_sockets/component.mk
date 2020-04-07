@@ -3,7 +3,7 @@ AMAZON_FREERTOS_3RD_PARTY_DIR := ../../../../../../libraries/3rdparty
 AMAZON_FREERTOS_PORTS_DIR := ../../ports
 
 ifndef AFR_ESP_FREERTOS_TCP
-COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_PORTS_DIR)/secure_sockets/lwip
+COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/lwip
 else
 COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/freertos_plus_tcp
 endif

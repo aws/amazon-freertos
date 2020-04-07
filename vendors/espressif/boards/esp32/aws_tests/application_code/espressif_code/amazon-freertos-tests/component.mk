@@ -152,6 +152,9 @@ CFLAGS += -DESP32
 tests/common/wifi/aws_test_wifi.o: CFLAGS+=-Wno-uninitialized
 tests/common/ota/aws_test_ota_pal.o: CFLAGS+=-Wno-pointer-sign -Wno-sizeof-pointer-memaccess
 tests/common/ota/aws_test_ota_agent.o: CFLAGS+=-Wno-pointer-sign
+libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.o: CFLAGS+=-Wno-nonnull
+libraries/freertos_plus/standard/tls/test/iot_test_tls.o: CFLAGS+=-Wno-nonnull
+vendors/espressif/boards/esp32/ports/ble/iot_ble_hal_gatt_server.o: CFLAGS+=-Wno-stringop-overflow
 else
 
 COMPONENT_SRCDIRS += ../.. \

@@ -1,4 +1,6 @@
-register_component()
+idf_component_register()
+
+set(FREERTOS_COMPONENT_DIR "${CMAKE_CURRENT_LIST_DIR}/../freertos")
 
 target_compile_options(
     afr_3rdparty_mbedtls
@@ -14,9 +16,14 @@ target_include_directories(
     BEFORE
     PRIVATE
     "${AFR_VENDORS_DIR}/espressif/esp-idf/components/vfs/include"
+    "${AFR_VENDORS_DIR}/espressif/esp-idf/components/soc/soc/include/soc"
+    ${FREERTOS_COMPONENT_DIR}/include
     PUBLIC
     ${IDF_INCLUDE_DIRECTORIES}
     ${CMAKE_CURRENT_LIST_DIR}/port/include
+    "${AFR_VENDORS_DIR}/espressif/esp-idf/components/xtensa/include"
+    "${AFR_VENDORS_DIR}/espressif/esp-idf/components/soc/soc/include"
+    "${AFR_VENDORS_DIR}/espressif/esp-idf/components/soc/src/esp32/include"
 )
 
 target_sources(
@@ -29,6 +36,8 @@ target_sources(
     "${CMAKE_CURRENT_LIST_DIR}/port/esp_sha1.c"
     "${CMAKE_CURRENT_LIST_DIR}/port/esp_sha512.c"
     "${CMAKE_CURRENT_LIST_DIR}/port/mbedtls_debug.c"
+    "${CMAKE_CURRENT_LIST_DIR}/port/aes.c"
+    "${CMAKE_CURRENT_LIST_DIR}/port/sha.c"
 )
 
 target_compile_definitions(

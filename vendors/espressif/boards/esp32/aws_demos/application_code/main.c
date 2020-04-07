@@ -58,7 +58,7 @@
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 
 #include "iot_network_manager_private.h"
 
@@ -172,7 +172,7 @@ static void prvMiscInitialization( void )
 
 #if AFR_ESP_LWIP
     configPRINTF( ("Initializing lwIP TCP stack\r\n") );
-    tcpip_adapter_init();
+    esp_netif_init();
 #else
     configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     vApplicationIPInit();

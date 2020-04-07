@@ -29,12 +29,11 @@
 #include "string.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "event_groups.h"
 #if AFR_ESP_LWIP
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
-#include "tcpip_adapter.h"
 #else
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -57,6 +56,8 @@ const int ESPTOUCH_DONE_BIT = BIT5;
 static bool wifi_conn_state;
 static bool wifi_ap_state;
 static bool wifi_auth_failure;
+
+static esp_netif_t *esp_netif_info;
 
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
@@ -84,114 +85,126 @@ static SemaphoreHandle_t xWiFiSem; /**< WiFi module semaphore. */
  */
 static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );
 
-static esp_err_t event_handler(void *ctx, system_event_t *event)
+static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     /* For accessing reason codes in case of disconnection */
-    system_event_info_t *info = &event->event_info;
+    system_event_info_t *info = &((system_event_t*) event_data)->event_info;
+    if (event_base == WIFI_EVENT) {
+        switch(event_id) {
+            case SYSTEM_EVENT_STA_START:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
+                xEventGroupSetBits(wifi_event_group, STARTED_BIT);
+                break;
+            case SYSTEM_EVENT_STA_CONNECTED:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_CONNECTED");
+                break;
+            case SYSTEM_EVENT_STA_DISCONNECTED:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
+                wifi_auth_failure = false;
 
-    switch(event->event_id) {
-        case SYSTEM_EVENT_STA_START:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
-            xEventGroupSetBits(wifi_event_group, STARTED_BIT);
-            break;
-        case SYSTEM_EVENT_STA_CONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_CONNECTED");
-            break;
-        case SYSTEM_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_GOT_IP");
-            wifi_conn_state = true;
-            xEventGroupClearBits(wifi_event_group, DISCONNECTED_BIT);
-            xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
-            if( xEventCallback != NULL )
-            {
-            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled );
-            }
-            break;
-        case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
-            wifi_auth_failure = false;
+                /* Set code corresponding to the reason for disconnection */
+                switch (info->disconnected.reason) {
+                    case WIFI_REASON_AUTH_EXPIRE:
+                    case WIFI_REASON_ASSOC_EXPIRE:
+                    case WIFI_REASON_AUTH_LEAVE:
+                    case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
+                    case WIFI_REASON_BEACON_TIMEOUT:
+                    case WIFI_REASON_AUTH_FAIL:
+                    case WIFI_REASON_ASSOC_FAIL:
+                    case WIFI_REASON_HANDSHAKE_TIMEOUT:
+                        ESP_LOGD(TAG, "STA Auth Error");
+                        wifi_auth_failure = true;
+                        break;
+                    case WIFI_REASON_NO_AP_FOUND:
+                        ESP_LOGD(TAG, "STA AP Not found");
+                        wifi_auth_failure = true;
+                        break;
+                    default:
+                        break;
+                }
 
-            /* Set code corresponding to the reason for disconnection */
-            switch (info->disconnected.reason) {
-                case WIFI_REASON_AUTH_EXPIRE:
-                case WIFI_REASON_ASSOC_EXPIRE:
-                case WIFI_REASON_AUTH_LEAVE:
-                case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
-                case WIFI_REASON_BEACON_TIMEOUT:
-                case WIFI_REASON_AUTH_FAIL:
-                case WIFI_REASON_ASSOC_FAIL:
-                case WIFI_REASON_HANDSHAKE_TIMEOUT:
-                    ESP_LOGD(TAG, "STA Auth Error");
-                    wifi_auth_failure = true;
+                wifi_conn_state = false;
+                xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
+                xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
+                if( xEventCallback != NULL )
+                {
+                    xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled );
+                }
+                break;
+            case SYSTEM_EVENT_AP_START:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+                wifi_ap_state = true;
+                xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
+                xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
+                break;
+            case SYSTEM_EVENT_AP_STOP:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+                wifi_ap_state = false;
+                xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
+                xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
+                break;
+            case SYSTEM_EVENT_AP_STACONNECTED:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
+                break;
+            case SYSTEM_EVENT_AP_STADISCONNECTED:
+                ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
+                break;
+            default:
+                break;
+        }
+    } else if(event_base == IP_EVENT) {
+            switch(event_id) {
+                case IP_EVENT_STA_GOT_IP:
+                    ESP_LOGI(TAG, "SYSTEM_EVENT_STA_GOT_IP");
+                    wifi_conn_state = true;
+                    xEventGroupClearBits(wifi_event_group, DISCONNECTED_BIT);
+                    xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
+                    if( xEventCallback != NULL )
+                    {
+                        xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled );
+                    }
                     break;
-                case WIFI_REASON_NO_AP_FOUND:
-                    ESP_LOGD(TAG, "STA AP Not found");
-                    wifi_auth_failure = true;
-                    break;
+
                 default:
                     break;
             }
-
-            wifi_conn_state = false;
-            xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
-            xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
-            if( xEventCallback != NULL )
-            {
-            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled );
-            }
-            break;
-        case SYSTEM_EVENT_AP_START:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
-            wifi_ap_state = true;
-            xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
-            xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
-            break;
-        case SYSTEM_EVENT_AP_STOP:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
-            wifi_ap_state = false;
-            xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
-            xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
-            break;
-        case SYSTEM_EVENT_AP_STACONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
-            break;
-        case SYSTEM_EVENT_AP_STADISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
-            break;
-        default:
-            break;
     }
-    return ESP_OK;
 }
 /*-----------------------------------------------------------*/
 
-static void sc_callback(smartconfig_status_t status, void *pdata)
+static void sc_callback(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
-    switch (status) {
-        case SC_STATUS_WAIT:
-            ESP_LOGI(TAG, "SC_STATUS_WAIT");
+    switch (event_id) {
+        case SC_EVENT_SCAN_DONE:
+            ESP_LOGI(TAG, "SC_EVENT_SCAN_DONE");
             break;
-        case SC_STATUS_FIND_CHANNEL:
-            ESP_LOGI(TAG, "SC_STATUS_FINDING_CHANNEL");
+        case SC_EVENT_FOUND_CHANNEL:
+            ESP_LOGI(TAG, "SC_EVENT_FOUND_CHANNEL");
             break;
-        case SC_STATUS_GETTING_SSID_PSWD:
-            ESP_LOGI(TAG, "SC_STATUS_GETTING_SSID_PSWD");
-            break;
-        case SC_STATUS_LINK:
-            ESP_LOGI(TAG, "SC_STATUS_LINK");
-            wifi_config_t *wifi_config = pdata;
-            ESP_LOGI(TAG, "SSID:%s", wifi_config->sta.ssid);
-            ESP_LOGI(TAG, "PASSWORD:%s", wifi_config->sta.password);
-            esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config);
+        case SC_EVENT_GOT_SSID_PSWD:
+            ESP_LOGI(TAG, "SC_EVENT_GOT_SSID_PSWD");
+            smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
+            wifi_config_t wifi_config;
+            uint8_t ssid[33] = { 0 };
+            uint8_t password[65] = { 0 };
+
+            bzero(&wifi_config, sizeof(wifi_config_t));
+            memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
+            memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
+            wifi_config.sta.bssid_set = evt->bssid_set;
+            if (wifi_config.sta.bssid_set == true) {
+                memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
+            }
+
+            memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+            memcpy(password, evt->password, sizeof(evt->password));
+            ESP_LOGI(TAG, "SSID:%s", ssid);
+            ESP_LOGI(TAG, "PASSWORD:%s", password);
+            esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
             esp_wifi_connect();
             break;
-        case SC_STATUS_LINK_OVER:
-            ESP_LOGI(TAG, "SC_STATUS_LINK_OVER");
-            if (pdata != NULL) {
-                uint8_t phone_ip[4] = { 0 };
-                memcpy(phone_ip, (uint8_t* )pdata, 4);
-                ESP_LOGI(TAG, "IP: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
-            }
+        case SC_EVENT_SEND_ACK_DONE:
+            ESP_LOGI(TAG, "SC_EVENT_SEND_ACK_DONE");
             xEventGroupSetBits(wifi_event_group, ESPTOUCH_DONE_BIT);
             break;
         default:
@@ -221,10 +234,12 @@ WIFIReturnCode_t WIFI_Provision()
             return wifi_ret;
         }
 
+        esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &sc_callback, NULL);
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
-        ret = esp_smartconfig_start(sc_callback);
+        smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+        esp_smartconfig_start(&cfg);
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to start smartconfig %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
@@ -234,6 +249,7 @@ WIFIReturnCode_t WIFI_Provision()
         // Wait for wifi connected or disconnected event
         xEventGroupWaitBits(wifi_event_group, ESPTOUCH_DONE_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
         esp_smartconfig_stop();
+        esp_event_handler_unregister(SC_EVENT, ESP_EVENT_ANY_ID, &sc_callback);
         if (wifi_conn_state == true) {
             wifi_ret = eWiFiSuccess;
         }
@@ -315,11 +331,16 @@ WIFIReturnCode_t WIFI_On( void )
     esp_err_t ret;
     // Check if Event Loop is already initialized
     if (event_loop_inited == false) {
-        ret = esp_event_loop_init(event_handler, NULL);
+        ret = esp_event_loop_create_default();
+        esp_netif_info = esp_netif_create_default_wifi_sta();
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
             goto err;
         }
+        esp_event_handler_instance_t instance_any_id;
+        esp_event_handler_instance_t instance_got_ip;
+        esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL, &instance_any_id);
+        esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL, &instance_got_ip);
         event_loop_inited = true;
     }
 
@@ -890,7 +911,7 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
 {
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
     esp_err_t xRet;
-    nvs_handle xNvsHandle = NULL;
+    nvs_handle xNvsHandle;
     BaseType_t xOpened = pdFALSE;
 
     if( pxNetworkProfile != NULL && pusIndex != NULL )
@@ -1012,7 +1033,7 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
 	WIFIReturnCode_t xWiFiRet = eWiFiFailure;
 	esp_err_t xRet;
-	nvs_handle xNvsHandle = NULL;
+	nvs_handle xNvsHandle;
 	char cWifiKey[ MAX_WIFI_KEY_WIDTH ] = { 0 };
 	BaseType_t xOpened = pdFALSE;
 	uint16_t usIdx;
@@ -1094,14 +1115,14 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
                      pucIPAddr[2],
                      pucIPAddr[3]));
 #else /* running lwip */
-        tcpip_adapter_ip_info_t ipInfo;
+        esp_netif_ip_info_t ipInfo;
         int ret;
 
-        ret = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+        ret = esp_netif_get_ip_info(esp_netif_info, &ipInfo);
         if (ret == ESP_OK)
         {
             xRetVal = eWiFiSuccess;
-            memcpy( pucIPAddr, &ipInfo.ip.addr, sizeof( ipInfo.ip.addr ) );
+            memcpy( pucIPAddr, &ipInfo.ip, sizeof( ipInfo.ip ) );
             configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
                           __FUNCTION__,
                           pucIPAddr[0],
@@ -1111,7 +1132,7 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
         }
         else
         {
-            configPRINTF(("%s: tcpip_adapter_get_ip_info_error:  %d",
+            configPRINTF(("%s: esp_netif_get_ip_info_error:  %d",
                         __FUNCTION__,
                         ret));
         }

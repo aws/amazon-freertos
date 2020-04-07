@@ -8,7 +8,8 @@
 	branch = v2.4.3
 [submodule "freertos_kernel"]
 	path = freertos_kernel
-	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+	url = https://github.com/shubhamkulkarni97/FreeRTOS-Kernel.git
+	branch = bugfix/upleveling_changes
 [submodule "pkcs11"]
 	path = libraries/3rdparty/pkcs11
 	url = https://github.com/amazon-freertos/pkcs11.git
@@ -22,7 +23,7 @@
 [submodule "vendors/espressif/esp-idf"]
 	path = vendors/espressif/esp-idf
 	url = https://github.com/espressif/esp-afr-sdk.git
-	branch = release/v3.3
+	branch = release/v4.2
 [submodule "mbedtls"]
 	path = libraries/3rdparty/mbedtls
 	url = https://github.com/ARMmbed/mbedtls.git
