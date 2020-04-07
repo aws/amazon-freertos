@@ -70,6 +70,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy_poll.c            \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/error.c                   \
+                    $(AFR_THIRDPARTY_PATH)mbedtls/library/mbedtls_error.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/gcm.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/havege.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/hmac_drbg.c               \
