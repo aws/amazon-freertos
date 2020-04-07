@@ -22,6 +22,10 @@ set(src_dir "${c_sdk_src_dir}")
 set(inc_dir "${c_sdk_inc_dir}")
 set(test_dir "${c_sdk_test_dir}")
 
+#Include the file paths directory to get all the files for source
+#and include.
+include("${c_sdk_mqtt_dir}/filePaths.cmake")
+
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
     set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
@@ -34,18 +38,16 @@ if(${AFR_IS_TESTING})
     list(APPEND extra_mqtt_test_includes "${test_dir}/mock")
 endif()
 
+#Prepend all the MQTT source and include paths with relative
+#path to C-SDK
+list(TRANSFORM MQTT_SOURCES PREPEND "${c_sdk_mqtt_dir}/")
+list(TRANSFORM MQTT_INCLUDE_PUBLIC_DIRS PREPEND "${c_sdk_mqtt_dir}/")
+list(TRANSFORM MQTT_TEST_INCLUDE_PRIVATE_DIRS PREPEND "${c_sdk_mqtt_dir}/")
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/iot_mqtt_api.c"
-        "${src_dir}/iot_mqtt_network.c"
-        "${src_dir}/iot_mqtt_operation.c"
-        "${src_dir}/iot_mqtt_serialize.c"
-        "${src_dir}/iot_mqtt_helper.c"
-        "${src_dir}/iot_mqtt_lightweight_api.c"
-        "${src_dir}/iot_mqtt_static_memory.c"
-        "${src_dir}/iot_mqtt_subscription.c"
-        "${src_dir}/iot_mqtt_validate.c"
+        ${MQTT_SOURCES}
         ${extra_mqtt_sources}
 )
 
@@ -61,8 +63,8 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        "${inc_dir}"
-        "$<${AFR_IS_TESTING}:${src_dir}>"
+        "${MQTT_INCLUDE_PUBLIC_DIRS}"
+        "$<${AFR_IS_TESTING}:${MQTT_TEST_INCLUDE_PRIVATE_DIRS}>"
     PRIVATE
         ${extra_mqtt_includes}
         ${extra_mqtt_test_includes}
@@ -83,15 +85,15 @@ if(BLE_SUPPORTED)
     set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
 endif()
 
+list(TRANSFORM MQTT_SYSTEM_TEST_SOURCES PREPEND "${c_sdk_mqtt_dir}/")
+list(TRANSFORM MQTT_UNIT_TEST_SOURCES PREPEND "${c_sdk_mqtt_dir}/")
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/mock/iot_tests_mqtt_mock.c"
-        "${test_dir}/unit/iot_tests_mqtt_api.c"
-        "${test_dir}/unit/iot_tests_mqtt_receive.c"
-        "${test_dir}/unit/iot_tests_mqtt_subscription.c"
-        "${test_dir}/unit/iot_tests_mqtt_validate.c"
-        "${test_dir}/system/iot_tests_mqtt_system.c"
+        "${MQTT_SYSTEM_TEST_SOURCES}"
+        "${MQTT_UNIT_TEST_SOURCES}"
         ${extra_test_mqtt_sources}
 )
 
