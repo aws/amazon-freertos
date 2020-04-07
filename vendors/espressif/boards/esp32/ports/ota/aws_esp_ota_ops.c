@@ -32,11 +32,11 @@
 
 #include "esp_ota_ops.h"
 #include "aws_esp_ota_ops.h"
-#include "rom/queue.h"
-#include "rom/crc.h"
+#include "sys/queue.h"
+#include "esp32/rom/crc.h"
 #include "soc/dport_reg.h"
 #include "esp_log.h"
-#include "esp_flash_data_types.h"
+#include "esp_flash_partitions.h"
 #include "esp_efuse.h"
 #include "bootloader_common.h"
 

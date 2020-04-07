@@ -66,7 +66,7 @@ static void initialize_nvs_partition()
         return;
     }
 
-    ESP_LOGI(TAG, "Initializing NVS partition: \"%s\"", NVS_PART_NAME);
+    ESP_EARLY_LOGI(TAG, "Initializing NVS partition: \"%s\"", NVS_PART_NAME);
 
 
 
@@ -79,7 +79,7 @@ static void initialize_nvs_partition()
         nvs_sec_cfg_t cfg;
         esp_err_t err = nvs_flash_read_security_cfg(key_part, &cfg);
         if (err == ESP_ERR_NVS_KEYS_NOT_INITIALIZED) {
-            ESP_LOGI(TAG, "NVS key partition empty, generating keys");
+            ESP_EARLY_LOGI(TAG, "NVS key partition empty, generating keys");
             nvs_flash_generate_keys(key_part, &cfg);
         } else {
             ESP_ERROR_CHECK(err);
@@ -87,7 +87,7 @@ static void initialize_nvs_partition()
 
         esp_err_t ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
         if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-            ESP_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
+            ESP_EARLY_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
             ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
             ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
         }
@@ -96,7 +96,7 @@ static void initialize_nvs_partition()
 #endif // CONFIG_NVS_ENCRYPTION
         esp_err_t ret = nvs_flash_init_partition(NVS_PART_NAME);
         if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-            ESP_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
+            ESP_EARLY_LOGW(TAG, "Error initialising the NVS partition [%d]. Erasing the partition.", ret);
             ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
             ret = nvs_flash_init_partition(NVS_PART_NAME);
         }
