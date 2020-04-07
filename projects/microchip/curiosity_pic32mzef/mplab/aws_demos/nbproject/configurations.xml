@@ -435,6 +435,7 @@
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/entropy.c</itemPath>
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/entropy_poll.c</itemPath>
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/error.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/mbedtls_error.c</itemPath>
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/gcm.c</itemPath>
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/havege.c</itemPath>
 						<itemPath>../../../../../libraries/3rdparty/mbedtls/library/hmac_drbg.c</itemPath>

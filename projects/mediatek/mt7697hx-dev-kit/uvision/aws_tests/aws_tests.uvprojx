@@ -2345,6 +2345,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/error.c</FilePath>
 						</File>
 						<File>
+							<FileName>mbedtls_error.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/mbedtls_error.c</FilePath>
+						</File>
+						<File>
 							<FileName>gcm.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/gcm.c</FilePath>
@@ -2738,6 +2743,11 @@
 							<FileName>error.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/error.h</FilePath>
+						</File>
+						<File>
+							<FileName>mbedtls_error.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/mbedtls_error.h</FilePath>
 						</File>
 						<File>
 							<FileName>gcm.h</FileName>
