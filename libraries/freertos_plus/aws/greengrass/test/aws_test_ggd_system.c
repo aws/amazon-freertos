@@ -51,13 +51,13 @@
 /**
  * @brief The amount of times to retry a request if it fails.
  */
-#ifndef IOT_TEST_GGD_REQUEST_RETRY_COUNT
-    #define IOT_TEST_GGD_REQUEST_RETRY_COUNT    ( 1 )
+#ifndef IOT_TEST_GGD_CONNECT_RETRY_COUNT
+    #define IOT_TEST_GGD_CONNECT_RETRY_COUNT    ( 1 )
 #endif
 /** @endcond */
 
-#if IOT_TEST_GGD_REQUEST_RETRY_COUNT < 1
-    #error "IOT_TEST_GGD_REQUEST_RETRY_COUNT must be at least 1."
+#if IOT_TEST_GGD_CONNECT_RETRY_COUNT < 1
+    #error "IOT_TEST_GGD_CONNECT_RETRY_COUNT must be at least 1."
 #endif
 
 static const char cJSON_FILE[] = ggdJSON_FILE;
@@ -144,7 +144,7 @@ static BaseType_t prvGGD_JSONRequestStart( const char * pcHostAddress,
     RETRY_EXPONENTIAL( xStatus = GGD_JSONRequestStart( pcHostAddress, usGGDPort, pcThingName, pxSocket ),
                        pdPASS,
                        IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY,
-                       IOT_TEST_GGD_REQUEST_RETRY_COUNT );
+                       IOT_TEST_GGD_CONNECT_RETRY_COUNT );
     return xStatus;
 }
 
@@ -206,6 +206,15 @@ TEST( GGD_System, GetGGCIPandCertificate )
                                                   cBuffer, /*lint !e971 can use char without signed/unsigned. */
                                                   ulBufferSize,
                                                   &xHostAddressData );
+            RETRY_EXPONENTIAL( xStatus - GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
+                                                                     clientcredentialGREENGRASS_DISCOVERY_PORT,
+                                                                     clientcredentialIOT_THING_NAME,
+                                                                     cBuffer, /*lint !e971 can use char without signed/unsigned. */
+                                                                     ulBufferSize,
+                                                                     &xHostAddressData ),
+                               pdPASS,
+                               IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY,
+                               IOT_TEST_GGD_CONNECT_RETRY_COUNT );
 
             snprintf( cMsgBuffer, nBufferLength,
                       "GGD_GetGGCIPandCertificate returned %d on iteration %d",
