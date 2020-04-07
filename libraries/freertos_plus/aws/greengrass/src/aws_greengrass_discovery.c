@@ -104,14 +104,6 @@
 #define ggdLOOP_BACK_IP            "127.0.0.1"
 
 /**
- * @brief Retry count for GGD_JSONRequestStart
- *
- * Used to retry GGD_JSONRequestStart method in GGD_GetGGCIPandCertificate
- */
-#define ggdSTART_RETRY_COUNT       3
-
-
-/**
  * @brief JSON parsing helper functions.
  *
  * The functions declared below are used to make parsing of JSON file a bit easier.
@@ -179,28 +171,7 @@ BaseType_t GGD_GetGGCIPandCertificate( const char * pcHostAddress,
     configASSERT( pxHostAddressData != NULL );
     configASSERT( pcBuffer != NULL );
 
-    /* Retry GGD_JSONRequestStart in case of failure */
-    int32_t retryCount = 0;
-
-    /* Wait until 1100 ms have elapsed since the last connection. */
-    uint32_t periodMs = 1100;
-
-    for (; retryCount < ggdSTART_RETRY_COUNT; retryCount++)
-    {
-        xStatus = GGD_JSONRequestStart( pcHostAddress, usGGDPort, pcThingName, &xSocket );
-
-        #if ( ggdSTART_RETRY_COUNT > 1 )
-                if (xStatus != pdPASS)
-                {
-                    IotClock_SleepMs(periodMs);
-                    periodMs *= 2;
-                }
-                else
-                {
-                    break;
-                }
-        #endif
-    }
+    xStatus = GGD_JSONRequestStart( pcHostAddress, usGGDPort, pcThingName, &xSocket );
 
     if( xStatus == pdPASS )
     {
