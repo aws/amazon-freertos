@@ -51,7 +51,7 @@ target_compile_definitions(
     ${IDF_COMPILE_DEFINITIONS}
 )
 
-if(AFR_ESP_LWIP)
+if(NOT AFR_ESP_FREERTOS_TCP)
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
@@ -110,7 +110,7 @@ set(
     "${extra_components_dir}/mbedtls/port/include"
 )
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
     list(APPEND kernel_inc_dirs
     "${extra_components_dir}/freertos_tcpip/ethernet/include"
     "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
@@ -136,7 +136,7 @@ target_include_directories(
 # WiFi
 afr_mcu_port(wifi)
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
@@ -219,7 +219,7 @@ target_sources(
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 # FreeRTOS Plus TCP
 afr_mcu_port(freertos_plus_tcp)
 target_sources(
@@ -407,7 +407,7 @@ get_filename_component(
 
 list(APPEND IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 get_filename_component(
     ABS_NW_EXTRA_COMPONENT_DIRS
     "${extra_components_dir}/freertos_tcpip" ABSOLUTE
