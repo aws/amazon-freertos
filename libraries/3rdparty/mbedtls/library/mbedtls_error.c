@@ -28,7 +28,7 @@
  * @brief This files defines the stringification utilities for mbed TLS high-level and low-level codes.
  */
 
-#include "error.h"
+#include "mbedtls/mbedtls_error.h"
 
 #if !defined( MBEDTLS_CONFIG_FILE )
     #include "mbedtls/config.h"
