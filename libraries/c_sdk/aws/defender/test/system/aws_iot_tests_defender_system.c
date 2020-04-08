@@ -267,7 +267,7 @@ TEST( Defender_System, Metrics_empty_are_published )
     /* Set test callback to verify report. */
     _startInfo.callback = _testCallback;
 
-    /* start actual MQTT connection */
+    /* Start actual MQTT connection. */
     mqttError = _startMqttConnection();
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, mqttError );
     _startInfo.mqttConnection = _mqttConnection;
@@ -823,11 +823,13 @@ static Socket_t _createSocketToEchoServer()
     TEST_ASSERT_NOT_EQUAL( SOCKETS_INVALID_SOCKET, socket );
 
     /* Set a time out so a missing reply does not cause the task to block indefinitely. */
-    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
-    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
+    error = SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
+    TEST_ASSERT_EQUAL(SOCKETS_ERROR_NONE, error);
+    error = SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
+    TEST_ASSERT_EQUAL(SOCKETS_ERROR_NONE, error);
 
     error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
-    TEST_ASSERT_EQUAL( 0, error );
+    TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, error );
 
     return socket;
 }
