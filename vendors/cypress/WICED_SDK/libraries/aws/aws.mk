@@ -70,7 +70,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy.c                 \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/entropy_poll.c            \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/error.c                   \
-                    $(AFR_THIRDPARTY_PATH)mbedtls/library/mbedtls_error.c           \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_error.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/gcm.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/havege.c                  \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/hmac_drbg.c               \
@@ -160,6 +160,7 @@ $(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls_config \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utlils \
                     $(AFR_THIRDPARTY_PATH)unity/src
 
 $(NAME)_DEFINES := MBEDTLS_CONFIG_FILE="<aws_mbedtls_config.h>"
