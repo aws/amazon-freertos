@@ -32,7 +32,7 @@
 #endif
 
 /**
- * @brief Translate an mbed TLS high level code into its string representation,
+ * @brief Translate an mbed TLS high level code into its string representation.
  *        Result includes a terminating null byte.
  *
  * @param errnum The error code containing the high-level code.
