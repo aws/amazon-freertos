@@ -64,7 +64,7 @@ extern BaseType_t xApplicationDNSQueryHook( const char *pcName );
 /*
  * LLMNR is very similar to DNS, so is handled by the DNS routines.
  */
-uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
+uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer );
 
 #if( ipconfigUSE_LLMNR == 1 )
 	extern const MACAddress_t xLLMNR_MacAdress;
