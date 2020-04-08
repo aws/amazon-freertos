@@ -564,6 +564,11 @@
 							<FilePath>../../../../../vendors/nuvoton/sdk/StdDriver/src/fmc.c</FilePath>
 						</File>
 						<File>
+							<FileName>gpio.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../vendors/nuvoton/sdk/StdDriver/src/gpio.c</FilePath>
+						</File>
+						<File>
 							<FileName>sys.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../vendors/nuvoton/sdk/StdDriver/src/sys.c</FilePath>
