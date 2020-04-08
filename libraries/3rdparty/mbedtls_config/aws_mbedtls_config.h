@@ -19,7 +19,7 @@
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, eitherexpress or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
@@ -154,6 +154,20 @@
  * MBEDTLS_PLATFORM_GMTIME_R_ALT.
  */
 //#define MBEDTLS_HAVE_TIME_DATE
+
+/**
+ * \def MBEDTLS_CHECK_PARAMS_ASSERT
+ *
+ * Allow MBEDTLS_PARAM_FAILED() to call `assert`, and make it default to
+ * `assert`. This macro is only used if #MBEDTLS_CHECK_PARAMS is defined.
+ *
+ * If this macro is not defined, then MBEDTLS_PARAM_FAILED() defaults to
+ * calling a function mbedtls_param_failed(). See the documentation of
+ * #MBEDTLS_CHECK_PARAMS for details.
+ *
+ * Uncomment to allow MBEDTLS_PARAM_FAILED() to call `assert`.
+ */
+//#define MBEDTLS_CHECK_PARAMS_ASSERT
 
 /**
  * \def MBEDTLS_PLATFORM_MEMORY
@@ -638,6 +652,33 @@
  * Uncomment this macro to enable the NULL cipher and ciphersuites
  */
 //#define MBEDTLS_CIPHER_NULL_CIPHER
+
+/** \def MBEDTLS_CTR_DRBG_USE_128_BIT_KEY
+ *
+ * Uncomment this macro to use a 128-bit key in the CTR_DRBG module.
+ * By default, CTR_DRBG uses a 256-bit key.
+ */
+//#define MBEDTLS_CTR_DRBG_USE_128_BIT_KE
+
+/**
+ * \def MBEDTLS_REMOVE_3DES_CIPHERSUITES
+ *
+ * Remove 3DES ciphersuites by default in SSL / TLS.
+ * This flag removes the ciphersuites based on 3DES from the default list as
+ * returned by mbedtls_ssl_list_ciphersuites(). However, it is still possible
+ * to enable (some of) them with mbedtls_ssl_conf_ciphersuites() by including
+ * them explicitly.
+ *
+ * A man-in-the-browser attacker can recover authentication tokens sent through
+ * a TLS connection using a 3DES based cipher suite (see "On the Practical
+ * (In-)Security of 64-bit Block Ciphers" by Karthikeyan Bhargavan and Gaëtan
+ * Leurent, see https://sweet32.info/SWEET32_CCS16.pdf). If this attack falls
+ * in your threat model or you are unsure, then you should keep this option
+ * enabled to remove 3DES based cipher suites.
+ *
+ * Comment this macro to keep 3DES in the default ciphersuite list.
+ */
+#define MBEDTLS_REMOVE_3DES_CIPHERSUITES
 
 /**
  * \def MBEDTLS_CIPHER_PADDING_PKCS7
@@ -2987,7 +3028,6 @@
 //#define MBEDTLS_CTR_DRBG_MAX_INPUT                256 /**< Maximum number of additional input bytes */
 //#define MBEDTLS_CTR_DRBG_MAX_REQUEST             1024 /**< Maximum number of requested bytes per call */
 //#define MBEDTLS_CTR_DRBG_MAX_SEED_INPUT           384 /**< Maximum size of (re)seed buffer */
-//#define MBEDTLS_CTR_DRBG_USE_128_BIT_KEY              /**< Use 128-bit key for CTR_DRBG - may reduce security (see ctr_drbg.h) */
 
 /* HMAC_DRBG options */
 //#define MBEDTLS_HMAC_DRBG_RESEED_INTERVAL   10000 /**< Interval before reseed is performed by default */
@@ -3268,6 +3308,7 @@
 #include MBEDTLS_USER_CONFIG_FILE
 #endif
 
-#include "mbedtls/check_config.h"
+#include "check_config.h"
 
 #endif /* MBEDTLS_CONFIG_H */
+ 
