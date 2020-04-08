@@ -90,7 +90,7 @@ TEST_SETUP( TEST_IOT_FLASH )
  * @brief Tear down function called after each test in this group is executed.
  */
 TEST_TEAR_DOWN( TEST_IOT_FLASH )
-{ 
+{
 }
 
 /*-----------------------------------------------------------*/
@@ -129,7 +129,9 @@ static void prvIotTimerCallback( void * pvUserContext )
 
 /*-----------------------------------------------------------*/
 
-static void prvIotFlashWriteDummyData(IotFlashHandle_t xFlashHandle, uint32_t offset, uint32_t size)
+static void prvIotFlashWriteDummyData( IotFlashHandle_t xFlashHandle,
+                                       uint32_t offset,
+                                       uint32_t size )
 {
     uint32_t lRetVal;
 
@@ -137,11 +139,11 @@ static void prvIotFlashWriteDummyData(IotFlashHandle_t xFlashHandle, uint32_t of
     for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
-        uint32_t remaining_size = ((i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE) > size) ? (size - i) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
+        uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
-        if (remaining_size > 0)
+        if( remaining_size > 0 )
         {
-            for ( uint32_t j = 0; j < remaining_size; j++)
+            for( uint32_t j = 0; j < remaining_size; j++ )
             {
                 uctestIotFlashWriteBuffer[ j ] = j;
             }
@@ -158,16 +160,18 @@ static void prvIotFlashWriteDummyData(IotFlashHandle_t xFlashHandle, uint32_t of
 
 /*-----------------------------------------------------------*/
 
-static void prvIotFlashReadVerifyDummyData(IotFlashHandle_t xFlashHandle, uint32_t offset, uint32_t size)
+static void prvIotFlashReadVerifyDummyData( IotFlashHandle_t xFlashHandle,
+                                            uint32_t offset,
+                                            uint32_t size )
 {
     uint32_t lRetVal;
 
     for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
-        uint32_t remaining_size = ((i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE) > size) ? (size - i) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
+        uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
-        if (remaining_size > 0)
+        if( remaining_size > 0 )
         {
             /* Read back the data written */
             lRetVal = iot_flash_read_sync( xFlashHandle,
@@ -179,7 +183,7 @@ static void prvIotFlashReadVerifyDummyData(IotFlashHandle_t xFlashHandle, uint32
             /* Verify the data is erased. */
             for( uint32_t i = 0; i < remaining_size; i++ )
             {
-                if( uctestIotFlashReadBuffer[ i ] != (i & 0xFF) )
+                if( uctestIotFlashReadBuffer[ i ] != ( i & 0xFF ) )
                 {
                     TEST_ASSERT_MESSAGE( 0, "Data was NOT erased" );
                 }
@@ -190,16 +194,18 @@ static void prvIotFlashReadVerifyDummyData(IotFlashHandle_t xFlashHandle, uint32
 
 /*-----------------------------------------------------------*/
 
-static void prvIotFlashReadVerifyErased(IotFlashHandle_t xFlashHandle, uint32_t offset, uint32_t size)
+static void prvIotFlashReadVerifyErased( IotFlashHandle_t xFlashHandle,
+                                         uint32_t offset,
+                                         uint32_t size )
 {
     uint32_t lRetVal;
 
     for( uint32_t i = 0; i < size; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
     {
         /* Less the a full buffer left? */
-        uint32_t remaining_size = ((i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE) > size) ? (size - i) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
+        uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > size ) ? ( size - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
-        if (remaining_size > 0)
+        if( remaining_size > 0 )
         {
             /* Read back the data written */
             lRetVal = iot_flash_read_sync( xFlashHandle,
@@ -222,13 +228,15 @@ static void prvIotFlashReadVerifyErased(IotFlashHandle_t xFlashHandle, uint32_t 
 
 /*-----------------------------------------------------------*/
 
-static void prvIotFlashWriteReadVerify(IotFlashHandle_t xFlashHandle, uint32_t offset, uint32_t size)
+static void prvIotFlashWriteReadVerify( IotFlashHandle_t xFlashHandle,
+                                        uint32_t offset,
+                                        uint32_t size )
 {
     /* Fill out a buffer of pageSize to be written */
-    prvIotFlashWriteDummyData(xFlashHandle, offset, size);
+    prvIotFlashWriteDummyData( xFlashHandle, offset, size );
 
     /* Read back the data written */
-    prvIotFlashReadVerifyDummyData(xFlashHandle, offset, size);
+    prvIotFlashReadVerifyDummyData( xFlashHandle, offset, size );
 }
 
 /*-----------------------------------------------------------*/
@@ -379,7 +387,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseSector )
         }
 
         /* Fill a sector with dummy data and verify it */
-        prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize );
 
         /* Erase one sector */
         lRetVal = iot_flash_erase_sectors( xFlashHandle,
@@ -396,7 +404,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseSector )
 
         /* Read back the whole sector to make sure the contents are erased.
          */
-        prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize );
     }
 
     /* Close flash handle */
@@ -449,7 +457,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseMultipleSectors )
 
         /* Read back the two sectors to make sure the contents are erased.
          */
-        prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize * 2);
+        prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize * 2 );
     }
 
     /* Close flash handle */
@@ -482,7 +490,6 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
         /* Make sure the offset is aligned to BlockSize */
         if( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) )
         {
-
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
             {
@@ -510,7 +517,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
              * Write dummy data starting at the middle of the sector to half of next sector
              * and read it back to verify the data.
              */
-            prvIotFlashWriteReadVerify(xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize );
 
             /* Erase a Block */
             lRetVal = iot_flash_erase_sectors( xFlashHandle,
@@ -527,11 +534,11 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
 
             /* Read back the block to make sure the contents are erased.
              */
-            prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulBlockSize);
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulBlockSize );
         }
         else
         {
-            TEST_MESSAGE("Start offset is not aligned with blockSize");
+            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
         }
     }
 
@@ -593,7 +600,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
              * Write dummy data starting at the middle of the sector to half of next sector
              * and read it back to verify the data.
              */
-            prvIotFlashWriteReadVerify(xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize );
 
             /* Erase a Block minus sector size starting at block boundry plus sector size */
             lRetVal = iot_flash_erase_sectors( xFlashHandle,
@@ -609,18 +616,18 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
             }
 
             /* Read back the block to make sure the contents are erased.
-            */
-            prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset + pxFlashInfo->ulSectorSize, 
-                                        pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize);
+             */
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset + pxFlashInfo->ulSectorSize,
+                                         pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize );
 
             /* Read and make sure that the first sector written is not erased */
             ulMiddleOffset = ( ultestIotFlashStartOffset + ( pxFlashInfo->ulSectorSize / 2 ) );
 
-            prvIotFlashReadVerifyDummyData(xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize / 2);
+            prvIotFlashReadVerifyDummyData( xFlashHandle, ulMiddleOffset, pxFlashInfo->ulSectorSize / 2 );
         }
         else
         {
-            TEST_MESSAGE("Start offset is not aligned with blockSize");
+            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
         }
     }
 
@@ -647,7 +654,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -682,7 +689,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
              * Write dummy data starting at the middle of the sector to half of next sector
              * and read it back to verify the data.
              */
-            prvIotFlashWriteReadVerify(xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize );
 
             /* Also write the last sector in the block to make sure its not erased */
             lRetVal = iot_flash_erase_sectors( xFlashHandle,
@@ -692,7 +699,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
 
             ulOffset = ( ultestIotFlashStartOffset + ( pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize ) );
 
-            prvIotFlashWriteReadVerify(xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize );
 
             /* Erase a Block minus sector size starting at block boundry */
             lRetVal = iot_flash_erase_sectors( xFlashHandle,
@@ -707,25 +714,24 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
                 TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
             }
 
-
             /* Read back the block to make sure the contents are erased.
-            */
-            prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, 
-                                        pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize);
+             */
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset,
+                                         pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize );
 
             /* Read and make sure that the last sector written is not erased */
             ulOffset = ( ultestIotFlashStartOffset + ( pxFlashInfo->ulBlockSize - pxFlashInfo->ulSectorSize ) );
-            prvIotFlashReadVerifyDummyData(xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize);
+            prvIotFlashReadVerifyDummyData( xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize );
         }
         else
         {
-            TEST_MESSAGE("Start offset is not aligned with blockSize");
+            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
         }
     }
 
     /* Close flash handle */
     lRetVal = iot_flash_close( xFlashHandle );
-    TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal ); 
+    TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -746,7 +752,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseUnAlignedAddress )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -781,7 +787,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseUnAlignedSize )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -816,7 +822,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePartialPage )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -903,7 +909,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePage )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -930,7 +936,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePage )
         }
 
         /* Write the a full page and verify the data by reading it back */
-        prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+        prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
     }
 
     /* Close flash handle */
@@ -956,7 +962,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteSector )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -983,7 +989,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteSector )
         }
 
         /* Write the a full sector and verify the data by reading it back */
-        prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize );
     }
 
     /* Close flash handle */
@@ -1009,7 +1015,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteAcrossSectors )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1040,7 +1046,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteAcrossSectors )
         /*
          * Try to write dummy data across twi sectors and read it back to verify the data.
          */
-        prvIotFlashWriteReadVerify(xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashWriteReadVerify( xFlashHandle, ulOffset, pxFlashInfo->ulSectorSize );
     }
 
     /* Close flash handle */
@@ -1066,7 +1072,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseInProgressRead )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1181,7 +1187,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectWriteFailure )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1229,7 +1235,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectWriteFailure )
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Write the a full page and verify the data by reading it back */
-            prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
 
         /* Now make the sector writeable */
@@ -1252,7 +1258,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectWriteFailure )
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Write the a full page and verify the data by reading it back */
-            prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
     }
 
@@ -1279,7 +1285,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectEraseFailure )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1306,10 +1312,10 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectEraseFailure )
         }
 
         /* Verify that the page was erased */
-        prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+        prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
 
         /* Fill out a buffer of sectorSize to be written */
-        prvIotFlashWriteDummyData(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+        prvIotFlashWriteDummyData( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
 
         /* Make the sector as read only. */
         xFlashProtect.ulAddress = ultestIotFlashStartOffset;
@@ -1344,7 +1350,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectEraseFailure )
             }
 
             /* Read back the data written */
-            prvIotFlashReadVerifyDummyData(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashReadVerifyDummyData( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
 
         /* Now make the sector as writeable. */
@@ -1380,7 +1386,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectEraseFailure )
             }
 
             /* Read back the data written and verify that it is erased */
-            prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
     }
 
@@ -1407,7 +1413,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteEraseReadCycle )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1419,12 +1425,12 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteEraseReadCycle )
         TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
         /* Read back the data and make sure that data is erased first */
-        prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+        prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
 
         for( uint32_t idx = 0; idx < 5; idx++ )
         {
             /* Write to this sector and veirfy */
-            prvIotFlashWriteReadVerify(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
 
             /* Get the flash information. */
             pxFlashInfo = iot_flash_getinfo( xFlashHandle );
@@ -1437,7 +1443,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteEraseReadCycle )
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
             /* Read back the data and make sure that data is erased */
-            prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize);
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
     }
 
@@ -1464,7 +1470,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteSuspendResume )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Setup a timer to suspend the write */
         xTimerHandle = iot_timer_open( ltestIotTimerInstance );
         TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
@@ -1509,7 +1515,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteSuspendResume )
         TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
 
         /* Fill out a sector with data */
-        prvIotFlashWriteDummyData(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashWriteDummyData( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize );
 
         /* Wait for the Delay callback to be called. */
         lRetVal = xSemaphoreTake( xtestIotFlashTimerSemaphore, portMAX_DELAY );
@@ -1542,7 +1548,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteSuspendResume )
         TEST_ASSERT_EQUAL( eFlashIdle, lStatus );
 
         /* Read the data back to make sure Resume succeded and data is written */
-        prvIotFlashReadVerifyDummyData(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize);
+        prvIotFlashReadVerifyDummyData( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize );
 
         lRetVal = iot_timer_close( xTimerHandle );
         TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
@@ -1570,7 +1576,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseSuspendResume )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Setup a timer to suspend the write */
         xTimerHandle = iot_timer_open( ltestIotTimerInstance );
         TEST_ASSERT_NOT_EQUAL( NULL, xTimerHandle );
@@ -1645,7 +1651,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseSuspendResume )
         }
 
         /* Read the data back to make sure Resume succeded and data is erased */
-        prvIotFlashReadVerifyErased(xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize * 2);
+        prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulSectorSize * 2 );
 
         lRetVal = iot_timer_close( xTimerHandle );
         TEST_ASSERT_EQUAL( IOT_TIMER_SUCCESS, lRetVal );
@@ -1673,7 +1679,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Get the flash information. */
         pxFlashInfo = iot_flash_getinfo( xFlashHandle );
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
@@ -1703,11 +1709,11 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
         for( uint32_t i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
         {
             /* Less the a full buffer left? */
-            uint32_t remaining_size = ((i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE) > pxFlashInfo->ulPageSize) ? (pxFlashInfo->ulPageSize - i) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
+            uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > pxFlashInfo->ulPageSize ) ? ( pxFlashInfo->ulPageSize - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
-            if (remaining_size > 0)
+            if( remaining_size > 0 )
             {
-                for ( uint32_t j = 0; j < remaining_size; j++)
+                for( uint32_t j = 0; j < remaining_size; j++ )
                 {
                     uctestIotFlashWriteBuffer[ j ] = j;
                 }
@@ -1724,9 +1730,9 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
         for( uint32_t i = 0; i < pxFlashInfo->ulPageSize; i += testIotFLASH_DEFAULT_MAX_BUFFER_SIZE )
         {
             /* Less the a full buffer left? */
-            uint32_t remaining_size = ((i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE) > pxFlashInfo->ulPageSize) ? (pxFlashInfo->ulPageSize - i) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
+            uint32_t remaining_size = ( ( i + testIotFLASH_DEFAULT_MAX_BUFFER_SIZE ) > pxFlashInfo->ulPageSize ) ? ( pxFlashInfo->ulPageSize - i ) : testIotFLASH_DEFAULT_MAX_BUFFER_SIZE;
 
-            if (remaining_size > 0)
+            if( remaining_size > 0 )
             {
                 /* Read back the data written */
                 lRetVal = iot_flash_read_sync( xFlashHandle,
@@ -1758,7 +1764,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWritePageFromFlash )
  *
  */
 TEST( TEST_IOT_FLASH, AFQP_IotFlashOpenCloseFuzz )
-{   
+{
     IotFlashHandle_t xFlashHandle, xFlashHandleTmp;
     int32_t lRetVal;
 
@@ -1767,7 +1773,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashOpenCloseFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    {   
+    {
         /* open the same intance twice */
         xFlashHandleTmp = iot_flash_open( ltestIotFlashInstance );
         TEST_ASSERT_EQUAL( NULL, xFlashHandleTmp );
@@ -1808,7 +1814,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashGetInfoFuzz )
  *
  */
 TEST( TEST_IOT_FLASH, AFQP_IotFlashIoctlFuzz )
-{   
+{
     IotFlashHandle_t xFlashHandle;
     int32_t lRetVal;
     uint32_t lStatus;
@@ -1822,7 +1828,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashIoctlFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Call ioctl with handle, but invalid enum */
         lRetVal = iot_flash_ioctl( xFlashHandle, -1, NULL );
         TEST_ASSERT_EQUAL( IOT_FLASH_INVALID_VALUE, lRetVal );
@@ -1855,7 +1861,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Erase one sector with invalid start address*/
         lRetVal = iot_flash_erase_sectors( xFlashHandle,
                                            -1,
@@ -1897,7 +1903,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Write partial page with invalid start address */
         lRetVal = iot_flash_write_sync( xFlashHandle,
                                         -1,
@@ -1941,7 +1947,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashReadFuzz )
     TEST_ASSERT_NOT_EQUAL( NULL, xFlashHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Read partial page with invalid start address */
         lRetVal = iot_flash_read_sync( xFlashHandle,
                                        -1,
