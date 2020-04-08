@@ -57,6 +57,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
