@@ -50,6 +50,24 @@
     #define ESP_WIFI_IPD_SIZE       ESP_WIFI_DATA_SIZE
 #endif
 
+#ifdef wificonfigHW_RESET
+    #define ESP_WIFI_HW_RESET       wificonfigHW_RESET
+#else
+    #define ESP_WIFI_HW_RESET       0
+#endif
+
+#ifdef wificonfigTCP_PASSIVE_MODE
+    #define ESP_WIFI_TCP_PASSIVE    wificonfigTCP_PASSIVE_MODE
+#else
+    #define ESP_WIFI_TCP_PASSIVE    0
+#endif
+
+#ifdef wificonfigSERIAL_FC
+    #define ESP_WIFI_SERIAL_FC      wificonfigSERIAL_FC
+#else
+    #define ESP_WIFI_SERIAL_FC      0
+#endif
+
 #define ESP_WIFI_IPD_HIGH_LEVEL     (ESP_WIFI_IPD_SIZE - 1024)
 
 #define ESP_WIFI_NONBLOCK_SEND_TO   2000
@@ -61,6 +79,7 @@
 #define AT_ERROR_STRING             "ERROR\r\n"
 #define AT_SEND_STRING              ">"
 #define AT_RECV_STRING              "+IPD,"
+#define AT_PASSIVE_STRING           "+CIPRECVDATA,"
 #define AT_CLOSE_STRING             ",CLOSED"
 
 /* List of commands */
@@ -102,11 +121,13 @@ typedef struct {
     uint32_t UartBaudRate;
 
     uint8_t CmdData[ESP_WIFI_DATA_SIZE];
-    uint8_t ActiveCmd;
     uint32_t Timeout;
+    uint32_t HeapUsage;
     TickType_t AvailableTick;
     BaseType_t IsConnected;
     BaseType_t IsMultiConn;
+    BaseType_t IsPassiveMode;
+    uint8_t ActiveSocket;
 
     uint8_t StaIpAddr[4];
     uint8_t StaMacAddr[6];
@@ -115,9 +136,10 @@ typedef struct {
 } ESP_WIFI_Object_t;
 
 typedef struct {
-	uint8_t LinkID;
-    uint16_t DataLength;
-    uint8_t Data[ESP_WIFI_IPD_SIZE + 1];
+    char *TcpData;
+    uint16_t DataAvailable;
+    uint16_t DataReceive;
+    BaseType_t IsPassiveMode;
 } ESP_WIFI_IPD_t;
 
 
@@ -128,10 +150,11 @@ ESP_WIFI_Status_t ESP_WIFI_Disconnect( ESP_WIFI_Object_t * pxObj );
 ESP_WIFI_Status_t ESP_WIFI_Reset( ESP_WIFI_Object_t * pxObj );
 ESP_WIFI_Status_t ESP_WIFI_Scan( ESP_WIFI_Object_t * pxObj, WIFIScanResult_t * pxBuffer, uint8_t ucNumNetworks );
 ESP_WIFI_Status_t ESP_WIFI_GetNetStatus( ESP_WIFI_Object_t * pxObj );
-void ESP_WIFI_Reset_Ipd( ESP_WIFI_Conn_t * pxConn );
 ESP_WIFI_Status_t ESP_WIFI_GetConnStatus( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * pxConn );
 ESP_WIFI_Status_t ESP_WIFI_GetHostIP( ESP_WIFI_Object_t * pxObj, char * pcHost, uint8_t * pucIPAddr );
 ESP_WIFI_Status_t ESP_WIFI_SetMultiConn( ESP_WIFI_Object_t * pxObj, uint8_t mode );
+ESP_WIFI_Status_t ESP_WIFI_SetTcpPassive( ESP_WIFI_Object_t * pxObj, uint8_t mode );
+ESP_WIFI_Status_t ESP_WIFI_StartSerialFlowCtrl( ESP_WIFI_Object_t * pxObj);
 ESP_WIFI_Status_t ESP_WIFI_StartClient( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t *xConn );
 ESP_WIFI_Status_t ESP_WIFI_StopClient( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t *xConn );
 ESP_WIFI_Status_t ESP_WIFI_Send( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t *xConn, uint8_t *pcBuf, 
@@ -139,7 +162,8 @@ ESP_WIFI_Status_t ESP_WIFI_Send( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t *xCo
 ESP_WIFI_Status_t ESP_WIFI_Recv( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * pxConn, uint8_t * pcBuf, 
                                  uint16_t usReqLen, uint16_t * usRecvLen, uint32_t ulTimeout );
 BaseType_t ESP_WIFI_IsConnected( ESP_WIFI_Object_t * pxObj );
-uint16_t ESP_WIFI_Get_Ipd_Size( ESP_WIFI_Conn_t * pxConn );
+void ESP_WIFI_Clear_Ipd( ESP_WIFI_Object_t * pxObj, uint8_t LinkID );
+uint16_t ESP_WIFI_Get_Ipd_Size( ESP_WIFI_Object_t * pxObj );
 
 
 #ifdef __cplusplus
