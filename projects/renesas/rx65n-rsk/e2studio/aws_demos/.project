@@ -1677,6 +1677,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/aria.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/aria.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/asn1parse.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
@@ -1715,6 +1720,16 @@
 			<name>libraries/3rdparty/mbedtls/library/certs.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chacha20.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/chacha20.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chachapoly.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
@@ -1807,6 +1822,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/hkdf.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/hkdf.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
@@ -1847,6 +1867,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/nist_kw.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/nist_kw.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
@@ -1870,6 +1895,11 @@
 			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
@@ -1900,6 +1930,11 @@
 			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/poly1305.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/poly1305.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
@@ -2027,11 +2062,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
@@ -2045,6 +2075,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aria.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aria.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
@@ -2090,6 +2125,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
@@ -2197,6 +2242,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
@@ -2242,6 +2292,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
@@ -2267,6 +2322,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
@@ -2290,6 +2350,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
@@ -2390,6 +2455,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>

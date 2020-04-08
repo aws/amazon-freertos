@@ -51,6 +51,25 @@ endif()
 include("${AFR_BOARD_PATH}/CMakeLists.txt")
 
 # -------------------------------------------------------------------------------------------------
+# Conditionally set mbedtls config
+# -------------------------------------------------------------------------------------------------
+# Use the FreeRTOS mbedTLS config file required by demos if there's not a preexisting one
+get_target_property(mbedtls_comp_defs afr_3rdparty_mbedtls COMPILE_DEFINITIONS)
+string(FIND "${mbedtls_comp_defs}" "MBEDTLS_CONFIG_FILE" mbedtls_config_pos)
+if( "${mbedtls_config_pos}" EQUAL "-1")
+    target_include_directories(
+        afr_3rdparty_mbedtls 
+        PUBLIC
+        "${AFR_3RDPARTY_DIR}/mbedtls_config"
+    )
+    target_compile_definitions(
+        afr_3rdparty_mbedtls 
+        PUBLIC
+        -DMBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"
+    )
+endif()
+
+# -------------------------------------------------------------------------------------------------
 # FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Do not prefix the output library file.
