@@ -86,12 +86,12 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
-    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT           ( 1 )
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    ( 1 )
 #endif
 #if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
     #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
 #endif
- /** @endcond */
+/** @endcond */
 
 static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
                                                                  tcptestECHO_SERVER_ADDR1,
