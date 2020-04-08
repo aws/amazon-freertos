@@ -1,0 +1,2 @@
+## Background
+This folder contains the aws_mbedtls_config.h config file. This is a default configuration that's intended to be used by the AWS demos. The config file is used instead of the config file defined in the mbedTLS library by setting the  MBEDTLS_CONFIG_FILE macro and adding its directory to the include path. For building with CMake, the macro is set in the main CMake file if it has not already been set. For building with an IDE, this macro has been set in the IDE project file. For building with make, this macro has been set in its Makefile.

@@ -41,6 +41,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::crypto
         AFR::pkcs11_implementation
+        AFR::utils
         3rdparty::mbedtls
 )
 

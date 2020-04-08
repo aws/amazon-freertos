@@ -372,9 +372,9 @@
 						<v6Rtti>0</v6Rtti>
 						<VariousControls>
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
-							<Define>RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG</Define>
+							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1559,6 +1559,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/arc4.c</FilePath>
 						</File>
 						<File>
+							<FileName>aria.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/aria.c</FilePath>
+						</File>
+						<File>
 							<FileName>asn1parse.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/asn1parse.c</FilePath>
@@ -1597,6 +1602,16 @@
 							<FileName>certs.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/certs.c</FilePath>
+						</File>
+						<File>
+							<FileName>chacha20.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/chacha20.c</FilePath>
+						</File>
+						<File>
+							<FileName>chachapoly.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/chachapoly.c</FilePath>
 						</File>
 						<File>
 							<FileName>cipher.c</FileName>
@@ -1684,6 +1699,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/havege.c</FilePath>
 						</File>
 						<File>
+							<FileName>hkdf.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/hkdf.c</FilePath>
+						</File>
+						<File>
 							<FileName>hmac_drbg.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/hmac_drbg.c</FilePath>
@@ -1724,6 +1744,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/net_sockets.c</FilePath>
 						</File>
 						<File>
+							<FileName>nist_kw.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/nist_kw.c</FilePath>
+						</File>
+						<File>
 							<FileName>oid.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/oid.c</FilePath>
@@ -1747,6 +1772,11 @@
 							<FileName>pk_wrap.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/pk_wrap.c</FilePath>
+						</File>
+						<File>
+							<FileName>pkcs11.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/pkcs11.c</FilePath>
 						</File>
 						<File>
 							<FileName>pkcs12.c</FileName>
@@ -1777,6 +1807,11 @@
 							<FileName>platform_util.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/platform_util.c</FilePath>
+						</File>
+						<File>
+							<FileName>poly1305.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/poly1305.c</FilePath>
 						</File>
 						<File>
 							<FileName>ripemd160.c</FileName>
@@ -1906,16 +1941,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/mbedtls/utils/</GroupName>
-					<Files>
-						<File>
-							<FileName>mbedtls_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/3rdparty/mbedtls/include/mbedtls/</GroupName>
 					<Files>
 						<File>
@@ -1932,6 +1957,11 @@
 							<FileName>arc4.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</FilePath>
+						</File>
+						<File>
+							<FileName>aria.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/aria.h</FilePath>
 						</File>
 						<File>
 							<FileName>asn1.h</FileName>
@@ -1977,6 +2007,16 @@
 							<FileName>certs.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/certs.h</FilePath>
+						</File>
+						<File>
+							<FileName>chacha20.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</FilePath>
+						</File>
+						<File>
+							<FileName>chachapoly.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</FilePath>
 						</File>
 						<File>
 							<FileName>check_config.h</FileName>
@@ -2079,6 +2119,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/havege.h</FilePath>
 						</File>
 						<File>
+							<FileName>hkdf.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</FilePath>
+						</File>
+						<File>
 							<FileName>hmac_drbg.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</FilePath>
@@ -2124,6 +2169,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</FilePath>
 						</File>
 						<File>
+							<FileName>nist_kw.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</FilePath>
+						</File>
+						<File>
 							<FileName>oid.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/oid.h</FilePath>
@@ -2149,6 +2199,11 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</FilePath>
 						</File>
 						<File>
+							<FileName>pkcs11.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</FilePath>
+						</File>
+						<File>
 							<FileName>pkcs12.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</FilePath>
@@ -2172,6 +2227,11 @@
 							<FileName>platform_util.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</FilePath>
+						</File>
+						<File>
+							<FileName>poly1305.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</FilePath>
 						</File>
 						<File>
 							<FileName>ripemd160.h</FileName>
@@ -2272,6 +2332,16 @@
 							<FileName>xtea.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
+					<Files>
+						<File>
+							<FileName>mbedtls_utils.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
 						</File>
 					</Files>
 				</Group>
