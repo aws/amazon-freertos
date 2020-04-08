@@ -158,6 +158,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )
     target_link_libraries(
         afr_3rdparty_mbedtls
