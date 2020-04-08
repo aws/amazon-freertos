@@ -64,7 +64,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
-                    $(AFR_THIRDPARTY_PATH)mbedtls_utils/include \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
                     $(AFR_THIRDPARTY_PATH)unity/src \
                     $(AFR_THIRDPARTY_PATH)unity/extras/fixture/src \
