@@ -139,7 +139,14 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
-    # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+    # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
+    # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
+    # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
+    # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
+    # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
+    # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
+    # conflict. Some vendor/external code does not do this and for that reason we need
+    # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
     target_include_directories(
         afr_3rdparty_mbedtls PUBLIC 
         "${AFR_3RDPARTY_DIR}/pkcs11"
