@@ -148,7 +148,7 @@ static void testIotGpioOutputMode( IotGpioOutputMode_t eGpioOutputMode,
     IotGpioPull_t xGpioPullA = eGpioPullNone;
 
     /* When testing open-drain, use pull-up on port A (as the output can not driven high) */
-    if (eGpioOutputMode == eGpioOpenDrain)
+    if( eGpioOutputMode == eGpioOpenDrain )
     {
         xGpioPullA = eGpioPullUp;
     }
@@ -521,14 +521,14 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioIoctlSetGet )
         /* Set the GPIO Interrupt */
         lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioInterrupt, &eGpioInterruptWrite );
 
-        if (IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal)
+        if( IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal )
         {
             TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
         }
 
         lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioInterrupt, &eGpioInterruptRead );
-        
-        if (IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal)
+
+        if( IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal )
         {
             TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
             TEST_ASSERT_EQUAL( eGpioInterruptWrite, eGpioInterruptRead );
@@ -537,14 +537,14 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioIoctlSetGet )
         /* Set the GPIO Function */
         lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eSetGpioFunction, &ulGpioFunctionWrite );
 
-        if (IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal)
+        if( IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal )
         {
             TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
         }
 
         lRetVal = iot_gpio_ioctl( xtestIotGpioHandleA, eGetGpioFunction, &ulGpioFunctionRead );
 
-        if (IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal)
+        if( IOT_GPIO_FUNCTION_NOT_SUPPORTED != lRetVal )
         {
             TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
             TEST_ASSERT_EQUAL( ulGpioFunctionWrite, ulGpioFunctionRead );
@@ -667,38 +667,31 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
         else
         {
             /* Print out which sub-test was not supported */
-            switch (eGpioInterrupt)
+            switch( eGpioInterrupt )
             {
                 case eGpioInterruptRising:
-                {
-                    TEST_MESSAGE("Rising edge interrupts not supported.");
+                    TEST_MESSAGE( "Rising edge interrupts not supported." );
                     break;
-                }
+
                 case eGpioInterruptFalling:
-                {
-                    TEST_MESSAGE("Falling edge interrupts not supported.");
+                    TEST_MESSAGE( "Falling edge interrupts not supported." );
                     break;
-                }
+
                 case eGpioInterruptEdge:
-                {
-                    TEST_MESSAGE("Both edge interrupts not supported.");
+                    TEST_MESSAGE( "Both edge interrupts not supported." );
                     break;
-                }
+
                 case eGpioInterruptLow:
-                {
-                    TEST_MESSAGE("low-level interrupts not supported.");
+                    TEST_MESSAGE( "low-level interrupts not supported." );
                     break;
-                }
+
                 case eGpioInterruptHigh:
-                {
-                    TEST_MESSAGE("high-level interrupts not supported.");
+                    TEST_MESSAGE( "high-level interrupts not supported." );
                     break;
-                }
+
                 default:
-                {
-                    TEST_MESSAGE("Interrupt feature not supported.");
-                }
-            }   
+                    TEST_MESSAGE( "Interrupt feature not supported." );
+            }
         }
     }
 
@@ -811,8 +804,8 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioOperation )
             printf( "\nGPIO[%d] read value = 0x%x\n", ucPort, ucValue );
         }
 
-        if( (ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK) &&
-            (lRetValInt != IOT_GPIO_FUNCTION_NOT_SUPPORTED))
+        if( ( ustestIotGpioConfig & testIotGPIO_TEST_IRQ_MASK ) &&
+            ( lRetValInt != IOT_GPIO_FUNCTION_NOT_SUPPORTED ) )
         {
             printf( "press GPIO[%d] to trigger interrupt to continue...\n", ucPort );
             lRetVal = xSemaphoreTake( xtestIotGpioSemaphore, ultestIotGpioWaitTime );
