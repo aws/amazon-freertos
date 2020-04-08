@@ -313,7 +313,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
         TEST_ASSERT_EQUAL( xBytesRx, sizeof( ucRxBuf ) );
 
         /* Restore the original configuration saved in the beginning of this test,
-        * in order to reset to the original state before this test. */
+         * in order to reset to the original state before this test. */
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPISetMasterConfig, &xOrigConfig );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
     }
@@ -654,7 +654,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync )
          * in order to reset to the original state before this test. */
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPISetMasterConfig, &xOrigConfig );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
-    }   
+    }
 
     lRetVal = iot_spi_close( xSPIHandle );
     TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
@@ -713,7 +713,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSync )
         }
 
         /* Restore the original configuration saved in the beginning of this test,
-        * in order to reset to the original state before this test. */
+         * in order to reset to the original state before this test. */
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPISetMasterConfig, &xOrigConfig );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
     }
