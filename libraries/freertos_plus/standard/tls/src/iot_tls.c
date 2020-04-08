@@ -57,6 +57,36 @@
 #include <stdio.h>
 
 /**
+ * @brief Represents string to be logged when mbedTLS returned error
+ * does not contain a high-level code.
+ */
+static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
+
+/**
+ * @brief Represents string to be logged when mbedTLS returned error
+ * does not contain a low-level code.
+ */
+static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
+
+/**
+ * @brief Utility for converting the high-level code in an mbedTLS error to string,
+ * if the code-contains a high-level code; otherwise, using a default string.
+ */
+#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )                         \
+    ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ?                  \
+    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr ) \
+
+
+/**
+ * @brief Utility for converting the level-level code in an mbedTLS error to string,
+ * if the code-contains a level-level code; otherwise, using a default string.
+ */
+#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )                        \
+    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ?                 \
+    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr ) \
+
+
+/**
  * @brief Internal context structure.
  *
  * @param[in] pcDestination Server location, can be a DNS name or IP address.
@@ -205,8 +235,8 @@ static int prvGenerateRandomBytes( void * pvCtx,
     if( xResult != CKR_OK )
     {
         TLS_PRINT( ( "ERROR: Failed to generate random bytes %s : %s \r\n",
-                     mbedtls_strerror_highlevel( xResult ),
-                     mbedtls_strerror_lowlevel( xResult ) ) );
+                     mbedTlsHighLevelCodeOrDefault( xResult ),
+                     mbedTlsLowLevelCodeOrDefault( xResult ) ) );
         xResult = TLS_ERROR_RNG;
     }
 
@@ -760,8 +790,8 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %s : %s \r\n",
-                         mbedtls_strerror_highlevel( xResult ),
-                         mbedtls_strerror_lowlevel( xResult ) ) );
+                         mbedTlsHighLevelCodeOrDefault( xResult ),
+                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
     else
@@ -788,8 +818,8 @@ BaseType_t TLS_Connect( void * pvContext )
         {
             /* Default root certificates should be in aws_default_root_certificate.h */
             TLS_PRINT( ( "ERROR: Failed to parse default server certificates %s : %s \r\n",
-                         mbedtls_strerror_highlevel( xResult ),
-                         mbedtls_strerror_lowlevel( xResult ) ) );
+                         mbedTlsHighLevelCodeOrDefault( xResult ),
+                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -804,8 +834,8 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %s : %s \r\n",
-                         mbedtls_strerror_highlevel( xResult ),
-                         mbedtls_strerror_lowlevel( xResult ) ) );
+                         mbedTlsHighLevelCodeOrDefault( xResult ),
+                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -878,8 +908,8 @@ BaseType_t TLS_Connect( void * pvContext )
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
                 TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
-                             mbedtls_strerror_highlevel( xResult ),
-                             mbedtls_strerror_lowlevel( xResult ) ) );
+                             mbedTlsHighLevelCodeOrDefault( xResult ),
+                             mbedTlsLowLevelCodeOrDefault( xResult ) ) );
                 break;
             }
         }
