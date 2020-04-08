@@ -239,7 +239,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcGetChStatus )
         /* since channel x is stop, expected to return idle */
         TEST_ASSERT_EQUAL( ucChX, xAdcChStatus.ucAdcChannel );
         TEST_ASSERT_EQUAL( eChStateIdle, xAdcChStatus.xAdcChState );
-    }   
+    }
 
     lRetVal = iot_adc_close( xUserCntx.xAdcHandle );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
@@ -325,7 +325,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcChBuffer )
     TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
 
     if( TEST_PROTECT() )
-    {   
+    {
         for( int i = 0; i < uctestIotAdcChListLen; i++ )
         {
             ucCh = puctestIotAdcChList[ i ];
@@ -382,7 +382,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChain )
     TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
 
     if( TEST_PROTECT() )
-    {  
+    {
         /* Chain size has to be greater than 1, otherwise no need to use Chain operation */
         TEST_ASSERT_GREATER_THAN( 1, uctestIotAdcChListLen );
         TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
@@ -453,7 +453,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOperation )
     TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
 
     if( TEST_PROTECT() )
-    {  
+    {
         for( int i = 0; i < uctestIotAdcChListLen; i++ )
         {
             ucCh = puctestIotAdcChList[ i ];
@@ -502,7 +502,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOpenCloseFuzzy )
     TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     if( TEST_PROTECT() )
-    {  
+    {
         xAdcHandleTmp = iot_adc_open( uctestIotAdcInstance );
         TEST_ASSERT_EQUAL( NULL, xAdcHandleTmp );
 
@@ -534,7 +534,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcIoctlSetConfigFuzzy )
     TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     if( TEST_PROTECT() )
-    {  
+    {
         xAdcConfig.ucAdcResolution = 100; /* no such resolution */
         lRetVal = iot_adc_ioctl( xAdcHandle, eSetAdcConfig, &xAdcConfig );
         TEST_ASSERT_EQUAL( IOT_ADC_INVALID_VALUE, lRetVal );
@@ -577,7 +577,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcSetChainFuzzy )
     TEST_ASSERT_NOT_EQUAL( NULL, xUserCntx.xAdcHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         /* Chain size has to be greater than 1, otherwise no need to use Chain operation */
         TEST_ASSERT_GREATER_THAN( 1, uctestIotAdcChListLen );
         TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
@@ -650,7 +650,7 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcOperationFuzzy )
     TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
 
     if( TEST_PROTECT() )
-    { 
+    {
         lRetVal = iot_adc_start( xAdcHandle, ucAdcChannel );
         TEST_ASSERT_EQUAL( IOT_ADC_INVALID_VALUE, lRetVal );
 
