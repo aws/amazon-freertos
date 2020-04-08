@@ -114,4 +114,27 @@
  */
 #define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 12 )
 
+/**
+ * @brief Enable WiFi H/W reset
+ */
+#define wificonfigHW_RESET                    ( 1 )
+
+/**
+ * @brief Receive WiFi TCP packet using Passive mode
+ */
+#define wificonfigTCP_PASSIVE_MODE            ( 1 )
+
+/**
+ * @brief Enable UART H/W flow control
+ */
+#define wificonfigSERIAL_FC                   ( 1 )
+
+/**
+ * @brief Set UART baud rate
+ *
+ * Could be select 115200/230400/460800/921600/1152000/2304000
+ * Must enable wificonfigSERIAL_FC to support this feature, or it always runs as default 115200
+ */
+#define wificonfigBAUD_RATE                   ( 115200 )
+
 #endif /* _AWS_WIFI_CONFIG_H_ */
