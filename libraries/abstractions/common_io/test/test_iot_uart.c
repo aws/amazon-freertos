@@ -234,7 +234,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
         TEST_ASSERT_EQUAL( xSampleConfig2.ulBaudrate, xgetConfigBuffer.ulBaudrate );
 
         /* Test changing control flow config if specified by the test framework */
-        if (ultestIotUartFlowControl)
+        if( ultestIotUartFlowControl )
         {
             xConfigBuffer.ucFlowControl = xSampleConfig2.ucFlowControl;
             lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
@@ -795,7 +795,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
         lCancel = iot_uart_cancel( NULL );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lCancel );
     }
-    
+
     lClose = iot_uart_close( xUartHandle_2 );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 
