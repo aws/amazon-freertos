@@ -824,9 +824,9 @@ static Socket_t _createSocketToEchoServer()
 
     /* Set a time out so a missing reply does not cause the task to block indefinitely. */
     error = SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
-    TEST_ASSERT_EQUAL(SOCKETS_ERROR_NONE, error);
+    TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, error );
     error = SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
-    TEST_ASSERT_EQUAL(SOCKETS_ERROR_NONE, error);
+    TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, error );
 
     error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
     TEST_ASSERT_EQUAL( SOCKETS_ERROR_NONE, error );
