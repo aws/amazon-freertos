@@ -64,6 +64,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/mbedtls_utils \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \

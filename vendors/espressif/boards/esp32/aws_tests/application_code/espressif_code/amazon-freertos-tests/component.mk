@@ -69,6 +69,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/mbedtls_utils \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
                              $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/include \
