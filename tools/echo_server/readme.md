@@ -3,7 +3,7 @@ This folder hosts the source code for a go based echo server. This can be used a
 The TCP tests can be found [here](https://github.com/aws/amazon-freertos/blob/master/libraries/abstractions/secure_sockets/test/iot_test_tcp.c). See further documentation in the [porting guide](https://docs.aws.amazon.com/freertos/latest/portingguide/afr-echo-server.html).
 ## Requirements
 1. OpenSSL
-1. Golang (Only if you wish to compile the source code.)
+1. Golang
 ## Prequisites
 ### Credential Creation
 #### Server
@@ -23,9 +23,8 @@ openssl x509 -req -in certs/client.csr -CA certs/server.pem -CAkey certs/server.
 ## Folder Structure
 The default location to store certificates and keys is the relative path to a folder "certs", update this in the configuration if you wish to move your credentials to a different folder.
 
-The source code for the echo server is found at src/echo_server.go. It is recommended to use the precompiled executables.
+The source code for the echo server is found in echo_server.go.
 
-All executables are only pre-compiled for 64 bit architectures, so if you are unable to execute the echo server please consult the golang instructions for building an executable on your respective platform.
 # Server Configuration
 The echo server reads a JSON based configuration. The default location for this JSON file is './config.json', but if you wish to override this, you can specify the location of the JSON with the '-config' flag.
 
@@ -54,14 +53,9 @@ The JSON file contains the following options:
 }
 ```
 # Running the Echo Server From the Command Line
-## Windows
-`.\windows\echo_server.exe`
-## MacOS
-`./macos/echo_server`
-## Linux
-`./linux/echo_server`
+`go run echo_server.go`
 ## With a Custom Config Location
-`./macos/echo_server -config={config_file_path}`
+`go run echo_server.go -config={config_file_path}`
 
 Note: If you wish to run the unsecure and secure TCP tests at the same time, make sure you start a secure and unsecure echo server, this will require changing the configuration (You can create a second "secure" configuration, and pass it to the echo server via the -config flag.), as well as using seperate TCP ports.
 
