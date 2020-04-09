@@ -40,10 +40,11 @@
 /*------------------------UART-------------------------------*/
 
 /* UART is supported. */
-#define IOT_TEST_COMMON_IO_UART_SUPPORTED    1
+#define IOT_TEST_COMMON_IO_UART_SUPPORTED                    1
 
 /* How many UART ports are being test. */
-#define UART_TEST_SET                        1
+#define UART_TEST_SET                                        1
+#define IOT_TEST_COMMON_IO_UART_SUPPORTED_CANCEL             1
 
 /* Instance ID 3 corresponds to UART4. */
 const uint8_t uartTestPort[ UART_TEST_SET ] = { 3 };
