@@ -753,7 +753,7 @@ function(cy_kit_generate)
         add_custom_command(
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy "${CY_TFM_HEX}"    "${CY_CM0_IMG}"
-            COMMAND "python3" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
+            COMMAND "${CY_PYTHON_PATH}" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
         )
         #convert signed hex files to binary format
         #CLANG and IAR do not provide a tool, search for a generic objcopy
