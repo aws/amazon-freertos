@@ -237,10 +237,12 @@ BaseType_t ESP_Platform_Init( ESP_WIFI_Object_t * pxObj )
         CLK_EnableModuleClock(UART1_MODULE);
         /* Select UART1 clock source is HXT */
         CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UART1SEL_HXT, CLK_CLKDIV0_UART1(1));
-
+      
         /* Set PH multi-function pins for UART1 RXD, TXD */
         SYS->GPH_MFPH &= ~(SYS_GPH_MFPH_PH8MFP_Msk | SYS_GPH_MFPH_PH9MFP_Msk);
         SYS->GPH_MFPH |= (SYS_GPH_MFPH_PH8MFP_UART1_TXD | SYS_GPH_MFPH_PH9MFP_UART1_RXD);
+        SYS_ResetModule(UART1_RST);
+        vTaskDelay(pdMS_TO_TICKS(10));
 #if ESP_WIFI_SERIAL_FC
         /* Set PB multi-function pins for UART1 RTS and CTS */
         SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB8MFP_Msk | SYS_GPB_MFPH_PB9MFP_Msk);
@@ -684,7 +686,7 @@ ESP_WIFI_Status_t ESP_WIFI_Reset( ESP_WIFI_Object_t * pxObj )
     xRet = ESP_AT_Command(pxObj, (uint8_t *)"AT+RST\r\n", 1000);
     vTaskDelay(pdMS_TO_TICKS(500));
 #endif
-
+  
     /* Reset the flags and RX buffer */
     pxObj->IsMultiConn = pdFALSE;
     pxObj->IsPassiveMode = pdFALSE;
@@ -697,6 +699,14 @@ ESP_WIFI_Status_t ESP_WIFI_Reset( ESP_WIFI_Object_t * pxObj )
     /* Clear the socket Ipd buffer */
     ESP_WIFI_Clear_Ipd(pxObj, ESP8266_ALL_SOCKET_IDS);
 
+    // Might take a while to respond after HW reset
+    for (int i = 0; i < 5; i++) {
+        xRet = ESP_AT_Command(pxObj, (uint8_t *)"AT\r\n", 100);
+        if (xRet == ESP_WIFI_STATUS_OK) {
+            break;
+        }
+    }
+    
     return xRet;
 }
 
