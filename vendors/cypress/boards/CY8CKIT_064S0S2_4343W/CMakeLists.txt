@@ -47,6 +47,13 @@ set(CY_TFM_POLICY_FILE "${cy_psoc6_dir}/psoc64tfm/security/policy_multi_img_CM0p
 set(CY_TFM_SIGN_SCRIPT "${cy_psoc6_dir}/psoc64tfm/security/sign.py")
 set(CY_DEVICE_NAME "cy8ckit-064s0s2-4343w")
 
+# Python path definition
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+find_program(CY_PYTHON_PATH "python")
+else()
+find_program(CY_PYTHON_PATH "python3")
+endif()
+
 target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
     "-DCOMPONENT_CAPSENSE"
     )
