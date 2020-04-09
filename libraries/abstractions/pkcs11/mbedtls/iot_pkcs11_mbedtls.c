@@ -83,15 +83,15 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  */
 #define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
     ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
-    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr )
+    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr
 
 /**
  * @brief Utility for converting the level-level code in an mbedTLS error to string,
  * if the code-contains a level-level code; otherwise, using a default string.
  */
-#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )                        \
-    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ?                 \
-    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr ) \
+#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
+    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
+    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr
 
 
 /**
