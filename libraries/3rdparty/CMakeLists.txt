@@ -137,6 +137,8 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         ${mbedtls_library}
         ${mbedtls_include}
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
     # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
@@ -156,6 +158,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )
     target_link_libraries(
         afr_3rdparty_mbedtls

@@ -7,6 +7,7 @@ global-cflags-y += -I$(d)/../../../../../common/include \
 		-I$(d)/../../config_files \
 		-I$(d)/../../../../../common/ota \
 		-I$(d)/../../../../../../lib/third_party/mbedtls/include \
+		-I$(d)/../../../../../../lib/third_party/mbedtls_utils \
 		-I$(d)/../../../../../../demos/common/include
 
 
