@@ -75,7 +75,7 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
                                                  BaseType_t * pxJSONFileRetrieveCompleted,
                                                  uint32_t ulJSONFileSize );
 
-/* Wrapper function to retry request in case of failure with exponential backoff */
+/* Wrapper function to retry request in case of failure with exponential backoff. */
 static BaseType_t prvGGD_JSONRequestStart( const char * pcHostAddress,
                                            uint16_t usGGDPort,
                                            const char * pcThingName,
