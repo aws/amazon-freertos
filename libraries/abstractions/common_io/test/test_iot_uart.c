@@ -540,29 +540,21 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
         lCancel = iot_uart_cancel( xUartHandle );
-        if( lCancel == IOT_UART_FUNCTION_NOT_SUPPORTED )
-        {
-            xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-            TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
-        }
-        else
-        {
-            TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lCancel );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lCancel );
+
+        /* Wait to make sure operation was really canceled. */
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
 
         lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
-    lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
-    TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
+        /* Wait to make sure operation has completed. */
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
-    /* Wait to make sure operation has completed. */
-    xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-    TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
-
-    /* Since  cSmallBuf is small buffer, write is already complete. Hence nothing to cancel */
-    lCancel = iot_uart_cancel( xUartHandle );
-    if( lCancel != IOT_UART_FUNCTION_NOT_SUPPORTED )
-    {
+        /* Since  cSmallBuf is small buffer, write is already complete. Hence nothing to cancel */
+        lCancel = iot_uart_cancel( xUartHandle );
         TEST_ASSERT_EQUAL( IOT_UART_NOTHING_TO_CANCEL, lCancel );
     }
 
@@ -811,4 +803,3 @@ TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lClose );
 }
 /*-----------------------------------------------------------*/
-
