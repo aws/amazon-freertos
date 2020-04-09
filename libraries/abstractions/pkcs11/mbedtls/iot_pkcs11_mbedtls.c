@@ -66,13 +66,13 @@
 #include <string.h>
 
 /**
- * @brief Represents string to be loggedwhen mbed TLS returned error
+ * @brief Represents string to be logged when mbed TLS returned error
  * does not contain a high-level code.
  */
 static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
 
 /**
- * @brief Represents string to be loggedwhen mbed TLS returned error
+ * @brief Represents string to be logged when mbed TLS returned error
  * does not contain a low-level code.
  */
 static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
