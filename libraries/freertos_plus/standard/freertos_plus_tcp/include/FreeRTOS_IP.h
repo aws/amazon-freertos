@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.2.1
+ * FreeRTOS+TCP V2.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,11 @@ extern "C" {
 #include "FreeRTOSIPConfig.h"
 #include "FreeRTOSIPConfigDefaults.h"
 #include "IPTraceMacroDefaults.h"
+
+
+/* This is a trick to get boolean values to be used in expressions */
+#define ipTRUE_BOOL			( 1 == 1 )
+#define ipFALSE_BOOL			( 1 != 1 )
 
 /* Some constants defining the sizes of several parts of a packet */
 #define ipSIZE_OF_ETH_HEADER			14u
@@ -322,16 +327,3 @@ structure name. */
 #endif
 
 #endif /* FREERTOS_IP_H */
-
-
-
-
-
-
-
-
-
-
-
-
-
