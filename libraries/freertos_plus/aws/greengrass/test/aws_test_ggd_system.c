@@ -79,7 +79,7 @@ static BaseType_t prvGGD_JSONRequestGetFileLoop( uint32_t ulBufferSize,
 static BaseType_t prvGGD_JSONRequestStart( const char * pcHostAddress,
                                            uint16_t usGGDPort,
                                            const char * pcThingName,
-                                           Socket_t * pxSocket);
+                                           Socket_t * pxSocket );
 
 TEST_GROUP( GGD_System );
 
@@ -670,19 +670,19 @@ TEST( GGD_System, JSONRequestStart )
      */
     if( TEST_PROTECT() )
     {
-        xStatus = prvGGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
-                                           clientcredentialGREENGRASS_DISCOVERY_PORT,
-                                           clientcredentialIOT_THING_NAME,
-                                           NULL );
+        xStatus = GGD_JSONRequestStart( clientcredentialMQTT_BROKER_ENDPOINT,
+                                        clientcredentialGREENGRASS_DISCOVERY_PORT,
+                                        clientcredentialIOT_THING_NAME,
+                                        NULL );
         TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
-        xStatus = prvGGD_JSONRequestStart( NULL,
-                                           clientcredentialGREENGRASS_DISCOVERY_PORT,
-                                           NULL,
-                                           &xSocket );
+        xStatus = GGD_JSONRequestStart( NULL,
+                                        clientcredentialGREENGRASS_DISCOVERY_PORT,
+                                        NULL,
+                                        &xSocket );
         TEST_FAIL();
     }
 
