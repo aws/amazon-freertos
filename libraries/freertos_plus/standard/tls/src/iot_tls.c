@@ -235,8 +235,8 @@ static int prvGenerateRandomBytes( void * pvCtx,
     if( xResult != CKR_OK )
     {
         TLS_PRINT( ( "ERROR: Failed to generate random bytes %s : %s \r\n",
-                     mbedTlsHighLevelCodeOrDefault( xResult ),
-                     mbedTlsLowLevelCodeOrDefault( xResult ) ) );
+                     mbedtlsHighLevelCodeOrDefault( xResult ),
+                     mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         xResult = TLS_ERROR_RNG;
     }
 
@@ -790,8 +790,8 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %s : %s \r\n",
-                         mbedTlsHighLevelCodeOrDefault( xResult ),
-                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
     else
@@ -818,8 +818,8 @@ BaseType_t TLS_Connect( void * pvContext )
         {
             /* Default root certificates should be in aws_default_root_certificate.h */
             TLS_PRINT( ( "ERROR: Failed to parse default server certificates %s : %s \r\n",
-                         mbedTlsHighLevelCodeOrDefault( xResult ),
-                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -834,8 +834,8 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %s : %s \r\n",
-                         mbedTlsHighLevelCodeOrDefault( xResult ),
-                         mbedTlsLowLevelCodeOrDefault( xResult ) ) );
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -908,8 +908,8 @@ BaseType_t TLS_Connect( void * pvContext )
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
                 TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
-                             mbedTlsHighLevelCodeOrDefault( xResult ),
-                             mbedTlsLowLevelCodeOrDefault( xResult ) ) );
+                             mbedtlsHighLevelCodeOrDefault( xResult ),
+                             mbedtlsLowLevelCodeOrDefault( xResult ) ) );
                 break;
             }
         }

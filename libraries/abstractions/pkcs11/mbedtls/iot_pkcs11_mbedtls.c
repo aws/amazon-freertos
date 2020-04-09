@@ -3507,7 +3507,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                     {
                         PKCS11_PRINT( ( "mbedTLS sign failed with error %s : %s \r\n",
                                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                                        mbedTlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
@@ -3839,7 +3839,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                 xResult = CKR_SIGNATURE_INVALID;
                 PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                                mbedTlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
 
             if( xResult == CKR_OK )
@@ -3859,8 +3859,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                     {
                         xResult = CKR_SIGNATURE_INVALID;
                         PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
-                                        mbedTlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                                        mbedTlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     }
                 }
             }
