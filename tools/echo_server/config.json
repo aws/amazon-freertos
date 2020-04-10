@@ -1,0 +1,8 @@
+{
+    "verbose": false,
+    "logging": false,
+    "secure-connection": false,
+    "server-port": "9000",
+    "server-certificate-location": "./certs/server.pem",
+    "server-key-location": "./certs/server.key"
+}
