@@ -185,7 +185,6 @@ TEST( GGD_System, GetGGCIPandCertificate )
 {
     BaseType_t xStatus;
     GGD_HostAddressData_t xHostAddressData;
-    int16_t nBufferLength = 128;
     uint32_t ulBufferSize = testrunnerBUFFER_SIZE;
 
     if( TEST_PROTECT() )
