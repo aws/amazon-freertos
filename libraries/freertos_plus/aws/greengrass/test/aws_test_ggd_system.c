@@ -183,9 +183,7 @@ TEST( GGD_System, JSONRequestAbort )
 
 TEST( GGD_System, GetGGCIPandCertificate )
 {
-    BaseType_t i;
     BaseType_t xStatus;
-    char cMsgBuffer[ 128 ];
     GGD_HostAddressData_t xHostAddressData;
     int16_t nBufferLength = 128;
     uint32_t ulBufferSize = testrunnerBUFFER_SIZE;
@@ -197,7 +195,7 @@ TEST( GGD_System, GetGGCIPandCertificate )
          * Check with auto-search flag set to false and true
          *  @{
          */
-        RETRY_EXPONENTIAL( xStatus - GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
+        RETRY_EXPONENTIAL( xStatus = GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
                                                                  clientcredentialGREENGRASS_DISCOVERY_PORT,
                                                                  clientcredentialIOT_THING_NAME,
                                                                  cBuffer, /*lint !e971 can use char without signed/unsigned. */
@@ -207,9 +205,6 @@ TEST( GGD_System, GetGGCIPandCertificate )
                            IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY,
                            IOT_TEST_GGD_CONNECT_RETRY_COUNT );
 
-        snprintf( cMsgBuffer, nBufferLength,
-                  "GGD_GetGGCIPandCertificate returned %d on iteration %d",
-                  ( int ) xStatus, ( int ) i );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, cBuffer );
 
         /** @}*/
