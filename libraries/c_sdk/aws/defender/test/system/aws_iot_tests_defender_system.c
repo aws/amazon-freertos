@@ -55,7 +55,10 @@
 
 #include "cbor.h"
 
+/* Test framework includes. */
 #include "unity_fixture.h"
+#include "aws_test_utils.h"
+
 
 /* Total time to wait for a state to be true. */
 #define WAIT_STATE_TOTAL_SECONDS    10
@@ -75,6 +78,20 @@
 
 /* Use a big number to represent no event happened in defender. */
 #define NO_EVENT                             10000
+
+/**
+ * @cond DOXYGEN_IGNORE
+ * Doxygen should ignore this section.
+ *
+ * Provide default values of test configuration constants.
+ */
+#ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT           ( 1 )
+#endif
+#if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
+    #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
+#endif
+ /** @endcond */
 
 static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
                                                                  tcptestECHO_SERVER_ADDR1,
@@ -516,10 +533,16 @@ static IotMqttError_t _startMqttConnection( void )
         mqttConnectionInfo.pClientIdentifier = AWS_IOT_TEST_DEFENDER_THING_NAME;
         mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( AWS_IOT_TEST_DEFENDER_THING_NAME );
 
-        mqttError = IotMqtt_Connect( &mqttNetworkInfo,
-                                     &mqttConnectionInfo,
-                                     1000,
-                                     &_mqttConnection );
+        /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+         * Wait until 1100 ms have elapsed since the last connection. */
+        uint32_t periodMs = 1100;
+        RETRY_EXPONENTIAL( mqttError = IotMqtt_Connect( &mqttNetworkInfo,
+                                                        &mqttConnectionInfo,
+                                                        1000,
+                                                        &_mqttConnection ),
+                           IOT_MQTT_SUCCESS,
+                           periodMs,
+                           IOT_TEST_MQTT_CONNECT_RETRY_COUNT );
 
         if( mqttError == IOT_MQTT_SUCCESS )
         {
