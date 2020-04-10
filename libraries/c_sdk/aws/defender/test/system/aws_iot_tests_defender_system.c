@@ -517,6 +517,9 @@ static IotMqttError_t _startMqttConnection( void )
     IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
     IotMqttNetworkInfo_t mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+     * Wait until 1100 ms have elapsed since the last connection. */
+    uint32_t periodMs = 1100;
 
     if( !_mqttConnectionStarted )
     {
@@ -533,9 +536,6 @@ static IotMqttError_t _startMqttConnection( void )
         mqttConnectionInfo.pClientIdentifier = AWS_IOT_TEST_DEFENDER_THING_NAME;
         mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( AWS_IOT_TEST_DEFENDER_THING_NAME );
 
-        /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
-         * Wait until 1100 ms have elapsed since the last connection. */
-        uint32_t periodMs = 1100;
         RETRY_EXPONENTIAL( mqttError = IotMqtt_Connect( &mqttNetworkInfo,
                                                         &mqttConnectionInfo,
                                                         1000,
