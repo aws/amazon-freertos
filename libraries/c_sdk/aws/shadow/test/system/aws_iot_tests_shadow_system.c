@@ -73,10 +73,13 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S
-    #define IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S    ( 30 )
+    #define IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S     ( 30 )
+#endif
+#ifndef IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY
+    #define IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY    ( 1100 )
 #endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
-    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT           ( 1 )
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 1 )
 #endif
 #if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
     #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
@@ -439,13 +442,9 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
 
-    /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
-     * Wait until 1100 ms have elapsed since the last connection. */
-    const uint32_t periodMs = 1100;
-
     RETRY_EXPONENTIAL( status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection ),
                        IOT_MQTT_SUCCESS,
-                       periodMs,
+                       IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY,
                        IOT_TEST_MQTT_CONNECT_RETRY_COUNT );
 
     return status;
