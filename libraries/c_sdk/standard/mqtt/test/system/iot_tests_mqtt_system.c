@@ -60,16 +60,16 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_TIMEOUT_MS
-    #define IOT_TEST_MQTT_TIMEOUT_MS             ( 5000 )
+    #define IOT_TEST_MQTT_TIMEOUT_MS                     ( 5000 )
 #endif
 #ifndef IOT_TEST_MQTT_TOPIC_PREFIX
-    #define IOT_TEST_MQTT_TOPIC_PREFIX           "iotmqtttest"
+    #define IOT_TEST_MQTT_TOPIC_PREFIX                   "iotmqtttest"
 #endif
-#ifndef IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY
-    #define IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY    ( 1100 )
+#ifndef IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS
+    #define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
 #endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
-    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    ( 1 )
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 1 )
 #endif
 /** @endcond */
 
