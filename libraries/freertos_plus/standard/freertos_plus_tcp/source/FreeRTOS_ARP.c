@@ -48,8 +48,8 @@
 
 
 /* When the age of an entry in the ARP table reaches this value (it counts down
-to zero, so this is an old entry) an ARP request will be sent to see if the
-entry is still valid and can therefore be refreshed. */
+ * to zero, so this is an old entry) an ARP request will be sent to see if the
+ * entry is still valid and can therefore be refreshed. */
 #define arpMAX_ARP_AGE_BEFORE_NEW_ARP_REQUEST		( 3 )
 
 /* The time between gratuitous ARPs. */
@@ -70,7 +70,7 @@ static eARPLookupResult_t prvCacheLookup( uint32_t ulAddressToLookup, MACAddress
 static ARPCacheRow_t xARPCache[ ipconfigARP_CACHE_ENTRIES ];
 
 /* The time at which the last gratuitous ARP was sent.  Gratuitous ARPs are used
-to ensure ARP tables are up to date and to detect IP address conflicts. */
+ * to ensure ARP tables are up to date and to detect IP address conflicts. */
 static TickType_t xLastGratuitousARPTime = ( TickType_t ) 0;
 
 /*
@@ -86,12 +86,12 @@ static TickType_t xLastGratuitousARPTime = ( TickType_t ) 0;
 #endif /* ipconfigARP_USE_CLASH_DETECTION */
 
 /* Part of the Ethernet and ARP headers are always constant when sending an IPv4
-ARP packet.  This array defines the constant parts, allowing this part of the
-packet to be filled in using a simple memcpy() instead of individual writes. */
+ * ARP packet.  This array defines the constant parts, allowing this part of the
+ * packet to be filled in using a simple memcpy() instead of individual writes. */
 
 /* Rule has been relaxed since this is a configuration parameter. And this location provides
  * more readability. */
- /* coverity[misra_c_2012_rule_8_9_violation] */
+/* coverity[misra_c_2012_rule_8_9_violation] */
 static const uint8_t xDefaultPartARPPacketHeader[] =
 {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 	/* Ethernet destination address. */
@@ -118,28 +118,28 @@ uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
 	pxARPHeader = &( pxARPFrame->xARPHeader );
 
 	/* The field ulSenderProtocolAddress is badly aligned, copy byte-by-byte. */
-	( void ) memcpy( ( void * )&( ulSenderProtocolAddress ), ( void * )pxARPHeader->ucSenderProtocolAddress, sizeof( ulSenderProtocolAddress ) );
+	( void ) memcpy( ( void * )&( ulSenderProtocolAddress ), ( const void * ) pxARPHeader->ucSenderProtocolAddress, sizeof( ulSenderProtocolAddress ) );
 	/* The field ulTargetProtocolAddress is well-aligned, a 32-bits copy. */
 	ulTargetProtocolAddress = pxARPHeader->ulTargetProtocolAddress;
 
 	traceARP_PACKET_RECEIVED();
 
 	/* Don't do anything if the local IP address is zero because
-	that means a DHCP request has not completed. */
+	 * that means a DHCP request has not completed. */
 	if( *ipLOCAL_IP_ADDRESS_POINTER != 0UL )
 	{
 		switch( pxARPHeader->usOperation )
 		{
 			case ipARP_REQUEST :
 				/* The packet contained an ARP request.  Was it for the IP
-				address of the node running this code? */
+				 * address of the node running this code? */
 				if( ulTargetProtocolAddress == *ipLOCAL_IP_ADDRESS_POINTER )
 				{
 					iptraceSENDING_ARP_REPLY( ulSenderProtocolAddress );
 
 					/* The request is for the address of this node.  Add the
-					entry into the ARP cache, or refresh the entry if it
-					already exists. */
+					 * entry into the ARP cache, or refresh the entry if it
+					 * already exists. */
 					vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress );
 
 					/* Generate a reply payload in the same buffer. */
@@ -148,17 +148,17 @@ uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
 					{
 						/* A double IP address is detected! */
 						/* Give the sources MAC address the value of the broadcast address, will be swapped later */
-						( void ) memcpy( pxARPFrame->xEthernetHeader.xSourceAddress.ucBytes, xBroadcastMACAddress.ucBytes, sizeof( xBroadcastMACAddress ) );
+						( void ) memcpy( ( void * ) pxARPFrame->xEthernetHeader.xSourceAddress.ucBytes, ( const void * ) xBroadcastMACAddress.ucBytes, sizeof( xBroadcastMACAddress ) );
 						( void ) memset( pxARPHeader->xTargetHardwareAddress.ucBytes, 0, sizeof( MACAddress_t ) );
 						pxARPHeader->ulTargetProtocolAddress = 0UL;
 					}
 					else
 					{
-						( void ) memcpy( pxARPHeader->xTargetHardwareAddress.ucBytes, pxARPHeader->xSenderHardwareAddress.ucBytes, sizeof( MACAddress_t ) );
+						( void ) memcpy( ( void * ) pxARPHeader->xTargetHardwareAddress.ucBytes, ( const void * ) pxARPHeader->xSenderHardwareAddress.ucBytes, sizeof( MACAddress_t ) );
 						pxARPHeader->ulTargetProtocolAddress = ulSenderProtocolAddress;
 					}
-					( void ) memcpy( pxARPHeader->xSenderHardwareAddress.ucBytes, ( void * ) ipLOCAL_MAC_ADDRESS, sizeof( MACAddress_t ) );
-					( void ) memcpy( ( void * ) pxARPHeader->ucSenderProtocolAddress, ( void * ) ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPHeader->ucSenderProtocolAddress ) );
+					( void ) memcpy( ( void * ) pxARPHeader->xSenderHardwareAddress.ucBytes, ( const void * ) ipLOCAL_MAC_ADDRESS, sizeof( MACAddress_t ) );
+					( void ) memcpy( ( void * ) pxARPHeader->ucSenderProtocolAddress, ( const void * ) ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPHeader->ucSenderProtocolAddress ) );
 
 					eReturn = eReturnEthernetFrame;
 				}
@@ -173,7 +173,7 @@ uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
 					if( ulSenderProtocolAddress == *ipLOCAL_IP_ADDRESS_POINTER )
 					{
 						xARPHadIPClash = pdTRUE;
-						( void ) memcpy( xARPClashMacAddress.ucBytes, pxARPHeader->xSenderHardwareAddress.ucBytes, sizeof( xARPClashMacAddress.ucBytes ) );
+						( void ) memcpy( ( void * ) xARPClashMacAddress.ucBytes, ( const void * ) pxARPHeader->xSenderHardwareAddress.ucBytes, sizeof( xARPClashMacAddress.ucBytes ) );
 					}
 				}
 				#endif /* ipconfigARP_USE_CLASH_DETECTION */
@@ -191,7 +191,7 @@ uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
 
 #if( ipconfigUSE_ARP_REMOVE_ENTRY != 0 )
 
-	uint32_t ulARPRemoveCacheEntryByMac(const MACAddress_t* pxMACAddress)
+	uint32_t ulARPRemoveCacheEntryByMac( const MACAddress_t * pxMACAddress )
 	{
 	BaseType_t x;
 	uint32_t lResult = 0;
@@ -202,7 +202,7 @@ uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
 			if( ( memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0 ) )
 			{
 				lResult = xARPCache[ x ].ulIPAddress;
-				( void ) memset( &xARPCache[ x ], '\0', sizeof( xARPCache[ x ] ) );
+				( void ) memset( &xARPCache[ x ], 0, sizeof( xARPCache[ x ] ) );
 				break;
 			}
 		}
@@ -223,17 +223,17 @@ uint8_t ucMinAgeFound = 0U;
 
 	#if( ipconfigARP_STORES_REMOTE_ADDRESSES == 0 )
 		/* Only process the IP address if it is on the local network.
-		Unless: when '*ipLOCAL_IP_ADDRESS_POINTER' equals zero, the IP-address
-		and netmask are still unknown. */
+		 * Unless: when '*ipLOCAL_IP_ADDRESS_POINTER' equals zero, the IP-address
+		 * and netmask are still unknown. */
 		if( ( ( ulIPAddress & xNetworkAddressing.ulNetMask ) == ( ( *ipLOCAL_IP_ADDRESS_POINTER ) & xNetworkAddressing.ulNetMask ) ) ||
 			( *ipLOCAL_IP_ADDRESS_POINTER == 0uL ) )
 	#else
 		/* If ipconfigARP_STORES_REMOTE_ADDRESSES is non-zero, IP addresses with
-		a different netmask will also be stored.  After when replying to a UDP
-		message from a different netmask, the IP address can be looped up and a
-		reply sent.  This option is useful for systems with multiple gateways,
-		the reply will surely arrive.  If ipconfigARP_STORES_REMOTE_ADDRESSES is
-		zero the the gateway address is the only option. */
+		 * a different netmask will also be stored.  After when replying to a UDP
+		 * message from a different netmask, the IP address can be looped up and a
+		 * reply sent.  This option is useful for systems with multiple gateways,
+		 * the reply will surely arrive.  If ipconfigARP_STORES_REMOTE_ADDRESSES is
+		 * zero the the gateway address is the only option. */
 		if( pdTRUE )
 	#endif
 	{
@@ -244,14 +244,14 @@ uint8_t ucMinAgeFound = 0U;
 		for( x = 0; x < ipconfigARP_CACHE_ENTRIES; x++ )
 		{
 			/* Does this line in the cache table hold an entry for the IP
-			address	being queried? */
+			 * address being queried? */
 			if( xARPCache[ x ].ulIPAddress == ulIPAddress )
 			{
 				if( pxMACAddress == NULL )
 				{
 					/* In case the parameter pxMACAddress is NULL, an entry will be reserved to
-					indicate that there is an outstanding ARP request, This entry will have
-					"ucValid == pdFALSE". */
+					 * indicate that there is an outstanding ARP request, This entry will have
+					 * "ucValid == pdFALSE". */
 					xIpEntry = x;
 					break;
 				}
@@ -260,35 +260,30 @@ uint8_t ucMinAgeFound = 0U;
 				if( memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0 )
 				{
 					/* This function will be called for each received packet
-					As this is by far the most common path the coding standard
-					is relaxed in this case and a return is permitted as an
-					optimisation. */
+					 * As this is by far the most common path the coding standard
+					 * is relaxed in this case and a return is permitted as an
+					 * optimisation. */
 					xARPCache[ x ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
-					xARPCache[ x ].ucValid = ( uint8_t ) pdTRUE;
-
-					/* MISRA rule 15.5 relaxed for reduced complexity. Not putting
-					 * a return here will increase cyclomatic complexity in later
-					 * part of the code */
-					/* coverity[misra_c_2012_rule_15_5_violation] */
+					xARPCache[ x ].ucValid = ( uint8_t ) pdTRUE;					
 					return;
 				}
 
 				/* Found an entry containing ulIPAddress, but the MAC address
-				doesn't match.  Might be an entry with ucValid=pdFALSE, waiting
-				for an ARP reply.  Still want to see if there is match with the
-				given MAC address.ucBytes.  If found, either of the two entries
-				must be cleared. */
+				 * doesn't match.  Might be an entry with ucValid=pdFALSE, waiting
+				 * for an ARP reply.  Still want to see if there is match with the
+				 * given MAC address.ucBytes.  If found, either of the two entries
+				 * must be cleared. */
 				xIpEntry = x;
 			}
 			else if( ( pxMACAddress != NULL ) && ( memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0 ) )
 			{
 				/* Found an entry with the given MAC-address, but the IP-address
-				is different.  Continue looping to find a possible match with
-				ulIPAddress. */
+				 * is different.  Continue looping to find a possible match with
+				 * ulIPAddress. */
 				#if( ipconfigARP_STORES_REMOTE_ADDRESSES != 0 )
 					/* If ARP stores the MAC address of IP addresses outside the
-					network, than the MAC address of the gateway should not be
-					overwritten. */
+					 * network, than the MAC address of the gateway should not be
+					 * overwritten. */
 					BaseType_t bIsLocal[ 2 ];
 					bIsLocal[ 0 ] = ( ( xARPCache[x].ulIPAddress & xNetworkAddressing.ulNetMask ) == ( ( *ipLOCAL_IP_ADDRESS_POINTER ) & xNetworkAddressing.ulNetMask ) );
 					bIsLocal[ 1 ] = ( ( ulIPAddress & xNetworkAddressing.ulNetMask ) == ( ( *ipLOCAL_IP_ADDRESS_POINTER ) & xNetworkAddressing.ulNetMask ) );
@@ -301,17 +296,17 @@ uint8_t ucMinAgeFound = 0U;
 				#endif
 			}
 			/* _HT_
-			Shouldn't we test for xARPCache[ x ].ucValid == pdFALSE here ? */
+			 * Shouldn't we test for xARPCache[ x ].ucValid == pdFALSE here ? */
 			else if( xARPCache[ x ].ucAge < ucMinAgeFound )
 			{
 				/* As the table is traversed, remember the table row that
-				contains the oldest entry (the lowest age count, as ages are
-				decremented to zero) so the row can be re-used if this function
-				needs to add an entry that does not already exist. */
+				 * contains the oldest entry (the lowest age count, as ages are
+				 * decremented to zero) so the row can be re-used if this function
+				 * needs to add an entry that does not already exist. */
 				ucMinAgeFound = xARPCache[ x ].ucAge;
 				xUseEntry = x;
 			}
-			else    /* Added to suppress MISRA rule 15.7 violation */
+			else
 			{
 				/* Do nothing. */
 			}
@@ -324,8 +319,8 @@ uint8_t ucMinAgeFound = 0U;
 			if( xIpEntry >= 0 )
 			{
 				/* Both the MAC address as well as the IP address were found in
-				different locations: clear the entry which matches the
-				IP-address */
+				 * different locations: clear the entry which matches the
+				 * IP-address */
 				( void ) memset( &xARPCache[ xIpEntry ], 0, sizeof( xARPCache[ xIpEntry ] ) );
 			}
 		}
@@ -344,7 +339,7 @@ uint8_t ucMinAgeFound = 0U;
 
 		if( pxMACAddress != NULL )
 		{
-			( void ) memcpy( xARPCache[ xUseEntry ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) );
+			( void ) memcpy( ( void * ) xARPCache[ xUseEntry ].xMACAddress.ucBytes, ( const void * ) pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) );
 
 			iptraceARP_TABLE_ENTRY_CREATED( ulIPAddress, ( *pxMACAddress ) );
 			/* And this entry does not need immediate attention */
@@ -358,7 +353,7 @@ uint8_t ucMinAgeFound = 0U;
 		}
 		else
 		{
-			/* Do nothing. (pxMACAddress = NULL) and (xIPEntry > 0)
+			/* Do nothing. (pxMACAddress == NULL) and (xIPEntry > 0)
 			 * Implies that an IP address was found but we don't have
 			 * a MAC address for it. Therefore, no action required */
 		}
@@ -376,8 +371,8 @@ uint8_t ucMinAgeFound = 0U;
 		for( x = 0; x < ipconfigARP_CACHE_ENTRIES; x++ )
 		{
 			/* Does this row in the ARP cache table hold an entry for the MAC
-			address being searched? */
-			if( ( void ) memcmp( pxMACAddress->ucBytes, xARPCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) ) == 0 )
+			 * address being searched? */
+			if( memcmp( ( void * ) pxMACAddress->ucBytes, ( const void * ) xARPCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) ) == 0 )
 			{
 				*pulIPAddress = xARPCache[ x ].ulIPAddress;
 				eReturn = eARPCacheHit;
@@ -400,7 +395,7 @@ uint32_t ulAddressToLookup;
 	if( *pulIPAddress == ipLLMNR_IP_ADDR )	/* Is in network byte order. */
 	{
 		/* The LLMNR IP-address has a fixed virtual MAC address. */
-		( void ) memcpy( pxMACAddress->ucBytes, xLLMNR_MacAdress.ucBytes, sizeof( MACAddress_t ) );
+		( void ) memcpy( ( void * ) pxMACAddress->ucBytes, ( const void * ) xLLMNR_MacAdress.ucBytes, sizeof( MACAddress_t ) );
 		eReturn = eARPCacheHit;
 	}
 	else
@@ -409,13 +404,13 @@ uint32_t ulAddressToLookup;
 		( *pulIPAddress == xNetworkAddressing.ulBroadcastAddress ) )/* Or a local broadcast address, eg 192.168.1.255? */
 	{
 		/* This is a broadcast so uses the broadcast MAC address. */
-		( void ) memcpy( pxMACAddress->ucBytes, xBroadcastMACAddress.ucBytes, sizeof( MACAddress_t ) );
+		( void ) memcpy( ( void * ) pxMACAddress->ucBytes, ( const void * ) xBroadcastMACAddress.ucBytes, sizeof( MACAddress_t ) );
 		eReturn = eARPCacheHit;
 	}
 	else if( *ipLOCAL_IP_ADDRESS_POINTER == 0UL )
 	{
 		/* The IP address has not yet been assigned, so there is nothing that
-		can be done. */
+		 * can be done. */
 		eReturn = eCantSendPacket;
 	}
 	else
@@ -430,14 +425,14 @@ uint32_t ulAddressToLookup;
 			if( eReturn == eARPCacheHit )
 			{
 				/* The stack is configured to store 'remote IP addresses', i.e. addresses
-				belonging to a different the netmask.  prvCacheLookup() returned a hit, so
-				the MAC address is known */
+				 * belonging to a different the netmask.  prvCacheLookup() returned a hit, so
+				 * the MAC address is known */
 			}
 			else
 #endif
 			{
 				/* The IP address is off the local network, so look up the
-				hardware address of the router, if any. */
+				 * hardware address of the router, if any. */
 				if( xNetworkAddressing.ulGatewayAddress != ( uint32_t )0u )
 				{
 					ulAddressToLookup = xNetworkAddressing.ulGatewayAddress;
@@ -451,7 +446,7 @@ uint32_t ulAddressToLookup;
 		else
 		{
 			/* The IP address is on the local network, so lookup the requested
-			IP address directly. */
+			 * IP address directly. */
 			ulAddressToLookup = *pulIPAddress;
 		}
 
@@ -460,7 +455,7 @@ uint32_t ulAddressToLookup;
 			if( ulAddressToLookup == 0UL )
 			{
 				/* The address is not on the local network, and there is not a
-				router. */
+				 * router. */
 				eReturn = eCantSendPacket;
 			}
 			else
@@ -490,7 +485,7 @@ eARPLookupResult_t eReturn = eARPCacheMiss;
 	for( x = 0; x < ipconfigARP_CACHE_ENTRIES; x++ )
 	{
 		/* Does this row in the ARP cache table hold an entry for the IP address
-		being queried? */
+		 * being queried? */
 		if( xARPCache[ x ].ulIPAddress == ulAddressToLookup )
 		{
 			/* A matching valid entry was found. */
@@ -502,7 +497,7 @@ eARPLookupResult_t eReturn = eARPCacheMiss;
 			else
 			{
 				/* A valid entry was found. */
-				( void ) memcpy( pxMACAddress->ucBytes, xARPCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) );
+				( void ) memcpy( ( void * ) pxMACAddress->ucBytes, ( const void * ) xARPCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) );
 				eReturn = eARPCacheHit;
 			}
 			break;
@@ -525,11 +520,11 @@ TickType_t xTimeNow;
 		if( xARPCache[ x ].ucAge > 0U )
 		{
 			/* Decrement the age value of the entry in this ARP cache table row.
-			When the age reaches zero it is no longer considered valid. */
+			 * When the age reaches zero it is no longer considered valid. */
 			( xARPCache[ x ].ucAge )--;
 
 			/* If the entry is not yet valid, then it is waiting an ARP
-			reply, and the ARP request should be retransmitted. */
+			 * reply, and the ARP request should be retransmitted. */
 			if( xARPCache[ x ].ucValid == ( uint8_t )pdFALSE )
 			{
 				FreeRTOS_OutputARPRequest( xARPCache[ x ].ulIPAddress );
@@ -537,7 +532,7 @@ TickType_t xTimeNow;
 			else if( xARPCache[ x ].ucAge <= ( uint8_t )arpMAX_ARP_AGE_BEFORE_NEW_ARP_REQUEST )
 			{
 				/* This entry will get removed soon.  See if the MAC address is
-				still valid to prevent this happening. */
+				 * still valid to prevent this happening. */
 				iptraceARP_TABLE_ENTRY_WILL_EXPIRE( xARPCache[ x ].ulIPAddress );
 				FreeRTOS_OutputARPRequest( xARPCache[ x ].ulIPAddress );
 			}
@@ -568,7 +563,7 @@ TickType_t xTimeNow;
 void vARPSendGratuitous( void )
 {
 	/* Setting xLastGratuitousARPTime to 0 will force a gratuitous ARP the next
-	time vARPAgeCache() is called. */
+	 * time vARPAgeCache() is called. */
 	xLastGratuitousARPTime = ( TickType_t )0;
 
 	/* Let the IP-task call vARPAgeCache(). */
@@ -581,7 +576,7 @@ void FreeRTOS_OutputARPRequest( uint32_t ulIPAddress )
 NetworkBufferDescriptor_t *pxNetworkBuffer;
 
 	/* This is called from the context of the IP event task, so a block time
-	must not be used. */
+	 * must not be used. */
 	pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( sizeof( ARPPacket_t ), ( TickType_t )0 );
 
 	if( pxNetworkBuffer != NULL )
@@ -633,33 +628,30 @@ void vARPGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffe
 ARPPacket_t *pxARPPacket;
 
 	/* Buffer allocation ensures that buffers always have space
-	for an ARP packet. See buffer allocation implementations 1
-	and 2 under portable/BufferManagement. */
+	 * for an ARP packet. See buffer allocation implementations 1
+	 * and 2 under portable/BufferManagement. */
 	configASSERT( pxNetworkBuffer != NULL );
 	configASSERT( pxNetworkBuffer->xDataLength >= sizeof( ARPPacket_t ) );
 
 	pxARPPacket = ( ARPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 
 	/* memcpy the const part of the header information into the correct
-	location in the packet.  This copies:
-		xEthernetHeader.ulDestinationAddress
-		xEthernetHeader.usFrameType;
-		xARPHeader.usHardwareType;
-		xARPHeader.usProtocolType;
-		xARPHeader.ucHardwareAddressLength;
-		xARPHeader.ucProtocolAddressLength;
-		xARPHeader.usOperation;
-		xARPHeader.xTargetHardwareAddress;
-	*/
+	 * location in the packet.  This copies:
+	 * 	xEthernetHeader.ulDestinationAddress
+	 * 	xEthernetHeader.usFrameType;
+	 * 	xARPHeader.usHardwareType;
+	 * 	xARPHeader.usProtocolType;
+	 * 	xARPHeader.ucHardwareAddressLength;
+	 * 	xARPHeader.ucProtocolAddressLength;
+	 * 	xARPHeader.usOperation;
+	 * 	xARPHeader.xTargetHardwareAddress;
+	 */
 
-	/* Also, for rule 21.15 regarding using same pointer-to-x types for memcpy,
-	 * below is done intentionally here and thus the rule is relaxed         */
-	/* coverity[misra_c_2012_rule_21_15_violation] */
-	( void ) memcpy( ( void * ) pxARPPacket, ( const void* )xDefaultPartARPPacketHeader, sizeof( xDefaultPartARPPacketHeader ) );
-	( void ) memcpy( ( void * ) pxARPPacket->xEthernetHeader.xSourceAddress.ucBytes, ( void * ) ipLOCAL_MAC_ADDRESS, ( size_t )ipMAC_ADDRESS_LENGTH_BYTES );
-	( void ) memcpy( ( void * ) pxARPPacket->xARPHeader.xSenderHardwareAddress.ucBytes, ( void * )ipLOCAL_MAC_ADDRESS, ( size_t )ipMAC_ADDRESS_LENGTH_BYTES );
+	( void ) memcpy( ( void * ) pxARPPacket, ( const void * )xDefaultPartARPPacketHeader, sizeof( xDefaultPartARPPacketHeader ) );
+	( void ) memcpy( ( void * ) pxARPPacket->xEthernetHeader.xSourceAddress.ucBytes, ( const void * ) ipLOCAL_MAC_ADDRESS, ( size_t )ipMAC_ADDRESS_LENGTH_BYTES );
+	( void ) memcpy( ( void * ) pxARPPacket->xARPHeader.xSenderHardwareAddress.ucBytes, ( const void * )ipLOCAL_MAC_ADDRESS, ( size_t )ipMAC_ADDRESS_LENGTH_BYTES );
 
-	( void ) memcpy( ( void * )pxARPPacket->xARPHeader.ucSenderProtocolAddress, ( void * )ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPPacket->xARPHeader.ucSenderProtocolAddress ) );
+	( void ) memcpy( ( void * )pxARPPacket->xARPHeader.ucSenderProtocolAddress, ( const void * )ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPPacket->xARPHeader.ucSenderProtocolAddress ) );
 	pxARPPacket->xARPHeader.ulTargetProtocolAddress = pxNetworkBuffer->ulIPAddress;
 
 	pxNetworkBuffer->xDataLength = sizeof( ARPPacket_t );
