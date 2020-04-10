@@ -65,6 +65,9 @@
 #ifndef IOT_TEST_MQTT_TOPIC_PREFIX
     #define IOT_TEST_MQTT_TOPIC_PREFIX           "iotmqtttest"
 #endif
+#ifndef IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY
+    #define IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY    ( 1100 )
+#endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
     #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    ( 1 )
 #endif
@@ -230,9 +233,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     int32_t retryCount = 0;
 
-    /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
-     * Wait until 1100 ms have elapsed since the last connection. */
-    uint32_t periodMs = 1100;
+    uint32_t periodMs = IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY;
 
     for( ; retryCount < IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
     {
