@@ -48,7 +48,7 @@
 #endif
 
 /**
- * @brief The amount of times to retry a request if it fails.
+ * @brief The amount of times to retry a connection if it fails with 1 being a single attempt.
  */
 #ifndef IOT_TEST_GGD_CONNECT_RETRY_COUNT
     #define IOT_TEST_GGD_CONNECT_RETRY_COUNT    ( 1 )
