@@ -85,8 +85,8 @@
  *
  * Provide default values of test configuration constants.
  */
-#ifndef IOT_TEST_MQTT_INITIAL_CONNECT_RETRY_DELAY
-    #define IOT_TEST_MQTT_INITIAL_CONNECT_RETRY_DELAY    ( 1100 )
+#ifndef IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY
+    #define IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY    ( 1100 )
 #endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
     #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 1 )
@@ -541,7 +541,7 @@ static IotMqttError_t _startMqttConnection( void )
                                                         1000,
                                                         &_mqttConnection ),
                            IOT_MQTT_SUCCESS,
-                           IOT_TEST_MQTT_INITIAL_CONNECT_RETRY_DELAY,
+                           IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY,
                            IOT_TEST_MQTT_CONNECT_RETRY_COUNT );
 
         if( mqttError == IOT_MQTT_SUCCESS )
