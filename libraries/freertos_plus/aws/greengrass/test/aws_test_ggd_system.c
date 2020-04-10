@@ -206,15 +206,6 @@ TEST( GGD_System, GetGGCIPandCertificate )
                                                   cBuffer, /*lint !e971 can use char without signed/unsigned. */
                                                   ulBufferSize,
                                                   &xHostAddressData );
-            RETRY_EXPONENTIAL( xStatus - GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
-                                                                     clientcredentialGREENGRASS_DISCOVERY_PORT,
-                                                                     clientcredentialIOT_THING_NAME,
-                                                                     cBuffer, /*lint !e971 can use char without signed/unsigned. */
-                                                                     ulBufferSize,
-                                                                     &xHostAddressData ),
-                               pdPASS,
-                               IOT_TEST_GGD_INITIAL_CONNECTION_RETRY_DELAY,
-                               IOT_TEST_GGD_CONNECT_RETRY_COUNT );
 
             snprintf( cMsgBuffer, nBufferLength,
                       "GGD_GetGGCIPandCertificate returned %d on iteration %d",
