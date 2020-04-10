@@ -441,7 +441,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
      * Wait until 1100 ms have elapsed since the last connection. */
-    uint32_t periodMs = 1100;
+    const uint32_t periodMs = 1100;
 
     RETRY_EXPONENTIAL( status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection ),
                        IOT_MQTT_SUCCESS,
