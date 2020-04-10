@@ -29,7 +29,7 @@ static const char *TAG = "esp-hal-i2c";
 #define BYTES_TO_WRITE_AT_ONE_TIME 20
 #define BYTES_TO_READ_AT_ONE_TIME 20
 #define TICKS_TO_WAIT 10
-static bool i2c_flag;
+static volatile uint8_t i2c_bit_mask;
 
 typedef struct {
     IotI2CConfig_t iot_i2c_config;
@@ -41,10 +41,7 @@ typedef struct {
     size_t xBytes;
     bool is_channel_busy;
     bool is_slave_addr_set;
-    bool is_send_start_flag_set;
     bool is_send_no_stop_flag_set;
-    bool register_buffer_write_sq;
-    uint8_t reg_write_addr;
     uint32_t bytes_to_read;
     uint32_t bytes_to_write;
     uint8_t slave_addr;
@@ -58,7 +55,7 @@ IotI2CHandle_t iot_i2c_open(int32_t lI2CInstance)
         ESP_LOGE(TAG, "Invalid arguments");
         return NULL;
     }
-    if (i2c_flag == true) {
+    if (0x01 & (i2c_bit_mask >> lI2CInstance)) {
         ESP_LOGE(TAG, "I2C Handler is already initialised");
         return NULL;
     }
@@ -69,7 +66,7 @@ IotI2CHandle_t iot_i2c_open(int32_t lI2CInstance)
     }
     IotI2CHandle_t iot_i2c_handler = (void *) i2c_ctx;
     i2c_ctx->i2c_port_num = lI2CInstance;
-    i2c_flag = true;
+    i2c_bit_mask |= BIT(lI2CInstance);
     return iot_i2c_handler;
 }
 
@@ -94,7 +91,7 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral, IotI2CIoctlRequest_
         i2c_ctx->iot_i2c_config.ulMasterTimeout = iot_i2c_handler->ulMasterTimeout;
         int32_t i2c_port_num = (int32_t) i2c_ctx->i2c_port_num;
 
-        if (i2c_ctx->driver_installed && i2c_ctx->is_channel_busy == false) {
+        if (i2c_ctx->driver_installed) {
             esp_err_t ret = i2c_driver_delete(i2c_port_num);
             if (ret != ESP_OK) {
                 ESP_LOGE(TAG, "i2c driver delete failed");
@@ -139,14 +136,11 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral, IotI2CIoctlRequest_
         iot_i2c_handler->ulBusFreq = i2c_ctx->iot_i2c_config.ulBusFreq;
         iot_i2c_handler->ulMasterTimeout = i2c_ctx->iot_i2c_config.ulMasterTimeout;
         return IOT_I2C_SUCCESS;
-        break;
     }
     case eI2CSetSlaveAddr : {
         i2c_ctx->slave_addr = (*(uint8_t *)pvBuffer);
-        i2c_ctx->is_send_start_flag_set = true;
         i2c_ctx->is_slave_addr_set = true;
         return IOT_I2C_SUCCESS;
-        break;
     }
     case eI2CGetBusState : {
         IotI2CBusStatus_t *bus_state = (IotI2CBusStatus_t *) pvBuffer;
@@ -170,7 +164,6 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral, IotI2CIoctlRequest_
     default :
         ESP_LOGE(TAG, "Invalid argument");
         return IOT_I2C_INVALID_VALUE;
-        break;
     }
 }
 
@@ -182,11 +175,8 @@ static void write_async_cb(void *arg)
     int32_t i2c_port_num = (int32_t) iot_i2c_handler->i2c_port_num;
     uint8_t *src_buf = (uint8_t *) iot_i2c_handler->pvBuffer;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    if (iot_i2c_handler->is_send_start_flag_set) {
-        ret = i2c_master_start(cmd);
-        ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
-        iot_i2c_handler->is_send_start_flag_set = false;
-    }
+    ret = i2c_master_start(cmd);
+    ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
     while (iot_i2c_handler->xBytes > 0) {
         bytes_to_write_tmp = (iot_i2c_handler->xBytes > BYTES_TO_WRITE_AT_ONE_TIME) ? BYTES_TO_WRITE_AT_ONE_TIME : iot_i2c_handler->xBytes;
         ret |= i2c_master_write(cmd, src_buf, bytes_to_write_tmp, ACK_CHECK_EN);
@@ -221,11 +211,8 @@ static void read_async_cb(void *arg)
     int32_t i2c_port_num = (int32_t) iot_i2c_handler->i2c_port_num;
     uint8_t *src_buf = (uint8_t *) iot_i2c_handler->pvBuffer;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    if (iot_i2c_handler->is_send_start_flag_set) {
-        ret = i2c_master_start(cmd);
-        ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
-        iot_i2c_handler->is_send_start_flag_set = false;
-    }
+    ret = i2c_master_start(cmd);
+    ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
 
     while (iot_i2c_handler->xBytes > 1) {
         bytes_to_read_tmp = (iot_i2c_handler->xBytes > BYTES_TO_READ_AT_ONE_TIME) ? BYTES_TO_READ_AT_ONE_TIME : iot_i2c_handler->xBytes - 1;
@@ -289,7 +276,7 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral, uint8_t *const
         return IOT_I2C_INVALID_VALUE;
     }
 
-    if (iot_i2c_handler->is_channel_busy || iot_i2c_handler->is_channel_busy) {
+    if (iot_i2c_handler->is_channel_busy) {
         return IOT_I2C_BUSY;
     }
 
@@ -346,11 +333,8 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral, uint8_t *const 
     }
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    if (iot_i2c_handler->is_send_start_flag_set) {
-        ret  = i2c_master_start(cmd);
-        ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
-        iot_i2c_handler->is_send_start_flag_set = false;
-    }
+    ret  = i2c_master_start(cmd);
+    ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_READ, ACK_CHECK_EN);
     if (xBytes > 1) {
         ret |= i2c_master_read(cmd, src_buf, xBytes - 1, ACK_VAL);
     }
@@ -384,11 +368,8 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral, uint8_t *const
         return IOT_I2C_SLAVE_ADDRESS_NOT_SET;
     }
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    if (iot_i2c_handler->is_send_start_flag_set) {
-        ret  = i2c_master_start(cmd);
-        ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
-        iot_i2c_handler->is_send_start_flag_set = false;
-    }
+    ret  = i2c_master_start(cmd);
+    ret |= i2c_master_write_byte(cmd, iot_i2c_handler->slave_addr << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
     ret = i2c_master_write(cmd, src_buf, xBytes, ACK_CHECK_EN);
     if (iot_i2c_handler->is_send_no_stop_flag_set == false) {
         ret |= i2c_master_stop(cmd);
@@ -411,12 +392,12 @@ int32_t iot_i2c_close(IotI2CHandle_t const pxI2CPeripheral)
         ESP_LOGE(TAG, "Invalid I2C Handler");
         return IOT_I2C_INVALID_VALUE;
     }
-    if (i2c_flag == false) {
+    i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) pxI2CPeripheral;
+    if (!(0x01 & (i2c_bit_mask >> iot_i2c_handler->i2c_port_num))) {
         ESP_LOGE(TAG, "I2C Handler is not initialised");
         return IOT_I2C_INVALID_VALUE;
     }
-    i2c_ctx_t *iot_i2c_handler = (i2c_ctx_t *) pxI2CPeripheral;
-    i2c_flag = false;
+    i2c_bit_mask = i2c_bit_mask & ~(BIT(iot_i2c_handler->i2c_port_num));
     int32_t i2c_port_num = (int32_t) iot_i2c_handler->i2c_port_num;
     if (iot_i2c_handler->driver_installed) {
         esp_err_t ret = i2c_driver_delete(i2c_port_num);
