@@ -221,6 +221,7 @@
 				<option>
 					<name>CCDefines</name>
 					<state>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;</state>
+					<state>CONFIG_MEDTLS_USE_AFR_MEMORY</state>
 					<state>_DLIB_FILE_DESCRIPTOR</state>
 				</option>
 				<option>

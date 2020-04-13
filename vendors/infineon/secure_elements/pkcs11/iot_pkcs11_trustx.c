@@ -1169,8 +1169,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_RV xResult = CKR_OK;
 
         /* Ensure that the FreeRTOS heap is used. */
-/*        CRYPTO_ConfigureHeap(); */
-
         if( xP11Context.xIsInitialized != CK_TRUE )
         {
             /*

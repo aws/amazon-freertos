@@ -375,9 +375,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
 
     CK_RV xResult = CKR_OK;
 
-    /* Ensure that the FreeRTOS heap is used. */
-    CRYPTO_ConfigureHeap();
-
     E_EEPROM_XMC4_Init( &e_eeprom, sizeof( P11KeyConfig_t ) );
 
     if( E_EEPROM_XMC4_IsFlashEmpty() == false )

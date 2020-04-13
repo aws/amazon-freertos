@@ -50,13 +50,6 @@ void CRYPTO_Init( void );
 void CRYPTO_ConfigureThreading( void );
 
 /**
- * @brief Configures crypto library heap callouts so that the FreeRTOS heap is
- * used instead of the C runtime heap. Skipping this call is likely to cause
- * runtime memory corruption in the application.
- */
-void CRYPTO_ConfigureHeap( void );
-
-/**
  * @brief Library-independent cryptographic algorithm identifiers.
  */
 #define cryptoHASH_ALGORITHM_SHA1           1

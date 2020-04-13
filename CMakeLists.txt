@@ -66,7 +66,9 @@ if( "${mbedtls_config_pos}" EQUAL "-1")
         afr_3rdparty_mbedtls 
         PUBLIC
         -DMBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"
+        -DCONFIG_MEDTLS_USE_AFR_MEMORY
     )
+
 endif()
 
 # -------------------------------------------------------------------------------------------------
