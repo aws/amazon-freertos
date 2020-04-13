@@ -212,6 +212,7 @@
 				<option>
 					<name>CCDefines</name>
 					<state>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;</state>
+					<state>CONFIG_MEDTLS_USE_AFR_MEMORY</state>
 					<state>DEBUG</state>
 					<state>XIP_IMAGE</state>
 					<state>CPU_LPC54018</state>

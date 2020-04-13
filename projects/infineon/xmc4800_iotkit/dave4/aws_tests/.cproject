@@ -86,6 +86,7 @@
 									<listOptionValue builtIn="false" value="XMC4800_F100x2048"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
 									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.warnings.nocommon.1711033944" name="No common (-fno-common)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.warnings.nocommon" useByScannerDiscovery="false" value="true" valueType="boolean"/>

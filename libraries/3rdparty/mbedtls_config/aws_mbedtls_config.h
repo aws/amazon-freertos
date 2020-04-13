@@ -193,6 +193,16 @@
  */
 #define MBEDTLS_PLATFORM_MEMORY
 
+#ifdef CONFIG_MEDTLS_USE_AFR_MEMORY
+    #include <stddef.h>
+
+    extern void * pvCalloc( size_t xNumElements,
+                          size_t xSize ) ;
+    extern void vPortFree( void *pv );
+    #define MBEDTLS_PLATFORM_CALLOC_MACRO pvCalloc
+    #define MBEDTLS_PLATFORM_FREE_MACRO   vPortFree
+#endif
+
 /**
  * \def MBEDTLS_PLATFORM_NO_STD_FUNCTIONS
  *

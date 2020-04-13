@@ -772,9 +772,6 @@ BaseType_t TLS_Connect( void * pvContext )
     BaseType_t xResult = 0;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
-    /* Ensure that the FreeRTOS heap is used. */
-    CRYPTO_ConfigureHeap();
-
     /* Initialize mbedTLS structures. */
     mbedtls_ssl_init( &pxCtx->xMbedSslCtx );
     mbedtls_ssl_config_init( &pxCtx->xMbedSslConfig );

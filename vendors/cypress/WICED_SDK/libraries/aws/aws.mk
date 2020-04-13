@@ -163,4 +163,5 @@ $(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utlils \
                     $(AFR_THIRDPARTY_PATH)unity/src
 
-$(NAME)_DEFINES := MBEDTLS_CONFIG_FILE="<aws_mbedtls_config.h>"
+$(NAME)_DEFINES := MBEDTLS_CONFIG_FILE="<aws_mbedtls_config.h>"\
+				   CONFIG_MEDTLS_USE_AFR_MEMORY
