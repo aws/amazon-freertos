@@ -1323,4 +1323,14 @@ const char * mbedtls_strerror_lowlevel( int errnum )
 
         #if defined( MBEDTLS_XTEA_C )
             case -( MBEDTLS_ERR_XTEA_INVALID_INPUT_LENGTH ):
-                rc = "XTEA - The data input ha
+                rc = "XTEA - The data input has an invalid length";
+                break;
+
+            case -( MBEDTLS_ERR_XTEA_HW_ACCEL_FAILED ):
+                rc = "XTEA - XTEA hardware accelerator failed";
+                break;
+        #endif /* MBEDTLS_XTEA_C */
+    }
+
+    return rc;
+}
