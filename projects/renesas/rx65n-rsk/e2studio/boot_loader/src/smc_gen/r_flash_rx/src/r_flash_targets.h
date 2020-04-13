@@ -31,6 +31,7 @@
 *           19.07.2019 4.20    Added RX72M
 *           09.09.2019 4.30    Added RX13T
 *           27.09.2019 4.40    Added RX23E-A
+*           18.11.2019 4.50    Added RX66N, and RX72N.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_TARGETS_HEADER_FILE
@@ -96,6 +97,9 @@ Macro definitions
 #elif defined(BSP_MCU_RX66T)
     #define MCU_RX66T
     #define MCU_RX66_ALL
+#elif defined(BSP_MCU_RX66N)
+    #define MCU_RX66N
+    #define MCU_RX66_ALL
 #elif defined(BSP_MCU_RX71M)
     #define MCU_RX71M
     #define MCU_RX71_ALL
@@ -104,6 +108,9 @@ Macro definitions
     #define MCU_RX72_ALL
 #elif defined(BSP_MCU_RX72M)
     #define MCU_RX72M
+    #define MCU_RX72_ALL
+#elif defined(BSP_MCU_RX72N)
+    #define MCU_RX72N
     #define MCU_RX72_ALL
 #else
     #error "!!! No 'targets' folder for this MCU Group !!!"

@@ -36,6 +36,9 @@
 *           28.06.2019 3.10    Added comments for RX23W support
 *           15.08.2019 3.20    Added support received data match function for RX72M (SCI0- SCI11)
 *                              Added support FIFO mode for RX72M (SCI7 - SCI11)
+*           25.11.2019 3.30    Added support RX13T.
+*                              Removed support for Generation 1 devices.
+*           30.12.2019 3.40    Added support RX66N, RX72N.
 ***********************************************************************************************************************/
 #ifndef SCI_CONFIG_H
 #define SCI_CONFIG_H
@@ -64,28 +67,28 @@ Configuration Options
 /*
  * NOTE: If using ASYNC mode, adjust BYTEQ_CFG_MAX_CTRL_BLKS in r_byteq_config.h
  * to provide 2 queues per channel (static mode only).
- * * = port connector RDKRX63N, RSKRX210, RSKRX11x
+ * * = port connector RSKRX11x
  * u = channel used by the USB-UART port (G1CUSB0)
  * a = this channel is used only for RX130-512KB
  * n = this channel is not available for RX65N-64pin.
  * s = this channel is not available in simple SPI mode.
  * RX MCU supported channels
  *
- * CH#  110 111 113 130 210 230 231 23T 24T 24U 63N 631 64M 71M 65N 66T 72T 23W 72M
+ * CH#  110 111 113 130 230 231 23T 24T 24U 64M 71M 65N 66T 72T 23W 72M 13T 72N 66N
  * ---  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
- * CH0           X   Xa  X*  X   X               X*  X   X   X   Xn              X
- * CH1   X   X*  X*  Xu  X   X   X   Xu  Xu  Xu  X   X   X   X   Xs  X   X   X   X
- * CH2           X                               X   X   X   X   Xu              X
- * CH3                                           X   X   X   X   Xs              X
- * CH4                                           X   X   X   X   Xn              X
- * CH5   X   X   X   X   X   X   Xu  X   X   X   X   X   X   X   X   X   X   X   X
- * CH6           X   X   X   X   X       X   X   X   X   X   X   Xn  X   X       Xu
- * CH7                                           X   X   Xu  Xu  Xn              X
- * CH8           X   Xa  X   X   X           X   X   X           X   X   X   Xu  X
- * CH9           X   Xa  X   X   X           X   X   X           Xs  X   X       X
- * CH10                                          X   X           X               X
- * CH11                                      X   X   X           Xs  X   X       X
- * CH12  X   X   X   X   X   X   X               X   X   X   X   Xs  X   X   X   X
+ * CH0           X   Xa  X   X               X   X   Xn              X       X   X
+ * CH1   X   X*  X*  Xu  X   X   Xu  Xu  Xu  X   X   Xs  X   X   X   X   X   X   X
+ * CH2           X                           X   X   Xu              X       X   X
+ * CH3                                       X   X   Xs              X       X   X
+ * CH4                                       X   X   Xn              X       X   X
+ * CH5   X   X   X   X   X   Xu  X   X   X   X   X   X   X   X   X   X   X   X   X
+ * CH6           X   X   X   X       X   X   X   X   Xn  X   X       Xu      X   X
+ * CH7                                       Xu  Xu  Xn              X       X   X
+ * CH8           X   Xa  X   X           X           X   X   X   Xu  X       X   X
+ * CH9           X   Xa  X   X           X           Xs  X   X       X       X   X
+ * CH10                                              X               X       X   X
+ * CH11                                  X           Xs  X   X       X       X   X
+ * CH12  X   X   X   X   X   X               X   X   Xs  X   X   X   X   X   X   X
 */
                                    
 #define SCI_CFG_CH0_INCLUDED    (0)
@@ -147,21 +150,13 @@ Configuration Options
 #define SCI_CFG_TEI_INCLUDED    (0)      /* 1=included, 0=not */
 
 /* 
-* SET GROUP12 (RECEIVER ERROR) INTERRUPT PRIORITY; RX63N/631 ONLY
-* This #define sets the priority level for the interrupt that handles 
-* receiver overrun, framing, and parity errors for all SCI channels
-* on the RX63N/631. It is ignored for all other parts.
-*/
-#define SCI_CFG_RXERR_PRIORITY  (3)      /* (RX63N/631 ONLY) 1 lowest, 15 highest */
-
-/* 
-* SET GROUPBL0 (ERI, TEI) INTERRUPT PRIORITY; RX64M/RX71M/RX65N/RX72M ONLY
+* SET GROUPBL0 (ERI, TEI) INTERRUPT PRIORITY; RX64M/RX71M/RX65N/RX72M/RX72N/RX66N ONLY
 * SET GROUPBL1; RX65N ONLY
-* SET GROUPAL0 (ERI,TEI) INTERRUPT PRIORITY; RX65N, RX72M ONLY
+* SET GROUPAL0 (ERI,TEI) INTERRUPT PRIORITY; RX65N, RX72M, RX72N, RX66N ONLY
 * This sets the priority level for receiver overrun, framing, and parity errors
 * as well as TEI interrupts for all SCI channels.
 */
-#define SCI_CFG_ERI_TEI_PRIORITY (3)     /* (RX64M/RX71M/RX65N/RX72M ONLY) 1 lowest, 15 highest */
+#define SCI_CFG_ERI_TEI_PRIORITY (3)     /* (RX64M/RX71M/RX65N/RX72M/RX72N/RX66N ONLY) 1 lowest, 15 highest */
 
 /* ENABLE TX/RX FIFO; (SCIi supported MCU ONLY) 1=included, 0=not */
 #define SCI_CFG_CH7_FIFO_INCLUDED   (0)
@@ -186,7 +181,7 @@ Configuration Options
 #define SCI_CFG_CH10_RX_FIFO_THRESH (8)
 #define SCI_CFG_CH11_RX_FIFO_THRESH (8)
 
-/* ENABLE Received Data match function (SCIj and SCIi supported MCU RX65N/RX66T/RX72T/RX72M ONLY) 1=included, 0=not */
+/* ENABLE Received Data match function (SCIj and SCIi supported MCU RX65N/RX66T/RX72T/RX72M/RX72N/RX66N ONLY) 1=included, 0=not */
 #define SCI_CFG_CH0_DATA_MATCH_INCLUDED  (0)
 #define SCI_CFG_CH1_DATA_MATCH_INCLUDED  (0)
 #define SCI_CFG_CH2_DATA_MATCH_INCLUDED  (0)

@@ -37,6 +37,8 @@
 *                               - BSP_PRV_CKSEL_PLL
 *                               - BSP_PRV_NORMALIZE_X10
 *                               Deleted the error check of BSP_CFG_CLOCK_SOURCE in the clock_source_select function.
+*         : 17.12.2019 2.01     Fixed warning of clock_source_select function with IAR compiler.
+*         : 14.02.2020 2.02     Fixed warning of clock_source_select function with CCRX and IAR compiler.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -425,7 +427,9 @@ static void clock_source_select (void)
 {
     volatile uint8_t i;
     volatile uint8_t dummy;
-    volatile uint8_t tmp;
+#if (BSP_CFG_CLOCK_SOURCE == 3) || (BSP_CFG_RTC_ENABLE == 1)
+    uint8_t tmp;
+#endif
 
     /* Main clock will be not oscillate in software standby or deep software standby modes. */
     SYSTEM.MOFCR.BIT.MOFXIN = 0;

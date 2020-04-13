@@ -33,6 +33,7 @@
 *              : 19.04.2019 4.00    Added support for GNUC and ICCRX.
 *                                   Removed support for flash type 2.
 *              : 09.09.2019 4.30    Added copy in the case of ICCRX big endian to the function R_FlashCodeCopy().
+*              : 18.11.2019 4.50    Modified comment of API function to Doxygen style.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -64,17 +65,18 @@ FCU_BYTE_PTR g_pfcu_cmd_area = (uint8_t*) FCU_COMMAND_AREA; // sequencer command
 
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_Open
-* Description  : Function will initialize the flash peripheral.
-* Arguments    : void
-* Return Value : FLASH_SUCCESS -
-*                    API initialized successfully.
-*                FLASH_ERR_BUSY -
-*                    API has already been initialized and another operation is ongoing.
-*                FLASH_ERR_FAILURE -
-*                    Initialization failed.
-*                    A RESET was performed on the Flash circuit to rectify any internal errors
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_Open
+ *******************************************************************************************************************//**
+ * @brief   The function initializes the Flash FIT module.
+ *          This function must be called before calling any other API functions.
+ * @retval  FLASH_SUCCESS          Flash FIT module initialized successfully.
+ * @retval  FLASH_ERR_BUSY         A different flash process is being executed, try again later.
+ * @retval  FLASH_ERR_ALREADY_OPEN Open() called twice without an intermediate Close().
+ * @details This function initializes the Flash FIT module, and if FLASH_CFG_CODE_FLASH_ENABLE is 1,
+ *          copies the API functions necessary for code flash erasing/reprogramming into RAM
+ *          (not including vector table). 
+ *          Note that this function must be called before any other API function.
+ */
 flash_err_t R_FLASH_Open(void)
 {
     flash_err_t err;
@@ -214,11 +216,14 @@ void R_FlashCodeCopy(void)
 
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_Close
-* Description  : This function closes the flash driver.
-* Arguments    : None
-* Return Value : see called function
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_Close
+ *******************************************************************************************************************//**
+ * @brief   The function closes the Flash FIT module.
+ * @retval  FLASH_SUCCESS  Flash FIT module closed successfully.
+ * @retval  FLASH_ERR_BUSY A different flash process is being executed, try again later.
+ * @details This function closes the Flash FIT module.
+ *          It disables the flash interrupts (if enabled) and sets the driver to an uninitialized state.
+ */
 flash_err_t R_FLASH_Close(void)
 {
     return(r_flash_close());
@@ -236,11 +241,44 @@ flash_err_t R_FLASH_Close(void)
 #endif
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_Erase
-* Description  : This function erases the specified Code or Data Flash blocks.
-* Arguments    : see called function
-* Return Value : see called function
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_Erase
+ *******************************************************************************************************************//**
+ * @brief     This function is used to erase the specified block in code flash or data flash.
+ * @param[in] block_start_address Specifies the start address of block to erase.
+ *                                The enum flash_block_address_t is defined in the corresponding MCU's
+ *                                r_flash_rx\src\targets\mcu\r_flash_mcu.h file.
+ *                                The blocks are labeled in the same fashion as they are
+ *                                in the device's Hardware Manual.
+ *                                For example, the block located at address 0xFFFFC000 is called Block 7
+ *                                in the RX113 hardware manual, therefore "FLASH_CF_BLOCK_7" should be passed
+ *                                for this parameter. 
+ *                                Similarly, to erase Data Flash Block 0 which is located at address 0x00100000,
+ *                                this argument should be FLASH_DF_BLOCK_0.
+ * @param[in] num_blocks          Specifies the number of blocks to be erased.
+ *                                For type 1 parts, address + num_blocks cannot cross a 256K boundary.
+ * @retval    FLASH_SUCCESS       Operation successful.
+ *                                (if non-blocking mode is enabled, this means the operation was started successfully).
+ * @retval    FLASH_ERR_BLOCKS    Invalid number of blocks specified.
+ * @retval    FLASH_ERR_ADDRESS   Invalid address specified.
+ * @retval    FLASH_ERR_BUSY      A different flash process is being executed, or the module is not initialized.
+ * @retval    FLASH_ERR_FAILURE   Erasing failure. Sequencer has been reset.
+ *                                Or callback function not registered (in non-blocking mode)
+ * @details   Erases a contiguous number of code flash or data flash memory blocks.
+ *            The block size varies depending on MCU types.
+ *            For example, on the RX111 both code and data flash block sizes are 1Kbytes.
+ *            On the RX231 and RX23T the block size for code flash is 2 Kbytes and for data flash is 1Kbyte
+ *            (no data flash on the RX23T).
+ *            The equates FLASH_CF_BLOCK_SIZE for code flash and FLASH_DF_BLOCK_SIZE
+ *            for data flash are provided for these values.
+ *            The enum flash_block_address_t is configured at compile time based on the memory configuration of
+ *            the MCU device specified in the r_bsp module.
+ *            When the API is used in non-blocking mode,
+ *            the FRDYI interrupt occurs after blocks for the specified number are erased,
+ *            and then the callback function is called.
+ * @note      In order to erase a code flash block, the area to be erased needs to be in a rewritable area.
+ *            FLASH_TYPE_1 uses access windows to identify this.
+ *            The other flash types use lock bits which must be off for erasing.
+ */
 FLASH_PE_MODE_SECTION
 flash_err_t R_FLASH_Erase(flash_block_address_t block_start_address, uint32_t num_blocks)
 {
@@ -249,26 +287,76 @@ flash_err_t R_FLASH_Erase(flash_block_address_t block_start_address, uint32_t nu
 
 #ifndef FLASH_NO_BLANK_CHECK
 /***********************************************************************************************************************
-* Function Name: R_FLASH_BlankCheck
-* Description  : Function performs a blank check on the specified Flash area.
-* Arguments:     see called function
-* Return Value : see called function
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_BlankCheck
+ *******************************************************************************************************************//**
+ * @brief      This function is used to determine if the specified area in either code flash or data flash
+ *             is blank or not.
+ * @param[in]  address            The address of the area to blank check.
+ * @param[in]  num_bytes          This is the number of bytes to be checked.
+ *                                The number of bytes specified must be a multiple of FLASH_DF_MIN_PGM_SIZE
+ *                                for a data flash address or FLASH_CF_MIN_PGM_SIZE for a code flash address.
+ *                                These equates are defined in r_flash_rx\src\targets\<mcu>\r_flash_<mcu>.h
+ *                                and are MCU specific.
+ *                                For type 1 parts, address + num_bytes cannot cross a 256K boundary.
+ * @param[out] blank_check_result In blocking mode, specify the memory address to which the blank check results will be
+ *                                stored. In non-blocking mode, specify any value since this parameter is not used.
+ * @retval     FLASH_SUCCESS      Operation successful.
+ *                                (in non-blocking mode, this means the operation was started successfully)
+ * @retval     FLASH_ERR_FAILURE  Blank check failed. Sequencer has been reset, or callback function not registered.
+ *                                (in non-blocking mode)
+ * @retval     FLASH_ERR_BUSY     A different flash process is being executed or the module is not initialized.
+ * @retval     FLASH_ERR_BYTES    num_bytes was either too large or not a multiple of the minimum programming size
+ *                                or exceed the maximum range.
+ * @retval     FLASH_ERR_ADDRESS  Invalid address was input or address not divisible by the minimum programming size.
+ * @retval     FLASH_ERR_NULL_PTR blank_check_result for storing blank check results was NULL.
+ * @details    The flash area to write the program into must be blank.
+ *             The result of the blank check operation is placed into "blank_check_result"
+ *             when operation is in blocking mode.
+ *             This variable is of type flash_res_t which is defined in r_flash_rx_if.h..
+ *             If the API is used in non-blocking mode,
+ *             the result of the blank check is passed as the argument of the callback function
+ *             after the blank check is complete.
+ */
 FLASH_PE_MODE_SECTION
-flash_err_t R_FLASH_BlankCheck(uint32_t address, uint32_t num_bytes, flash_res_t *result)
+flash_err_t R_FLASH_BlankCheck(uint32_t address, uint32_t num_bytes, flash_res_t *blank_check_result)
 {
-    return(r_flash_blankcheck(address, num_bytes, result));
+    return(r_flash_blankcheck(address, num_bytes, blank_check_result));
 }
 
 #endif
 
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_Write
-* Description  : Function will write to the specified Code or Data Flash memory area.
-* Arguments    : see called function
-* Return Value : see called function
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_Write
+ *******************************************************************************************************************//**
+ * @brief     This function is used to write data to code flash or data flash.
+ * @param[in] src_address       This is the first address  of the buffer containing the data to write to Flash.
+ * @param[in] dest_address      This is the first address  of the code flash or data flash area to rewrite data.
+ *                              The address specified must be divisible by the minimum programming size.
+ *                              See Description below for important restrictions regarding this parameter.
+ * @param[in] num_bytes         The number of bytes contained in the buffer specified with src_address.
+ *                              This number must be a multiple of the minimum programming size
+ *                              for memory area you are writing to.
+ * @retval    FLASH_SUCCESS     Operation successful.
+ *                              (in non-blocking mode, this means the operation was started successfully)
+ * @retval    FLASH_ERR_FAILURE Programming failed.
+ *                              Possibly the destination address under access window or lockbit control;
+ *                              or callback function not present(in non-blocking mode)
+ * @retval    FLASH_ERR_BUSY    A different flash process is being executed or the module is not initialized.
+ * @retval    FLASH_ERR_BYTES   Number of bytes provided was not a multiple of the minimum programming size
+ *                              or exceed the maximum range.
+ * @retval    FLASH_ERR_ADDRESS Invalid address was input or address not divisible by the minimum programming size.
+ * @details   Writes data to flash memory. Before writing to any flash area, the area must already be erased.
+ *            When performing a write the user must make sure to start the write on an address divisible
+ *            by the minimum programming size and make the number of bytes to write be a multiple of the minimum
+ *            programming size. The minimum programming size differs depending on what MCU package is being used and
+ *            whether the code flash or data flash is being written to.
+ *            An area to write data to code flash must be rewritable area (access window or lockbit allowed).
+ *            When the API is used in non-blocking mode, the callback function is called when all write operations
+ *            are complete.
+ * @note      FLASH_DF_MIN_PGM_SIZE defines the minimum data flash program size.
+ *            FLASH_CF_MIN_PGM_SIZE defines the minimum code flash program size.
+ */
 FLASH_PE_MODE_SECTION
 flash_err_t R_FLASH_Write(uint32_t src_address, uint32_t dest_address, uint32_t num_bytes)
 {
@@ -278,11 +366,24 @@ flash_err_t R_FLASH_Write(uint32_t src_address, uint32_t dest_address, uint32_t 
 
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_Control
-* Description  : This function performs special configuration and operational commands.
-* Arguments    : see called function
-* Return Value : see called function
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_Control
+ *******************************************************************************************************************//**
+ * @brief         This function implements all functionality except for programming, erasing, and black check.
+ * @param[in]     cmd                   Command to execute.
+ * @param[in,out] pcfg                  Configuration parameters required by the specific command.
+ *                                      This maybe NULL if the command does not require it.
+ * @retval        FLASH_SUCCESS         Operation successful.
+ *                                      (in non-blocking mode, this means the operations was started successfully)
+ * @retval        FLASH_ERR_ADDRESS     Address is an invalid Code/Data Flash block start address.
+ * @retval        FLASH_ERR_NULL_PTR    pcfg was NULL for a command that expects a configuration structure.
+ * @retval        FLASH_ERR_BUSY        A different flash process is being executed or the module is not initialized.
+ * @retval        FLASH_ERR_CMD_LOCKED  The flash control circuit was in a command locked state and was reset.
+ * @retval        FLASH_ERR_ACCESSW     Access window error: Incorrect area specified.
+ * @retval        FLASH_ERR_PARAM       Invalid command.
+ * @details       This function is an expansion function that implements non-core functionality of the sequencer.
+ *                Depending on the command type a different argument type has to be passed.
+ *                See the "R_FLASH_Control" chapter in the application note for details.
+ */
 FLASH_PE_MODE_SECTION
 flash_err_t R_FLASH_Control(flash_cmd_t cmd, void *pcfg)
 {
@@ -292,13 +393,15 @@ flash_err_t R_FLASH_Control(flash_cmd_t cmd, void *pcfg)
 
 
 /***********************************************************************************************************************
-* Function Name: R_FLASH_GetVersion
-* Description  : Returns the current version of this module. The version number is encoded where the top 2 bytes are the
-*                major version number and the bottom 2 bytes are the minor version number. For example, Version 4.25
-*                would be returned as 0x00040019.
-* Arguments    : none
-* Return Value : Version of this module.
-***********************************************************************************************************************/
+ * Function Name: R_FLASH_GetVersion
+ *******************************************************************************************************************//**
+ * @brief   Returns the current version of the Flash FIT module.
+ * @return  Version of the Flash FIT module.
+ * @details This function will return the version of the currently installed FIT module. 
+ *          The version number is encoded where the top 2 bytes are the major version number
+ *          and the bottom 2 bytes are the minor version number.
+ *          For example, Version 4.25 would be returned as 0x00040019.
+ */
 FLASH_PE_MODE_SECTION
 uint32_t R_FLASH_GetVersion (void)
 {

@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : r_rx_intrinsic_functions.c
-* Description  : Implements functions that apply to all r_bsp boards and MCUs.
+* Description  : Defines built-in functions that are in CCRX but not in the GCC and IAR compiler.
 ***********************************************************************************************************************/
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
@@ -34,6 +34,11 @@
 *                               - R_BSP_InitTFU
 *                               - R_BSP_CalcSine_Cosine
 *                               - R_BSP_CalcAtan_SquareRoot
+*         : 10.12.2019 1.03     Fixed the below functions.
+*                               - R_BSP_MulAndAccOperation_2byte
+*                               - R_BSP_MulAndAccOperation_FixedPoint1
+*                               - R_BSP_MulAndAccOperation_FixedPoint2
+*         : 17.12.2019 1.04     Modified the comment of description.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -363,21 +368,21 @@ signed long long R_BSP_GetACC(void)
 #if defined(__GNUC__)
 long R_BSP_MulAndAccOperation_2byte(short* data1, short* data2, unsigned long count)
 {
-  signed long register *ldata1 = (signed long *)data1;
-  signed long register *ldata2 = (signed long *)data2;
-  /* this is much more then an "intrinsic", no inline asm because of loop */
-  /* will implement this.. interesting function as described in ccrx manual */
-  __builtin_rx_mullo(0, 0);
-  while (count > 1)
-  {
-    __builtin_rx_maclo(*ldata1, *ldata2);
-    __builtin_rx_machi(*ldata1, *ldata2);
-    ldata1++;
-    ldata2++;
-    count -= 2;
-  }
-  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
-  return __builtin_rx_mvfacmi();
+    register signed long *ldata1 = (signed long *)data1;
+    register signed long *ldata2 = (signed long *)data2;
+    /* this is much more then an "intrinsic", no inline asm because of loop */
+    /* will implement this.. interesting function as described in ccrx manual */
+    __builtin_rx_mullo(0, 0);
+    while (count > 1)
+    {
+        __builtin_rx_maclo(*ldata1, *ldata2);
+        __builtin_rx_machi(*ldata1, *ldata2);
+        ldata1++;
+        ldata2++;
+        count -= 2;
+    }
+    if (count != 0) __builtin_rx_maclo(*(short*)ldata1, *(short*)ldata2);
+    return __builtin_rx_mvfacmi();
 }
 #endif /* defined(__GNUC__) */
 
@@ -397,22 +402,22 @@ long R_BSP_MulAndAccOperation_2byte(short* data1, short* data2, unsigned long co
 #if defined(__GNUC__)
 short R_BSP_MulAndAccOperation_FixedPoint1(short* data1, short* data2, unsigned long count)
 {
-  signed long register *ldata1 = (signed long *)data1;
-  signed long register *ldata2 = (signed long *)data2;
-  /* this is much more then an "intrinsic", no inline asm because of loop */
-  /* will implement this.. interesting function as described in ccrx manual */
-  __builtin_rx_mullo(0, 0);
-  while (count > 1)
-  {
-    __builtin_rx_maclo(*ldata1, *ldata2);
-    __builtin_rx_machi(*ldata1, *ldata2);
-    ldata1++;
-    ldata2++;
-    count -= 2;
-  }
-  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
-  __builtin_rx_racw(1);
-  return __builtin_rx_mvfachi();
+    register signed long *ldata1 = (signed long *)data1;
+    register signed long *ldata2 = (signed long *)data2;
+    /* this is much more then an "intrinsic", no inline asm because of loop */
+    /* will implement this.. interesting function as described in ccrx manual */
+    __builtin_rx_mullo(0, 0);
+    while (count > 1)
+    {
+        __builtin_rx_maclo(*ldata1, *ldata2);
+        __builtin_rx_machi(*ldata1, *ldata2);
+        ldata1++;
+        ldata2++;
+        count -= 2;
+    }
+    if (count != 0) __builtin_rx_maclo(*(short*)ldata1, *(short*)ldata2);
+    __builtin_rx_racw(1);
+    return __builtin_rx_mvfachi();
 }
 #endif /* defined(__GNUC__) */
 
@@ -432,22 +437,22 @@ short R_BSP_MulAndAccOperation_FixedPoint1(short* data1, short* data2, unsigned 
 #if defined(__GNUC__)
 short R_BSP_MulAndAccOperation_FixedPoint2(short* data1, short* data2, unsigned long count)
 {
-  signed long register *ldata1 = (signed long *)data1;
-  signed long register *ldata2 = (signed long *)data2;
-  /* this is much more then an "intrinsic", no inline asm because of loop */
-  /* will implement this.. interesting function as described in ccrx manual */
-  __builtin_rx_mullo(0, 0);
-  while (count > 1)
-  {
-    __builtin_rx_maclo(*ldata1, *ldata2);
-    __builtin_rx_machi(*ldata1, *ldata2);
-    ldata1++;
-    ldata2++;
-    count -= 2;
-  }
-  if (count != 0) __builtin_rx_maclo(*ldata1, *ldata2);
-  __builtin_rx_racw(2);
-  return __builtin_rx_mvfachi();
+    register signed long *ldata1 = (signed long *)data1;
+    register signed long *ldata2 = (signed long *)data2;
+    /* this is much more then an "intrinsic", no inline asm because of loop */
+    /* will implement this.. interesting function as described in ccrx manual */
+    __builtin_rx_mullo(0, 0);
+    while (count > 1)
+    {
+        __builtin_rx_maclo(*ldata1, *ldata2);
+        __builtin_rx_machi(*ldata1, *ldata2);
+        ldata1++;
+        ldata2++;
+        count -= 2;
+    }
+    if (count != 0) __builtin_rx_maclo(*(short*)ldata1, *(short*)ldata2);
+    __builtin_rx_racw(2);
+    return __builtin_rx_mvfachi();
 }
 #endif /* defined(__GNUC__) */
 

@@ -44,6 +44,7 @@
 *           09.09.2019 4.30    Added RX13T.
 *           27.09.2019 4.40    Added RX23E-A.
 *                              Added include path for rx230.
+*           18.11.2019 4.50    Added RX66N, and RX72N.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_RX_HEADER_FILE
@@ -83,12 +84,16 @@
     #include "./src/targets/rx65n/r_flash_rx65n.h"
 #elif defined(MCU_RX66T)
     #include "./src/targets/rx66t/r_flash_rx66t.h"
+#elif defined(MCU_RX66N)
+    #include "./src/targets/rx66n/r_flash_rx66n.h"
 #elif defined(MCU_RX71M)
     #include "./src/targets/rx71m/r_flash_rx71m.h"
-#elif defined(MCU_RX72M)
-    #include "./src/targets/rx72m/r_flash_rx72m.h"
 #elif defined(MCU_RX72T)
     #include "./src/targets/rx72t/r_flash_rx72t.h"
+#elif defined(MCU_RX72M)
+    #include "./src/targets/rx72m/r_flash_rx72m.h"
+#elif defined(MCU_RX72N)
+    #include "./src/targets/rx72n/r_flash_rx72n.h"
 #else
     #error "!!! No 'targets' folder for this MCU Group !!!"
 #endif

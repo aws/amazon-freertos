@@ -45,6 +45,9 @@
 *           20.05.2019 3.00    Added support for GNUC and ICCRX.
 *           28.06.2019 3.10    Added support RX23W
 *           15.08.2019 3.20    Added support RX72M
+*           16.09.2019 3.21    Fixed issue in RX631/RX63N sci_initialize_ints()
+*           25.11.2019 3.30    Added support RX13T.
+*           30.12.2019 3.40    Added support RX66N, RX72N.
 ***********************************************************************************************************************/
 
 #ifndef SCI_IF_H
@@ -66,7 +69,7 @@ Macro definitions
 
 /* Version Number of API. */
 #define SCI_VERSION_MAJOR  (3)
-#define SCI_VERSION_MINOR  (20)
+#define SCI_VERSION_MINOR  (40)
 
 #define SCI_CLK_INT         (0x00U) /* use internal clock for baud generation */
 #define SCI_CLK_EXT8X       (0x03U) /* use external clock 8x baud rate (ASYNC) */
@@ -226,7 +229,7 @@ typedef enum e_sci_cmd
     SCI_CMD_CHANGE_TX_FIFO_THRESH,    /* change TX FIFO threshold */
     SCI_CMD_CHANGE_RX_FIFO_THRESH,    /* change RX FIFO threshold */
 #endif
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M) || defined(BSP_MCU_RX72N) || defined(BSP_MCU_RX66N)
     SCI_CMD_SET_RXI_PRIORITY,         /* change RXI priority level */
     SCI_CMD_SET_TXI_PRIORITY,         /* change TXI priority level */
 #endif

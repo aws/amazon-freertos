@@ -34,6 +34,8 @@
 *                               - bsp_fit_interrupt_enable
 *                               - bsp_fit_interrupt_disable
 *                               Fixed coding style.
+*         : 08.10.2019 1.11     Added process for software interrupt.
+*         : 10.12.2019 1.12     Modified comment.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -150,6 +152,13 @@ void bsp_interrupt_open (void)
     /* Initialize mapped interrupts. */
     bsp_mapped_interrupt_open();
 #endif
+
+#if (defined(BSP_CFG_SWINT_UNIT1_ENABLE) && (BSP_CFG_SWINT_UNIT1_ENABLE == 1))
+    R_BSP_SoftwareInterruptOpen(BSP_SWINT_UNIT1);
+#endif /* (defined(BSP_CFG_SWINT_UNIT1_ENABLE) && (BSP_CFG_SWINT_UNIT1_ENABLE == 1)) */
+#if (defined(BSP_CFG_SWINT_UNIT2_ENABLE) && (BSP_CFG_SWINT_UNIT2_ENABLE == 1))
+    R_BSP_SoftwareInterruptOpen(BSP_SWINT_UNIT2);
+#endif /* (defined(BSP_CFG_SWINT_UNIT2_ENABLE) && (BSP_CFG_SWINT_UNIT2_ENABLE == 1)) */
 } /* End of function bsp_interrupt_open() */
 
 /**********************************************************************************************************************
@@ -195,7 +204,7 @@ bsp_int_err_t R_BSP_InterruptWrite (bsp_int_src_t vector,  bsp_int_cb_t callback
  ******************************************************************************************************************//**
  * @brief Gets the callback for an interrupt if one is registered.
  * @param[in] vector Which interrupt to read the callback for.
- * @param[in] callback Pointer to where to store callback address.
+ * @param[out] callback Pointer to where to store callback address.
  * @retval BSP_INT_SUCCESS Successful, callback address has been returned.
  * @retval BSP_INT_ERR_NO_REGISTERED_CALLBACK No valid callback has been registered for this interrupt source.
  * @details This function returns the callback function address for an interrupt if one has been registered. If a 
@@ -228,7 +237,7 @@ bsp_int_err_t R_BSP_InterruptRead (bsp_int_src_t vector, bsp_int_cb_t * callback
  * If the interrupt control commands is the BSP_INT_CMD_FIT_INTERRUPT_ENABLE or the BSP_INT_CMD_FIT_INTERRUPT_DISABLE 
  * commands, set BSP_INT_SRC_EMPTY to "vector" because no arguments are used.
  * @param[in] cmd Interrupt control command.
- * @param[in] pdata Pointer to the argument for each interrupt control command. Typecasted to void*. See typedef 
+ * @param[in,out] pdata Pointer to the argument for each interrupt control command. Typecasted to void*. See typedef 
  * defines of bsp_int_ctrl_t. \n
  * Most of the interrupt control commands do not need the argument and take FIT_NO_PTR for 
  * this parameter. If the interrupt control command is the BSP_INT_CMD_GROUP_INTERRUPT_ENABLE command, set the 

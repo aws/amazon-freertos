@@ -27,6 +27,9 @@
 *           01.02.2019 2.20    Added RX72T, RX65N-64pin support
 *           28.06.2019 3.10    Added RX23W support
 *           15.08.2019 3.20    Added RX72M support
+*           25.11.2019 3.30    Added support RX13T.
+*                              Removed support for Generation 1 devices.
+*           30.12.2019 3.40    Added support RX66N, RX72N.
 ************************************************************************************************************************/
 
 #ifndef SCI_RX_PLATFORM_H
@@ -45,8 +48,8 @@ Includes   <System Includes> , "Project Includes"
 #include "./targets/rx113/r_sci_rx113_private.h"  /* RX113 */
 #elif defined(BSP_MCU_RX130)
 #include "./targets/rx130/r_sci_rx130_private.h"  /* RX130 */
-#elif defined(BSP_MCU_RX210)
-#include "./targets/rx210/r_sci_rx210_private.h"  /* RX210 */
+#elif defined(BSP_MCU_RX13T)
+#include "./targets/rx13t/r_sci_rx13t_private.h"  /* RX13T */
 #elif defined(BSP_MCU_RX230)
 #include "./targets/rx230/r_sci_rx230_private.h"  /* RX230 */
 #elif defined(BSP_MCU_RX231)
@@ -59,22 +62,22 @@ Includes   <System Includes> , "Project Includes"
 #include "./targets/rx24t/r_sci_rx24t_private.h"  /* RX24T */
 #elif defined(BSP_MCU_RX24U)
 #include "./targets/rx24u/r_sci_rx24u_private.h"  /* RX24U */
-#elif defined(BSP_MCU_RX63N)
-#include "./targets/rx63n/r_sci_rx63n_private.h"  /* RX63N */
-#elif defined(BSP_MCU_RX631)
-#include "./targets/rx631/r_sci_rx631_private.h"  /* RX631 */
 #elif defined(BSP_MCU_RX64M)
 #include "./targets/rx64m/r_sci_rx64m_private.h"  /* RX64M */
 #elif defined(BSP_MCU_RX65N)
 #include "./targets/rx65n/r_sci_rx65n_private.h"  /* RX65N */
 #elif defined(BSP_MCU_RX66T)
 #include "./targets/rx66t/r_sci_rx66t_private.h"  /* RX66T */
+#elif defined(BSP_MCU_RX66N)
+#include "./targets/rx66n/r_sci_rx66n_private.h"  /* RX66N */
 #elif defined(BSP_MCU_RX71M)
 #include "./targets/rx71m/r_sci_rx71m_private.h"  /* RX71M */
 #elif defined(BSP_MCU_RX72T)
 #include "./targets/rx72t/r_sci_rx72t_private.h"  /* RX72T */
 #elif defined(BSP_MCU_RX72M)
 #include "./targets/rx72m/r_sci_rx72m_private.h"  /* RX72M */
+#elif defined(BSP_MCU_RX72N)
+#include "./targets/rx72n/r_sci_rx72n_private.h"  /* RX72N */
 #else
 #error "ERROR - r_sci_rxXXX_private.h not included."
 #endif

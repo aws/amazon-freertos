@@ -27,6 +27,7 @@
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
 *         : 26.07.2019 2.01     Modified comment of API function to Doxygen style.
+*         : 10.12.2019 2.02     Modified comment.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -55,7 +56,7 @@ Private global variables and functions
  * Function Name: R_BSP_SoftwareLock
  ******************************************************************************************************************//**
  * @brief Attempts to reserve a lock.
- * @param[in] plock Pointer to lock structure with lock to try and acquire.
+ * @param[out] plock Pointer to lock structure with lock to try and acquire.
  * @retval true Successful, lock was available and acquired.
  * @retval false Failure, lock was already acquired and is not available.
  * @details This function implements an atomic locking mechanism. Locks can be used in numerous ways. Two common uses 
@@ -111,7 +112,7 @@ bool R_BSP_SoftwareLock (BSP_CFG_USER_LOCKING_TYPE * const plock)
  * Function Name: R_BSP_SoftwareUnlock
  ******************************************************************************************************************//**
  * @brief Releases a lock.
- * @param[in] plock Pointer to lock structure with lock to release.
+ * @param[out] plock Pointer to lock structure with lock to release.
  * @retval true Successful, lock was released. Or the lock has been already released.
  * @retval false Failure, lock could not be released.
  * @details This function releases a lock that was previously acquired using the R_BSP_SoftwareLock() function.

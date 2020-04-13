@@ -5,12 +5,12 @@ r_flash_rx
 
 Document Number 
 ---------------
-r01an2184ej0440
-r01an2184jj0440
+r01an2184ej0450
+r01an2184jj0450
 
 Version
 -------
-v4.40
+v4.50
 
 Overview
 --------
@@ -47,9 +47,11 @@ Supported MCUs
 * RX24U Group
 * RX64M Group
 * RX651, RX65N Group
+* RX66N Group
 * RX66T Group
 * RX71M Group
 * RX72M Group
+* RX72N Group
 * RX72T Group
 
 
@@ -72,6 +74,7 @@ Boards Tested On
 * RSKRX66T
 * RSKRX71M
 * RSKRX72M
+* RSKRX72N
 * RSKRX72T
 
 
@@ -91,7 +94,7 @@ Peripherals Used Directly
 
 Required Packages
 -----------------
-* r_bsp      V5.40
+* r_bsp      V5.50
 
 How to add to your project
 --------------------------
@@ -135,9 +138,9 @@ r_flash_rx
 |
 +---doc
 |   +-- en
-|   |   +-- r01an2184ej0440-rx-flash.pdf
+|   |   +-- r01an2184ej0450-rx-flash.pdf
 |   +-- ja
-|       +-- r01an2184jj0440-rx-flash.pdf
+|       +-- r01an2184jj0450-rx-flash.pdf
 |
 +---ref
 |   +-- r_flash_rx_config_reference.h
@@ -214,6 +217,9 @@ r_flash_rx
         +--rx65n
              +-- r_flash_rx65n.h
         |
+        +--rx66n
+             +-- r_flash_rx66n.h
+        |
         +--rx66t
              +-- r_flash_rx66t.h
         |
@@ -222,6 +228,9 @@ r_flash_rx
         |    
         +--rx72m
              +-- r_flash_rx72m.h
+        |    
+        +--rx72n
+             +-- r_flash_rx72n.h
         |    
         +--rx72t
              +-- r_flash_rx72t.h

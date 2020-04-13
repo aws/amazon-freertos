@@ -46,6 +46,13 @@
 *          20.05.2019  3.00    Added support for GNUC and ICCRX.
 *          28.06.2019  3.10    Added support for RX23W
 *          15.08.2019  3.20    Added support for RX72M
+*          25.11.2019  3.30    Added support RX13T.
+*                              Modified comment of API function to Doxygen style.
+*                              Added support for atomic control.
+*                              Fixed to comply with GSCE Coding Standards Rev.6.00.
+*                              Fixed a bug that error when a reception interrupt occurs before incrementing "u_tx_data.buf"
+*                               in "sci_send_sync_data" and "sci_receive" functions
+*          30.12.2019  3.40    Added support RX66N, RX72N.
 ***********************************************************************************************************************/
 
 /*****************************************************************************
@@ -218,41 +225,67 @@ static uint8_t  ch12_rx_buf[SCI_CFG_CH12_RX_BUFSIZ];
 extern const sci_hdl_t g_handles[SCI_NUM_CH];
 
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_Open
-* Description  : Initializes an SCI channel for a particular mode.
+********************************************************************************************************************//**
+* @brief This function applies power to the SCI channel, initializes the associated registers, enables interrupts, and
+* provides the channel handle for use with other API functions. This function must be called before calling any
+* other API functions
+* @param[in]    chan  Channel to initialize.
 *
-* NOTE: The associated port must be configured/initialized prior to
-*       calling this function.
+* @param[in]    mode  Operational mode (see enumeration below)
+* @code
+typedef enum e_sci_mode     // SCI operational modes
+{
+    SCI_MODE_OFF=0,         // channel not in use
+    SCI_MODE_ASYNC,         // Asynchronous
+    SCI_MODE_SSPI,          // Simple SPI
+    SCI_MODE_SYNC,          // Synchronous
+    SCI_MODE_MAX            // End of modes currently supported
+} sci_mode_t;
+* @endcode
+* @param[in]    p_cfg  Pointer to configuration union, structure elements (see below) are specific to mode
+* @code
+typedef union
+{
+    sci_uart_t      async;
+    sci_sync_sspi_t sync;
+    sci_sync_sspi_t sspi;
+} sci_cfg_t;
+* @endcode
 *
-* Arguments    : chan -
-*                    channel to initialize
-*                mode -
-*                    operational mode (UART, SPI, I2C, ...)
-*                p_cfg -
-*                    ptr to configuration union; structure specific to mode
-*                p_callback -
-*                    ptr to function called from interrupt when a receiver 
-*                    error is detected or for transmit end (TEI) condition
-*                p_hdl -
-*                     pointer to a handle for channel (value set here)
-* Return Value : SCI_SUCCESS -
-*                    channel opened successfully
-*                SCI_ERR_BAD_CHAN -
-*                    channel number invalid for part
-*                SCI_ERR_OMITTED_CHAN -
-*                    channel not included in config.h
-*                SCI_ERR_CH_NOT_CLOSED -
-*                    channel already in use
-*                SCI_ERR_BAD_MODE -
-*                    unsupported mode
-*                SCI_ERR_NULL_PTR -
-*                    missing required p_cfg argument
-*                SCI_ERR_INVALID_ARG -
-*                    element of casted mode config structure (p_cfg) is invalid
-*                SCI_ERR_QUEUE_UNAVAILABLE -
-*                    cannot open transmit or receive queue or both
-******************************************************************************/
+* @param[in]    p_callback Pointer to function called from interrupt when an RXI or receiver error is detected or
+* for transmit end (TEI) condition. See Section 2.11 Callback Function in application note for details.
+*
+* @param[in]    p_hdl  Pointer to a handle for channel (value set here)
+* Confirm the return value from R_SCI_Open is “SCI_SUCCESS” and then set the first parameter for the
+* other APIs except R_SCI_GetVersion(). See Section 2.9 Parameters in the application note for details.
+*
+*
+* @retval   SCI_SUCCESS  Successful; channel initialized 
+*
+* @retval   SCI_ERR_BAD_CHAN  Channel number is invalid for part
+*
+* @retval   SCI_ERR_OMITTED_CHAN  Corresponding SCI_CHx_INCLUDED is invalid (0) 
+*
+* @retval   SCI_ERR_CH_NOT_CLOSED  Channel currently in operation; Perform R_SCI_Close() first
+*
+* @retval   SCI_ERR_BAD_MODE  Mode specified not currently supported
+*
+* @retval   SCI_ERR_NULL_PTR  p_cfg pointer is NULL
+*
+* @retval   SCI_ERR_INVALID_ARG  An element of the p_cfg structure contains an invalid value.
+*
+* @retval   SCI_ERR_QUEUE_UNAVAILABLE  Cannot open transmit or receive queue or both (Asynchronous mode).
+* @details  Initializes an SCI channel for a particular mode and provides a Handle in *p_hdl for use with other API
+* functions. RXI and ERI interrupts are enabled in all modes. TXI is enabled in Asynchronous mode
+* @note  The driver calculates the optimum values for BRR, SEMR.ABCS, and SMR.CKS using BSP_PCLKA_HZ and
+* BSP_PCLKB_HZ as defined in mcu_info.h of the board support package. This however does not guarantee
+* a low bit error rate for all peripheral clock/baud rate combinations.
+* If an external clock is used in Asynchronous mode, the pin direction must be selected before calling the
+* R_SCI_Open() function, and the pin function and mode must be selected after calling the R_SCI_Open()
+* function. See Section 3. R_SCI_Open() in the application note for details.
+*/
 sci_err_t R_SCI_Open(uint8_t const      chan,
                      sci_mode_t const   mode,
                      sci_cfg_t * const  p_cfg,
@@ -374,8 +407,22 @@ sci_err_t R_SCI_Open(uint8_t const      chan,
 ******************************************************************************/
 static void power_on(sci_hdl_t const hdl)
 {
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    bsp_int_ctrl_t int_ctrl;
+#endif
+
     R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_LPC_CGC_SWR);
+
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_DISABLE, &int_ctrl);
+#endif
+
     (*hdl->rom->mstp) &= (~hdl->rom->stop_mask);
+
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_ENABLE, &int_ctrl);
+#endif
+
     R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_LPC_CGC_SWR);
 
     return;
@@ -391,8 +438,22 @@ static void power_on(sci_hdl_t const hdl)
 ******************************************************************************/
 static void power_off(sci_hdl_t const hdl)
 {
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    bsp_int_ctrl_t int_ctrl;
+#endif
+
     R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_LPC_CGC_SWR);
+
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_DISABLE, &int_ctrl);
+#endif
+
     (*hdl->rom->mstp) |= (hdl->rom->stop_mask);
+
+#if ((R_BSP_VERSION_MAJOR == 5) && (R_BSP_VERSION_MINOR >= 30)) || (R_BSP_VERSION_MAJOR >= 6)
+    R_BSP_InterruptControl(BSP_INT_SRC_EMPTY, BSP_INT_CMD_FIT_INTERRUPT_ENABLE, &int_ctrl);
+#endif
+
     R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_LPC_CGC_SWR);
 
     return;
@@ -425,7 +486,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch0_tx_buf, SCI_CFG_CH0_TX_BUFSIZ, &g_handles[SCI_CH0]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch0_rx_buf, SCI_CFG_CH0_RX_BUFSIZ, &g_handles[SCI_CH0]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH1_INCLUDED
@@ -433,7 +494,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch1_tx_buf, SCI_CFG_CH1_TX_BUFSIZ, &g_handles[SCI_CH1]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch1_rx_buf, SCI_CFG_CH1_RX_BUFSIZ, &g_handles[SCI_CH1]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH2_INCLUDED
@@ -441,7 +502,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch2_tx_buf, SCI_CFG_CH2_TX_BUFSIZ, &g_handles[SCI_CH2]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch2_rx_buf, SCI_CFG_CH2_RX_BUFSIZ, &g_handles[SCI_CH2]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH3_INCLUDED
@@ -449,7 +510,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch3_tx_buf, SCI_CFG_CH3_TX_BUFSIZ, &g_handles[SCI_CH3]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch3_rx_buf, SCI_CFG_CH3_RX_BUFSIZ, &g_handles[SCI_CH3]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH4_INCLUDED
@@ -457,7 +518,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch4_tx_buf, SCI_CFG_CH4_TX_BUFSIZ, &g_handles[SCI_CH4]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch4_rx_buf, SCI_CFG_CH4_RX_BUFSIZ, &g_handles[SCI_CH4]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH5_INCLUDED
@@ -465,7 +526,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch5_tx_buf, SCI_CFG_CH5_TX_BUFSIZ, &g_handles[SCI_CH5]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch5_rx_buf, SCI_CFG_CH5_RX_BUFSIZ, &g_handles[SCI_CH5]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH6_INCLUDED
@@ -473,7 +534,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch6_tx_buf, SCI_CFG_CH6_TX_BUFSIZ, &g_handles[SCI_CH6]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch6_rx_buf, SCI_CFG_CH6_RX_BUFSIZ, &g_handles[SCI_CH6]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH7_INCLUDED
@@ -481,7 +542,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch7_tx_buf, SCI_CFG_CH7_TX_BUFSIZ, &g_handles[SCI_CH7]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch7_rx_buf, SCI_CFG_CH7_RX_BUFSIZ, &g_handles[SCI_CH7]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH8_INCLUDED
@@ -489,7 +550,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch8_tx_buf, SCI_CFG_CH8_TX_BUFSIZ, &g_handles[SCI_CH8]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch8_rx_buf, SCI_CFG_CH8_RX_BUFSIZ, &g_handles[SCI_CH8]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH9_INCLUDED
@@ -497,7 +558,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch9_tx_buf, SCI_CFG_CH9_TX_BUFSIZ, &g_handles[SCI_CH9]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch9_rx_buf, SCI_CFG_CH9_RX_BUFSIZ, &g_handles[SCI_CH9]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH10_INCLUDED
@@ -505,7 +566,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch10_tx_buf, SCI_CFG_CH10_TX_BUFSIZ, &g_handles[SCI_CH10]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch10_rx_buf, SCI_CFG_CH10_RX_BUFSIZ, &g_handles[SCI_CH10]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH11_INCLUDED
@@ -513,7 +574,7 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch11_tx_buf, SCI_CFG_CH11_TX_BUFSIZ, &g_handles[SCI_CH11]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch11_rx_buf, SCI_CFG_CH11_RX_BUFSIZ, &g_handles[SCI_CH11]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
 #if SCI_CFG_CH12_INCLUDED
@@ -521,13 +582,13 @@ static sci_err_t sci_init_queues(uint8_t const chan)
         {
             q_err1 = R_BYTEQ_Open(ch12_tx_buf, SCI_CFG_CH12_TX_BUFSIZ, &g_handles[SCI_CH12]->u_tx_data.que);
             q_err2 = R_BYTEQ_Open(ch12_rx_buf, SCI_CFG_CH12_RX_BUFSIZ, &g_handles[SCI_CH12]->u_rx_data.que);
-        break;
+            break;
         }
 #endif
         default:
         {
             err = SCI_ERR_QUEUE_UNAVAILABLE;
-        break;
+            break;
         }
     }
 
@@ -793,33 +854,36 @@ static sci_err_t sci_init_sync(sci_hdl_t const         hdl,
 } /* End of function sci_init_sync() */
 #endif /* End of SCI_CFG_SSPI_INCLUDED || SCI_CFG_SYNC_INCLUDED */
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_Send
-* Description  : This function is used to start transmitting data. For Async,
-*                the data is loaded into a queue and transmission started if
-*                not already in progress. For SSPI/Sync, the channel is
-*                checked to see if busy, and if not, transmission of the
-*                source buffer is started.
+********************************************************************************************************************//**
+* @brief  Initiates transmit if transmitter is not in use. Queues data for later transmit when in Asynchronous mode.
 *
-* Arguments    : hdl - 
-*                    handle for channel (ptr to chan control block)
-*                p_src -
-*                    ptr to data to transmit
-*                length - 
-*                    number of bytes to send
-* Return Value : SCI_SUCCESS -
-*                    requested number of bytes sent/loaded into tx queue
-*                SCI_ERR_NULL_PTR -
-*                    hdl or p_src is NULL
-*                SCI_ERR_BAD_MODE -
-*                    channel mode not currently supported
-*                SCI_ERR_INSUFFICIENT_SPACE - 
-*                    not enough space in tx queue to store data (Async)
-*                SCI_ERR_XCVR_BUSY -
-*                    channel currently busy
-*                SCI_ERR_INVALID_ARG
-*                    length is out of range
-******************************************************************************/
+* @param[in]    hdl  Handle for channel. Set hdl when R_SCI_Open() is successfully processed.
+*
+* @param[in]    p_src  Pointer to data to transmit
+*
+* @param[in]    length  Number of bytes to send
+*
+* @retval   SCI_SUCCESS  Transmit initiated or loaded into queue (Asynchronous)
+*
+* @retval   SCI_ERR_NULL_PTR  hdl value is NULL
+*
+* @retval   SCI_ERR_BAD_MODE  Mode specified not currently supported
+*
+* @retval   SCI_ERR_INSUFFICIENT_SPACE  Insufficient space in queue to load all data (Asynchronous)
+*
+* @retval   SCI_ERR_XCVR_BUSY  Channel currently busy (SSPI/Synchronous)
+*
+*
+* @details  In asynchronous mode, this function places data into a transmit queue if the transmitter for the SCI channel
+* referenced by the handle is not in use. In SSPI and Synchronous modes, no data is queued and transmission begins immediately
+* if the transceiver is not already in use. All transmissions are handled at the interrupt level.\n
+* Note that the toggling of Slave Select lines when in SSPI mode is not handled by this driver. The Slave Select line
+* for the target device must be enabled prior to calling this function.
+* Also, toggling of the CTS/RTS pin in Synchronous/Asynchronous mode is not handled by this driver.
+* @note None
+*/
 sci_err_t R_SCI_Send(sci_hdl_t const    hdl,
                      uint8_t            *p_src,
                      uint16_t const     length)
@@ -1036,14 +1100,18 @@ static sci_err_t sci_send_sync_data(sci_hdl_t const hdl,
             /* WAIT_LOOP */
             for (cnt = 0; cnt < thresh_cnt; cnt++)
             {
-                SCI_TDR(*hdl->u_tx_data.buf++);    /* start transmit */
+                if(0 != cnt)
+                {
+                    hdl->u_tx_data.buf++;
+                }
+                SCI_TDR(*hdl->u_tx_data.buf);    /* start transmit */
             }
         }
         else
 #endif
         {
             hdl->tx_cnt--;
-            SCI_TDR(*hdl->u_tx_data.buf++);    /* start transmit */
+            SCI_TDR(*hdl->u_tx_data.buf);    /* start transmit */
         }
 
         return SCI_SUCCESS;
@@ -1055,31 +1123,34 @@ static sci_err_t sci_send_sync_data(sci_hdl_t const hdl,
 
 
 #if (SCI_CFG_SSPI_INCLUDED || SCI_CFG_SYNC_INCLUDED)
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_SendReceive
-* Description  : This function determines if the channel referenced by the
-*                handle is not busy, and begins the data transfer process
-*                (both sending and receiving data).
+********************************************************************************************************************//**
+* @brief  For Synchronous and SSPI modes only. Transmits and receives data simultaneously if the transceiver is not
+* in use.
 *
-* Arguments    : hdl -
-*                    handle for channel (ptr to chan control block)
-*                p_src -
-*                    ptr to data to transmit
-*                p_dst -
-*                    ptr to buffer to store received data
-*                length -
-*                    number of bytes to send/receive
-* Return Value : SCI_SUCCESS -
-*                    data transfer started
-*                SCI_ERR_NULL_PTR -
-*                    hdl, p_src or p_dst is NULL
-*                SCI_ERR_BAD_MODE -
-*                    channel mode not currently supported
-*                SCI_ERR_XCVR_BUSY -
-*                    channel currently busy
-*                SCI_ERR_INVALID_ARG
-*                    length is out of range
-******************************************************************************/
+* @param[in]    hdl  Handle for channel. Set hdl when R_SCI_Open() is successfully processed.
+* @param[in]    p_src  Pointer to data to transmit
+*
+* @param[in]    p_dst  Pointer to buffer to load data into
+*
+* @param[in]    length  Number of bytes to send
+*
+* @retval   SCI_SUCCESS  Data transfer initiated
+*
+* @retval   SCI_ERR_NULL_PTR  hdl value is NULL
+*
+* @retval   SCI_ERR_BAD_MODE  Channel mode not SSPI or Synchronous
+*
+* @retval   SCI_ERR_XCVR_BUSY  Channel currently busy
+* @details   If the transceiver is not in use, this function clocks out data from the p_src buffer while simultaneously
+* clocking in data and placing it in the p_dst buffer.
+* Note that the toggling of Slave Select lines for SSPI is not handled by this driver. The Slave Select line for
+* the target device must be enabled prior to calling this function.
+* Also, toggling of the CTS/RTS pin in Synchronous/Asynchronous mode is not handled by this driver.
+*
+* @note See section 2.11 Callback Function in application note for values passed to arguments of the callback function.
+*/
 sci_err_t R_SCI_SendReceive(sci_hdl_t const hdl,
                             uint8_t         *p_src,
                             uint8_t         *p_dst,
@@ -1239,33 +1310,41 @@ void tei_handler(sci_hdl_t const hdl)
 #endif
 
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_Receive
-* Description  : Gets data received on an SCI channel referenced by the handle 
-*                from rx queue. Function does not block if the requested 
-*                number of bytes is not available. If any errors occurred 
-*                during reception by hardware, they are handled by the callback 
-*                function specified in R_SCI_Open() and no corresponding error 
-*                code is provided here.
-* Arguments    : hdl - 
-*                    handle for channel (ptr to chan control block)
-*                p_dst -
-*                    ptr to buffer to load data into
-*                length - 
-*                    number of bytes to read
-* Return Value : SCI_SUCCESS -
-*                    requested number of byte loaded into p_dst
-*                SCI_ERR_NULL_PTR -
-*                    hdl or p_dst is NULL
-*                SCI_ERR_BAD_MODE -
-*                    channel mode not currently supported
-*                SCI_ERR_INSUFFICIENT_DATA -
-*                    rx queue does not contain requested amount of data (Async)
-*                SCI_ERR_XCVR_BUSY -
-*                    channel currently busy (Sync)
-*                SCI_ERR_INVALID_ARG
-*                    length is out of range
-******************************************************************************/
+********************************************************************************************************************//**
+* @brief In Asynchronous mode, fetches data from a queue which is filled by RXI interrupts. In other modes, initiates
+* reception if transceiver is not in use.
+* @param[in]    hdl Handle for channel. Set hdl when R_SCI_Open() is successfully processed.
+*
+* @param[in]    p_dst  Pointer to buffer to load data into
+*
+* @param[in]    length  Number of bytes to read
+*
+* @retval SCI_SUCCESS  Requested number of bytes were loaded into p_dst (Asynchronous) Clocking in of data initiated
+* (SSPI/Synchronous)
+*
+* @retval SCI_ERR_NULL_PTR  hdl value is NULL
+*
+* @retval SCI_ERR_BAD_MODE  Mode specified not currently supported
+*
+* @retval SCI_ERR_INSUFFICIENT_DATA  Insufficient data in receive queue to fetch all data (Asynchronous)
+*
+* @retval SCI_ERR_XCVR_BUSY  Channel currently busy (SSPI/Synchronous)
+*
+* @details In Asynchronous mode, this function gets data received on an SCI channel referenced by the handle from its
+* receive queue. This function will not block if the requested number of bytes is not available. In
+* SSPI/Synchronous modes, the clocking in of data begins immediately if the transceiver is not already in use.
+* The value assigned to SCI_CFG_DUMMY_TX_BYTE in r_sci_config.h is clocked out while the receive data is being clocked in.\n
+* If any errors occurred during reception, the callback function specified in R_SCI_Open() is executed. Check
+* an event passed with the argument of the callback function to see if the reception has been successfully
+* completed. See Section 2.11 Callback Function in application note for details.\n
+* Note that the toggling of Slave Select lines when in SSPI mode is not handled by this driver. The Slave
+* Select line for the target device must be enabled prior to calling this function.
+* @note See section 2.11 Callback Function in application note for values passed to arguments of the callback function.
+* In Asynchronous mode, when data match detected, received data stored in a queue and notify to user by callback function
+* with event SCI_EVT_RX_CHAR_MATCH.
+*/
 sci_err_t R_SCI_Receive(sci_hdl_t const hdl,
                         uint8_t         *p_dst,
                         uint16_t const  length)
@@ -1505,7 +1584,8 @@ static void sci_receive(sci_hdl_t const hdl)
                 else
                 {
                     hdl->tx_cnt--;
-                    SCI_TDR(*hdl->u_tx_data.buf++);
+                    hdl->u_tx_data.buf++;
+                    SCI_TDR(*hdl->u_tx_data.buf);
                 }
             }
         }
@@ -1600,7 +1680,8 @@ static void sci_fifo_receive_sync(sci_hdl_t const hdl)
                 /* WAIT_LOOP */
                 for (cnt = 0; cnt < fifo_num_tx; cnt++)
                 {
-                    SCI_TDR(*hdl->u_tx_data.buf++);
+                    hdl->u_tx_data.buf++;
+                    SCI_TDR(*hdl->u_tx_data.buf);
                 }
             }
         }
@@ -1964,32 +2045,36 @@ void eri_handler(sci_hdl_t const hdl)
     }
 } /* End of function eri_handler() */
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_Control
-* Description  : This function configures non-standard UART hardware and
-*                performs special software operations.
+********************************************************************************************************************//**
+* @brief  This function configures and controls the operating mode for the SCI channel.
 *
-* WARNING: Some commands require the transmitter and receiver to be temporarily
-*          disabled for the command to execute!
-*          PFS and port pins must be configured prior to calling with an
-*          SCI_EN_CTS_IN command.
+* @param[in] hdl  Handle for channel. Set hdl when R_SCI_Open() is successfully processed.
 *
-* Arguments    : hdl - 
-*                    handle for channel (ptr to chan control block)
-*                cmd -
-*                    command to run
-*                p_args -
-*                    pointer argument(s) specific to command
-* Return Value : SCI_SUCCESS -
-*                    Command completed successfully.
-*                SCI_ERR_NULL_PTR -
-*                    hdl or p_args is NULL
-*                SCI_ERR_BAD_MODE -
-*                    channel mode not currently supported
-*                SCI_ERR_INVALID_ARG -
-*                    The cmd value or p_args contains an invalid value.
-*                    May be due to mode channel is operating in.
-******************************************************************************/
+* @param[in] cmd  Command to run (see Section 3. R_SCI_Control() in application note for details)
+*
+* @param[in] p_args   Pointer to arguments (see Section 3. R_SCI_Control() in application note for details) specific to
+* command, casted to void *
+*
+* @retval SCI_SUCCESS  Successful; channel initialized.
+*
+* @retval SCI_ERR_NULL_PTR  hdl or p_args pointer is NULL (when required)
+*
+* @retval SCI_ERR_BAD_MODE  Mode specified not currently supported
+*
+* @retval SCI_ERR_INVALID_ARG
+*                    The cmd value or an element of p_args contains an invalid value.
+* @details This function is used for configuring special hardware features such as changing driver configuration and
+* obtaining driver status.
+* The CTS/ RTS pin functions as RTS by default hardware control. By issuing an SCI_CMD_EN_CTS_IN, the pin functions as CTS.
+* @note When SCI_CMD_CHANGE_BAUD is used, the optimum values for BRR, SEMR.ABCS, and SMR.CKS is calculated based on
+* the bit rate specified. This however does not guarantee a low bit error rate for all peripheral clock/baud rate
+* combinations.\n
+* If the command SCI_CMD_EN_CTS_IN is to be used, the pin direction must be selected before calling the
+* R_SCI_Open() function, and the pin function and mode must be selected after calling the R_SCI_Open()
+* function. See Section 3. R_SCI_Control() for details.
+*/
 sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
                         sci_cmd_t const     cmd,
                         void                *p_args)
@@ -2019,7 +2104,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
             return SCI_ERR_NULL_PTR;
         }
 #endif
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M) || defined(BSP_MCU_RX72N) || defined(BSP_MCU_RX66N)
         if ((SCI_CMD_SET_TXI_PRIORITY == cmd) || (SCI_CMD_SET_RXI_PRIORITY == cmd))
         {
             return SCI_ERR_NULL_PTR;
@@ -2048,7 +2133,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
         }
     }
 #endif
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M) || defined(BSP_MCU_RX72N) || defined(BSP_MCU_RX66N)
     if ((SCI_CMD_SET_TXI_PRIORITY == cmd) || (SCI_CMD_SET_RXI_PRIORITY == cmd))
     {
         /* Casting void* type is valid */
@@ -2084,7 +2169,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
         {
             hdl->baud_rate = baud->rate;    // save for break generation
         }
-    break;
+        break;
     }
 
     case (SCI_CMD_EN_CTS_IN):
@@ -2103,7 +2188,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
             /* Can not use CTS in smart card interface mode, simple SPI mode, and simple I2C mode */
             err = SCI_ERR_INVALID_ARG;
         }
-    break;
+        break;
     }
 
 #if SCI_CFG_FIFO_INCLUDED
@@ -2127,7 +2212,7 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
         {
             err = SCI_ERR_INVALID_ARG;
         }
-    break;
+        break;
     }
 
     case (SCI_CMD_CHANGE_RX_FIFO_THRESH):
@@ -2150,23 +2235,23 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
         {
             err = SCI_ERR_INVALID_ARG;
         }
-    break;
+        break;
     }
 #endif /* End of SCI_CFG_FIFO_INCLUDED */
 
-#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M)
+#if defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX66T) || defined(BSP_MCU_RX72T) || defined(BSP_MCU_RX72M) || defined(BSP_MCU_RX72N) || defined(BSP_MCU_RX66N)
     case (SCI_CMD_SET_TXI_PRIORITY):
     {
         /* Casting void type to uint8_t type is valid */
         *hdl->rom->ipr_txi = *((uint8_t *)p_args);
-    break;
+        break;
     }
 
     case (SCI_CMD_SET_RXI_PRIORITY):
     {
         /* Casting void type to uint8_t type is valid */
         *hdl->rom->ipr_rxi = *((uint8_t *)p_args);
-    break;
+        break;
     }
 #endif
 
@@ -2187,27 +2272,27 @@ sci_err_t R_SCI_Control(sci_hdl_t const     hdl,
             err = sci_sync_cmds(hdl, cmd, p_args);
 #endif
         }
-    break;
+        break;
     }
     }
 
     return err;
 } /* End of function R_SCI_Control() */
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_Close
-* Description  : Disables the SCI channel designated by the handle.
+********************************************************************************************************************//**
+* @brief This function removes power from the SCI channel and disables the associated interrupts.
 *
-* WARNING: This will abort any xmt or rcv messages in progress.
-* NOTE:    This does not disable the GROUP12 (rcvr err) interrupts.
+* @param[in] hdl  Handle for channel. Set hdl when R_SCI_Open() is successfully processed.
 *
-* Arguments    : hdl - 
-*                    handle for channel (ptr to chan control block)
-* Return Value : SCI_SUCCESS -
-*                    channel closed
-*                SCI_ERR_NULL_PTR -
-*                    hdl was NULL
-******************************************************************************/
+* @retval SCI_SUCCESS Successful; channel closed
+*
+* @retval SCI_ERR_NULL_PTR hdl is NULL 
+*
+* @details    Disables the SCI channel designated by the handle and enters module-stop state.
+* @note This function will abort any transmission or reception that may be in progress.
+*/
 sci_err_t R_SCI_Close(sci_hdl_t const hdl)
 {
 
@@ -2247,14 +2332,15 @@ sci_err_t R_SCI_Close(sci_hdl_t const hdl)
 } /* End of function R_SCI_Close() */
 
 
-/*****************************************************************************
+/***********************************************************************************************************************
 * Function Name: R_SCI_GetVersion
-* Description  : Returns the version of this module. The version number is 
-*                encoded such that the top two bytes are the major version
-*                number and the bottom two bytes are the minor version number.
-* Arguments    : none
-* Return Value : version number
-******************************************************************************/
+********************************************************************************************************************//**
+* @brief This function returns the driver version number at runtime.
+* @return Version number.
+* @details  Returns the version of this module. The version number is encoded such that the top 2 bytes are the major
+* version number and the bottom 2 bytes are the minor version number.
+* @note None
+*/
 uint32_t  R_SCI_GetVersion(void)
 {
     uint32_t const version = (SCI_VERSION_MAJOR << 16) | SCI_VERSION_MINOR;

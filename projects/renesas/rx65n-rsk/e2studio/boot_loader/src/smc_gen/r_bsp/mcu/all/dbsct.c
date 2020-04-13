@@ -26,6 +26,8 @@
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
 *                               Added definition for section of D_8, B_8, and C_8.
+*         : 08.10.2019 3.01     Added section for Renesas RTOS (RI600V4 or RI600PX).
+*         : 14.02.2020 3.02     Corrected pragma declaration of unpack.
 ***********************************************************************************************************************/
 
 #if defined(__CCRX__)
@@ -44,6 +46,10 @@ Macro definitions
 /***********************************************************************************************************************
 Typedef definitions
 ***********************************************************************************************************************/
+
+/* Preprocessor directive */
+#pragma unpack
+
 /* MCU ROM and RAM structure definition */
 typedef struct
 {
@@ -62,9 +68,6 @@ typedef struct
 Exported global variables (to be accessed by other files)
 ***********************************************************************************************************************/
 
-/* Preprocessor directive */
-#pragma unpack
-
 /* Section start */
 #pragma section C C$DSEC
 
@@ -75,6 +78,9 @@ extern st_dtbl_t const _DTBL[] = {
     { __sectop("D"), __secend("D"), __sectop("R") },
     { __sectop("D_2"), __secend("D_2"), __sectop("R_2") },
     { __sectop("D_1"), __secend("D_1"), __sectop("R_1") }
+#if (BSP_CFG_RTOS_USED == 4) && (BSP_CFG_RENESAS_RTOS_USED == RENESAS_RI600PX)
+   ,{ __sectop("DRI_ROM"), __secend("DRI_ROM"), __sectop("RRI_RAM") }
+#endif /* Renesas RI600PX */
 };
 
 /* Section start */
@@ -87,10 +93,17 @@ extern st_btbl_t const _BTBL[] = {
     { __sectop("B"), __secend("B") },
     { __sectop("B_2"), __secend("B_2") },
     { __sectop("B_1"), __secend("B_1") }
+#if (BSP_CFG_RTOS_USED == 4) && (BSP_CFG_RENESAS_RTOS_USED == RENESAS_RI600V4)
+   ,{ __sectop("BRI_RAM"), __secend("BRI_RAM") }
+#endif /* Renesas RI600V4 */
 };
 
 /* Section start */
 #pragma section
+
+#if (BSP_CFG_RTOS_USED == 4) && (BSP_CFG_RENESAS_RTOS_USED == RENESAS_RI600PX)
+#pragma section C CS
+#endif /* Renesas RI600PX */
 
 /* CTBL prevents excessive output of L1100 messages when linking.
    Even if CTBL is deleted, the operation of the program does not change. */

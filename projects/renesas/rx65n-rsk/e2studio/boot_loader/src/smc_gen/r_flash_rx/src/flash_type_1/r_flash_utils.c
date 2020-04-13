@@ -30,6 +30,7 @@
 *           15.11.2016 2.10    Added function flash_stop().
 *           05.10.2016 3.00    Moved flash_interrupt_config() to r_flash_group.c.
 *           19.04.2019 4.00    Added support for GNUC and ICCRX.
+*           18.11,2019 4.50    Modified to use BSP API functions to enable/disable interrupt requests.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -106,24 +107,23 @@ flash_err_t flash_pe_mode_enter(flash_type_t flash_type)
     if (flash_type == FLASH_TYPE_DATA_FLASH)
     {
 #ifndef FLASH_NO_DATA_FLASH     /* RX110/23T has no DF */
-        R_DF_Enter_PE_Mode();           /* Sets PCKA clock */
 #if (FLASH_CFG_DATA_FLASH_BGO == 1)
         /* Enable Flash Ready Interrupt */
         IR(FCU,FRDYI) = 0;
-        IEN(FCU,FRDYI)= 1;
+        R_BSP_InterruptRequestEnable(VECT(FCU,FRDYI));
 #endif
+        R_DF_Enter_PE_Mode();           /* Sets PCKA clock */
 #endif
     }
 #if (FLASH_CFG_CODE_FLASH_ENABLE == 1)
     else if (flash_type == FLASH_TYPE_CODE_FLASH)
     {
-        R_CF_Enter_PE_Mode();
-
 #if (FLASH_CFG_CODE_FLASH_BGO == 1)
         /* Enable Flash Ready Interrupt */
         IR(FCU,FRDYI) = 0;
-        IEN(FCU,FRDYI)= 1;
+        R_BSP_InterruptRequestEnable(VECT(FCU,FRDYI));
 #endif
+        R_CF_Enter_PE_Mode();
     }
 #endif
     else
@@ -359,7 +359,7 @@ flash_err_t flash_pe_mode_exit()
 
 #if ((FLASH_CFG_CODE_FLASH_ENABLE == 1) && (FLASH_CFG_CODE_FLASH_BGO == 1) || (FLASH_CFG_DATA_FLASH_BGO == 1))
     /* Disable Flash Ready Interrupt */
-    IEN(FCU,FRDYI)= 0;
+    R_BSP_InterruptRequestDisable(VECT(FCU,FRDYI));
 #endif
 
     return(FLASH_SUCCESS);

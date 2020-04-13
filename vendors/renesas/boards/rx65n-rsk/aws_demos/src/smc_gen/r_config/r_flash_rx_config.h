@@ -30,6 +30,7 @@
 *                              Removed flash type 2 only operation (FLASH_CFG_FLASH_READY_IPL).
 *                              Removed flash type 2 only operation (FLASH_CFG_IGNORE_LOCK_BITS).
 *         : 19.07.2019 4.20    Modified comments (FLASH_CFG_CODE_FLASH_ENABLE, FLASH_CFG_CODE_FLASH_RUN_FROM_ROM).
+*         : 09.09.2019 4.30    Modified comments (FLASH_CFG_CODE_FLASH_ENABLE, FLASH_CFG_CODE_FLASH_RUN_FROM_ROM).
 ***********************************************************************************************************************/
 #ifndef FLASH_CONFIG_HEADER_FILE
 #define FLASH_CONFIG_HEADER_FILE
@@ -54,7 +55,7 @@
 /* If you are only using data flash, set this to 0.
  * Setting to 1 includes code to program the ROM area. When programming ROM,
  * code must be executed from RAM, except under certain restrictions for flash
- * type 3 (see section 2.15 in App Note). See section 2.14 in the App Note for
+ * type 3 (see section 2.16 in App Note). See section 2.15 in the App Note for
  * details on how to set up code and the linker to execute code from RAM.
  */
 #define FLASH_CFG_CODE_FLASH_ENABLE (0)
@@ -81,7 +82,7 @@
  * Notification of the operation completion is done via the callback function. 
  * When reprogramming ROM, THE RELOCATABLE VECTOR TABLE AND CORRESPONDING
  * INTERRUPT ROUTINES MUST BE IN RAM.  
- * See sections 2.16 Usage Notes in the App Note.
+ * See sections 2.17 Usage Notes in the App Note.
  */
 #define FLASH_CFG_CODE_FLASH_BGO   (0)
 
@@ -92,7 +93,7 @@
 /* Set this to 0 when programming code flash while executing in RAM.
  * Set this to 1 when programming code flash while executing from another
  * segment in ROM (possible only with RX64M, RX71M, RX65N-2, RX72M groups).
- * See section 2.15 in the App Note.
+ * See section 2.16 in the App Note.
  */
 #define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (0)
 

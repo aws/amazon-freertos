@@ -147,6 +147,7 @@
 *           19.07.2019 4.20    Added support for RX72M.
 *           09.09.2019 4.30    Added support for RX13T.
 *           27.09.2019 4.40    Added support for RX23E-A.
+*           18.11.2019 4.50    Added support for RX66N, and RX72N.
 ***********************************************************************************************************************/
 
 #ifndef FLASH_INTERFACE_HEADER_FILE
@@ -164,7 +165,7 @@ Macro definitions
 ***********************************************************************************************************************/
 /* Driver Version Number. */
 #define FLASH_RX_VERSION_MAJOR           (4)
-#define FLASH_RX_VERSION_MINOR           (40)
+#define FLASH_RX_VERSION_MINOR           (50)
 
 
 /***********************************************************************************************************************
@@ -184,10 +185,11 @@ Typedef definitions
 #define FLASH_TYPE              FLASH_TYPE_1
 
 #elif (defined(MCU_RX64M) || defined(MCU_RX66T) || defined(MCU_RX71M) || \
-     defined(MCU_RX72T))
+       defined(MCU_RX72T))
 #define FLASH_TYPE              FLASH_TYPE_3
 
-#elif (defined(MCU_RX651) || defined(MCU_RX65N) || defined(MCU_RX72M))
+#elif (defined(MCU_RX651) || defined(MCU_RX65N) || defined(MCU_RX72M) || \
+       defined(MCU_RX66N) || defined(MCU_RX72N))
 #define FLASH_TYPE              FLASH_TYPE_4
 #endif
 
@@ -222,7 +224,8 @@ Typedef definitions
 #define FLASH_HAS_ROM_CACHE     1
 #endif
 
-#if (defined(MCU_RX66T) || defined(MCU_RX72T) || defined(MCU_RX72M))
+#if (defined(MCU_RX66T) || defined(MCU_RX72T) || defined(MCU_RX72M) || \
+     defined(MCU_RX66N) || defined(MCU_RX72N))
 #define FLASH_HAS_NON_CACHED_RANGES     1
 #endif
 

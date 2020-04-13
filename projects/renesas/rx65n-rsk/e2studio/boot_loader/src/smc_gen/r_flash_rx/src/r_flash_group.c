@@ -42,6 +42,9 @@
 *              : 09.09.2019 4.30    Fixed error processing for r_flash_erase(), r_flash_blankcheck(), r_flash_write().
 *                                   Modified the switch statement of r_flash_control() to the if statement. 
 *              : 27.09.2019 4.40    Added NULL check for "blank_check_result" in r_flash_blankcheck().
+*              : 18.11,2019 4.50    Modified to use BSP API functions to enable/disable interrupt requests.
+*                                   Modified where the error return code was not being checked when calling
+*                                     FLASH_CMD_ROM_CACHE_ENABLE in set_non_cached_regs(). 
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -282,14 +285,14 @@ flash_err_t flash_interrupt_config(bool state, void *pcfg)
         FLASH_FCU_INT_ENABLE;
 
         /* Enable interrupts in ICU */
-        IR(FCU,FRDYI)= 0;                               // Clear Flash Ready Interrupt Request
-        IPR(FCU,FRDYI)= int_cfg->int_priority;          // Set Flash Ready Interrupt Priority
-        IEN(FCU,FRDYI)= 1;                              // Enable Flash Ready Interrupt
+        IR(FCU,FRDYI)  = 0;                             // Clear Flash Ready Interrupt Request
+        IPR(FCU,FRDYI) = int_cfg->int_priority;         // Set Flash Ready Interrupt Priority
+        R_BSP_InterruptRequestEnable(VECT(FCU,FRDYI));  // Enable Flash Ready Interrupt
 
 #ifdef FLASH_HAS_ERR_ISR
-        IR(FCU,FIFERR)= 0;                              // Clear Flash Error Interrupt Request
-        IPR(FCU,FIFERR)= int_cfg->int_priority;         // Set Flash Error Interrupt Priority
-        IEN(FCU,FIFERR)= 1;                             // Enable Flash Error Interrupt
+        IR(FCU,FIFERR)  = 0;                            // Clear Flash Error Interrupt Request
+        IPR(FCU,FIFERR) = int_cfg->int_priority;        // Set Flash Error Interrupt Priority
+        R_BSP_InterruptRequestEnable(VECT(FCU,FIFERR)); // Enable Flash Error Interrupt
 #endif
     }
 
@@ -394,7 +397,7 @@ static flash_err_t set_non_cached_regs(flash_non_cached_t *p_cfg, flash_non_cach
     /* re-enable caching if that was its previous state */
     if (caching_was_enabled)
     {
-        R_FLASH_Control(FLASH_CMD_ROM_CACHE_ENABLE, NULL);
+        err = R_FLASH_Control(FLASH_CMD_ROM_CACHE_ENABLE, NULL);
     }
 
     return err;
