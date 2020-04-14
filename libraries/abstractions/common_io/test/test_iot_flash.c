@@ -180,12 +180,12 @@ static void prvIotFlashReadVerifyDummyData( IotFlashHandle_t xFlashHandle,
                                            remaining_size );
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
-            /* Verify the data is erased. */
+            /* Verify that  the data was written. */
             for( uint32_t i = 0; i < remaining_size; i++ )
             {
                 if( uctestIotFlashReadBuffer[ i ] != ( i & 0xFF ) )
                 {
-                    TEST_ASSERT_MESSAGE( 0, "Data was NOT erased" );
+                    TEST_ASSERT_MESSAGE( 0, "Data was NOT written" );
                 }
             }
         }
@@ -207,14 +207,14 @@ static void prvIotFlashReadVerifyErased( IotFlashHandle_t xFlashHandle,
 
         if( remaining_size > 0 )
         {
-            /* Read back the data written */
+            /* Read the data */
             lRetVal = iot_flash_read_sync( xFlashHandle,
                                            offset + i,
                                            &uctestIotFlashReadBuffer[ 0 ],
                                            remaining_size );
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
-            /* Verify the data is erased. */
+            /* Verify that the data was erased. */
             for( uint32_t i = 0; i < remaining_size; i++ )
             {
                 if( uctestIotFlashReadBuffer[ i ] != testIotFLASH_DEFAULT_FLASH_BYTE )
@@ -1234,8 +1234,9 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashWriteProtectWriteFailure )
 
             TEST_ASSERT_EQUAL( IOT_FLASH_SUCCESS, lRetVal );
 
-            /* Write the a full page and verify the data by reading it back */
-            prvIotFlashWriteReadVerify( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
+            /* Write the a full page and verify the data is not written reading it back */
+            prvIotFlashWriteDummyData( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
+            prvIotFlashReadVerifyErased( xFlashHandle, ultestIotFlashStartOffset, pxFlashInfo->ulPageSize );
         }
 
         /* Now make the sector writeable */
