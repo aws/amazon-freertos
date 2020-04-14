@@ -143,12 +143,9 @@ TEST_TEAR_DOWN( TEST_IOT_I2C )
 void prvI2CCallback( IotI2COperationStatus_t xOpStatus,
                      void * pvParam )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
     if( xOpStatus == eI2CCompleted )
     {
-        xSemaphoreGiveFromISR( xtestIotI2CSemaphore, &xHigherPriorityTaskWoken );
-        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        xSemaphoreGiveFromISR( xtestIotI2CSemaphore, NULL );
     }
 }
 
@@ -156,8 +153,6 @@ static void prvChainToReadCallback( IotI2COperationStatus_t xOpStatus,
                                     void * pvParam )
 {
     static uint8_t ucOps = 0;
-
-    BaseType_t xHigherPriorityTaskWoken;
 
     CallbackParam_t * pxCallbackParam = ( CallbackParam_t * ) pvParam;
 
@@ -171,8 +166,7 @@ static void prvChainToReadCallback( IotI2COperationStatus_t xOpStatus,
         }
         else
         {
-            xSemaphoreGiveFromISR( xtestIotI2CSemaphore, &xHigherPriorityTaskWoken );
-            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+            xSemaphoreGiveFromISR( xtestIotI2CSemaphore, NULL );
         }
     }
 }
