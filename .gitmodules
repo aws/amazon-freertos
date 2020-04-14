@@ -26,4 +26,4 @@
 [submodule "mbedtls"]
 	path = libraries/3rdparty/mbedtls
 	url = https://github.com/ARMmbed/mbedtls.git
-	branch = mbedtls-2.16.5
+	branch = mbedtls-2.16.6
