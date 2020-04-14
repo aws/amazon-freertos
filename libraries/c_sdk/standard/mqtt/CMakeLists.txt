@@ -52,19 +52,20 @@ afr_module_sources(
 )
 
 #Disable compiling of shim layer.
-#if(TARGET AFR::secure_sockets::mcu_port)
-#afr_module_sources(
-#    ${AFR_CURRENT_MODULE}
-#    PRIVATE
-#        "${local_src_dir}/iot_mqtt_agent.c"
-#)
-#endif()
+if(TARGET AFR::secure_sockets::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${local_src_dir}/iot_mqtt_agent.c"
+)
+endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${MQTT_INCLUDE_PUBLIC_DIRS}"
         "$<${AFR_IS_TESTING}:${MQTT_TEST_INCLUDE_PRIVATE_DIRS}>"
+        "${CMAKE_CURRENT_LIST_DIR}/v1_shim/include"
     PRIVATE
         ${extra_mqtt_includes}
         ${extra_mqtt_test_includes}

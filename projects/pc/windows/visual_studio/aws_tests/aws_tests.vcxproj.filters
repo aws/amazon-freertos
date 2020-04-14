@@ -125,6 +125,36 @@
     <Filter Include="libraries\3rdparty\tinycbor" />
     <Filter Include="libraries\3rdparty\http_parser" />
     <Filter Include="libraries\3rdparty\jsmn" />
+    <Filter Include="libraries\c_sdk\aws">
+      <UniqueIdentifier>{4df3d5f2-8156-4941-9418-fc730abb474a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender">
+      <UniqueIdentifier>{2884b5d8-76f1-49ac-8331-823f6ba59fd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow">
+      <UniqueIdentifier>{8e7a5708-b522-4e73-a934-a0ad37f74b85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender\src">
+      <UniqueIdentifier>{75bd8eff-2405-4c19-b728-9c7ba1091348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender\test">
+      <UniqueIdentifier>{68086de3-ece2-4be7-ade0-9e469f2244d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow\src">
+      <UniqueIdentifier>{1fb8b1c7-613e-438e-b710-dc3be42c1e3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow\test">
+      <UniqueIdentifier>{acaf81e5-e684-4f7b-8696-bda558fbbcc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow\test\system">
+      <UniqueIdentifier>{7f8fb8a7-b254-4762-8b61-44cb8aa718a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow\test\unit">
+      <UniqueIdentifier>{458024de-ecb0-42ed-abd3-38b629aeaf00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender\src\private">
+      <UniqueIdentifier>{f63378eb-2034-4499-bf18-ddb5ba622b97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
@@ -675,6 +705,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
       <Filter>libraries\3rdparty\jsmn</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h">
+      <Filter>libraries\c_sdk\aws\defender\src\private</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1269,5 +1302,53 @@
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
+      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c">
+      <Filter>libraries\c_sdk\aws\defender\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c">
+      <Filter>libraries\c_sdk\aws\shadow\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c">
+      <Filter>libraries\c_sdk\aws\shadow\test\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c">
+      <Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c">
+      <Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -107,6 +107,27 @@
     <Filter Include="libraries\3rdparty\tinycbor" />
     <Filter Include="libraries\3rdparty\http_parser" />
     <Filter Include="libraries\3rdparty\jsmn" />
+    <Filter Include="demos\defender">
+      <UniqueIdentifier>{bbf9701f-fda1-4e7b-9427-4116159f8e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\shadow">
+      <UniqueIdentifier>{06cb1a00-1b79-4f98-99ea-7024ec1b0bd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws">
+      <UniqueIdentifier>{f63b1ff7-8077-4b7b-aafa-675fcb768e77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender">
+      <UniqueIdentifier>{2d18f2ff-4839-4023-9f46-40e0ea04f913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\defender\src">
+      <UniqueIdentifier>{707546a9-7388-4535-b7b8-87b5f58dabff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow">
+      <UniqueIdentifier>{f80bccd2-7327-495f-aec4-e199f2a594ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\c_sdk\aws\shadow\src">
+      <UniqueIdentifier>{7812186e-1f5b-4284-8aba-6f18bbfdc6b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
@@ -1164,5 +1185,44 @@
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-c\libraries\standard\mqtt\src\iot_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_helper.c" />
     <ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_lightweight_api.c" />
+    <ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
+      <Filter>demos\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c">
+      <Filter>demos\shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c">
+      <Filter>libraries\c_sdk\aws\defender\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c">
+      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
+      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
