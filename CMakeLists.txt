@@ -49,6 +49,9 @@ endif()
 # Use include here because we need portable layer targets defined by vendor to be at
 # the same directory level as our library components.
 include("${AFR_BOARD_PATH}/CMakeLists.txt")
+if (AFR_ENABLE_UNIT_TESTS)
+    return()
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Conditionally set mbedtls config
@@ -77,9 +80,6 @@ endif()
 # Do not prefix the output library file.
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
-if (AFR_ENABLE_UNIT_TESTS)
-    return()
-endif()
 
 # Initialize all modules.
 add_subdirectory("libraries")
