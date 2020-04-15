@@ -259,7 +259,8 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData );
-static OTA_Err_t prvSuspendHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvSuspendHandler( OTA_EventData_t* pxEventData );
+static OTA_Err_t prvResumeHandler( OTA_EventData_t* pxEventData );
 
 /* OTA default callback initializer. */
 
@@ -316,6 +317,7 @@ OTAStateTableEntry_t OTATransitionTable[] =
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_Suspended,           eOTA_AgentEvent_Resume,              prvResumeHandler,      eOTA_AgentState_RequestingJob       },
     { eOTA_AgentState_All,                 eOTA_AgentEvent_Suspend,             prvSuspendHandler,     eOTA_AgentState_Suspended           },
     { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
@@ -348,6 +350,7 @@ const char * pcOTA_Event_Strings[ eOTA_AgentEvent_Max ] =
     "RequestTimer",
     "CloseFile",
 	"Suspend",
+	"Resume",
     "UserAbort",
     "Shutdown"
 };
@@ -1131,10 +1134,42 @@ static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 
 static OTA_Err_t prvSuspendHandler( OTA_EventData_t* pxEventData )
 {
+    DEFINE_OTA_METHOD_NAME( "prvSuspendHandler" );
+
 	(void)pxEventData;
 	OTA_Err_t xErr = kOTA_Err_None;
 
 	/* Save context here before suspending OTA Agent.*/
+
+	OTA_LOG_L1("[%s] OTA Agent is suspended. %d\r\n", OTA_METHOD_NAME);
+
+	return xErr;
+}
+
+static OTA_Err_t prvResumeHandler(OTA_EventData_t* pxEventData)
+{
+    DEFINE_OTA_METHOD_NAME( "prvResumeHandler" )
+
+	(void)pxEventData;
+	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+
+	OTA_EventMsg_t xEventMsg = { 0 };
+
+	/*
+	 * Update the connection handle before resuming the OTA process.
+	 */
+
+	OTA_LOG_L2("[%s] Updating the connection handle. %d\r\n", OTA_METHOD_NAME);
+
+	xOTA_Agent.pvConnectionContext = pxEventData;
+
+	/* 
+	 * Send signal to request job document. 
+	 */
+
+	xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
+
+	OTA_SignalEvent( &xEventMsg );
 
 	return xErr;
 }

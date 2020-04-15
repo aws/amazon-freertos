@@ -130,6 +130,7 @@ typedef enum
     eOTA_AgentEvent_RequestTimer,
     eOTA_AgentEvent_CloseFile,
 	eOTA_AgentEvent_Suspend,
+    eOTA_AgentEvent_Resume,
     eOTA_AgentEvent_UserAbort,
     eOTA_AgentEvent_Shutdown,
     eOTA_AgentEvent_Max
