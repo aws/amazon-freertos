@@ -88,7 +88,8 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_EXTAPP_PATH)/lwip\
 	$(CY_EXTAPP_PATH)/libraries\
-	$(CY_EXTAPP_PATH)/WICED_SDK
+	$(CY_EXTAPP_PATH)/WICED_SDK\
+	$(CY_EXTAPP_PATH)/freertos_thirdparty_port
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
