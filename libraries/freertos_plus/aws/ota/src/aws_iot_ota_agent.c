@@ -259,6 +259,7 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData );
+static OTA_Err_t prvSuspendHandler(OTA_EventData_t* pxEventData);
 
 /* OTA default callback initializer. */
 
@@ -315,6 +316,7 @@ OTAStateTableEntry_t OTATransitionTable[] =
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_Suspend,             prvSuspendHandler,     eOTA_AgentState_Suspended           },
     { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
     { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
 };
@@ -329,6 +331,7 @@ const char * pcOTA_AgentState_Strings[ eOTA_AgentState_All ] =
     "RequestingFileBlock",
     "WaitingForFileBlock",
     "ClosingFile",
+    "Suspended",
     "ShuttingDown",
     "Stopped"
 };
@@ -344,6 +347,7 @@ const char * pcOTA_Event_Strings[ eOTA_AgentEvent_Max ] =
     "ReceivedFileBlock",
     "RequestTimer",
     "CloseFile",
+	"Suspend",
     "UserAbort",
     "Shutdown"
 };
@@ -1122,6 +1126,16 @@ static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
     vTaskDelete( NULL );
 
     return kOTA_Err_None;
+}
+
+static OTA_Err_t prvSuspendHandler( OTA_EventData_t* pxEventData )
+{
+	(void)pxEventData;
+	OTA_Err_t xErr = kOTA_Err_None;
+
+	/* Save context here before suspending OTA Agent.*/
+
+	return xErr;
 }
 
 /*
