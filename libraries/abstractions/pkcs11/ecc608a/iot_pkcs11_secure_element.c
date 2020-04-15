@@ -204,11 +204,22 @@ const char * pcPkcs11GetThingName(void)
     return gcPkcs11ThingNameCache;
 }
 
-/** \defgroup config Configuration (cfg_)
- * \brief Logical device configurations describe the CryptoAuth device type and logical interface.
-   @{ */
-
+#ifdef ATCA_HAL_I2C
 /** \brief default configuration for an ECCx08A device */
+ATCAIfaceCfg cfg_ateccx08a_i2c_default = {
+    .iface_type             = ATCA_I2C_IFACE,
+    .devtype                = ATECC608A,
+    .atcai2c.slave_address  = 0xC0,
+    .atcai2c.bus            = 1,
+    .atcai2c.baud           = 400000,
+    //.atcai2c.baud = 100000,
+    .wake_delay             = 1500,
+    .rx_retries             = 20
+};
+#endif
+
+#ifdef ATCA_HAL_KIT_HID
+/** \brief default configuration for Kit protocol over the device's async interface */
 ATCAIfaceCfg cfg_ateccx08a_kithid_default = {
     .iface_type = ATCA_HID_IFACE,
     .devtype = ATECC608A,
@@ -216,8 +227,9 @@ ATCAIfaceCfg cfg_ateccx08a_kithid_default = {
     .atcahid.vid = 0x03EB,
     .atcahid.pid = 0x2312,
     .atcahid.packetsize = 64,
-    .atcahid.guid = { 0x4d,        0x1e, 0x55, 0xb2, 0xf1, 0x6f, 0x11, 0xcf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 },
+    .atcahid.guid = { 0x4d, 0x1e, 0x55, 0xb2, 0xf1, 0x6f, 0x11, 0xcf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 },
 };
+#endif
 
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
 /* This configuration is only suitable for testing of a device and does not enforce good 
