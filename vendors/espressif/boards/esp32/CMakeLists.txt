@@ -158,20 +158,11 @@ target_include_directories(
 afr_mcu_port(wifi)
 
 if(NOT AFR_ESP_LWIP)
-if(ECC608_IN_USE)
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
     AFR::freertos_plus_tcp
 )
-else()
-target_link_libraries(
-    AFR::wifi::mcu_port
-    INTERFACE
-    AFR::freertos_plus_tcp
-)
-endif()
-
 else()
 target_include_directories(
     AFR::wifi::mcu_port
