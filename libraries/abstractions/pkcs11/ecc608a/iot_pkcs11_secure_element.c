@@ -212,7 +212,6 @@ ATCAIfaceCfg cfg_ateccx08a_i2c_default = {
     .atcai2c.slave_address  = 0xC0,
     .atcai2c.bus            = 1,
     .atcai2c.baud           = 400000,
-    //.atcai2c.baud = 100000,
     .wake_delay             = 1500,
     .rx_retries             = 20
 };
