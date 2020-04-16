@@ -743,7 +743,7 @@ ESP_WIFI_Status_t ESP_WIFI_GetNetStatus( ESP_WIFI_Object_t * pxObj )
 {
     ESP_WIFI_Status_t xRet;
 
-    xRet = ESP_AT_Command(pxObj, (uint8_t *)"AT+CIFSR\r\n", 0);
+    xRet = ESP_AT_Command(pxObj, (uint8_t *)"AT+CIFSR\r\n", 30);
 
     if (xRet == ESP_WIFI_STATUS_OK) {
         AT_ParseAddress(pxObj);
