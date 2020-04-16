@@ -83,10 +83,7 @@ static void prvOutputMessage();
 static void prvSpiAsyncCallback( IotSPITransactionStatus_t xStatus,
                                  void * pvUserContext )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
-    xSemaphoreGiveFromISR( xtestIotSPISemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR( xtestIotSPISemaphore, NULL );
 }
 /*-----------------------------------------------------------*/
 
