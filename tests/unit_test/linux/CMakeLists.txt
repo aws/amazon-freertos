@@ -23,7 +23,6 @@
     set_target_properties(cmock PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             POSITION_INDEPENDENT_CODE ON
-            COMPILE_FLAGS "-Og"
         )
 
     add_library(unity STATIC
@@ -32,7 +31,6 @@
     set_target_properties(unity PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             POSITION_INDEPENDENT_CODE ON
-            COMPILE_FLAGS "-Og"
         )
 
     target_include_directories(cmock PUBLIC
@@ -44,10 +42,12 @@
                 ${CMAKE_CURRENT_LIST_DIR}/utils/wait_for_event.c
                 ${CMAKE_CURRENT_LIST_DIR}/utils/task_control.c
                 )
+    message ( "debug flags are ${CMAKE_C_FLAGS}")
+    message ( "c flags are ${CFLAGS}")
+    message ( "debug flags debug  are ${CMAKE_C_FLAGS_DEBUG}")
     set_target_properties(utils PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            COMPILE_FLAGS "-Wall -Og -pthread -ggdb3"
-            LINK_FLAGS "-Wall -Og -pthread -lpthread -ggdb3"
+            LINK_FLAGS " -pthread"
         )
 
     # add unit test subdirectories here

@@ -14,7 +14,6 @@ function(create_test test_name test_src link_list dep_list)
         )
     add_executable(${test_name} ${test_src} ${test_name}_runner.c)
     set_target_properties(${test_name} PROPERTIES
-            COMPILE_FLAGS "-ggdb3 -Og -Wall"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             INSTALL_RPATH_USE_LINK_PATH TRUE
             LINK_FLAGS "-Og -ggdb3 \
@@ -84,7 +83,6 @@ function(create_mock_list mock_name mock_list)
                                ${mocks_dir}
             )
     set_target_properties(${mock_name} PROPERTIES
-                        COMPILE_FLAGS "-ggdb3 -Og -fPIC"
                         LINK_FLAGS "-ggdb3 -fPIC -Og"
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
