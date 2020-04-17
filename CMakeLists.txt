@@ -23,9 +23,11 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # If AFR_BOARD_PATH is provided, load CMakeList.txt file from this path instead of searching within our
 # directory tree. Note that AFR_BOARD_PATH is also defined in the other branch, so if this is the
-# second run of cmake this branch will be triggered anyway. But if user provides AFR_BOARD_PATH,
+# second run of cmake this branch will be triggered anyway. But if the user provides AFR_BOARD_PATH,
 # we will not have the AFR_VENDOR_PATH, so we can use it to detect if this is just the second run
 # of a normal use case or user indeed passed AFR_BOARD_PATH.
+# Note: this feature is generally only meant for vendor partners doing a qualification, end users who
+# are consuming only this repo should not use it.
 if(DEFINED AFR_BOARD_PATH)
     if(NOT DEFINED AFR_VENDOR_PATH)
         # Add type to this variable so it will display in GUI, value will not change.

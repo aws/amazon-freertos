@@ -1,5 +1,5 @@
 # This file is to provide an easy interface to specify vendor, board, and compiler for FreeRTOS.
-# It is supposed to be process first by cmake before the top level CMakeLists.txt file. Note the
+# It is supposed to be processed first by cmake before the top level CMakeLists.txt file. Note the
 # behavior of this file is not officially supported by CMake. After CMake 3.17, there's a better
 # way for this, https://cmake.org/cmake/help/v3.17/variable/CMAKE_PROJECT_PROJECT-NAME_INCLUDE_BEFORE.html
 
