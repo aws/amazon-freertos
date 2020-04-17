@@ -21,31 +21,45 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Configure target board
 # -------------------------------------------------------------------------------------------------
-# Get list of supported boards.
-afr_get_boards(AFR_SUPPORTED_BOARDS)
-
-set(AFR_BOARD "vendor.board" CACHE STRING "Target board chosen by the user at configure time")
-set_property(CACHE AFR_BOARD PROPERTY STRINGS ${AFR_SUPPORTED_BOARDS})
-
-string(REGEX MATCH [[(.+)\.(.+)]] __match_result ${AFR_BOARD})
-set(AFR_VENDOR_NAME ${CMAKE_MATCH_1} CACHE INTERNAL "MCU vendor name")
-set(AFR_BOARD_NAME ${CMAKE_MATCH_2} CACHE INTERNAL "MCU board name")
-
-# Abort if the target board is not supported, i.e., corresponding folder is not present.
-if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
-    message(FATAL_ERROR "Board is not supported: ${AFR_BOARD}")
-endif()
-
-# Import board CMake build.
-set(AFR_VENDOR_PATH "vendors/${AFR_VENDOR_NAME}" CACHE INTERNAL "")
-include("${AFR_VENDOR_PATH}/manifest.cmake")
-if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
-    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}" CACHE INTERNAL "")
-elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
-    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}" CACHE INTERNAL "")
+# If AFR_BOARD_PATH is provided, load cmake file from this path instead of searching within our
+# directory tree. Also set the board name to the folder name if not provided.
+if(DEFINED AFR_BOARD_PATH)
+    if(NOT DEFINED AFR_VENDOR_PATH)
+        # Add type to this variable so it will display in GUI, value will not change.
+        set(AFR_BOARD_PATH "" CACHE STRING "Custom board path provided by user")
+        message("Loading board code from a custom location: ${AFR_BOARD_PATH}.")
+    endif()
+    if(NOT DEFINED AFR_BOARD_NAME)
+        get_filename_component(AFR_BOARD_NAME "${AFR_BOARD_PATH}" NAME CACHE)
+    endif()
 else()
-    message(FATAL_ERROR "Could not import board CMakeLists.txt.")
+    # Get list of supported boards.
+    afr_get_boards(AFR_SUPPORTED_BOARDS)
+
+    set(AFR_BOARD "vendor.board" CACHE STRING "Target board chosen by the user at configure time")
+    set_property(CACHE AFR_BOARD PROPERTY STRINGS ${AFR_SUPPORTED_BOARDS})
+
+    string(REGEX MATCH [[(.+)\.(.+)]] __match_result ${AFR_BOARD})
+    set(AFR_VENDOR_NAME ${CMAKE_MATCH_1} CACHE INTERNAL "MCU vendor name")
+    set(AFR_BOARD_NAME ${CMAKE_MATCH_2} CACHE INTERNAL "MCU board name")
+
+    # Abort if the target board is not supported, i.e., corresponding folder is not present.
+    if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
+        message(FATAL_ERROR "Board is not supported: ${AFR_BOARD}")
+    endif()
+
+    # Import board CMake build.
+    set(AFR_VENDOR_PATH "vendors/${AFR_VENDOR_NAME}" CACHE INTERNAL "")
+    include("${AFR_VENDOR_PATH}/manifest.cmake")
+    if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
+        set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}" CACHE INTERNAL "")
+    elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
+        set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}" CACHE INTERNAL "")
+    else()
+        message(FATAL_ERROR "Could not import board CMakeLists.txt.")
+    endif()
 endif()
+
 # Use include here because we need portable layer targets defined by vendor to be at
 # the same directory level as our library components.
 include("${AFR_BOARD_PATH}/CMakeLists.txt")
@@ -61,12 +75,12 @@ get_target_property(mbedtls_comp_defs afr_3rdparty_mbedtls COMPILE_DEFINITIONS)
 string(FIND "${mbedtls_comp_defs}" "MBEDTLS_CONFIG_FILE" mbedtls_config_pos)
 if( "${mbedtls_config_pos}" EQUAL "-1")
     target_include_directories(
-        afr_3rdparty_mbedtls 
+        afr_3rdparty_mbedtls
         PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls_config"
     )
     target_compile_definitions(
-        afr_3rdparty_mbedtls 
+        afr_3rdparty_mbedtls
         PUBLIC
         -DMBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"
         -DCONFIG_MEDTLS_USE_AFR_MEMORY
