@@ -50,7 +50,7 @@ if(ECC608_IN_USE)
     )
 
     afr_module_sources(
-        ${AFR_CURRENT_MODULE}
+        pkcs11_ecc608a 
         INTERFACE
             "${atca_config_dir}/atca_cert_chain.h"
             "${atca_config_dir}/atca_cert_chain.c"
