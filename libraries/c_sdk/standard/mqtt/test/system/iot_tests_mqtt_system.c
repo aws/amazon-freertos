@@ -233,7 +233,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     int32_t retryCount = 0;
 
-    uint32_t periodMs = IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY;
+    uint32_t periodMs = IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS;
 
     for( ; retryCount < IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
     {
