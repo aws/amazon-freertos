@@ -16,7 +16,7 @@ function(create_test test_name test_src link_list dep_list)
     set_target_properties(${test_name} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             INSTALL_RPATH_USE_LINK_PATH TRUE
-            LINK_FLAGS "-Og -ggdb3 \
+            LINK_FLAGS " \
                 -Wl,-rpath,${CMAKE_BINARY_DIR}/lib \
                 -Wl,-rpath,${CMAKE_CURRENT_BINARY_DIR}/lib"
         )
@@ -83,7 +83,7 @@ function(create_mock_list mock_name mock_list)
                                ${mocks_dir}
             )
     set_target_properties(${mock_name} PROPERTIES
-                        LINK_FLAGS "-ggdb3 -fPIC -Og"
+                        LINK_FLAGS "-fPIC"
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
             )
