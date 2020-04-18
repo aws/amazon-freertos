@@ -107,9 +107,9 @@ function(cy_kit_generate)
     endif()
 
     # is BLE supported?
-    string(FIND "${ARG_DEFINES}" "BLE_SUPPORTED" check_ble_supported)
+    string(FIND "${ARG_DEFINES}" "CY_BLE_SUPPORTED" check_ble_supported)
     if (NOT ("${check_ble_supported}" STREQUAL "-1"))
-       set(BLE_SUPPORTED "1")
+       set(CY_BLE_SUPPORTED 1)
     endif()
 
     #--------------------------------------------------------------------
@@ -334,10 +334,10 @@ function(cy_kit_generate)
         3rdparty::lwip_osal
     )
 
-    # BLE
-    # set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
+    # BLE 
+    if(CY_BLE_SUPPORTED)
+        set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
-    if(BLE_SUPPORTED)
         afr_mcu_port(ble_hal DEPENDS CyObjStore)
         target_sources(
             AFR::ble_hal::mcu_port
@@ -373,11 +373,11 @@ function(cy_kit_generate)
             "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/shim.FreeRTOS.ARM_CM4.release.a"
         )
 
-        target_compile_definitions(
-            AFR::ble_hal::mcu_port
-            INTERFACE
-            BLE_SUPPORTED=1
-        )
+        # target_compile_definitions(
+        #     AFR::ble_hal::mcu_port
+        #     INTERFACE
+        #     BLE_SUPPORTED=1
+        # )
     endif()
 
     # Secure sockets
@@ -482,12 +482,12 @@ function(cy_kit_generate)
         )
 
     #----------------------------------------------------------------
-if(BLE_SUPPORTED)
-    target_link_libraries(${AFR_TARGET_APP_NAME}  PUBLIC
-        AFR::ble
-        AFR::ble_hal::mcu_port
-        )
-endif()
+    if(CY_BLE_SUPPORTED)
+        target_link_libraries(${AFR_TARGET_APP_NAME}  PUBLIC
+            AFR::ble
+            AFR::ble_hal::mcu_port
+            )
+    endif()
 
     set(CMAKE_EXECUTABLE_SUFFIX ".elf" PARENT_SCOPE)
 
