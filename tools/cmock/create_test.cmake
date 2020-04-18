@@ -83,7 +83,6 @@ function(create_mock_list mock_name mock_list)
                                ${mocks_dir}
             )
     set_target_properties(${mock_name} PROPERTIES
-                        LINK_FLAGS "-fPIC"
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
             )
