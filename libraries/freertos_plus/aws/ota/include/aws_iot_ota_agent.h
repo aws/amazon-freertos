@@ -106,7 +106,7 @@ typedef enum
     eOTA_AgentState_RequestingFileBlock,
     eOTA_AgentState_WaitingForFileBlock,
     eOTA_AgentState_ClosingFile,
-	eOTA_AgentState_Suspended,
+    eOTA_AgentState_Suspended,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
     eOTA_AgentState_All
@@ -129,7 +129,7 @@ typedef enum
     eOTA_AgentEvent_ReceivedFileBlock,
     eOTA_AgentEvent_RequestTimer,
     eOTA_AgentEvent_CloseFile,
-	eOTA_AgentEvent_Suspend,
+    eOTA_AgentEvent_Suspend,
     eOTA_AgentEvent_Resume,
     eOTA_AgentEvent_UserAbort,
     eOTA_AgentEvent_Shutdown,
@@ -673,6 +673,20 @@ OTA_ImageState_t OTA_GetImageState( void );
  * list above.
  */
 OTA_Err_t OTA_CheckForUpdate( void );
+
+/* @brief Suspend OTA agent oeprations .
+ *
+ * @param[in]
+ * @return None.
+ */
+void OTA_Suspend( void );
+
+/* @brief Resume OTA agent oeprations .
+ *
+ * @param[in] pxConnection Update connection context.
+ * @return None.
+ */
+void OTA_Resume( void * pxConnection );
 
 /*---------------------------------------------------------------------------*/
 /*							Statistics API									 */
