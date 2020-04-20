@@ -159,6 +159,14 @@ static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, 
 	static BaseType_t bMayConnect( FreeRTOS_Socket_t const * pxSocket );
 #endif /* ipconfigUSE_TCP */
 
+#if( ipconfigUSE_TCP == 1 )
+	/*
+	 * Check if it makes any sense to wait for a connect event.
+	 * It may return: -EINPROGRESS, -EAGAIN, or 0 for OK.
+	 */
+	static BaseType_t bMayConnect( FreeRTOS_Socket_t *pxSocket );
+#endif /* ipconfigUSE_TCP */
+
 #if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
 
 	/* Executed by the IP-task, it will check all sockets belonging to a set */
@@ -347,6 +355,19 @@ Socket_t xReturn;
 					#if( ipconfigUDP_MAX_RX_PACKETS > 0U )
 					{
 						pxSocket->u.xUDP.uxMaxPackets = ( UBaseType_t ) ipconfigUDP_MAX_RX_PACKETS;
+=======
+					/* StreamSize is expressed in number of bytes */
+					/* Round up buffer sizes to nearest multiple of MSS */
+					pxSocket->u.xTCP.usCurMSS     = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 Mismatched essential type categories for binary operator [MISRA 2012 Rule 10.4, required]. */
+					pxSocket->u.xTCP.usInitMSS    = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 */
+					pxSocket->u.xTCP.uxRxStreamSize = ( size_t ) ipconfigTCP_RX_BUFFER_LENGTH;	/*lint !e9029 */
+					pxSocket->u.xTCP.uxTxStreamSize = ( size_t ) FreeRTOS_round_up( ipconfigTCP_TX_BUFFER_LENGTH, ipconfigTCP_MSS );	/*lint !e9029 */
+					/* Use half of the buffer size of the TCP windows */
+					#if ( ipconfigUSE_TCP_WIN == 1 )
+					{
+						pxSocket->u.xTCP.uxRxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxRxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
+						pxSocket->u.xTCP.uxTxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxTxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
+>>>>>>> FreeRTOS+TCP after merging with the multi branch
 					}
 					#endif /* ipconfigUDP_MAX_RX_PACKETS > 0 */
 				}

@@ -1573,7 +1573,7 @@ uint16_t usType = 0;
 #endif /* ipconfigUSE_NBNS */
 /*-----------------------------------------------------------*/
 
-static Socket_t prvCreateDNSSocket( void )
+static Socket_t prvCreateDNSSocket()
 {
 Socket_t xSocket;
 struct freertos_sockaddr xAddress;
