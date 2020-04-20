@@ -2,7 +2,7 @@
  * boot_loader.h
  *
  *  Created on: Mar 26, 2020
- *      Author: a5111060
+ * 
  */
 
 #ifndef BOOT_LOADER_H_
@@ -117,6 +117,12 @@
 #define __STATIC
 #else
 #define  __STATIC static
+#endif
+
+#if defined(UNITY_TEST)
+#define __CONST
+#else
+#define  __CONST const
 #endif
 
 #if !defined(MY_BSP_CFG_SERIAL_TERM_SCI)

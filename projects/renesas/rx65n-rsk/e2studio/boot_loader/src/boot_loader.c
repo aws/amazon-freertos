@@ -27,8 +27,8 @@ SCI_RECEIVE_CONTROL_BLOCK sci_receive_control_block;
 SCI_BUFFER_CONTROL sci_buffer_control[BOOT_LOADER_SCI_CONTROL_BLOCK_TOTAL_NUM];
 
 __STATIC int32_t firmware_verification_sha256_ecdsa(const uint8_t * pucData, uint32_t ulSize, const uint8_t * pucSignature, uint32_t ulSignatureSize);
-const uint8_t code_signer_public_key[] = CODE_SIGNENR_PUBLIC_KEY_PEM;
-const uint32_t code_signer_public_key_length = sizeof(code_signer_public_key);
+__CONST uint8_t code_signer_public_key[] = CODE_SIGNENR_PUBLIC_KEY_PEM;
+__CONST uint32_t code_signer_public_key_length = sizeof(code_signer_public_key);
 
 void main(void);
 __STATIC int32_t secure_boot(void);
@@ -1094,7 +1094,7 @@ __STATIC int32_t firmware_verification_sha256_ecdsa(const uint8_t * pucData, uin
     uint8_t data_length;
     uint8_t public_key[64];
     uint8_t binary[256];
-    uint8_t *head_pointer, *current_pointer, *tail_pointer;;
+    static uint8_t *head_pointer, *current_pointer, *tail_pointer;;
 
     /* Hash message */
     struct tc_sha256_state_struct xCtx;
