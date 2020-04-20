@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.2.1
+ * FreeRTOS+TCP V2.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -573,6 +573,10 @@ connections, hang protection can help reduce the impact of SYN floods. */
 
 #ifndef ipconfigSELECT_USES_NOTIFY
 	#define ipconfigSELECT_USES_NOTIFY		0
+#endif
+
+#ifndef ipconfigSELECT_USES_NOTIFY
+	#define ipconfigSELECT_USES_NOTIFY 2
 #endif
 
 #endif /* FREERTOS_DEFAULT_IP_CONFIG_H */
