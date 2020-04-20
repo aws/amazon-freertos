@@ -1,6 +1,6 @@
 /*
- * FreeRTOS V1.4.8
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -36,16 +36,6 @@
 /* #define pkcs11configC_INITIALIZE_ALT */
 
 /**
- * @brief ESP32 NVS Partition where PKCS #11 data is stored
- */
-#define pkcs11configSTORAGE_PARTITION  "storage"
-
-/**
- * @brief ESP32 NVS namespace for PKCS #11 data
- */
-#define pkcs11configSTORAGE_NS         "creds"
-
-/**
  * @brief PKCS #11 default user PIN.
  *
  * The PKCS #11 standard specifies the presence of a user PIN. That feature is
@@ -54,19 +44,19 @@
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
  */
-#define configPKCS11_DEFAULT_USER_PIN    "0000"
+#define configPKCS11_DEFAULT_USER_PIN                      "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
  * attribute.
  */
-#define pkcs11configMAX_LABEL_LENGTH     32
+#define pkcs11configMAX_LABEL_LENGTH                       32
 
 /**
  * @brief Maximum number of token objects that can be stored
  * by the PKCS #11 module.
  */
-#define pkcs11configMAX_NUM_OBJECTS      6
+#define pkcs11configMAX_NUM_OBJECTS                        6
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.
@@ -76,13 +66,18 @@
  */
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
+/*
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
+ */
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
+
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
  *
  * If set to 0, OTA code signing certificate is built in via
  * aws_ota_codesigner_certificate.h.
  */
-#define pkcs11configOTA_SUPPORTED                          1
+#define pkcs11configOTA_SUPPORTED                          0
 
 /**
  * @brief Set to 1 if PAL supports storage for JITP certificate,
