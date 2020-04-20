@@ -46,6 +46,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_config.h"
 
 /* BSP & Abstraction inclues */
 #include "cybsp.h"
