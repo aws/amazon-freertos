@@ -12,12 +12,26 @@ namespace Renesas_Secure_Flash_Programmer
         /// アプリケーションのメイン エントリ ポイントです。
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length == 0)
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-            Application.Run(new FormMain());
+                Application.Run(new FormMain(args));
+            }
+            else if (args[0] == "CUI")
+            {
+                new FormMain(args);
+            }
+            else
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                Application.Run(new FormMain(args));
+            }
         }
     }
 }
