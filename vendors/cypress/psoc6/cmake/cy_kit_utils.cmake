@@ -745,7 +745,7 @@ function(cy_kit_generate)
                 TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
                 COMMAND ${FROMELF_TOOL} --ihex "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_CM4_IMG}"
             )
-        else()
+        elseif(NOT AFR_METADATA_MODE)
             message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")
         endif()
 
