@@ -1106,6 +1106,7 @@ static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData )
 
 static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 {
+    DEFINE_OTA_METHOD_NAME( "prvShutdownHandler" );
     ( void ) pxEventData;
 
     OTA_LOG_L2( "[%s] Shutting Down OTA Agent. %d\r\n", OTA_METHOD_NAME );
