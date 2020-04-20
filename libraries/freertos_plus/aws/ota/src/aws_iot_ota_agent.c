@@ -1153,6 +1153,8 @@ static OTA_Err_t prvResetDevice( void )
 
 void prvOTAEventBufferFree( OTA_EventData_t * const pxBuffer )
 {
+    DEFINE_OTA_METHOD_NAME( "prvOTAEventBufferFree" );
+
     if( xSemaphoreTake( xOTA_Agent.xOTA_ThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         pxBuffer->bBufferUsed = false;
@@ -1166,6 +1168,8 @@ void prvOTAEventBufferFree( OTA_EventData_t * const pxBuffer )
 
 OTA_EventData_t * prvOTAEventBufferGet( void )
 {
+    DEFINE_OTA_METHOD_NAME( "prvOTAEventBufferGet" );
+
     uint32_t ulIndex = 0;
     OTA_EventData_t * pxOTAFreeMsg = NULL;
 
@@ -2425,6 +2429,8 @@ static void prvOTAAgentTask( void * pUnused )
 
 BaseType_t OTA_SignalEvent( const OTA_EventMsg_t * const pxEventMsg )
 {
+    DEFINE_OTA_METHOD_NAME( "OTA_SignalEvent" );
+
     BaseType_t xErr = pdFALSE;
 
     /*
