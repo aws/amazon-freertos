@@ -54,6 +54,7 @@
 #ifndef DEFAULT_NETWORK
 #define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
 #endif
+#define BLE_SUPPORTED      ( 1 )
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
