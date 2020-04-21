@@ -40,6 +40,7 @@ export AFR_C_SDK_AWS_PATH := ../../../../../libraries/c_sdk/aws/
 export AFR_ABSTRACTIONS_PATH := ../../../../../libraries/abstractions/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../libraries/freertos_plus/aws/
+export C_SDK_UW_PATH :=  ../../../../../../aws-iot-device-sdk-embedded-C/libraries/standard/
 
 $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_discovery.c        \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_helper_secure_connect.c       \
@@ -118,12 +119,14 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_csr.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/utils/mbedtls_utils.c             \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_agent.c                                             \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_api.c                                               \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_network.c                                           \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_operation.c                                         \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_serialize.c                                         \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_subscription.c                                      \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_validate.c                                          \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_api.c                                               \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_network.c                                           \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_operation.c                                         \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_serialize.c                                         \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_subscription.c                                      \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_validate.c                                          \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_lightweight_api.c                                   \
+                    $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_helper.c                                            \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                         \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
@@ -141,8 +144,9 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/iot_pkcs11_pal.c   \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
 
-$(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
+$(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/v1_shim/include \
+                    $(C_SDK_UW_PATH)mqtt/include \
+                    $(C_SDK_UW_PATH)mqtt/include/types \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \

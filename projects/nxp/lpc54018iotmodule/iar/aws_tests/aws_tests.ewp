@@ -393,10 +393,11 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\v1_shim\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
@@ -410,6 +411,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\private</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
@@ -2035,62 +2037,11 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
 						</file>
 					</group>
 					<group>
 						<name>test</name>
-						<group>
-							<name>mock</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
-							</file>
-						</group>
-						<group>
-							<name>unit</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c</name>
-							</file>
-						</group>
-						<group>
-							<name>system</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c</name>
-							</file>
-						</group>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c</name>
 						</file>
@@ -3212,6 +3163,81 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h</name>
 				</file>
+			</group>
+		</group>
+	</group>
+	<group>
+		<name>..</name>
+		<group>
+			<name>aws-iot-device-sdk-embedded-C</name>
+			<group>
+				<name>libraries</name>
+				<group>
+					<name>standard</name>
+					<group>
+						<name>mqtt</name>
+						<group>
+							<name>src</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_api.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_network.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_operation.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_serialize.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_lightweight_api.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_helper.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_static_memory.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_subscription.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_validate.c</name>
+							</file>
+						</group>
+						<group>
+							<name>test</name>
+							<group>
+								<name>mock</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
+								</file>
+							</group>
+							<group>
+								<name>system</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c</name>
+								</file>
+							</group>
+							<group>
+								<name>unit</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</name>
+								</file>
+							</group>
+						</group>
+					</group>
+				</group>
 			</group>
 		</group>
 	</group>

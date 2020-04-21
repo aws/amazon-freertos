@@ -392,7 +392,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\v1_shim\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
@@ -2086,27 +2087,6 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
 						</file>
 					</group>
@@ -3029,6 +3009,51 @@
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</name>
 				</file>
+			</group>
+		</group>
+	</group>
+	<group>
+		<name>..</name>
+		<group>
+			<name>aws-iot-device-sdk-embedded-C</name>
+			<group>
+				<name>libraries</name>
+				<group>
+					<name>standard</name>
+					<group>
+						<name>mqtt</name>
+						<group>
+							<name>src</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_api.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_network.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_operation.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_serialize.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_lightweight_api.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_helper.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_static_memory.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_subscription.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_validate.c</name>
+							</file>
+						</group>
+					</group>
+				</group>
 			</group>
 		</group>
 	</group>

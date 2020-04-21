@@ -51,6 +51,7 @@ export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aws/
+export C_SDK_UW_PATH :=  ../../../../../../../aws-iot-device-sdk-embedded-C/libraries/standard/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
@@ -79,12 +80,13 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \
                     $(AFR_ABSTRACTIONS_PATH)posix/include \
                     $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/private \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/test/access \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/v1_shim/include \
+                    $(C_SDK_UW_PATH)mqtt/include \
+                    $(C_SDK_UW_PATH)mqtt/include/types \
+                    $(C_SDK_UW_PATH)mqtt/src \
+                    $(C_SDK_UW_PATH)mqtt/src/private \
+                    $(C_SDK_UW_PATH)mqtt/test/access \
+                    $(C_SDK_UW_PATH)mqtt/test/mock \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
                     $(AFR_C_SDK_AWS_PATH)shadow/include/types \
@@ -134,13 +136,13 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)secure_sockets/test/iot_test_tcp.c \
                       $(AFR_ABSTRACTIONS_PATH)pkcs11/test/iot_test_pkcs11.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/iot_test_mqtt_agent.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/system/iot_tests_mqtt_system.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_api.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/mock/iot_tests_mqtt_mock.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_api.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_receive.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
+                      $(C_SDK_UW_PATH)mqtt/test/system/iot_tests_mqtt_system.c \
+                      $(C_SDK_UW_PATH)mqtt/src/iot_mqtt_api.c \
+                      $(C_SDK_UW_PATH)mqtt/test/mock/iot_tests_mqtt_mock.c \
+                      $(C_SDK_UW_PATH)mqtt/test/unit/iot_tests_mqtt_api.c \
+                      $(C_SDK_UW_PATH)mqtt/test/unit/iot_tests_mqtt_receive.c \
+                      $(C_SDK_UW_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
+                      $(C_SDK_UW_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_metrics.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/aws_test_shadow.c \
                       $(AFR_C_SDK_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \

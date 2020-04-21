@@ -77,6 +77,12 @@
 		<Filter Include="libraries\c_sdk\aws"/>
 		<Filter Include="libraries\c_sdk\aws\defender\src\private"/>
 		<Filter Include="libraries\c_sdk\aws\defender\include"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C"/>
+		<Filter Include=".."/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
@@ -118,10 +124,11 @@
 		<Filter Include="libraries\c_sdk\standard\https\test\unit"/>
 		<Filter Include="libraries\c_sdk\standard\https\test"/>
 		<Filter Include="libraries\c_sdk\standard\https\test\system"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\mock"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system"/>
+		<Filter Include="..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\test"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\unit"/>
-		<Filter Include="libraries\c_sdk\standard\mqtt\test\system"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\test"/>
 		<Filter Include="libraries\freertos_plus\aws\greengrass\test"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\test"/>
@@ -1220,26 +1227,32 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c">
 			<Filter>libraries\c_sdk\aws\defender\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_api.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_network.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_operation.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_serialize.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_lightweight_api.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_helper.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
-			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_static_memory.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_subscription.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src\iot_mqtt_validate.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
@@ -1385,26 +1398,23 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c">
 			<Filter>libraries\c_sdk\standard\https\test\system</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\mock</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock\iot_tests_mqtt_mock.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\mock</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\system</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c">
-			<Filter>libraries\c_sdk\standard\mqtt\test\system</Filter>
+		<ClCompile Include="..\..\..\..\..\..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
+			<Filter>..\aws-iot-device-sdk-embedded-C\libraries\standard\mqtt\test\unit</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c">
 			<Filter>libraries\c_sdk\standard\mqtt\test</Filter>

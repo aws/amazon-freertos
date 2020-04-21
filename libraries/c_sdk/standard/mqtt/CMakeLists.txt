@@ -8,7 +8,7 @@ afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
-set(c_sdk_mqtt_dir "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C/libraries/standard/mqtt")
+set(c_sdk_mqtt_dir "${AFR_ROOT_DIR}/libraries/../../aws-iot-device-sdk-embedded-C/libraries/standard/mqtt")
 set(local_src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(c_sdk_src_dir "${c_sdk_mqtt_dir}/src")
 set(local_inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
@@ -28,7 +28,7 @@ include("${c_sdk_mqtt_dir}/filePaths.cmake")
 
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
-    set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
+    set(extra_mqtt_sources "${local_src_dir}/iot_ble_mqtt_serialize.c")
     set(extra_mqtt_dependencies AFR::serializer AFR::ble)
 endif()
 
@@ -83,7 +83,7 @@ afr_test_module()
 
 # Enable tests for BLE-over-MQTT serializers on supported boards.
 if(BLE_SUPPORTED)
-    set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
+    set(extra_test_mqtt_sources "${local_test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
 endif()
 
 list(TRANSFORM MQTT_SYSTEM_TEST_SOURCES PREPEND "${c_sdk_mqtt_dir}/")
@@ -99,13 +99,13 @@ afr_module_sources(
 )
 
 #Disable compiling of Shim layer tests.
-#if(TARGET AFR::secure_sockets::mcu_port)
-#afr_module_sources(
-#    ${AFR_CURRENT_MODULE}
-#    INTERFACE
-#        "${test_dir}/iot_test_mqtt_agent.c"
-#)
-#endif()
+if(TARGET AFR::secure_sockets::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${local_test_dir}/iot_test_mqtt_agent.c"
+)
+endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}

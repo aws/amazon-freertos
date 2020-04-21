@@ -302,9 +302,9 @@ static IotNetworkError_t _tlsSetup( const struct IotNetworkCredentials * pAfrCre
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
-                                        void * pCredentialInfo,
-                                        void ** pConnection )
+IotNetworkError_t IotNetworkAfr_Create( IotNetworkServerInfo_t pConnectionInfo,
+                                        IotNetworkCredentials_t pCredentialInfo,
+                                        IotNetworkConnection_t * pConnection )
 {
     IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
     Socket_t tcpSocket = SOCKETS_INVALID_SOCKET;
@@ -438,7 +438,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
+IotNetworkError_t IotNetworkAfr_SetReceiveCallback( IotNetworkConnection_t pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
@@ -472,7 +472,7 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
 
 /*-----------------------------------------------------------*/
 
-size_t IotNetworkAfr_Send( void * pConnection,
+size_t IotNetworkAfr_Send( IotNetworkConnection_t pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength )
 {
@@ -509,7 +509,7 @@ size_t IotNetworkAfr_Send( void * pConnection,
 
 /*-----------------------------------------------------------*/
 
-size_t IotNetworkAfr_Receive( void * pConnection,
+size_t IotNetworkAfr_Receive( IotNetworkConnection_t pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
@@ -625,7 +625,7 @@ size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
+IotNetworkError_t IotNetworkAfr_Close( IotNetworkConnection_t pConnection )
 {
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
@@ -650,7 +650,7 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
+IotNetworkError_t IotNetworkAfr_Destroy( IotNetworkConnection_t pConnection )
 {
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;

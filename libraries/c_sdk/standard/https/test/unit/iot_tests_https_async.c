@@ -191,7 +191,7 @@ static void _invokeNetworkReceiveCallback( void * pArgument )
  *
  * Because the network send succeeded we mimic the network by starting a thread to envoke the network receive callback.
  */
-static size_t _networkSendSuccess( void * pConnection,
+static size_t _networkSendSuccess( IotNetworkConnection_t pConnection,
                                    const uint8_t * pMessage,
                                    size_t messageLength )
 {
@@ -222,7 +222,7 @@ static size_t _networkSendSuccess( void * pConnection,
 /**
  * @brief Network abstraction send function that fails sending the HTTP headers.
  */
-static size_t _networkSendFailHeaders( void * pConnection,
+static size_t _networkSendFailHeaders( IotNetworkConnection_t pConnection,
                                        const uint8_t * pMessage,
                                        size_t messageLength )
 {
@@ -250,7 +250,7 @@ static size_t _networkSendFailHeaders( void * pConnection,
 /**
  * @brief Network abstraction send function that fails sending the HTTP body.
  */
-static size_t _networkSendFailBody( void * pConnection,
+static size_t _networkSendFailBody( IotNetworkConnection_t pConnection,
                                     const uint8_t * pMessage,
                                     size_t messageLength )
 {
@@ -389,7 +389,7 @@ static size_t _httpParserExecuteFailBody( http_parser * parser,
 /**
  * @brief A network send function that fails on the second call to receive the headers.
  */
-size_t _networkSendFailsOnSecondHeaderSend( void * pConnection,
+size_t _networkSendFailsOnSecondHeaderSend( IotNetworkConnection_t pConnection,
                                             const uint8_t * pMessage,
                                             size_t messageLength )
 {
@@ -431,7 +431,7 @@ size_t _networkSendFailsOnSecondHeaderSend( void * pConnection,
  * This function relies on _httpsResponse_t.pHttpsResponse getting set, in the currently processing _httpsResponse_t,
  * before the network send function is called.
  */
-static size_t _networkSendSuccessWithSettingParseFailForHeaders( void * pConnection,
+static size_t _networkSendSuccessWithSettingParseFailForHeaders( IotNetworkConnection_t pConnection,
                                                                  const uint8_t * pMessage,
                                                                  size_t messageLength )
 {
@@ -451,7 +451,7 @@ static size_t _networkSendSuccessWithSettingParseFailForHeaders( void * pConnect
  * This function relies on _httpsResponse_t.pHttpsResponse getting set, in the currently processing _httpsResponse_t,
  * before the network send function is called.
  */
-static size_t _networkSendSuccessWithSettingParseFailForBody( void * pConnection,
+static size_t _networkSendSuccessWithSettingParseFailForBody( IotNetworkConnection_t pConnection,
                                                               const uint8_t * pMessage,
                                                               size_t messageLength )
 {

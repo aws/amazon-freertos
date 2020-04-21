@@ -43,6 +43,7 @@ export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aws/
 export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
+export C_SDK_UW_PATH :=  ../../../../../../../aws-iot-device-sdk-embedded-C/libraries/standard/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
@@ -68,8 +69,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/v1_shim/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC \
                     $(AFR_C_SDK_AWS_PATH)shadow/include \
@@ -84,6 +84,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/include/types \
                     $(AFR_THIRDPARTY_PATH)http_parser \
+                    $(C_SDK_UW_PATH)mqtt/include \
+                    $(C_SDK_UW_PATH)mqtt/include/types
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \

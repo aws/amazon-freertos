@@ -155,7 +155,7 @@ static size_t _networkReceiveFail( void * pConnection,
  * @brief A network receive callback that succeeds.
  */
 #if 0
-    static size_t _networkReceiveSuccess( void * pConnection,
+    static size_t _networkReceiveSuccess( IotNetworkConnection_t pConnection,
                                           uint8_t * pBuffer,
                                           size_t bytesRequested )
     {
@@ -184,7 +184,7 @@ static size_t _networkReceiveFail( void * pConnection,
 /**
  * @brief Network abstraction send function that succeeds.
  */
-static size_t _networkSendSuccess( void * pConnection,
+static size_t _networkSendSuccess( IotNetworkConnection_t pConnection,
                                    const uint8_t * pMessage,
                                    size_t messageLength )
 {
@@ -199,7 +199,7 @@ static size_t _networkSendSuccess( void * pConnection,
 /**
  * @brief Network abstraction send function that fails.
  */
-static size_t _networkSendFail( void * pConnection,
+static size_t _networkSendFail( IotNetworkConnection_t pConnection,
                                 const uint8_t * pMessage,
                                 size_t messageLength )
 {
@@ -216,7 +216,7 @@ static size_t _networkSendFail( void * pConnection,
 /**
  * @brief Network Abstraction close function that fails.
  */
-static IotNetworkError_t _networkCloseFail( void * pConnection )
+static IotNetworkError_t _networkCloseFail( IotNetworkConnection_t pConnection )
 {
     ( void ) pConnection;
     return IOT_NETWORK_FAILURE;
@@ -227,7 +227,7 @@ static IotNetworkError_t _networkCloseFail( void * pConnection )
 /**
  * @brief Network Abstraction close function that fails.
  */
-static IotNetworkError_t _networkDestroyFail( void * pConnection )
+static IotNetworkError_t _networkDestroyFail( IotNetworkConnection_t pConnection )
 {
     ( void ) pConnection;
     return IOT_NETWORK_FAILURE;
@@ -238,9 +238,9 @@ static IotNetworkError_t _networkDestroyFail( void * pConnection )
 /**
  * @brief Network Abstraction create function that fails.
  */
-static IotNetworkError_t _networkCreateFail( void * pConnectionInfo,
-                                             void * pCredentialInfo,
-                                             void ** pConnection )
+static IotNetworkError_t _networkCreateFail( IotNetworkServerInfo_t pConnectionInfo,
+                                             IotNetworkCredentials_t pCredentialInfo,
+                                             IotNetworkConnection_t * pConnection )
 {
     ( void ) pConnectionInfo;
     ( void ) pCredentialInfo;
@@ -253,7 +253,7 @@ static IotNetworkError_t _networkCreateFail( void * pConnectionInfo,
 /**
  * @brief Network Abstraction setReceiveCallback that fails.
  */
-static IotNetworkError_t _setReceiveCallbackFail( void * pConnection,
+static IotNetworkError_t _setReceiveCallbackFail( IotNetworkConnection_t pConnection,
                                                   IotNetworkReceiveCallback_t receiveCallback,
                                                   void * pContext )
 {

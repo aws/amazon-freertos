@@ -123,15 +123,15 @@ typedef struct _networkConnection IotNetworkConnectionAfr_t;
  * @brief An implementation of #IotNetworkInterface_t::create for FreeRTOS
  * Secure Sockets.
  */
-IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
-                                        void * pCredentialInfo,
-                                        void ** const pConnection );
+IotNetworkError_t IotNetworkAfr_Create( IotNetworkServerInfo_t pConnectionInfo,
+                                        IotNetworkCredentials_t pCredentialInfo,
+                                        IotNetworkConnection_t * const pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
  * FreeRTOS Secure Sockets.
  */
-IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
+IotNetworkError_t IotNetworkAfr_SetReceiveCallback( IotNetworkConnection_t pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext );
 
@@ -139,7 +139,7 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
  * @brief An implementation of #IotNetworkInterface_t::send for FreeRTOS
  * Secure Sockets.
  */
-size_t IotNetworkAfr_Send( void * pConnection,
+size_t IotNetworkAfr_Send( IotNetworkConnection_t pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength );
 
@@ -147,7 +147,7 @@ size_t IotNetworkAfr_Send( void * pConnection,
  * @brief An implementation of #IotNetworkInterface_t::receive for FreeRTOS
  * Secure Sockets.
  */
-size_t IotNetworkAfr_Receive( void * pConnection,
+size_t IotNetworkAfr_Receive( IotNetworkConnection_t pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested );
 
@@ -163,13 +163,13 @@ size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
  * @brief An implementation of #IotNetworkInterface_t::close for FreeRTOS
  * Secure Sockets.
  */
-IotNetworkError_t IotNetworkAfr_Close( void * pConnection );
+IotNetworkError_t IotNetworkAfr_Close( IotNetworkConnection_t pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::destroy for FreeRTOS
  * Secure Sockets.
  */
-IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection );
+IotNetworkError_t IotNetworkAfr_Destroy( IotNetworkConnection_t pConnection );
 
 /**
  * @cond DOXYGEN_IGNORE

@@ -260,9 +260,9 @@ static IotHttpsConnectionInfo_t _connInfo = {
 /**
  * @brief Network Abstraction create function that succeeds.
  */
-static inline IotNetworkError_t _networkCreateSuccess( void * pConnectionInfo,
-                                                       void * pCredentialInfo,
-                                                       void ** pConnection )
+static inline IotNetworkError_t _networkCreateSuccess( IotNetworkServerInfo_t pConnectionInfo,
+                                                       IotNetworkCredentials_t pCredentialInfo,
+                                                       IotNetworkConnection_t * pConnection )
 {
     ( void ) pConnectionInfo;
     ( void ) pCredentialInfo;
@@ -275,7 +275,7 @@ static inline IotNetworkError_t _networkCreateSuccess( void * pConnectionInfo,
 /**
  * @brief Network Abstraction setReceiveCallback that succeeds.
  */
-static inline IotNetworkError_t _setReceiveCallbackSuccess( void * pConnection,
+static inline IotNetworkError_t _setReceiveCallbackSuccess( IotNetworkConnection_t pConnection,
                                                             IotNetworkReceiveCallback_t receiveCallback,
                                                             void * pContext )
 {
@@ -332,7 +332,7 @@ static inline IotHttpsResponseHandle_t _getRespHandle( IotHttpsResponseInfo_t * 
 /**
  * @brief Network Abstraction close function that succeeds.
  */
-static inline IotNetworkError_t _networkCloseSuccess( void * pConnection )
+static inline IotNetworkError_t _networkCloseSuccess( IotNetworkConnection_t pConnection )
 {
     ( void ) pConnection;
     /* When the network closes there should be no data on the socket. */
@@ -346,7 +346,7 @@ static inline IotNetworkError_t _networkCloseSuccess( void * pConnection )
 /**
  * @brief Network abstraction destroy function that succeeds.
  */
-static inline IotNetworkError_t _networkDestroySuccess( void * pConnection )
+static inline IotNetworkError_t _networkDestroySuccess( IotNetworkConnection_t pConnection )
 {
     ( void ) pConnection;
     return IOT_NETWORK_SUCCESS;
