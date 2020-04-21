@@ -461,6 +461,7 @@ void runDemoTask( void * pArgument )
 
         /* Unused Parameters */
         ( void ) xTask;
+        ( void ) pcTaskName;
 
         /* Loop forever */
         for( ; ; )
