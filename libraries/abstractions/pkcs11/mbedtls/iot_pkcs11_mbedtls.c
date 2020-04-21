@@ -837,6 +837,9 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                                           size_t xLength,
                                           uint8_t ** ppucCertData )
     {
+        /* Disable unused parameter warning. */
+        ( void ) xLength;
+
         BaseType_t xResult = CK_TRUE;
 
         if( 0 == memcmp( pucLabel, pkcs11configLABEL_JITP_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_JITP_CERTIFICATE ) ) )
@@ -1106,6 +1109,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID xSlotID,
                                                   CK_MECHANISM_TYPE type,
                                                   CK_MECHANISM_INFO_PTR pInfo )
 {
+    /* Disable unused parameter warning. */
+    ( void ) xSlotID;
+
     CK_RV xResult = CKR_MECHANISM_INVALID;
     struct CryptoMechanisms
     {
@@ -1643,14 +1649,12 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
  * @param[out] ppxLabel label of PKCS #11 object.
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
- * @param[in] pxObject PKCS #11 object handle.
  *
  */
 CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                              CK_ATTRIBUTE_PTR * ppxLabel,
                              CK_ATTRIBUTE_PTR pxTemplate,
-                             CK_ULONG ulCount,
-                             CK_OBJECT_HANDLE_PTR pxObject )
+                             CK_ULONG ulCount )
 {
     CK_RV xResult = CKR_OK;
     int lMbedReturn;
@@ -1748,14 +1752,12 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
  * @param[out] ppxLabel label of PKCS #11 object.
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
- * @param[in] pxObject PKCS #11 object handle.
  *
  */
 CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                               CK_ATTRIBUTE_PTR * ppxLabel,
                               CK_ATTRIBUTE_PTR pxTemplate,
-                              CK_ULONG ulCount,
-                              CK_OBJECT_HANDLE_PTR pxObject )
+                              CK_ULONG ulCount )
 {
     CK_RV xResult = CKR_OK;
     mbedtls_rsa_context * pxRsaContext;
@@ -1912,7 +1914,6 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     mbedtls_rsa_context * pxRsaCtx = NULL;
-    mbedtls_ecp_keypair * pxKeyPair = NULL;
 
     mbedtls_pk_init( &xMbedContext );
 
@@ -1931,8 +1932,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
             xResult = prvCreateRsaPrivateKey( &xMbedContext,
                                               &pxLabel,
                                               pxTemplate,
-                                              ulCount,
-                                              pxObject );
+                                              ulCount );
         }
         else
         {
@@ -1957,7 +1957,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
 
                 /* If a key had been found by prvGetExistingKeyComponent, the keypair context
                  * would have been malloc'ed. */
-                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+                mbedtls_ecp_keypair * pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
 
                 if( pxKeyPair != NULL )
                 {
@@ -1980,8 +1980,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
             xResult = prvCreateEcPrivateKey( &xMbedContext,
                                              &pxLabel,
                                              pxTemplate,
-                                             ulCount,
-                                             pxObject );
+                                             ulCount );
         }
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
@@ -2076,14 +2075,12 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
  * @param[out] ppxLabel label of PKCS #11 object.
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
- * @param[in] pxObject PKCS #11 object handle.
  *
  */
 CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
                             CK_ATTRIBUTE_PTR * ppxLabel,
                             CK_ATTRIBUTE_PTR pxTemplate,
-                            CK_ULONG ulCount,
-                            CK_OBJECT_HANDLE_PTR pxObject )
+                            CK_ULONG ulCount )
 {
     CK_RV xResult = CKR_OK;
     int lMbedReturn;
@@ -2195,8 +2192,6 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     CK_BBOOL xPrivateKeyFound = CK_FALSE;
 
     mbedtls_pk_init( &xMbedContext );
-    mbedtls_ecp_keypair * pxKeyPair;
-
 
     prvGetKeyType( &xKeyType, pxTemplate, ulCount );
 
@@ -2221,7 +2216,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
                 /* If a key had been found by prvGetExistingKeyComponent, the keypair context
                  * would have been malloc'ed. */
-                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+                mbedtls_ecp_keypair * pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
 
                 if( pxKeyPair != NULL )
                 {
@@ -2245,7 +2240,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                 xPrivateKeyFound = CK_TRUE;
             }
 
-            xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
+            xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount );
         }
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
