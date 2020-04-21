@@ -137,5 +137,10 @@
  */
 #define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    0
 
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    0
+#endif
+
+
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

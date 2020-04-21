@@ -1210,6 +1210,24 @@ CK_RV prvMbedTLS_Initialize( void )
                PKCS11_PRINT( ( "ERROR: Failed to retrieve device certificate information  err=0x%x. \r\n",  status ) );
             }
         }
+
+        if( xResult == CKR_OK )
+        {
+            /* Retrieve JITP certificate info */
+            status = psa_ps_get_info( P11KeyConfig.uxJitpCertificate, &ps_info);
+            if (status == PSA_SUCCESS) {
+                P11KeyConfig.ulJitpCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
+            }
+            else
+            {
+               /* Not treat as error if doesn't exist */
+               if (status != PSA_ERROR_INVALID_HANDLE) {
+                   xResult = CKR_ARGUMENTS_BAD;
+               }
+               PKCS11_PRINT( ( "WARN: Failed to retrieve JITP certificate information err=0x%x. \r\n",  status ) );
+            }
+        }
+
 #else
         /* PSA Crypto library should haven been initialised successfully in secure world. */
         xP11Context.xIsInitialized = CK_TRUE;
