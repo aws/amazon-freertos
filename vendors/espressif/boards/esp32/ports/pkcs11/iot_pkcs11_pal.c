@@ -56,6 +56,249 @@ enum eObjectHandles
 };
 /*-----------------------------------------------------------*/
 
+/* Converts a label to its respective filename and handle. */
+void prvLabelToFilenameHandle( uint8_t * pcLabel,
+                               char ** pcFileName,
+                               CK_OBJECT_HANDLE_PTR pHandle )
+{
+    if( pcLabel != NULL )
+    {
+        /* Translate from the PKCS#11 label to local storage file name. */
+        if( 0 == memcmp( pcLabel,
+                         pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         strlen( (char*)pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+            *pHandle = eAwsDeviceCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              strlen( (char*)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePrivateKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              strlen( (char*)pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePublicKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                              strlen( (char*)pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+        {
+            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+            *pHandle = eAwsCodeSigningKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              pkcs11configLABEL_JITP_CERTIFICATE,
+                              strlen( (char*)pkcs11configLABEL_JITP_CERTIFICATE ) ) )
+        {
+            *pcFileName = pkcs11palFILE_JITP_CERTIFICATE;
+            *pHandle = eAwsJITPCertificate;
+        }
+        else
+        {
+            *pcFileName = NULL;
+            *pHandle = eInvalidHandle;
+        }
+    }
+}
+
+#define CONFIG_PRE_PROVISIONING_ENABLED
+#ifdef CONFIG_PRE_PROVISIONING_ENABLED
+
+#include "secure_cert_operations.h"
+/* This function can be found in libraries/3rdparty/mbedtls_utils/mbedtls_utils.c. */
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen );
+
+/**
+ * @brief Writes a file to local storage.
+ *
+ * Port-specific file write for crytographic information.
+ *
+ * @param[in] pxLabel       Label of the object to be saved.
+ * @param[in] pucData       Data buffer to be written to file
+ * @param[in] ulDataSize    Size (in bytes) of data to be saved.
+ *
+ * @return The file handle of the object that was stored.
+ */
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
+                                        uint8_t * pucData,
+                                        uint32_t ulDataSize )
+{
+
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+    char * pcFileName = NULL;
+
+    /* Translate from the PKCS#11 label to local storage file name. */
+    prvLabelToFilenameHandle( pxLabel->pValue,
+                              &pcFileName,
+                              &xHandle );
+
+    ESP_LOGI(TAG, "Writing file %s, %d bytes", pcFileName, ulDataSize);
+    ESP_LOGI(TAG, "File expected to be on flash, skipping saving. %s", pcFileName);
+    return xHandle;
+}
+
+/**
+ * @brief Translates a PKCS #11 label into an object handle.
+ *
+ * Port-specific object handle retrieval.
+ *
+ *
+ * @param[in] pxLabel         Pointer to the label of the object
+ *                           who's handle should be found.
+ * @param[in] usLength       The length of the label, in bytes.
+ *
+ * @return The object handle if operation was successful.
+ * Returns eInvalidHandle if unsuccessful.
+ */
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
+                                        uint8_t usLength )
+{
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+    char * pcFileName = NULL;
+
+    /* Translate from the PKCS#11 label to local storage file name. */
+    prvLabelToFilenameHandle( pcLabel,
+                              &pcFileName,
+                              &xHandle );
+
+    if( pcFileName != NULL ) {
+        uint32_t len;
+        ESP_LOGI( TAG, "Finding file %s", pcFileName );
+        if (secure_cert_get_data(NULL, &len, pcFileName) != ESP_OK) {
+            ESP_LOGE(TAG, "failed to read %s", pcFileName);
+            xHandle = eInvalidHandle;
+        }
+    }
+
+    return xHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Gets the value of an object in storage, by handle.
+ *
+ * Port-specific file access for cryptographic information.
+ *
+ * This call dynamically allocates the buffer which object value
+ * data is copied into.  PKCS11_PAL_GetObjectValueCleanup()
+ * should be called after each use to free the dynamically allocated
+ * buffer.
+ *
+ * @sa PKCS11_PAL_GetObjectValueCleanup
+ *
+ * @param[in] pcFileName    The name of the file to be read.
+ * @param[out] ppucData     Pointer to buffer for file data.
+ * @param[out] pulDataSize  Size (in bytes) of data located in file.
+ * @param[out] pIsPrivate   Boolean indicating if value is private (CK_TRUE)
+ *                          or exportable (CK_FALSE)
+ *
+ * @return CKR_OK if operation was successful.  CKR_KEY_HANDLE_INVALID if
+ * no such object handle was found, CKR_DEVICE_MEMORY if memory for
+ * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
+ * error.
+ */
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                 uint8_t ** ppucData,
+                                 uint32_t * pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
+{
+
+    char * pcFileName = NULL;
+    CK_RV ulReturn = CKR_OK;
+
+    if( xHandle == eAwsDeviceCertificate )
+    {
+        pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsDevicePrivateKey )
+    {
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_TRUE;
+    }
+    else if( xHandle == eAwsDevicePublicKey )
+    {
+        /* Public and private key are stored together in same file. */
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsCodeSigningKey )
+    {
+        pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsJITPCertificate )
+    {
+        pcFileName = pkcs11palFILE_JITP_CERTIFICATE;
+        *pIsPrivate = CK_FALSE;
+    }
+    else
+    {
+        ulReturn = CKR_OBJECT_HANDLE_INVALID;
+    }
+
+    if (ulReturn == CKR_OK)
+    {
+        ESP_LOGD(TAG, "Reading file %s", pcFileName);
+
+        size_t pem_size = 0;
+        if (secure_cert_get_data(NULL, &pem_size, pcFileName) != ESP_OK) {
+            ESP_LOGE(TAG, "failed to read %s", pcFileName);
+            xHandle = eInvalidHandle;
+        }
+
+        uint8_t *pem_data = pvPortMalloc(pem_size);
+        if (pem_data == NULL) {
+            ESP_LOGE(TAG, "malloc failed");
+            return CKR_HOST_MEMORY;
+        }
+        bzero(pem_data, pem_size);
+
+        esp_err_t err = secure_cert_get_data(pem_data, &pem_size, pcFileName);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "failed nvs get file %d", err);
+            vPortFree(pem_data);
+            return CKR_FUNCTION_FAILED;
+        }
+
+        /* Convert the certificate to DER format if it was in PEM. The DER key
+         * should be about 3/4 the size of the PEM key, so mallocing the PEM key
+         * size is sufficient. */
+        size_t der_size = pem_size;
+        uint8_t *der_data = pvPortMalloc(der_size);
+        if (der_data == NULL) {
+            ESP_LOGE(TAG, "malloc failed");
+            return CKR_HOST_MEMORY;
+        }
+
+        bzero(der_data, pem_size);
+        *ppucData = der_data;
+
+        if (convert_pem_to_der(pem_data, pem_size, der_data, &der_size) != 0) {
+            ESP_LOGE(TAG, "pem to der conversion failed");
+            vPortFree( der_data ); 
+            vPortFree( pem_data ); 
+            return CKR_ARGUMENTS_BAD;
+        }
+
+        *pulDataSize = der_size;
+        vPortFree ( pem_data );
+    }
+
+    return ulReturn;
+}
+#else
+
 static void initialize_nvs_partition()
 {
     static bool nvs_inited;
@@ -108,57 +351,6 @@ static void initialize_nvs_partition()
     portEXIT_CRITICAL();
 
     return;
-}
-
-/* Converts a label to its respective filename and handle. */
-void prvLabelToFilenameHandle( uint8_t * pcLabel,
-                               char ** pcFileName,
-                               CK_OBJECT_HANDLE_PTR pHandle )
-{
-    if( pcLabel != NULL )
-    {
-        /* Translate from the PKCS#11 label to local storage file name. */
-        if( 0 == memcmp( pcLabel,
-                         pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                         strlen( (char*)pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-        {
-            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
-            *pHandle = eAwsDeviceCertificate;
-        }
-        else if( 0 == memcmp( pcLabel,
-                              pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                              strlen( (char*)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
-        {
-            *pcFileName = pkcs11palFILE_NAME_KEY;
-            *pHandle = eAwsDevicePrivateKey;
-        }
-        else if( 0 == memcmp( pcLabel,
-                              pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                              strlen( (char*)pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
-        {
-            *pcFileName = pkcs11palFILE_NAME_KEY;
-            *pHandle = eAwsDevicePublicKey;
-        }
-        else if( 0 == memcmp( pcLabel,
-                              pkcs11configLABEL_CODE_VERIFICATION_KEY,
-                              strlen( (char*)pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
-        {
-            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
-            *pHandle = eAwsCodeSigningKey;
-        }
-        else if( 0 == memcmp( pcLabel,
-                              pkcs11configLABEL_JITP_CERTIFICATE,
-                              strlen( (char*)pkcs11configLABEL_JITP_CERTIFICATE ) ) )
-        {
-            *pcFileName = pkcs11palFILE_JITP_CERTIFICATE;
-            *pHandle = eAwsJITPCertificate;
-        }
-        else
-        {
-            *pcFileName = NULL;
-            *pHandle = eInvalidHandle;
-        }
-    }
 }
 
 /**
@@ -362,6 +554,8 @@ done:
 
     return ulReturn;
 }
+
+#endif /* CONFIG_PRE_PROVISIONING_ENABLED */
 
 /**
  * @brief Cleanup after PKCS11_GetObjectValue().
