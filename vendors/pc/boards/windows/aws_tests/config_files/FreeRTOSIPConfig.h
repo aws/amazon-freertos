@@ -72,8 +72,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket. */
-#define ipconfigUSE_DNS_CACHE                      ( 1 )
+ * a socket.
+ *
+ * NOTE: This feature should not be used with services behind a load balancer,
+ * since occasionally one of the addresses returned may not be available due to
+ * eventual consistency.  Until FreeRTOS+TCP caches more than a single DNS
+ * result for a hostname lookup, it's recommended to disaqble this feature when
+ * contacting services behind a load balancer.
+ */
+#define ipconfigUSE_DNS_CACHE                      ( 0 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
