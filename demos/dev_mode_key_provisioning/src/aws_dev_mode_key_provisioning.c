@@ -854,7 +854,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG ulSlotCount = 0;
     CK_TOKEN_INFO xTokenInfo = { 0 };
-    int i = 0;
+    unsigned int i = 0;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
