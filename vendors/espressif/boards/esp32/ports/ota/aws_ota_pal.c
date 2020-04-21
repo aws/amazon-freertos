@@ -196,7 +196,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
         return kOTA_Err_RxFileCreateFailed;
     }
 
-    const esp_partition_t * update_partition = aws_esp_ota_get_next_update_partition( NULL );
+    const esp_partition_t * update_partition = esp_ota_get_next_update_partition( NULL );
 
     if( update_partition == NULL )
     {
@@ -208,11 +208,11 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
               update_partition->subtype, update_partition->address );
 
     esp_ota_handle_t update_handle;
-    esp_err_t err = aws_esp_ota_begin( update_partition, OTA_SIZE_UNKNOWN, &update_handle );
+    esp_err_t err = esp_ota_begin( update_partition, OTA_SIZE_UNKNOWN, &update_handle );
 
     if( err != ESP_OK )
     {
-        ESP_LOGE( TAG, "aws_esp_ota_begin failed (%d)", err );
+        ESP_LOGE( TAG, "esp_ota_begin failed (%d)", err );
         return kOTA_Err_RxFileCreateFailed;
     }
 
@@ -224,7 +224,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
     ota_ctx.data_write_len = 0;
     ota_ctx.valid_image = false;
 
-    ESP_LOGI( TAG, "aws_esp_ota_begin succeeded" );
+    ESP_LOGI( TAG, "esp_ota_begin succeeded" );
 
     return kOTA_Err_None;
 }
@@ -495,7 +495,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
 
                 if( result == kOTA_Err_None )
                 {
-                    esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, sec_boot_sig, ota_ctx.data_write_len, ECDSA_SIG_SIZE );
+                    esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, sec_boot_sig, ECDSA_SIG_SIZE, ota_ctx.data_write_len );
 
                     if( ret != ESP_OK )
                     {
@@ -530,18 +530,18 @@ OTA_Err_t prvPAL_ActivateNewImage( void )
 {
     if( ota_ctx.cur_ota != NULL )
     {
-        if( aws_esp_ota_end( ota_ctx.update_handle ) != ESP_OK )
+        if( esp_ota_end( ota_ctx.update_handle ) != ESP_OK )
         {
-            ESP_LOGE( TAG, "aws_esp_ota_end failed!" );
+            ESP_LOGE( TAG, "esp_ota_end failed!" );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             prvPAL_ResetDevice();
         }
 
-        esp_err_t err = aws_esp_ota_set_boot_partition( ota_ctx.update_partition );
+        esp_err_t err = esp_ota_set_boot_partition( ota_ctx.update_partition );
 
         if( err != ESP_OK )
         {
-            ESP_LOGE( TAG, "aws_esp_ota_set_boot_partition failed (%d)!", err );
+            ESP_LOGE( TAG, "esp_ota_set_boot_partition failed (%d)!", err );
             esp_partition_erase_range( ota_ctx.update_partition, 0, ota_ctx.update_partition->size );
             _esp_ota_ctx_clear( &ota_ctx );
         }
@@ -562,7 +562,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
 {
     if( _esp_ota_ctx_validate( C ) )
     {
-        esp_err_t ret = aws_esp_ota_write( ota_ctx.update_handle, pacData, iOffset, iBlockSize );
+        esp_err_t ret = esp_ota_write_with_offset( ota_ctx.update_handle, pacData, iBlockSize, iOffset );
 
         if( ret != ESP_OK )
         {
