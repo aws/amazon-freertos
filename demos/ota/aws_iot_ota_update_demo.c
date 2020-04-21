@@ -197,25 +197,23 @@ static void prvNetworkDisconnectCallback( void * param,
 {
     ( void ) param;
 
-    const char * pMqttDisconnectStr = "Mqtt disconnected due to";
-
     /* Log the reson for MQTT disconnect.*/
     switch( mqttCallbackParams->u.disconnectReason )
     {
         case IOT_MQTT_DISCONNECT_CALLED:
-            configPRINTF( ( "%s invoking disconnect function.\r\n", pMqttDisconnectStr ) );
+            configPRINTF( ( "Mqtt disconnected due to invoking diconnect function.\r\n" ) );
             break;
 
         case IOT_MQTT_BAD_PACKET_RECEIVED:
-            configPRINTF( ( "%s invalid packet received from the network.\r\n", pMqttDisconnectStr ) );
+            configPRINTF( ( "Mqtt disconnected due to invalid packet received from the network.\r\n" ) );
             break;
 
         case IOT_MQTT_KEEP_ALIVE_TIMEOUT:
-            configPRINTF( ( "Keep-alive response was not received.\r\n", pMqttDisconnectStr ) );
+            configPRINTF( ( "Mqtt disconnected due to Keep-alive response not received.\r\n" ) );
             break;
 
         default:
-            configPRINTF( ( "unknown reason.", pMqttDisconnectStr ) );
+            configPRINTF( ( "Mqtt disconnected due to unknown reason." ) );
             break;
     }
 
