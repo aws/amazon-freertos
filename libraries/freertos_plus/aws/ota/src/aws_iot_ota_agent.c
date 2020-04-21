@@ -2993,6 +2993,9 @@ void OTA_Suspend( void )
 {
     OTA_EventMsg_t xEventMsg = { 0 };
 
+    /* Stop the request timer. */
+    prvStopRequestTimer();
+
     /*
      * Send event to OTA agent task.
      */
