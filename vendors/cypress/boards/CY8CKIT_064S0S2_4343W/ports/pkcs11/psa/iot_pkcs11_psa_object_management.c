@@ -37,6 +37,7 @@
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
 #define CY_DEVICE_CERTIFICATE_SLOT (0x100)
+#define CY_JITP_CERTIFICATE_SLOT   (0x101)
 
 extern int convert_pem_to_der( const unsigned char * pucInput, size_t xLen,
                         unsigned char * pucOutput, size_t * pxOlen );
@@ -45,10 +46,11 @@ extern int convert_pem_to_der( const unsigned char * pucInput, size_t xLen,
 P11KeyConfig_t P11KeyConfig =
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
 {.uxDeviceCertificate = CY_DEVICE_CERTIFICATE_SLOT,
+ .uxJitpCertificate = CY_JITP_CERTIFICATE_SLOT,
 #else
 {.uxDeviceCertificate = 5U,
-#endif
  .uxJitpCertificate = 6U,
+#endif
  .uxRootCertificate = 7U,
 };
 
@@ -122,7 +124,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
 
             if( uxStatus == PSA_SUCCESS )
             {
-                xHandle = eAwsDeviceCertificate;
+                xHandle = eAwsJitpCertificate;
 
                 /*change sst written mark'*/
                 P11KeyConfig.ulJitpCertificateMark = ulPresentMark;
@@ -141,7 +143,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
 
             if( uxStatus == PSA_SUCCESS )
             {
-                xHandle = eAwsDeviceCertificate;
+                xHandle = eAwsRootCertificate;
 
                 /*change sst written mark'*/
                 P11KeyConfig.ulRootCertificateMark = ulPresentMark;
@@ -448,6 +450,33 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
          */
         if( ( P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC )
         {
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+            size_t xPemLen = ( size_t ) P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_LENGTH_MASK;
+            uint8_t * pucPemObject = pvPortMalloc(xPemLen);
+            size_t xDerLen = *pulDataSize;
+            int iConversionReturn;
+
+            if ( pucPemObject != NULL )
+            {
+                uxStatus = psa_ps_get( P11KeyConfig.uxJitpCertificate, 0, xPemLen, pucPemObject, &xPemLen );
+                if ( uxStatus == PSA_SUCCESS )
+                {
+                    /* Convert the certificate to DER format */
+                    iConversionReturn = convert_pem_to_der(pucPemObject, xPemLen, ppucData, &xDerLen);
+                    if (iConversionReturn == 0)
+                    {
+                        *pulDataSize = xDerLen;
+                        *pIsPrivate = CK_FALSE;
+                        ulReturn = CKR_OK;
+                    }
+                }
+                vPortFree(pucPemObject);
+            }
+            else
+            {
+                ulReturn = CKR_HOST_MEMORY;
+            }
+#else /* pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED */
             ulDataSize = ( uint32_t ) P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_LENGTH_MASK;
             uxStatus = psa_ps_get( P11KeyConfig.uxJitpCertificate, 0, ulDataSize, ppucData, &ulDataSize );
             if ( uxStatus == PSA_SUCCESS )
@@ -456,6 +485,7 @@ CK_RV PKCS11_PSA_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                 *pIsPrivate = CK_FALSE;
                 ulReturn = CKR_OK;
             }
+#endif /* pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED */
         }
     }
 
@@ -587,6 +617,12 @@ CK_OBJECT_HANDLE PKCS11_PSA_FindObject( uint8_t * pLabel,
     {
         xHandle = eAwsCodeSigningKey;
     }
+    else if( ( 0 == memcmp( pLabel, pkcs11configLABEL_JITP_CERTIFICATE, usLength ) ) &&
+             ( ( P11KeyConfig.ulJitpCertificateMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC ) )
+    {
+        xHandle = eAwsJitpCertificate;
+    }
+
 
     return xHandle;
 }
