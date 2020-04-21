@@ -97,11 +97,9 @@
 
 
 /**
- * @brief A map of the method enum to strings
- *
- * These are in order to the HTTP request method enums defined in IotHttpsMethod_t.
+ * @brief Definition of HTTP method enum to strings array.
  */
-static const char * const _pHttpsMethodStrings[] =
+const char * _pHttpsMethodStrings[] =
 {
     "GET",
     "HEAD",
