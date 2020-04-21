@@ -74,11 +74,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
  * a socket.
  *
- * NOTE: This feature should not be used with services behind a load balancer,
- * since occasionally one of the addresses returned may not be available due to
- * eventual consistency.  Until FreeRTOS+TCP caches more than a single DNS
- * result for a hostname lookup, it's recommended to disaqble this feature when
- * contacting services behind a load balancer.
+ * NOTE: Use caution when enabling the DNS cache and connecting to services which
+ * use a load balancer.  Since the cache only holds a single IP address, if that
+ * address is out of date, no connections to the host will succeed until the TTL
+ * expires.  See this GitHub issue for more details.
+ *
+ * https://github.com/FreeRTOS/FreeRTOS/issues/58
  */
 #define ipconfigUSE_DNS_CACHE                      ( 0 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
