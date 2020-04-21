@@ -64,7 +64,7 @@
  * @brief Timeout for MQTT connection, if the MQTT connection is not establihsed within
  * this time, the connect function returns #IOT_MQTT_TIMEOUT
  */
-#define OTA_DEMO_CONNECTION_TIMEOUT              ( 2000UL )
+#define OTA_DEMO_CONNECTION_TIMEOUT                  ( 2000UL )
 
 /**
  * @brief The maximum time interval that is permitted to elapse between the point at
@@ -73,20 +73,30 @@
  * disconnect a client that does not send a a message or a PINGREQ packet in one and a
  * half times the keep alive interval.
  */
-#define OTA_DEMO_KEEP_ALIVE_SECONDS              ( 120UL )
+#define OTA_DEMO_KEEP_ALIVE_SECONDS                  ( 120UL )
 
 /**
  * @brief The delay used in the main OTA Demo task loop to periodically output the OTA
  * statistics like number of packets received, dropped, processed and queued per connection.
  */
-#define OTA_DEMO_ONE_SECOND_DELAY                pdMS_TO_TICKS( 1000UL )
+#define OTA_DEMO_ONE_SECOND_DELAY                    pdMS_TO_TICKS( 1000UL )
+
+/**
+ * @brief The base interval in seconds for retrying network connection.
+ */
+#define OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS    ( 4U )
+
+/**
+ * @brief The maximum interval in seconds for retrying network connection.
+ */
+#define OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS     ( 360U )
 
 /**
  * @brief The longest client identifier that an MQTT server must accept (as defined
  * by the MQTT 3.1.1 spec) is 23 characters. Add 1 to include the length of the NULL
  * terminator.
  */
-#define OTA_DEMO_CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
+#define OTA_DEMO_CLIENT_IDENTIFIER_MAX_LENGTH        ( 24 )
 
 /**
  * @brief Handle of the MQTT connection used in this demo.
@@ -98,6 +108,11 @@ static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
  * trigger a reconnection from the OTA demo task.
  */
 static bool networkConnected = pdFALSE;
+
+/**
+ * @brief Connection retry interval in seconds.
+ */
+static int retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
 
 static const char * pStateStr[ eOTA_AgentState_All ] =
 {
@@ -150,36 +165,57 @@ static void _cleanupOtaDemo( void )
 }
 
 /**
+ * @brief Delay before retrying network connection upto a maximum interval.
+ */
+static void _connectionRetryDelay( void )
+{
+    TickType_t intervalTicks = 0;
+
+    retryInterval *= 2;
+
+    if( retryInterval > OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS )
+    {
+        retryInterval = OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS;
+    }
+
+    configPRINTF( ( "Retrying network connection in %d Secs ", retryInterval ) );
+
+    intervalTicks = pdMS_TO_TICKS( retryInterval * 1000 );
+
+    vTaskDelay( intervalTicks );
+}
+
+/**
  * @brief Initialize the libraries required for OTA demo.
  *
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
  */
 
-static void * prvNetworkDisconnectCallback( void * param,
-                                            IotMqttCallbackParam_t * mqttCallbackParams )
+static void prvNetworkDisconnectCallback( void * param,
+                                          IotMqttCallbackParam_t * mqttCallbackParams )
 {
     ( void ) param;
 
-    configPRINTF( ( "Mqtt connection disconnected due to " ) );
+    const char * pMqttDisconnectStr = "Mqtt disconnected due to";
 
     /* Log the reson for MQTT disconnect.*/
     switch( mqttCallbackParams->u.disconnectReason )
     {
         case IOT_MQTT_DISCONNECT_CALLED:
-            configPRINTF( ( "invoking disconnect function.\r\n" ) );
+            configPRINTF( ( "%s invoking disconnect function.\r\n", pMqttDisconnectStr ) );
             break;
 
         case IOT_MQTT_BAD_PACKET_RECEIVED:
-            configPRINTF( ( "invalid packet received from the network.\r\n" ) );
+            configPRINTF( ( "%s invalid packet received from the network.\r\n", pMqttDisconnectStr ) );
             break;
 
         case IOT_MQTT_KEEP_ALIVE_TIMEOUT:
-            configPRINTF( ( "Keep-alive response was not received." ) );
+            configPRINTF( ( "Keep-alive response was not received.\r\n", pMqttDisconnectStr ) );
             break;
 
         default:
-            configPRINTF( ( "unknown reason." ) );
+            configPRINTF( ( "unknown reason.", pMqttDisconnectStr ) );
             break;
     }
 
@@ -349,7 +385,6 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pNetworkInterface )
 {
-    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
     static OTA_ConnectionContext_t xOTAConnectionCtx;
 
@@ -357,6 +392,8 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                     xAppFirmwareVersion.u.x.ucMajor,
                     xAppFirmwareVersion.u.x.ucMinor,
                     xAppFirmwareVersion.u.x.usBuild ) );
+
+    retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
 
     for( ; ; )
     {
@@ -400,7 +437,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             }
 
             /* Try to close the MQTT connection. */
-            if( mqttConnection != NULL )
+            if( ( mqttConnection != NULL ) && networkConnected )
             {
                 IotMqtt_Disconnect( mqttConnection, false );
             }
@@ -410,8 +447,8 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
         }
 
-        /* After failure to connect or a disconnect, wait an arbitrary one second before retry. */
-        vTaskDelay( OTA_DEMO_ONE_SECOND_DELAY );
+        /* After failure to connect or a disconnect, delay for retrying connection. */
+        _connectionRetryDelay();
     }
 }
 
