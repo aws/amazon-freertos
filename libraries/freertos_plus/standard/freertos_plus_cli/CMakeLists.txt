@@ -7,10 +7,35 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${src_dir}/FreeRTOS_CLI.c"
+        "${src_dir}/FreeRTOS_CLI_Console.c"
         "${inc_dir}/FreeRTOS_CLI.h"
+        "${inc_dir}/FreeRTOS_CLI_Console.h"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+)
+
+afr_module(NAME freertos_cli_plus_uart)
+
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/uart")
+
+afr_module_sources(
+    freertos_cli_plus_uart
+    PRIVATE
+        "${src_dir}/FreeRTOS_CLI_UART.c"
+        "${inc_dir}/FreeRTOS_CLI_UART.h"
+)
+
+afr_module_include_dirs(
+    freertos_cli_plus_uart
+    PUBLIC "${inc_dir}"
+)
+
+afr_module_dependencies(
+    freertos_cli_plus_uart
+    PUBLIC
+        AFR::freertos_plus_cli
 )
