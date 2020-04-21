@@ -95,6 +95,20 @@
 
 /*-----------------------------------------------------------*/
 
+
+/**
+ * @brief A map of the method enum to strings
+ *
+ * These are in order to the HTTP request method enums defined in IotHttpsMethod_t.
+ */
+static const char * _pHttpsMethodStrings[] =
+{
+    "GET",
+    "HEAD",
+    "PUT",
+    "POST"
+};
+
 /**
  * @brief Minimum size of the request user buffer.
  *
@@ -1712,7 +1726,7 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
                                ( unsigned int ) contentLength );
     }
 
-    if( ( numWritten < 0 ) || ( numWritten >= sizeof( contentLengthHeaderStr ) ) )
+    if( ( numWritten < 0 ) || ( numWritten >= ( ( int ) sizeof( contentLengthHeaderStr ) ) ) )
     {
         IotLogError( "Internal error in snprintf() in _sendHttpsHeaders(). Error code %d.", numWritten );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
