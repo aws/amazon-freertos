@@ -101,7 +101,7 @@
  *
  * These are in order to the HTTP request method enums defined in IotHttpsMethod_t.
  */
-static const char * _pHttpsMethodStrings[] =
+static const char * const _pHttpsMethodStrings[] =
 {
     "GET",
     "HEAD",
