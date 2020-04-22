@@ -1058,8 +1058,9 @@ uint8_t *pucByte;
 size_t uxSourceBytesRemaining;
 uint16_t x, usDataLength, usQuestions;
 BaseType_t xDoStore = xExpected;
+uint16_t usType = 0;
 #if( ipconfigUSE_LLMNR == 1 )
-	uint16_t usType = 0, usClass = 0;
+	uint16_t usClass = 0;
 #endif
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 	char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ] = "";
