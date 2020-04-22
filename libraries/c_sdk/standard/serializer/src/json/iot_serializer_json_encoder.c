@@ -414,12 +414,12 @@ static void _appendBoolean( _jsonContainer_t * pContainer,
 {
     if( value == true )
     {
-        strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_BOOL_TRUE, _JSON_BOOL_TRUE_LENGTH );
+        memcpy( _jsonContainerPointer( pContainer ), _JSON_BOOL_TRUE, _JSON_BOOL_TRUE_LENGTH );
         pContainer->offset += _JSON_BOOL_TRUE_LENGTH;
     }
     else
     {
-        strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
+        memcpy( _jsonContainerPointer( pContainer ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
         pContainer->offset += _JSON_BOOL_FALSE_LENGTH;
     }
 }
@@ -462,7 +462,7 @@ static void _appendData( _jsonContainer_t * pContainer,
             break;
 
         case IOT_SERIALIZER_SCALAR_NULL:
-            strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
+            memcpy( _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
             pContainer->offset += _JSON_NULL_VALUE_LENGTH;
             break;
 
