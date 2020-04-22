@@ -257,7 +257,7 @@ static CK_RV xGet1Item2( CK_BBOOL arg1,
  * @brief Common stubs to most iot_pkcs11.c #11 test paths.
  *
  */
-static void commonSetup( void )
+static void vCommonStubs( void )
 {
     C_GetFunctionList_IgnoreAndReturn( CKR_OK );
     C_GetFunctionList_Stub( ( void * ) &prvSetFunctionList );
@@ -299,7 +299,7 @@ void test_IotPkcs11_xInitializePKCS11( void )
 {
     CK_RV xResult = CKR_OK;
 
-    commonSetup();
+    vCommonStubs();
 
     xResult = xInitializePKCS11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -329,7 +329,7 @@ void test_IotPkcs11_xGetSlotList( void )
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_IgnoreAndReturn( CKR_OK );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
 
@@ -366,7 +366,7 @@ void test_IotPkcs11_xGetSlotListBadSlotList( void )
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
     pvPortMalloc_IgnoreAndReturn( NULL );
 
@@ -386,7 +386,7 @@ void test_IotPkcs11_xGetSlotListFreeMemory( void )
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xSecondGetFails );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
@@ -406,7 +406,7 @@ void test_IotPkcs11_xGetSlotListNoMemory( void )
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_IgnoreAndReturn( CKR_OK );
     pvPortMalloc_IgnoreAndReturn( NULL );
 
@@ -426,7 +426,7 @@ void test_IotPkcs11_xInitializePkcs11Token( void )
     C_InitToken_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    commonSetup();
+    vCommonStubs();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
 
@@ -447,7 +447,7 @@ void test_IotPkcs11_xInitializePkcs11TokenBadC_GetTokenInfo( void )
     C_InitToken_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    commonSetup();
+    vCommonStubs();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
 
@@ -468,7 +468,7 @@ void test_IotPkcs11_xInitializePkcs11TokenUninitializedToken( void )
     C_InitToken_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    commonSetup();
+    vCommonStubs();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
 
@@ -489,7 +489,7 @@ void test_IotPkcs11_xInitializePkcs11TokenMallocFail( void )
     C_InitToken_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    commonSetup();
+    vCommonStubs();
     pvPortMalloc_Stub( pvPkcs11MallocCb2 );
     vPortFree_Stub( vPkcs11FreeCb );
 
@@ -519,7 +519,7 @@ void test_IotPkcs11_xInitializePkcs11TokenNullTokenInfo( void )
 {
     CK_RV xResult = CKR_OK;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
     prvP11FunctionList.C_GetTokenInfo = NULL;
@@ -540,7 +540,7 @@ void test_IotPkcs11_xInitializePkcs11TokenNullInitToken( void )
 {
     CK_RV xResult = CKR_OK;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
     prvP11FunctionList.C_InitToken = NULL;
@@ -565,7 +565,7 @@ void test_IotPkcs11_xInitializePkcs11TokenHasTokenInfo( void )
     C_GetTokenInfo_IgnoreAndReturn( CKR_OK );
     C_InitToken_IgnoreAndReturn( CKR_OK );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
-    commonSetup();
+    vCommonStubs();
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
@@ -617,7 +617,7 @@ void test_IotPkcs11_xInitializePkcs11Session( void )
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xHandle = { 0 };
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
@@ -639,7 +639,7 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
 
     prvP11FunctionList.C_Login = NULL;
 
-    commonSetup();
+    vCommonStubs();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
@@ -660,7 +660,7 @@ void test_IotPkcs11_xInitializePkcs11SessionBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
 
-    commonSetup();
+    vCommonStubs();
 
     xResult = xInitializePkcs11Session( NULL );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -736,7 +736,7 @@ void test_IotPkcs11_xFindObjectWithLabelAndClass( void )
     C_FindObjectsInit_IgnoreAndReturn( CKR_OK );
     C_FindObjects_Stub( ( void * ) xGet1Item2 );
     C_FindObjectsFinal_IgnoreAndReturn( CKR_OK );
-    commonSetup();
+    vCommonStubs();
 
     xResult = xFindObjectWithLabelAndClass( xHandle, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_PRIVATE_KEY, &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
