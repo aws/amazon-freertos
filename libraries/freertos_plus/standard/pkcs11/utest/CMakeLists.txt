@@ -23,10 +23,7 @@ list(APPEND preprocessed_mock_list
     )
 
 
-message ("${macro_command}")
-
 create_mock_list(pkcs11_mock "${mock_list}")
-
 preprocess_mock_list(pkcs11_mock ${preprocessed_mock_list} "${unix_flags}")
 
 
@@ -39,6 +36,7 @@ target_compile_definitions(pkcs11_mock PUBLIC
 add_dependencies(pkcs11_mock
                  cmock
                  unity
+                 pre_pkcs11_mock
                  )
 
 # Real libraries

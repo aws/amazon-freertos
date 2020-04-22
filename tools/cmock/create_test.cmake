@@ -49,33 +49,24 @@ endfunction()
 # Run the C preprocessor on target files.
 # Takes a CMAKE list of arguments to pass to the C compiler
 function(preprocess_mock_list mock_name file_list compiler_args)
+    set_property(GLOBAL PROPERTY ${mock_name}_processed TRUE)
     foreach (target_file IN LISTS file_list)
         # Has to be TARGET ALL so the file is pre-processed before CMOCK 
         # is executed on the file.
-        add_custom_target(TARGET ALL
-
+        add_custom_command(OUTPUT ${target_file}.backup
             COMMAND scp ${target_file} ${target_file}.backup
             VERBATIM COMMAND ${CMAKE_C_COMPILER} -E ${compiler_args} ${target_file} > ${target_file}.out
+        )
+        add_custom_target(pre_${mock_name}
             COMMAND mv ${target_file}.out ${target_file}
-            BYPRODUCTS ${target_file}.backup
+            DEPENDS ${target_file}.backup
         )
     endforeach()
     
     # Clean up temporary files that were created.
     # First we test to see if the backup file still exists. If it does we revert
     # the change made to the original file.
-    # This check is done at every step of the build, since if the build fails at 
-    # any step we need to ensure that the changed files are reverted to their original
-    # state.
     foreach (target_file IN LISTS file_list)
-        add_custom_command(TARGET ${mock_name}
-            PRE_BUILD
-            COMMAND test ! -e ${target_file}.backup || mv ${target_file}.backup ${target_file}
-        )
-        add_custom_command(TARGET ${mock_name}
-            PRE_LINK
-            COMMAND test ! -e ${target_file}.backup || mv ${target_file}.backup ${target_file}
-        )
         add_custom_command(TARGET ${mock_name}
             POST_BUILD
             COMMAND test ! -e ${target_file}.backup || mv ${target_file}.backup ${target_file}
