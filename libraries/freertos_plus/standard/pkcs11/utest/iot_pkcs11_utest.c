@@ -115,11 +115,12 @@ static CK_FUNCTION_LIST prvP11FunctionList =
 static uint16_t usMallocFreeCalls = 0;
 
 /* ==========================  CALLBACK FUNCTIONS =========================== */
+
 /*!
  * @brief Wrapper stub for malloc.
  */
 void * pvPkcs11MallocCb( size_t size,
-                             int numCalls )
+                         int numCalls )
 {
     usMallocFreeCalls++;
     return ( void * ) malloc( size );
@@ -132,12 +133,13 @@ void * pvPkcs11MallocCb( size_t size,
  * are only taken if a previous call to malloc was successful.
  */
 void * pvPkcs11MallocCb2( size_t size,
-                             int numCalls )
+                          int numCalls )
 {
     static uint32_t ulCalls = 1;
+
     ulCalls++;
 
-    if( ulCalls % 2 ) 
+    if( ulCalls % 2 )
     {
         return NULL;
     }
@@ -151,7 +153,7 @@ void * pvPkcs11MallocCb2( size_t size,
  *
  */
 void vPkcs11FreeCb( void * ptr,
-              int numCalls )
+                    int numCalls )
 {
     usMallocFreeCalls--;
     free( ptr );
@@ -176,12 +178,13 @@ static CK_RV prvSetFunctionList( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
 static CK_RV prvSetFunctionList2( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
 {
     static uint32_t ulCalls = 0;
+
     ulCalls++;
 
-    /* This case is specifically for the scenario in which prvOpenSession 
-     * receives a failure when accessing C_GetFunctionList, which would be 
+    /* This case is specifically for the scenario in which prvOpenSession
+     * receives a failure when accessing C_GetFunctionList, which would be
      * the 4th call to C_GetFunctionList in the call stack. */
-    if( ulCalls == 4 ) 
+    if( ulCalls == 4 )
     {
         return CKR_ARGUMENTS_BAD;
     }
@@ -194,7 +197,8 @@ static CK_RV prvSetFunctionList2( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
  * @brief Stub for receiving an uninitialized token.
  *
  */
-static CK_RV prvUninitializedToken( CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo )
+static CK_RV prvUninitializedToken( CK_SLOT_ID slotID,
+                                    CK_TOKEN_INFO_PTR pInfo )
 {
     pInfo->flags = CKF_TOKEN_INITIALIZED;
     return CKR_OK;
@@ -203,16 +207,21 @@ static CK_RV prvUninitializedToken( CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo )
 /*!
  * @brief Stub for failing every second call for three argument PKCS #11
  *
- * For example this is used to fail every second call to C_GetSlotList. 
+ * For example this is used to fail every second call to C_GetSlotList.
  */
-static CK_RV xSecondGetFails( CK_BBOOL arg1, CK_SLOT_ID_PTR arg2, CK_ULONG_PTR arg3 )
+static CK_RV xSecondGetFails( CK_BBOOL arg1,
+                              CK_SLOT_ID_PTR arg2,
+                              CK_ULONG_PTR arg3 )
 {
     static uint32_t ulCalls = 1;
+
     ulCalls++;
-    if( ulCalls % 2 ) 
+
+    if( ulCalls % 2 )
     {
         return CKR_ARGUMENTS_BAD;
     }
+
     return CKR_OK;
 }
 
@@ -221,27 +230,32 @@ static CK_RV xSecondGetFails( CK_BBOOL arg1, CK_SLOT_ID_PTR arg2, CK_ULONG_PTR a
  *
  * Specifically to set the slot count count to be more than 0.
  */
-static CK_RV xGet1Item( CK_BBOOL arg1, CK_SLOT_ID_PTR arg2, CK_ULONG_PTR arg3 )
+static CK_RV xGet1Item( CK_BBOOL arg1,
+                        CK_SLOT_ID_PTR arg2,
+                        CK_ULONG_PTR arg3 )
 {
     *arg3 = 1;
     return CKR_OK;
-} 
+}
 
 /*!
  * @brief Sets fourth pointer arg to 1.
  *
  * Specifically to set the object count to be more than 0.
  */
-static CK_RV xGet1Item2( CK_BBOOL arg1, CK_SLOT_ID_PTR arg2, CK_ULONG_PTR arg3, CK_ULONG_PTR arg4 )
+static CK_RV xGet1Item2( CK_BBOOL arg1,
+                         CK_SLOT_ID_PTR arg2,
+                         CK_ULONG_PTR arg3,
+                         CK_ULONG_PTR arg4 )
 {
     *arg4 = 1;
     return CKR_OK;
-} 
+}
 
 
 /*!
  * @brief Common stubs to most iot_pkcs11.c #11 test paths.
- * 
+ *
  */
 static void commonSetup( void )
 {
@@ -261,7 +275,7 @@ void setUp( void )
 void tearDown( void )
 {
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, usMallocFreeCalls,
-       "free is not called the same number of times as malloc, \
+                                   "free is not called the same number of times as malloc, \
         you might have a memory leak!!" );
     usMallocFreeCalls = 0;
 }
@@ -279,12 +293,12 @@ int suiteTearDown( int numFailures )
 
 /*!
  * @brief xInitializePKCS11 happy path.
- * 
+ *
  */
 void test_IotPkcs11_xInitializePKCS11( void )
 {
     CK_RV xResult = CKR_OK;
-    
+
     commonSetup();
 
     xResult = xInitializePKCS11();
@@ -293,12 +307,12 @@ void test_IotPkcs11_xInitializePKCS11( void )
 
 /*!
  * @brief xInitializePKCS11 failed to get function list.
- * 
+ *
  */
 void test_IotPkcs11_xInitializePkcs11BadFunctionList( void )
 {
     CK_RV xResult = CKR_OK;
-    
+
     C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
 
     xResult = xInitializePKCS11();
@@ -307,7 +321,7 @@ void test_IotPkcs11_xInitializePkcs11BadFunctionList( void )
 
 /*!
  * @brief xGetSlotList happy path.
- * 
+ *
  */
 void test_IotPkcs11_xGetSlotList( void )
 {
@@ -327,7 +341,7 @@ void test_IotPkcs11_xGetSlotList( void )
 
 /*!
  * @brief xGetSlotList failed to get function list.
- * 
+ *
  */
 void test_IotPkcs11_xGetSlotListBadFunctionList( void )
 {
@@ -339,12 +353,12 @@ void test_IotPkcs11_xGetSlotListBadFunctionList( void )
     pvPortMalloc_IgnoreAndReturn( NULL );
 
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
-    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD , xResult );
+    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
 
 /*!
  * @brief xGetSlotList failed to get slot list.
- * 
+ *
  */
 void test_IotPkcs11_xGetSlotListBadSlotList( void )
 {
@@ -357,7 +371,7 @@ void test_IotPkcs11_xGetSlotListBadSlotList( void )
     pvPortMalloc_IgnoreAndReturn( NULL );
 
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
-    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD , xResult );
+    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
 
 /*!
@@ -376,7 +390,7 @@ void test_IotPkcs11_xGetSlotListFreeMemory( void )
     C_GetSlotList_Stub( ( void * ) xSecondGetFails );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-   
+
 
     xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -415,9 +429,9 @@ void test_IotPkcs11_xInitializePkcs11Token( void )
     commonSetup();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-    
-   
-    xResult = xInitializePkcs11Token( );
+
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 }
 
@@ -436,9 +450,9 @@ void test_IotPkcs11_xInitializePkcs11TokenBadC_GetTokenInfo( void )
     commonSetup();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-    
-   
-    xResult = xInitializePkcs11Token( );
+
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 }
 
@@ -457,9 +471,9 @@ void test_IotPkcs11_xInitializePkcs11TokenUninitializedToken( void )
     commonSetup();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-    
-   
-    xResult = xInitializePkcs11Token( );
+
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 }
 
@@ -478,8 +492,8 @@ void test_IotPkcs11_xInitializePkcs11TokenMallocFail( void )
     commonSetup();
     pvPortMalloc_Stub( pvPkcs11MallocCb2 );
     vPortFree_Stub( vPkcs11FreeCb );
-   
-    xResult = xInitializePkcs11Token( );
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 }
 
@@ -492,8 +506,8 @@ void test_IotPkcs11_xInitializePkcs11TokenBadFunctionList( void )
     CK_RV xResult = CKR_OK;
 
     C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
-   
-    xResult = xInitializePkcs11Token( );
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
 
@@ -508,14 +522,14 @@ void test_IotPkcs11_xInitializePkcs11TokenNullTokenInfo( void )
     commonSetup();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    prvP11FunctionList.C_GetTokenInfo = NULL;  
+    prvP11FunctionList.C_GetTokenInfo = NULL;
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-   
-    xResult = xInitializePkcs11Token( );
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvP11FunctionList.C_GetTokenInfo = C_GetTokenInfo;  
+    prvP11FunctionList.C_GetTokenInfo = C_GetTokenInfo;
 }
 
 /*!
@@ -529,18 +543,18 @@ void test_IotPkcs11_xInitializePkcs11TokenNullInitToken( void )
     commonSetup();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
 
-    prvP11FunctionList.C_InitToken = NULL;  
+    prvP11FunctionList.C_InitToken = NULL;
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-   
-    xResult = xInitializePkcs11Token( );
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvP11FunctionList.C_InitToken = C_InitToken;  
+    prvP11FunctionList.C_InitToken = C_InitToken;
 }
 
 /*!
- * @brief xInitializePkcs11Token Happy path in which C_GetSlotList returns greater 
+ * @brief xInitializePkcs11Token Happy path in which C_GetSlotList returns greater
  * than 0 tokens.
  *
  */
@@ -555,8 +569,8 @@ void test_IotPkcs11_xInitializePkcs11TokenHasTokenInfo( void )
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     vPortFree_Stub( vPkcs11FreeCb );
-   
-    xResult = xInitializePkcs11Token( );
+
+    xResult = xInitializePkcs11Token();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 }
 
@@ -602,7 +616,7 @@ void test_IotPkcs11_xInitializePkcs11Session( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xHandle = { 0 };
-    
+
     commonSetup();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
@@ -622,8 +636,9 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xHandle = { 0 };
-    prvP11FunctionList.C_Login = NULL;  
-    
+
+    prvP11FunctionList.C_Login = NULL;
+
     commonSetup();
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
@@ -634,7 +649,7 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
     xResult = xInitializePkcs11Session( &xHandle );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvP11FunctionList.C_Login = C_Login;  
+    prvP11FunctionList.C_Login = C_Login;
 }
 
 /*!
@@ -644,11 +659,11 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
 void test_IotPkcs11_xInitializePkcs11SessionBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
+
     commonSetup();
 
     xResult = xInitializePkcs11Session( NULL );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
-
 }
 
 /*!
@@ -659,6 +674,7 @@ void test_IotPkcs11_xInitializePkcs11SessionBadFunctionList( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xHandle = { 0 };
+
     C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
 
     xResult = xInitializePkcs11Session( &xHandle );
@@ -668,7 +684,7 @@ void test_IotPkcs11_xInitializePkcs11SessionBadFunctionList( void )
 /*!
  * @brief xInitializePkcs11Session C_GetFunctionList failure path.
  *
- * Fails on the second call to C_GetFunctionList. 
+ * Fails on the second call to C_GetFunctionList.
  */
 void test_IotPkcs11_xInitializePkcs11SessionBadFunctionList2( void )
 {
@@ -705,7 +721,6 @@ void test_IotPkcs11_xInitializePkcs11SessionAlreadyInitialized( void )
 
     xResult = xInitializePkcs11Session( &xHandle );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
 }
 
 /*!
@@ -751,7 +766,7 @@ void test_IotPkcs11_xFindObjectWithLabelAndClassBadFunctionList( void )
     CK_SESSION_HANDLE xHandle = { 0 };
     CK_OBJECT_HANDLE xPrivateKeyHandle = { 0 };
 
-    C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD  );
+    C_GetFunctionList_IgnoreAndReturn( CKR_ARGUMENTS_BAD );
 
     xResult = xFindObjectWithLabelAndClass( xHandle, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_PRIVATE_KEY, &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
