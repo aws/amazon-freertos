@@ -253,13 +253,17 @@ extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( vo
 /* Allow the network serializer to be chosen by at runtime. */
 struct IotMqttSerializer;
 extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
-#define IOT_TEST_MQTT_SERIALIZER             IotTestNetwork_GetSerializer()
+#define IOT_TEST_MQTT_SERIALIZER                     IotTestNetwork_GetSerializer()
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
  * platforms supported in FreeRTOS.
  * Set this to the number of connection attempts for the MQTT tests.
  * If undefined, it should default to 1. */
-#define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    3
+#define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 3 )
+
+/* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+ * Wait until 1100 ms have elapsed since the last connection. */
+#define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
 
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnection    IotTestNetworkConnection_t;
