@@ -74,7 +74,7 @@ uint8_t uctestIotI2CDeviceRegister = 0;         /**< The device register to be s
 uint8_t uctestIotI2CWriteVal = 0;               /**< The write value to write to device. */
 uint8_t uctestIotI2CInstanceIdx = 0;            /**< The current I2C test instance index */
 uint8_t uctestIotI2CInstanceNum = 1;            /**< The total I2C test instance number */
-uint8_t ucAssistedTestIotI2CSlaveAddr = 0;      /**< The slave address to be set for the assisted test. */
+uint16_t ucAssistedTestIotI2CSlaveAddr = 0;     /**< The slave address to be set for the assisted test. */
 
 /*-----------------------------------------------------------*/
 /* Static Globals */
