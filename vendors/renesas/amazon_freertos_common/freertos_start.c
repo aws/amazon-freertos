@@ -256,42 +256,6 @@ void vApplicationSetupTimerInterrupt(void)
 } /* End of function vApplicationSetupTimerInterrupt() */
 
 /******************************************************************************
-* Function name: sbrk
-* Description  : This implementation prevents using CC-RX's or GNURX+NEWLIB's
-*                malloc() and calloc() which are not thread safe.
-* Arguments    : size - not used
-* Return value : -1 (failure) but vAssertCalled() may not return
-******************************************************************************/
-#if defined(__CCRX__) || defined(__GNUC__)
-extern int8_t *sbrk(size_t size);
-int8_t *sbrk(size_t size)
-{
-    R_INTERNAL_NOT_USED(size);
-    vAssertCalled();
-    return (int8_t *) - 1;
-}
-#endif
-
-/******************************************************************************
-* Function name: _top_of_heap
-* Description  : This implementation prevents using GNURX+OPTLIB's
-*                malloc() and calloc() which are not thread safe.
-* Arguments    : none
-* Return value : end (failure) but vAssertCalled() may not return
-******************************************************************************/
-#if defined(__GNUC__)
-extern int8_t end;
-int8_t *_heap_of_memory = (int8_t *)&end;
-int8_t *_last_heap_object = (int8_t *)&end;
-extern int8_t *_top_of_heap(void);
-int8_t *_top_of_heap(void)
-{
-    vAssertCalled();
-    return &end;
-}
-#endif
-
-/******************************************************************************
 * Function Name: vAssertCalled
 * Description  : This function is used to validate the input parameters.
 * Arguments    : None.
