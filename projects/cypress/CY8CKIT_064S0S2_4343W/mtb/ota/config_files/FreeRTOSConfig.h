@@ -145,7 +145,14 @@ extern void vAssertCalled( const char * pcFile,
 #define configTICK_RATE_HZ							( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES						( 7 )
 #define configMINIMAL_STACK_SIZE					( ( unsigned short ) 130 )
-#define configTOTAL_HEAP_SIZE						( ( size_t ) ( 208 * 1024 ) )
+/**
+ * @brief note about configTOTAL_HEAP_SIZE and OTA over HTTP
+ * configTOTAL_HEAP_SIZE is the OS heap size. Reduce to get more RAM for your application
+ * NOTE: The"default" was 208k, but more is needed for HTTP transport of OTA data
+ *       HTTP transport: 300k works - adjust for your environment.
+ *       MQTT transport: 208k works
+ */
+#define configTOTAL_HEAP_SIZE						( ( size_t ) ( 300 * 1024 ) )
 #define configMAX_TASK_NAME_LEN						( 10 )
 #define configUSE_TRACE_FACILITY					1
 #define configUSE_16_BIT_TICKS						0

@@ -54,14 +54,11 @@ CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/aws_demos/application_code/cy_code
 # cert file for enterprise
 CY_AFR_BOARD_APP_INC=$(CY_AFR_BOARD_PATH)/aws_demos/application_code
 
+MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
 
 # Artifact locations for launch configs
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
-ifeq ($(OTA_SUPPORT),1)
-CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).signed.hex
-else
 CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
-endif
 
 # Resolve toolchain name 
 ifeq ($(TOOLCHAIN),GCC_ARM)
@@ -82,48 +79,8 @@ CY_AFR_TARGET=$(subst -,_,$(TARGET))
 # Explicitly add the BSP makefile
 CY_EXTRA_INCLUDES=$(CY_AFR_BOARD_APP_PATH)/$(TARGET).mk
 
-# Set the linker script 
-ifeq ($(OTA_SUPPORT),1)
-    # Additional / custom linker flags.
-    ifeq ($(TOOLCHAIN),GCC_ARM)
-    LDFLAGS+="-Wl,--defsym,MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE),--defsym,MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE),--defsym,CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)"
-    else
-    ifeq ($(TOOLCHAIN),IAR)
-    LDFLAGS+=--define_symbol MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) --define_symbol MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) --define_symbol CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)
-    else
-    ifeq ($(TOOLCHAIN),ARM)
-    LDFLAGS+=--pd=-DMCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) --pd=-DMCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) --pd=-DCY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)
-    else
-    LDFLAGS+=
-    endif #ARM
-    endif #IAR
-    endif #GCC_ARM
-
-	# Linker Script
-#	LINKER_SCRIPT_ABSOLUTE:=$(subst \,/,$(abspath $(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/ota/*_ota_int.$(CY_AFR_TOOLCHAIN_LS_EXT))))
-    LINKER_SCRIPT_ABSOLUTE=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*_dual.$(CY_AFR_TOOLCHAIN_LS_EXT))
-else
-	# Non-OTA support builds
-	# Linker Script
-    LINKER_SCRIPT_ABSOLUTE=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
-endif
-
-# project directory
-CY_PROJECT_DIR_ABSOLUTE=.
-
-# Fix for Windows Cygwin builds
-ifeq ($(OS),Windows_NT)
-	CY_WHICH_CYGPATH:=$(shell which cygpath)
-    #
-    # CygWin/MSYS ?
-    #
-    ifneq ($(CY_WHICH_CYGPATH),)
-    	LINKER_SCRIPT_ABSOLUTE:=$(shell cygpath -m --absolute $(LINKER_SCRIPT_ABSOLUTE))
-		CY_PROJECT_DIR_ABSOLUTE:=$(shell cygpath -m --absolute $(CY_PROJECT_DIR_ABSOLUTE))
-    endif
-endif
-LINKER_SCRIPT:=$(LINKER_SCRIPT_ABSOLUTE)
-CY_PROJECT_DIR:=$(CY_PROJECT_DIR_ABSOLUTE)
+# Explicitly set the linker script
+LINKER_SCRIPT=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
 
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
@@ -417,10 +374,14 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+ 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
     $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
@@ -430,12 +391,19 @@ INCLUDES+=\
     $(MCUBOOT_DIR)\
     $(MCUBOOT_DIR)/mcuboot_header\
     $(MCUBOOT_DIR)/bootutil/include\
+    $(MCUBOOT_DIR)/sysflash\
+    $(MCUBOOT_CYFLASH_PAL_DIR)\
     $(MCUBOOT_CYFLASH_PAL_DIR)/include\
+    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+    $(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
+    $(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
 	$(CY_AFR_BOARD_PATH)/ports/ota\
     $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
+    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
     $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif

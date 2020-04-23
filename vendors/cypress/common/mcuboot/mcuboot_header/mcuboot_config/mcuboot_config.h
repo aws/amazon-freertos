@@ -6,6 +6,7 @@
  */
 #ifndef MCUBOOT_CONFIG_H
 #define MCUBOOT_CONFIG_H
+
 /*
  * Template configuration file for MCUboot.
  *
@@ -21,7 +22,7 @@
 /* Default maximum number of flash sectors per image slot; change
  * as desirable. */
 #ifndef MCUBOOT_MAX_IMG_SECTORS
-#define MCUBOOT_MAX_IMG_SECTORS 512 /* the sector is temporary 128 bytes now */
+#define MCUBOOT_MAX_IMG_SECTORS 14848 /* the sector is temporary 128 bytes now */
 #endif
 
 /*
@@ -54,6 +55,7 @@
 /* Uncomment to only erase and overwrite those slot 0 sectors needed
  * to install the new image, rather than the entire image slot. */
 /* #define MCUBOOT_OVERWRITE_ONLY_FAST */
+#define MCUBOOT_OVERWRITE_CHUNK_SIZE 512
 #endif
 
 /*
@@ -74,7 +76,7 @@
  * even if no upgrade was performed. This is recommended if the boot
  * time penalty is acceptable.
  */
-//#define MCUBOOT_VALIDATE_PRIMARY_SLOT
+#define MCUBOOT_VALIDATE_PRIMARY_SLOT
 
 /*
  * Flash abstraction
@@ -87,7 +89,9 @@
 
 /* Default number of separately updateable images; change in case of
  * multiple images. */
-#define MCUBOOT_IMAGE_NUMBER 1
+#ifndef MCUBOOT_IMAGE_NUMBER
+#define MCUBOOT_IMAGE_NUMBER 2
+#endif
 
 /*
  * Logging
@@ -126,7 +130,9 @@
  * NOTE: Each source file is still able to request its own logging level by
  * defining BOOT_LOG_LEVEL before #including `bootutil_log.h`
  */
-#define MCUBOOT_HAVE_LOGGING 1
+#ifndef MCUBOOT_HAVE_LOGGING
+//#define MCUBOOT_HAVE_LOGGING 1
+#endif
 
 /*
  * Assertions
@@ -135,11 +141,12 @@
 /* Uncomment if your platform has its own mcuboot_config/mcuboot_assert.h.
  * If so, it must provide an ASSERT macro for use by bootutil. Otherwise,
  * "assert" is used. */
-//#define MCUBOOT_HAVE_ASSERT_H
+// #define MCUBOOT_HAVE_ASSERT_H
 
 #define MCUBOOT_WATCHDOG_FEED()         \
     do {                                \
         /* TODO: to be implemented */   \
     } while (0)
+
 
 #endif /* MCUBOOT_CONFIG_H */

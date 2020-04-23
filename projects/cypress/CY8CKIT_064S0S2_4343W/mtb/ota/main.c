@@ -27,8 +27,9 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#ifdef CY_USE_EXTERNAL_FLASH
-#include "qspi.h"
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#include "flash_qspi.h"
+#include "cy_smif_psoc6.h"
 #endif
 
 #ifdef CY_USE_LWIP
@@ -50,6 +51,7 @@
 #include "cybsp.h"
 #include "cyhal_gpio.h"
 #include "cy_retarget_io.h"
+#include "sysflash.h"
 
 #ifdef CY_TFM_PSA_SUPPORTED
 #include "tfm_multi_core_api.h"
@@ -202,17 +204,24 @@ static void prvMiscInitialization( void )
     /* Initialize the User LED */
     cyhal_gpio_init((cyhal_gpio_t) CYBSP_USER_LED1, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
 
-#ifdef CY_USE_EXTERNAL_FLASH
-        printf("enable IRQ\r\n") ;
-        __enable_irq() ;
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+    __enable_irq();
 
-    if (qspiInit(1) < 0)
+#ifdef PDL_CODE
+    if (qspi_init_sfdp(1) < 0)
     {
-        printf("QSPI Init failed\r\n") ;
-        while (1) ;
+        printf("QSPI Init failed\r\n");
+        while (1);
     }
-#endif
+#else   /* PDL_CODE */
+    if (psoc6_qspi_init() != 0)
+    {
+       printf("psoc6_qspi_init() FAILED!!\r\n");
+    }
+#endif /* PDL_CODE */
+#endif /* CY_BOOT_USE_EXTERNAL_FLASH */
 }
+
 /*-----------------------------------------------------------*/
 void vApplicationDaemonTaskStartupHook( void )
 {
@@ -221,27 +230,6 @@ void vApplicationDaemonTaskStartupHook( void )
 
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
-
-#ifdef CY_USE_EXTERNAL_FLASH
-    /*
-     * print the QSPI memory found
-     */
-    printf("QSPI Detected device\r\n") ;
-    printf("---------------------------------------------\r\n") ;
-    qspiDumpDevice(qspiGetMemoryConfig(0)->deviceCfg) ;
-#endif
-
-#if 0   /* for debugging */
-        {
-#include "flash_map_backend/flash_map_backend.h"
-#include "mcuboot_config/mcuboot_config.h"
-            vLoggingPrintf("MCUBOOT_MAX_IMG_SECTORS=0x%x (%d)\r\n", MCUBOOT_MAX_IMG_SECTORS, MCUBOOT_MAX_IMG_SECTORS);
-            vLoggingPrintf("MCUBOOT_HEADER_SIZE=0x%x\r\n", MCUBOOT_HEADER_SIZE);
-            vLoggingPrintf("MCUBOOT_BOOTLOADER_SIZE=0x%x\r\n", MCUBOOT_BOOTLOADER_SIZE);
-            vLoggingPrintf("CY_BOOT_SCRATCH_SIZE=0x%x\r\n", CY_BOOT_SCRATCH_SIZE);
-            vLoggingPrintf("CY_BOOT_PRIMARY_1_SIZE=0x%x\r\n", CY_BOOT_PRIMARY_1_SIZE);
-        }
-#endif
 
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries

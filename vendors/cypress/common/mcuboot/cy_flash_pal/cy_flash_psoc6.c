@@ -57,12 +57,7 @@
 
 #include "cy_device_headers.h"
 
-// TODO:
-//#include "device.h"
-//#include "util.h"
-//#include "flash.h"
-//#include "flash_map.h"
-#include "../../mcuboot/cy_flash_pal/include/cy_flash_psoc6.h"
+#include "cy_flash_psoc6.h"
 
 #include "cy_flash.h"
 #include "cy_syspm.h"
