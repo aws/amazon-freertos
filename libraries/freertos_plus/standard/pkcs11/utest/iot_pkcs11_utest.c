@@ -132,20 +132,21 @@ void * pvPkcs11MallocCb( size_t size,
  * This is specifically to get complete branch coverage, as some branches
  * are only taken if a previous call to malloc was successful.
  */
-void * pvPkcs11MallocCb2( size_t size,
+void * pvPkcs11MallocCbFailEveryOtherCall( size_t size,
                           int numCalls )
 {
     static uint32_t ulCalls = 1;
+    void * pvReturn = NULL;
 
     ulCalls++;
 
-    if( ulCalls % 2 )
+    if( !( ulCalls % 2 ) )
     {
-        return NULL;
+        usMallocFreeCalls++;
+        pvReturn = ( void * ) malloc( size );
     }
 
-    usMallocFreeCalls++;
-    return ( void * ) malloc( size );
+    return pvReturn;
 }
 
 /*!
@@ -178,6 +179,7 @@ static CK_RV prvSetFunctionList( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
 static CK_RV prvSetFunctionList2( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
 {
     static uint32_t ulCalls = 0;
+    CK_RV xResult = CKR_OK;
 
     ulCalls++;
 
@@ -186,11 +188,15 @@ static CK_RV prvSetFunctionList2( CK_FUNCTION_LIST_PTR_PTR ppxPtr )
      * the 4th call to C_GetFunctionList in the call stack. */
     if( ulCalls == 4 )
     {
-        return CKR_ARGUMENTS_BAD;
+        xResult = CKR_ARGUMENTS_BAD;
+        *ppxPtr = NULL;
+    }
+    else
+    {
+        *ppxPtr = &prvP11FunctionList;
     }
 
-    *ppxPtr = &prvP11FunctionList;
-    return CKR_OK;
+    return xResult;
 }
 
 /*!
@@ -214,15 +220,16 @@ static CK_RV xSecondGetFails( CK_BBOOL arg1,
                               CK_ULONG_PTR arg3 )
 {
     static uint32_t ulCalls = 1;
+    CK_RV xResult = CKR_OK;
 
     ulCalls++;
 
     if( ulCalls % 2 )
     {
-        return CKR_ARGUMENTS_BAD;
+        xResult = CKR_ARGUMENTS_BAD;
     }
 
-    return CKR_OK;
+    return xResult;
 }
 
 /*!
@@ -480,7 +487,7 @@ void test_IotPkcs11_xInitializePkcs11TokenMallocFail( void )
     CK_RV xResult = CKR_OK;
 
     vCommonStubs();
-    pvPortMalloc_Stub( pvPkcs11MallocCb2 );
+    pvPortMalloc_Stub( pvPkcs11MallocCbFailEveryOtherCall );
     vPortFree_Stub( vPkcs11FreeCb );
     C_GetSlotList_Stub( ( void * ) xGet1Item );
     C_GetTokenInfo_IgnoreAndReturn( CKR_OK );

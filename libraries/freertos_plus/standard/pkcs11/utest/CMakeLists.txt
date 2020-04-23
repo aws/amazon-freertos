@@ -51,11 +51,11 @@ target_include_directories(pkcs11_real PUBLIC
         )
 
 set_target_properties(pkcs11_real PROPERTIES
-        COMPILE_FLAGS "-Wall -fPIC -ggdb3 -Og \
+        COMPILE_FLAGS "-Wall  \
                     -fprofile-arcs -ftest-coverage -fprofile-generate \
                     -include portableDefs.h -Wno-unused-but-set-variable"
-        LINK_FLAGS "-fPIC -fprofile-arcs -ftest-coverage \
-                    -fprofile-generate -ggdb3 -Og"
+        LINK_FLAGS "-fprofile-arcs -ftest-coverage \
+                    -fprofile-generate"
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
         )
 
