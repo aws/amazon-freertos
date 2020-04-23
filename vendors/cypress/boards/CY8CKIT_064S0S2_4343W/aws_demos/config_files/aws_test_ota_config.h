@@ -71,7 +71,7 @@
 
 /**
  * @brief Define a valid and invalid signature verification method for this
- * platform (Windows). These are used for generating test JSON docs.
+ * platform. These are used for generating test JSON docs.
  */
 #define otatestINVALID_SIG_METHOD                         "sig-sha256-rsa"
 #define otatestVALID_SIG_METHOD                       "sig-sha256-ecdsa"

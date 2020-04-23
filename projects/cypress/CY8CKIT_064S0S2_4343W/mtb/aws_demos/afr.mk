@@ -31,6 +31,8 @@
 
 CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
 
+MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
+
 # Artifact locations for launch configs
 CY_AFR_APPLOC=$(notdir $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST))))))
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
@@ -375,8 +377,9 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_ota_cbor.c\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
     $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
@@ -384,13 +387,21 @@ SOURCES+=\
 	
 INCLUDES+=\
     $(MCUBOOT_DIR)\
+    $(MCUBOOT_DIR)/mcuboot_header\
     $(MCUBOOT_DIR)/bootutil/include\
+    $(MCUBOOT_DIR)/sysflash\
+    $(MCUBOOT_CYFLASH_PAL_DIR)\
     $(MCUBOOT_CYFLASH_PAL_DIR)/include\
-	$(CY_AFR_BOARD_PATH)/ports/ota\
+    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+    $(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
+    $(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
+    $(CY_AFR_BOARD_PATH)/ports/ota\
     $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
+    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
     $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif

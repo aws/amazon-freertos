@@ -62,6 +62,8 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+# OTA_SUPPORT needed for some AWS Demos
+OTA_SUPPORT=1
 
 ################################################################################
 # Advanced Configuration

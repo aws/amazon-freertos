@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# This file is used by CMake to create a tarball for OTA multi-image update
+#
+# Modify at your peril !
+#
+# The @ VAR @ values are substituted when CMake is run.
+# The output file will be in the same directory as the .elf, .hex, etc files
+
+set -e
+
+#
+# Do final hex -> bin conversion for use in tarballs
+
+# signed.hex -> signed.bin
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM0_SIGNED_IMG@ @CY_APP_CM0_BIN@
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM4_SIGNED_IMG@ @CY_APP_CM4_BIN@
+
+# upgrade.hex to upgrade.bin
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM0_UPGRADE_IMG@  @CY_APP_CM0_UPGRADE_BIN@
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM4_UPGRADE_IMG@  @CY_APP_CM4_UPGRADE_BIN@
+
+
+#
+# Create a few different tarballs for testing different update types
+#
+
+#==============================================================================
+# "Normal" OTA tarballs (binaries DO NOT include cybootloader magic, etc)
+# get size of binary file for components.json
+BIN_CM0_SIZE=$(ls -l "@CY_OUTPUT_FILE_CM0_NAME_BIN@" | awk '{printf $6}')
+BIN_CM4_SIZE=$(ls -l "@CY_OUTPUT_FILE_CM4_NAME_BIN@" | awk '{printf $6}')
+
+# CM4-only "normal" OTA Image tarball
+#
+# create "components.json" file for cm4-only OTA tarball
+echo "{\"numberOfComponents\":\"2\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                             >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                                     >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM4_NAME_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_CM4_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+#
+# create tarball for OTA-cm4-only
+tar -cf @CY_CM4_ONLY_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM4_NAME_BIN@
+
+
+#---------------------------------------
+# CM0 and CM4 "normal" OTA Image tarball
+#
+# create "components.json" file for cm4-only OTA tarball
+echo "{\"numberOfComponents\":\"3\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                             >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                                     >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM0_NAME_BIN@\",\"fileType\": \"SPE\",\"fileSize\":\"$BIN_CM0_SIZE\"}," >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM4_NAME_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_CM4_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+#
+# create tarball for CM0 & CM4 OTA
+tar -cf @CY_CM4_CM0_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM0_NAME_BIN@ @CY_OUTPUT_FILE_CM4_NAME_BIN@
+
+
+
+#==============================================================================
+# "upgrade" OTA tarballs (includes cybootloader magic, etc)
+# get size of binary file for components.json for "upgrade" files
+BIN_CM0_UPGRADE_SIZE=$(ls -l "@CY_APP_CM0_UPGRADE_BIN@" | awk '{printf $6}')
+BIN_CM4_UPGRADE_SIZE=$(ls -l "@CY_APP_CM4_UPGRADE_BIN@" | awk '{printf $6}')
+
+# CM4-only "upgrade" OTA Image tarball
+#
+# create "components.json" file for cm4-only OTA tarball
+echo "{\"numberOfComponents\":\"2\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                             >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                                     >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM4_UPGRADE_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_CM4_UPGRADE_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+
+# create tarball for "update" OTA-cm4-only tarball
+tar -cf @CY_CM4_ONLY_UPGRADE_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM4_UPGRADE_BIN@
+
+
+#---------------------------------------
+# CM0 and CM4 "upgrade" OTA Image tarball
+#
+# create "components.json" file for cm4-only OTA tarball
+echo "{\"numberOfComponents\":\"3\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                             >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                                     >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM0_UPGRADE_BIN@\",\"fileType\": \"SPE\",\"fileSize\":\"$BIN_CM0_UPGRADE_SIZE\"}," >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_CM4_UPGRADE_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_CM4_UPGRADE_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+#
+# create tarball for CM0 & CM4 OTA
+tar -cf @CY_CM4_CM0_UPGRADE_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_CM0_UPGRADE_BIN@ @CY_OUTPUT_FILE_CM4_UPGRADE_BIN@
+
+echo ""
+
+ls -l *.bin
+
+echo ""
+echo ""
+
+ls -l *.tar
+
+# Done
+echo ""
+echo "Done"
