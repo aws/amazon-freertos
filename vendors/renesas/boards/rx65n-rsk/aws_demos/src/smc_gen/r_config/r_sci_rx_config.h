@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /***********************************************************************************************************************
 * DISCLAIMER
 * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No 
@@ -90,7 +91,7 @@ Configuration Options
                                    
 #define SCI_CFG_CH0_INCLUDED    (0)
 #define SCI_CFG_CH1_INCLUDED    (0)
-#define SCI_CFG_CH2_INCLUDED    (1)
+#define SCI_CFG_CH2_INCLUDED    (0)
 #define SCI_CFG_CH3_INCLUDED    (0)
 #define SCI_CFG_CH4_INCLUDED    (0)
 #define SCI_CFG_CH5_INCLUDED    (0)
@@ -144,7 +145,7 @@ Configuration Options
 * for including the TEI code. The interrupt itself must be enabled using an
 * R_SCI_Control(hdl, SCI_CMD_EN_TEI, NULL) call.
 */
-#define SCI_CFG_TEI_INCLUDED    (0)      /* 1=included, 0=not */
+#define SCI_CFG_TEI_INCLUDED    (1)      /* 1=included, 0=not */
 
 /* 
 * SET GROUPBL0 (ERI, TEI) INTERRUPT PRIORITY; RX64M/RX71M/RX65N/RX72M/RX72N/RX66N ONLY

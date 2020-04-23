@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /***********************************************************************************************************************
  * DISCLAIMER
  * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
@@ -58,7 +59,7 @@
  * type 3 (see section 2.16 in App Note). See section 2.15 in the App Note for
  * details on how to set up code and the linker to execute code from RAM.
  */
-#define FLASH_CFG_CODE_FLASH_ENABLE (0)
+#define FLASH_CFG_CODE_FLASH_ENABLE (1)
 
 
 /******************************************************************************
@@ -95,7 +96,7 @@
  * segment in ROM (possible only with RX64M, RX71M, RX65N-2, RX72M groups).
  * See section 2.16 in the App Note.
  */
-#define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (0)
+#define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (1)
 
 
 /******************************************************************************
