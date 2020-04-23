@@ -574,6 +574,13 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationSuccess )
         {
             TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
         }
+
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration, NULL );
+
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
