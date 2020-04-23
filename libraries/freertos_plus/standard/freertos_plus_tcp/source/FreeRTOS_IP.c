@@ -109,7 +109,7 @@ needs to call eConsiderFrameForProcessing. */
 #if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 0 )
 	#if( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN )
 		/* The bits in the two byte IP header field that make up the fragment offset value. */
-	#def	ine ipFRAGMENT_OFFSET_BIT_MASK				( ( uint16_t ) 0xff0f )
+	#define ipFRAGMENT_OFFSET_BIT_MASK					( ( uint16_t ) 0xff0f )
 	#else
 		/* The bits in the two byte IP header field that make up the fragment offset value. */
 		#define ipFRAGMENT_OFFSET_BIT_MASK				( ( uint16_t ) 0x0fff )

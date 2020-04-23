@@ -41,9 +41,8 @@ extern "C" {
 	#include "FreeRTOS_TCP_IP.h"
 #endif
 
-#if( ipconfigSOCKET_HAS_USER_SEMAPHORE == 1 )
-	#include "semphr.h"
-#endif
+#include "semphr.h"
+
 #include "event_groups.h"
 
 typedef struct xNetworkAddressingParameters
