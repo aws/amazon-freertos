@@ -81,6 +81,5 @@ set(CY_APP_DISABLE_AFR_MODULES
     "defender"
     "greengrass"
     "shadow"
-    "serializer"
     )
 

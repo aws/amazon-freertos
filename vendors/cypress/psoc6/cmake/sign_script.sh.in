@@ -9,27 +9,33 @@
 
 set -e
 
-echo "Create  @CY_OUTPUT_FILE_PATH_HEX@"
-@CY_ELF_TO_HEX@ @CY_ELF_TO_HEX_OPTIONS@ @CY_ELF_TO_HEX_FILE_1@ @CY_ELF_TO_HEX_FILE_2@
-
-
-echo ""
-echo  "Compile size:"
-arm-none-eabi-size "--format=SysV" @CY_OUTPUT_FILE_PATH_ELF@
-
 echo ""
 echo  "@IMGTOOL_SCRIPT_COMMAND@ Hex, creating bin."
 
 #
 # If this app is being built for OTA (and using MCUBoot)
 cd @MCUBOOT_SCRIPT_FILE_DIR@
-#
+
 # @IMGTOOL_SCRIPT_COMMAND@ the file !
 python3 @IMGTOOL_SCRIPT_NAME@ @IMGTOOL_SCRIPT_COMMAND@ @FLASH_ERASE_VALUE@ -e little --align 8 -H @MCUBOOT_HEADER_SIZE@ --pad-header -M @MCUBOOT_MAX_IMG_SECTORS@ -v @CY_BUILD_VERSION@ -L @CY_BOOT_PRIMARY_1_START@ -S @CY_BOOT_PRIMARY_1_SIZE@ @CY_SIGNING_KEY_ARG@ @CY_OUTPUT_FILE_PATH_HEX@ @CY_OUTPUT_FILE_PATH_SIGNED_HEX@
-#
+
+# back to our build directory
+cd @CMAKE_BINARY_DIR@
+
 # Convert signed hex file to Binary for AWS uploading
-objcopy --input-target=ihex --output-target=binary @CY_OUTPUT_FILE_PATH_SIGNED_HEX@ @CY_OUTPUT_FILE_PATH_BIN@
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_OUTPUT_FILE_PATH_SIGNED_HEX@ @CY_OUTPUT_FILE_PATH_BIN@
 echo  " Done."
+
+# get size of binary file for components.json
+BIN_SIZE=$(ls -l "@CY_OUTPUT_FILE_NAME_BIN@" | awk '{printf $6}')
+
+# create "components.json" file
+echo "{\"numberOfComponents\":\"2\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                    >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                             >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_NAME_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+
+# create tarball for OTA
+tar -cf @CY_OUTPUT_FILE_NAME_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_NAME_BIN@
 
 echo ""
 echo "Application Name                         : @AFR_TARGET_APP_NAME@"
@@ -49,3 +55,10 @@ echo ""
 
 #
 ls -l @CY_OUTPUT_FILE_PATH_WILD@
+
+echo ""
+echo "@CY_OUTPUT_FILE_NAME_TAR@ File List"
+# print tar file list
+tar -t -f @CY_OUTPUT_FILE_NAME_TAR@
+
+echo ""

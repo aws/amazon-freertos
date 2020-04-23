@@ -52,6 +52,8 @@ extern "C" {
 
 /** \endcond */
 
+#define HAL_HIGH_ISR_PRIORITY                       (1u)
+
 static cyhal_qspi_t qspi_obj;
 
 static cy_stc_smif_mem_config_t * qspi_mem_config[SMIF_MEM_DEVICES];
@@ -97,6 +99,9 @@ cy_rslt_t cy_serial_flash_qspi_init(
 
     if(CY_RSLT_SUCCESS == result)
     {
+        /* Change SIMF interrupt priority */
+        cyhal_qspi_enable_event(&qspi_obj, CYHAL_QSPI_EVENT_NONE, HAL_HIGH_ISR_PRIORITY, false);
+
         /* Perform SFDP detection and XIP register configuration depending on the
          * memory configuration.
          */

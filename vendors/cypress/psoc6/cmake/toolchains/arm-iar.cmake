@@ -72,10 +72,5 @@ function(cy_cfg_toolchain)
         message(FATAL_ERROR "Incorrect part number '$ENV{CY_DEVICE}'. Check DEVICE in board support package.")
     endif()
     
-    # for ELF -> HEX conversion
-    set(ENV{CY_ELF_TO_HEX} "ielftool")
-    set(ENV{CY_ELF_TO_HEX_OPTIONS} "--ihex")
-    set(ENV{CY_ELF_TO_HEX_FILE_ORDER} "elf_first")
-    
 endfunction()
 

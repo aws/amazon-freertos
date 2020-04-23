@@ -67,8 +67,7 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
-# NOTE: Extra code must be called from your app to initialize AFR OTA Agent
+# OTA_SUPPORT needed for OTA Application
 OTA_SUPPORT=1
 
 ################################################################################
@@ -143,128 +142,6 @@ DEFINES+= BLINK_FREQ_UPDATE_OTA=0
 APP_VERSION_MAJOR?=1
 APP_VERSION_MINOR?=0
 APP_VERSION_BUILD?=0
-
-###########################################################################
-#
-# OTA Support
-#
-ifeq ($(OTA_SUPPORT),1)
-    # OTA / MCUBoot defines
-    #
-    # IMPORTANT NOTE: These defines are also used in the building of MCUBOOT
-    #                 they must EXACTLY match the values added to
-    #                 mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk
-    #
-    # Must be a multiple of 1024 (must leave __vectors on a 1k boundary)
-    MCUBOOT_HEADER_SIZE=0x400
-    MCUBOOT_MAX_IMG_SECTORS=2000
-    CY_BOOT_SCRATCH_SIZE=0x00010000
-    # Boot loader size defines for mcuboot & app are different, but value is the same
-    MCUBOOT_BOOTLOADER_SIZE=0x00012000
-    CY_BOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE)
-    # Primary Slot Currently follows Bootloader sequentially
-    CY_BOOT_PRIMARY_1_START=0x00012000
-    CY_BOOT_PRIMARY_1_SIZE=0x000EE000
-    CY_BOOT_SECONDARY_1_SIZE=0x000EE000
-    
-    # Change to non-zero if stored in external FLASH
-    CY_FLASH_ERASE_VALUE=0
-    
-    # MCUBoot location
-    # This is used in afr.mk and sign_script.bash
-    CY_COMMON_DIR=$(CY_AFR_ROOT)/vendors/cypress/common
-    
-    ifeq ($(MCUBOOT_DIR),)
-    MCUBOOT_DIR=$(CY_COMMON_DIR)/mcuboot
-    endif
-    MCUBOOT_DIR_ABSOLUTE=$(abspath $(MCUBOOT_DIR))
-    
-    ifeq ($(OS),Windows_NT)
-		CY_WHICH_CYGPATH:=$(shell which cygpath)
-        #
-        # CygWin/MSYS ?
-        #
-        ifneq ($(CY_WHICH_CYGPATH),)
-        	MCUBOOT_DIR:=$(shell cygpath -m --absolute $(subst \,/,$(MCUBOOT_DIR_ABSOLUTE)))
-        	CY_BUILD_LOCATION:=$(shell cygpath -m --absolute $(subst \,/,$(CY_BUILD_LOCATION)))
-        else
-        	MCUBOOT_DIR:=$(subst \,/,$(MCUBOOT_DIR_ABSOLUTE))
-        endif
-	endif
-    
-    # signing scripts and keys from MCUBoot
-    IMGTOOL_SCRIPT_NAME=./imgtool.py
-    MCUBOOT_SCRIPT_FILE_DIR=$(CY_AFR_ROOT)/vendors/cypress/tools/scripts
-    MCUBOOT_KEY_DIR=$(CY_COMMON_DIR)/mcuboot/keys
-    MCUBOOT_CYFLASH_PAL_DIR=$(CY_COMMON_DIR)/mcuboot/cy_flash_pal
-
-	DEFINES+=OTA_SUPPORT=1 \
-        MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) \
-    	MCUBOOT_MAX_IMG_SECTORS=$(MCUBOOT_MAX_IMG_SECTORS) \
-    	CY_BOOT_SCRATCH_SIZE=$(CY_BOOT_SCRATCH_SIZE) \
-    	MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) \
-    	CY_BOOT_BOOTLOADER_SIZE=$(CY_BOOT_BOOTLOADER_SIZE) \
-    	CY_BOOT_PRIMARY_1_START=$(CY_BOOT_PRIMARY_1_START) \
-    	CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE) \
-    	CY_BOOT_SECONDARY_1_SIZE=$(CY_BOOT_SECONDARY_1_SIZE) \
-    	CY_FLASH_ERASE_VALUE=$(CY_FLASH_ERASE_VALUE)\
-		APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)\
-    	APP_VERSION_MINOR=$(APP_VERSION_MINOR)\
-    	APP_VERSION_BUILD=$(APP_VERSION_BUILD)
-    	
-    #NOTE this is still aws_demos for cy_code inclusion
-    CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
-    CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(TARGET_UNDERSCORE)
-    CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/aws_demos/application_code/cy_code
-    
-    # Path to the linker script to use (if empty, use the default linker script).
-    # Resolve toolchain name 
-    ifeq ($(TOOLCHAIN),GCC_ARM)
-    CY_AFR_TOOLCHAIN=GCC
-    CY_AFR_TOOLCHAIN_LS_EXT=ld
-    else ifeq ($(TOOLCHAIN),IAR)
-    CY_AFR_TOOLCHAIN=$(TOOLCHAIN)
-    CY_AFR_TOOLCHAIN_LS_EXT=icf
-    else ifeq ($(TOOLCHAIN),ARM)
-    # armclang is more compatible with GCC than RVDS
-    CY_AFR_TOOLCHAIN=GCC
-    CY_AFR_TOOLCHAIN_LS_EXT=sct
-    endif
-    
-    # Custom post-build commands to run.
-    MCUBOOT_KEY_FILE=$(MCUBOOT_KEY_DIR)/cypress-test-ec-p256.pem
-    CY_OUTPUT_FILE_PATH=$(CY_BUILD_LOCATION)/$(CY_AFR_BUILD)/$(TARGET)/$(CONFIG)
-
-    # For signing, use "sign", and key path
-	IMGTOOL_COMMAND_ARG=sign
-	CY_SIGNING_KEY_ARG="-k $(MCUBOOT_KEY_FILE)"
-    SIGN_SCRIPT_FILE_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make/make/scripts/sign_script.bash
-    # Use "Create" for PSoC 062 instead of "sign", and no key path (use a space " " for keypath to keep batch happy)
-    # MCUBoot must also be modified to skip checking the signature
-    #   Comment out and re-build MCUBootApp
-    #   <mcuboot>/boot/cypress/MCUBootApp/config/mcuboot_config/mcuboot_config.h
-    #   line 37, 38, 77
-    # 37: //#define MCUBOOT_SIGN_EC256
-    # 38: //#define NUM_ECC_BYTES (256 / 8)   // P-256 curve size in bytes, rnok: to make compilable
-    # 77: //#define MCUBOOT_VALIDATE_PRIMARY_SLOT
-    SECURE_TEST=$(shell echo $(TARGET) | grep "062")
-	ifneq ($(SECURE_TEST),)
-	    IMGTOOL_COMMAND_ARG=create
-        CY_SIGNING_KEY_ARG=" "
-    endif
-    
-    CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
-    
-    POSTBUILD=$(SIGN_SCRIPT_FILE_PATH) $(CY_OUTPUT_FILE_PATH) $(CY_AFR_BUILD)\
-    	$(CY_ELF_TO_HEX) $(CY_ELF_TO_HEX_OPTIONS) $(CY_ELF_TO_HEX_FILE_ORDER)\
-    	$(MCUBOOT_SCRIPT_FILE_DIR) $(IMGTOOL_SCRIPT_NAME) $(IMGTOOL_COMMAND_ARG) $(CY_FLASH_ERASE_VALUE) $(MCUBOOT_HEADER_SIZE)\
-    	$(MCUBOOT_MAX_IMG_SECTORS) $(CY_BUILD_VERSION) $(CY_BOOT_PRIMARY_1_START) $(CY_BOOT_PRIMARY_1_SIZE)\
-    	$(CY_SIGNING_KEY_ARG)
-
-endif # OTA Support
-
-
-
 
 ################################################################################
 # Paths

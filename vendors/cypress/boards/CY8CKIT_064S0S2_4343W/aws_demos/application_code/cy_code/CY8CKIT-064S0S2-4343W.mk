@@ -93,7 +93,95 @@ CY_BSP_POSTBUILD=$(CY_CROSSPATH)/fromelf --i32 --output=$(TFM_CM4_HEX) $(CY_CONF
 endif
 
 CY_BSP_POSTBUILD+=cp $(TFM_PSOC64_PATH)/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex $(TFM_CM0_HEX);
-CY_BSP_POSTBUILD+=$(CY_PYTHON_PATH) $(TFM_SIGN_SCRIPT) -s $(TFM_CM0_HEX) -n $(TFM_CM4_HEX) -p $(TFM_POLICY_FILE) -d $(TFM_DEVICE_NAME)
+CY_BSP_POSTBUILD+=$(CY_PYTHON_PATH) $(TFM_SIGN_SCRIPT) -s $(TFM_CM0_HEX) -n $(TFM_CM4_HEX) -p $(TFM_POLICY_FILE) -d $(TFM_DEVICE_NAME);
+
+###########################################################################
+#
+# OTA Support
+#
+ifeq ($(OTA_SUPPORT),1)
+    # OTA / MCUBoot defines
+    #
+    # IMPORTANT NOTE: These defines are also used in the building of MCUBOOT
+    #                 they must EXACTLY match the values added to
+    #                 mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk
+    #
+    # Must be a multiple of 1024 (must leave __vectors on a 1k boundary)
+    MCUBOOT_HEADER_SIZE=0x400
+    MCUBOOT_MAX_IMG_SECTORS=2000
+    CY_BOOT_SCRATCH_SIZE=0x00010000
+    # Boot loader size defines for mcuboot & app are different, but value is the same
+    MCUBOOT_BOOTLOADER_SIZE=0x00040000
+    CY_BOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE)
+    # Primary Slot Currently follows Bootloader sequentially
+    CY_BOOT_PRIMARY_1_START=0x10040000
+    CY_BOOT_PRIMARY_1_SIZE=0x00120000
+    CY_BOOT_SECONDARY_1_SIZE=0x00120000
+    CY_BOOT_PRIMARY_2_SIZE=0x50000
+    CY_BOOT_SECONDARY_1_START=0x00170000
+
+    # Change to non-zero if stored in external FLASH
+    CY_FLASH_ERASE_VALUE=0
+
+    # MCUBoot location
+    CY_COMMON_DIR=$(CY_EXTAPP_PATH)/common
+
+    ifeq ($(MCUBOOT_DIR),)
+    MCUBOOT_DIR=$(CY_COMMON_DIR)/mcuboot
+    endif
+    MCUBOOT_DIR_ABSOLUTE=$(abspath $(MCUBOOT_DIR))
+
+    ifeq ($(OS),Windows_NT)
+        CY_WHICH_CYGPATH:=$(shell which cygpath)
+        #
+        # CygWin/MSYS ?
+        #
+        ifneq ($(CY_WHICH_CYGPATH),)
+            MCUBOOT_DIR:=$(shell cygpath -m --absolute $(subst \,/,$(MCUBOOT_DIR_ABSOLUTE)))
+            CY_BUILD_LOCATION:=$(shell cygpath -m --absolute $(subst \,/,$(CY_BUILD_LOCATION)))
+        else
+            MCUBOOT_DIR:=$(subst \,/,$(MCUBOOT_DIR_ABSOLUTE))
+        endif
+    endif
+
+    # signing scripts and keys from MCUBoot
+    IMGTOOL_SCRIPT_NAME=./imgtool.py
+    MCUBOOT_SCRIPT_FILE_DIR=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/security
+    MCUBOOT_KEY_DIR=$(MCUBOOT_SCRIPT_FILE_DIR)/keys
+    MCUBOOT_CYFLASH_PAL_DIR=$(CY_COMMON_DIR)/mcuboot/cy_flash_pal
+
+    DEFINES+=OTA_SUPPORT=1 \
+        MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) \
+        MCUBOOT_MAX_IMG_SECTORS=$(MCUBOOT_MAX_IMG_SECTORS) \
+        CY_BOOT_SCRATCH_SIZE=$(CY_BOOT_SCRATCH_SIZE) \
+        MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) \
+        CY_BOOT_BOOTLOADER_SIZE=$(CY_BOOT_BOOTLOADER_SIZE) \
+        CY_BOOT_PRIMARY_1_START=$(CY_BOOT_PRIMARY_1_START) \
+        CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE) \
+        CY_BOOT_SECONDARY_1_SIZE=$(CY_BOOT_SECONDARY_1_SIZE) \
+        CY_FLASH_ERASE_VALUE=$(CY_FLASH_ERASE_VALUE)\
+        APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)\
+        APP_VERSION_MINOR=$(APP_VERSION_MINOR)\
+        APP_VERSION_BUILD=$(APP_VERSION_BUILD)
+
+    CY_OBJ_COPY=$(CY_CROSSPATH)/arm-none-eabi-objcopy
+
+    # Custom post-build commands to run.
+    MCUBOOT_KEY_FILE=$(MCUBOOT_KEY_DIR)/cypress-test-ec-p256.pem
+    CY_OUTPUT_FILE_PATH=$(CY_BUILD_LOCATION)/$(CY_AFR_BUILD)/$(TARGET)/$(CONFIG)
+
+    # For signing, use "sign", and key path
+    IMGTOOL_COMMAND_ARG=sign
+    CY_SIGNING_KEY_ARG="-k $(MCUBOOT_KEY_FILE)"
+    SIGN_SCRIPT_FILE_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make/make/scripts/sign_tar.bash
+
+    CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
+
+    CY_BSP_POSTBUILD+=$(SIGN_SCRIPT_FILE_PATH) $(CY_OUTPUT_FILE_PATH) $(CY_AFR_BUILD) $(CY_OBJ_COPY)\
+        $(MCUBOOT_SCRIPT_FILE_DIR) $(IMGTOOL_SCRIPT_NAME) $(IMGTOOL_COMMAND_ARG) $(CY_FLASH_ERASE_VALUE) $(MCUBOOT_HEADER_SIZE)\
+        $(MCUBOOT_MAX_IMG_SECTORS) $(CY_BUILD_VERSION) $(CY_BOOT_PRIMARY_1_START) $(CY_BOOT_PRIMARY_1_SIZE)\
+        $(MCUBOOT_KEY_DIR) $(CY_SIGNING_KEY_ARG)
+endif # OTA Support
 
 # BSP programming flow
 CY_BSP_PROGRAM=true
