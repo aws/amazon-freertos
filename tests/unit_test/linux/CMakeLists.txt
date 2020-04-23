@@ -32,7 +32,6 @@
     set_target_properties(unity PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             POSITION_INDEPENDENT_CODE ON
-            COMPILE_FLAGS "-Og"
         )
 
     target_include_directories(cmock PUBLIC
@@ -46,8 +45,7 @@
                 )
     set_target_properties(utils PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            COMPILE_FLAGS "-Wall -Og -pthread"
-            LINK_FLAGS "-Wall -Og -pthread -lpthread"
+            LINK_FLAGS " -pthread"
         )
 
     # add unit test subdirectories here
