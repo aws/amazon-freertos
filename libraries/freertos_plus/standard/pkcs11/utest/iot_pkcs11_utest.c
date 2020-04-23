@@ -511,6 +511,7 @@ void test_IotPkcs11_xInitializePkcs11TokenBadFunctionList( void )
 void test_IotPkcs11_xInitializePkcs11TokenNullTokenInfo( void )
 {
     CK_RV xResult = CKR_OK;
+
     prvP11FunctionList.C_GetTokenInfo = NULL;
 
     vCommonStubs();
@@ -531,6 +532,7 @@ void test_IotPkcs11_xInitializePkcs11TokenNullTokenInfo( void )
 void test_IotPkcs11_xInitializePkcs11TokenNullInitToken( void )
 {
     CK_RV xResult = CKR_OK;
+
     prvP11FunctionList.C_InitToken = NULL;
 
     vCommonStubs();
@@ -627,6 +629,7 @@ void test_IotPkcs11_xInitializePkcs11SessionNullC_Login( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xHandle = { 0 };
+
     prvP11FunctionList.C_Login = NULL;
 
     vCommonStubs();
@@ -727,9 +730,9 @@ void test_IotPkcs11_xFindObjectWithLabelAndClass( void )
     C_FindObjectsInit_IgnoreAndReturn( CKR_OK );
     C_FindObjects_Stub( ( void * ) xGet1Item2 );
     C_FindObjectsFinal_IgnoreAndReturn( CKR_OK );
-    xResult = xFindObjectWithLabelAndClass( xHandle, 
-            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, 
-            CKO_PRIVATE_KEY, &xPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xHandle,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_PRIVATE_KEY, &xPrivateKeyHandle );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 }
