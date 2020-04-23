@@ -19,7 +19,7 @@ config FREERTOS_UNICORE
 
 choice FREERTOS_CORETIMER
     prompt "Xtensa timer to use as the FreeRTOS tick source"
-    default CONFIG_FREERTOS_CORETIMER_0
+    default FREERTOS_CORETIMER_0
     help
         FreeRTOS needs a timer with an associated interrupt to use as
         the main tick source to increase counters, run timers and do
@@ -37,6 +37,14 @@ config FREERTOS_CORETIMER_1
         Select this to use timer 1
 
 endchoice
+
+config FREERTOS_OPTIMIZED_SCHEDULER
+        bool "Enable FreeRTOS pĺatform optimized scheduler"
+        default y
+        help
+            On most platforms there are instructions can speedup the ready task
+            searching. Enabling this option the FreeRTOS with this instructions 
+            support will be built
 
 config FREERTOS_HZ
     int "Tick rate (Hz)"
@@ -206,7 +214,7 @@ config FREERTOS_MAX_TASK_NAME_LEN
 
         For most uses, the default of 16 is OK.
 
-config SUPPORT_STATIC_ALLOCATION
+config FREERTOS_SUPPORT_STATIC_ALLOCATION
     bool "Enable FreeRTOS static allocation API"
     default n
     help
@@ -234,9 +242,9 @@ config SUPPORT_STATIC_ALLOCATION
         It allows the RTOS to be used in applications that simply don't allow any dynamic memory allocation
         (although FreeRTOS includes allocation schemes that can overcome most objections).
 
-config ENABLE_STATIC_TASK_CLEAN_UP_HOOK
+config FREERTOS_ENABLE_STATIC_TASK_CLEAN_UP
     bool "Enable static task clean up hook"
-    depends on SUPPORT_STATIC_ALLOCATION
+    depends on FREERTOS_SUPPORT_STATIC_ALLOCATION
     default n
     help
         Enable this option to make FreeRTOS call the static task clean up hook when a task is deleted.
@@ -247,7 +255,7 @@ config ENABLE_STATIC_TASK_CLEAN_UP_HOOK
                 // place clean up code here
             }
 
-config TIMER_TASK_PRIORITY
+config FREERTOS_TIMER_TASK_PRIORITY
     int "FreeRTOS timer task priority"
     range 1 25
     default 1
@@ -258,7 +266,7 @@ config TIMER_TASK_PRIORITY
 
         Use this constant to define the priority that the timer task will run at.
 
-config TIMER_TASK_STACK_DEPTH
+config FREERTOS_TIMER_TASK_STACK_DEPTH
     int "FreeRTOS timer task stack size"
     range 1536 32768
     default 2048
@@ -269,7 +277,7 @@ config TIMER_TASK_STACK_DEPTH
 
         Use this constant to define the size (in bytes) of the stack allocated for the timer task.
 
-config TIMER_QUEUE_LENGTH
+config FREERTOS_TIMER_QUEUE_LENGTH
     int "FreeRTOS timer queue length"
     range 5 20
     default 10
@@ -385,6 +393,17 @@ config FREERTOS_IDLE_TIME_BEFORE_SLEEP
         FreeRTOS will enter light sleep mode if no tasks need to run for this number
         of ticks.
 
+config FREERTOS_TASK_FUNCTION_WRAPPER
+    bool "Enclose all task functions in a wrapper function"
+    depends on COMPILER_OPTIMIZATION_DEFAULT
+    default y
+    help
+        If enabled, all FreeRTOS task functions will be enclosed in a wrapper function.
+        If a task function mistakenly returns (i.e. does not delete), the call flow will
+        return to the wrapper function. The wrapper function will then log an error and
+        abort the application. This option is also required for GDB backtraces and C++
+        exceptions to work correctly inside top-level task functions.
+
 menuconfig FREERTOS_DEBUG_INTERNALS
     bool "Debug FreeRTOS internals"
     default n
@@ -413,5 +432,13 @@ config FREERTOS_PORTMUX_DEBUG_RECURSIVE
 endif #FREERTOS_UNICORE
 
 endif # FREERTOS_DEBUG_INTERNALS
+
+config FREERTOS_FPU_IN_ISR
+    bool "Allow use of float inside Level 1 ISR (EXPERIMENTAL)"
+    depends on IDF_TARGET_ESP32
+    default n
+    help
+        When enabled, the usage of float type is allowed inside Level 1
+        ISRs.
 
 endmenu
