@@ -51,11 +51,14 @@
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 uint32_t ultestIotPwmGpioInputPin = 18;
+uint32_t ulAssistedTestIotPwmGpioInputPin = 23;
 
 uint32_t ultestIotPwmInstance = 2;            /* Use PWM instance 2 */
 uint32_t ultestIotPwmFrequency = 2000UL;      /* 2KHz frequency */
 uint32_t ultestIotPwmDutyCycle = 20;          /* Default duty cycle */
 uint32_t ultestIotPwmChannel = 0;             /* Default PWM Channel */
+uint32_t ulAssistedTestIotPwmInstance = 2;    /* Use PWM instance 2 for assisted test */
+uint32_t ulAssistedTestIotPwmChannel = 0;     /* Default PWM Channel for assisted test */
 
 volatile uint32_t ultestIotPwmIrqCounter = 0; /* Count how many pulses we've had */
 
@@ -379,12 +382,9 @@ static void prvPwmGpioInterruptCallback( uint8_t ucPinState,
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Test Function to test pwm accuracy by running the
- * pwm signal for 5 seconds and then counting the number of pulses
- *
- */
-TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
+void prvTestPwmAccuracy( uint32_t ulGpioInstance,
+                         uint32_t ulPwmInstance,
+                         uint32_t ulPwmChannel )
 {
     int32_t lRetVal;
     uint32_t expected_count = 0;
@@ -397,7 +397,7 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
     IotGpioInterrupt_t xGpioInterruptB = eGpioInterruptRising;
 
     /* set up port B for interrupt */
-    xtestIotGpioHandleB = iot_gpio_open( ultestIotPwmGpioInputPin );
+    xtestIotGpioHandleB = iot_gpio_open( ulGpioInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioHandleB );
 
     if( TEST_PROTECT() )
@@ -417,13 +417,13 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
         ultestIotPwmIrqCounter = 0;
 
         /* Open PWM handle */
-        xPwmHandle = iot_pwm_open( ultestIotPwmInstance );
+        xPwmHandle = iot_pwm_open( ulPwmInstance );
         TEST_ASSERT_NOT_EQUAL( NULL, xPwmHandle );
 
         /* Settup the pwm configuration */
         xSetPwmConfig.ulPwmFrequency = ultestIotPwmFrequency;
         xSetPwmConfig.ucPwmDutyCycle = ultestIotPwmDutyCycle;
-        xSetPwmConfig.ucPwmChannel = ultestIotPwmChannel;
+        xSetPwmConfig.ucPwmChannel = ulPwmChannel;
 
         /* Set the pwm configuration */
         lRetVal = iot_pwm_set_config( xPwmHandle, xSetPwmConfig );
@@ -448,4 +448,26 @@ TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
     expected_count = ultestIotPwmFrequency * ( PWM_TEST_DURATION_MSEC / 1000 );
     TEST_ASSERT_GREATER_THAN( ( expected_count - 100 ), ultestIotPwmIrqCounter );
     TEST_ASSERT_GREATER_THAN( ultestIotPwmIrqCounter, ( expected_count + 100 ) );
+}
+
+/**
+ * @brief Test Function to test pwm accuracy by running the
+ * pwm signal for 5 seconds and then counting the number of pulses
+ *
+ */
+TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracy )
+{
+    prvTestPwmAccuracy( ultestIotPwmGpioInputPin, ultestIotPwmInstance, ultestIotPwmChannel );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Assited Test Function to test pwm accuracy by running the
+ * pwm signal for 5 seconds and also counting the number of pulses
+ *
+ */
+TEST( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted )
+{
+    prvTestPwmAccuracy( ulAssistedTestIotPwmGpioInputPin, ulAssistedTestIotPwmInstance, ulAssistedTestIotPwmChannel );
 }
