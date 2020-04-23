@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.configuration.216582545">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.configuration.216582545" moduleId="org.eclipse.cdt.core.settings" name="HardwareDebug">
@@ -45,6 +44,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/amazon_freertos_common"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/amazon_freertos_common/compiler_support/ccrx"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/amazon_freertos_common/network_support/onchip_rx_ether"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/Renesas/RX600v2"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/config_files"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/application_code/renesas_code"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v125/r_bsp"/>
@@ -65,7 +65,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v125/r_s12ad_rx"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v125/r_s12ad_rx/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/renesas/rx_driver_package/v125/r_s12ad_rx/src/targets/rx65x"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/Renesas/RX600v2"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/network_manager"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include/private"/>
@@ -102,6 +101,19 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_config&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_byteq&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_byteq/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_s12ad_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_s12ad_rx/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_1&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_3&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx/src/flash_type_4&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_flash_rx/src/targets&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_ether_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_sci_rx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_sci_rx/src&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/general&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen/r_pincfg&quot;"/>
 								</option>
