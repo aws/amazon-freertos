@@ -369,7 +369,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                         /* The message was successfully sent to the TCP/IP stack.
                         * Call the standard trace macro to log the occurrence. */
                         iptraceNETWORK_INTERFACE_RECEIVE();
-                        R_NOP();
+                         R_BSP_NOP();
                     }
                 }
                 else
@@ -439,9 +439,9 @@ void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkB
     uint32_t ul;
     uint8_t * buffer_address;
 
-    R_EXTERN_SEC( B_ETHERNET_BUFFERS_1 )
+    R_BSP_SECTION_OPERATORS_INIT( B_ETHERNET_BUFFERS_1 )
 
-    buffer_address = R_SECTOP( B_ETHERNET_BUFFERS_1 );
+    buffer_address = R_BSP_SECTOP( B_ETHERNET_BUFFERS_1 );
 
     for( ul = 0; ul < ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS; ul++ )
     {
