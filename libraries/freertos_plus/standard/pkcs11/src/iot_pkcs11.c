@@ -285,7 +285,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_ULONG ulCount = 0;
     CK_BBOOL xFindInit = CK_FALSE;
-    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_ATTRIBUTE xTemplate[ 2 ] = { 0 };
 
     if( ( pcLabelName == NULL ) || ( pxHandle == NULL ) )
