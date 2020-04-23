@@ -754,7 +754,13 @@ void test_IotPkcs11_xFindObjectWithLabelAndClassNullArgs( void )
     CK_SESSION_HANDLE xHandle = { 0 };
     CK_OBJECT_HANDLE xPrivateKeyHandle = { 0 };
 
+    /* NULL label name. */
     xResult = xFindObjectWithLabelAndClass( xHandle, NULL, CKO_PRIVATE_KEY, &xPrivateKeyHandle );
+
+    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
+
+    /* NULL object handle. */
+    xResult = xFindObjectWithLabelAndClass( xHandle, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_PRIVATE_KEY, NULL );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
