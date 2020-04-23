@@ -133,7 +133,7 @@ void * pvPkcs11MallocCb( size_t size,
  * are only taken if a previous call to malloc was successful.
  */
 void * pvPkcs11MallocCbFailEveryOtherCall( size_t size,
-                          int numCalls )
+                                           int numCalls )
 {
     static uint32_t ulCalls = 1;
     void * pvReturn = NULL;
