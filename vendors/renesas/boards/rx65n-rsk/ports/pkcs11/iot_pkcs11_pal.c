@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -47,7 +47,7 @@
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
-/* Amazon FreeRTOS Includes. */
+/* FreeRTOS Includes. */
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
@@ -150,13 +150,13 @@ uint8_t object_handle_dictionary[PKCS_OBJECT_HANDLES_NUM][PKCS_HANDLES_LABEL_MAX
 
 static PKCS_CONTROL_BLOCK pkcs_control_block_data_image;        /* RX65N case: 8KB, RX64M case: 16KB, RX63N case: 8KB */
 
-R_ATTRIB_SECTION_CHANGE(C, _PKCS11_STORAGE, 1)
+R_BSP_ATTRIB_SECTION_CHANGE(C, _PKCS11_STORAGE, 1)
 static const PKCS_CONTROL_BLOCK pkcs_control_block_data = {PKCS_CONTROL_BLOCK_INITIAL_DATA};
-R_ATTRIB_SECTION_CHANGE_END
+R_BSP_ATTRIB_SECTION_CHANGE_END
 
-R_ATTRIB_SECTION_CHANGE(C, _PKCS11_STORAGE_MIRROR, 1)
+R_BSP_ATTRIB_SECTION_CHANGE(C, _PKCS11_STORAGE_MIRROR, 1)
 static const PKCS_CONTROL_BLOCK pkcs_control_block_data_mirror = {PKCS_CONTROL_BLOCK_INITIAL_DATA};
-R_ATTRIB_SECTION_CHANGE_END
+R_BSP_ATTRIB_SECTION_CHANGE_END
 
 static void update_dataflash_data_from_image(void);
 static void update_dataflash_data_mirror_from_image(void);
@@ -341,9 +341,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
-    /* Avoid compiler warnings about unused variables. */
-    R_INTERNAL_NOT_USED(usLength);
-
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     int i;
 
@@ -431,10 +428,6 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
                                        CK_ULONG ulDataSize )
 {
-    /* Avoid compiler warnings about unused variables. */
-    R_INTERNAL_NOT_USED(pucData);
-    R_INTERNAL_NOT_USED(ulDataSize);
-
     /* todo: nothing to do in now. Now, pkcs_data exists as static. I will fix this function when I will port this to heap memory. (Renesas/Ishiguro) */
 }
 
