@@ -27,6 +27,7 @@ set(cy_whd_dir      "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/whd")
 set(cy_capsense_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/capsense")
 set(cy_clib_dir     "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/clib_support")
 set(cy_board_dir    "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/boards/${AFR_BOARD_NAME}")
+set(cy_libraries_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/libraries/")
 set(afr_ports_dir   "${cy_board_dir}/ports")
 
 #--------------------------------------------------------------------

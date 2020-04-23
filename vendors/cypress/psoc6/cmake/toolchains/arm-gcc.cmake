@@ -11,7 +11,7 @@ function(cy_cfg_toolchain)
     set(ENV{OPTIMIZATION} "-Os")
     set(ENV{DEBUG_FLAG} "DEBUG")
     set(ENV{DEFINE_FLAGS} "-DLWIP_TIMEVAL_PRIVATE=0")
-    set(ENV{COMMON_FLAGS} "-mthumb;-ffunction-sections;-fdata-sections;-funsigned-char;-fno-exceptions;-g;-Wall;-fdiagnostics-color=always")
+    set(ENV{COMMON_FLAGS} "-mthumb;-ffunction-sections;-fdata-sections;-funsigned-char;-fno-exceptions;-g;-fdiagnostics-color=always")
     set(ENV{VFP_FLAGS} "-mfloat-abi=softfp;-mfpu=fpv4-sp-d16")
     set(ENV{CORE_FLAGS} "-mcpu=cortex-m4")
     set(ENV{LDFLAGS} "--specs=nano.specs;-Wl,--gc-sections,--undefined=uxTopUsedPriority")
@@ -71,11 +71,6 @@ function(cy_cfg_toolchain)
     else()
         message(FATAL_ERROR "Incorrect part number '$ENV{CY_DEVICE}'. Check DEVICE in board support package.")
     endif()
-
-    # for ELF -> HEX conversion
-    set(ENV{CY_ELF_TO_HEX} "arm-none-eabi-objcopy")
-    set(ENV{CY_ELF_TO_HEX_OPTIONS} "-O ihex")
-    set(ENV{CY_ELF_TO_HEX_FILE_ORDER} "elf_first")
     
 endfunction()
 

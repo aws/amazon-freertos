@@ -22,8 +22,7 @@ function(config_cy_mcuboot_sign_script)
     set(SIGNING_KEY_PATH         "${MCUBOOT_KEY_DIR}/${MCUBOOT_KEY_FILE}")
 
     # Is flash erase value defined ?
-    # NOTE: For usage in imgtool.py, no value defaults to an erase value of 0xff
-    # NOTE: Default for internal FLASH is 0x00
+    # NOTE: Do not define anything for erase value 0xff
     if((NOT CY_FLASH_ERASE_VALUE) OR ("${CY_FLASH_ERASE_VALUE}" STREQUAL "0") OR ("${CY_FLASH_ERASE_VALUE}" STREQUAL "0x00"))
         set(FLASH_ERASE_VALUE "-R 0")
     else()
@@ -50,15 +49,41 @@ function(config_cy_mcuboot_sign_script)
     # Create version for sign_script.sh
     set(CY_BUILD_VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}.${APP_VERSION_BUILD}")
 
-    # set env variables as local for the configure_file() call
-    set(CY_ELF_TO_HEX "$ENV{CY_ELF_TO_HEX}")
-    set(CY_ELF_TO_HEX_OPTIONS "$ENV{CY_ELF_TO_HEX_OPTIONS}")
-    if("$ENV{CY_ELF_TO_HEX_FILE_ORDER}" STREQUAL "elf_first")
-        set(CY_ELF_TO_HEX_FILE_1 "${CY_OUTPUT_FILE_PATH_ELF}")
-        set(CY_ELF_TO_HEX_FILE_2 "${CY_OUTPUT_FILE_PATH_HEX}")
-    else()
-        set(CY_ELF_TO_HEX_FILE_1 "${CY_OUTPUT_FILE_PATH_HEX}")
-        set(CY_ELF_TO_HEX_FILE_2 "${CY_OUTPUT_FILE_PATH_ELF}")
+    if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+        find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
+        if(NOT GCC_OBJCOPY )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
+
+        # Generate HEX file
+        add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+            COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_OUTPUT_FILE_PATH_ELF}" "${CY_OUTPUT_FILE_PATH_HEX}"
+        )
+    elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+        find_program(FROMELF_TOOL fromelf)
+        if(NOT FROMELF_TOOL )
+            message(FATAL_ERROR "Cannot find fromelf tool")
+        endif()
+
+        # Generate HEX file
+        add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+            COMMAND ${FROMELF_TOOL} --i32 --output="${CY_OUTPUT_FILE_PATH_HEX}" "${CY_OUTPUT_FILE_PATH_ELF}"
+        )
+    elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+        find_program(FROMELF_TOOL ielftool)
+        if(NOT FROMELF_TOOL )
+            message(FATAL_ERROR "Cannot find ielftool tool")
+        endif()
+
+        # Generate HEX file
+        add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+            COMMAND ${FROMELF_TOOL} --ihex "${CY_OUTPUT_FILE_PATH_ELF}" "${CY_OUTPUT_FILE_PATH_HEX}"
+        )
+    elseif(NOT AFR_METADATA_MODE)
+        message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")
     endif()
 
     # If PSoC 062 board, use "create" instead of "sign"; do not pass in CY_SIGNING_KEY_ARG
@@ -78,8 +103,12 @@ function(config_cy_mcuboot_sign_script)
         set(SIGNING_KEY_PATH     "")
     endif()
 
-    configure_file("${cy_psoc6_dir}/cmake/sign_script.sh.in" "${SIGN_SCRIPT_FILE_PATH}" @ONLY NEWLINE_STYLE LF)
-
+    # create the script to call imgtool.py to sign the image
+    configure_file("${cy_psoc6_dir}/cmake/sign_script.sh.in" "${SIGN_SCRIPT_FILE_PATH_TMP}" @ONLY NEWLINE_STYLE LF)
+    # and make sure it is executable on all platforms
+    file( COPY ${SIGN_SCRIPT_FILE_PATH_TMP} DESTINATION ${CMAKE_BINARY_DIR}
+          FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
 endfunction(config_cy_mcuboot_sign_script)
 
 # -------------------------------------------------------------------------------------------------
@@ -110,6 +139,12 @@ function(cy_kit_generate)
     string(FIND "${ARG_DEFINES}" "CY_BLE_SUPPORTED" check_ble_supported)
     if (NOT ("${check_ble_supported}" STREQUAL "-1"))
        set(CY_BLE_SUPPORTED 1)
+    endif()
+
+    # is CY_BOOT_USE_EXTERNAL_FLASH supported?
+    string(FIND "${ARG_DEFINES}" "CY_BOOT_USE_EXTERNAL_FLASH" check_cy_boot_external_flash)
+    if (NOT ("${check_cy_boot_external_flash}" STREQUAL "-1"))
+       set(CY_BOOT_USE_EXTERNAL_FLASH "1")
     endif()
 
     #--------------------------------------------------------------------
@@ -520,87 +555,118 @@ function(cy_kit_generate)
            # message("cy_kit_utils.cmake: disable module ${module}")
            afr_module_dependencies(${module} INTERFACE 3rdparty::does_not_exist)
         endforeach()
+    endif(CY_ALTERNATE_APP)
+
+    #----------------------------------------------------------------
+    # OTA SUPPORT
+    #----------------------------------------------------------------
+    if(OTA_SUPPORT)
+        target_include_directories(${AFR_TARGET_APP_NAME} PUBLIC
+            "${MCUBOOT_CYFLASH_PAL_DIR}/include"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi"
+            "${MCUBOOT_DIR}/sysflash"
+            )
 
         #----------------------------------------------------------------
-        # OTA SUPPORT
+        # Add Linker options
+        #
+        if(MCUBOOT_HEADER_SIZE)
+            if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,MCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DMCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}\"")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL:--define_symbol MCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}")
+            endif()
+        endif()
+        if(MCUBOOT_BOOTLOADER_SIZE)
+            if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,MCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DMCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}\"")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL: --define_symbol MCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}")
+            endif()
+        endif()
+        if(CY_BOOT_PRIMARY_1_SIZE)
+            if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,CY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DCY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}\"")
+            elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+                target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL: --define_symbol CY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}")
+            endif()
+        endif()
+
         #----------------------------------------------------------------
-        if(OTA_SUPPORT)
-            # Add OTA defines
-            target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
-                "-DOTA_SUPPORT=1"
-                "-DMCUBOOT_KEY_FILE=${MCUBOOT_KEY_FILE}"
-                "-DCY_FLASH_ERASE_VALUE=${CY_FLASH_ERASE_VALUE}"
-                "-DMCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}"
-                "-DCY_BOOT_SCRATCH_SIZE=${CY_BOOT_SCRATCH_SIZE}"
-                "-DCY_BOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
-                "-DMCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
-                "-DCY_BOOT_PRIMARY_1_START=${CY_BOOT_PRIMARY_1_START}"
-                "-DCY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
-                "-DCY_BOOT_SECONDARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
-                "-DMCUBOOT_MAX_IMG_SECTORS=${MCUBOOT_MAX_IMG_SECTORS}"
-                )
+        # Add AWS OTA Library mcu_port
 
-            #----------------------------------------------------------------
-            # Add Linker options
-            #
-            if(MCUBOOT_HEADER_SIZE)
-                if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,MCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DMCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}\"")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL:--define_symbol MCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}")
-                endif()
-            endif()
-            if(MCUBOOT_BOOTLOADER_SIZE)
-                if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,MCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DMCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}\"")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL: --define_symbol MCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}")
-                endif()
-            endif()
-            if(CY_BOOT_PRIMARY_1_SIZE)
-                if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "-Wl,--defsym,CY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "--pd=\"-DCY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}\"")
-                elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-                    target_link_options(${AFR_TARGET_APP_NAME} PUBLIC "SHELL: --define_symbol CY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}")
-                endif()
-            endif()
+        afr_mcu_port(ota)
+        
+        # need these here for the mcu_port
+        target_compile_definitions(AFR::ota::mcu_port INTERFACE
+            "-DOTA_SUPPORT=1"
+            "-DMCUBOOT_KEY_FILE=${MCUBOOT_KEY_FILE}"
+            "-DCY_FLASH_ERASE_VALUE=${CY_FLASH_ERASE_VALUE}"
+            "-DMCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}"
+            "-DCY_BOOT_SCRATCH_SIZE=${CY_BOOT_SCRATCH_SIZE}"
+            "-DCY_BOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
+            "-DMCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
+            "-DCY_BOOT_PRIMARY_1_START=${CY_BOOT_PRIMARY_1_START}"
+            "-DCY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
+            "-DCY_BOOT_SECONDARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
+            "-DCY_BOOT_SECONDARY_2_START=${CY_BOOT_SECONDARY_2_START}"
+            "-DCY_BOOT_SECONDARY_2_SIZE=${CY_BOOT_PRIMARY_2_SIZE}"
+            "-DMCUBOOT_MAX_IMG_SECTORS=${MCUBOOT_MAX_IMG_SECTORS}"
+        )
+        # common ota sources
+        target_sources(AFR::ota::mcu_port INTERFACE
+            "${afr_ports_dir}/ota/aws_ota_pal.c"
+            "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/cy_smif_psoc6.c"
+            "${MCUBOOT_DIR}/bootutil/src/bootutil_misc.c"
+            "${cy_libraries_dir}/internal/utilities/untar/untar.c"
+            "${cy_libraries_dir}/internal/utilities/JSON_parser/JSON.c"
+        )
 
-            #----------------------------------------------------------------
-            # Add AWS OTA Library
+        # common ota includes
+        target_include_directories(AFR::ota::mcu_port INTERFACE
+            "${AFR_DEMOS_DIR}/network_manager"
+            "${MCUBOOT_DIR}"
+            "${MCUBOOT_DIR}/bootutil/include"
+            "${MCUBOOT_DIR}/mcuboot_header"
+            "${MCUBOOT_DIR}/sysflash"
+            "${MCUBOOT_CYFLASH_PAL_DIR}"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/include"
+            "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi"
+            "${cy_libraries_dir}/internal/utilities/untar"
+            "${cy_libraries_dir}/internal/utilities/JSON_parser"
+            "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
+            "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
+            "${cy_psoc6_dir}/psoc6pdl/devices/include"
+            "${cy_psoc6_dir}/psoc6pdl/drivers/include"
+            "${aws_config_dir}"                                                 # for FreeRTOSconfig.h
+            "${iot_common_include}"                                             # for iot_config_common.h
+            "${cy_code_dir}"                                                    # for system_psoc6.h
+            "${cy_code_dir}/GeneratedSource"
+        )
 
-            afr_mcu_port(ota)
-
+        if(CY_ALTERNATE_APP)
+            # Normal OTA build
             # Add extra sources for our port
             target_sources(AFR::ota::mcu_port INTERFACE
-                "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/boards/${AFR_BOARD_NAME}/ports/ota/aws_ota_pal.c"
                 "${AFR_DEMOS_DIR}/demo_runner/aws_demo_version.c"
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_freertos.c"
                 "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
                 "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
-                "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/aws_iot_ota_agent.c"
-                "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
-                "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
-                "${MCUBOOT_DIR}/bootutil/src/bootutil_misc.c"
-                )
+            )
 
             # add extra includes
             target_include_directories(AFR::ota::mcu_port INTERFACE
-                "${AFR_DEMOS_DIR}/network_manager"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-                "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-                "${MCUBOOT_DIR}"
-                "${MCUBOOT_DIR}/bootutil/include"
-                "${MCUBOOT_DIR}/mcuboot_header"
-                "${MCUBOOT_CYFLASH_PAL_DIR}/include"
                 "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
                 "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
                 "${cy_psoc6_dir}/psoc6pdl/devices/include"
@@ -608,81 +674,102 @@ function(cy_kit_generate)
                 "${aws_config_dir}"                                                 # for FreeRTOSconfig.h
                 "${iot_common_include}"                                             # for iot_config_common.h
                 "${cy_code_dir}"                                                    # for system_psoc6.h
-                "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"                    # for iot_mqtt.h
-                "${AFR_3RDPARTY_DIR}/tinycbor"                                      # for cbor.h
-                )
-
-            target_sources(afr_3rdparty_tinycbor INTERFACE
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt/aws_iot_ota_cbor.c"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt/aws_iot_ota_mqtt.c"
-                )
-            target_include_directories(afr_3rdparty_tinycbor INTERFACE
-                "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"                    # for iot_mqtt.h
-                "${AFR_3RDPARTY_DIR}/tinycbor"                                      # for cbor.h
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src"
-                "${AFR_3RDPARTY_DIR}/jsmn"                                          # for jsmn.h
             )
 
-            # Add versioning defines
-            target_compile_definitions(AFR::ota::mcu_port INTERFACE
-                "-DOTA_SUPPORT=1"
-                "-DAPP_VERSION_MAJOR=${APP_VERSION_MAJOR}"
-                "-DAPP_VERSION_MINOR=${APP_VERSION_MINOR}"
-                "-DAPP_VERSION_BUILD=${APP_VERSION_BUILD}"
-                "-DMCUBOOT_HEADER_SIZE=${MCUBOOT_HEADER_SIZE}"
-                "-DCY_BOOT_SCRATCH_SIZE=${CY_BOOT_SCRATCH_SIZE}"
-                "-DCY_BOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
-                "-DMCUBOOT_BOOTLOADER_SIZE=${MCUBOOT_BOOTLOADER_SIZE}"
-                "-DCY_BOOT_PRIMARY_1_START=${CY_BOOT_PRIMARY_1_START}"
-                "-DCY_BOOT_PRIMARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
-                "-DCY_BOOT_SECONDARY_1_SIZE=${CY_BOOT_PRIMARY_1_SIZE}"
-                "-DMCUBOOT_MAX_IMG_SECTORS=${MCUBOOT_MAX_IMG_SECTORS}"
-                )
+        elseif(AFR_IS_TESTING)
+            # For aws_tests build for OTA and OTA PAL
+            # Defines so OTA part of build will not have errors
+            set(APP_VERSION_MAJOR 0)
+            set(APP_VERSION_MINOR 9)
+            set(APP_VERSION_BUILD 0)
+            # add files to build for testing
+            target_include_directories( AFR::ota::mcu_port INTERFACE
+                "${AFR_ROOT_DIR}/tests/include"
+                "${cy_board_dir}/aws_tests/config_files"
+                "${AFR_MODULES_C_SDK_DIR}/standard/https/include"
+                "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
+                "${AFR_ROOT_DIR}/demos/include"
+                "${AFR_ROOT_DIR}/demos/dev_mode_key_provisioning/include"
+                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/pkcs11/include"
+                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt"
+                "${AFR_3RDPARTY_DIR}/pkcs11"
+            )
+     
+        else()
+            # For aws_demos builds for OTA demos
+            # Defines so OTA part of build will not have errors
+            set(APP_VERSION_MAJOR 0)
+            set(APP_VERSION_MINOR 9)
+            set(APP_VERSION_BUILD 0)
+            # add extra includes
+            target_include_directories(AFR::ota::mcu_port INTERFACE
+                "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test"
+                "${cy_board_dir}/aws_demos/config_files"
+            )
+        endif()
 
-            # link libs to our app
-            target_link_libraries(${AFR_TARGET_APP_NAME} PUBLIC
-                "AFR::mqtt"
-                "afr_3rdparty_tinycbor"
-                "AFR::ota"
-                "afr_dev_mode_key_provisioning"
-                )
+        # Add version defines
+        target_compile_definitions(AFR::ota::mcu_port INTERFACE
+            "-DAPP_VERSION_MAJOR=${APP_VERSION_MAJOR}"
+            "-DAPP_VERSION_MINOR=${APP_VERSION_MINOR}"
+            "-DAPP_VERSION_BUILD=${APP_VERSION_BUILD}"
+        )
 
-            # extra includes for pkcs11 and the kernel
-            target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
-                "${MCUBOOT_DIR}/mcuboot_header"
-                )
-            target_include_directories(AFR::kernel::mcu_port INTERFACE
-                "${MCUBOOT_DIR}/mcuboot_header"
-                )
-                
-            if(CY_TFM_PSA)
-                # TFM uses a different linker script and signing tool
-                # see next if() section after endif(CY_ALTERNATE_APP)
-            else()
-                # non-TFM signing
+        target_link_libraries(AFR::ota::mcu_port INTERFACE
+            AFR::ota_mqtt
+            AFR::ota_http
+            AFR::crypto
+            AFR::wifi
+        )
+            
+        # link libs to our app
+        target_link_libraries(${AFR_TARGET_APP_NAME} PUBLIC
+            "AFR::ota"
+            "afr_dev_mode_key_provisioning"
+            "AFR::https"
+        )
 
-                #------------------------------------------------------------
-                # Create our script filename in this scope
-                set(SIGN_SCRIPT_FILE_PATH           "${CMAKE_BINARY_DIR}/sign_${AFR_TARGET_APP_NAME}.sh")
-                set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}")
-                set(CY_OUTPUT_FILE_PATH_ELF         "${CY_OUTPUT_FILE_PATH}.elf")
-                set(CY_OUTPUT_FILE_PATH_HEX         "${CY_OUTPUT_FILE_PATH}.hex")
-                set(CY_OUTPUT_FILE_PATH_SIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.signed.hex")
-                set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}.bin")
-                set(CY_OUTPUT_FILE_PATH_WILD        "${CY_OUTPUT_FILE_PATH}.*")
-    
-                # creates the script to call imgtool.py to sign the image
-                config_cy_mcuboot_sign_script("${CMAKE_BINARY_DIR}")
-    
-                add_custom_command(
-                    TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-                    COMMAND "${CMAKE_COMMAND}" -E remove -f "${CY_OUTPUT_FILE_PATH_HEX}" "${CY_OUTPUT_FILE_PATH_SIGNED_HEX}" "${CY_OUTPUT_FILE_PATH_BIN}"
-                    COMMAND "${SIGN_SCRIPT_FILE_PATH}"
-                    )
-            endif()
-        endif(OTA_SUPPORT)
-    endif(CY_ALTERNATE_APP)
+        # extra OTA includes for pkcs11 and the kernel 
+        target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
+            "${MCUBOOT_DIR}/mcuboot_header"
+        )
+        target_include_directories(AFR::kernel::mcu_port INTERFACE
+            "${MCUBOOT_DIR}/mcuboot_header"
+        )
+            
+        if(CY_TFM_PSA)
+            # TFM uses a different linker script and signing tool
+            # see next if() section after endif(CY_ALTERNATE_APP)
+        else()
+            # non-TFM signing
+
+            #------------------------------------------------------------
+            # Create our script filename in this scope
+            set(SIGN_SCRIPT_FILE_NAME           "sign_${AFR_TARGET_APP_NAME}.sh")
+            set(SIGN_SCRIPT_FILE_PATH           "${CMAKE_BINARY_DIR}/${SIGN_SCRIPT_FILE_NAME}")
+            set(SIGN_SCRIPT_FILE_PATH_TMP       "${CMAKE_BINARY_DIR}/tmp/${SIGN_SCRIPT_FILE_NAME}")
+            set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}")
+            set(CY_OUTPUT_FILE_PATH_ELF         "${CY_OUTPUT_FILE_PATH}.elf")
+            set(CY_OUTPUT_FILE_PATH_HEX         "${CY_OUTPUT_FILE_PATH}.hex")
+            set(CY_OUTPUT_FILE_PATH_SIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.signed.hex")
+            set(CY_OUTPUT_FILE_NAME_BIN         "${AFR_TARGET_APP_NAME}.bin")
+            set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}.bin")
+            set(CY_OUTPUT_FILE_PATH_TAR         "${CY_OUTPUT_FILE_PATH}.tar")
+            set(CY_OUTPUT_FILE_PATH_WILD        "${CY_OUTPUT_FILE_PATH}.*")
+            set(CY_COMPONENTS_JSON_NAME         "components.json")
+            set(CY_OUTPUT_FILE_NAME_TAR         "${AFR_TARGET_APP_NAME}.tar")
+
+            # creates the script to call imgtool.py to sign the image
+            config_cy_mcuboot_sign_script("${CMAKE_BINARY_DIR}")
+
+            add_custom_command(
+                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+                COMMAND "${SIGN_SCRIPT_FILE_PATH}"
+                )
+        endif()
+    endif(OTA_SUPPORT)
+        
 
     if(CY_TFM_PSA)
         set(CY_AWS_ELF  "${CMAKE_BINARY_DIR}/aws.elf")
@@ -693,7 +780,11 @@ function(cy_kit_generate)
         set(CY_CM4_SIGNED_IMG "${CMAKE_BINARY_DIR}/cm4_signed.hex")
         set(CY_APP_CM0_BIN "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}_cm0.bin")
         set(CY_APP_CM4_BIN "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}_cm4.bin")
-       
+        set(CY_CM0_UPGRADE_IMG "${CMAKE_BINARY_DIR}/cm0_upgrade.hex")
+        set(CY_CM4_UPGRADE_IMG "${CMAKE_BINARY_DIR}/cm4_upgrade.hex")
+        set(CY_APP_CM0_UPGRADE_BIN "${CMAKE_BINARY_DIR}/cm0_upgrade.bin")
+        set(CY_APP_CM4_UPGRADE_BIN "${CMAKE_BINARY_DIR}/cm4_upgrade.bin")
+
         if(NOT CY_TFM_HEX)
             message(FATAL_ERROR "You must define CY_TFM_HEX in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
@@ -767,7 +858,51 @@ function(cy_kit_generate)
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_SIGNED_IMG}"  "${CY_APP_CM0_BIN}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_SIGNED_IMG}"  "${CY_APP_CM4_BIN}"
+
+            # Adding conversion upgrade.hex to upgrade.bin
+            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_UPGRADE_IMG}"  "${CY_APP_CM0_UPGRADE_BIN}"
+            COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_UPGRADE_IMG}"  "${CY_APP_CM4_UPGRADE_BIN}"
         )
+
+        if(OTA_SUPPORT)
+            #------------------------------------------------------------
+            # Create our build_tar script
+            set(TAR_SCRIPT_FILE_NAME            "tar_${AFR_TARGET_APP_NAME}.sh")
+            set(TAR_SCRIPT_FILE_PATH            "${CMAKE_BINARY_DIR}/${TAR_SCRIPT_FILE_NAME}")
+            set(TAR_SCRIPT_FILE_PATH_TMP        "${CMAKE_BINARY_DIR}/tmp/${TAR_SCRIPT_FILE_NAME}")
+            set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}")
+            get_filename_component(CY_OUTPUT_FILE_CM0_NAME_BIN ${CY_APP_CM0_BIN} NAME)
+            get_filename_component(CY_OUTPUT_FILE_CM4_NAME_BIN ${CY_APP_CM4_BIN} NAME)
+            get_filename_component(CY_OUTPUT_FILE_CM0_UPGRADE_BIN ${CY_APP_CM0_UPGRADE_BIN} NAME)
+            get_filename_component(CY_OUTPUT_FILE_CM4_UPGRADE_BIN ${CY_APP_CM4_UPGRADE_BIN} NAME)
+    
+            set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}")
+           
+            set(CY_COMPONENTS_JSON_NAME         "components.json")
+    
+            # Create version for tar_XXXX.sh
+            set(CY_BUILD_VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}.${APP_VERSION_BUILD}")
+    
+            set(CY_CM4_ONLY_TAR   "cm4_only_signed.tar")
+            set(CY_CM4_CM0_TAR    "cm4_cm0_signed.tar")
+    
+            set(CY_CM4_ONLY_UPGRADE_TAR "cm4_only_upgrade.tar")
+            set(CY_CM4_CM0_UPGRADE_TAR  "cm4_cm0_upgrade.tar")
+        
+            # create the script to call imgtool.py to sign the image
+            configure_file("${cy_psoc6_dir}/cmake/tar.sh.in" "${TAR_SCRIPT_FILE_PATH_TMP}" @ONLY NEWLINE_STYLE LF)
+            # and then make sure it is executable on all platforms
+            file( COPY "${TAR_SCRIPT_FILE_PATH_TMP}" DESTINATION "${CMAKE_BINARY_DIR}"
+                  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            )
+    
+            add_custom_command(
+                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+                COMMAND "${CMAKE_COMMAND}" -E remove -f "${CY_APP_CM0_BIN}" "${CY_APP_CM4_BIN}" "${CY_APP_CM0_UPGRADE_BIN}" "${CY_APP_CM4_UPGRADE_BIN}"
+                COMMAND "${TAR_SCRIPT_FILE_PATH}"
+            )
+        endif(OTA_SUPPORT)
 
     endif(CY_TFM_PSA)
 

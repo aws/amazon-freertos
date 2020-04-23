@@ -43,8 +43,6 @@ set(CY_APP_IOT_CONFIG_DIR "${AFR_DEMOS_DIR}/include")
 set(CY_APP_DISABLE_AFR_MODULES
     "defender"
     "greengrass"
-    "mqtt"
     "shadow"
-    "serializer"
     )
 

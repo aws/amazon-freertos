@@ -132,9 +132,9 @@
                 ],
                 "id": 16,
                 "monotonic": 0,
-                "smif_id": 0,
+                "smif_id": 1,
                 "multi_image" : 2,
-                "upgrade": false,
+                "upgrade": true,
                 "version": "0.1",
                 "rollback_counter": 0,
                 "encrypt": false,
@@ -156,8 +156,8 @@
                     },
                     {
                         "type": "UPGRADE",
-                        "address": 270307840,
-                        "size": 28160
+                        "address": 402653184,
+                        "size": 1179648
                     }
                 ]
             }
@@ -173,3 +173,4 @@
         "chain_of_trust": []
     }
 }
+

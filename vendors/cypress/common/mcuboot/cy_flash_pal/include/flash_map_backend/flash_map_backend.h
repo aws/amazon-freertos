@@ -70,57 +70,15 @@
 
 #include <mcuboot_config/mcuboot_config.h>
 #include "cy_flash.h"
+#define FLASH_DEVICE_INDEX_MASK                 (0x7F)
+#define FLASH_DEVICE_GET_EXT_INDEX(n)           ((n) & FLASH_DEVICE_INDEX_MASK)
+#define FLASH_DEVICE_EXTERNAL_FLAG              (0x80)
+#define FLASH_DEVICE_INTERNAL_FLASH             (0x7F)
+#define FLASH_DEVICE_EXTERNAL_FLASH(index)      (FLASH_DEVICE_EXTERNAL_FLAG | index)
 
-#ifndef CY_BOOT_SCRATCH_SIZE
-#define CY_BOOT_SCRATCH_SIZE                (0x1000)
-#endif
-
-#ifndef CY_BOOT_BOOTLOADER_SIZE
-#define CY_BOOT_BOOTLOADER_SIZE             (0x10000)
-#endif
-
-#ifndef CY_BOOT_PRIMARY_1_SIZE
-#define CY_BOOT_PRIMARY_1_SIZE              (0x10000)
-#endif
-
-#ifndef CY_BOOT_SECONDARY_1_SIZE
-#define CY_BOOT_SECONDARY_1_SIZE            (0x10000)
-#endif
-
-#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
-#ifndef CY_BOOT_PRIMARY_2_SIZE
-#define CY_BOOT_PRIMARY_2_SIZE              (0x10000)
-#endif
-
-#ifndef CY_BOOT_SECONDARY_2_SIZE
-#define CY_BOOT_SECONDARY_2_SIZE            (0x10000)
-#endif
-#endif
-
-#if (MCUBOOT_IMAGE_NUMBER == 1)
-
-#define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_0 : \
-                                         FLASH_AREA_IMAGE_0)
-#define FLASH_AREA_IMAGE_SECONDARY(x)  (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_1 : \
-                                         FLASH_AREA_IMAGE_1)
-
-#elif (MCUBOOT_IMAGE_NUMBER == 2)
-
-#define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_0 : \
-                                        ((x) == 1) ?          \
-                                         FLASH_AREA_IMAGE_2 : \
-                                         255)
-#define FLASH_AREA_IMAGE_SECONDARY(x)  (((x) == 0) ?          \
-                                         FLASH_AREA_IMAGE_1 : \
-                                        ((x) == 1) ?          \
-                                         FLASH_AREA_IMAGE_3 : \
-                                         255)
-
-#else
-#error "Image slot and flash area mapping is not defined"
+#ifndef CY_BOOT_EXTERNAL_DEVICE_INDEX
+/* assume first(one) SMIF device is used */
+#define CY_BOOT_EXTERNAL_DEVICE_INDEX            (0)
 #endif
 
 /**

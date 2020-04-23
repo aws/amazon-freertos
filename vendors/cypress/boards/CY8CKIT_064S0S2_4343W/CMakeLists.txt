@@ -58,55 +58,41 @@ target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
     "-DCOMPONENT_CAPSENSE"
     )
 
-if(OTA_SUPPORT)
-    #--------------------------------------------------------------------
-    # OTA SUPPORT
-    #
-    # NOTES:
-    #  - These are board-specific values based on Internal / External FLASH sizes
-    #  - These defines MUST match the MCUBootAPP build ***EXACTLY***
-    #
-    #   MCUBOOT_BOOTLOADER_SIZE
-    #   CY_BOOT_PRIMARY_1_START
-    #   CY_BOOT_PRIMARY_1_SIZE
-    #   CY_BOOT_SCRATCH_SIZE
-    #   MCUBOOT_MAX_IMG_SECTORS
-    #
-    # TODO: new 064 memory map (note: No secure secondary yet...)
-    # 0x10000000 - 0x10040000 Secure Primary
-    # 0x10040000 - 0x10100000 Nonsecure Primary
-    # 0x10100000 - 0x101C0000 Nonsecure Secondary
-    # 0x101C0000 - 0x10200000 Reserved
-    #
-    set(MCUBOOT_HEADER_SIZE         "0x400"      )       # Must be a multiple of 1024
-    set(MCUBOOT_MAX_IMG_SECTORS     "2000"       )
-    set(CY_BOOT_SCRATCH_SIZE        "0x00001000" )
-    set(MCUBOOT_BOOTLOADER_SIZE     "0x00040000" )
-    set(CY_BOOT_PRIMARY_1_START     "0x10040000" )
-    set(CY_BOOT_PRIMARY_1_SIZE      "0x00080000" )
+#--------------------------------------------------------------------
+# OTA SUPPORT is always used for this platform
+#
+# NOTES:
+#  - These are board-specific values based on Internal / External FLASH sizes
+#  - These defines MUST match the MCUBootAPP build ***EXACTLY***
+#
+#   MCUBOOT_BOOTLOADER_SIZE
+#   CY_BOOT_PRIMARY_1_START
+#   CY_BOOT_PRIMARY_1_SIZE
+#   CY_BOOT_SCRATCH_SIZE
+#   MCUBOOT_MAX_IMG_SECTORS
+#
+# TODO: new 064 memory map (note: No secure secondary yet...)
+# 0x10000000 - 0x10040000 Secure Primary
+# 0x10040000 - 0x10100000 Nonsecure Primary
+# 0x10100000 - 0x101C0000 Nonsecure Secondary
+# 0x101C0000 - 0x10200000 Reserved
+#
+set(OTA_SUPPORT                 "1")
+set(MCUBOOT_HEADER_SIZE         "0x400"      )       # Must be a multiple of 1024
+set(MCUBOOT_MAX_IMG_SECTORS     "2000"       )
+set(CY_BOOT_SCRATCH_SIZE        "0x00001000" )
+set(MCUBOOT_BOOTLOADER_SIZE     "0x00040000" )
+set(CY_BOOT_PRIMARY_1_START     "0x10040000" )
+set(CY_BOOT_PRIMARY_1_SIZE      "0x00120000" )
 
-    #set(CY_BOOT_PRIMARY_1_SIZE      "0x00080000" ) # Moved WIFI FW out of AFR app so slots are smaller
+set(CY_BOOT_PRIMARY_2_SIZE      "0x50000" )
+set(CY_BOOT_SECONDARY_2_START   "0x00170000" )
 
-    # When we use external FLASH (TODO)
-    #
-    # if(SLOT_1_EXTERNAL)
-    #   TODO: linker script for external?
-    #
-    #   set(CY_USE_EXTERNAL_FLASH  "1" )
-    #   set(CY_BOOT_PRIMARY_2_START  "0x????" )
-    #   set(CY_BOOT_PRIMARY_2_SIZE   "0x????" )
-    # endif()
+# Default to internal FLASH value for MCUBoot header signing
+# Note that after cy_bootloader changes to support 0xFF erase values
+# for external FLASH, this will need to change
+set(CY_FLASH_ERASE_VALUE        "0x00" )
 
-    # Default to internal FLASH value for MCUBoot header signing
-    #
-    set(CY_FLASH_ERASE_VALUE        "0x00" )
-
-    # Linker script for OTA Internal Flash!
-    #
-    # Don't change linker script for 064 TFM builds
-    #     set(LINKER_SCRIPT_NAME "ota/${LINKER_SCRIPT_NAME}_ota_int")
-
-endif(OTA_SUPPORT)
 
 # -------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
@@ -155,5 +141,5 @@ cy_kit_generate(
     DEVICE "CYB0644ABZI-S2D44"
     LINKER_SCRIPT "${LINKER_SCRIPT_NAME}"
     COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_BLE_SUPPORTED;CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
+    DEFINES "CY_BLE_SUPPORTED;CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL;OTA_SUPPORT;CY_BOOT_USE_EXTERNAL_FLASH"
 )

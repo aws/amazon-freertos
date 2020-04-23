@@ -31,6 +31,10 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#include "flash_qspi.h"
+#include "cy_smif_psoc6.h"
+#endif
 
 #ifdef CY_USE_LWIP
 #include "lwip/tcpip.h"
@@ -75,7 +79,7 @@
 #if (testrunnerFULL_BLE_ENABLED == 1)
 #define mainTEST_RUNNER_TASK_PRIORITY     ( tskIDLE_PRIORITY + 6 )
 #else
-#define mainTEST_RUNNER_TASK_PRIORITY     ( tskIDLE_PRIORITY )
+#define mainTEST_RUNNER_TASK_PRIORITY     ( 2 )
 #endif
 
 /* The task delay for allowing the lower priority logging task to print out Wi-Fi
@@ -254,13 +258,31 @@ static void prvMiscInitialization( void )
     cy_rslt_t result = cybsp_init();
     if (result != CY_RSLT_SUCCESS)
     {
-        configPRINTF( (  "BSP initialization failed \r\n" ) );
+        printf(  "BSP initialization failed \r\n" );
     }
     result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
     if (result != CY_RSLT_SUCCESS)
     {
-        configPRINTF( ( "Retarget IO initializatoin failed \r\n" ) );
+        printf( "Retarget IO initialization failed \r\n" );
     }
+
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+    __enable_irq();
+
+#ifdef PDL_CODE
+    if (qspi_init_sfdp(1) < 0)
+    {
+        printf("QSPI Init failed\r\n");
+        while (1);
+    }
+#else   /* PDL_CODE */
+    if (psoc6_qspi_init() != 0)
+    {
+       printf("psoc6_qspi_init() FAILED!!\r\n");
+    }
+
+#endif /* PDL_CODE */
+#endif /* CY_BOOT_USE_EXTERNAL_FLASH */
 }
 /*-----------------------------------------------------------*/
 
@@ -351,7 +373,7 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
     }
     else
     {
