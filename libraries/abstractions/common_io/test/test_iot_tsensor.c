@@ -39,6 +39,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
+#define testIotTSENSOR_DELAY              pdMS_TO_TICKS( 5000 )
 #define testIotTSENSOR_ROOM_TEMP          ( 30000 )
 #define testIotTSENSOR_ROOM_TEMP_DELTA    ( 15000 )
 #define testIotTSENSOR_TEMP_DELTA         ( 5000 )
@@ -47,7 +48,8 @@
 
 uint8_t uctestIotTsensorInstance = 0;
 
-static SemaphoreHandle_t xtestIotTsensorSemaphore = NULL;
+static SemaphoreHandle_t xtestIotTsensorMinSemaphore = NULL;
+static SemaphoreHandle_t xtestIotTsensorMaxSemaphore = NULL;
 
 /*-----------------------------------------------------------*/
 
@@ -79,6 +81,16 @@ TEST_TEAR_DOWN( TEST_IOT_TSENSOR )
  */
 TEST_GROUP_RUNNER( TEST_IOT_TSENSOR )
 {
+    if( xtestIotTsensorMinSemaphore == NULL )
+    {
+        xtestIotTsensorMinSemaphore = xSemaphoreCreateBinary();
+    }
+
+    if( xtestIotTsensorMaxSemaphore == NULL )
+    {
+        xtestIotTsensorMaxSemaphore = xSemaphoreCreateBinary();
+    }
+
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorOpenCloseSuccess );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorOpenCloseFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorMultipleOpenFuzz );
@@ -94,19 +106,33 @@ TEST_GROUP_RUNNER( TEST_IOT_TSENSOR )
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorSetGetThresholdNullInputFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationSuccess );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationInvalidHandleFuzz );
-    RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationNullInputFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationInvalidInputFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMinThreshold );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMaxThreshold );
+
+    if( xtestIotTsensorMinSemaphore != NULL )
+    {
+        vSemaphoreDelete( xtestIotTsensorMinSemaphore );
+    }
+
+    if( xtestIotTsensorMaxSemaphore != NULL )
+    {
+        vSemaphoreDelete( xtestIotTsensorMaxSemaphore );
+    }
 }
 
 /*-----------------------------------------------------------*/
-static void prvTsensorCallback( void * pvUserContext )
+static void prvTsensorCallback( IotTsensorStatus_t xStatus,
+                                void * pvUserContext )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
-    xSemaphoreGiveFromISR( xtestIotTsensorSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    if( eTsensorMinThresholdReached == xStatus )
+    {
+        xSemaphoreGiveFromISR( xtestIotTsensorMinSemaphore, NULL );
+    }
+    else
+    {
+        xSemaphoreGiveFromISR( xtestIotTsensorMaxSemaphore, NULL );
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -160,8 +186,11 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorMultipleOpenFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    xTsensorHandleNULL = iot_tsensor_open( uctestIotTsensorInstance );
-    TEST_ASSERT_EQUAL( NULL, xTsensorHandleNULL );
+    if( TEST_PROTECT() )
+    {
+        xTsensorHandleNULL = iot_tsensor_open( uctestIotTsensorInstance );
+        TEST_ASSERT_EQUAL( NULL, xTsensorHandleNULL );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -181,11 +210,14 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorMultipleCloseFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_close( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_close( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_CLOSED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -202,11 +234,14 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorEnableDisableSuccess )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_enable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-    lRetVal = iot_tsensor_disable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        lRetVal = iot_tsensor_disable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -239,10 +274,10 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorEnableDisableFuzz )
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
     lRetVal = iot_tsensor_enable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_CLOSED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 
     lRetVal = iot_tsensor_disable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_CLOSED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -260,13 +295,16 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorGetTempSuccess )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_enable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-    temp = 0;
-    lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-    TEST_ASSERT_INT_WITHIN( testIotTSENSOR_ROOM_TEMP_DELTA, testIotTSENSOR_ROOM_TEMP, temp );
+        temp = 0;
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        TEST_ASSERT_INT_WITHIN( testIotTSENSOR_ROOM_TEMP_DELTA, testIotTSENSOR_ROOM_TEMP, temp );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -289,21 +327,24 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorGetTempKTimesSuccess )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_enable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-
-    temp = 0;
-    lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-    TEST_ASSERT_INT_WITHIN( testIotTSENSOR_ROOM_TEMP_DELTA, testIotTSENSOR_ROOM_TEMP, temp );
-
-    for( k = 5; k > 0; k-- )
+    if( TEST_PROTECT() )
     {
-        temp2 = temp;
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+
+        temp = 0;
         lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
         TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
         TEST_ASSERT_INT_WITHIN( testIotTSENSOR_ROOM_TEMP_DELTA, testIotTSENSOR_ROOM_TEMP, temp );
-        TEST_ASSERT_INT_WITHIN( testIotTSENSOR_TEMP_DELTA, temp2, temp );
+
+        for( k = 5; k > 0; k-- )
+        {
+            temp2 = temp;
+            lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+            TEST_ASSERT_INT_WITHIN( testIotTSENSOR_ROOM_TEMP_DELTA, testIotTSENSOR_ROOM_TEMP, temp );
+            TEST_ASSERT_INT_WITHIN( testIotTSENSOR_TEMP_DELTA, temp2, temp );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
@@ -331,14 +372,17 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorGetTempInvalidHandleInputFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_get_temp( xTsensorHandle, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, NULL );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
     lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_CLOSED, lRetVal );
+    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 }
 
 /*-----------------------------------------------------------*/
@@ -356,12 +400,15 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorGetTempDisabledFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_disable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_disable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-    temp = 0;
-    lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_DISABLED, lRetVal );
+        temp = 0;
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_DISABLED, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -385,34 +432,37 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorSetGetThresholdSuccess )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, &setMinThreshold );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
-        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-    }
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, &setMinThreshold );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, &setMaxThreshold );
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        }
 
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
-    {
-        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-    }
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, &setMaxThreshold );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMinThreshold, &getMinThreshold );
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        }
 
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
-    {
-        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( setMinThreshold, getMinThreshold );
-    }
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMinThreshold, &getMinThreshold );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMaxThreshold, &getMaxThreshold );
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+            TEST_ASSERT_EQUAL( setMinThreshold, getMinThreshold );
+        }
 
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
-    {
-        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( setMaxThreshold, getMaxThreshold );
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMaxThreshold, &getMaxThreshold );
+
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+            TEST_ASSERT_EQUAL( setMaxThreshold, getMaxThreshold );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
@@ -482,17 +532,20 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorSetGetThresholdNullInputFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, NULL );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, NULL );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMinThreshold, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMinThreshold, NULL );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMaxThreshold, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorGetMaxThreshold, NULL );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -513,11 +566,14 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationSuccess )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration, &param );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
-        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration, &param );
+
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
@@ -555,27 +611,6 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationInvalidHandleFuzz )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test Function to test tsensor perform calibration FAIL on NULL input case
- *
- */
-TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationNullInputFuzz )
-{
-    IotTsensorHandle_t xTsensorHandle;
-    int32_t lRetVal;
-
-    xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
-    TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
-
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration, NULL );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
-
-    lRetVal = iot_tsensor_close( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Test Function to test tsensor invalid ioctl input
  *
  */
@@ -587,8 +622,10 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationInvalidInputFuzz )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration + testIotTSENSOR_INVALID_INPUT, 0 );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_INVALID_VALUE, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorPerformCalibration + testIotTSENSOR_INVALID_INPUT, 0 );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
@@ -605,28 +642,34 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMinThreshold )
     IotTsensorHandle_t xTsensorHandle;
     int32_t lRetVal;
     int32_t setLowThreshold = -999000;
-    int32_t setHighThreshold = 999000;
 
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    iot_tsensor_set_callback( xTsensorHandle, prvTsensorCallback, NULL );
-
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, &setHighThreshold );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
         TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-        lRetVal = xSemaphoreTake( xtestIotTsensorSemaphore, portMAX_DELAY );
-        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
-    }
-
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, &setLowThreshold );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
-    {
+        /* Read out current temperature */
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, &setLowThreshold );
         TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+
+        /* Set min threshold to be 5 degrees C higher than current temperature.
+         * Expect it to fire immediately */
+        setLowThreshold += 5000;
+
+        iot_tsensor_set_callback( xTsensorHandle, prvTsensorCallback, NULL );
+
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMinThreshold, &setLowThreshold );
+
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+
+            lRetVal = xSemaphoreTake( xtestIotTsensorMinSemaphore, testIotTSENSOR_DELAY );
+            TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
@@ -643,29 +686,35 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMaxThreshold )
 {
     IotTsensorHandle_t xTsensorHandle;
     int32_t lRetVal;
-    int32_t setLowThreshold = -999000;
     int32_t setHighThreshold = 999000;
 
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    iot_tsensor_set_callback( xTsensorHandle, prvTsensorCallback, NULL );
-
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, &setLowThreshold );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
         TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-        lRetVal = xSemaphoreTake( xtestIotTsensorSemaphore, portMAX_DELAY );
-        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
-    }
-
-    lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, &setHighThreshold );
-
-    if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
-    {
+        /* Read out current temperature */
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, &setHighThreshold );
         TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+
+        /* Set max threshold to be 5 degrees C lower than current temperature.
+         * Expect it to fire immediately */
+        setHighThreshold -= 5000;
+
+        iot_tsensor_set_callback( xTsensorHandle, prvTsensorCallback, NULL );
+
+        lRetVal = iot_tsensor_ioctl( xTsensorHandle, eTsensorSetMaxThreshold, &setHighThreshold );
+
+        if( lRetVal != IOT_TSENSOR_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+
+            lRetVal = xSemaphoreTake( xtestIotTsensorMaxSemaphore, testIotTSENSOR_DELAY );
+            TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+        }
     }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
@@ -687,11 +736,14 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorTemp )
     xTsensorHandle = iot_tsensor_open( uctestIotTsensorInstance );
     TEST_ASSERT_NOT_EQUAL( NULL, xTsensorHandle );
 
-    lRetVal = iot_tsensor_enable( xTsensorHandle );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        lRetVal = iot_tsensor_enable( xTsensorHandle );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
 
-    lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
-    TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+        lRetVal = iot_tsensor_get_temp( xTsensorHandle, &temp );
+        TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
+    }
 
     lRetVal = iot_tsensor_close( xTsensorHandle );
     TEST_ASSERT_EQUAL( IOT_TSENSOR_SUCCESS, lRetVal );
