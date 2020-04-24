@@ -325,7 +325,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ( CKR_OK == xResult ) && ( ulCount == 0 ) )
+    if( ( NULL != pxHandle ) && ( ulCount == 0 ) )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
