@@ -182,7 +182,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
@@ -196,12 +196,14 @@ SOURCES+=\
 endif
 
 INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
 	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
-	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
