@@ -3,7 +3,7 @@
 ; to pass a scatter file through a C preprocessor.
 
 ;*******************************************************************************
-;* \file cyb06xxa_cm4_dual.sct
+;* \file cyb06xxa_cm4.sct
 ;* \version 2.70
 ;*
 ;* Linker file for the ARMCC.
@@ -46,9 +46,6 @@
 ; Use these defines to specify the memory regions available for allocation.
 
 ; The following defines control RAM and flash memory allocation for the CM4 core.
-; You can change the memory allocation by editing RAM and Flash defines.
-; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
-; where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.scat'.
 ; RAM
 #define RAM_START               0x08030000
 #define RAM_SIZE                0x000B7000
