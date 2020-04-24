@@ -75,11 +75,11 @@
 #ifndef IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S
     #define IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S     ( 30 )
 #endif
-#ifndef IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY
-    #define IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY    ( 1100 )
+#ifndef IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS
+    #define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
 #endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
-    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 1 )
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 6 )
 #endif
 #if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
     #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
@@ -444,7 +444,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     RETRY_EXPONENTIAL( status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection ),
                        IOT_MQTT_SUCCESS,
-                       IOT_TEST_MQTT_CONNECT_INITIAL_RETRY_DELAY,
+                       IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS,
                        IOT_TEST_MQTT_CONNECT_RETRY_COUNT );
 
     return status;
