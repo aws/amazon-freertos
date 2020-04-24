@@ -63,6 +63,17 @@ TEST_GROUP( TEST_IOT_TSENSOR );
  */
 TEST_SETUP( TEST_IOT_TSENSOR )
 {
+    if( xtestIotTsensorMinSemaphore == NULL )
+    {
+        xtestIotTsensorMinSemaphore = xSemaphoreCreateBinary();
+        TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMinSemaphore );
+    }
+
+    if( xtestIotTsensorMaxSemaphore == NULL )
+    {
+        xtestIotTsensorMaxSemaphore = xSemaphoreCreateBinary();
+        TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMaxSemaphore );
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -81,16 +92,6 @@ TEST_TEAR_DOWN( TEST_IOT_TSENSOR )
  */
 TEST_GROUP_RUNNER( TEST_IOT_TSENSOR )
 {
-    if( xtestIotTsensorMinSemaphore == NULL )
-    {
-        xtestIotTsensorMinSemaphore = xSemaphoreCreateBinary();
-    }
-
-    if( xtestIotTsensorMaxSemaphore == NULL )
-    {
-        xtestIotTsensorMaxSemaphore = xSemaphoreCreateBinary();
-    }
-
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorOpenCloseSuccess );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorOpenCloseFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorMultipleOpenFuzz );
