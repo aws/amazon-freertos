@@ -745,6 +745,28 @@ void test_IotPkcs11_xFindObjectWithLabelAndClass( void )
 }
 
 /*!
+ * @brief xFindObjectWithLabelAndClass All calls succeed but no object was found.
+ *
+ */
+void test_IotPkcs11_xFindObjectWithLabelAndClassNoObjectsFound( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xHandle = { 0 };
+    CK_OBJECT_HANDLE xPrivateKeyHandle = { 0 };
+
+    vCommonStubs();
+    C_FindObjectsInit_IgnoreAndReturn( CKR_OK );
+    C_FindObjects_IgnoreAndReturn( CKR_OK );
+    C_FindObjectsFinal_IgnoreAndReturn( CKR_OK );
+    xResult = xFindObjectWithLabelAndClass( xHandle,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_PRIVATE_KEY, &xPrivateKeyHandle );
+
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    TEST_ASSERT_EQUAL( CK_INVALID_HANDLE, xPrivateKeyHandle );
+}
+
+/*!
  * @brief xFindObjectWithLabelAndClass Bad arguments test path.
  *
  */

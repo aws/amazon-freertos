@@ -284,7 +284,6 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     CK_ULONG ulCount = 0;
-    CK_BBOOL xFindInit = CK_FALSE;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_ATTRIBUTE xTemplate[ 2 ] = { 0 };
 
@@ -314,7 +313,6 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
     if( CKR_OK == xResult )
     {
-        xFindInit = CK_TRUE;
         /* Find the first matching object, if any. */
         xResult = pxFunctionList->C_FindObjects( xSession,
                                                  pxHandle,
@@ -322,12 +320,12 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                                  &ulCount );
     }
 
-    if( CK_TRUE == xFindInit )
+    if( CKR_OK == xResult )
     {
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ( pxHandle != NULL ) && ( ulCount == 0 ) )
+    if( ( CKR_OK == xResult ) && ( ulCount == 0 ) )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
