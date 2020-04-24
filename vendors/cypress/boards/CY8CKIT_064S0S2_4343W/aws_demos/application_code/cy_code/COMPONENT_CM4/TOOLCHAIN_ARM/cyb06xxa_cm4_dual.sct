@@ -50,7 +50,6 @@
 ; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
 ; where 'xx' is the device group; for example, 'cyb06xx7_cm0plus.scat'.
 ; RAM
-; RAM
 #define RAM_START               0x08030000
 #define RAM_SIZE                0x000B7000
 ; Flash

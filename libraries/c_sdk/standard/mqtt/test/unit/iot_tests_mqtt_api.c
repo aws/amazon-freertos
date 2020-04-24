@@ -50,6 +50,9 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* MQTT mock include. */
+#include "iot_tests_mqtt_mock.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -570,6 +573,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_API )
     RUN_TEST_CASE( MQTT_Unit_API, UnsubscribeMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, KeepAlivePeriodic );
     RUN_TEST_CASE( MQTT_Unit_API, KeepAliveJobCleanup );
+    RUN_TEST_CASE( MQTT_Unit_API, WaitAfterDisconnect );
 }
 
 /*-----------------------------------------------------------*/
@@ -1452,6 +1456,59 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
     }
 
     IotSemaphore_Destroy( &waitSem );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that Wait can be safely invoked after Disconnect.
+ */
+TEST( MQTT_Unit_API, WaitAfterDisconnect )
+{
+    int32_t i = 0;
+    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttOperation_t pPublishOperation[ 3 ] = { IOT_MQTT_OPERATION_INITIALIZER };
+
+    /* Set the members of the publish info. */
+    publishInfo.qos = IOT_MQTT_QOS_1;
+    publishInfo.pTopicName = TEST_TOPIC_NAME;
+    publishInfo.topicNameLength = TEST_TOPIC_NAME_LENGTH;
+    publishInfo.pPayload = "";
+    publishInfo.payloadLength = 0;
+    publishInfo.retryLimit = 3;
+    publishInfo.retryMs = 5000;
+
+    /* Establish the MQTT connection. */
+    TEST_ASSERT_EQUAL_INT( true, IotTest_MqttMockInit( &_pMqttConnection ) );
+
+    if( TEST_PROTECT() )
+    {
+        /* Publish a sequence of messages. */
+        for( i = 0; i < 3; i++ )
+        {
+            status = IotMqtt_Publish( _pMqttConnection,
+                                      &publishInfo,
+                                      IOT_MQTT_FLAG_WAITABLE,
+                                      NULL,
+                                      &( pPublishOperation[ i ] ) );
+            TEST_ASSERT_EQUAL( IOT_MQTT_STATUS_PENDING, status );
+        }
+    }
+
+    /* Disconnect the MQTT connection. */
+    IotTest_MqttMockCleanup();
+
+    if( TEST_PROTECT() )
+    {
+        /* Waiting on operations after a connection is disconnected should not crash.
+         * The actual statuses of the PUBLISH operations may vary depending on the
+         * timing of publish versus disconnect, so the statuses are not checked. */
+        for( i = 0; i < 3; i++ )
+        {
+            status = IotMqtt_Wait( pPublishOperation[ i ], 100 );
+        }
+    }
 }
 
 /*-----------------------------------------------------------*/

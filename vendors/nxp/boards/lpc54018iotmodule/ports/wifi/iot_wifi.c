@@ -151,7 +151,7 @@ static void aws_connect_cb(QCOM_ONCONNECT_EVENT event, uint8_t devid, QCOM_BSSID
         else if (QCOM_ONCONNECT_EVENT_DISCONNECT == event)
         {
             g_connected = 0;
-            
+
             /* Avoid situation when receive disconnect followed by connect */
             if (expected_event_disconnect == g_expected_event)
             {

@@ -2,6 +2,7 @@
 
 if (AFR_ENABLE_UNIT_TESTS)
     add_subdirectory(abstractions/secure_sockets)
+    add_subdirectory(c_sdk/standard/ble)
     return()
 endif()
 

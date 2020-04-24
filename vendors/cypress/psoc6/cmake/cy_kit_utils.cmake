@@ -703,6 +703,7 @@ function(cy_kit_generate)
         if(NOT CY_TFM_SIGN_SCRIPT)
             message(FATAL_ERROR "You must define CY_TFM_SIGN_SCRIPT in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
+
         if(NOT CY_DEVICE_NAME)
             message(FATAL_ERROR "You must define CY_DEVICE_NAME in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
@@ -768,7 +769,6 @@ function(cy_kit_generate)
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_SIGNED_IMG}"  "${CY_APP_CM0_BIN}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_SIGNED_IMG}"  "${CY_APP_CM4_BIN}"
         )
-
     endif(CY_TFM_PSA)
 
 endfunction(cy_kit_generate)

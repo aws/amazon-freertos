@@ -54,8 +54,8 @@
 #define testIotUARTBUFFERSIZE                          ( 32 )
 #define testIotUART_BUFFER_LENGTH_LARGE                ( 200 )
 #define testIotUART_DELAY                              ( 1000 )
-#define testIotUART_7BIT_WORD_LENGTH                   ( 0 )
-#define testIotUART_8BIT_WORD_LENGTH                   ( 1 )
+#define testIotUART_7BIT_WORD_LENGTH                   ( 7 )
+#define testIotUART_8BIT_WORD_LENGTH                   ( 8 )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
@@ -104,18 +104,14 @@ static IotUARTConfig_t xSampleConfig2 =
 static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
                                   void * pvParams )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
     if( xOpStatus == eUartReadCompleted )
     {
-        xSemaphoreGiveFromISR( xReadCompleteSemaphore, &xHigherPriorityTaskWoken );
+        xSemaphoreGiveFromISR( xReadCompleteSemaphore, NULL );
     }
     else if( xOpStatus == eUartWriteCompleted )
     {
-        xSemaphoreGiveFromISR( xWriteCompleteSemaphore, &xHigherPriorityTaskWoken );
+        xSemaphoreGiveFromISR( xWriteCompleteSemaphore, NULL );
     }
-
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
@@ -158,7 +154,9 @@ TEST_GROUP_RUNNER( TEST_IOT_UART )
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTCancel );
+    #if ( IOT_TEST_COMMON_IO_UART_SUPPORTED_CANCEL == 1 )
+        RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTCancel );
+    #endif
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet );
@@ -233,14 +231,17 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
         TEST_ASSERT_EQUAL( xSampleConfig2.ulBaudrate, xgetConfigBuffer.ulBaudrate );
 
-        /* Test changing control flow config */
-        xConfigBuffer.ucFlowControl = xSampleConfig2.ucFlowControl;
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
-        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+        /* Test changing control flow config if specified by the test framework */
+        if( ultestIotUartFlowControl )
+        {
+            xConfigBuffer.ucFlowControl = xSampleConfig2.ucFlowControl;
+            lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
+            TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
-        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_EQUAL( xSampleConfig2.ucFlowControl, xgetConfigBuffer.ucFlowControl );
+            lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
+            TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+            TEST_ASSERT_EQUAL( xSampleConfig2.ucFlowControl, xgetConfigBuffer.ucFlowControl );
+        }
 
         /* Test changing stop bit config */
         xConfigBuffer.xStopbits = xSampleConfig2.xStopbits;
@@ -390,15 +391,15 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
 
     if( TEST_PROTECT() )
     {
+        lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
+
         lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
         TEST_ASSERT_GREATER_THAN( 0, lTransferAmount );
-
-        lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
-        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
         /* Delay for 1 sec. */
         vTaskDelay( testIotUART_DELAY );
@@ -488,11 +489,11 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
     {
         iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
 
-        lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
-        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
-
         lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
+
+        lWrite = iot_uart_write_async( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
         xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
@@ -542,18 +543,18 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
         /* Wait to make sure operation was really canceled. */
         xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
+
+        lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
+
+        /* Wait to make sure operation has completed. */
+        xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
+
+        /* Since  cSmallBuf is small buffer, write is already complete. Hence nothing to cancel */
+        lCancel = iot_uart_cancel( xUartHandle );
+        TEST_ASSERT_EQUAL( IOT_UART_NOTHING_TO_CANCEL, lCancel );
     }
-
-    lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
-    TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
-
-    /* Wait to make sure operation has completed. */
-    xCallbackReturn = xSemaphoreTake( xWriteCompleteSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-    TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
-
-    /* Since  cSmallBuf is small buffer, write is already complete. Hence nothing to cancel */
-    lCancel = iot_uart_cancel( xUartHandle );
-    TEST_ASSERT_EQUAL( IOT_UART_NOTHING_TO_CANCEL, lCancel );
 
     lClose = iot_uart_close( xUartHandle );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
@@ -784,11 +785,14 @@ TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
     xUartHandle_2 = iot_uart_open( uctestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle_2 );
 
-    xUartHandle_3 = iot_uart_open( uctestIotUartPort );
-    TEST_ASSERT_EQUAL( NULL, xUartHandle_3 );
+    if( TEST_PROTECT() )
+    {
+        xUartHandle_3 = iot_uart_open( uctestIotUartPort );
+        TEST_ASSERT_EQUAL( NULL, xUartHandle_3 );
 
-    lCancel = iot_uart_cancel( NULL );
-    TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lCancel );
+        lCancel = iot_uart_cancel( NULL );
+        TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lCancel );
+    }
 
     lClose = iot_uart_close( xUartHandle_2 );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );

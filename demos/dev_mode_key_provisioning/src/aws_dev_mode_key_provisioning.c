@@ -110,7 +110,7 @@ typedef struct ProvisionedState_t
                           * in the subject of the device certificate. */
 } ProvisionedState_t;
 
-/* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
+/* This function can be found in libraries/3rdparty/mbedtls_utils/mbedtls_utils.c. */
 extern int convert_pem_to_der( const unsigned char * pucInput,
                                size_t xLen,
                                unsigned char * pucOutput,

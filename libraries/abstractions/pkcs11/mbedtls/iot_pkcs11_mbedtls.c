@@ -48,6 +48,10 @@
 #include "mbedtls/base64.h"
 #include "threading_alt.h"
 
+/* Custom mbedtls utils include. */
+#include "mbedtls_error.h"
+
+
 /* Credential includes. */
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
@@ -60,6 +64,35 @@
 /* C runtime includes. */
 #include <stdio.h>
 #include <string.h>
+
+/**
+ * @brief Represents string to be logged when mbed TLS returned error
+ * does not contain a high-level code.
+ */
+static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
+
+/**
+ * @brief Represents string to be logged when mbed TLS returned error
+ * does not contain a low-level code.
+ */
+static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
+
+/**
+ * @brief Utility for converting the high-level code in an mbedTLS error to string,
+ * if the code-contains a high-level code; otherwise, using a default string.
+ */
+#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
+    ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
+    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr
+
+/**
+ * @brief Utility for converting the level-level code in an mbedTLS error to string,
+ * if the code-contains a level-level code; otherwise, using a default string.
+ */
+#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
+    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
+    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr
+
 
 /**
  * @brief mbedTLS sign function pointer.
@@ -3472,7 +3505,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
                     if( lMbedTLSResult != CKR_OK )
                     {
-                        PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", lMbedTLSResult ) );
+                        PKCS11_PRINT( ( "mbedTLS sign failed with error %s : %s \r\n",
+                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
@@ -3802,7 +3837,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_SIGNATURE_INVALID;
-                PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+                PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
+                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
 
             if( xResult == CKR_OK )
@@ -3821,7 +3858,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                     if( lMbedTLSResult != 0 )
                     {
                         xResult = CKR_SIGNATURE_INVALID;
-                        PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+                        PKCS11_PRINT( ( "Failed to parse EC signature: %s : %s \r\n",
+                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     }
                 }
             }

@@ -48,10 +48,43 @@
     #define tlsDEBUG_VERBOSE    4
 #endif
 
+/* Custom mbedtls utls include. */
+#include "mbedtls_error.h"
+
 /* C runtime includes. */
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+
+/**
+ * @brief Represents string to be logged when mbedTLS returned error
+ * does not contain a high-level code.
+ */
+static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
+
+/**
+ * @brief Represents string to be logged when mbedTLS returned error
+ * does not contain a low-level code.
+ */
+static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
+
+/**
+ * @brief Utility for converting the high-level code in an mbedTLS error to string,
+ * if the code-contains a high-level code; otherwise, using a default string.
+ */
+#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
+    ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
+    mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr
+
+
+/**
+ * @brief Utility for converting the level-level code in an mbedTLS error to string,
+ * if the code-contains a level-level code; otherwise, using a default string.
+ */
+#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
+    ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
+    mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr
+
 
 /**
  * @brief Internal context structure.
@@ -201,7 +234,9 @@ static int prvGenerateRandomBytes( void * pvCtx,
 
     if( xResult != CKR_OK )
     {
-        TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
+        TLS_PRINT( ( "ERROR: Failed to generate random bytes %s : %s \r\n",
+                     mbedtlsHighLevelCodeOrDefault( xResult ),
+                     mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         xResult = TLS_ERROR_RNG;
     }
 
@@ -737,9 +772,6 @@ BaseType_t TLS_Connect( void * pvContext )
     BaseType_t xResult = 0;
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
-    /* Ensure that the FreeRTOS heap is used. */
-    CRYPTO_ConfigureHeap();
-
     /* Initialize mbedTLS structures. */
     mbedtls_ssl_init( &pxCtx->xMbedSslCtx );
     mbedtls_ssl_config_init( &pxCtx->xMbedSslConfig );
@@ -754,7 +786,9 @@ BaseType_t TLS_Connect( void * pvContext )
 
         if( 0 != xResult )
         {
-            TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %d \r\n", xResult ) );
+            TLS_PRINT( ( "ERROR: Failed to parse custom server certificates %s : %s \r\n",
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
     else
@@ -780,7 +814,9 @@ BaseType_t TLS_Connect( void * pvContext )
         if( 0 != xResult )
         {
             /* Default root certificates should be in aws_default_root_certificate.h */
-            TLS_PRINT( ( "ERROR: Failed to parse default server certificates %d \r\n", xResult ) );
+            TLS_PRINT( ( "ERROR: Failed to parse default server certificates %s : %s \r\n",
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -794,7 +830,9 @@ BaseType_t TLS_Connect( void * pvContext )
 
         if( 0 != xResult )
         {
-            TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %d \r\n", xResult ) );
+            TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %s : %s \r\n",
+                         mbedtlsHighLevelCodeOrDefault( xResult ),
+                         mbedtlsLowLevelCodeOrDefault( xResult ) ) );
         }
     }
 
@@ -866,7 +904,9 @@ BaseType_t TLS_Connect( void * pvContext )
                  * ensure that upstream clean-up code doesn't accidentally use
                  * a context that failed the handshake. */
                 prvFreeContext( pxCtx );
-                TLS_PRINT( ( "ERROR: Handshake failed with error code %d \r\n", xResult ) );
+                TLS_PRINT( ( "ERROR: Handshake failed with error code %s : %s \r\n",
+                             mbedtlsHighLevelCodeOrDefault( xResult ),
+                             mbedtlsLowLevelCodeOrDefault( xResult ) ) );
                 break;
             }
         }

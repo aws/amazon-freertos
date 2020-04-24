@@ -727,7 +727,7 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
             publishInfo.retryMs = pDocumentInfo->retryMs;
 
             IotLogDebug( "Shadow %s message will be published at QoS %d with "
-                         "retryLimit %d and retryMs %llu.",
+                         "retryLimit %d and retryMs %u.",
                          _pAwsIotShadowOperationNames[ pOperation->type ],
                          publishInfo.qos,
                          publishInfo.retryLimit,

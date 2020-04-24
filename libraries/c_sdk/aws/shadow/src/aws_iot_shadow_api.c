@@ -260,7 +260,7 @@ static AwsIotShadowError_t _validateDocumentInfo( _shadowOperationType_t type,
     {
         if( pDocumentInfo->qos != IOT_MQTT_QOS_1 )
         {
-            IotLogError( "QoS for Shadow %d must be 0 or 1.",
+            IotLogError( "QoS for Shadow %s must be 0 or 1.",
                          _pAwsIotShadowOperationNames[ type ] );
 
             return AWS_IOT_SHADOW_BAD_PARAMETER;

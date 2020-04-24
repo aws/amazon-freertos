@@ -34,7 +34,7 @@ function(cy_cfg_toolchain)
 
     set(check "$ENV{CY_DEVICES_WITH_FLASH_KB_1856}")
     list(FIND check $ENV{CY_DEVICE} flash_1856k)
-
+    
     set(check "$ENV{CY_DEVICES_WITH_FLASH_KB_2048}")
     list(FIND check $ENV{CY_DEVICE} flash_2048k)
 

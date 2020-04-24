@@ -211,6 +211,8 @@
 				<debug>1</debug>
 				<option>
 					<name>CCDefines</name>
+					<state>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;</state>
+					<state>CONFIG_MEDTLS_USE_AFR_MEMORY</state>
 					<state>DEBUG</state>
 					<state>XIP_IMAGE</state>
 					<state>CPU_LPC54018</state>
@@ -349,7 +351,6 @@
 					<name>CCIncludePath2</name>
 					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\cmsis_drivers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca</state>
@@ -401,10 +402,12 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
@@ -1213,12 +1216,6 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\system_LPC54018.h</name>
 				</file>
 				<group>
-					<name>bootloader</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader\spifi_boot.c</name>
-					</file>
-				</group>
-				<group>
 					<name>drivers</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers\fsl_clock.c</name>
@@ -1861,6 +1858,9 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_mqtt_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_ota_agent_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
@@ -2454,7 +2454,7 @@
 				<group>
 					<name>freertos_plus_posix</name>
 					<group>
-						<name>src</name>
+						<name>source</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</name>
 						</file>
@@ -2537,9 +2537,15 @@
 		<group>
 			<name>3rdparty</name>
 			<group>
+				<group>
+					<name>mbedtls_utils</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c</name>
+					</file>
+				</group>
 				<name>mbedtls</name>
 				<group>
-					<name>src</name>
+					<name>library</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c</name>
 					</file>
@@ -2548,6 +2554,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\aria.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c</name>
@@ -2572,6 +2581,12 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\chacha20.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\chachapoly.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c</name>
@@ -2619,10 +2634,16 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\hkdf.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c</name>
@@ -2649,6 +2670,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\nist_kw.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c</name>
 					</file>
 					<file>
@@ -2662,6 +2686,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs11.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c</name>
@@ -2680,6 +2707,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\poly1305.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c</name>
@@ -2758,226 +2788,244 @@
 					</file>
 				</group>
 				<group>
-					<name>utils</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c</name>
-					</file>
-				</group>
-				<group>
 					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\base64.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\debug.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\des.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\error.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md2.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md4.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md5.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pem.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\threading.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\timing.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\version.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h</name>
-					</file>
+					<group>
+						<name>mbedtls</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aria.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\base64.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chacha20.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chachapoly.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\debug.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\des.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\error.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hkdf.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md2.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md4.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md5.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\nist_kw.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pem.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs11.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\poly1305.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\threading.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\timing.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\version.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h</name>
+						</file>
+					</group>
 				</group>
 			</group>
 			<group>

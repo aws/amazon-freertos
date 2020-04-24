@@ -846,6 +846,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
@@ -1924,6 +1929,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/error.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
