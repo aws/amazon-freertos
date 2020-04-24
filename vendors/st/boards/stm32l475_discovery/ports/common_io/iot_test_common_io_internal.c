@@ -30,20 +30,12 @@
 #include "iot_test_common_io_internal.h"
 
 /* UART */
-extern uint8_t uctestIotUartPort;
-
 void SET_TEST_IOT_UART_CONFIG( int testSet )
 {
     uctestIotUartPort = uartTestPort[ testSet ];
 }
 
 /* I2C */
-extern uint8_t uctestIotI2CSlaveAddr;
-extern uint8_t uctestIotI2CDeviceRegister;
-extern uint8_t uctestIotI2CWriteVal;
-extern uint8_t uctestIotI2CInstanceIdx;
-extern uint8_t uctestIotI2CInstanceNum;
-
 void SET_TEST_IOT_I2C_CONFIG( int testSet )
 {
     uctestIotI2CSlaveAddr = i2cTestSlaveAddr[ testSet ];
@@ -54,15 +46,9 @@ void SET_TEST_IOT_I2C_CONFIG( int testSet )
 }
 
 /* SPI */
-extern uint32_t ultestIotSpiInstance;
-extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
-extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
-extern uint32_t ultestIotSPIFrequency;
-extern uint32_t ultestIotSPIDummyValue;
-
-void SET_TEST_IOT_SPI_CONFIG(int testSet)
+void SET_TEST_IOT_SPI_CONFIG( int testSet )
 {
-    ultestIotSpiInstance = spiTestPort[ testSet ] ;
+    ultestIotSpiInstance = spiTestPort[ testSet ];
     xtestIotSPIDefaultConfigMode = spiIotMode[ testSet ];
     xtestIotSPIDefaultconfigBitOrder = spiIotSpitBitOrder[ testSet ];
     ultestIotSPIFrequency = spiIotFrequency[ testSet ];

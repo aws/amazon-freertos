@@ -174,6 +174,10 @@
     extern uint32_t ulAssistedTestIotSpiInstance; /* SPI assisted tests */
     extern uint32_t ultestIotSpiSlave;            /* SPI assisted tests */
     extern uint32_t ulAssistedTestIotSpiSlave;    /* SPI assisted tests */
+    extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
+    extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
+    extern uint32_t ultestIotSPIFrequency;
+    extern uint32_t ultestIotSPIDummyValue;
 
 /**
  * Board specific SPI config set
@@ -182,9 +186,9 @@
  * @return None
  */
     void SET_TEST_IOT_SPI_CONFIG( int testSet );
-#else
+#else /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
     #define IOT_TEST_COMMON_IO_SPI_SUPPORTED    0
-#endif
+#endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
 
 /* ADC */
 #if defined( IOT_TEST_COMMON_IO_ADC_SUPPORTED ) && ( IOT_TEST_COMMON_IO_ADC_SUPPORTED >= 1 )
