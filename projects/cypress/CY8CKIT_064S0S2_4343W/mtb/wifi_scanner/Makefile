@@ -23,8 +23,8 @@
 # limitations under the License.
 ################################################################################
 
-# Application directory name
-CY_AFR_BUILD=jitp
+# Name of application (used to derive name of final linked file).
+CY_AFR_BUILD=wifi_scanner
 
 # Root location of AFR directory
 CY_AFR_ROOT=../../../../..
@@ -68,7 +68,7 @@ CONFIG=Debug
 VERBOSE=
 
 # OTA_SUPPORT needed for some AWS Demos
-OTA_SUPPORT=0
+OTA_SUPPORT=1
 
 ################################################################################
 # Advanced Configuration
@@ -100,7 +100,7 @@ SOURCES=
 INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED TFM_MULTI_CORE_MULTI_CLIENT_CALL
+DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\" MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config_afr.h\" TFM_MULTI_CORE_MULTI_CLIENT_CALL
 
 # Select softfp or hardfp floating point. Default is softfp. 
 VFP_SELECT=
@@ -129,14 +129,19 @@ LDFLAGS=
 # Additional / custom libraries to link in to the application.
 LDLIBS=
 
-# Path to the linker script to use (if empty, use the default linker script).
-LINKER_SCRIPT=
-
 # Custom pre-build commands to run.
 PREBUILD=
 
 # Custom post-build commands to run.
 POSTBUILD=
+
+#
+# Set BLINK_FREQ_UPDATE_OTA as 0/1 to change LED blink frequency.
+DEFINES+= BLINK_FREQ_UPDATE_OTA=0
+# Check for default Version values
+APP_VERSION_MAJOR?=1
+APP_VERSION_MINOR?=0
+APP_VERSION_BUILD?=0
 
 ################################################################################
 # Paths

@@ -28,18 +28,6 @@
 ################################################################################
 # Global settings
 ################################################################################
-# project directory
-CY_PROJECT_DIR_ABS=.
-ifeq ($(OS),Windows_NT)
-	CY_WHICH_CYGPATH:=$(shell which cygpath)
-    #
-    # CygWin/MSYS ?
-    #
-    ifneq ($(CY_WHICH_CYGPATH),)
-		CY_PROJECT_DIR_ABS=$(shell cygpath -m --absolute .)
-    endif
-endif
-CY_PROJECT_DIR=$(CY_PROJECT_DIR_ABS)
 
 CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
 
@@ -54,11 +42,14 @@ CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/aws_demos/application_code/cy_code
 # cert file for enterprise
 CY_AFR_BOARD_APP_INC=$(CY_AFR_BOARD_PATH)/aws_demos/application_code
 
-MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
 
 # Artifact locations for launch configs
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
+ifeq ($(OTA_SUPPORT),1)
+CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).signed.hex
+else
 CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
+endif
 
 # Resolve toolchain name 
 ifeq ($(TOOLCHAIN),GCC_ARM)
@@ -79,8 +70,47 @@ CY_AFR_TARGET=$(subst -,_,$(TARGET))
 # Explicitly add the BSP makefile
 CY_EXTRA_INCLUDES=$(CY_AFR_BOARD_APP_PATH)/$(TARGET).mk
 
-# Explicitly set the linker script
-LINKER_SCRIPT=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
+# Set the linker script 
+ifeq ($(OTA_SUPPORT),1)
+    # Additional / custom linker flags.
+    ifeq ($(TOOLCHAIN),GCC_ARM)
+    LDFLAGS+="-Wl,--defsym,MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE),--defsym,MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE),--defsym,CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)"
+    else
+    ifeq ($(TOOLCHAIN),IAR)
+    LDFLAGS+=--define_symbol MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) --define_symbol MCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) --define_symbol CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)
+    else
+    ifeq ($(TOOLCHAIN),ARM)
+    LDFLAGS+=--pd=-DMCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) --pd=-DMCUBOOT_BOOTLOADER_SIZE=$(MCUBOOT_BOOTLOADER_SIZE) --pd=-DCY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE)
+    else
+    LDFLAGS+=
+    endif #ARM
+    endif #IAR
+    endif #GCC_ARM
+
+	# Linker Script
+	LINKER_SCRIPT_ABSOLUTE:=$(subst \,/,$(abspath $(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/ota/*_ota_int.$(CY_AFR_TOOLCHAIN_LS_EXT))))
+else
+	# Non-OTA support builds
+	# Linker Script
+    LINKER_SCRIPT_ABSOLUTE:=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
+endif
+
+# project directory
+CY_PROJECT_DIR_ABSOLUTE=.
+
+# Fix for Windows Cygwin builds
+ifeq ($(OS),Windows_NT)
+	CY_WHICH_CYGPATH:=$(shell which cygpath)
+    #
+    # CygWin/MSYS ?
+    #
+    ifneq ($(CY_WHICH_CYGPATH),)
+    	LINKER_SCRIPT_ABSOLUTE:=$(shell cygpath -m --absolute $(LINKER_SCRIPT_ABSOLUTE))
+		CY_PROJECT_DIR_ABSOLUTE:=$(shell cygpath -m --absolute $(CY_PROJECT_DIR_ABSOLUTE))
+    endif
+endif
+LINKER_SCRIPT:=$(LINKER_SCRIPT_ABSOLUTE)
+CY_PROJECT_DIR:=$(CY_PROJECT_DIR_ABSOLUTE)
 
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
@@ -91,13 +121,11 @@ SOURCES+=$(CY_AFR_ROOT)/freertos_kernel/portable/IAR/ARM_CM4F/portasm.s
 endif
 
 ifeq ($(TOOLCHAIN),ARM)
-DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
 # As of ARM Compiler 6.12, <assert.h> does not define static_assert (ISO/IEC 9899:2011).
 # This define may interfere with <cassert> or future versions of the ARM C library.
 DEFINES+=static_assert=_Static_assert
 endif
 
-DEFINES+=MBEDTLS_CONFIG_FILE=\"cy_mbedtls_config.h\"
 ################################################################################
 # vendors/cypress
 ################################################################################
@@ -110,8 +138,8 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_EXTAPP_PATH)/libraries\
 	$(CY_EXTAPP_PATH)/lwip\
-	$(CY_EXTAPP_PATH)/freertos_thirdparty_port\
-	$(CY_EXTAPP_PATH)/WICED_SDK
+	$(CY_EXTAPP_PATH)/WICED_SDK\
+	$(CY_EXTAPP_PATH)/freertos_thirdparty_port
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
@@ -136,15 +164,6 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/wifi\
 	$(CY_AFR_BOARD_APP_INC)
 
-# SDIO_HOST sources and includes
-ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_APP_PATH)/SDIO_HOST/*.c)
-
-INCLUDES+=\
-	$(CY_AFR_BOARD_APP_PATH)/SDIO_HOST
-endif
-
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
     $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
@@ -159,6 +178,15 @@ SOURCES+=\
 INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
     $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+endif
+
+# SDIO_HOST sources and includes
+ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
+SOURCES+=\
+	$(wildcard $(CY_AFR_BOARD_APP_PATH)/SDIO_HOST/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_BOARD_APP_PATH)/SDIO_HOST
 endif
 
 # enable TFM
@@ -185,9 +213,8 @@ INCLUDES+=\
 
 SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
-	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
-	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
 
@@ -214,13 +241,13 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
 
 INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
 	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
@@ -237,7 +264,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
-	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
@@ -275,6 +302,8 @@ SOURCES+=\
     $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 
 endif
+
+
 
 ################################################################################
 # libraries (c_sdk)
@@ -392,15 +421,11 @@ ifeq ($(OTA_SUPPORT),1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ota/*.c)\
-	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
-	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
-	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
  	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
@@ -408,7 +433,7 @@ SOURCES+=\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
     $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
 	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
-
+	
 INCLUDES+=\
     $(MCUBOOT_DIR)\
     $(MCUBOOT_DIR)/mcuboot_header\
@@ -429,4 +454,3 @@ INCLUDES+=\
     $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif
-	

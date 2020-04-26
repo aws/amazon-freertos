@@ -28,37 +28,15 @@
 ################################################################################
 # Global settings
 ################################################################################
-# project directory
-CY_PROJECT_DIR_ABS=.
-ifeq ($(OS),Windows_NT)
-	CY_WHICH_CYGPATH:=$(shell which cygpath)
-    #
-    # CygWin/MSYS ?
-    #
-    ifneq ($(CY_WHICH_CYGPATH),)
-		CY_PROJECT_DIR_ABS=$(shell cygpath -m --absolute .)
-    endif
-endif
-CY_PROJECT_DIR=$(CY_PROJECT_DIR_ABS)
 
 CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
-
-# Use auto-discovery for cypress files and set the paths
-CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
-CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(CY_AFR_TARGET)
-
-# NOTE this is still aws_demos for cy_code inclusion
-# This will change when cy_code is made to be board-level specific (rahter than app-level specific)
-CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/aws_demos/application_code/cy_code
-
-# cert file for enterprise
-CY_AFR_BOARD_APP_INC=$(CY_AFR_BOARD_PATH)/aws_demos/application_code
 
 MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
 
 # Artifact locations for launch configs
-CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
-CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
+CY_AFR_APPLOC=$(notdir $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST))))))
+CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
+CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).hex
 
 # Resolve toolchain name 
 ifeq ($(TOOLCHAIN),GCC_ARM)
@@ -82,6 +60,11 @@ CY_EXTRA_INCLUDES=$(CY_AFR_BOARD_APP_PATH)/$(TARGET).mk
 # Explicitly set the linker script
 LINKER_SCRIPT=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
 
+# Use auto-discovery for cypress files and set the paths
+CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
+CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(CY_AFR_TARGET)
+CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/cy_code
+
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
 CXXFLAGS+=--dlib_config=full --guard_calls
@@ -97,7 +80,6 @@ DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
 DEFINES+=static_assert=_Static_assert
 endif
 
-DEFINES+=MBEDTLS_CONFIG_FILE=\"cy_mbedtls_config.h\"
 ################################################################################
 # vendors/cypress
 ################################################################################
@@ -108,42 +90,30 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/bluetooth\
 	$(CY_EXTAPP_PATH)/boards\
 	$(CY_EXTAPP_PATH)/common\
-	$(CY_EXTAPP_PATH)/libraries\
 	$(CY_EXTAPP_PATH)/lwip\
-	$(CY_EXTAPP_PATH)/freertos_thirdparty_port\
-	$(CY_EXTAPP_PATH)/WICED_SDK
+	$(CY_EXTAPP_PATH)/libraries\
+	$(CY_EXTAPP_PATH)/WICED_SDK\
+	$(CY_EXTAPP_PATH)/freertos_thirdparty_port
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
 SOURCES+=\
+	$(wildcard $(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/*.c)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/*.c)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/GeneratedSource/*.c)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/*.c)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.S)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.s)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)
+	$(wildcard $(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files/*.c)\
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)\
 
-# Include app-specific config_files and include dirs before AFR "demo" includes
 INCLUDES+=\
-	$(CY_PROJECT_DIR)/\
-	$(CY_PROJECT_DIR)/config_files\
-	$(CY_AFR_BOARD_PATH)/aws_demos/config_files\
-	$(CY_PROJECT_DIR)/include\
-	$(CY_AFR_ROOT)/demos/include\
+	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code\
 	$(CY_AFR_BOARD_APP_PATH)\
 	$(CY_AFR_BOARD_APP_PATH)/GeneratedSource\
 	$(CY_AFR_BOARD_APP_PATH)/startup\
-	$(CY_AFR_BOARD_PATH)/ports/wifi\
-	$(CY_AFR_BOARD_APP_INC)
-
-# SDIO_HOST sources and includes
-ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_APP_PATH)/SDIO_HOST/*.c)
-
-INCLUDES+=\
-	$(CY_AFR_BOARD_APP_PATH)/SDIO_HOST
-endif
+	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files\
+	$(CY_AFR_BOARD_PATH)/ports/wifi
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
@@ -159,6 +129,16 @@ SOURCES+=\
 INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
     $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+endif
+
+
+# SDIO_HOST sources and includes
+ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
+SOURCES+=\
+	$(wildcard $(CY_AFR_BOARD_APP_PATH)/SDIO_HOST/*.c)
+
+INCLUDES+=\
+	$(CY_AFR_BOARD_APP_PATH)/SDIO_HOST
 endif
 
 # enable TFM
@@ -184,17 +164,23 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
+	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)
 
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/include\
+	$(CY_AFR_ROOT)/demos/https\
+	$(CY_AFR_ROOT)/demos/include\
 	$(CY_AFR_ROOT)/demos/network_manager\
 	$(CY_AFR_ROOT)/demos/tcp
 
@@ -208,36 +194,30 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/ipv4/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/core/ipv6/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/ethernet.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/ppp/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/ppp/polarssl/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
 
+ifneq ($(CY_USE_ALL_NETIF),)
+SOURCES+=\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/*c)
+else
+SOURCES+=\
+	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/netif/ethernet.c
+endif
+
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/arpa\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/net\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/sys\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/apps\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/priv\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/prot\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/netif\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/netif/ppp\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/netif/ppp/polarssl\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch\
-	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
+	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
+	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
@@ -275,6 +255,8 @@ SOURCES+=\
     $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 
 endif
+
+
 
 ################################################################################
 # libraries (c_sdk)
@@ -400,15 +382,15 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
+	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/*.c)\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
- 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
     $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
 	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
-
+	
 INCLUDES+=\
     $(MCUBOOT_DIR)\
     $(MCUBOOT_DIR)/mcuboot_header\
@@ -420,7 +402,7 @@ INCLUDES+=\
     $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
     $(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
     $(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
-	$(CY_AFR_BOARD_PATH)/ports/ota\
+    $(CY_AFR_BOARD_PATH)/ports/ota\
     $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
@@ -429,4 +411,3 @@ INCLUDES+=\
     $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif
-	

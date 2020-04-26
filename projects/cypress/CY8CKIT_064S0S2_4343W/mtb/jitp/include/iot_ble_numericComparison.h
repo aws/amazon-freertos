@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201908.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,8 @@
  */
 
 /**
- * @file aws_iot_network.h
- * @brief Header file containing the network management APIs
+ * @file iot_ble_numericComparison.h
+ * @brief Header file for supporting user confirmation for BLE passkey.
  */
 #ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
 #define _AWS_BLE_NUMERIC_COMPARISON_H_
@@ -45,6 +45,7 @@ extern void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
 
 extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
                                          BTBdaddr_t * pxRemoteBdAddr,
+                                         BTBondState_t bondState,
                                          BTSecurityLevel_t xSecurityLevel,
                                          BTAuthFailureReason_t xReason );
 extern void NumericComparisonInit( void );
@@ -52,4 +53,4 @@ extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
                                   TickType_t xAuthTimeout );
 
 
-#endif /* _AWS_IOT_NETWORK_MANAGER_H_ */
+#endif /* _AWS_BLE_NUMERIC_COMPARISON_H_ */

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201908.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -29,16 +29,8 @@
 #include "iot_appversion32.h"
 extern const AppVersion32_t xAppFirmwareVersion;
 
-#ifndef  APP_VERSION_MAJOR
-#error "Define APP_VERSION_MAJOR in CMakeLists.txt"
-#endif
-
-#ifndef APP_VERSION_MINOR
-#error "Define APP_VERSION_MINOR in CMakeLists.txt"
-#endif
-
-#ifndef APP_VERSION_BUILD
-#error "Define APP_VERSION_BUILD in CMakeLists.txt"
-#endif
+#define APP_VERSION_MAJOR    0
+#define APP_VERSION_MINOR    9
+#define APP_VERSION_BUILD    2
 
 #endif
