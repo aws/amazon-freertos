@@ -411,15 +411,15 @@ socket events. */
 #define vSetField16( pxBase, xType, xField, usValue ) \
 { \
 	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 0 ] = ( uint8_t ) ( ( usValue ) >> 8 ); \
-	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( usValue ) & 0xff ); \
+	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( usValue ) & 0xffU ); \
 }
 
 #define vSetField32( pxBase, xType, xField, ulValue ) \
 { \
 	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 0 ] = ( uint8_t )   ( ( ulValue ) >> 24 ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( ( ulValue ) >> 16 ) & 0xff ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 2 ] = ( uint8_t ) ( ( ( ulValue ) >> 8 ) & 0xff ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 3 ] = ( uint8_t )   ( ( ulValue ) & 0xff ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( ( ulValue ) >> 16 ) & 0xffU ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 2 ] = ( uint8_t ) ( ( ( ulValue ) >> 8 ) & 0xffU ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 3 ] = ( uint8_t )   ( ( ulValue ) & 0xffU ); \
 }
 
 #define vFlip_16( left, right ) \
@@ -427,14 +427,14 @@ socket events. */
 		uint16_t tmp = (left); \
 		(left) = (right); \
 		(right) = tmp; \
-	} while (0)
+	} while ( ipFALSE_BOOL )
 
 #define vFlip_32( left, right ) \
 	do { \
 		uint32_t tmp = (left); \
 		(left) = (right); \
 		(right) = tmp; \
-	} while (0)
+	} while ( ipFALSE_BOOL )
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(x)	(BaseType_t)(sizeof(x)/sizeof(x)[0])
@@ -477,7 +477,7 @@ eFrameProcessingResult_t eConsiderFrameForProcessing( const uint8_t * const pucE
 /*
  * Return the checksum generated over xDataLengthBytes from pucNextData.
  */
-uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxDataLengthBytes );
+uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxByteCount );
 
 /* Socket related private functions. */
 

@@ -58,8 +58,8 @@
 
 /* Timer parameters */
 #ifndef dhcpINITIAL_DHCP_TX_PERIOD
-	#define dhcpINITIAL_TIMER_PERIOD			( pdMS_TO_TICKS( 250 ) )
-	#define dhcpINITIAL_DHCP_TX_PERIOD			( pdMS_TO_TICKS( 5000 ) )
+	#define dhcpINITIAL_TIMER_PERIOD			( pdMS_TO_TICKS( 250U ) )
+	#define dhcpINITIAL_DHCP_TX_PERIOD			( pdMS_TO_TICKS( 5000U ) )
 #endif
 
 /* Codes of interest found in the DHCP options field. */
@@ -227,7 +227,7 @@ static DHCPData_t xDHCPData;
 
 /*-----------------------------------------------------------*/
 
-BaseType_t xIsDHCPSocket( Socket_t xSocket )
+BaseType_t xIsDHCPSocket( const Socket_t xSocket )
 {
 BaseType_t xReturn;
 
@@ -508,7 +508,7 @@ BaseType_t xGivingUp = pdFALSE;
 			{
 				/* See PR #53 on github/freertos/freertos */
 				FreeRTOS_printf( ( "DHCP: lease time finished but network is down\n" ) );
-				vIPReloadDHCPTimer( pdMS_TO_TICKS( 5000 ) );
+				vIPReloadDHCPTimer( pdMS_TO_TICKS( 5000U ) );
 			}
 			break;
 
@@ -627,8 +627,9 @@ static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
 {
 uint8_t *pucUDPPayload;
 int32_t lBytes;
-DHCPMessage_IPv4_t *pxDHCPMessage;
-uint8_t *pucByte, ucOptionCode;
+const DHCPMessage_IPv4_t *pxDHCPMessage;
+const uint8_t *pucByte;
+uint8_t ucOptionCode;
 uint32_t ulProcessed, ulParameter;
 BaseType_t xReturn = pdFALSE;
 const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct DHCP message type must be present in the options. */
@@ -639,7 +640,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 	if( lBytes > 0 )
 	{
 		/* Map a DHCP structure onto the received data. */
-		pxDHCPMessage = ipPOINTER_CAST( DHCPMessage_IPv4_t *, pucUDPPayload );
+		pxDHCPMessage = ipPOINTER_CAST( const DHCPMessage_IPv4_t *, pucUDPPayload );
 
 		/* Sanity check. */
 		if( lBytes < ( int32_t ) sizeof( DHCPMessage_IPv4_t ) )
@@ -857,7 +858,7 @@ static uint8_t *prvCreatePartDHCPMessage( struct freertos_sockaddr *pxAddress,
 {
 DHCPMessage_IPv4_t *pxDHCPMessage;
 size_t uxRequiredBufferSize = sizeof( DHCPMessage_IPv4_t ) + *pxOptionsArraySize;
-NetworkBufferDescriptor_t *pxNetworkBuffer;
+const NetworkBufferDescriptor_t *pxNetworkBuffer;
 uint8_t *pucUDPPayloadBuffer;
 
 #if( ipconfigDHCP_REGISTER_HOSTNAME == 1 )

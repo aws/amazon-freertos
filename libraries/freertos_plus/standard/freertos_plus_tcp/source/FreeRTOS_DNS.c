@@ -122,7 +122,7 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
  * Simple routine that jumps over the NAME field of a resource record.
  * It returns the number of bytes read.
  */
-static size_t prvSkipNameField( uint8_t *pucByte,
+static size_t prvSkipNameField( const uint8_t *pucByte,
 								size_t uxLength );
 
 /*
@@ -184,8 +184,8 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
-	static size_t prvReadNameField( uint8_t *pucByte,
-									size_t uxSourceLen,
+	static size_t prvReadNameField( const uint8_t *pucByte,
+									size_t uxRemainingBytes,
 									char *pcName,
 									size_t uxDestLen );
 #endif	/* ipconfigUSE_DNS_CACHE || ipconfigDNS_USE_CALLBACKS */
@@ -839,13 +839,14 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 
-	static size_t prvReadNameField( uint8_t *pucByte,
-									size_t uxSourceLen,
+	static size_t prvReadNameField( const uint8_t *pucByte,
+									size_t uxRemainingBytes,
 									char *pcName,
 									size_t uxDestLen )
 	{
 	size_t uxNameLen = 0;
 	size_t uxIndex = 0;
+	size_t uxSourceLen = uxRemainingBytes;
 
 	/* uxCount gets the valus from pucByte and counts down to 0.
 	No need to have a different type than that of pucByte */
@@ -925,7 +926,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 #endif	/* ipconfigUSE_DNS_CACHE || ipconfigDNS_USE_CALLBACKS */
 /*-----------------------------------------------------------*/
 
-static size_t prvSkipNameField( uint8_t *pucByte,
+static size_t prvSkipNameField( const uint8_t *pucByte,
 								size_t uxLength )
 {
 size_t uxChunkLength;
@@ -1248,10 +1249,10 @@ uint16_t usType = 0;
 							}
 
 							/* Show what has happened. */
-							FreeRTOS_printf( ( "DNS[0x%04X]: The answer to '%s' (%xip) will%s be stored\n",
-											   ( unsigned ) pxDNSMessageHeader->usIdentifier,
+							FreeRTOS_printf( ( "DNS[0x%04lX]: The answer to '%s' (%lxip) will%s be stored\n",
+											   ( UBaseType_t ) pxDNSMessageHeader->usIdentifier,
 											   pcName,
-											   ( unsigned ) FreeRTOS_ntohl( ulIPAddress ),
+											   ( UBaseType_t ) FreeRTOS_ntohl( ulIPAddress ),
 											   ( xDoStore != 0 ) ? "" : " NOT" ) );
 						}
 						#endif /* ipconfigUSE_DNS_CACHE */
@@ -1381,7 +1382,7 @@ uint16_t usType = 0;
 		}
 #endif /* ipconfigUSE_LLMNR == 1 */
 		( void ) uxBytesRead;
-	} while( 0 );	/*lint !e9036 !e717 (Info -- do ... while(0);) */
+	} while( ipFALSE_BOOL );	/*lint !e506 !e9036 !e717 (Info -- do ... while(0);) */
 
 	if( xExpected == pdFALSE )
 	{

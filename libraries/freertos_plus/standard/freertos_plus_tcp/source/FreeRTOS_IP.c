@@ -69,28 +69,28 @@ a constant. */
 
 /* Time delay between repeated attempts to initialise the network hardware. */
 #ifndef ipINITIALISATION_RETRY_DELAY
-	#define ipINITIALISATION_RETRY_DELAY	( pdMS_TO_TICKS( 3000 ) )
+	#define ipINITIALISATION_RETRY_DELAY	( pdMS_TO_TICKS( 3000U ) )
 #endif
 
 /* Defines how often the ARP timer callback function is executed.  The time is
 shorted in the Windows simulator as simulated time is not real time. */
 #ifndef	ipARP_TIMER_PERIOD_MS
 	#ifdef _WINDOWS_
-		#define ipARP_TIMER_PERIOD_MS	( 500 ) /* For windows simulator builds. */
+		#define ipARP_TIMER_PERIOD_MS	( 500U ) /* For windows simulator builds. */
 	#else
-		#define ipARP_TIMER_PERIOD_MS	( 10000 )
+		#define ipARP_TIMER_PERIOD_MS	( 10000U )
 	#endif
 #endif
 
 /*lint -e717 to allow for do {} while( 0 ) loops. */
 #ifndef iptraceIP_TASK_STARTING
-	#define	iptraceIP_TASK_STARTING()	do {} while( 0 )
+	#define	iptraceIP_TASK_STARTING()	do {} while( ipFALSE_BOOL )
 #endif
 
 #if( ( ipconfigUSE_TCP == 1 ) && !defined( ipTCP_TIMER_PERIOD_MS ) )
 	/* When initialising the TCP timer,
 	give it an initial time-out of 1 second. */
-	#define ipTCP_TIMER_PERIOD_MS	( 1000 )
+	#define ipTCP_TIMER_PERIOD_MS	( 1000U )
 #endif
 
 /* If ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES is set to 1, then the Ethernet
@@ -226,7 +226,7 @@ static void prvIPTimerReload( IPTimer_t *pxTimer, TickType_t xTime );
 
 /* The function 'prvAllowIPPacket()' checks if a packets should be processed. */
 static eFrameProcessingResult_t prvAllowIPPacket( const IPPacket_t * const pxIPPacket,
-												  NetworkBufferDescriptor_t * const pxNetworkBuffer,
+												  const NetworkBufferDescriptor_t * const pxNetworkBuffer,
 												  UBaseType_t uxHeaderLength );
 
 /*-----------------------------------------------------------*/
@@ -837,7 +837,7 @@ TickType_t uxBlockTime = uxBlockTimeTicks;
 }
 /*-----------------------------------------------------------*/
 
-NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * const pxNetworkBuffer,
+NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( const NetworkBufferDescriptor_t * const pxNetworkBuffer,
 	size_t uxNewLength )
 {
 NetworkBufferDescriptor_t * pxNewBuffer;
@@ -868,7 +868,7 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 
 	NetworkBufferDescriptor_t *pxPacketBuffer_to_NetworkBuffer( const void *pvBuffer )
 	{
-	uint8_t *pucBuffer;
+	const uint8_t *pucBuffer;
 	NetworkBufferDescriptor_t *pxResult;
 
 		if( pvBuffer == NULL )
@@ -878,7 +878,7 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 		else
 		{
 			/* Obtain the network buffer from the zero copy pointer. */
-			pucBuffer = ipPOINTER_CAST( uint8_t *, pvBuffer );
+			pucBuffer = ipPOINTER_CAST( const uint8_t *, pvBuffer );
 
 			/* The input here is a pointer to a payload buffer.  Subtract the
 			size of the header in the network buffer, usually 8 + 2 bytes. */
@@ -914,7 +914,7 @@ NetworkBufferDescriptor_t *pxResult;
 	else
 	{
 		/* Obtain the network buffer from the zero copy pointer. */
-			pucBuffer = ipPOINTER_CAST( uint8_t *, pvBuffer );
+		pucBuffer = ipPOINTER_CAST( uint8_t *, pvBuffer );
 
 		/* The input here is a pointer to a payload buffer.  Subtract
 		the total size of a UDP/IP header plus the size of the header in
@@ -971,7 +971,7 @@ BaseType_t xReturn = pdFALSE;
 	#endif
 	/* Attempt to create the queue used to communicate with the IP task. */
 	xNetworkEventQueue = xQueueCreate( ( UBaseType_t ) ipconfigEVENT_QUEUE_LENGTH, ( UBaseType_t ) sizeof( IPStackEvent_t ) );
-	configASSERT( xNetworkEventQueue );
+	configASSERT( xNetworkEventQueue != NULL );
 
 	if( xNetworkEventQueue != NULL )
 	{
@@ -1400,16 +1400,16 @@ void vIPNetworkUpCalls( void )
 
 static void prvProcessEthernetPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer )
 {
-EthernetHeader_t *pxEthernetHeader;
+const EthernetHeader_t *pxEthernetHeader;
 eFrameProcessingResult_t eReturned = eReleaseBuffer;
 
-	configASSERT( pxNetworkBuffer );
+	configASSERT( pxNetworkBuffer != NULL );
 
 	/* Interpret the Ethernet frame. */
 	if( pxNetworkBuffer->xDataLength >= sizeof( EthernetHeader_t ) )
 	{
 		eReturned = ipCONSIDER_FRAME_FOR_PROCESSING( pxNetworkBuffer->pucEthernetBuffer );
-		pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
+		pxEthernetHeader = ipPOINTER_CAST( const EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
 
 		if( eReturned == eProcessBuffer )	/*lint !e774: Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
 		{
@@ -1508,7 +1508,7 @@ uint32_t ulIP = FreeRTOS_ntohl( ulIPAddress );
 /*-----------------------------------------------------------*/
 
 static eFrameProcessingResult_t prvAllowIPPacket( const IPPacket_t * const pxIPPacket,
-	NetworkBufferDescriptor_t * const pxNetworkBuffer, UBaseType_t uxHeaderLength )
+	const NetworkBufferDescriptor_t * const pxNetworkBuffer, UBaseType_t uxHeaderLength )
 {
 eFrameProcessingResult_t eReturn = eProcessBuffer;
 
@@ -1557,6 +1557,10 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 			{
 				/* Packet is not for this node, release it */
 				eReturn = eReleaseBuffer;
+			}
+			else
+			{
+				/* Packet is not fragemented, destination is this device. */
 			}
 	}
 	#endif /* ipconfigETHERNET_DRIVER_FILTERS_PACKETS */
@@ -1628,7 +1632,7 @@ uint8_t ucProtocol;
 			 * Note: IP options are mostly use in Multi-cast protocols */
 			const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
 			/* From: the previous start of UDP/ICMP/TCP data */
-			uint8_t *pucSource = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
+			const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
 			/* To: the usual start of UDP/ICMP/TCP data at offset 20 from IP header */
 			uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
 			/* How many: total length minus the options and the lower headers */
@@ -1683,7 +1687,7 @@ uint8_t ucProtocol;
 			case ipPROTOCOL_UDP :
 				{
 				/* The IP packet contained a UDP frame. */
-				UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+				const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 				uint16_t usLength;
 
 					/* Note the header values required prior to the checksum
@@ -1895,7 +1899,7 @@ uint8_t ucProtocol;
 #endif
 uint16_t usLength;
 
-int location = 0;
+BaseType_t location = 0;
 
 	/* Check for minimum packet size. */
 	if( uxBufferLength < sizeof( IPPacket_t ) )
@@ -2119,7 +2123,7 @@ int location = 0;
 	if( ( usChecksum == ipUNHANDLED_PROTOCOL ) || 
 		( usChecksum == ipINVALID_LENGTH ) )
 	{
-		FreeRTOS_printf( ( "CRC error: %04x location %d\n", usChecksum, location ) );
+		FreeRTOS_printf( ( "CRC error: %04x location %ld\n", usChecksum, location ) );
 	}
 
 	return usChecksum;
@@ -2159,7 +2163,7 @@ int location = 0;
  *   uxDataLengthBytes: This argument contains the number of bytes that this method
  *	 should process.
  */
-uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxDataLengthBytes )
+uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxByteCount )
 {
 /* MISRA/PC-lint doesn't like the use of unions. Here, they are a great
 aid though to optimise the calculations. */
@@ -2168,6 +2172,7 @@ xUnionPtr xSource;				/*lint !e9018*/	/* Points to first byte */
 xUnionPtr xLastSource;			/*lint !e9018*/	/* Points to last byte plus one */
 uint32_t ulAlignBits, ulCarry = 0UL;
 uint16_t usTemp;
+size_t uxDataLengthBytes = uxByteCount;
 
 	/* Small MCUs often spend up to 30% of the time doing checksum calculations
 	This function is optimised for 32-bit CPUs; Each time it will try to fetch
@@ -2474,7 +2479,7 @@ const char *pcName;
 		case pdFREERTOS_ERRNO_EWOULDBLOCK:    pcName = "EWOULDBLOCK"; break; /* same as EAGAIN */
 		case pdFREERTOS_ERRNO_EISCONN:        pcName = "EISCONN"; break;
 		default:
-			( void ) snprintf( pcBuffer, uxLength, "Errno %d", ( int ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
+			( void ) snprintf( pcBuffer, uxLength, "Errno %ld", ( BaseType_t ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
 			pcName = NULL;
 			break;
 	}

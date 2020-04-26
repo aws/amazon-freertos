@@ -86,7 +86,7 @@ are not defined then default them to call the normal enter/exit critical
 section macros. */
 #if !defined( ipconfigBUFFER_ALLOC_LOCK )
 
-	#define ipconfigBUFFER_ALLOC_INIT( ) do {} while (0)
+	#define ipconfigBUFFER_ALLOC_INIT( ) do {} while ( ipFALSE_BOOL )
 	#define ipconfigBUFFER_ALLOC_LOCK_FROM_ISR()		\
 		UBaseType_t uxSavedInterruptStatus = ( UBaseType_t ) portSET_INTERRUPT_MASK_FROM_ISR(); \
 		{
@@ -172,7 +172,7 @@ BaseType_t xReturn, x;
 		ipconfigBUFFER_ALLOC_INIT();
 
 		xNetworkBufferSemaphore = xSemaphoreCreateCounting( ( UBaseType_t ) ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS, ( UBaseType_t ) ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS );
-		configASSERT( xNetworkBufferSemaphore );
+		configASSERT( xNetworkBufferSemaphore != NULL );
 
 		if( xNetworkBufferSemaphore != NULL )
 		{

@@ -154,7 +154,7 @@ size_t uxPayloadSize;
 			 */
 			/* The Ethernet source address is at offset 6. */
 			char *pxUdpSrcAddrOffset = ( char *) ( &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( MACAddress_t ) ] ) );
-			memcpy( pxUdpSrcAddrOffset, xDefaultPartUDPPacketHeader.ucBytes, sizeof( xDefaultPartUDPPacketHeader ) );
+			( void ) memcpy( pxUdpSrcAddrOffset, xDefaultPartUDPPacketHeader.ucBytes, sizeof( xDefaultPartUDPPacketHeader ) );
 
 		#if ipconfigSUPPORT_OUTGOING_PINGS == 1
 			if( pxNetworkBuffer->usPort == ( uint16_t ) ipPACKET_CONTAINS_ICMP_DATA )
@@ -190,7 +190,7 @@ size_t uxPayloadSize;
 
 				if( ( ucSocketOptions & ( uint8_t ) FREERTOS_SO_UDPCKSUM_OUT ) != 0U )
 				{
-					usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
+					( void ) usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
 				}
 				else
 				{
@@ -254,11 +254,11 @@ BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer
 {
 BaseType_t xReturn = pdPASS;
 FreeRTOS_Socket_t *pxSocket;
-configASSERT(pxNetworkBuffer);
-configASSERT(pxNetworkBuffer->pucEthernetBuffer);
+configASSERT( pxNetworkBuffer != NULL );
+configASSERT( pxNetworkBuffer->pucEthernetBuffer != NULL );
 
 
-UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 
 	/* Caller must check for minimum packet size. */
 	pxSocket = pxUDPSocketLookup( usPort );

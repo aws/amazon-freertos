@@ -102,7 +102,7 @@ BaseType_t xReturn, x;
 	if( xNetworkBufferSemaphore == NULL )
 	{
 		xNetworkBufferSemaphore = xSemaphoreCreateCounting( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS, ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS );
-		configASSERT( xNetworkBufferSemaphore );
+		configASSERT( xNetworkBufferSemaphore != NULL );
 
 		if( xNetworkBufferSemaphore != NULL )
 		{
@@ -178,7 +178,7 @@ size_t xSize = *pxRequestedSizeBytes;
 	and a pointer to a network buffer structure (hence the addition of
 	ipBUFFER_PADDING bytes). */
 	pucEthernetBuffer = ( uint8_t * ) pvPortMalloc( xSize + ipBUFFER_PADDING );
-	configASSERT( pucEthernetBuffer );
+	configASSERT( pucEthernetBuffer != NULL );
 
 	if( pucEthernetBuffer != NULL )
 	{

@@ -54,7 +54,7 @@ entry is still valid and can therefore be refreshed. */
 
 /* The time between gratuitous ARPs. */
 #ifndef arpGRATUITOUS_ARP_PERIOD
-	#define arpGRATUITOUS_ARP_PERIOD					( pdMS_TO_TICKS( 20000 ) )
+	#define arpGRATUITOUS_ARP_PERIOD					( pdMS_TO_TICKS( 20000U ) )
 #endif
 
 /*-----------------------------------------------------------*/
@@ -652,7 +652,7 @@ ARPPacket_t *pxARPPacket;
 	/* Buffer allocation ensures that buffers always have space
 	for an ARP packet. See buffer allocation implementations 1
 	and 2 under portable/BufferManagement. */
-	configASSERT( pxNetworkBuffer );
+	configASSERT( pxNetworkBuffer != NULL );
 	configASSERT( pxNetworkBuffer->xDataLength >= sizeof(ARPPacket_t) );
 
 	pxARPPacket = ipPOINTER_CAST( ARPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
@@ -692,7 +692,7 @@ BaseType_t xCheckLoopback( NetworkBufferDescriptor_t * const pxDescriptor, BaseT
 {
 BaseType_t xResult = pdFALSE;
 NetworkBufferDescriptor_t * pxUseDescriptor = pxDescriptor;
-IPPacket_t *pxIPPacket = ipPOINTER_CAST( IPPacket_t *, pxUseDescriptor->pucEthernetBuffer );
+const IPPacket_t *pxIPPacket = ipPOINTER_CAST( IPPacket_t *, pxUseDescriptor->pucEthernetBuffer );
 
 	/* This function will check if the target IP-address belongs to this device.
 	 * If so, the packet will be passed to the IP-stack, who will answer it.

@@ -189,11 +189,11 @@ struct freertos_sockaddr
 										( ( uint32_t ) ( ucOctet0 ) ) )
 
 	#define FreeRTOS_inet_ntoa( ulIPAddress, pucBuffer )									\
-								sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",			\
-									( ( unsigned ) ( ( ulIPAddress ) & 0xffUL ) ),			\
-									( ( unsigned ) ( ( ( ulIPAddress ) >> 8 ) & 0xffUL ) ),	\
-									( ( unsigned ) ( ( ( ulIPAddress ) >> 16 ) & 0xffUL ) ),\
-									( ( unsigned ) ( ( ulIPAddress ) >> 24 ) ) )
+								sprintf( ( char * ) ( pucBuffer ), "%lu.%lu.%lu.%lu",			\
+									( ( uint32_t ) ( ( ulIPAddress ) & 0xffUL ) ),			\
+									( ( uint32_t ) ( ( ( ulIPAddress ) >> 8 ) & 0xffUL ) ),	\
+									( ( uint32_t ) ( ( ( ulIPAddress ) >> 16 ) & 0xffUL ) ),\
+									( ( uint32_t ) ( ( ulIPAddress ) >> 24 ) ) )
 
 #else /* ipconfigBYTE_ORDER */
 

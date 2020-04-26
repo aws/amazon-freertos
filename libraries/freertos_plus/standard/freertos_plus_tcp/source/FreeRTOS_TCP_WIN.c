@@ -105,7 +105,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
  * segments: 'pxWindow->xRxSegments'.
  */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static TCPSegment_t *xTCPWindowRxFind( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber );
+	static TCPSegment_t *xTCPWindowRxFind( const TCPWindow_t *pxWindow, uint32_t ulSequenceNumber );
 #endif /* ipconfigUSE_TCP_WIN == 1 */
 
 /*
@@ -121,14 +121,14 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
  * Detaches and returns the head of a queue
  */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static TCPSegment_t *xTCPWindowGetHead( List_t *pxList );
+	static TCPSegment_t *xTCPWindowGetHead( const List_t *pxList );
 #endif /* ipconfigUSE_TCP_WIN == 1 */
 
 /*
  * Returns the head of a queue but it won't be detached
  */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static TCPSegment_t *xTCPWindowPeekHead( List_t *pxList );
+	static TCPSegment_t *xTCPWindowPeekHead( const List_t *pxList );
 #endif /* ipconfigUSE_TCP_WIN == 1 */
 
 /*
@@ -148,7 +148,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
  * segment should have a sequence number equal to '(ulSequenceNumber+xLength)'.
  */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static TCPSegment_t *xTCPWindowRxConfirm( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength );
+	static TCPSegment_t *xTCPWindowRxConfirm( const TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength );
 #endif /* ipconfigUSE_TCP_WIN == 1 */
 
 /*
@@ -295,8 +295,8 @@ static portINLINE void vTCPTimerSet( TCPTimer_t *pxTimer )
 }
 /*-----------------------------------------------------------*/
 
-static portINLINE uint32_t ulTimerGetAge( TCPTimer_t *pxTimer );
-static portINLINE uint32_t ulTimerGetAge( TCPTimer_t *pxTimer )
+static portINLINE uint32_t ulTimerGetAge( const TCPTimer_t *pxTimer );
+static portINLINE uint32_t ulTimerGetAge( const TCPTimer_t *pxTimer )
 {
 	return ( ( xTaskGetTickCount() - pxTimer->ulBorn ) * portTICK_PERIOD_MS );
 }
@@ -364,7 +364,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	static TCPSegment_t *xTCPWindowRxFind( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber )
+	static TCPSegment_t *xTCPWindowRxFind( const TCPWindow_t *pxWindow, uint32_t ulSequenceNumber )
 	{
 	const ListItem_t *pxIterator;
 	const ListItem_t* pxEnd;
@@ -462,7 +462,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	BaseType_t xTCPWindowRxEmpty( TCPWindow_t *pxWindow )
+	BaseType_t xTCPWindowRxEmpty( const TCPWindow_t *pxWindow )
 	{
 	BaseType_t xReturn;
 
@@ -498,7 +498,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	static TCPSegment_t *xTCPWindowGetHead( List_t *pxList )
+	static TCPSegment_t *xTCPWindowGetHead( const List_t *pxList )
 	{
 	TCPSegment_t *pxSegment;
 	ListItem_t * pxItem;
@@ -524,9 +524,9 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	static TCPSegment_t *xTCPWindowPeekHead( List_t *pxList )
+	static TCPSegment_t *xTCPWindowPeekHead( const List_t *pxList )
 	{
-	ListItem_t *pxItem;
+	const ListItem_t *pxItem;
 	TCPSegment_t *pxReturn;
 
 		/* Returns the head of a queue but it won't be detached. */
@@ -580,7 +580,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 	void vTCPWindowDestroy( TCPWindow_t *pxWindow )
 	{
-	List_t * pxSegments;
+	const List_t * pxSegments;
 	BaseType_t xRound;
 	TCPSegment_t *pxSegment;
 
@@ -735,7 +735,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	static TCPSegment_t *xTCPWindowRxConfirm( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength )
+	static TCPSegment_t *xTCPWindowRxConfirm( const TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength )
 	{
 	TCPSegment_t *pxBest = NULL;
 	const ListItem_t *pxIterator;
@@ -1020,15 +1020,17 @@ const int32_t l500ms = 500;
 
 	static int32_t lTCPIncrementTxPosition( int32_t lPosition, int32_t lMax, int32_t lCount )
 	{
+	int32_t lReturn;
+
 		/* +TCP stores data in circular buffers.  Calculate the next position to
 		store. */
-		lPosition += lCount;
-		if( lPosition >= lMax )
+		lReturn = lPosition + lCount;
+		if( lReturn >= lMax )
 		{
-			lPosition -= lMax;
+			lReturn -= lMax;
 		}
 
-		return lPosition;
+		return lReturn;
 	}
 
 #endif /* ipconfigUSE_TCP_WIN == 1 */
@@ -1159,7 +1161,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	BaseType_t xTCPWindowTxDone( TCPWindow_t *pxWindow )
+	BaseType_t xTCPWindowTxDone( const TCPWindow_t *pxWindow )
 	{
 		return listLIST_IS_EMPTY( ( &pxWindow->xTxSegments) );
 	}
@@ -1173,7 +1175,8 @@ const int32_t l500ms = 500;
 	{
 	uint32_t ulTxOutstanding;
 	BaseType_t xHasSpace;
-	TCPSegment_t *pxSegment;
+	const TCPSegment_t *pxSegment;
+	uint32_t ulNettSize;
 
 		/* This function will look if there is new transmission data.  It will
 		return true if there is data to be sent. */
@@ -1198,10 +1201,10 @@ const int32_t l500ms = 500;
 			}
 
 			/* Subtract this from the peer's space. */
-			ulWindowSize -= FreeRTOS_min_uint32( ulWindowSize, ulTxOutstanding );
+			ulNettSize = ulWindowSize - FreeRTOS_min_uint32( ulWindowSize, ulTxOutstanding );
 
 			/* See if the next segment may be sent. */
-			if( ulWindowSize >= ( uint32_t ) pxSegment->lDataLength )
+			if( ulNettSize >= ( uint32_t ) pxSegment->lDataLength )
 			{
 				xHasSpace = pdTRUE;
 			}

@@ -100,7 +100,7 @@ extern uint8_t ucMACAddress[ 6 ];
 	if( xStatus != ERROR )
 	{
 		vSemaphoreCreateBinary( xEMACRxEventSemaphore );
-		configASSERT( xEMACRxEventSemaphore );
+		configASSERT( xEMACRxEventSemaphore != NULL );
 
 		/* The handler task is created at the highest possible priority to
 		ensure the interrupt handler can return directly to it. */
@@ -212,7 +212,7 @@ IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
 extern uint8_t *EMAC_NextPacketToRead( void );
 
 	( void ) pvParameters;
-	configASSERT( xEMACRxEventSemaphore );
+	configASSERT( xEMACRxEventSemaphore != NULL );
 
 	for( ;; )
 	{

@@ -196,7 +196,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif /* ifdef ipconfigHAS_DEBUG_PRINTF */
 
 #ifndef FreeRTOS_debug_printf
-    #define FreeRTOS_debug_printf( MSG )		do{} while(0)
+    #define FreeRTOS_debug_printf( MSG )		do{} while( ipFALSE_BOOL )
 	#define ipconfigHAS_DEBUG_PRINTF			0
 #endif
 
@@ -217,7 +217,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif /* ifdef ipconfigHAS_PRINTF */
 
 #ifndef FreeRTOS_printf
-    #define FreeRTOS_printf( MSG )				do{} while(0)
+    #define FreeRTOS_printf( MSG )				do{} while( ipFALSE_BOOL )
 	#define ipconfigHAS_PRINTF					0
 #endif
 
@@ -227,7 +227,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
  * An example of this is the netstat command, which produces many lines of logging
  */
 #ifndef FreeRTOS_flush_logging
-    #define FreeRTOS_flush_logging( )			do{} while(0)
+    #define FreeRTOS_flush_logging( )			do{} while( ipFALSE_BOOL )
 #endif
 
 /* Malloc functions. Within most applications of FreeRTOS, the couple
@@ -274,7 +274,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif
 
 #ifndef ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS
-	#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ( pdMS_TO_TICKS( 20 ) )
+	#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ( pdMS_TO_TICKS( 20U ) )
 #endif
 
 #ifndef ipconfigARP_CACHE_ENTRIES
@@ -377,9 +377,9 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 #ifndef ipconfigMAXIMUM_DISCOVER_TX_PERIOD
 	#ifdef _WINDOWS_
-		#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD		( pdMS_TO_TICKS( 999 ) )
+		#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD		( pdMS_TO_TICKS( 999U ) )
 	#else
-		#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD		( pdMS_TO_TICKS( 30000 ) )
+		#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD		( pdMS_TO_TICKS( 30000U ) )
 	#endif /* _WINDOWS_ */
 #endif /* ipconfigMAXIMUM_DISCOVER_TX_PERIOD */
 
@@ -544,7 +544,7 @@ connections, hang protection can help reduce the impact of SYN floods. */
 
 /* Non-activity timeout is expressed in seconds. */
 #ifndef ipconfigTCP_HANG_PROTECTION_TIME
-	#define ipconfigTCP_HANG_PROTECTION_TIME 30
+	#define ipconfigTCP_HANG_PROTECTION_TIME 30U
 #endif
 
 #ifndef ipconfigTCP_IP_SANITY
