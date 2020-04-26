@@ -67,6 +67,8 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+# OTA_SUPPORT needed for some AWS Demos
+OTA_SUPPORT=1
 
 ################################################################################
 # Advanced Configuration
@@ -82,7 +84,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be 
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE
+COMPONENTS=FREERTOS 4343W CY8CKIT_064S0S2_4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -98,7 +100,7 @@ SOURCES=
 INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED AFR
+DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\" MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config_afr.h\" TFM_MULTI_CORE_MULTI_CLIENT_CALL
 
 # Select softfp or hardfp floating point. Default is softfp. 
 VFP_SELECT=
@@ -133,6 +135,13 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
+#
+# Set BLINK_FREQ_UPDATE_OTA as 0/1 to change LED blink frequency.
+DEFINES+= BLINK_FREQ_UPDATE_OTA=0
+# Check for default Version values
+APP_VERSION_MAJOR?=1
+APP_VERSION_MINOR?=0
+APP_VERSION_BUILD?=0
 
 ################################################################################
 # Paths

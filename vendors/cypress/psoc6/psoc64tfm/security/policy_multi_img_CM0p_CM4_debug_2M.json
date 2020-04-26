@@ -17,6 +17,8 @@
             "key" : 5,
             "syscall": true,
             "mmio": true,
+            "flashw": true,
+            "flashr": true,
             "flash": true,
             "workflash": true,
             "sflash": true,
@@ -194,4 +196,3 @@
         "cy_auth": "./common/prebuilt/cy_auth.jwt"
     }
 }
-

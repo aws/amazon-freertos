@@ -138,9 +138,6 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
-# Check for default Version values
-DEFINES +=APP_VERSION_MAJOR=1 APP_VERSION_MINOR=0 APP_VERSION_BUILD=0
-
 ################################################################################
 # Paths
 ################################################################################

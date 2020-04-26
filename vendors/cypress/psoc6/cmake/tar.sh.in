@@ -13,8 +13,8 @@ set -e
 # Do final hex -> bin conversion for use in tarballs
 
 # signed.hex -> signed.bin
-"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM0_SIGNED_IMG@ @CY_APP_CM0_BIN@
-"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM4_SIGNED_IMG@ @CY_APP_CM4_BIN@
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM0_IMG@ @CY_APP_CM0_BIN@
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM4_IMG@ @CY_APP_CM4_BIN@
 
 # upgrade.hex to upgrade.bin
 "@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_CM0_UPGRADE_IMG@  @CY_APP_CM0_UPGRADE_BIN@
