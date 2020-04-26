@@ -73,8 +73,8 @@ CY_BSP_POSTBUILD=$(CY_PYTHON_PATH) -c "import cysecuretools; \
 else
 # TFM enabled
 TFM_PSOC64_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm
-TFM_PSOC64_SECURE_PATH=$(TFM_PSOC64_PATH)/security
-TFM_POLICY_FILE=$(TFM_PSOC64_SECURE_PATH)/$(CY_SECURE_POLICY_NAME)_debug_2M.json
+TFM_PSOC64_SECURE_POLICY_PATH=$(TFM_PSOC64_PATH)/security/policy
+TFM_POLICY_FILE=$(TFM_PSOC64_SECURE_POLICY_PATH)/$(CY_SECURE_POLICY_NAME)_debug_2M.json
 TFM_SIGN_SCRIPT=cysecuretools
 TFM_DEVICE_NAME=cy8ckit-064b0s2-4343w
 TFM_CM0_HEX=$(CY_CONFIG_DIR)/cm0.hex
@@ -99,10 +99,11 @@ CY_BSP_PROGRAM=true
 CY_OPENOCD_PROGRAM_FLASH= -s ${CY_OPENOCD_DIR}/scripts \
                           -f interface/kitprog3.cfg \
                           -f target/psoc6_2m_secure.cfg \
-                          -c "init; reset; flash erase_address 0x101c0000 0x10000" \
-                          -c "init; reset; flash write_image erase ${TFM_CM0_HEX}" \
-                          -c "init; reset; flash write_image erase ${TFM_CM4_HEX}" \
-                          -c "reset; exit"
+                          -c "init; reset init;" \
+                          -c "flash erase_address 0x101c0000 0x10000" \
+                          -c "flash write_image erase ${CY_CM0_HEX}" \
+                          -c "flash write_image erase ${CY_CM4_HEX}" \
+                          -c "resume; reset; exit"
 
 program: build qprogram
 	@echo;\
