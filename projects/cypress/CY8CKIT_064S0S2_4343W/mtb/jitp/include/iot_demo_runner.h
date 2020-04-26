@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V201908.00
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202002.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -79,7 +79,7 @@
         #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_DEFENDER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartDefenderDemo
+    #define DEMO_entryFUNCTION              RunDefenderDemo
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
 #elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
@@ -98,6 +98,10 @@
     #define DEMO_entryFUNCTION             RunHttpsSyncDownloadDemo
 #elif defined( CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunHttpsAsyncDownloadDemo
+#elif defined( CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunHttpsSyncUploadDemo
+#elif defined( CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

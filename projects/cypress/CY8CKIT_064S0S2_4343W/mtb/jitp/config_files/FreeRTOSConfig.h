@@ -84,10 +84,10 @@ extern void vAssertCalled( const char * pcFile,
  * tasks:
  * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Echo_Clients.html,
  * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/UDP_Echo_Clients.html. */
-#define configECHO_SERVER_ADDR0              192
-#define configECHO_SERVER_ADDR1              168
-#define configECHO_SERVER_ADDR2              1
-#define configECHO_SERVER_ADDR3              77
+#define configECHO_SERVER_ADDR0              157
+#define configECHO_SERVER_ADDR1              95
+#define configECHO_SERVER_ADDR2              10
+#define configECHO_SERVER_ADDR3              63
 #define configTCP_ECHO_CLIENT_PORT           9001
 
 /* Default MAC address configuration.  The demo creates a virtual network
@@ -161,7 +161,7 @@ extern void vAssertCalled( const char * pcFile,
 #define configSUPPORT_DYNAMIC_ALLOCATION			1
 #define configSUPPORT_STATIC_ALLOCATION				1
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS     16
-#define configUSE_NEWLIB_REENTRANT                  1
+#define configUSE_NEWLIB_REENTRANT 					1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		0

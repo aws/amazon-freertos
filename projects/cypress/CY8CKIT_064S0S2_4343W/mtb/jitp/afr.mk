@@ -91,11 +91,13 @@ SOURCES+=$(CY_AFR_ROOT)/freertos_kernel/portable/IAR/ARM_CM4F/portasm.s
 endif
 
 ifeq ($(TOOLCHAIN),ARM)
+DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
 # As of ARM Compiler 6.12, <assert.h> does not define static_assert (ISO/IEC 9899:2011).
 # This define may interfere with <cassert> or future versions of the ARM C library.
 DEFINES+=static_assert=_Static_assert
 endif
 
+DEFINES+=MBEDTLS_CONFIG_FILE=\"cy_mbedtls_config.h\"
 ################################################################################
 # vendors/cypress
 ################################################################################
@@ -108,6 +110,7 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_EXTAPP_PATH)/libraries\
 	$(CY_EXTAPP_PATH)/lwip\
+	$(CY_EXTAPP_PATH)/freertos_thirdparty_port\
 	$(CY_EXTAPP_PATH)/WICED_SDK
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
@@ -150,7 +153,8 @@ INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
@@ -211,6 +215,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
@@ -232,9 +237,10 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
-	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
