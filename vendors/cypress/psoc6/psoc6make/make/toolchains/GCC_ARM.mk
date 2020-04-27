@@ -119,7 +119,7 @@ CY_TOOLCHAIN_LDFLAGS=\
 	$(CY_TOOLCHAIN_COMMON_FLAGS)\
 	--enable-objc-gc\
 	--specs=nano.specs\
-	-Wl,--gc-sections
+	-Wl,--gc-sections,--undefined=uxTopUsedPriority
 
 #
 # Command line flags for archiving
