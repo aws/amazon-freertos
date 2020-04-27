@@ -18,7 +18,7 @@
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerExecutable" value="${openocd_path}/${openocd_executable}"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerLog" value=""/>
-<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-s &quot;${openocd_path}/../scripts&quot;&#13;&#10;-c &quot;source [find interface/kitprog3.cfg]&quot;&#13;&#10;-c &quot;set TARGET_AP cm4_ap&quot;&#13;&#10;-c &quot;set DISABLE_SMIF 1&quot;&#13;&#10;-c &quot;source [find target/psoc6_2m_secure.cfg]&quot;&#13;&#10;-c &quot;init; reset init; psoc6 sflash_restrictions 1&quot;&#13;&#10;-c &quot;if [catch {erase_all} ] { echo {** Erase operation failed **} } else { echo {** Erase operation completed successfully **} }&quot;&#13;&#10;-c &quot;shutdown&quot;"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-s &quot;${openocd_path}/../scripts&quot;&#13;&#10;-f &quot;interface/kitprog3.cfg&quot;&#13;&#10;-c &quot;set ENABLE_ACQUIRE 0; set TARGET_AP cm0_ap&quot;&#13;&#10;-f target/psoc6_2m_secure.cfg&#13;&#10;-c &quot;init; reset init&quot;&#13;&#10;-c &quot;if [catch {erase_all} ] { echo {** Erase operation failed **} } else { echo {** Erase operation completed successfully **} }&quot;&#13;&#10;-c &quot;shutdown&quot;"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTclPortNumber" value="6666"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherInitCommands" value=""/>
@@ -48,7 +48,7 @@
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.UPDATE_THREADLIST_ON_SUSPEND" value="false"/>
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
 <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${cy_prj_path}/../../../../../build/cy/aws_demos/CY8CKIT-064S0S2-4343W/Debug/aws_demos.hex"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${cy_prj_path}/../../../../../build/cy/aws_demos/CY8CKIT-064S0S2-4343W/Debug/aws_demos.elf"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="aws_demos"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
@@ -58,4 +58,5 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
+<stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
 </launchConfiguration>
