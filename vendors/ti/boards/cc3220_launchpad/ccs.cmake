@@ -26,6 +26,14 @@ set(link_dependent_libs
     "${simplelink_dir}/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"
 )
 
+# Force the use of response file to avoid "command line too long" error.
+SET(CMAKE_C_USE_RESPONSE_FILE_FOR_OBJECTS 1)
+SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
+
+# Default response file flag is "@".  TI's compiler doesn't require that.
+set(CMAKE_C_RESPONSE_FILE_LINK_FLAG " ")
+set(CMAKE_CXX_RESPONSE_FILE_LINK_FLAG " ")
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
