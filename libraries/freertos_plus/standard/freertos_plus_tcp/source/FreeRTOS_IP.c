@@ -902,9 +902,9 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 #endif /* ipconfigZERO_COPY_TX_DRIVER != 0 */
 /*-----------------------------------------------------------*/
 
-NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer )
+NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( const void * pvBuffer )
 {
-uint8_t *pucBuffer;
+const uint8_t *pucBuffer;
 NetworkBufferDescriptor_t *pxResult;
 
 	if( pvBuffer == NULL )
@@ -914,7 +914,7 @@ NetworkBufferDescriptor_t *pxResult;
 	else
 	{
 		/* Obtain the network buffer from the zero copy pointer. */
-		pucBuffer = ipPOINTER_CAST( uint8_t *, pvBuffer );
+		pucBuffer = ipPOINTER_CAST( const uint8_t *, pvBuffer );
 
 		/* The input here is a pointer to a payload buffer.  Subtract
 		the total size of a UDP/IP header plus the size of the header in

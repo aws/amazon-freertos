@@ -559,11 +559,11 @@ connections, hang protection can help reduce the impact of SYN floods. */
 	/* Expert option: define a value for 'ipBUFFER_PADDING'.
 	When 'ipconfigBUFFER_PADDING' equals 0,
 	'ipBUFFER_PADDING' will get a default value of 8 + 2 bytes. */
-	#define ipconfigBUFFER_PADDING 0
+	#define ipconfigBUFFER_PADDING			0U
 #endif
 
 #ifndef ipconfigPACKET_FILLER_SIZE
-	#define ipconfigPACKET_FILLER_SIZE 2
+	#define ipconfigPACKET_FILLER_SIZE		2U
 #endif
 
 #ifndef ipconfigSELECT_USES_NOTIFY

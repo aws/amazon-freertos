@@ -849,8 +849,13 @@ const int32_t l500ms = 500;
 
 					/*  Check for following segments that are already in the
 					queue and increment ulCurrentSequenceNumber. */
-					while( ( pxFound = xTCPWindowRxFind( pxWindow, ulCurrentSequenceNumber ) ) != NULL )	/*lint !e9084 result of assignment operator used in larger expression [MISRA 2012 Rule 13.4, advisory] */
+					for( ;; )
 					{
+						pxFound = xTCPWindowRxFind( pxWindow, ulCurrentSequenceNumber );
+						if( pxFound == NULL )
+						{
+							break;
+						}
 						ulCurrentSequenceNumber += ( uint32_t ) pxFound->lDataLength;
 
 						/* As all packet below this one have been passed to the
@@ -924,8 +929,13 @@ const int32_t l500ms = 500;
 				 * This is useful because subsequent packets will be SACK'd with
 				 * single one message
 				 */
-				while( ( pxFound = xTCPWindowRxFind( pxWindow, ulLast ) ) != NULL )	/*lint !e9084 result of assignment operator used in larger expression [MISRA 2012 Rule 13.4, advisory] */
+				for( ;; )
 				{
+					pxFound = xTCPWindowRxFind( pxWindow, ulLast );
+					if( pxFound == NULL )
+					{
+						break;
+					}
 					ulLast += ( uint32_t ) pxFound->lDataLength;
 				}
 

@@ -3450,7 +3450,7 @@ BaseType_t xResult;
 	{
 	BaseType_t xIndex = ( BaseType_t ) ulState;
 
-		if( ( xIndex < 0 ) || ( xIndex >= ( BaseType_t ) ARRAY_SIZE( pcStateNames ) ) )
+		if( ( xIndex < 0 ) || ( xIndex >= ARRAY_SIZE( pcStateNames ) ) )
 		{
 			/* The last item is called 'eUNKNOWN' */
 			xIndex = ARRAY_SIZE( pcStateNames );

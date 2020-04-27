@@ -869,7 +869,7 @@ const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
 				/* When zero copy is used, pvBuffer is a pointer to the
 				payload of a buffer that has already been obtained from the
 				stack.  Obtain the network buffer pointer from the buffer. */
-				pxNetworkBuffer = pxUDPPayloadBuffer_to_NetworkBuffer( (void*)pvBuffer );	/*lint !e9005 attempt to cast away const from a pointer or reference [MISRA 2012 Rule 11.8, required]. */
+				pxNetworkBuffer = pxUDPPayloadBuffer_to_NetworkBuffer( ( void * ) pvBuffer );	/*lint !e9005 attempt to cast away const from a pointer or reference [MISRA 2012 Rule 11.8, required]. */
 			}
 
 			if( pxNetworkBuffer != NULL )
@@ -1350,12 +1350,12 @@ FreeRTOS_Socket_t *pxSocket;
 	{
 		case FREERTOS_SO_RCVTIMEO	:
 			/* Receive time out. */
-			pxSocket->xReceiveBlockTime = *( ipPOINTER_CAST( TickType_t *, pvOptionValue ) );
+			pxSocket->xReceiveBlockTime = *( ipPOINTER_CAST( const TickType_t *, pvOptionValue ) );
 			xReturn = 0;
 			break;
 
 		case FREERTOS_SO_SNDTIMEO	:
-			pxSocket->xSendBlockTime = *( ipPOINTER_CAST( TickType_t *, pvOptionValue ) );
+			pxSocket->xSendBlockTime = *( ipPOINTER_CAST( const TickType_t *, pvOptionValue ) );
 			if( pxSocket->ucProtocol == ( uint8_t ) FREERTOS_IPPROTO_UDP )
 			{
 				/* The send time out is capped for the reason stated in the
@@ -1381,7 +1381,7 @@ FreeRTOS_Socket_t *pxSocket;
 				{
 					break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 				}
-				pxSocket->u.xUDP.uxMaxPackets = *( ( UBaseType_t * ) pvOptionValue );
+				pxSocket->u.xUDP.uxMaxPackets = *( ( const UBaseType_t * ) pvOptionValue );
 				xReturn = 0;
 				break;
 		#endif /* ipconfigUDP_MAX_RX_PACKETS */
@@ -1439,20 +1439,20 @@ FreeRTOS_Socket_t *pxSocket;
 						{
 						#if ipconfigUSE_TCP == 1
 							case FREERTOS_SO_TCP_CONN_HANDLER:
-								pxSocket->u.xTCP.pxHandleConnected = ipPOINTER_CAST( F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPConnected;
+								pxSocket->u.xTCP.pxHandleConnected = ipPOINTER_CAST( const F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPConnected;
 								break;
 							case FREERTOS_SO_TCP_RECV_HANDLER:
-								pxSocket->u.xTCP.pxHandleReceive = ipPOINTER_CAST( F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPReceive;
+								pxSocket->u.xTCP.pxHandleReceive = ipPOINTER_CAST( const F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPReceive;
 								break;
 							case FREERTOS_SO_TCP_SENT_HANDLER:
-								pxSocket->u.xTCP.pxHandleSent = ipPOINTER_CAST( F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPSent;
+								pxSocket->u.xTCP.pxHandleSent = ipPOINTER_CAST( const F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnTCPSent;
 								break;
 						#endif /* ipconfigUSE_TCP */
 						case FREERTOS_SO_UDP_RECV_HANDLER:
-							pxSocket->u.xUDP.pxHandleReceive = ipPOINTER_CAST( F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnUDPReceive;
+							pxSocket->u.xUDP.pxHandleReceive = ipPOINTER_CAST( const F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnUDPReceive;
 							break;
 						case FREERTOS_SO_UDP_SENT_HANDLER:
-							pxSocket->u.xUDP.pxHandleSent = ipPOINTER_CAST( F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnUDPSent;
+							pxSocket->u.xUDP.pxHandleSent = ipPOINTER_CAST( const F_TCP_UDP_Handler_t *, pvOptionValue )->pxOnUDPSent;
 							break;
 						default:
 							/* Should it throw an error here? */
@@ -2943,8 +2943,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	TickType_t xNow = xTaskGetTickCount();
 	static TickType_t xLastTime = 0U;
 	TickType_t xDelta = xNow - xLastTime;
-	ListItem_t* pxEnd = ipPOINTER_CAST( ListItem_t *, listGET_END_MARKER( &xBoundTCPSocketsList ) );
-	const ListItem_t *pxIterator = ( ListItem_t * ) listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
+	const ListItem_t* pxEnd = ipPOINTER_CAST( const ListItem_t *, listGET_END_MARKER( &xBoundTCPSocketsList ) );
+	const ListItem_t *pxIterator = ( const ListItem_t * ) listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
 
 		xLastTime = xNow;
 
@@ -3606,8 +3606,8 @@ BaseType_t FreeRTOS_udp_rx_size( Socket_t xSocket )
 				if (pxSocket->u.xTCP.ucTCPState == ( uint8_t ) eTCP_LISTEN)
 				{
 					const int32_t copied_len = snprintf( ucChildText, sizeof( ucChildText ), " %ld/%ld",	/*lint !e586 snprintf is deprecated. */
-						( BaseType_t ) pxSocket->u.xTCP.usChildCount,
-						( BaseType_t ) pxSocket->u.xTCP.usBacklog);
+						( int32_t ) pxSocket->u.xTCP.usChildCount,
+						( int32_t ) pxSocket->u.xTCP.usBacklog);
 					( void )copied_len;
 					/* These should never evaluate to false since the buffers are both shorter than 5-6 characters (<=65535) */
 					configASSERT( copied_len >= 0 );

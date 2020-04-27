@@ -437,7 +437,7 @@ socket events. */
 	} while ( ipFALSE_BOOL )
 
 #ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x)	(BaseType_t)(sizeof(x)/sizeof(x)[0])
+	#define ARRAY_SIZE(x)	( ( BaseType_t ) ( sizeof( x ) / sizeof( ( x )[ 0 ] ) ) )
 #endif
 
 /*
@@ -802,7 +802,7 @@ BaseType_t xSendEventStructToIPTask( const IPStackEvent_t *pxEvent, TickType_t u
  * Returns a pointer to the original NetworkBuffer from a pointer to a UDP
  * payload buffer.
  */
-NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer );
+NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( const void * pvBuffer );
 
 #if( ipconfigZERO_COPY_TX_DRIVER != 0 )
 	/*
