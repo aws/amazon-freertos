@@ -350,8 +350,8 @@ static BaseType_t prvAwsIotBrokerConnectHelper( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvConnectHelper( Socket_t xSocket,
-                                    Server_t xConn )
+static BaseType_t prvConnect( Socket_t xSocket,
+                              Server_t xConn )
 {
     BaseType_t xResult = pdFAIL;
     SocketsSockaddr_t xAddress;
@@ -376,15 +376,27 @@ static BaseType_t prvConnectHelper( Socket_t xSocket,
 
     if( xResult == SOCKETS_ERROR_NONE )
     {
-        uint32_t ulInitialRetryPeriodMs = tcptestLOOP_DELAY_MS;
-        BaseType_t xMaxRetries = tcptestRETRY_CONNECTION_TIMES;
-        RETRY_EXPONENTIAL( xResult = SOCKETS_Connect( xSocket,
-                                                      &xAddress,
-                                                      sizeof( xAddress ) ),
-                           SOCKETS_ERROR_NONE,
-                           ulInitialRetryPeriodMs,
-                           xMaxRetries );
+        xResult = SOCKETS_Connect( xSocket,
+                                   &xAddress,
+                                   sizeof( xAddress ) );
     }
+
+    return xResult;
+}
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvConnectHelper( Socket_t xSocket,
+                                    Server_t xConn )
+{
+    BaseType_t xResult = pdFAIL;
+    uint32_t ulInitialRetryPeriodMs = tcptestLOOP_DELAY_MS;
+    BaseType_t xMaxRetries = tcptestRETRY_CONNECTION_TIMES;
+
+    RETRY_EXPONENTIAL( xResult = prvConnect( xSocket,
+                                             xConn ),
+                       SOCKETS_ERROR_NONE,
+                       ulInitialRetryPeriodMs,
+                       xMaxRetries );
 
     return xResult;
 }
