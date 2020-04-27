@@ -469,16 +469,16 @@ static void _copyDataCallbackFunction( void * param1,
      * (eg. Marvell) pass -ffreestanding flag to the compiler which results in
      * __STDC_HOSTED__ being defined to 0 and therefore, cbor_value_to_pretty
      * not being available. */
-    #if !defined( __STDC_HOSTED__ ) || __STDC_HOSTED__-0 == 1
-    {
-        if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_REJECTED )
+    #if !defined( __STDC_HOSTED__ ) || __STDC_HOSTED__ - 0 == 1
         {
-            CborParser cborParser;
-            CborValue cborValue;
-            cbor_parser_init( pCallbackInfo->pPayload, pCallbackInfo->payloadLength, 0, &cborParser, &cborValue );
-            cbor_value_to_pretty( stdout, &cborValue );
+            if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_REJECTED )
+            {
+                CborParser cborParser;
+                CborValue cborValue;
+                cbor_parser_init( pCallbackInfo->pPayload, pCallbackInfo->payloadLength, 0, &cborParser, &cborValue );
+                cbor_value_to_pretty( stdout, &cborValue );
+            }
         }
-    }
     #endif /* __STDC_HOSTED__ check */
 
     /* Copy data from pCallbackInfo to _callbackInfo. */
