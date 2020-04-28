@@ -509,6 +509,15 @@ CK_RV prvMbedTLS_Initialize( void )
         memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
+        if( xP11Context.xObjectList.xMutex == NULL )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+
         CRYPTO_Init();
         /* Initialize the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
