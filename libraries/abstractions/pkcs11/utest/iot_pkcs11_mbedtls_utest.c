@@ -61,28 +61,6 @@ void * pvPkcs11MallocCb( size_t size,
 }
 
 /*!
- * @brief Wrapper stub for malloc that fails every two calls.
- *
- * This is specifically to get complete branch coverage, as some branches
- * are only taken if a previous call to malloc was successful.
- */
-void * pvPkcs11MallocCb2( size_t size,
-                          int numCalls )
-{
-    static uint32_t ulCalls = 1;
-
-    ulCalls++;
-
-    if( ulCalls % 2 )
-    {
-        return NULL;
-    }
-
-    usMallocFreeCalls++;
-    return ( void * ) malloc( size );
-}
-
-/*!
  * @brief Wrapper stub for free.
  *
  */
