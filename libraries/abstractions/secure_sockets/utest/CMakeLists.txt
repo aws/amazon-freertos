@@ -15,7 +15,9 @@
                 "${freertos_plus_dir}/standard/tls/include/iot_tls.h"
                 "${3rdparty_dir}/lwip/src/include/lwip/sockets.h"
             )
-    create_mock_list(secure_sockets_mock "${mock_list}"
+    create_mock_list(secure_sockets_mock 
+                "${mock_list}"
+                "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
             )
     target_include_directories(secure_sockets_mock PUBLIC
                 "${3rdparty_dir}/lwip/src/include"

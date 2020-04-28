@@ -76,7 +76,7 @@ endfunction()
 
 # Generates a mock library based on a module's header file
 # places the generated source file in the build directory
-function(create_mock_list mock_name mock_list)
+function(create_mock_list mock_name mock_list cmock_config)
     set(mocks_dir "${CMAKE_CURRENT_BINARY_DIR}/mocks")
     add_library(${mock_name} SHARED)
     foreach (mock_file IN LISTS mock_list)
@@ -96,20 +96,20 @@ function(create_mock_list mock_name mock_list)
                   OUTPUT ${mocks_dir}/mock_${mock_file_name}.c
                   COMMAND ruby
                   ${CMAKE_SOURCE_DIR}/libraries/3rdparty/CMock/lib/cmock.rb
-                  -o${CMAKE_SOURCE_DIR}/tools/cmock/project.yml ${mock_file_abs}
+                  -o${cmock_config} ${mock_file_abs}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 )
         target_sources(${mock_name} PUBLIC
                        ${mocks_dir}/mock_${mock_file_name}.c
-                )
+        )
 
         target_include_directories(${mock_name} PUBLIC
                                    ${mock_file_dir}
-                )
+        )
     endforeach()
     target_include_directories(${mock_name} PUBLIC
                                ${mocks_dir}
-            )
+           )
     set_target_properties(${mock_name} PROPERTIES
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
