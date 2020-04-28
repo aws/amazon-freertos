@@ -2,6 +2,10 @@
   "ENTRY": "ReadNameField",
 
 ################################################################
+#Enable DNS callbacks or else ReadNameField is not defined
+  "callbacks": "1",
+
+################################################################
 # This is the network buffer size.  Set to any positive value.
   "NETWORK_BUFFER_SIZE" :  "10",
 
@@ -43,6 +47,8 @@
   "DEF":
   [
     "NETWORK_BUFFER_SIZE={NETWORK_BUFFER_SIZE}",
-    "NAME_SIZE={NAME_SIZE}"
+    "NAME_SIZE={NAME_SIZE}",
+    "ipconfigDNS_USE_CALLBACKS={callbacks}",
+    "ipconfigDNS_CACHE_NAME_LENGTH=254"
   ]
 }
