@@ -46,15 +46,15 @@
 
 
 
-
 static uint16_t usMallocFreeCalls = 0;
 
 /* ==========================  CALLBACK FUNCTIONS =========================== */
+
 /*!
  * @brief Wrapper stub for malloc.
  */
 void * pvPkcs11MallocCb( size_t size,
-                             int numCalls )
+                         int numCalls )
 {
     usMallocFreeCalls++;
     return ( void * ) malloc( size );
@@ -67,12 +67,13 @@ void * pvPkcs11MallocCb( size_t size,
  * are only taken if a previous call to malloc was successful.
  */
 void * pvPkcs11MallocCb2( size_t size,
-                             int numCalls )
+                          int numCalls )
 {
     static uint32_t ulCalls = 1;
+
     ulCalls++;
 
-    if( ulCalls % 2 ) 
+    if( ulCalls % 2 )
     {
         return NULL;
     }
@@ -86,7 +87,7 @@ void * pvPkcs11MallocCb2( size_t size,
  *
  */
 void vPkcs11FreeCb( void * ptr,
-              int numCalls )
+                    int numCalls )
 {
     usMallocFreeCalls--;
     free( ptr );
@@ -103,7 +104,7 @@ void setUp( void )
 void tearDown( void )
 {
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, usMallocFreeCalls,
-       "free is not called the same number of times as malloc, \
+                                   "free is not called the same number of times as malloc, \
         you might have a memory leak!!" );
     usMallocFreeCalls = 0;
 }
@@ -121,7 +122,7 @@ int suiteTearDown( int numFailures )
 
 /*!
  * @brief C_Initialize happy path.
- * 
+ *
  */
 void test_pkcs11_C_Initialize( void )
 {
@@ -138,9 +139,9 @@ void test_pkcs11_C_Initialize( void )
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    mbedtls_entropy_free_CMockIgnore( );
-    mbedtls_ctr_drbg_free_CMockIgnore( );
-    vQueueDelete_CMockIgnore( );
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
     xResult = C_Finalize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -148,7 +149,7 @@ void test_pkcs11_C_Initialize( void )
 
 /*!
  * @brief C_Initialize memory failure when creating a mutex.
- * 
+ *
  */
 void test_pkcs11_C_InitializeMemFail( void )
 {
@@ -166,7 +167,7 @@ void test_pkcs11_C_InitializeMemFail( void )
 
 /*!
  * @brief C_Initialize failed to seed DRBG.
- * 
+ *
  */
 void test_pkcs11_C_InitializeSeedFail( void )
 {
@@ -186,7 +187,7 @@ void test_pkcs11_C_InitializeSeedFail( void )
 
 /*!
  * @brief C_Initialize already initialized.
- * 
+ *
  */
 void test_pkcs11_C_InitializeInitTwice( void )
 {
@@ -204,9 +205,9 @@ void test_pkcs11_C_InitializeInitTwice( void )
     xResult = C_Initialize( NULL );
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_ALREADY_INITIALIZED, xResult );
 
-    mbedtls_entropy_free_CMockIgnore( );
-    mbedtls_ctr_drbg_free_CMockIgnore( );
-    vQueueDelete_CMockIgnore( );
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
     xResult = C_Finalize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -215,7 +216,7 @@ void test_pkcs11_C_InitializeInitTwice( void )
 
 /*!
  * @brief C_Finalize happy path.
- * 
+ *
  */
 void test_pkcs11_C_Finalize( void )
 {
@@ -230,9 +231,9 @@ void test_pkcs11_C_Finalize( void )
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    mbedtls_entropy_free_CMockIgnore( );
-    mbedtls_ctr_drbg_free_CMockIgnore( );
-    vQueueDelete_CMockIgnore( );
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
     xResult = C_Finalize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -240,15 +241,15 @@ void test_pkcs11_C_Finalize( void )
 
 /*!
  * @brief C_Finalize initialize was not already called.
- * 
+ *
  */
 void test_pkcs11_C_FinalizeUninitialized( void )
 {
     CK_RV xResult = CKR_OK;
 
-    mbedtls_entropy_free_CMockIgnore( );
-    mbedtls_ctr_drbg_free_CMockIgnore( );
-    vQueueDelete_CMockIgnore( );
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
     xResult = C_Finalize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
@@ -256,15 +257,15 @@ void test_pkcs11_C_FinalizeUninitialized( void )
 
 /*!
  * @brief C_Finalize was called with a non-null pointer.
- * 
+ *
  */
 void test_pkcs11_C_FinalizeBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
 
-    mbedtls_entropy_free_CMockIgnore( );
-    mbedtls_ctr_drbg_free_CMockIgnore( );
-    vQueueDelete_CMockIgnore( );
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
     xResult = C_Finalize( ( CK_VOID_PTR ) &xResult );
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
@@ -272,7 +273,7 @@ void test_pkcs11_C_FinalizeBadArgs( void )
 
 /*!
  * @brief C_GetFunctionList happy path.
- * 
+ *
  */
 void test_pkcs11_C_GetFunctionList( void )
 {
@@ -286,7 +287,7 @@ void test_pkcs11_C_GetFunctionList( void )
 
 /*!
  * @brief C_GetFunctionList bad args.
- * 
+ *
  */
 void test_pkcs11_C_GetFunctionListBadArgs( void )
 {
@@ -296,5 +297,3 @@ void test_pkcs11_C_GetFunctionListBadArgs( void )
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
-
-
