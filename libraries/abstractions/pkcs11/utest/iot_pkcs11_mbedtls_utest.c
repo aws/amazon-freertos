@@ -93,9 +93,7 @@ void vPkcs11FreeCb( void * ptr,
     free( ptr );
 }
 
-/*******************************************************************************
- * Unity fixtures
- ******************************************************************************/
+/* ============================   UNITY FIXTURES ============================ */
 void setUp( void )
 {
 }
@@ -119,6 +117,8 @@ int suiteTearDown( int numFailures )
 {
     return numFailures;
 }
+
+/* ======================  TESTING C_Initialize  ============================ */
 
 /*!
  * @brief C_Initialize happy path.
@@ -213,6 +213,7 @@ void test_pkcs11_C_InitializeInitTwice( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 }
 
+/* ======================  TESTING C_Finalize  ============================ */
 
 /*!
  * @brief C_Finalize happy path.
@@ -271,6 +272,8 @@ void test_pkcs11_C_FinalizeBadArgs( void )
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
 
+/* ======================  TESTING C_GetFunctionList  ============================ */
+
 /*!
  * @brief C_GetFunctionList happy path.
  *
@@ -297,3 +300,5 @@ void test_pkcs11_C_GetFunctionListBadArgs( void )
 
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 }
+
+/* ======================  END TESTING ============================ */
