@@ -128,7 +128,7 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  * @brief Indicates that no PKCS #11 operation is underway for given session.
  *
  */
-#define pkcs11NO_OPERATION     ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFF )
+#define pkcs11NO_OPERATION     ( ( CK_MECHANISM_TYPE ) -1 )
 
 /**
  * @ingroup pkcs11_macros
@@ -755,7 +755,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_RV xResult = CKR_OK;
         CK_BBOOL xFreeMemory = CK_FALSE;
         CK_BYTE_PTR pxObject = NULL;
-        CK_ATTRIBUTE xLabel;
+        CK_ATTRIBUTE xLabel = { 0 };
         CK_OBJECT_HANDLE xPalHandle;
         CK_OBJECT_HANDLE xPalHandle2;
         CK_OBJECT_HANDLE xAppHandle2;
@@ -2192,9 +2192,9 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                           CK_OBJECT_HANDLE_PTR pxObject )
 {
     mbedtls_pk_context xMbedContext;
-    int lDerKeyLength;
+    int lDerKeyLength = 0;
     CK_BYTE_PTR pxDerKey = NULL;
-    CK_KEY_TYPE xKeyType;
+    CK_KEY_TYPE xKeyType = 0;
     CK_RV xResult = CKR_OK;
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
@@ -2368,7 +2368,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE_PTR pxObject )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-    CK_OBJECT_CLASS xClass;
+    CK_OBJECT_CLASS xClass = 0;
 
     if( ( NULL == pxTemplate ) ||
         ( NULL == pxObject ) )
