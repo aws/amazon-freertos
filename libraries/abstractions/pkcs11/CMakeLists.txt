@@ -1,3 +1,7 @@
+if(AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(utest)
+    return()
+endif()
 afr_module(NAME pkcs11_implementation)
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
@@ -92,7 +96,6 @@ else()
             AFR::utils
             3rdparty::mbedtls
     )
-
 endif()
 
 
