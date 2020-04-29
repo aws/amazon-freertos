@@ -182,7 +182,7 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
             { CKA_VALUE,     NULL /* pxD*/,               EC_D_LENGTH                                      }
         };
         
-        /* Automatic variables cannot be used to initialize an aggregate initializer. */
+        /* Aggregate initializers must not use the address of an automatic variable. */
         xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
         xPrivateKeyTemplate[ 1 ].pValue = &xPrivateKeyType;
         xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
@@ -282,6 +282,7 @@ static CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
             { CKA_COEFFICIENT,      pxRsaParams->coefficient + 1, COEFFICIENT_LENGTH                               }
         };
 
+        /* Aggregate initializers must not use the address of an automatic variable. */
         xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
         xPrivateKeyTemplate[ 1 ].pValue = &xPrivateKeyType;
         xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
