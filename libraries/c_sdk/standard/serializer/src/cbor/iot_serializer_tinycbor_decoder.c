@@ -76,7 +76,7 @@ IotSerializerDecodeInterface_t _IotSerializerCborDecoder =
 typedef struct _cborValueWrapper
 {
     CborValue cborValue;
-    bool isOutermost;
+    struct _cborValueWrapper * pParent;
 } _cborValueWrapper_t;
 
 /*-----------------------------------------------------------*/
@@ -249,6 +249,17 @@ static IotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCborVal
                          * we avoid copying the string by storing pointer to the start of the string.
                          */
                         pDecoderObject->u.value.u.string.pString = ( uint8_t * ) ( cbor_value_get_next_byte( &next ) - ( pDecoderObject->u.value.u.string.length ) );
+
+                        /* Edge case: current value is the last one in map/array and the map/array has indefinite length.
+                         * In this case, a special break character OxFF is written so the u.value.u.string.pString is offset by 1.
+                         * Therefore, we should deduct 1
+                         */
+                        if( ( pCborValueWrapper->pParent != NULL ) &&
+                            ( cbor_value_is_length_known( &( pCborValueWrapper->pParent->cborValue ) ) == false ) &&
+                            cbor_value_at_end( &next ) )
+                        {
+                            pDecoderObject->u.value.u.string.pString--;
+                        }
                     }
                     else
                     {
@@ -274,7 +285,7 @@ static IotSerializerError_t _init( IotSerializerDecoderObject_t * pDecoderObject
                                    size_t maxSize )
 {
     CborParser * pCborParser = IotSerializer_MallocCborParser( sizeof( CborParser ) );
-    _cborValueWrapper_t cborValueWrapper = { .isOutermost = 0 };
+    _cborValueWrapper_t cborValueWrapper = { .pParent = NULL };
 
     if( pCborParser == NULL )
     {
@@ -294,8 +305,6 @@ static IotSerializerError_t _init( IotSerializerDecoderObject_t * pDecoderObject
     /* If init succeeds, create the decoder object. */
     if( cborError == CborNoError )
     {
-        cborValueWrapper.isOutermost = true;
-
         returnedError = _createDecoderObject( &cborValueWrapper, pDecoderObject );
     }
 
@@ -330,8 +339,8 @@ static void _destroy( IotSerializerDecoderObject_t * pDecoderObject )
 
     _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
 
-    /* If this is outmost object, the parser's memory needs to be freed. */
-    if( pCborValueWrapper->isOutermost )
+    /* If this is outermost object, the parser's memory needs to be freed. */
+    if( pCborValueWrapper->pParent == NULL )
     {
         IotSerializer_FreeCborParser( ( void * ) ( pCborValueWrapper->cborValue.parser ) );
     }
@@ -371,7 +380,7 @@ static IotSerializerError_t _find( IotSerializerDecoderObject_t * pDecoderObject
     _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
 
     /* Set this object not to be outermost one. */
-    newCborValueWrapper.isOutermost = false;
+    newCborValueWrapper.pParent = pCborValueWrapper;
 
     cborError = cbor_value_map_find_value(
         &pCborValueWrapper->cborValue,
@@ -420,7 +429,7 @@ static IotSerializerError_t _stepIn( IotSerializerDecoderObject_t * pDecoderObje
 
         pNewObject->type = pDecoderObject->type;
 
-        pNewCborValueWrapper->isOutermost = false;
+        pNewCborValueWrapper->pParent = pCborValueWrapper;
         pNewObject->u.pHandle = ( void * ) pNewCborValueWrapper;
 
         *pIterator = ( IotSerializerDecoderIterator_t ) pNewObject;
