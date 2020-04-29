@@ -18,6 +18,7 @@ list(APPEND mock_list
         )
 create_mock_list(iot_ble_data_transfer_mock
         "${mock_list}"
+        "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
         )
 
 target_include_directories(iot_ble_data_transfer_mock PUBLIC
