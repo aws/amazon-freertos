@@ -23,7 +23,10 @@ list(APPEND preprocessed_mock_list
     )
 
 
-create_mock_list(pkcs11_mock "${mock_list}")
+create_mock_list(pkcs11_mock 
+    "${mock_list}"
+    "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
+    )
 preprocess_mock_list(pkcs11_mock ${preprocessed_mock_list} "${unix_flags}")
 
 
