@@ -181,7 +181,7 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
             { CKA_EC_PARAMS, NULL /* pxEcParams*/,        EC_PARAMS_LENGTH                                 },
             { CKA_VALUE,     NULL /* pxD*/,               EC_D_LENGTH                                      }
         };
-        
+
         /* Aggregate initializers must not use the address of an automatic variable. */
         /* See MSVC Compiler Warning C4221 */
         xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
@@ -268,11 +268,11 @@ static CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
 
         CK_ATTRIBUTE xPrivateKeyTemplate[] =
         {
-            { CKA_CLASS,            NULL /* &xPrivateKeyClass */,            sizeof( CK_OBJECT_CLASS )                        },
-            { CKA_KEY_TYPE,         NULL /* &xPrivateKeyType */,             sizeof( CK_KEY_TYPE )                            },
+            { CKA_CLASS,            NULL /* &xPrivateKeyClass */, sizeof( CK_OBJECT_CLASS )                        },
+            { CKA_KEY_TYPE,         NULL /* &xPrivateKeyType */,  sizeof( CK_KEY_TYPE )                            },
             { CKA_LABEL,            pucLabel,                     ( CK_ULONG ) strlen( ( const char * ) pucLabel ) },
-            { CKA_TOKEN,            NULL /* &xTrue */,                       sizeof( CK_BBOOL )                               },
-            { CKA_SIGN,             NULL /* &xTrue */,                       sizeof( CK_BBOOL )                               },
+            { CKA_TOKEN,            NULL /* &xTrue */,            sizeof( CK_BBOOL )                               },
+            { CKA_SIGN,             NULL /* &xTrue */,            sizeof( CK_BBOOL )                               },
             { CKA_MODULUS,          pxRsaParams->modulus + 1,     MODULUS_LENGTH                                   },
             { CKA_PRIVATE_EXPONENT, pxRsaParams->d + 1,           D_LENGTH                                         },
             { CKA_PUBLIC_EXPONENT,  pxRsaParams->e + 1,           E_LENGTH                                         },
@@ -408,23 +408,23 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                                               NULL, 0 );
         CK_ATTRIBUTE xPublicKeyTemplate[] =
         {
-            { CKA_CLASS,           NULL /* &xClass */,           sizeof( CK_OBJECT_CLASS )                    },
-            { CKA_KEY_TYPE,        NULL /* &xPublicKeyType */,   sizeof( CK_KEY_TYPE )                        },
-            { CKA_TOKEN,           NULL /* &xTrue */,            sizeof( xTrue )                              },
-            { CKA_MODULUS,         NULL /* &xModulus + 1 */,     MODULUS_LENGTH                               },     /* Extra byte allocated at beginning for 0 padding. */
-            { CKA_VERIFY,          NULL /* &xTrue */,            sizeof( xTrue )                              },
-            { CKA_PUBLIC_EXPONENT, NULL /* xPublicExponent */,   sizeof( xPublicExponent )                    },
-            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+            { CKA_CLASS,           NULL /* &xClass */,         sizeof( CK_OBJECT_CLASS )                    },
+            { CKA_KEY_TYPE,        NULL /* &xPublicKeyType */, sizeof( CK_KEY_TYPE )                        },
+            { CKA_TOKEN,           NULL /* &xTrue */,          sizeof( xTrue )                              },
+            { CKA_MODULUS,         NULL /* &xModulus + 1 */,   MODULUS_LENGTH                               },       /* Extra byte allocated at beginning for 0 padding. */
+            { CKA_VERIFY,          NULL /* &xTrue */,          sizeof( xTrue )                              },
+            { CKA_PUBLIC_EXPONENT, NULL /* xPublicExponent */, sizeof( xPublicExponent )                    },
+            { CKA_LABEL,           pucPublicKeyLabel,          strlen( ( const char * ) pucPublicKeyLabel ) }
         };
 
         /* Aggregate initializers must not use the address of an automatic variable. */
         /* See MSVC Compiler Warning C4221 */
-        xPublicKeyTemplate[0].pValue = &xClass;
-        xPublicKeyTemplate[1].pValue = &xPublicKeyType;
-        xPublicKeyTemplate[2].pValue = &xTrue;
-        xPublicKeyTemplate[3].pValue = &xModulus + 1;
-        xPublicKeyTemplate[4].pValue = &xTrue;
-        xPublicKeyTemplate[5].pValue = xPublicExponent;
+        xPublicKeyTemplate[ 0 ].pValue = &xClass;
+        xPublicKeyTemplate[ 1 ].pValue = &xPublicKeyType;
+        xPublicKeyTemplate[ 2 ].pValue = &xTrue;
+        xPublicKeyTemplate[ 3 ].pValue = &xModulus + 1;
+        xPublicKeyTemplate[ 4 ].pValue = &xTrue;
+        xPublicKeyTemplate[ 5 ].pValue = xPublicExponent;
 
         xResult = pxFunctionList->C_CreateObject( xSession,
                                                   ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
@@ -451,23 +451,23 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 
         CK_ATTRIBUTE xPublicKeyTemplate[] =
         {
-            { CKA_CLASS,     NULL /* &xClass */,           sizeof( xClass )                             },
-            { CKA_KEY_TYPE,  NULL /* &xPublicKeyType */,   sizeof( xPublicKeyType )                     },
-            { CKA_TOKEN,     NULL /* &xTrue */,            sizeof( xTrue )                              },
-            { CKA_VERIFY,    NULL /* &xTrue */,            sizeof( xTrue )                              },
-            { CKA_EC_PARAMS, NULL /* xEcParams */,         sizeof( xEcParams )                          },
-            { CKA_EC_POINT,  NULL /* xEcPoint */,          xLength + 2                                  },
-            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+            { CKA_CLASS,     NULL /* &xClass */,         sizeof( xClass )                             },
+            { CKA_KEY_TYPE,  NULL /* &xPublicKeyType */, sizeof( xPublicKeyType )                     },
+            { CKA_TOKEN,     NULL /* &xTrue */,          sizeof( xTrue )                              },
+            { CKA_VERIFY,    NULL /* &xTrue */,          sizeof( xTrue )                              },
+            { CKA_EC_PARAMS, NULL /* xEcParams */,       sizeof( xEcParams )                          },
+            { CKA_EC_POINT,  NULL /* xEcPoint */,        xLength + 2                                  },
+            { CKA_LABEL,     pucPublicKeyLabel,          strlen( ( const char * ) pucPublicKeyLabel ) }
         };
 
         /* Aggregate initializers must not use the address of an automatic variable. */
         /* See MSVC Compiler Warning C4221 */
-        xPublicKeyTemplate[0].pValue = &xClass;
-        xPublicKeyTemplate[1].pValue = &xPublicKeyType;
-        xPublicKeyTemplate[2].pValue = &xTrue;
-        xPublicKeyTemplate[3].pValue = &xTrue;
-        xPublicKeyTemplate[4].pValue = xEcParams;
-        xPublicKeyTemplate[5].pValue = xEcPoint;
+        xPublicKeyTemplate[ 0 ].pValue = &xClass;
+        xPublicKeyTemplate[ 1 ].pValue = &xPublicKeyType;
+        xPublicKeyTemplate[ 2 ].pValue = &xTrue;
+        xPublicKeyTemplate[ 3 ].pValue = &xTrue;
+        xPublicKeyTemplate[ 4 ].pValue = xEcParams;
+        xPublicKeyTemplate[ 5 ].pValue = xEcPoint;
 
         xResult = pxFunctionList->C_CreateObject( xSession,
                                                   ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
@@ -507,35 +507,35 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        { CKA_ENCRYPT,        NULL /* &xTrue */,            sizeof( xTrue )                              },
-        { CKA_VERIFY,         NULL /* &xTrue */,            sizeof( xTrue )                              },
-        { CKA_MODULUS_BITS,   NULL /* &xModulusBits */,     sizeof( xModulusBits )                       },
-        { CKA_PUBLIC_EXPONENT,NULL /* xPublicExponent */,   sizeof( xPublicExponent )                    },
-        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+        { CKA_ENCRYPT,         NULL /* &xTrue */,          sizeof( xTrue )                              },
+        { CKA_VERIFY,          NULL /* &xTrue */,          sizeof( xTrue )                              },
+        { CKA_MODULUS_BITS,    NULL /* &xModulusBits */,   sizeof( xModulusBits )                       },
+        { CKA_PUBLIC_EXPONENT, NULL /* xPublicExponent */, sizeof( xPublicExponent )                    },
+        { CKA_LABEL,           pucPublicKeyLabel,          strlen( ( const char * ) pucPublicKeyLabel ) }
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
     /* See MSVC Compiler Warning C4221 */
-    xPublicKeyTemplate[0].pValue = &xTrue;
-    xPublicKeyTemplate[1].pValue = &xTrue;
-    xPublicKeyTemplate[2].pValue = &xModulusBits;
-    xPublicKeyTemplate[3].pValue = &xPublicExponent;
+    xPublicKeyTemplate[ 0 ].pValue = &xTrue;
+    xPublicKeyTemplate[ 1 ].pValue = &xTrue;
+    xPublicKeyTemplate[ 2 ].pValue = &xModulusBits;
+    xPublicKeyTemplate[ 3 ].pValue = &xPublicExponent;
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        { CKA_TOKEN,   NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_PRIVATE, NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_DECRYPT, NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_SIGN,    NULL /* &xTrue */,             sizeof( xTrue )                               },
+        { CKA_TOKEN,   NULL /* &xTrue */,  sizeof( xTrue )                               },
+        { CKA_PRIVATE, NULL /* &xTrue */,  sizeof( xTrue )                               },
+        { CKA_DECRYPT, NULL /* &xTrue */,  sizeof( xTrue )                               },
+        { CKA_SIGN,    NULL /* &xTrue */,  sizeof( xTrue )                               },
         { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
     /* See MSVC Compiler Warning C4221 */
-    xPrivateKeyTemplate[0].pValue = &xTrue;
-    xPrivateKeyTemplate[1].pValue = &xTrue;
-    xPrivateKeyTemplate[2].pValue = &xTrue;
-    xPrivateKeyTemplate[3].pValue = &xTrue;
+    xPrivateKeyTemplate[ 0 ].pValue = &xTrue;
+    xPrivateKeyTemplate[ 1 ].pValue = &xTrue;
+    xPrivateKeyTemplate[ 2 ].pValue = &xTrue;
+    xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -571,33 +571,33 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        { CKA_KEY_TYPE,  NULL /* &xKeyType */,         sizeof( xKeyType )                           },
-        { CKA_VERIFY,    NULL /* &xTrue */,            sizeof( xTrue )                              },
-        { CKA_EC_PARAMS, NULL /* xEcParams */,         sizeof( xEcParams )                          },
-        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+        { CKA_KEY_TYPE,  NULL /* &xKeyType */, sizeof( xKeyType )                           },
+        { CKA_VERIFY,    NULL /* &xTrue */,    sizeof( xTrue )                              },
+        { CKA_EC_PARAMS, NULL /* xEcParams */, sizeof( xEcParams )                          },
+        { CKA_LABEL,     pucPublicKeyLabel,    strlen( ( const char * ) pucPublicKeyLabel ) }
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
     /* See MSVC Compiler Warning C4221 */
-    xPublicKeyTemplate[0].pValue = &xKeyType;
-    xPublicKeyTemplate[1].pValue = &xTrue;
-    xPublicKeyTemplate[2].pValue = &xEcParams;
+    xPublicKeyTemplate[ 0 ].pValue = &xKeyType;
+    xPublicKeyTemplate[ 1 ].pValue = &xTrue;
+    xPublicKeyTemplate[ 2 ].pValue = &xEcParams;
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        { CKA_KEY_TYPE, NULL /* &xKeyType */,          sizeof( xKeyType )                            },
-        { CKA_TOKEN,    NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_PRIVATE,  NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_SIGN,     NULL /* &xTrue */,             sizeof( xTrue )                               },
-        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
+        { CKA_KEY_TYPE, NULL /* &xKeyType */, sizeof( xKeyType )                            },
+        { CKA_TOKEN,    NULL /* &xTrue */,    sizeof( xTrue )                               },
+        { CKA_PRIVATE,  NULL /* &xTrue */,    sizeof( xTrue )                               },
+        { CKA_SIGN,     NULL /* &xTrue */,    sizeof( xTrue )                               },
+        { CKA_LABEL,    pucPrivateKeyLabel,   strlen( ( const char * ) pucPrivateKeyLabel ) }
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
     /* See MSVC Compiler Warning C4221 */
-    xPrivateKeyTemplate[0].pValue = &xKeyType;
-    xPrivateKeyTemplate[1].pValue = &xTrue;
-    xPrivateKeyTemplate[2].pValue = &xTrue;
-    xPrivateKeyTemplate[3].pValue = &xTrue;
+    xPrivateKeyTemplate[ 0 ].pValue = &xKeyType;
+    xPrivateKeyTemplate[ 1 ].pValue = &xTrue;
+    xPrivateKeyTemplate[ 2 ].pValue = &xTrue;
+    xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
