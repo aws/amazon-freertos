@@ -129,8 +129,6 @@ void harness() {
   buffer_size = NETWORK_BUFFER_SIZE - my_buffer_offset;
   __CPROVER_assume(my_buffer_offset <= NETWORK_BUFFER_SIZE);
 
-  __CPROVER_havoc_object(my_buffer);
-
   // Choose arbitrary pointer into the buffer
   size_t buffer_offset;
   uint8_t *pucUDPPayloadBuffer = buffer + buffer_offset;
