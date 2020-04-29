@@ -128,7 +128,7 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  * @brief Indicates that no PKCS #11 operation is underway for given session.
  *
  */
-#define pkcs11NO_OPERATION     ( ( CK_MECHANISM_TYPE ) 0xFFFFul )
+#define pkcs11NO_OPERATION     ( ( CK_MECHANISM_TYPE ) -1 )
 
 /**
  * @ingroup pkcs11_macros
