@@ -964,6 +964,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     if( CKR_OK == xResult )
     {
         xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], &xTokenInfo );
+        vPortFree( pxSlotId );
     }
 
     if( ( CKR_OK == xResult ) && ( '\0' != xTokenInfo.label[ 0 ] ) && ( ' ' != xTokenInfo.label[ 0 ] ) )

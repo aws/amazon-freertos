@@ -517,7 +517,6 @@ CK_RV prvMbedTLS_Initialize( void )
 
     if( xResult == CKR_OK )
     {
-
         CRYPTO_Init();
         /* Initialize the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
@@ -973,7 +972,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
             mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
         }
 
-        vSemaphoreDelete( xP11Context.xObjectList.xMutex );
+        if( xP11Context.xObjectList.xMutex != NULL )
+        {
+            vSemaphoreDelete( xP11Context.xObjectList.xMutex );
+        }
 
         xP11Context.xIsInitialized = CK_FALSE;
     }
