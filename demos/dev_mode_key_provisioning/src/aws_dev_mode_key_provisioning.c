@@ -183,6 +183,7 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
         };
         
         /* Aggregate initializers must not use the address of an automatic variable. */
+        /* See MSVC Compiler Warning C4221 */
         xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
         xPrivateKeyTemplate[ 1 ].pValue = &xPrivateKeyType;
         xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
@@ -283,6 +284,7 @@ static CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
         };
 
         /* Aggregate initializers must not use the address of an automatic variable. */
+        /* See MSVC Compiler Warning C4221 */
         xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
         xPrivateKeyTemplate[ 1 ].pValue = &xPrivateKeyType;
         xPrivateKeyTemplate[ 3 ].pValue = &xTrue;
@@ -416,6 +418,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         };
 
         /* Aggregate initializers must not use the address of an automatic variable. */
+        /* See MSVC Compiler Warning C4221 */
         xPublicKeyTemplate[0].pValue = &xClass;
         xPublicKeyTemplate[1].pValue = &xPublicKeyType;
         xPublicKeyTemplate[2].pValue = &xTrue;
@@ -458,6 +461,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         };
 
         /* Aggregate initializers must not use the address of an automatic variable. */
+        /* See MSVC Compiler Warning C4221 */
         xPublicKeyTemplate[0].pValue = &xClass;
         xPublicKeyTemplate[1].pValue = &xPublicKeyType;
         xPublicKeyTemplate[2].pValue = &xTrue;
@@ -511,6 +515,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
+    /* See MSVC Compiler Warning C4221 */
     xPublicKeyTemplate[0].pValue = &xTrue;
     xPublicKeyTemplate[1].pValue = &xTrue;
     xPublicKeyTemplate[2].pValue = &xModulusBits;
@@ -526,6 +531,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
+    /* See MSVC Compiler Warning C4221 */
     xPrivateKeyTemplate[0].pValue = &xTrue;
     xPrivateKeyTemplate[1].pValue = &xTrue;
     xPrivateKeyTemplate[2].pValue = &xTrue;
@@ -572,6 +578,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
+    /* See MSVC Compiler Warning C4221 */
     xPublicKeyTemplate[0].pValue = &xKeyType;
     xPublicKeyTemplate[1].pValue = &xTrue;
     xPublicKeyTemplate[2].pValue = &xEcParams;
@@ -586,6 +593,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     };
 
     /* Aggregate initializers must not use the address of an automatic variable. */
+    /* See MSVC Compiler Warning C4221 */
     xPrivateKeyTemplate[0].pValue = &xKeyType;
     xPrivateKeyTemplate[1].pValue = &xTrue;
     xPrivateKeyTemplate[2].pValue = &xTrue;
