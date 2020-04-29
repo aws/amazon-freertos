@@ -61,16 +61,16 @@
 #include "aws_application_version.h"
 
 /**
- * @brief Timeout for MQTT connection, if the MQTT connection is not establihsed within
+ * @brief Timeout for MQTT connection, if the MQTT connection is not established within
  * this time, the connect function returns #IOT_MQTT_TIMEOUT
  */
-#define OTA_DEMO_CONNECTION_TIMEOUT                  ( 2000UL )
+#define OTA_DEMO_CONNECTION_TIMEOUT_MS               ( 2000UL )
 
 /**
  * @brief The maximum time interval that is permitted to elapse between the point at
  * which the MQTT client finishes transmitting one control Packet and the point it starts
  * sending the next.In the absence of control packet a PINGREQ  is sent. The broker must
- * disconnect a client that does not send a a message or a PINGREQ packet in one and a
+ * disconnect a client that does not send a message or a PINGREQ packet in one and a
  * half times the keep alive interval.
  */
 #define OTA_DEMO_KEEP_ALIVE_SECONDS                  ( 120UL )
@@ -101,20 +101,20 @@
 /**
  * @brief Handle of the MQTT connection used in this demo.
  */
-static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 /**
  * @brief Flag used to unset, during disconnection of currently connected network. This will
  * trigger a reconnection from the OTA demo task.
  */
-static bool networkConnected = pdFALSE;
+static bool _networkConnected = pdFALSE;
 
 /**
  * @brief Connection retry interval in seconds.
  */
-static int retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
+static int _retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
 
-static const char * pStateStr[ eOTA_AgentState_All ] =
+static const char * _pStateStr[ eOTA_AgentState_All ] =
 {
     "Init",
     "Ready",
@@ -165,22 +165,31 @@ static void _cleanupOtaDemo( void )
 }
 
 /**
- * @brief Delay before retrying network connection upto a maximum interval.
+ * @brief Delay before retrying network connection up to a maximum interval.
  */
 static void _connectionRetryDelay( void )
 {
     TickType_t intervalTicks = 0;
+    int retryIntervalwithJitter = 0;
 
-    retryInterval *= 2;
-
-    if( retryInterval > OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS )
+    if( ( _retryInterval * 2 ) >= OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS )
     {
-        retryInterval = OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS;
+        /* Retry interval is already max.*/
+        _retryInterval = OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS;
+    }
+    else
+    {
+        /* Double the retry interval time.*/
+        _retryInterval *= 2;
     }
 
-    configPRINTF( ( "Retrying network connection in %d Secs ", retryInterval ) );
+    /* Add random jitter upto current retry interval .*/
+    retryIntervalwithJitter = _retryInterval + ( rand() % _retryInterval );
 
-    intervalTicks = pdMS_TO_TICKS( retryInterval * 1000 );
+    configPRINTF( ( "Retrying network connection in %d Secs ", retryIntervalwithJitter ) );
+
+    /* Convert mili seconds to ticks.*/
+    intervalTicks = pdMS_TO_TICKS( retryIntervalwithJitter * 1000 );
 
     vTaskDelay( intervalTicks );
 }
@@ -218,7 +227,7 @@ static void prvNetworkDisconnectCallback( void * param,
     }
 
     /* Clear the flag for network connection status.*/
-    networkConnected = false;
+    _networkConnected = false;
 
     /* Suspend OTA agent.*/
     OTA_Suspend();
@@ -284,7 +293,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
         connectStatus = IotMqtt_Connect( &networkInfo,
                                          &connectInfo,
-                                         OTA_DEMO_CONNECTION_TIMEOUT,
+                                         OTA_DEMO_CONNECTION_TIMEOUT_MS,
                                          pMqttConnection );
 
         if( connectStatus != IOT_MQTT_SUCCESS )
@@ -326,9 +335,9 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
 
         /* OTA job is completed. so delete the network connection. */
-        if( mqttConnection != NULL )
+        if( _mqttConnection != NULL )
         {
-            IotMqtt_Disconnect( mqttConnection, 0 );
+            IotMqtt_Disconnect( _mqttConnection, 0 );
         }
 
         /* Activate the new firmware image. */
@@ -388,8 +397,6 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                     xAppFirmwareVersion.u.x.ucMinor,
                     xAppFirmwareVersion.u.x.usBuild ) );
 
-    retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
-
     for( ; ; )
     {
         configPRINTF( ( "Connecting to broker...\r\n" ) );
@@ -400,15 +407,18 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                                       pNetworkServerInfo,
                                       pNetworkCredentialInfo,
                                       pNetworkInterface,
-                                      &mqttConnection ) == EXIT_SUCCESS )
+                                      &_mqttConnection ) == EXIT_SUCCESS )
         {
             /* Update the connection context shared with OTA Agent.*/
             xOTAConnectionCtx.pxNetworkInterface = ( void * ) pNetworkInterface;
             xOTAConnectionCtx.pvNetworkCredentials = pNetworkCredentialInfo;
-            xOTAConnectionCtx.pvControlClient = mqttConnection;
+            xOTAConnectionCtx.pvControlClient = _mqttConnection;
+
+            /* Set the base interval for connection retry.*/
+            _retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
 
             /* Update the connection available flag.*/
-            networkConnected = pdTRUE;
+            _networkConnected = pdTRUE;
 
             /* Check if OTA Agent is suspended and resume.*/
             if( ( eState = OTA_GetAgentState() ) == eOTA_AgentState_Suspended )
@@ -422,19 +432,19 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                            App_OTACompleteCallback,
                            ( TickType_t ) ~0 );
 
-            while( ( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped ) && networkConnected )
+            while( ( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped ) && _networkConnected )
             {
                 /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
                 vTaskDelay( OTA_DEMO_ONE_SECOND_DELAY );
 
-                configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pStateStr[ eState ],
+                configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", _pStateStr[ eState ],
                                 OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
             }
 
             /* Try to close the MQTT connection. */
-            if( ( mqttConnection != NULL ) && networkConnected )
+            if( ( _mqttConnection != NULL ) && _networkConnected )
             {
-                IotMqtt_Disconnect( mqttConnection, false );
+                IotMqtt_Disconnect( _mqttConnection, false );
             }
         }
         else
