@@ -38,25 +38,11 @@ endif
 #
 # Build tools
 #
-ifeq ($(OS),Windows_NT)
-#
-# Windows paths
-#
 CC=$(CY_CROSSPATH)/iccarm.exe
 CXX=$(CC)
 AS=$(CY_CROSSPATH)/iasmarm.exe
 AR=$(CY_CROSSPATH)/iarchive.exe
 LD=$(CY_CROSSPATH)/ilinkarm.exe
-else
-#
-# Linux and macOS paths
-#
-CC=$(CY_CROSSPATH)/iccarm
-CXX=$(CC)
-AS=$(CY_CROSSPATH)/iasmarm
-AR=$(CY_CROSSPATH)/iarchive
-LD=$(CY_CROSSPATH)/ilinkarm
-endif
 
 #
 # DEBUG/NDEBUG selection
