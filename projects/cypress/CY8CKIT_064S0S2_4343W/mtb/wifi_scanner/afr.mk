@@ -112,20 +112,6 @@ endif
 LINKER_SCRIPT:=$(LINKER_SCRIPT_ABSOLUTE)
 CY_PROJECT_DIR:=$(CY_PROJECT_DIR_ABSOLUTE)
 
-ifeq ($(TOOLCHAIN),IAR)
-CFLAGS+=--dlib_config=full
-CXXFLAGS+=--dlib_config=full --guard_calls
-LDFLAGS+=--threaded_lib
-DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_iar.h\"
-SOURCES+=$(CY_AFR_ROOT)/freertos_kernel/portable/IAR/ARM_CM4F/portasm.s
-endif
-
-ifeq ($(TOOLCHAIN),ARM)
-# As of ARM Compiler 6.12, <assert.h> does not define static_assert (ISO/IEC 9899:2011).
-# This define may interfere with <cassert> or future versions of the ARM C library.
-DEFINES+=static_assert=_Static_assert
-endif
-
 ################################################################################
 # vendors/cypress
 ################################################################################
@@ -243,6 +229,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/arpa\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/net\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/posix/sys\
+	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/compat/stdc\
+	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/apps\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/priv\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include/lwip/prot\
