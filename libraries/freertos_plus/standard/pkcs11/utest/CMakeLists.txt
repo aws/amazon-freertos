@@ -1,8 +1,5 @@
     project ("freertos_plus pkcs11 cmock unit test")
     cmake_minimum_required (VERSION 3.13)
-    set(3rdparty_dir "${AFR_ROOT_DIR}/libraries/3rdparty")
-    set(standard_dir "${AFR_ROOT_DIR}/libraries/freertos_plus/standard")
-    set(kernel_dir "${AFR_ROOT_DIR}/freertos_kernel")
 
 # ====================  Define your project name (edit) ========================
         set(project_name "iot_pkcs11")
