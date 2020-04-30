@@ -46,6 +46,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_config.h"
 
 /* BSP & Abstraction inclues */
 #include "cybsp.h"
@@ -60,7 +61,7 @@
 #endif
 #endif
 
-#if (CY_BLE_SUPPORTED == 1)
+#if (BLE_SUPPORTED == 1)
 #include "bt_hal_manager_types.h"
 #endif
 
@@ -241,7 +242,7 @@ int main( void )
     return 0;
 }
 
-#if (CY_BLE_SUPPORTED == 1)
+#if (BLE_SUPPORTED == 1)
 BTStatus_t bleStackInit( void )
 {
     return eBTStatusSuccess;
