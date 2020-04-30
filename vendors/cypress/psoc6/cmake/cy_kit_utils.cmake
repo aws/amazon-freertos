@@ -401,14 +401,14 @@ function(cy_kit_generate)
 
     if(CY_TFM_PSA)
         # Link to AFR::pkcs11_psa use implementation based on TF-M PSA.
-    target_sources(
-        AFR::pkcs11_implementation::mcu_port
-        INTERFACE
-        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
-        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
-        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
-        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
-        "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
+	target_sources(
+	    AFR::pkcs11_implementation::mcu_port
+	    INTERFACE
+		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
+		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
+		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
+		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
+		"${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
         )
     else()
         # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
@@ -685,6 +685,11 @@ function(cy_kit_generate)
     endif(CY_ALTERNATE_APP)
 
     if(CY_TFM_PSA)
+       find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
+        if(NOT GCC_OBJCOPY )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
+
         set(CY_AWS_ELF  "${CMAKE_BINARY_DIR}/aws.elf")
         set(CY_CM0_IMG "${CMAKE_BINARY_DIR}/cm0.hex")
         set(CY_CM4_IMG "${CMAKE_BINARY_DIR}/cm4.hex")
@@ -703,69 +708,27 @@ function(cy_kit_generate)
         if(NOT CY_TFM_SIGN_SCRIPT)
             message(FATAL_ERROR "You must define CY_TFM_SIGN_SCRIPT in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
-
-        if(NOT CY_DEVICE_NAME)
+       if(NOT CY_DEVICE_NAME)
             message(FATAL_ERROR "You must define CY_DEVICE_NAME in your board CMakeLists.txt for CY_TFM_PSA")
         endif()
 
-        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-            find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
-            if(NOT GCC_OBJCOPY )
-                message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-            endif()
-
-            # Workaround the signing issue by removing the sFlash sections
-            add_custom_command(
+       # Workaround the signing issue by removing the sFlash sections
+        add_custom_command(
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-            COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
-            )
-            # Generate HEX file
-            add_custom_command(
-                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-                COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_AWS_ELF}" "${CY_CM4_IMG}"
-            )
-        elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-            find_program(FROMELF_TOOL fromelf)
-            if(NOT FROMELF_TOOL )
-                message(FATAL_ERROR "Cannot find fromelf tool")
-            endif()
+           COMMAND "${GCC_OBJCOPY}" -R .cy_sflash_user_data -R .cy_toc_part2 "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_AWS_ELF}"
+        )
 
-            # Generate HEX file
-            add_custom_command(
-                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-                COMMAND ${FROMELF_TOOL} --i32 --output="${CY_CM4_IMG}" "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf"
-            )
-        elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-        find_program(FROMELF_TOOL ielftool)
-            if(NOT FROMELF_TOOL )
-                message(FATAL_ERROR "Cannot find ielftool tool")
-            endif()
-
-            # Generate HEX file
-            add_custom_command(
-                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-                COMMAND ${FROMELF_TOOL} --ihex "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}.elf" "${CY_CM4_IMG}"
-            )
-        elseif(NOT AFR_METADATA_MODE)
-            message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")
-        endif()
+        # Generate HEX file
+        add_custom_command(
+            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+           COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_AWS_ELF}" "${CY_CM4_IMG}"
+        )
 
         # Sign both TFM and AFR images
         add_custom_command(
             TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy "${CY_TFM_HEX}"    "${CY_CM0_IMG}"
-            COMMAND "${CY_PYTHON_PATH}" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
-        )
-        #convert signed hex files to binary format
-        #CLANG and IAR do not provide a tool, search for a generic objcopy
-        if(NOT GCC_OBJCOPY )
-            find_program(GCC_OBJCOPY objcopy arm-none-eabi-objcopy)
-            if(NOT GCC_OBJCOPY )
-                message(FATAL_ERROR "Cannot find objcopy.")
-            endif()
-        endif()
-        add_custom_command(
-            TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+            COMMAND "python3" "${CY_TFM_SIGN_SCRIPT}" -s "${CY_CM0_IMG}" -n "${CY_CM4_IMG}" -p "${CY_TFM_POLICY_FILE}" -d "${CY_DEVICE_NAME}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM0_SIGNED_IMG}"  "${CY_APP_CM0_BIN}"
             COMMAND "${GCC_OBJCOPY}" "--input-target=ihex" "--output-target=binary" "${CY_CM4_SIGNED_IMG}"  "${CY_APP_CM4_BIN}"
         )
