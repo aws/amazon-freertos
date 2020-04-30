@@ -499,20 +499,12 @@ CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
-    if( xP11Context.xIsInitialized == CK_TRUE )
-    {
-        xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
-    }
+    memset( &xP11Context, 0, sizeof( xP11Context ) );
+    xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
-    if( xResult == CKR_OK )
+    if( xP11Context.xObjectList.xMutex == NULL )
     {
-        memset( &xP11Context, 0, sizeof( xP11Context ) );
-        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
-
-        if( xP11Context.xObjectList.xMutex == NULL )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
+        xResult = CKR_HOST_MEMORY;
     }
 
     if( xResult == CKR_OK )
@@ -1124,6 +1116,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID xSlotID,
     ( void ) xSlotID;
 
     CK_RV xResult = CKR_MECHANISM_INVALID;
+
+    if( pInfo == NULL )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     struct CryptoMechanisms
     {
         CK_MECHANISM_TYPE xType;
@@ -1141,16 +1139,19 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID xSlotID,
     };
     uint32_t ulMech = 0;
 
-    /* Look for the requested mechanism in the above table. */
-    for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
+    if( xResult == CKR_MECHANISM_INVALID )
     {
-        if( pxSupportedMechanisms[ ulMech ].xType == type )
+        /* Look for the requested mechanism in the above table. */
+        for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
         {
-            /* The mechanism is supported. Copy out the details and break
-             * out of the loop. */
-            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
-            xResult = CKR_OK;
-            break;
+            if( pxSupportedMechanisms[ ulMech ].xType == type )
+            {
+                /* The mechanism is supported. Copy out the details and break
+                 * out of the loop. */
+                memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
+                xResult = CKR_OK;
+                break;
+            }
         }
     }
 
@@ -1211,9 +1212,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
-    CK_BBOOL xSessionMemAllocated = CK_FALSE;
-    CK_BBOOL xSignMutexCreated = CK_FALSE;
-    CK_BBOOL xVerifyMutexCreated = CK_FALSE;
 
     ( void ) ( xSlotID );
     ( void ) ( pvApplication );
@@ -1230,9 +1228,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
-
     /* For legacy reasons, the CKF_SERIAL_SESSION bit MUST always be set. */
-    if( 0 == ( CKF_SERIAL_SESSION & xFlags ) )
+    else if( 0 == ( CKF_SERIAL_SESSION & xFlags ) )
     {
         xResult = CKR_SESSION_PARALLEL_NOT_SUPPORTED;
     }
@@ -1247,10 +1244,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         if( NULL == pxSessionObj )
         {
             xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xSessionMemAllocated = CK_TRUE;
         }
 
         /*
@@ -1267,20 +1260,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         {
             xResult = CKR_HOST_MEMORY;
         }
-        else
-        {
-            xSignMutexCreated = CK_TRUE;
-        }
 
         pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
 
         if( NULL == pxSessionObj->xVerifyMutex )
         {
             xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xVerifyMutexCreated = CK_TRUE;
         }
     }
 
@@ -1289,16 +1274,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         /*
          * Assign the session.
          */
-
         pxSessionObj->ulState =
             0u != ( xFlags & CKF_RW_SESSION ) ? CKS_RW_PUBLIC_SESSION : CKS_RO_PUBLIC_SESSION;
         pxSessionObj->xOpened = CK_TRUE;
-
-        /*
-         * Return the session.
-         */
-
-        *pxSession = ( CK_SESSION_HANDLE ) pxSessionObj; /*lint !e923 Allow casting pointer to integer type for handle. */
     }
 
     /*
@@ -1313,20 +1291,24 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
 
     if( CKR_OK != xResult )
     {
-        if( xSessionMemAllocated == CK_TRUE )
+        if( pxSessionObj != NULL )
         {
-            if( xSignMutexCreated == CK_TRUE )
+            if( pxSessionObj->xSignMutex != NULL )
             {
                 vSemaphoreDelete( pxSessionObj->xSignMutex );
             }
 
-            if( xVerifyMutexCreated == CK_TRUE )
+            if( pxSessionObj->xVerifyMutex != NULL )
             {
                 vSemaphoreDelete( pxSessionObj->xVerifyMutex );
             }
 
             vPortFree( pxSessionObj );
         }
+    }
+    else
+    {
+        *pxSession = ( CK_SESSION_HANDLE ) pxSessionObj; /*lint !e923 Allow casting pointer to integer type for handle. */
     }
 
     return xResult;
@@ -1533,9 +1515,9 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
  * @param[in] ulCount length of templates array.
  *
  */
-void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
-                    CK_ATTRIBUTE_PTR pxTemplate,
-                    CK_ULONG ulCount )
+static void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
+                           CK_ATTRIBUTE_PTR pxTemplate,
+                           CK_ULONG ulCount )
 {
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
@@ -1605,7 +1587,6 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
     CK_BBOOL xIsPrivate = CK_TRUE;
     BaseType_t xResult = CKR_OK;
     int lMbedResult = 0;
-    CK_BBOOL xNeedToFreeMem = CK_FALSE;
 
     *pxPalHandle = CK_INVALID_HANDLE;
 
@@ -1621,11 +1602,6 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
     if( *pxPalHandle != CK_INVALID_HANDLE )
     {
         xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
-
-        if( xResult == CKR_OK )
-        {
-            xNeedToFreeMem = CK_TRUE;
-        }
     }
 
     if( xResult == CKR_OK )
@@ -1638,16 +1614,16 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
         {
             lMbedResult = mbedtls_pk_parse_public_key( pxMbedContext, pucData, xDataLength );
         }
+
+        PKCS11_PAL_GetObjectValueCleanup( pucData, xDataLength );
     }
 
     if( lMbedResult != 0 )
     {
+        PKCS11_PRINT( ( "mbedTLS pk parse failed with error %s : %s \r\n",
+                        mbedtlsHighLevelCodeOrDefault( lMbedResult ),
+                        mbedtlsLowLevelCodeOrDefault( lMbedResult ) ) );
         *pxPalHandle = CK_INVALID_HANDLE;
-    }
-
-    if( xNeedToFreeMem == CK_TRUE )
-    {
-        PKCS11_PAL_GetObjectValueCleanup( pucData, xDataLength );
     }
 
     return xResult;
@@ -1668,8 +1644,8 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                              CK_ULONG ulCount )
 {
     CK_RV xResult = CKR_OK;
-    int lMbedReturn;
-    CK_BBOOL xBool;
+    int lMbedReturn = 0;
+    CK_BBOOL xBool = CK_FALSE;
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
 
@@ -1705,7 +1681,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 
                 if( xBool != CK_TRUE )
                 {
-                    PKCS11_PRINT( ( "ERROR: Only keys with signing priveledges are supported. \r\n" ) );
+                    PKCS11_PRINT( ( "ERROR: Only keys with signing privileges are supported. \r\n" ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
@@ -1741,6 +1717,9 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 
                 if( lMbedReturn != 0 )
                 {
+                    PKCS11_PRINT( ( "mbedTLS mpi read binary failed with error %s : %s \r\n",
+                                    mbedtlsHighLevelCodeOrDefault( lMbedReturn ),
+                                    mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
@@ -1897,6 +1876,9 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
 
     if( lMbedReturn != 0 )
     {
+        PKCS11_PRINT( ( "mbedTLS create RSA failed with error %s : %s \r\n",
+                        mbedtlsHighLevelCodeOrDefault( lMbedReturn ),
+                        mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
         xResult = CKR_ATTRIBUTE_VALUE_INVALID;
     }
 
@@ -1915,9 +1897,10 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount,
                            CK_OBJECT_HANDLE_PTR pxObject )
 {
-    mbedtls_pk_context xMbedContext;
+    mbedtls_pk_context xMbedContext = { 0 };
     int lDerKeyLength = 0;
     int lActualKeyLength = 0;
+    int lMbedTLSReturn = 0;
     int compare = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
@@ -1925,6 +1908,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     mbedtls_rsa_context * pxRsaCtx = NULL;
+    mbedtls_ecp_keypair * pxKeyPair = NULL;
 
     mbedtls_pk_init( &xMbedContext );
 
@@ -1952,12 +1936,20 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     }
 
     #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
-        else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
+        /* CKK_EC = CKK_ECDSA. */
+        else if( xKeyType == CKK_EC )
         {
             /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
             prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+            if( pxLabel == NULL )
+            {
+                xResult = CKR_ARGUMENTS_BAD;
+            }
+            else
+            {
+                xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+            }
 
             if( xPalHandle == CK_INVALID_HANDLE )
             {
@@ -1968,7 +1960,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
 
                 /* If a key had been found by prvGetExistingKeyComponent, the keypair context
                  * would have been malloc'ed. */
-                mbedtls_ecp_keypair * pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
 
                 if( pxKeyPair != NULL )
                 {
@@ -1979,8 +1971,17 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                     xMbedContext.pk_ctx = pxKeyPair;
                     mbedtls_ecp_keypair_init( pxKeyPair );
                     mbedtls_ecp_group_init( &pxKeyPair->grp );
+
                     /*/ * At this time, only P-256 curves are supported. * / */
-                    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                    lMbedTLSReturn = mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+
+                    if( lMbedTLSReturn != 0 )
+                    {
+                        PKCS11_PRINT( ( "mbedTLS ECP curve load failed with error %s : %s \r\n",
+                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSReturn ),
+                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSReturn ) ) );
+                        xResult = CKR_FUNCTION_FAILED;
+                    }
                 }
                 else
                 {
@@ -1988,10 +1989,14 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                 }
             }
 
-            xResult = prvCreateEcPrivateKey( &xMbedContext,
-                                             &pxLabel,
-                                             pxTemplate,
-                                             ulCount );
+            /* Stopped here */
+            if( xResult == CKR_OK )
+            {
+                xResult = prvCreateEcPrivateKey( &xMbedContext,
+                                                 &pxLabel,
+                                                 pxTemplate,
+                                                 ulCount );
+            }
         }
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
@@ -2017,6 +2022,9 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
 
         if( lDerKeyLength < 0 )
         {
+            PKCS11_PRINT( ( "mbedTLS pk_write_key_der failed with error %s : %s \r\n",
+                            mbedtlsHighLevelCodeOrDefault( lDerKeyLength ),
+                            mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
             xResult = CKR_ATTRIBUTE_VALUE_INVALID;
         }
 
@@ -2024,33 +2032,35 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         mbedtls_pk_free( &xMbedContext );
     }
 
-    if( xResult == CKR_OK )
-    {
-        /* TODO: Remove this hack.
-         * mbedtls_pk_write_key_der appends empty public
-         * key data when saving EC private key
-         * that does not have a public key associated with it.
-         * a1 04        -> Application identifier of length 4
-         * 03 02     -> Bit string of length 2
-         *    00 00  -> "Public key"
-         * https://forums.mbed.com/t/how-do-i-write-an-ec-private-key-w-no-public-key-to-der-format/4728 */
-        if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+        if( xResult == CKR_OK )
         {
-            /* If there was no public key in the structure, this byte
-             * array will be appended to the valid private key.
-             * It must be removed so that we can read the private
-             * key back at a later time. */
-            uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
-            compare = memcmp( &pxDerKey[ MAX_LENGTH_KEY - 6 ], emptyPubKey, 6 );
-
-            if( compare == 0 )
+            /* TODO: Remove this hack.
+             * mbedtls_pk_write_key_der appends empty public
+             * key data when saving EC private key
+             * that does not have a public key associated with it.
+             * a1 04        -> Application identifier of length 4
+             * 03 02     -> Bit string of length 2
+             *    00 00  -> "Public key"
+             * https://forums.mbed.com/t/how-do-i-write-an-ec-private-key-w-no-public-key-to-der-format/4728 */
+            if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
             {
-                /* Do not write the last 6 bytes to key storage. */
-                pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
-                lActualKeyLength -= 6;
+                /* If there was no public key in the structure, this byte
+                 * array will be appended to the valid private key.
+                 * It must be removed so that we can read the private
+                 * key back at a later time. */
+                uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
+                compare = memcmp( &pxDerKey[ MAX_LENGTH_KEY - 6 ], emptyPubKey, 6 );
+
+                if( compare == 0 )
+                {
+                    /* Do not write the last 6 bytes to key storage. */
+                    pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
+                    lActualKeyLength -= 6;
+                }
             }
         }
-    }
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
 
     /* Save the object to device NVM. */
     if( xResult == CKR_OK )
@@ -2216,9 +2226,16 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
         {
             prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+            if( pxLabel == NULL )
+            {
+                xResult = CKR_ARGUMENTS_BAD;
+            }
+            else
+            {
+                xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+            }
 
-            if( xPalHandle == CK_INVALID_HANDLE )
+            if( ( xResult == CKR_OK ) && ( xPalHandle == CK_INVALID_HANDLE ) )
             {
                 /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
                  * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
@@ -2368,7 +2385,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulCount,
                                               CK_OBJECT_HANDLE_PTR pxObject )
-{ /*lint !e9072 It's OK to have different parameter name. */
+{
+    /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_OBJECT_CLASS xClass = 0;
 
