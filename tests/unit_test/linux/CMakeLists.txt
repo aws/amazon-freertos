@@ -12,41 +12,41 @@
             "${AFR_ROOT_DIR}/libraries/3rdparty/tracealyzer_recorder/Include"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/vendor/unity/src/"
             "${AFR_ROOT_DIR}/libraries/3rdparty/CMock/src"
-        )
+            )
     link_directories("${CMAKE_BINARY_DIR}/lib"
-        )
+            )
 
     add_library(cmock  STATIC
             ${AFR_ROOT_DIR}/libraries/3rdparty/CMock/src/cmock.c
-        )
+            )
 
     set_target_properties(cmock PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             POSITION_INDEPENDENT_CODE ON
             COMPILE_FLAGS "-Og"
-        )
+            )
 
     add_library(unity STATIC
             ${AFR_ROOT_DIR}/libraries/3rdparty/CMock/vendor/unity/src/unity.c
-        )
+            )
     set_target_properties(unity PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             POSITION_INDEPENDENT_CODE ON
-        )
+            )
 
     target_include_directories(cmock PUBLIC
             ${AFR_ROOT_DIR}/libraries/3rdparty/CMock/src
-        )
+            )
     target_link_libraries(cmock libunity.a)
 
     add_library(utils SHARED
                 ${CMAKE_CURRENT_LIST_DIR}/utils/wait_for_event.c
                 ${CMAKE_CURRENT_LIST_DIR}/utils/task_control.c
-                )
+            )
     set_target_properties(utils PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
             LINK_FLAGS " -pthread"
-        )
+            )
 
     # add unit test subdirectories here
     add_subdirectory(../../../libraries libraries)
@@ -55,4 +55,4 @@
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmock/coverage.cmake
             DEPENDS secure_sockets_utest cmock unity
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
+            )
