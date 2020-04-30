@@ -39,30 +39,30 @@
 /**
  * @brief Return values returned by this driver
  */
-#define IOT_USB_HOST_SUCCESS                    ( 0 )       /*!< USB host operation completed successfully. */
-#define IOT_USB_HOST_ERROR                      ( 1 )       /*!< USB host error. */
-#define IOT_USB_HOST_BUSY                       ( 2 )       /*!< USB host busy. */
-#define IOT_USB_HOST_INVALID_VALUE              ( 3 )       /*!< At least one paramter is invalid. */
-#define IOT_USB_HOST_WRITE_FAIL                 ( 4 )       /*!< USB host write operation failed. */
-#define IOT_USB_HOST_READ_FAIL                  ( 5 )       /*!< USB host read operation failed. */
-#define IOT_USB_HOST_CANCEL_FAILED              ( 6 )       /*!< USB host cancel operation failed. */
-#define IOT_USB_HOST_FUNCTION_NOT_SUPPORTED     ( 7 )       /*!< USB host function not supported. */
-#define IOT_USB_HOST_NOTHING_TO_CANCEL          ( 8 )       /*!< No operation in progress to cancel. */
+#define IOT_USB_HOST_SUCCESS                   ( 0 ) /*!< USB host operation completed successfully. */
+#define IOT_USB_HOST_ERROR                     ( 1 ) /*!< USB host error. */
+#define IOT_USB_HOST_BUSY                      ( 2 ) /*!< USB host busy. */
+#define IOT_USB_HOST_INVALID_VALUE             ( 3 ) /*!< At least one paramter is invalid. */
+#define IOT_USB_HOST_WRITE_FAIL                ( 4 ) /*!< USB host write operation failed. */
+#define IOT_USB_HOST_READ_FAIL                 ( 5 ) /*!< USB host read operation failed. */
+#define IOT_USB_HOST_CANCEL_FAILED             ( 6 ) /*!< USB host cancel operation failed. */
+#define IOT_USB_HOST_FUNCTION_NOT_SUPPORTED    ( 7 ) /*!< USB host function not supported. */
+#define IOT_USB_HOST_NOTHING_TO_CANCEL         ( 8 ) /*!< No operation in progress to cancel. */
 
-#define IOT_USB_HOST_MAX_ENDPOINTS (4)      /*!< Maximum endpoint number for each interface. */
+#define IOT_USB_HOST_MAX_ENDPOINTS             ( 4 ) /*!< Maximum endpoint number for each interface. */
 
 /**
  * @brief common host notify event types in host callback.
  */
 typedef enum
 {
-    eUSBHostAttachEvent,                /*!< USB device is connected to host. */
-    eUSBHostDetachEvent,                /*!< USB device is detached to host. */
-    eUSBHostEnumerationDoneEvent,       /*!< USB device enumeration is done. */
-    eUSBHostResetEvent,                 /*!< USB reset is done. */
-    eUSBHostSuspendEvent,               /*!< USB suspend happened. */
-    eUSBHostResumeEvent,                /*!< USB resume happened. */
-    eUSBHostRemoteWakeEvent,            /*!< USB remote wakeup is activated. */
+    eUSBHostAttachEvent,          /*!< USB device is connected to host. */
+    eUSBHostDetachEvent,          /*!< USB device is detached to host. */
+    eUSBHostEnumerationDoneEvent, /*!< USB device enumeration is done. */
+    eUSBHostResetEvent,           /*!< USB reset is done. */
+    eUSBHostSuspendEvent,         /*!< USB suspend happened. */
+    eUSBHostResumeEvent,          /*!< USB resume happened. */
+    eUSBHostRemoteWakeEvent,      /*!< USB remote wakeup is activated. */
 } IotUsbHostEvent_t;
 
 /**
@@ -70,16 +70,16 @@ typedef enum
  */
 typedef enum
 {
-    eUSBHostGetHosthandle,              /*!< Get usb host handle. */
-    eUSBHostGetDeviceControlPipe,       /*!< Get usb device control pipe. */
-    eUSBHostGetDeviceAddress,           /*!< Get usb device address. */
-    eUSBHostOpenDeviceInterface,        /*!< Open usb device interface. */
-    eUSBHostCloseDeviceInterface,       /*!< Close usb device interface. */
-    eUSBHostGetDeviceInfo,              /*!< Get usb device information. */
-    eUSBHostGetInterfaceInfo,           /*!< Get usb interface information. */
-    eUSBHostGetInterfaceDescriptor,     /*!< Get usb device interface descriptor. */
-    eUSBHostGetConfigureHandle,         /*!< Get usb configure handle. */
-    eUSBHostGetInterfaceHandle,         /*!< Get usb interface handle. */
+    eUSBHostGetHosthandle,          /*!< Get usb host handle. */
+    eUSBHostGetDeviceControlPipe,   /*!< Get usb device control pipe. */
+    eUSBHostGetDeviceAddress,       /*!< Get usb device address. */
+    eUSBHostOpenDeviceInterface,    /*!< Open usb device interface. */
+    eUSBHostCloseDeviceInterface,   /*!< Close usb device interface. */
+    eUSBHostGetDeviceInfo,          /*!< Get usb device information. */
+    eUSBHostGetInterfaceInfo,       /*!< Get usb interface information. */
+    eUSBHostGetInterfaceDescriptor, /*!< Get usb device interface descriptor. */
+    eUSBHostGetConfigureHandle,     /*!< Get usb configure handle. */
+    eUSBHostGetInterfaceHandle,     /*!< Get usb interface handle. */
 } IotUsbHostIoctlRequest_t;
 
 /**
@@ -100,30 +100,30 @@ struct IotUsbPipe;
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotUsbHost * IotUsbHostHandle_t;
+typedef struct IotUsbHost            * IotUsbHostHandle_t;
 
 /**
  * @brief IotUsbDeviceHandle_t is the handle type returned when device attach and enumerated
  *        This device handle is needed for device operation.
  */
-typedef struct IotUsbDevice * IotUsbDeviceHandle_t;
+typedef struct IotUsbDevice          * IotUsbDeviceHandle_t;
 
 /**
  * @brief IotUsbConfigHandle_t is the configuration handle for device
  *        Only one configuration at run time.
  */
-typedef struct IotUsbConfiguration * IotUsbConfigHandle_t;
+typedef struct IotUsbConfiguration   * IotUsbConfigHandle_t;
 
 /**
  * @brief IotUsbInterfaceHandle_t is the interface handle, which can be extracted from config
  *        One device may have more than one interface to be used.
  */
-typedef struct IotUsbInterface * IotUsbInterfaceHandle_t;
+typedef struct IotUsbInterface       * IotUsbInterfaceHandle_t;
 
 /**
  * @brief IotPipeHandle_t is the pipe handle, which will be used for data and control transfer.
  */
-typedef struct IotUsbPipe * IotPipeHandle_t;
+typedef struct IotUsbPipe            * IotPipeHandle_t;
 
 /**
  * @brief   USB Host attach/detach notify callback type. This callback is passed
@@ -148,7 +148,8 @@ typedef void (* IotUsbHostCallback_t) ( IotUsbDeviceHandle_t const pxUsbDevice,
  *                            This is not used by the driver, but just passed back to the user
  *                            in the callback.
  */
-typedef void (* IotUsbHostTransferCallback_t) ( void * pvUserContext, uint8_t ucStatus );
+typedef void (* IotUsbHostTransferCallback_t) ( void * pvUserContext,
+                                                uint8_t ucStatus );
 
 /**
  * @brief Attached device endpoint configuration structure.
@@ -184,7 +185,7 @@ typedef struct
  */
 typedef struct IotUsbInterfaceInfo
 {
-    IotUsbDeviceEndpointConfig_t endpoint[IOT_USB_HOST_MAX_ENDPOINTS];
+    IotUsbDeviceEndpointConfig_t endpoint[ IOT_USB_HOST_MAX_ENDPOINTS ];
     uint8_t ucInterfaceIndex;
     uint8_t ucEpCount;
     uint8_t ucAlternateSettingNumber;
@@ -204,10 +205,10 @@ typedef struct IotUsbConfigurationInfo
  */
 typedef struct IotUsbDeviceInfo
 {
-    uint8_t ucSpeed;         /*!< Device speed */
-    uint8_t ucDevAddress;    /*!< Device address */
-    uint16_t usPid;          /*!< Usb product id */
-    uint16_t usVid;          /*!< Usb vendor id */
+    uint8_t ucSpeed;      /*!< Device speed */
+    uint8_t ucDevAddress; /*!< Device address */
+    uint16_t usPid;       /*!< Usb product id */
+    uint16_t usVid;       /*!< Usb vendor id */
 } IotUsbDeviceInfo_t;
 
 /**
@@ -424,7 +425,7 @@ int32_t iot_usb_host_cancel( IotUsbHostHandle_t const pxUsbHost,
  *   - IOT_USB_HOST_FUNCTION_NOT_SUPPORTED if ioctl request not supported.
  *   - IOT_USB_HOST_ERROR for other error.
  */
-int32_t iot_usb_host_ioctl( IotUsbDeviceHandle_t  pxUsbDevice,
+int32_t iot_usb_host_ioctl( IotUsbDeviceHandle_t pxUsbDevice,
                             IotUsbHostIoctlRequest_t xRequest,
                             void * const pvBuffer );
 
@@ -448,7 +449,7 @@ int32_t iot_usb_host_ioctl( IotUsbDeviceHandle_t  pxUsbDevice,
 int32_t iot_usb_host_send_setup( IotUsbHostHandle_t const pxUsbHost,
                                  IotPipeHandle_t pxPipe,
                                  void * pvSetup,
-                                 uint8_t * pucData);
+                                 uint8_t * pucData );
 
 /**
  * @brief Close the USB hsot peripheral.
