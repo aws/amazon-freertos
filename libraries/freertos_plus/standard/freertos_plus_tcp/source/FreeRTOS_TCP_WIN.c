@@ -1888,7 +1888,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 0 )
 
-	BaseType_t xTCPWindowTxDone( TCPWindow_t *pxWindow )
+	BaseType_t xTCPWindowTxDone( const TCPWindow_t *pxWindow )
 	{
 	BaseType_t xReturn;
 
@@ -2023,7 +2023,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 0 )
 
-	BaseType_t xTCPWindowRxEmpty( TCPWindow_t *pxWindow )
+	BaseType_t xTCPWindowRxEmpty( const TCPWindow_t *pxWindow )
 	{
 		/* Return true if 'ulCurrentSequenceNumber >= ulHighestSequenceNumber'
 		'ulCurrentSequenceNumber' is the highest sequence number stored,
