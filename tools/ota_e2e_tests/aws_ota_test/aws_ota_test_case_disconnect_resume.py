@@ -33,6 +33,14 @@ from .aws_ota_test_result import OtaTestResult
 
 
 class OtaTestDisconnectResume(OtaTestCase):
+    """
+    Happy path test for suspend and resume feature. The test will create a OTA update first, then
+    connect to AWS IoT core with same client ID (thing name) and credentials after the OTA update
+    started on device. AWS IoT core should then disconnect the device. Device is expected to detect
+    it is disconnected from IoT core after a period of time, then it should put itself in suspend
+    state and try to reconnect to the IoT core and resume the download.
+    """
+
     is_positive = True
     connected_to_iot = False
 

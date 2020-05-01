@@ -33,6 +33,14 @@ from .aws_ota_test_result import OtaTestResult
 
 
 class OtaTestDisconnectCancelUpdate(OtaTestCase):
+    """
+    Tests that device can recover itself if the OTA job gets canceled while it is in suspend state.
+    It does the same thing as OtaTestDisconnectResume test except that after connecting to IoT core
+    which disconnects the device, it will cancel the OTA update. Then a new update will be created.
+    The device is expected to reconnect to the IoT core, abort current update, go back to waiting
+    state, and accept and finish the next update.
+    """
+
     is_positive = True
     connected_to_iot = False
 
