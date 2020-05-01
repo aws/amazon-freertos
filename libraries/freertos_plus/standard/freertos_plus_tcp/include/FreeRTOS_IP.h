@@ -30,6 +30,9 @@
 extern "C" {
 #endif
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 /* Application level configuration options. */
 #include "FreeRTOSIPConfig.h"
 #include "FreeRTOSIPConfigDefaults.h"

@@ -961,6 +961,8 @@ BaseType_t xReturn = pdFALSE;
 
 	#ifndef _lint
 	{
+		/* Check if MTU is big enough. */
+		configASSERT( ipconfigNETWORK_MTU >= ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + ipconfigTCP_MSS ) );/*lint !e506: (Warning -- Constant value Boolean [MISRA 2012 Rule 2.1, required]). */
 		/* Check structure packing is correct. */
 		configASSERT( sizeof( EthernetHeader_t ) == ipEXPECTED_EthernetHeader_t_SIZE );
 		configASSERT( sizeof( ARPHeader_t ) == ipEXPECTED_ARPHeader_t_SIZE );
@@ -2479,7 +2481,7 @@ const char *pcName;
 		case pdFREERTOS_ERRNO_EWOULDBLOCK:    pcName = "EWOULDBLOCK"; break; /* same as EAGAIN */
 		case pdFREERTOS_ERRNO_EISCONN:        pcName = "EISCONN"; break;
 		default:
-			( void ) snprintf( pcBuffer, uxLength, "Errno %ld", ( BaseType_t ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
+			( void ) snprintf( pcBuffer, uxLength, "Errno %d", ( int32_t ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
 			pcName = NULL;
 			break;
 	}

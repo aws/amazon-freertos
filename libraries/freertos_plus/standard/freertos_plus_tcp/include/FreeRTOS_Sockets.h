@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.2.0
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -189,7 +189,7 @@ struct freertos_sockaddr
 										( ( uint32_t ) ( ucOctet0 ) ) )
 
 	#define FreeRTOS_inet_ntoa( ulIPAddress, pucBuffer )									\
-								sprintf( ( char * ) ( pucBuffer ), "%lu.%lu.%lu.%lu",			\
+								sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",			\
 									( ( uint32_t ) ( ( ulIPAddress ) & 0xffUL ) ),			\
 									( ( uint32_t ) ( ( ( ulIPAddress ) >> 8 ) & 0xffUL ) ),	\
 									( ( uint32_t ) ( ( ( ulIPAddress ) >> 16 ) & 0xffUL ) ),\
@@ -347,6 +347,10 @@ typedef union xTCP_UDP_HANDLER
 
 BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptionName, const void *pvOptionValue, size_t uxOptionLength );
 BaseType_t FreeRTOS_closesocket( Socket_t xSocket );
+
+/* The following function header should be placed in FreeRTOS_DNS.h.
+It is kept here because some applications  expect it in FreeRTOS_Sockets.h.*/
+uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
 
 BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination );
 const char *FreeRTOS_inet_ntop( BaseType_t xAddressFamily, const void *pvSource, char *pcDestination, socklen_t uxSize );

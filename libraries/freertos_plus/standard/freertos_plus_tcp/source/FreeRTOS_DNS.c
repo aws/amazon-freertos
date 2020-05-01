@@ -930,10 +930,10 @@ static size_t prvSkipNameField( const uint8_t *pucByte,
 								size_t uxLength )
 {
 size_t uxChunkLength;
-size_t uxSourceLen = uxLength;
+size_t uxSourceLenCpy = uxLength;
 size_t uxIndex = 0U;
 
-	if( uxSourceLen == 0U )
+	if( uxSourceLenCpy == 0U )
 	{
 		uxIndex = 0U;
 	}
@@ -942,7 +942,7 @@ size_t uxIndex = 0U;
 	else if( ( pucByte[ uxIndex ] & dnsNAME_IS_OFFSET ) == dnsNAME_IS_OFFSET )
 	{
 		/* Jump over the two byte offset. */
-		if( uxSourceLen > sizeof( uint16_t ) )
+		if( uxSourceLenCpy > sizeof( uint16_t ) )
 		{
 			uxIndex += sizeof( uint16_t );
 		}
@@ -954,15 +954,15 @@ size_t uxIndex = 0U;
 	else
 	{
 		/* pucByte points to the full name. Walk over the string. */
-		while( ( pucByte[ uxIndex ] != 0U ) && ( uxSourceLen > 1U ) )
+		while( ( pucByte[ uxIndex ] != 0U ) && ( uxSourceLenCpy > 1U ) )
 		{
 			/* Conversion to size_t causes addition to be done
 			in size_t */
 			uxChunkLength = ( ( size_t ) pucByte[ uxIndex ] ) + 1U;
 
-			if( uxSourceLen > uxChunkLength )
+			if( uxSourceLenCpy > uxChunkLength )
 			{
-				uxSourceLen -= uxChunkLength;
+				uxSourceLenCpy -= uxChunkLength;
 				uxIndex += uxChunkLength;
 			}
 			else

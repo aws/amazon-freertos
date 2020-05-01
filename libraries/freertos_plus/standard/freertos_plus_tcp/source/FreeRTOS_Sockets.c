@@ -110,6 +110,12 @@ static const ListItem_t * pxListFindListItemWithValue( const List_t *pxList, Tic
 static BaseType_t prvValidSocket( const FreeRTOS_Socket_t *pxSocket, BaseType_t xProtocol, BaseType_t xIsBound );
 
 /*
+ * Internal function prvSockopt_so_buffer(): sets FREERTOS_SO_SNDBUF or
+ * FREERTOS_SO_RCVBUF properties of a socket.
+ */
+static BaseType_t prvSockopt_so_buffer( FreeRTOS_Socket_t *pxSocket, int32_t lOptionName, const void *pvOptionValue );
+
+/*
  * Before creating a socket, check the validity of the parameters used
  * and find the size of the socket space, which is different for UDP and TCP
  */
@@ -1327,6 +1333,46 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvSockopt_so_buffer( FreeRTOS_Socket_t *pxSocket, int32_t lOptionName, const void *pvOptionValue )
+{
+uint32_t ulNewValue;
+BaseType_t xReturn;
+
+	if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
+	{
+		FreeRTOS_debug_printf( ( "Set SO_%sBUF: wrong socket type\n",
+			( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
+		xReturn = -pdFREERTOS_ERRNO_EINVAL;
+	}
+	else
+	if( ( ( lOptionName == FREERTOS_SO_SNDBUF ) && ( pxSocket->u.xTCP.txStream != NULL ) ) ||
+		( ( lOptionName == FREERTOS_SO_RCVBUF ) && ( pxSocket->u.xTCP.rxStream != NULL ) ) )
+	{
+		FreeRTOS_debug_printf( ( "Set SO_%sBUF: buffer already created\n",
+			( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
+		xReturn = -pdFREERTOS_ERRNO_EINVAL;
+	}
+	else
+	{
+		ulNewValue = *( ipPOINTER_CAST( uint32_t *, pvOptionValue ) );
+
+		if( lOptionName == FREERTOS_SO_SNDBUF )
+		{
+			/* Round up to nearest MSS size */
+			ulNewValue = FreeRTOS_round_up( ulNewValue, ( uint32_t ) pxSocket->u.xTCP.usInitMSS );
+			pxSocket->u.xTCP.uxTxStreamSize = ulNewValue;
+		}
+		else
+		{
+			pxSocket->u.xTCP.uxRxStreamSize = ulNewValue;
+		}
+		xReturn = 0;
+	}
+
+	return xReturn;
+}
+/*-----------------------------------------------------------*/
+
 /* FreeRTOS_setsockopt calls itself, but in a very limited way,
 only when FREERTOS_SO_WIN_PROPERTIES is being set. */
 /*lint -e9070 recursive function  [MISRA 2012 Rule 17.2, required]) */
@@ -1516,37 +1562,8 @@ FreeRTOS_Socket_t *pxSocket;
 			case FREERTOS_SO_SNDBUF:	/* Set the size of the send buffer, in units of MSS (TCP only) */
 			case FREERTOS_SO_RCVBUF:	/* Set the size of the receive buffer, in units of MSS (TCP only) */
 				{
-					uint32_t ulNewValue;
-
-					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
-					{
-						FreeRTOS_debug_printf( ( "Set SO_%sBUF: wrong socket type\n",
-							( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
-						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
-					}
-
-					if( ( ( lOptionName == FREERTOS_SO_SNDBUF ) && ( pxSocket->u.xTCP.txStream != NULL ) ) ||
-						( ( lOptionName == FREERTOS_SO_RCVBUF ) && ( pxSocket->u.xTCP.rxStream != NULL ) ) )
-					{
-						FreeRTOS_debug_printf( ( "Set SO_%sBUF: buffer already created\n",
-							( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
-						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
-					}
-
-					ulNewValue = *( ipPOINTER_CAST( uint32_t *, pvOptionValue ) );
-
-					if( lOptionName == FREERTOS_SO_SNDBUF )
-					{
-						/* Round up to nearest MSS size */
-						ulNewValue = FreeRTOS_round_up( ulNewValue, ( uint32_t ) pxSocket->u.xTCP.usInitMSS );
-						pxSocket->u.xTCP.uxTxStreamSize = ulNewValue;
-					}
-					else
-					{
-						pxSocket->u.xTCP.uxRxStreamSize = ulNewValue;
-					}
+					xReturn = prvSockopt_so_buffer( pxSocket, lOptionName, pvOptionValue );
 				}
-				xReturn = 0;
 				break;
 
 			case FREERTOS_SO_WIN_PROPERTIES:	/* Set all buffer and window properties in one call, parameter is pointer to WinProperties_t */
@@ -1567,14 +1584,16 @@ FreeRTOS_Socket_t *pxSocket;
 
 					pxProps = ipPOINTER_CAST( WinProperties_t *, pvOptionValue );
 
-					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ), sizeof( pxProps->lTxBufSize ) ) != 0 )
+					xReturn = prvSockopt_so_buffer( pxSocket, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ) );
+					if ( xReturn != 0 )
 					{
-						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+						break;	/* will return an error. */
 					}
 
-					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ), sizeof( pxProps->lRxBufSize ) ) != 0 )
+					xReturn = prvSockopt_so_buffer( pxSocket, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ) );
+					if ( xReturn != 0 )
 					{
-						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+						break;	/* will return an error. */
 					}
 
 					#if( ipconfigUSE_TCP_WIN == 1 )
@@ -3578,7 +3597,7 @@ BaseType_t FreeRTOS_udp_rx_size( Socket_t xSocket )
 	size_t uxMinimum = uxGetMinimumFreeNetworkBuffers();
 	size_t uxCurrent = uxGetNumberOfFreeNetworkBuffers();
 
-		if( listLIST_IS_INITIALISED( &xBoundTCPSocketsList ) )
+		if( !listLIST_IS_INITIALISED( &xBoundTCPSocketsList ) )
 		{
 			FreeRTOS_printf( ( "PLUS-TCP not initialized\n" ) );
 		}
@@ -3605,7 +3624,7 @@ BaseType_t FreeRTOS_udp_rx_size( Socket_t xSocket )
 				char ucChildText[16] = "";
 				if (pxSocket->u.xTCP.ucTCPState == ( uint8_t ) eTCP_LISTEN)
 				{
-					const int32_t copied_len = snprintf( ucChildText, sizeof( ucChildText ), " %ld/%ld",	/*lint !e586 snprintf is deprecated. */
+					const int32_t copied_len = snprintf( ucChildText, sizeof( ucChildText ), " %d/%d",	/*lint !e586 snprintf is deprecated. */
 						( int32_t ) pxSocket->u.xTCP.usChildCount,
 						( int32_t ) pxSocket->u.xTCP.usBacklog);
 					( void )copied_len;
