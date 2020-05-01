@@ -1,5 +1,5 @@
 /*
-FreeRTOS+TCP V2.0.11
+FreeRTOS+TCP V2.2.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -219,19 +219,19 @@ const TickType_t x5_Seconds = 5000UL;
 		/* The handler task is created at the highest possible priority to
 		ensure the interrupt handler can return directly to it. */
 		xTaskCreate( prvEMACHandlerTask, "EMAC", configEMAC_TASK_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xEMACTaskHandle );
-		configASSERT( xEMACTaskHandle );
+		configASSERT( xEMACTaskHandle != NULL );
 	}
 
 	if( xTxBufferQueue == NULL )
 	{
 		xTxBufferQueue = xQueueCreate( GMAC_TX_BUFFERS, sizeof( void * ) );
-		configASSERT( xTxBufferQueue );
+		configASSERT( xTxBufferQueue != NULL );
 	}
 
 	if( xTXDescriptorSemaphore == NULL )
 	{
 		xTXDescriptorSemaphore = xSemaphoreCreateCounting( ( UBaseType_t ) GMAC_TX_BUFFERS, ( UBaseType_t ) GMAC_TX_BUFFERS );
-		configASSERT( xTXDescriptorSemaphore );
+		configASSERT( xTXDescriptorSemaphore != NULL );
 	}
 	/* When returning non-zero, the stack will become active and
     start DHCP (in configured) */
@@ -296,7 +296,7 @@ const TickType_t xBlockTimeTicks = pdMS_TO_TICKS( 50u );
 		#endif /* ipconfigZERO_COPY_TX_DRIVER */
 		/* Not interested in a call-back after TX. */
 		iptraceNETWORK_INTERFACE_TRANSMIT();
-	} while( 0 );
+	} while( ipFALSE_BOOL );
 
 	if( bReleaseAfterSend != pdFALSE )
 	{
@@ -519,7 +519,7 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( EMAC_MAX_BLOCK_TIME_MS );
 	/* Remove compiler warnings about unused parameters. */
 	( void ) pvParameters;
 
-	configASSERT( xEMACTaskHandle );
+	configASSERT( xEMACTaskHandle != NULL );
 
 	vTaskSetTimeOutState( &xPhyTime );
 	xPhyRemTime = pdMS_TO_TICKS( PHY_LS_LOW_CHECK_TIME_MS );

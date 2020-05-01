@@ -80,9 +80,9 @@ typedef struct xTCP_WINSIZE
  */
 /* Keep this as a multiple of 4 */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	#define ipSIZE_TCP_OPTIONS	16u
+	#define ipSIZE_TCP_OPTIONS	16U
 #else
-	#define ipSIZE_TCP_OPTIONS   12u
+	#define ipSIZE_TCP_OPTIONS	12U
 #endif
 
 /*
@@ -172,7 +172,7 @@ BaseType_t xTCPWindowRxStore( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, 
 
 /* This function will be called as soon as a FIN is received. It will return true
  * if there are no 'open' reception segments */
-BaseType_t xTCPWindowRxEmpty( TCPWindow_t *pxWindow );
+BaseType_t xTCPWindowRxEmpty( const TCPWindow_t *pxWindow );
 
 /* _HT_ Temporary function for testing/debugging
  * Not used at this moment */
@@ -193,7 +193,7 @@ BaseType_t xTCPWindowTxHasData( TCPWindow_t *pxWindow, uint32_t ulWindowSize, Ti
 /* See if anything is left to be sent
  * Function will be called when a FIN has been received. Only when the TX window is clean,
  * it will return pdTRUE */
-BaseType_t xTCPWindowTxDone( TCPWindow_t *pxWindow );
+BaseType_t xTCPWindowTxDone( const TCPWindow_t *pxWindow );
 
 /* Fetches data to be sent.
  * apPos will point to a location with the circular data buffer: txStream */
