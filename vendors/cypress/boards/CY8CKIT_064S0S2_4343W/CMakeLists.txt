@@ -132,6 +132,7 @@ elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
     afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "IAR")
 endif()
 afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "null")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 #--------------------------------------------------------------------
 # Include general kit functions
