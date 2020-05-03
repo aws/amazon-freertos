@@ -370,7 +370,7 @@ const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkB
 			does open a UDP socket to send a messages, this socket will be
 			closed after a short timeout.  Messages that come late (after the
 			socket is closed) will be treated here. */
-			if( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usSourcePort ) == ipDNS_PORT )
+			if( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usSourcePort ) == ( uint16_t ) ipDNS_PORT )
 			{
 				vARPRefreshCacheEntry( &( pxUDPPacket->xEthernetHeader.xSourceAddress ), pxUDPPacket->xIPHeader.ulSourceIPAddress );
 				xReturn = ( BaseType_t )ulDNSHandlePacket( pxNetworkBuffer );

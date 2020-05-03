@@ -3187,7 +3187,7 @@ const IPHeader_t *pxIPHeader;
 		then we MUST assume an MSS size of 536 bytes for backward compatibility. */
 
 		/* When there are no TCP options, the TCP offset equals 20 bytes, which is stored as
-		the number 5 (words) in the higher niblle of the TCP-offset byte. */
+		the number 5 (words) in the higher nibble of the TCP-offset byte. */
 		if( ( pxProtocolHeaders->xTCPHeader.ucTCPOffset & tcpTCP_OFFSET_LENGTH_BITS ) > tcpTCP_OFFSET_STANDARD_LENGTH )
 		{
 			prvCheckOptions( pxSocket, pxNetworkBuffer );

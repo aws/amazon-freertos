@@ -301,6 +301,10 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigINCLUDE_FULL_INET_ADDR	1
 #endif
 
+#ifndef ipconfigUSE_LINKED_RX_MESSAGES
+	#define ipconfigUSE_LINKED_RX_MESSAGES			0
+#endif
+
 #ifndef ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS
 	#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS		45
 #endif
@@ -359,7 +363,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif
 
 #ifndef ipconfigTCP_MSS
-	#define ipconfigTCP_MSS		( ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ) )
+	#define ipconfigTCP_MSS		( ( ( uint32_t ) ( ipconfigNETWORK_MTU ) ) - (  ( ( uint32_t ) ( ipSIZE_OF_IPv4_HEADER ) ) + ( ( uint32_t ) ( ipSIZE_OF_TCP_HEADER  ) ) ) )
 #endif
 
 /* Each TCP socket has circular stream buffers for Rx and Tx, which

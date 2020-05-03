@@ -652,8 +652,6 @@ static void prvCheckNetworkTimers( void )
 
 	#if( ipconfigDNS_USE_CALLBACKS != 0 )
 	{
-	extern void vDNSCheckCallBack( void *pvSearchID );
-
 		/* Is it time for DNS processing? */
 		if( prvIPTimerCheck( &xDNSTimer ) != pdFALSE )
 		{

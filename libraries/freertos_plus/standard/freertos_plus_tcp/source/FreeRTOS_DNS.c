@@ -363,11 +363,10 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 	As soon as the list hase become empty, the DNS timer will be stopped
 	In case pvSearchID is supplied, the user wants to cancel a DNS request
 	*/
-	void vDNSCheckCallBack( void *pvSearchID );
 	void vDNSCheckCallBack( void *pvSearchID )
 	{
 	const ListItem_t * pxIterator;
-	const ListItem_t * xEnd = listGET_END_MARKER( &xCallbackList );
+	const ListItem_t * xEnd = ipPOINTER_CAST( const ListItem_t *, listGET_END_MARKER( &xCallbackList ) );
 
 		vTaskSuspendAll();
 		{
@@ -886,9 +885,8 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 				/* Process the first/next sub-string. */
 				uxCount = ( size_t ) pucByte[ uxIndex ];
-				uxSourceLen--;
 				uxIndex++;
-				while( ( uxCount-- != 0U ) && ( uxSourceLen > 1U ) )
+				while( ( uxCount-- != 0U ) && ( uxIndex <= ( uxSourceLen - 1U ) ) )
 				{
 					if( uxNameLen < ( uxDestLen - 1U ) )
 					{
@@ -898,11 +896,14 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 					else
 					{
 						/* DNS name is too big for the provided buffer. */
-						uxIndex = 0;
+						uxIndex = 0U;
 						break;
 					}
 					uxIndex++;
-					uxSourceLen--;
+				}
+				if( uxIndex == 0U )
+				{
+					break;
 				}
 			}
 
