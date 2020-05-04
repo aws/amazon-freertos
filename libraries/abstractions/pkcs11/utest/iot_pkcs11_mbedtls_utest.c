@@ -175,11 +175,11 @@ int suiteTearDown( int numFailures )
  * @brief Helper function to initialize PKCS #11.
  *
  */
-static CK_RV prvInitializePkcs11( SemaphoreHandle_t pxPKCS11Mutex )
+static CK_RV prvInitializePkcs11()
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( pxPKCS11Mutex );
+    xQueueCreateMutex_IgnoreAndReturn( 1 );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -219,8 +219,6 @@ static CK_RV prvOpenSession( CK_SESSION_HANDLE_PTR pxSession )
     xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
     xResult = C_OpenSession( 0, xFlags, NULL, 0, pxSession );
 
-    TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
     return xResult;
 }
 
@@ -238,8 +236,6 @@ static CK_RV prvCloseSession( CK_SESSION_HANDLE_PTR pxSession )
     mbedtls_sha256_free_CMockIgnore();
     xResult = C_CloseSession( *pxSession );
 
-    TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
     return xResult;
 }
 
@@ -253,7 +249,7 @@ void test_pkcs11_C_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
@@ -269,7 +265,7 @@ void test_pkcs11_C_InitializeMemFail( void )
     CK_RV xResult = CKR_OK;
 
     xQueueCreateMutex_IgnoreAndReturn( NULL );
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
 
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 }
@@ -286,7 +282,7 @@ void test_pkcs11_C_InitializeSeedFail( void )
 
     /* Hack: Giving out pointer to xResult when creating a mutex. This unit testcase
      * will never use the actual mutex. */
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
 
     TEST_ASSERT_EQUAL( CKR_FUNCTION_FAILED, xResult );
 }
@@ -299,7 +295,7 @@ void test_pkcs11_C_InitializeInitTwice( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -378,27 +374,22 @@ void test_pkcs11_C_GetFunctionListBadArgs( void )
 void test_pkcs11_C_GetSlotList( void )
 {
     CK_RV xResult = CKR_OK;
-    CK_SLOT_ID_PTR pxSlotId = NULL;
-    CK_ULONG xSlotCount = 0;
+    CK_SLOT_ID xSlotId = 0;
+    CK_ULONG xSlotCount = 1;
     CK_BBOOL xTokenPresent = CK_TRUE;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    xResult = C_GetSlotList( xTokenPresent, pxSlotId, &xSlotCount );
+    xResult = C_GetSlotList( xTokenPresent, &xSlotId, &xSlotCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( 1, xSlotCount );
 
-    pxSlotId = pvPkcs11MallocCb( sizeof( CK_SLOT_ID ) * xSlotCount, 1 );
-    memset( pxSlotId, 0, sizeof( CK_SLOT_ID ) * 1 );
-
-    xResult = C_GetSlotList( xTokenPresent, pxSlotId, &xSlotCount );
+    xResult = C_GetSlotList( xTokenPresent, &xSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( 1, xSlotCount );
-    TEST_ASSERT_EQUAL( 1, pxSlotId[ 0 ] );
-
-    vPkcs11FreeCb( pxSlotId, 1 );
+    TEST_ASSERT_EQUAL( 1, xSlotId );
 
     xResult = prvUninitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -414,7 +405,7 @@ void test_pkcs11_C_GetSlotListNullSlot( void )
     CK_ULONG xSlotCount = 0;
     CK_BBOOL xTokenPresent = CK_TRUE;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = C_GetSlotList( xTokenPresent, NULL, &xSlotCount );
@@ -436,7 +427,7 @@ void test_pkcs11_C_GetSlotListNullCount( void )
     CK_RV xResult = CKR_OK;
     CK_BBOOL xTokenPresent = CK_TRUE;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = C_GetSlotList( xTokenPresent, NULL, NULL );
@@ -453,22 +444,18 @@ void test_pkcs11_C_GetSlotListNullCount( void )
 void test_pkcs11_C_GetSlotListBadObjCount( void )
 {
     CK_RV xResult = CKR_OK;
-    CK_SLOT_ID_PTR pxSlotId = NULL;
+    CK_SLOT_ID xSlotId = 1;
     CK_ULONG xSlotCount = 0;
     CK_BBOOL xTokenPresent = CK_TRUE;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    pxSlotId = pvPkcs11MallocCb( sizeof( CK_SLOT_ID ) * 1, 1 );
-    memset( pxSlotId, 0, sizeof( CK_SLOT_ID ) * 1 );
-    xResult = C_GetSlotList( xTokenPresent, pxSlotId, &xSlotCount );
+    xResult = C_GetSlotList( xTokenPresent, &xSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, xResult );
     TEST_ASSERT_EQUAL( 0, xSlotCount );
-    TEST_ASSERT_EQUAL( 0, pxSlotId[ 0 ] );
-
-    vPkcs11FreeCb( pxSlotId, 1 );
+    TEST_ASSERT_EQUAL( 1, xSlotId );
 
     xResult = prvUninitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -481,20 +468,15 @@ void test_pkcs11_C_GetSlotListBadObjCount( void )
 void test_pkcs11_C_GetSlotListUninit( void )
 {
     CK_RV xResult = CKR_OK;
-    CK_SLOT_ID_PTR pxSlotId = NULL;
-    CK_ULONG xSlotCount = 0;
+    CK_SLOT_ID xSlotId = 1;
+    CK_ULONG xSlotCount = 1;
     CK_BBOOL xTokenPresent = CK_TRUE;
 
-    pxSlotId = pvPkcs11MallocCb( sizeof( CK_SLOT_ID ) * 1, 1 );
-    memset( pxSlotId, 0, sizeof( CK_SLOT_ID ) * 1 );
-
-    xResult = C_GetSlotList( xTokenPresent, pxSlotId, &xSlotCount );
+    xResult = C_GetSlotList( xTokenPresent, &xSlotId, &xSlotCount );
 
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
-    TEST_ASSERT_EQUAL( 0, xSlotCount );
-    TEST_ASSERT_EQUAL( 0, pxSlotId[ 0 ] );
-
-    vPkcs11FreeCb( pxSlotId, 1 );
+    TEST_ASSERT_EQUAL( 1, xSlotCount );
+    TEST_ASSERT_EQUAL( 1, xSlotId );
 }
 
 /* ======================  TESTING C_GetTokenInfo  ============================ */
@@ -502,8 +484,8 @@ void test_pkcs11_C_GetSlotListUninit( void )
 /*!
  * @brief C_GetTokenInfo Happy path.
  *
- * @note this will need to be updated if tokens are implemented in this PKCS #11
- * stack.
+ * @note this test will need to be updated if this port needs to start returning
+ * token information.
  *
  */
 void test_pkcs11_C_GetTokenInfo( void )
@@ -603,7 +585,8 @@ void test_pkcs11_C_GetMechanismInfoBadMech( void )
 /*!
  * @brief C_InitToken Happy path.
  *
- * @note this will need to be updated if tokens are supported
+ * @note currently the port behaves like a fixed token, and doesn't do anything
+ * when this function is called.
  *
  */
 void test_pkcs11_C_InitToken( void )
@@ -624,7 +607,7 @@ void test_pkcs11_C_OpenSession( void )
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvOpenSession( &xSession );
@@ -660,7 +643,7 @@ void test_pkcs11_C_OpenSessionBadArgs( void )
     CK_SESSION_HANDLE xSession = 0;
     CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = C_OpenSession( 0, xFlags, NULL, 0, NULL );
@@ -684,7 +667,7 @@ void test_pkcs11_C_CloseSession( void )
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvOpenSession( &xSession );
@@ -701,7 +684,7 @@ void test_pkcs11_C_CloseSession( void )
 /*!
  * @brief C_Login happy path.
  *
- * @note This test will need to be updated if support is added for C_Login
+ * @note This test will need to be updated if support is added for C_Login.
  *
  */
 void test_pkcs11_C_Login( void )
@@ -737,7 +720,7 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] = EC_PRIV_KEY_INITIALIZER;
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvOpenSession( &xSession );
@@ -798,7 +781,7 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
     pxRsaParams = pvPkcs11MallocCb( sizeof( RsaParams_t ), 1 );
     TEST_ASSERT_NOT_EQUAL( NULL, pxRsaParams );
 
-    xResult = prvInitializePkcs11( ( SemaphoreHandle_t ) &xResult );
+    xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvOpenSession( &xSession );
