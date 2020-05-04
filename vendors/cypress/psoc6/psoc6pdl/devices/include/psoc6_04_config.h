@@ -5,7 +5,7 @@
 * PSoC6_04 device configuration header
 *
 * \note
-* Generator version: 1.6.0.76
+* Generator version: 1.6.0.150
 *
 ********************************************************************************
 * \copyright
@@ -257,7 +257,7 @@ typedef enum
     TRIG_IN_MUX_2_PASS_CTDAC_EMPTY  = 0x00000288u, /* pass.tr_ctdac_empty */
     TRIG_IN_MUX_2_PASS_CTB_CMP0     = 0x00000289u, /* pass.dsi_ctb_cmp0 */
     TRIG_IN_MUX_2_PASS_SAR1_DONE    = 0x0000028Au /* pass.tr_sar_out[1] */
-} en_trig_input_tcpwm0_t;
+} en_trig_input_tcpwm0_0_t;
 
 /* Trigger Input Group 3 - TCPWM0 trigger multiplexer - 2nd */
 typedef enum
@@ -344,7 +344,7 @@ typedef enum
     TRIG_IN_MUX_3_PASS_CTDAC_EMPTY  = 0x00000388u, /* pass.tr_ctdac_empty */
     TRIG_IN_MUX_3_PASS_CTB_CMP0     = 0x00000389u, /* pass.dsi_ctb_cmp1 */
     TRIG_IN_MUX_3_PASS_SAR1_DONE    = 0x0000038Au /* pass.tr_sar_out[1] */
-} en_trig_input_tcpwm0_2_t;
+} en_trig_input_tcpwm0_1_t;
 
 /* Trigger Input Group 4 - HSIOM trigger multiplexer */
 typedef enum
@@ -781,6 +781,61 @@ typedef enum
     TRIG_IN_MUX_10_CAN_TT_TR_OUT0   = 0x00000A01u /* canfd[0].tr_tmp_rtp_out[0] */
 } en_trig_input_cantt_t;
 
+/* Trigger Input Group 11 - CTDAC trigger multiplexer */
+typedef enum
+{
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT00  = 0x00000B01u, /* tcpwm[0].tr_out0[0] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT10  = 0x00000B02u, /* tcpwm[0].tr_out1[0] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT01  = 0x00000B03u, /* tcpwm[0].tr_out0[1] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT11  = 0x00000B04u, /* tcpwm[0].tr_out1[1] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT02  = 0x00000B05u, /* tcpwm[0].tr_out0[2] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT12  = 0x00000B06u, /* tcpwm[0].tr_out1[2] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT03  = 0x00000B07u, /* tcpwm[0].tr_out0[3] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT13  = 0x00000B08u, /* tcpwm[0].tr_out1[3] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0256 = 0x00000B09u, /* tcpwm[0].tr_out0[256] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1256 = 0x00000B0Au, /* tcpwm[0].tr_out1[256] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0257 = 0x00000B0Bu, /* tcpwm[0].tr_out0[257] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1257 = 0x00000B0Cu, /* tcpwm[0].tr_out1[257] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0258 = 0x00000B0Du, /* tcpwm[0].tr_out0[258] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1258 = 0x00000B0Eu, /* tcpwm[0].tr_out1[258] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0259 = 0x00000B0Fu, /* tcpwm[0].tr_out0[259] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1259 = 0x00000B10u, /* tcpwm[0].tr_out1[259] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0260 = 0x00000B11u, /* tcpwm[0].tr_out0[260] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1260 = 0x00000B12u, /* tcpwm[0].tr_out1[260] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0261 = 0x00000B13u, /* tcpwm[0].tr_out0[261] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1261 = 0x00000B14u, /* tcpwm[0].tr_out1[261] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0262 = 0x00000B15u, /* tcpwm[0].tr_out0[262] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1262 = 0x00000B16u, /* tcpwm[0].tr_out1[262] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT0263 = 0x00000B17u, /* tcpwm[0].tr_out0[263] */
+    TRIG_IN_MUX_11_TCPWM0_TR_OUT1263 = 0x00000B18u, /* tcpwm[0].tr_out1[263] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT0    = 0x00000B19u, /* peri.tr_io_input[0] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT1    = 0x00000B1Au, /* peri.tr_io_input[1] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT2    = 0x00000B1Bu, /* peri.tr_io_input[2] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT3    = 0x00000B1Cu, /* peri.tr_io_input[3] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT4    = 0x00000B1Du, /* peri.tr_io_input[4] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT5    = 0x00000B1Eu, /* peri.tr_io_input[5] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT6    = 0x00000B1Fu, /* peri.tr_io_input[6] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT7    = 0x00000B20u, /* peri.tr_io_input[7] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT8    = 0x00000B21u, /* peri.tr_io_input[8] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT9    = 0x00000B22u, /* peri.tr_io_input[9] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT10   = 0x00000B23u, /* peri.tr_io_input[10] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT11   = 0x00000B24u, /* peri.tr_io_input[11] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT12   = 0x00000B25u, /* peri.tr_io_input[12] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT13   = 0x00000B26u, /* peri.tr_io_input[13] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT14   = 0x00000B27u, /* peri.tr_io_input[14] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT15   = 0x00000B28u, /* peri.tr_io_input[15] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT16   = 0x00000B29u, /* peri.tr_io_input[16] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT17   = 0x00000B2Au, /* peri.tr_io_input[17] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT18   = 0x00000B2Bu, /* peri.tr_io_input[18] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT19   = 0x00000B2Cu, /* peri.tr_io_input[19] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT20   = 0x00000B2Du, /* peri.tr_io_input[20] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT21   = 0x00000B2Eu, /* peri.tr_io_input[21] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT22   = 0x00000B2Fu, /* peri.tr_io_input[22] */
+    TRIG_IN_MUX_11_HSIOM_TR_OUT23   = 0x00000B30u, /* peri.tr_io_input[23] */
+    TRIG_IN_MUX_11_LPCOMP_DSI_COMP0 = 0x00000B31u, /* lpcomp.dsi_comp0 */
+    TRIG_IN_MUX_11_LPCOMP_DSI_COMP1 = 0x00000B32u /* lpcomp.dsi_comp1 */
+} en_trig_input_ctadc_strobe_t;
+
 /* Trigger Group Outputs */
 /* Trigger Output Group 0 - PDMA0 Request Assignments */
 typedef enum
@@ -825,7 +880,7 @@ typedef enum
     TRIG_OUT_MUX_2_TCPWM0_TR_IN11   = 0x4000020Bu, /* tcpwm[0].tr_all_cnt_in[11] */
     TRIG_OUT_MUX_2_TCPWM0_TR_IN12   = 0x4000020Cu, /* tcpwm[0].tr_all_cnt_in[12] */
     TRIG_OUT_MUX_2_TCPWM0_TR_IN13   = 0x4000020Du /* tcpwm[0].tr_all_cnt_in[13] */
-} en_trig_output_tcpwm0_t;
+} en_trig_output_tcpwm0_0_t;
 
 /* Trigger Output Group 3 - TCPWM0 trigger multiplexer - 2nd */
 typedef enum
@@ -844,7 +899,7 @@ typedef enum
     TRIG_OUT_MUX_3_TCPWM1_TR_IN11   = 0x4000030Bu, /* tcpwm[0].tr_all_cnt_in[25] */
     TRIG_OUT_MUX_3_TCPWM1_TR_IN12   = 0x4000030Cu, /* tcpwm[0].tr_all_cnt_in[26] */
     TRIG_OUT_MUX_3_TCPWM1_TR_IN13   = 0x4000030Du /* tcpwm[0].tr_all_cnt_in[27] */
-} en_trig_output_tcpwm0_2_t;
+} en_trig_output_tcpwm0_1_t;
 
 /* Trigger Output Group 4 - HSIOM trigger multiplexer */
 typedef enum
@@ -892,6 +947,12 @@ typedef enum
 {
     TRIG_OUT_MUX_10_CAN_TT_TR_IN0   = 0x40000A00u /* canfd[0].tr_evt_swt_in[0] */
 } en_trig_output_cantt_t;
+
+/* Trigger Output Group 11 - CTDAC trigger multiplexer */
+typedef enum
+{
+    TRIG_OUT_MUX_11_PASS_CTDAC_STROBE = 0x40000B00u /* pass.dsi_ctdac_strobe */
+} en_trig_output_ctadc_strobe_t;
 
 /* Trigger Output Group 0 - SCB PDMA0 Triggers (OneToOne) */
 typedef enum
@@ -1103,7 +1164,7 @@ typedef enum
 #include "ip/cyip_scb.h"
 #include "ip/cyip_scb.h"
 #include "ip/cyip_ctbm_v2.h"
-#include "ip/cyip_ctdac.h"
+#include "ip/cyip_ctdac_v2.h"
 #include "ip/cyip_sar_v2.h"
 #include "ip/cyip_pass_v2.h"
 
@@ -1161,7 +1222,7 @@ typedef CANFD_CH_V1_Type CANFD_CH_Type;
 typedef CANFD_V1_Type CANFD_Type;
 typedef CySCB_V1_Type CySCB_Type;
 typedef CTBM_V2_Type CTBM_Type;
-typedef CTDAC_V1_Type CTDAC_Type;
+typedef CTDAC_V2_Type CTDAC_Type;
 typedef SAR_V2_Type SAR_Type;
 typedef PASS_TIMER_V2_Type PASS_TIMER_Type;
 typedef PASS_LPOSC_V2_Type PASS_LPOSC_Type;
@@ -1810,7 +1871,135 @@ typedef PASS_V2_Type PASS_Type;
 /* Max number of LCD commons supported */
 #define LCD_CHIP_TOP_COM_NR             8u
 /* Max number of LCD pins (total) supported */
-#define LCD_CHIP_TOP_PIN_NR             60u
+#define LCD_CHIP_TOP_PIN_NR             64u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR0_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR1_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR2_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR3_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR4_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR5_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR6_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR7_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR8_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR9_PIN_MASK   1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR10_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR11_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR12_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR13_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR14_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR15_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR16_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR17_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR18_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR19_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR20_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR21_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR22_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR23_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR24_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR25_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR26_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR27_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR28_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR29_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR30_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR31_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR32_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR33_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR34_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR35_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR36_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR37_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR38_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR39_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR40_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR41_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR42_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR43_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR44_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR45_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR46_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR47_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR48_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR49_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR50_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR51_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR52_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR53_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR54_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR55_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR56_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR57_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR58_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR59_PIN_MASK  1u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR60_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR61_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR62_PIN_MASK  0u
+/* LCD Pin Mask */
+#define LCD_CHIP_TOP_PIN_NR63_PIN_MASK  0u
 /* Number of CTBs in the Subsystem */
 #define PASS_NR_CTBS                    1u
 /* Number of CTDACs in the Subsystem */
@@ -2430,7 +2619,7 @@ typedef PASS_V2_Type PASS_Type;
 /* Trigger module present (0=No, 1=Yes) */
 #define PERI_TR                         1u
 /* Number of trigger groups */
-#define PERI_TR_GROUP_NR                11u
+#define PERI_TR_GROUP_NR                12u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_GROUP_NR0_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
@@ -2453,6 +2642,8 @@ typedef PASS_V2_Type PASS_Type;
 #define PERI_TR_GROUP_NR9_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_GROUP_NR10_TR_GROUP_TR_MANIPULATION_PRESENT 1u
+/* Trigger group trigger manipulation logic present ('0': no, '1': yes) */
+#define PERI_TR_GROUP_NR11_TR_GROUP_TR_MANIPULATION_PRESENT 1u
 /* Trigger 1-to-1 group trigger manipulation logic present ('0': no, '1': yes) */
 #define PERI_TR_1TO1_GROUP_NR0_TR_1TO1_GROUP_TR_1TO1_MANIPULATION_PRESENT 1u
 /* Trigger 1-to-1 group trigger manipulation logic present ('0': no, '1': yes) */
@@ -2624,56 +2815,6 @@ typedef PASS_V2_Type PASS_Type;
 /* Number of used spi_select signals (max 4) */
 #define SCB2_CHIP_TOP_SPI_SEL_NR        3u
 /* DeepSleep support ('0':no, '1': yes) */
-#define SCB3_DEEPSLEEP                  0u
-/* Externally clocked support? ('0': no, '1': yes) */
-#define SCB3_EC                         0u
-/* I2C master support? ('0': no, '1': yes) */
-#define SCB3_I2C_M                      1u
-/* I2C slave support? ('0': no, '1': yes) */
-#define SCB3_I2C_S                      1u
-/* I2C support? (I2C_M | I2C_S) */
-#define SCB3_I2C                        1u
-/* I2C glitch filters present? ('0': no, '1': yes) */
-#define SCB3_I2C_GLITCH                 1u
-/* I2C externally clocked support? ('0': no, '1': yes) */
-#define SCB3_I2C_EC                     0u
-/* I2C master and slave support? (I2C_M & I2C_S) */
-#define SCB3_I2C_M_S                    1u
-/* I2C slave with EC? (I2C_S & I2C_EC) */
-#define SCB3_I2C_S_EC                   0u
-/* SPI master support? ('0': no, '1': yes) */
-#define SCB3_SPI_M                      1u
-/* SPI slave support? ('0': no, '1': yes) */
-#define SCB3_SPI_S                      1u
-/* SPI support? (SPI_M | SPI_S) */
-#define SCB3_SPI                        1u
-/* SPI externally clocked support? ('0': no, '1': yes) */
-#define SCB3_SPI_EC                     0u
-/* SPI slave with EC? (SPI_S & SPI_EC) */
-#define SCB3_SPI_S_EC                   0u
-/* UART support? ('0': no, '1': yes) */
-#define SCB3_UART                       1u
-/* SPI or UART (SPI | UART) */
-#define SCB3_SPI_UART                   1u
-/* Number of EZ memory Bytes ([32, 256, 512]). This memory is used in EZ mode,
-   CMD_RESP mode and FIFO mode. Note that in EZ mode, if EZ_DATA_NR is 512, only
-   256 B are used. This is because the EZ mode uses 8-bit addresses. */
-#define SCB3_EZ_DATA_NR                 256u
-/* Command/response mode support? ('0': no, '1': yes) */
-#define SCB3_CMD_RESP                   0u
-/* EZ mode support? ('0': no, '1': yes) */
-#define SCB3_EZ                         0u
-/* Command/response mode or EZ mode support? (CMD_RESP | EZ) */
-#define SCB3_EZ_CMD_RESP                0u
-/* I2C slave with EZ mode (I2C_S & EZ) */
-#define SCB3_I2C_S_EZ                   0u
-/* SPI slave with EZ mode (SPI_S & EZ) */
-#define SCB3_SPI_S_EZ                   0u
-/* Support I2C FM+/1Mbps speed ('0': no, '1': yes) */
-#define SCB3_I2C_FAST_PLUS              1u
-/* Number of used spi_select signals (max 4) */
-#define SCB3_CHIP_TOP_SPI_SEL_NR        3u
-/* DeepSleep support ('0':no, '1': yes) */
 #define SCB4_DEEPSLEEP                  0u
 /* Externally clocked support? ('0': no, '1': yes) */
 #define SCB4_EC                         0u
@@ -2773,6 +2914,56 @@ typedef PASS_V2_Type PASS_Type;
 #define SCB5_I2C_FAST_PLUS              1u
 /* Number of used spi_select signals (max 4) */
 #define SCB5_CHIP_TOP_SPI_SEL_NR        4u
+/* DeepSleep support ('0':no, '1': yes) */
+#define SCB6_DEEPSLEEP                  1u
+/* Externally clocked support? ('0': no, '1': yes) */
+#define SCB6_EC                         1u
+/* I2C master support? ('0': no, '1': yes) */
+#define SCB6_I2C_M                      1u
+/* I2C slave support? ('0': no, '1': yes) */
+#define SCB6_I2C_S                      1u
+/* I2C support? (I2C_M | I2C_S) */
+#define SCB6_I2C                        1u
+/* I2C glitch filters present? ('0': no, '1': yes) */
+#define SCB6_I2C_GLITCH                 1u
+/* I2C externally clocked support? ('0': no, '1': yes) */
+#define SCB6_I2C_EC                     1u
+/* I2C master and slave support? (I2C_M & I2C_S) */
+#define SCB6_I2C_M_S                    1u
+/* I2C slave with EC? (I2C_S & I2C_EC) */
+#define SCB6_I2C_S_EC                   1u
+/* SPI master support? ('0': no, '1': yes) */
+#define SCB6_SPI_M                      1u
+/* SPI slave support? ('0': no, '1': yes) */
+#define SCB6_SPI_S                      1u
+/* SPI support? (SPI_M | SPI_S) */
+#define SCB6_SPI                        1u
+/* SPI externally clocked support? ('0': no, '1': yes) */
+#define SCB6_SPI_EC                     1u
+/* SPI slave with EC? (SPI_S & SPI_EC) */
+#define SCB6_SPI_S_EC                   1u
+/* UART support? ('0': no, '1': yes) */
+#define SCB6_UART                       0u
+/* SPI or UART (SPI | UART) */
+#define SCB6_SPI_UART                   1u
+/* Number of EZ memory Bytes ([32, 256, 512]). This memory is used in EZ mode,
+   CMD_RESP mode and FIFO mode. Note that in EZ mode, if EZ_DATA_NR is 512, only
+   256 B are used. This is because the EZ mode uses 8-bit addresses. */
+#define SCB6_EZ_DATA_NR                 256u
+/* Command/response mode support? ('0': no, '1': yes) */
+#define SCB6_CMD_RESP                   1u
+/* EZ mode support? ('0': no, '1': yes) */
+#define SCB6_EZ                         1u
+/* Command/response mode or EZ mode support? (CMD_RESP | EZ) */
+#define SCB6_EZ_CMD_RESP                1u
+/* I2C slave with EZ mode (I2C_S & EZ) */
+#define SCB6_I2C_S_EZ                   1u
+/* SPI slave with EZ mode (SPI_S & EZ) */
+#define SCB6_SPI_S_EZ                   1u
+/* Support I2C FM+/1Mbps speed ('0': no, '1': yes) */
+#define SCB6_I2C_FAST_PLUS              1u
+/* Number of used spi_select signals (max 4) */
+#define SCB6_CHIP_TOP_SPI_SEL_NR        1u
 /* SONOS Flash is used or not ('0': no, '1': yes) */
 #define SFLASH_FLASHC_IS_SONOS          1u
 /* CPUSS_WOUNDING_PRESENT or not ('0': no, '1': yes) */
@@ -2965,6 +3156,237 @@ typedef PASS_V2_Type PASS_Type;
 /* Backward compatibility definitions */
 #define CPUSS_IRQ_NR                    CPUSS_SYSTEM_INT_NR
 #define CPUSS_DPSLP_IRQ_NR              CPUSS_SYSTEM_DPSLP_INT_NR
+
+/* Protection regions */
+typedef enum
+{
+    PROT_PERI_MAIN                  =   0,      /* Address 0x40000000, size 0x00002000 */
+    PROT_PERI_GR0_GROUP             =   1,      /* Address 0x40004010, size 0x00000004 */
+    PROT_PERI_GR1_GROUP             =   2,      /* Address 0x40004030, size 0x00000004 */
+    PROT_PERI_GR2_GROUP             =   3,      /* Address 0x40004050, size 0x00000004 */
+    PROT_PERI_GR3_GROUP             =   4,      /* Address 0x40004060, size 0x00000020 */
+    PROT_PERI_GR4_GROUP             =   5,      /* Address 0x40004080, size 0x00000020 */
+    PROT_PERI_GR5_GROUP             =   6,      /* Address 0x400040a0, size 0x00000020 */
+    PROT_PERI_GR6_GROUP             =   7,      /* Address 0x400040c0, size 0x00000020 */
+    PROT_PERI_GR9_GROUP             =   8,      /* Address 0x40004120, size 0x00000020 */
+    PROT_PERI_TR                    =   9,      /* Address 0x40008000, size 0x00008000 */
+    PROT_CRYPTO_MAIN                =  10,      /* Address 0x40100000, size 0x00000400 */
+    PROT_CRYPTO_CRYPTO              =  11,      /* Address 0x40101000, size 0x00000800 */
+    PROT_CRYPTO_BOOT                =  12,      /* Address 0x40102000, size 0x00000100 */
+    PROT_CRYPTO_KEY0                =  13,      /* Address 0x40102100, size 0x00000004 */
+    PROT_CRYPTO_KEY1                =  14,      /* Address 0x40102120, size 0x00000004 */
+    PROT_CRYPTO_BUF                 =  15,      /* Address 0x40108000, size 0x00001000 */
+    PROT_CPUSS_CM4                  =  16,      /* Address 0x40200000, size 0x00000400 */
+    PROT_CPUSS_CM0                  =  17,      /* Address 0x40201000, size 0x00001000 */
+    PROT_CPUSS_BOOT                 =  18,      /* Address 0x40202000, size 0x00000200 */
+    PROT_CPUSS_CM0_INT              =  19,      /* Address 0x40208000, size 0x00000400 */
+    PROT_CPUSS_CM4_INT              =  20,      /* Address 0x4020a000, size 0x00000400 */
+    PROT_FAULT_STRUCT0_MAIN         =  21,      /* Address 0x40210000, size 0x00000100 */
+    PROT_FAULT_STRUCT1_MAIN         =  22,      /* Address 0x40210100, size 0x00000100 */
+    PROT_IPC_STRUCT0_IPC            =  23,      /* Address 0x40220000, size 0x00000020 */
+    PROT_IPC_STRUCT1_IPC            =  24,      /* Address 0x40220020, size 0x00000020 */
+    PROT_IPC_STRUCT2_IPC            =  25,      /* Address 0x40220040, size 0x00000020 */
+    PROT_IPC_STRUCT3_IPC            =  26,      /* Address 0x40220060, size 0x00000020 */
+    PROT_IPC_STRUCT4_IPC            =  27,      /* Address 0x40220080, size 0x00000020 */
+    PROT_IPC_STRUCT5_IPC            =  28,      /* Address 0x402200a0, size 0x00000020 */
+    PROT_IPC_STRUCT6_IPC            =  29,      /* Address 0x402200c0, size 0x00000020 */
+    PROT_IPC_STRUCT7_IPC            =  30,      /* Address 0x402200e0, size 0x00000020 */
+    PROT_IPC_STRUCT8_IPC            =  31,      /* Address 0x40220100, size 0x00000020 */
+    PROT_IPC_STRUCT9_IPC            =  32,      /* Address 0x40220120, size 0x00000020 */
+    PROT_IPC_STRUCT10_IPC           =  33,      /* Address 0x40220140, size 0x00000020 */
+    PROT_IPC_STRUCT11_IPC           =  34,      /* Address 0x40220160, size 0x00000020 */
+    PROT_IPC_STRUCT12_IPC           =  35,      /* Address 0x40220180, size 0x00000020 */
+    PROT_IPC_STRUCT13_IPC           =  36,      /* Address 0x402201a0, size 0x00000020 */
+    PROT_IPC_STRUCT14_IPC           =  37,      /* Address 0x402201c0, size 0x00000020 */
+    PROT_IPC_STRUCT15_IPC           =  38,      /* Address 0x402201e0, size 0x00000020 */
+    PROT_IPC_INTR_STRUCT0_INTR      =  39,      /* Address 0x40221000, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT1_INTR      =  40,      /* Address 0x40221020, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT2_INTR      =  41,      /* Address 0x40221040, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT3_INTR      =  42,      /* Address 0x40221060, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT4_INTR      =  43,      /* Address 0x40221080, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT5_INTR      =  44,      /* Address 0x402210a0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT6_INTR      =  45,      /* Address 0x402210c0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT7_INTR      =  46,      /* Address 0x402210e0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT8_INTR      =  47,      /* Address 0x40221100, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT9_INTR      =  48,      /* Address 0x40221120, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT10_INTR     =  49,      /* Address 0x40221140, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT11_INTR     =  50,      /* Address 0x40221160, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT12_INTR     =  51,      /* Address 0x40221180, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT13_INTR     =  52,      /* Address 0x402211a0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT14_INTR     =  53,      /* Address 0x402211c0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT15_INTR     =  54,      /* Address 0x402211e0, size 0x00000010 */
+    PROT_PROT_SMPU_MAIN             =  55,      /* Address 0x40230000, size 0x00000040 */
+    PROT_PROT_MPU0_MAIN             =  56,      /* Address 0x40234000, size 0x00000004 */
+    PROT_PROT_MPU14_MAIN            =  57,      /* Address 0x40237800, size 0x00000004 */
+    PROT_PROT_MPU15_MAIN            =  58,      /* Address 0x40237c00, size 0x00000400 */
+    PROT_FLASHC_MAIN                =  59,      /* Address 0x40240000, size 0x00000008 */
+    PROT_FLASHC_CMD                 =  60,      /* Address 0x40240008, size 0x00000004 */
+    PROT_FLASHC_DFT                 =  61,      /* Address 0x40240200, size 0x00000100 */
+    PROT_FLASHC_CM0                 =  62,      /* Address 0x40240400, size 0x00000080 */
+    PROT_FLASHC_CM4                 =  63,      /* Address 0x40240480, size 0x00000080 */
+    PROT_FLASHC_CRYPTO              =  64,      /* Address 0x40240500, size 0x00000004 */
+    PROT_FLASHC_DW0                 =  65,      /* Address 0x40240580, size 0x00000004 */
+    PROT_FLASHC_DW1                 =  66,      /* Address 0x40240600, size 0x00000004 */
+    PROT_FLASHC_DMAC                =  67,      /* Address 0x40240680, size 0x00000004 */
+    PROT_FLASHC_FM                  =  68,      /* Address 0x4024f000, size 0x00001000 */
+    PROT_SRSS_MAIN1                 =  69,      /* Address 0x40260000, size 0x00000100 */
+    PROT_SRSS_MAIN2                 =  70,      /* Address 0x40260100, size 0x00000010 */
+    PROT_WDT                        =  71,      /* Address 0x40260180, size 0x00000010 */
+    PROT_MAIN                       =  72,      /* Address 0x40260200, size 0x00000080 */
+    PROT_SRSS_MAIN3                 =  73,      /* Address 0x40260300, size 0x00000100 */
+    PROT_SRSS_MAIN4                 =  74,      /* Address 0x40260400, size 0x00000400 */
+    PROT_SRSS_MAIN5                 =  75,      /* Address 0x40260800, size 0x00000008 */
+    PROT_SRSS_MAIN6                 =  76,      /* Address 0x40267000, size 0x00001000 */
+    PROT_SRSS_MAIN7                 =  77,      /* Address 0x4026ff00, size 0x00000080 */
+    PROT_BACKUP_BACKUP              =  78,      /* Address 0x40270000, size 0x00010000 */
+    PROT_DW0_DW                     =  79,      /* Address 0x40280000, size 0x00000080 */
+    PROT_DW1_DW                     =  80,      /* Address 0x40290000, size 0x00000080 */
+    PROT_DW0_DW_CRC                 =  81,      /* Address 0x40280100, size 0x00000080 */
+    PROT_DW1_DW_CRC                 =  82,      /* Address 0x40290100, size 0x00000080 */
+    PROT_DW0_CH_STRUCT0_CH          =  83,      /* Address 0x40288000, size 0x00000040 */
+    PROT_DW0_CH_STRUCT1_CH          =  84,      /* Address 0x40288040, size 0x00000040 */
+    PROT_DW0_CH_STRUCT2_CH          =  85,      /* Address 0x40288080, size 0x00000040 */
+    PROT_DW0_CH_STRUCT3_CH          =  86,      /* Address 0x402880c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT4_CH          =  87,      /* Address 0x40288100, size 0x00000040 */
+    PROT_DW0_CH_STRUCT5_CH          =  88,      /* Address 0x40288140, size 0x00000040 */
+    PROT_DW0_CH_STRUCT6_CH          =  89,      /* Address 0x40288180, size 0x00000040 */
+    PROT_DW0_CH_STRUCT7_CH          =  90,      /* Address 0x402881c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT8_CH          =  91,      /* Address 0x40288200, size 0x00000040 */
+    PROT_DW0_CH_STRUCT9_CH          =  92,      /* Address 0x40288240, size 0x00000040 */
+    PROT_DW0_CH_STRUCT10_CH         =  93,      /* Address 0x40288280, size 0x00000040 */
+    PROT_DW0_CH_STRUCT11_CH         =  94,      /* Address 0x402882c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT12_CH         =  95,      /* Address 0x40288300, size 0x00000040 */
+    PROT_DW0_CH_STRUCT13_CH         =  96,      /* Address 0x40288340, size 0x00000040 */
+    PROT_DW0_CH_STRUCT14_CH         =  97,      /* Address 0x40288380, size 0x00000040 */
+    PROT_DW0_CH_STRUCT15_CH         =  98,      /* Address 0x402883c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT16_CH         =  99,      /* Address 0x40288400, size 0x00000040 */
+    PROT_DW0_CH_STRUCT17_CH         = 100,      /* Address 0x40288440, size 0x00000040 */
+    PROT_DW0_CH_STRUCT18_CH         = 101,      /* Address 0x40288480, size 0x00000040 */
+    PROT_DW0_CH_STRUCT19_CH         = 102,      /* Address 0x402884c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT20_CH         = 103,      /* Address 0x40288500, size 0x00000040 */
+    PROT_DW0_CH_STRUCT21_CH         = 104,      /* Address 0x40288540, size 0x00000040 */
+    PROT_DW0_CH_STRUCT22_CH         = 105,      /* Address 0x40288580, size 0x00000040 */
+    PROT_DW0_CH_STRUCT23_CH         = 106,      /* Address 0x402885c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT24_CH         = 107,      /* Address 0x40288600, size 0x00000040 */
+    PROT_DW0_CH_STRUCT25_CH         = 108,      /* Address 0x40288640, size 0x00000040 */
+    PROT_DW0_CH_STRUCT26_CH         = 109,      /* Address 0x40288680, size 0x00000040 */
+    PROT_DW0_CH_STRUCT27_CH         = 110,      /* Address 0x402886c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT28_CH         = 111,      /* Address 0x40288700, size 0x00000040 */
+    PROT_DW0_CH_STRUCT29_CH         = 112,      /* Address 0x40288740, size 0x00000040 */
+    PROT_DW1_CH_STRUCT0_CH          = 113,      /* Address 0x40298000, size 0x00000040 */
+    PROT_DW1_CH_STRUCT1_CH          = 114,      /* Address 0x40298040, size 0x00000040 */
+    PROT_DW1_CH_STRUCT2_CH          = 115,      /* Address 0x40298080, size 0x00000040 */
+    PROT_DW1_CH_STRUCT3_CH          = 116,      /* Address 0x402980c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT4_CH          = 117,      /* Address 0x40298100, size 0x00000040 */
+    PROT_DW1_CH_STRUCT5_CH          = 118,      /* Address 0x40298140, size 0x00000040 */
+    PROT_DW1_CH_STRUCT6_CH          = 119,      /* Address 0x40298180, size 0x00000040 */
+    PROT_DW1_CH_STRUCT7_CH          = 120,      /* Address 0x402981c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT8_CH          = 121,      /* Address 0x40298200, size 0x00000040 */
+    PROT_DW1_CH_STRUCT9_CH          = 122,      /* Address 0x40298240, size 0x00000040 */
+    PROT_DW1_CH_STRUCT10_CH         = 123,      /* Address 0x40298280, size 0x00000040 */
+    PROT_DW1_CH_STRUCT11_CH         = 124,      /* Address 0x402982c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT12_CH         = 125,      /* Address 0x40298300, size 0x00000040 */
+    PROT_DW1_CH_STRUCT13_CH         = 126,      /* Address 0x40298340, size 0x00000040 */
+    PROT_DW1_CH_STRUCT14_CH         = 127,      /* Address 0x40298380, size 0x00000040 */
+    PROT_DW1_CH_STRUCT15_CH         = 128,      /* Address 0x402983c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT16_CH         = 129,      /* Address 0x40298400, size 0x00000040 */
+    PROT_DW1_CH_STRUCT17_CH         = 130,      /* Address 0x40298440, size 0x00000040 */
+    PROT_DW1_CH_STRUCT18_CH         = 131,      /* Address 0x40298480, size 0x00000040 */
+    PROT_DW1_CH_STRUCT19_CH         = 132,      /* Address 0x402984c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT20_CH         = 133,      /* Address 0x40298500, size 0x00000040 */
+    PROT_DW1_CH_STRUCT21_CH         = 134,      /* Address 0x40298540, size 0x00000040 */
+    PROT_DW1_CH_STRUCT22_CH         = 135,      /* Address 0x40298580, size 0x00000040 */
+    PROT_DW1_CH_STRUCT23_CH         = 136,      /* Address 0x402985c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT24_CH         = 137,      /* Address 0x40298600, size 0x00000040 */
+    PROT_DW1_CH_STRUCT25_CH         = 138,      /* Address 0x40298640, size 0x00000040 */
+    PROT_DW1_CH_STRUCT26_CH         = 139,      /* Address 0x40298680, size 0x00000040 */
+    PROT_DW1_CH_STRUCT27_CH         = 140,      /* Address 0x402986c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT28_CH         = 141,      /* Address 0x40298700, size 0x00000040 */
+    PROT_DW1_CH_STRUCT29_CH         = 142,      /* Address 0x40298740, size 0x00000040 */
+    PROT_DW1_CH_STRUCT30_CH         = 143,      /* Address 0x40298780, size 0x00000040 */
+    PROT_DW1_CH_STRUCT31_CH         = 144,      /* Address 0x402987c0, size 0x00000040 */
+    PROT_DMAC_TOP                   = 145,      /* Address 0x402a0000, size 0x00000010 */
+    PROT_DMAC_CH0_CH                = 146,      /* Address 0x402a1000, size 0x00000100 */
+    PROT_DMAC_CH1_CH                = 147,      /* Address 0x402a1100, size 0x00000100 */
+    PROT_EFUSE_CTL                  = 148,      /* Address 0x402c0000, size 0x00000080 */
+    PROT_EFUSE_DATA                 = 149,      /* Address 0x402c0800, size 0x00000200 */
+    PROT_HSIOM_PRT0_PRT             = 150,      /* Address 0x40300000, size 0x00000008 */
+    PROT_HSIOM_PRT1_PRT             = 151,      /* Address 0x40300010, size 0x00000008 */
+    PROT_HSIOM_PRT2_PRT             = 152,      /* Address 0x40300020, size 0x00000008 */
+    PROT_HSIOM_PRT3_PRT             = 153,      /* Address 0x40300030, size 0x00000008 */
+    PROT_HSIOM_PRT4_PRT             = 154,      /* Address 0x40300040, size 0x00000008 */
+    PROT_HSIOM_PRT5_PRT             = 155,      /* Address 0x40300050, size 0x00000008 */
+    PROT_HSIOM_PRT6_PRT             = 156,      /* Address 0x40300060, size 0x00000008 */
+    PROT_HSIOM_PRT7_PRT             = 157,      /* Address 0x40300070, size 0x00000008 */
+    PROT_HSIOM_PRT8_PRT             = 158,      /* Address 0x40300080, size 0x00000008 */
+    PROT_HSIOM_PRT9_PRT             = 159,      /* Address 0x40300090, size 0x00000008 */
+    PROT_HSIOM_PRT10_PRT            = 160,      /* Address 0x403000a0, size 0x00000008 */
+    PROT_HSIOM_PRT11_PRT            = 161,      /* Address 0x403000b0, size 0x00000008 */
+    PROT_HSIOM_PRT12_PRT            = 162,      /* Address 0x403000c0, size 0x00000008 */
+    PROT_HSIOM_PRT13_PRT            = 163,      /* Address 0x403000d0, size 0x00000008 */
+    PROT_HSIOM_PRT14_PRT            = 164,      /* Address 0x403000e0, size 0x00000008 */
+    PROT_HSIOM_AMUX                 = 165,      /* Address 0x40302000, size 0x00000020 */
+    PROT_HSIOM_MON                  = 166,      /* Address 0x40302200, size 0x00000010 */
+    PROT_GPIO_PRT0_PRT              = 167,      /* Address 0x40310000, size 0x00000040 */
+    PROT_GPIO_PRT1_PRT              = 168,      /* Address 0x40310080, size 0x00000040 */
+    PROT_GPIO_PRT2_PRT              = 169,      /* Address 0x40310100, size 0x00000040 */
+    PROT_GPIO_PRT3_PRT              = 170,      /* Address 0x40310180, size 0x00000040 */
+    PROT_GPIO_PRT4_PRT              = 171,      /* Address 0x40310200, size 0x00000040 */
+    PROT_GPIO_PRT5_PRT              = 172,      /* Address 0x40310280, size 0x00000040 */
+    PROT_GPIO_PRT6_PRT              = 173,      /* Address 0x40310300, size 0x00000040 */
+    PROT_GPIO_PRT7_PRT              = 174,      /* Address 0x40310380, size 0x00000040 */
+    PROT_GPIO_PRT8_PRT              = 175,      /* Address 0x40310400, size 0x00000040 */
+    PROT_GPIO_PRT9_PRT              = 176,      /* Address 0x40310480, size 0x00000040 */
+    PROT_GPIO_PRT10_PRT             = 177,      /* Address 0x40310500, size 0x00000040 */
+    PROT_GPIO_PRT11_PRT             = 178,      /* Address 0x40310580, size 0x00000040 */
+    PROT_GPIO_PRT12_PRT             = 179,      /* Address 0x40310600, size 0x00000040 */
+    PROT_GPIO_PRT13_PRT             = 180,      /* Address 0x40310680, size 0x00000040 */
+    PROT_GPIO_PRT14_PRT             = 181,      /* Address 0x40310700, size 0x00000040 */
+    PROT_GPIO_PRT0_CFG              = 182,      /* Address 0x40310040, size 0x00000010 */
+    PROT_GPIO_PRT1_CFG              = 183,      /* Address 0x403100c0, size 0x00000010 */
+    PROT_GPIO_PRT2_CFG              = 184,      /* Address 0x40310140, size 0x00000010 */
+    PROT_GPIO_PRT3_CFG              = 185,      /* Address 0x403101c0, size 0x00000010 */
+    PROT_GPIO_PRT4_CFG              = 186,      /* Address 0x40310240, size 0x00000008 */
+    PROT_GPIO_PRT5_CFG              = 187,      /* Address 0x403102c0, size 0x00000010 */
+    PROT_GPIO_PRT6_CFG              = 188,      /* Address 0x40310340, size 0x00000010 */
+    PROT_GPIO_PRT7_CFG              = 189,      /* Address 0x403103c0, size 0x00000010 */
+    PROT_GPIO_PRT8_CFG              = 190,      /* Address 0x40310440, size 0x00000010 */
+    PROT_GPIO_PRT9_CFG              = 191,      /* Address 0x403104c0, size 0x00000010 */
+    PROT_GPIO_PRT10_CFG             = 192,      /* Address 0x40310540, size 0x00000010 */
+    PROT_GPIO_PRT11_CFG             = 193,      /* Address 0x403105c0, size 0x00000010 */
+    PROT_GPIO_PRT12_CFG             = 194,      /* Address 0x40310640, size 0x00000010 */
+    PROT_GPIO_PRT13_CFG             = 195,      /* Address 0x403106c0, size 0x00000008 */
+    PROT_GPIO_PRT14_CFG             = 196,      /* Address 0x40310740, size 0x00000008 */
+    PROT_GPIO_GPIO                  = 197,      /* Address 0x40314000, size 0x00000040 */
+    PROT_GPIO_TEST                  = 198,      /* Address 0x40315000, size 0x00000008 */
+    PROT_SMARTIO_PRT9_PRT           = 199,      /* Address 0x40320900, size 0x00000100 */
+    PROT_LPCOMP                     = 200,      /* Address 0x40350000, size 0x00010000 */
+    PROT_CSD0                       = 201,      /* Address 0x40360000, size 0x00001000 */
+    PROT_TCPWM0_GRP0_CNT0_CNT       = 202,      /* Address 0x40380000, size 0x00000080 */
+    PROT_TCPWM0_GRP0_CNT1_CNT       = 203,      /* Address 0x40380080, size 0x00000080 */
+    PROT_TCPWM0_GRP0_CNT2_CNT       = 204,      /* Address 0x40380100, size 0x00000080 */
+    PROT_TCPWM0_GRP0_CNT3_CNT       = 205,      /* Address 0x40380180, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT0_CNT       = 206,      /* Address 0x40388000, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT1_CNT       = 207,      /* Address 0x40388080, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT2_CNT       = 208,      /* Address 0x40388100, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT3_CNT       = 209,      /* Address 0x40388180, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT4_CNT       = 210,      /* Address 0x40388200, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT5_CNT       = 211,      /* Address 0x40388280, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT6_CNT       = 212,      /* Address 0x40388300, size 0x00000080 */
+    PROT_TCPWM0_GRP1_CNT7_CNT       = 213,      /* Address 0x40388380, size 0x00000080 */
+    PROT_LCD0                       = 214,      /* Address 0x403b0000, size 0x00010000 */
+    PROT_USBFS0                     = 215,      /* Address 0x403f0000, size 0x00010000 */
+    PROT_SMIF0                      = 216,      /* Address 0x40420000, size 0x00010000 */
+    PROT_CANFD0_CH0_CH              = 217,      /* Address 0x40520000, size 0x00000200 */
+    PROT_CANFD0_MAIN                = 218,      /* Address 0x40521000, size 0x00000040 */
+    PROT_CANFD0_BUF                 = 219,      /* Address 0x40530000, size 0x00010000 */
+    PROT_SCB0                       = 220,      /* Address 0x40600000, size 0x00010000 */
+    PROT_SCB1                       = 221,      /* Address 0x40610000, size 0x00010000 */
+    PROT_SCB2                       = 222,      /* Address 0x40620000, size 0x00010000 */
+    PROT_SCB4                       = 223,      /* Address 0x40640000, size 0x00010000 */
+    PROT_SCB5                       = 224,      /* Address 0x40650000, size 0x00010000 */
+    PROT_SCB6                       = 225       /* Address 0x40660000, size 0x00010000 */
+} cy_en_prot_region_t;
 
 #endif /* _PSOC6_04_CONFIG_H_ */
 
