@@ -2972,7 +2972,7 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
 
     /* Resolve the AWS IoT broker endpoint, which will have multiple IP addresses */
 
-    uint32_t ulIPAddresses[ ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY + 1 ] = { 0UL };
+    uint32_t ulIPAddresses[ 7 ] = { 0UL };
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
     /*
@@ -2981,27 +2981,27 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
      * name resolves to.  Call once more than the maximum number of addresses
      * per cache entry to ensure that wraparound works.
      */
-    for( i = 0, ulNonUnique = 0 ; i < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY + 1 ; i ++ )
+    for( i = 0, ulNonUnique = 0 ; i < 7  ; i ++ )
     {
         ulIPAddresses[i] = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
         for( j = 0 ; ( i > 0 ) && ( ulIPAddresses[i] != 0UL) && ( j < i ) ; j++ )
         {
             if( ulIPAddresses[j] == ulIPAddresses[i] )
-	    {
+            {
                 ulNonUnique = 1;     /* This address appears more than once */
-	    }
+            }
         }
-	if( !ulNonUnique )
-	{
+	    if( !ulNonUnique )
+	    {
             tcptestPRINTF( ( "%s resolved address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
             ulNumUniqueIPAddresses++;
-	}
+        }
     }
     /* Require at least 4 addresses for AWS IoT broker endpoints */
     if( ulNumUniqueIPAddresses >= 4 )
     {
-        xResult == pdPASS;
+        xResult = pdPASS;
     }
     TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
