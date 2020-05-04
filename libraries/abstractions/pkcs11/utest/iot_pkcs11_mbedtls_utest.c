@@ -179,7 +179,7 @@ static CK_RV prvInitializePkcs11()
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( 1 );
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -249,7 +249,12 @@ void test_pkcs11_C_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xResult = prvInitializePkcs11();
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    CRYPTO_Init_Ignore();
+    mbedtls_entropy_init_Ignore();
+    mbedtls_ctr_drbg_init_Ignore();
+    mbedtls_ctr_drbg_seed_IgnoreAndReturn( 0 );
+    xResult = C_Initialize( NULL );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
@@ -265,7 +270,11 @@ void test_pkcs11_C_InitializeMemFail( void )
     CK_RV xResult = CKR_OK;
 
     xQueueCreateMutex_IgnoreAndReturn( NULL );
-    xResult = prvInitializePkcs11();
+    CRYPTO_Init_Ignore();
+    mbedtls_entropy_init_Ignore();
+    mbedtls_ctr_drbg_init_Ignore();
+    mbedtls_ctr_drbg_seed_IgnoreAndReturn( 0 );
+    xResult = C_Initialize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 }
@@ -278,11 +287,12 @@ void test_pkcs11_C_InitializeSeedFail( void )
 {
     CK_RV xResult = CKR_OK;
 
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    CRYPTO_Init_Ignore();
+    mbedtls_entropy_init_Ignore();
+    mbedtls_ctr_drbg_init_Ignore();
     mbedtls_ctr_drbg_seed_IgnoreAndReturn( 1 );
-
-    /* Hack: Giving out pointer to xResult when creating a mutex. This unit testcase
-     * will never use the actual mutex. */
-    xResult = prvInitializePkcs11();
+    xResult = C_Initialize( NULL );
 
     TEST_ASSERT_EQUAL( CKR_FUNCTION_FAILED, xResult );
 }
@@ -316,7 +326,10 @@ void test_pkcs11_C_FinalizeUninitialized( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xResult = prvUninitializePkcs11();
+    mbedtls_entropy_free_CMockIgnore();
+    mbedtls_ctr_drbg_free_CMockIgnore();
+    vQueueDelete_CMockIgnore();
+    xResult = C_Finalize( NULL );
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
 }
 
@@ -606,11 +619,15 @@ void test_pkcs11_C_OpenSession( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
+    CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
 
     xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvOpenSession( &xSession );
+    pvPortMalloc_Stub( pvPkcs11MallocCb );
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
+    xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
@@ -670,10 +687,10 @@ void test_pkcs11_C_CloseSession( void )
     xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvOpenSession( &xSession );
+    xResult = prvOpenSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvCloseSession( &xSession );
+    xResult = prvCloseSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
@@ -723,7 +740,7 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
     xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvOpenSession( &xSession );
+    xResult = prvOpenSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     mbedtls_pk_init_CMockIgnore();
@@ -751,7 +768,7 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvCloseSession( &xSession );
+    xResult = prvCloseSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
@@ -784,7 +801,7 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
     xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvOpenSession( &xSession );
+    xResult = prvOpenSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] = RSA_PRIV_KEY_INITIALIZER;
@@ -808,7 +825,7 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    prvCloseSession( &xSession );
+    xResult = prvCloseSession( &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
