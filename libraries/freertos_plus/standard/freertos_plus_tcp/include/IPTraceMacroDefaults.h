@@ -212,6 +212,10 @@ http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Trace.html */
 
 	/* See tools/tcp_dump_packets.c */
 
+	#ifndef iptraceDUMP_INIT
+		#define iptraceDUMP_INIT( pcFileName, pxEntries )
+	#endif
+
 	#ifndef iptraceDUMP_PACKET
 		#define iptraceDUMP_PACKET( pucBuffer, uxLength, xIncoming )
 	#endif

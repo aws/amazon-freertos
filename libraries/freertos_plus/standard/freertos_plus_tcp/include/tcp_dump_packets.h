@@ -52,6 +52,9 @@ typedef struct xDumpEntries
 #if( ipconfigUSE_DUMP_PACKETS != 0 )
 
 	extern void dump_packet_init( const char *pcFileName, DumpEntries_t *pxEntries );
+	#define iptraceDUMP_INIT( pcFileName, pxEntries ) \
+		dump_packet_init( pcFileName, pxEntries )
+
 	extern void dump_packet( const uint8_t *pucBuffer, size_t uxLength, BaseType_t xIncoming );
 	#define iptraceDUMP_PACKET( pucBuffer, uxLength, xIncoming ) \
 		dump_packet( pucBuffer, uxLength, xIncoming )

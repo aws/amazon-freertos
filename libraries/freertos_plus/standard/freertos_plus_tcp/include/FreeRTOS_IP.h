@@ -51,7 +51,7 @@ These defines come before inlucding the configuration header files. */
 
 /*
  * Generate a randomized TCP Initial Sequence Number per RFC.
- * This function must be provided my the application builder.
+ * This function must be provided by the application builder.
  */
 extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
 													uint16_t usSourcePort,
