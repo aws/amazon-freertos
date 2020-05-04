@@ -2034,7 +2034,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
         if( xResult == CKR_OK )
         {
-            /* 
+            /*
              * mbedtls_pk_write_key_der appends empty public
              * key data when saving EC private key
              * that does not have a public key associated with it.
