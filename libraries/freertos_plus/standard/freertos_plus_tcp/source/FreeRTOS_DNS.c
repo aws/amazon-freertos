@@ -873,47 +873,52 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 		else
 		{
 			/* 'uxIndex' points to the full name. Walk over the string. */
-			while( ( uxIndex < ( uxSourceLen - 1U ) ) && ( pucByte[ uxIndex ] != ( uint8_t )0x00U ) )
+			while( ( uxIndex < uxSourceLen ) && ( pucByte[ uxIndex ] != ( uint8_t )0x00U ) )
 			{
 				/* If this is not the first time through the loop, then add a
 				separator in the output. */
-				if( ( uxNameLen > 0U ) && ( uxNameLen < ( uxDestLen - 1U ) ) )
-				{
-					pcName[ uxNameLen ] = '.';
-					uxNameLen++;
-				}
+				if( ( uxNameLen > 0U ) )
+ 				{
+					if( uxNameLen >= uxDestLen )
+					{
+						uxIndex = 0;
+						break;
+					}
+ 					pcName[ uxNameLen ] = '.';
+ 					uxNameLen++;
+ 				}
 
 				/* Process the first/next sub-string. */
 				uxCount = ( size_t ) pucByte[ uxIndex ];
 				uxIndex++;
-				while( ( uxCount-- != 0U ) && ( uxIndex <= ( uxSourceLen - 1U ) ) )
-				{
-					if( uxNameLen < ( uxDestLen - 1U ) )
-					{
-						pcName[ uxNameLen ] = ( char ) pucByte[ uxIndex ];
-						uxNameLen++;
-					}
-					else
-					{
-						/* DNS name is too big for the provided buffer. */
-						uxIndex = 0U;
-						break;
-					}
-					uxIndex++;
-				}
-				if( uxIndex == 0U )
-				{
+				if( uxIndex + uxCount > uxSourceLen )
+ 				{
+					uxIndex = 0;
 					break;
+				}
+
+				while( ( uxCount-- != 0U ) && ( uxIndex < uxSourceLen ) )
+				{
+					if( uxNameLen >= uxDestLen )
+ 					{
+ 						uxIndex = 0;
+ 						break;
+						/* break out of inner loop here
+						break out of outer loop at the test uxNameLen >= uxDestLen. */
+ 					}
+					pcName[ uxNameLen ] = ( char ) pucByte[ uxIndex ];
+					uxNameLen++;
+ 					uxIndex++;
 				}
 			}
 
 			/* Confirm that a fully formed name was found. */
 			if( uxIndex > 0U )
 			{
-				if( pucByte[ uxIndex ] == 0U )
+				if( ( uxNameLen < uxDestLen ) && ( uxIndex < uxSourceLen ) && ( pucByte[ uxIndex ] == 0U ) )
 				{
-					uxIndex++;
 					pcName[ uxNameLen ] = '\0';
+					uxIndex++;
 				}
 				else
 				{
