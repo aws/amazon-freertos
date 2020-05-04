@@ -802,13 +802,7 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_Invalid );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_htons_HappyCase );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase );
-
-    #ifdef FREERTOS_IP_CONFIG_H
-    /* This test is only run on FreeRTOS+TCP systems with the DNS cache enabled */
-    #if ( ipconfigUSE_DNS_CACHE == 1 )
-        RUN_TEST_CASE( Full_TCP, test_freertos_tcp_dns_cache );
-    #endif
-    #endif
+    RUN_TEST_CASE( Full_TCP, test_dns_cache_multiple_addresses );
 
     #if ( tcptestSECURE_SERVER == 1 )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseInvalidParams );
@@ -2944,10 +2938,7 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 }
 /*-----------------------------------------------------------*/
 
-#ifdef FREERTOS_IP_CONFIG_H
-/* This test is only run on FreeRTOS+TCP systems with the DNS cache enabled */
-#if ( ipconfigUSE_DNS_CACHE == 1 )
-TEST( Full_TCP, test_freertos_tcp_dns_cache )
+TEST( Full_TCP, test_dns_cache_multiple_addresses )
 {
     BaseType_t xResult = pdFAIL;
     uint32_t i;
@@ -2983,15 +2974,14 @@ TEST( Full_TCP, test_freertos_tcp_dns_cache )
             ulNumUniqueIPAddresses++;
 	}
     }
-    if( ulNumUniqueIPAddresses == ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
+    /* Require at least 4 addresses for AWS IoT broker endpoints */
+    if( ulNumUniqueIPAddresses >= 4 )
     {
         xResult == pdPASS;
     }
     TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
-#endif
-#endif
 
 /*-----------------------------------------------------------*/
 
