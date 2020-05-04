@@ -806,6 +806,13 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_htons_HappyCase );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase );
 
+    #ifdef FREERTOS_IP_CONFIG_H
+    /* This test is only run on FreeRTOS+TCP systems with the DNS cache enabled */
+    #if ( ipconfigUSE_DNS_CACHE == 1 )
+        RUN_TEST_CASE( Full_TCP, test_freertos_tcp_dns_cache );
+    #endif
+    #endif
+
     #if ( tcptestSECURE_SERVER == 1 )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseInvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseWithoutReceiving );
@@ -2959,6 +2966,57 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
+/*-----------------------------------------------------------*/
+
+#ifdef FREERTOS_IP_CONFIG_H
+/* This test is only run on FreeRTOS+TCP systems with the DNS cache enabled */
+#if ( ipconfigUSE_DNS_CACHE == 1 )
+TEST( Full_TCP, test_freertos_tcp_dns_cache )
+{
+    BaseType_t xResult = pdFAIL;
+    uint32_t i;
+    uint32_t j;
+    uint32_t ulNonUnique;
+    uint32_t ulNumUniqueIPAddresses = 0;
+
+    /* Resolve the AWS IoT broker endpoint, which will have multiple IP addresses */
+
+    uint32_t ulIPAddresses[ ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY + 1 ] = { 0UL };
+
+    tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
+    /*
+     * Resolve the broker endpoint to an array of IP addresses. Each
+     * subsequent call will return one of the addresses which the
+     * name resolves to.  Call once more than the maximum number of addresses
+     * per cache entry to ensure that wraparound works.
+     */
+    for( i = 0, ulNonUnique = 0 ; i < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY + 1 ; i ++ )
+    {
+        ulIPAddresses[i] = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+
+        for( j = 0 ; ( i > 0 ) && ( ulIPAddresses[i] != 0UL) && ( j < i ) ; j++ )
+        {
+            if( ulIPAddresses[j] == ulIPAddresses[i] )
+	    {
+                ulNonUnique = 1;     /* This address appears more than once */
+	    }
+        }
+	if( !ulNonUnique )
+	{
+            tcptestPRINTF( ( "%s resolved address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
+            ulNumUniqueIPAddresses++;
+	}
+    }
+    if( ulNumUniqueIPAddresses == ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
+    {
+        xResult == pdPASS;
+    }
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
+    tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
+}
+#endif
+#endif
+
 /*-----------------------------------------------------------*/
 
 TEST( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase )
