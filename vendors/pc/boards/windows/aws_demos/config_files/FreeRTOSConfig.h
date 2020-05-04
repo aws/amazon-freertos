@@ -135,8 +135,7 @@ extern void vLoggingPrintf( const char * pcFormat,
 #define configPRINTF( X )    vLoggingPrintf X
 
 /* Non-format version thread-safe print. */
-extern void vLoggingPrint(const char* pcMessage);
-#define configPRINT_STRING( X )    vLoggingPrint( X )
+#define configPRINT_STRING( X )    vLoggingPrintf( X )
 
 /* Application specific definitions follow. **********************************/
 
