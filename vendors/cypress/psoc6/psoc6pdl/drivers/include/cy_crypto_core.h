@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core.h
-* \version 2.30.1
+* \version 2.30.3
 *
 * \brief
 *  This file provides common constants and parameters
 *  for the Crypto driver core interface.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@
 *   Use the low-level API for direct access to the Crypto hardware.
 *
 *   The functions and other declarations used in this part of the driver are in
-*   cy_crypto_core.h. You can also include cy_pdl.h  (ModusToolbox only) to get
+*   cy_crypto_core.h. You can also include cy_pdl.h to get
 *   access to all functions and declarations in the PDL.
 *
 *   Firmware initializes and starts the Crypto operations. The firmware then

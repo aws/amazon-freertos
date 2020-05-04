@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.10.1
+* \version 1.10.3
 *
 * \brief
 * Provides the public functions for the CTB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,6 +154,9 @@ const cy_stc_ctb_fast_config_oa1_t Cy_CTB_Fast_Opamp1_Vdac_Ref_Pin5 =
 * Initialize or restore the CTB and both opamps according to the
 * provided settings. Parameters are usually set only once, at initialization.
 *
+* \note This function call disables a whole CTB block,
+* call \ref Cy_CTB_Enable after this function call.
+*
 * \param base
 * Pointer to structure describing registers
 *
@@ -235,10 +238,10 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
         CTBM_INTR_MASK(base) = (config->oa0CompIntrEn ? CTBM_INTR_MASK_COMP0_MASK_Msk : CY_CTB_DEINIT) \
                           | (config->oa1CompIntrEn ? CTBM_INTR_MASK_COMP1_MASK_Msk : CY_CTB_DEINIT);
         CTBM_INTR(base) = (CTBM_INTR_MASK_COMP0_MASK_Msk | CTBM_INTR_MASK_COMP1_MASK_Msk);
-        
+
         CTBM_OA0_COMP_TRIM(base) = (uint32_t) ((config->oa0Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
-        CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((config->oa1Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);        
-        
+        CTBM_OA1_COMP_TRIM(base) = (uint32_t) ((config->oa1Mode == CY_CTB_MODE_OPAMP10X) ? CY_CTB_OPAMP_COMPENSATION_CAP_MAX: CY_CTB_OPAMP_COMPENSATION_CAP_MIN);
+
         if (config->configRouting)
         {
             CTBM_OA0_SW(base) = config->oa0SwitchCtrl;
@@ -1374,4 +1377,3 @@ uint32_t Cy_CTB_CompGetStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compN
 #endif /* CY_IP_MXS40PASS */
 
 /* [] END OF FILE */
-
