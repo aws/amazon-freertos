@@ -1070,6 +1070,7 @@ uint16_t usType = 0;
 	uint16_t usClass = 0;
 #endif
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
+	BaseType_t xDoStore = xExpected;
 	char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ] = "";
 #endif
 
