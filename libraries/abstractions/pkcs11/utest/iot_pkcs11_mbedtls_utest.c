@@ -753,8 +753,6 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
     mbedtls_ecp_keypair_init_CMockIgnore();
     mbedtls_ecp_group_init_CMockIgnore();
     mbedtls_ecp_group_load_IgnoreAndReturn( 0 );
-
-    /* current callstack */
     mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
