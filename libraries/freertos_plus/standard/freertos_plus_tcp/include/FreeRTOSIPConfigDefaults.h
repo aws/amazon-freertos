@@ -413,6 +413,10 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#ifndef ipconfigDNS_CACHE_ENTRIES
 		#define ipconfigDNS_CACHE_ENTRIES			1
 	#endif
+
+	#ifndef ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 
+		#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 1
+	#endif
 #endif /* ipconfigUSE_DNS_CACHE != 0 */
 
 #ifndef ipconfigCHECK_IP_QUEUE_SPACE

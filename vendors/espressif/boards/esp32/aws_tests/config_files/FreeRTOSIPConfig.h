@@ -84,15 +84,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
  * a socket.
- *
- * NOTE: Use caution when enabling the DNS cache and connecting to services which
- * use a load balancer.  Since the cache only holds a single IP address, if that
- * address is out of date, no connections to the host will succeed until the TTL
- * expires.  See this GitHub issue for more details.
- *
- * https://github.com/FreeRTOS/FreeRTOS/issues/58
  */
-#define ipconfigUSE_DNS_CACHE                      ( 0 )
+#define ipconfigUSE_DNS_CACHE                      ( 1 )
+#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
