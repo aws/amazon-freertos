@@ -24,12 +24,13 @@ IotMqttError_t IotMqtt_TimedSubscribe( IotMqttConnection_t mqttConnection,
   return unconstrainedIotMqttError;
 }
 
+/* This is the function signature for the function under test */
 OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t * pxAgentCtx );
 
 void harness() {
   OTA_AgentContext_t pxAgentCtx;
   OTA_ConnectionContext_t connContext;
-  pxAgentCtx.pvConnectionContext = &connContext;
+  pxAgentCtx.pvConnectionContext = nondet_bool() ? &connContext:NULL;
   __CPROVER_assume(pxAgentCtx.pvConnectionContext != NULL);
 
   prvRequestJob_Mqtt(&pxAgentCtx);
