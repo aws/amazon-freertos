@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc.h
-* \version 2.30.1
+* \version 2.30.3
 *
 * \brief
 *  This file provides Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only,
 *  Co-Z arithmetic in the Crypto driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -643,7 +643,7 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 static void Cy_Crypto_Core_EC_CS_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
     (void)size; /* Suppress warning */
-    
+
     switch (eccMode)
     {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
@@ -1078,7 +1078,7 @@ static void Cy_Crypto_Core_EC_SM_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 static void Cy_Crypto_Core_EC_SM_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
     (void)size; /* Suppress warning */
-    
+
     switch (eccMode) {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
             Cy_Crypto_Core_EC_SM_MUL_Red_P192(base, z, x);
