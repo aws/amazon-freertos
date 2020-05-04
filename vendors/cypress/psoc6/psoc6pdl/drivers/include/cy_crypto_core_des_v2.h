@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des_v2.h
-* \version 2.30.1
+* \version 2.30.3
 *
 * \brief
 *  This file provides constant and parameters for the API for the DES method
 *  in the Crypto driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,4 +62,3 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Tdes(CRYPTO_Type *base,
 
 
 /* [] END OF FILE */
-

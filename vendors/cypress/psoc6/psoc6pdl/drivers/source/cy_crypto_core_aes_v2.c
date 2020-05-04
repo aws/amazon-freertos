@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v2.c
-* \version 2.30.1
+* \version 2.30.3
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
 *  in the Crypto driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -493,7 +493,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
     uint64_t counter;
     uint32_t cnt;
     uint32_t i;
-    
+
     (void)streamBlock; /* Suppress warning */
 
     blockCounter[ 0] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 3], ivPtr[ 2], ivPtr[ 1], ivPtr[ 0]);
