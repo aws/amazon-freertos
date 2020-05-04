@@ -43,11 +43,6 @@
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_pal.h"
 
-/* Credential includes. */
-#include "aws_clientcredential.h"
-#include "aws_clientcredential_keys.h"
-#include "iot_default_root_certificates.h"
-
 /* OPTIGA(TM) Trust X Includes */
 #include "optiga/optiga_crypt.h"
 #include "optiga/optiga_util.h"
@@ -966,60 +961,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
     return xResult;
 }
-
-#if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
-
-/* Returns True if the object is not stored in NVM & must be looked up in header file.
- * Returns fals if object is an NVM supported object. */
-
-    BaseType_t xIsObjectWithNoNvmStorage( uint8_t * pucLabel,
-                                          size_t xLength,
-                                          uint8_t ** ppucCertData )
-    {
-        BaseType_t xResult = CK_TRUE;
-
-        if( 0 == memcmp( pucLabel, pkcs11configLABEL_JITP_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_JITP_CERTIFICATE ) ) )
-        {
-            if( NULL != keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM )
-            {
-                *ppucCertData = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
-            }
-            else
-            {
-                PKCS11_PRINT( ( "ERROR: JITP Certificate not specified.\r\n" ) );
-            }
-        }
-        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
-        {
-            /* Use either Verisign or Starfield root CA,
-             * depending on whether this is an ATS endpoint. */
-            if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
-            {
-                *ppucCertData = ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM;
-            }
-            else
-            {
-                *ppucCertData = ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM;
-            }
-        }
-
-        #if ( pkcs11configOTA_SUPPORTED == 1 )
-            else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
-            {
-                *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
-            }
-        #endif
-        else
-        {
-            xResult = CK_FALSE;
-        }
-
-        return xResult;
-    }
-
-
-#endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 ) */
-
 
 #if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
 
