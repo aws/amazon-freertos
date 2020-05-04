@@ -1602,7 +1602,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 }
 /*-----------------------------------------------------------*/
 
-static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * const pxIPPacket, NetworkBufferDescriptor_t * const pxNetworkBuffer )
+static eFrameProcessingResult_t prvProcessIPPacket( IPPacket_t * pxIPPacket, NetworkBufferDescriptor_t * const pxNetworkBuffer )
 {
 eFrameProcessingResult_t eReturn;
 IPHeader_t * pxIPHeader = &( pxIPPacket->xIPHeader );
