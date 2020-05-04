@@ -849,6 +849,9 @@ static void prvSOCKETS_CloseInvalidParams( Server_t xConn )
 {
     BaseType_t xResult;
 
+    /* Disable unused parameter warning. */
+    (void) xConn;
+
     /* Try to close with an invalid socket. */
     xResult = SOCKETS_Close( SOCKETS_INVALID_SOCKET );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_EINVAL, xResult, "Socket failed to close" );
@@ -907,6 +910,9 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_CloseWithoutReceiving )
 static void prvSOCKETS_ShutdownInvalidParams( Server_t xConn )
 {
     BaseType_t xResult;
+
+    /* Disable unused parameter warning. */
+    (void) xConn;
 
     xSocket = prvTcpSocketHelper( &xSocketOpen );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
@@ -1050,6 +1056,9 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket )
 static void prvSOCKETS_Socket_TCP( Server_t xConn )
 {
     BaseType_t xResult;
+
+    /* Disable unused parameter warning. */
+    (void) xConn;
 
     /* Make TCP socket. */
     xSocket = SOCKETS_Socket( SOCKETS_AF_INET,
@@ -1320,6 +1329,9 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_InvalidParams )
 
 static void prvSOCKETS_SetSockOpt_SNDTIMEO( Server_t xConn )
 {
+    /* Disable unused parameter warning. */
+    (void) xConn;
+ 
     /* TODO: This is a stub function. */
     TEST_FAIL_MESSAGE( "This test is not implemented." );
 }
@@ -1668,6 +1680,9 @@ static void prvSOCKETS_Socket_InvalidInputParams( Server_t xConn )
 {
     BaseType_t xResult;
 
+    /* Disable unused parameter warning. */
+    (void) xConn;
+
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     /* Providing invalid domain. */
@@ -1779,6 +1794,9 @@ static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
     BaseType_t xSocketsCreated;
     Socket_t xSocket;
 
+    /* Disable unused parameter warning. */
+    (void) xConn;
+
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     xResult = pdPASS;
@@ -1851,6 +1869,9 @@ static void prvSOCKETS_Connect_InvalidParams( Server_t xConn )
     SocketsSockaddr_t xEchoServerAddress;
 
     uint32_t ulEchoServerIP;
+
+    /* Disable unused parameter warning. */
+    (void) xConn;
 
     ulEchoServerIP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
                                               tcptestECHO_SERVER_ADDR1,

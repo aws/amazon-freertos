@@ -234,6 +234,9 @@ static void RunTests( void )
 
 void TEST_RUNNER_RunTests_task( void * pvParameters )
 {
+    /* Disable unused parameter warning. */
+    ( void ) pvParameters;
+
     /* Initialize unity. */
     UnityFixture.Verbose = 1;
     UnityFixture.GroupFilter = 0;
