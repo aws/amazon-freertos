@@ -304,6 +304,9 @@ static BaseType_t prvSecureConnectHelper( Socket_t xSocket,
 static BaseType_t prvNonSecureConnectHelper( Socket_t xSocket,
                                              SocketsSockaddr_t * pxHostAddress )
 {
+    /* Disable unused parameter warning. */
+    (void) xSocket;
+
     /* Echo requests are sent to the echo server.  The echo server is
     * listening to tcptestECHO_PORT on this computer's IP address. */
     pxHostAddress->ulAddress = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
@@ -1091,7 +1094,7 @@ static void prvSOCKETS_SetSockOpt_RCVTIMEO( Server_t xConn )
     TickType_t xTimeout;
     TickType_t xTimeouts[] = { 30, 100, 10000 }; /* TODO: Add 0, nonblocking tests */
     uint8_t ucBuffer;
-    BaseType_t xIndex;
+    size_t xIndex;
 
 
     xResult = pdPASS;
