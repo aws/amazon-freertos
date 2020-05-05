@@ -51,7 +51,7 @@
 #include "aws_clientcredential.h"
 
 /* Verbose printing. */
-#define tcptestPRINTF( x )      configPRINTF( ( x ) )
+#define tcptestPRINTF( x )
 /* In case of test failures, FAILUREPRINTF may provide more detailed information. */
 #define tcptestFAILUREPRINTF( x )    vLoggingPrintf x
 /* Fail the test on tcptestASSERT. */
@@ -2961,7 +2961,8 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
     {
         ulIPAddresses[i] = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
-        tcptestPRINTF( ( "%s got address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
+        configPRINTF( ( "%s got address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
+#if 0
         for( j = 0 ; ( i > 0 ) && ( ulIPAddresses[i] != 0UL) && ( j < i ) ; j++ )
         {
             if( ulIPAddresses[j] == ulIPAddresses[i] )
@@ -2971,9 +2972,12 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
         }
 	    if( !ulNonUnique )
 	    {
-            tcptestPRINTF( ( "%s resolved address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
+            configPRINTF( ( "%s resolved address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
             ulNumUniqueIPAddresses++;
         }
+#else
+            ulNumUniqueIPAddresses++;
+#endif
     }
     /* Require at least 4 addresses for AWS IoT broker endpoints */
     if( ulNumUniqueIPAddresses >= 4 )
