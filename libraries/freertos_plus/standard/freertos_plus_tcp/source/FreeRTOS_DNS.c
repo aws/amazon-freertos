@@ -1197,6 +1197,10 @@ uint16_t usType = 0;
 
 				/* Is there enough data for an IPv4 A record answer and, if so,
 				is this an A record? */
+				if( uxSourceBytesRemaining < sizeof( uint16_t ) )
+				{
+				        return dnsPARSE_ERROR;
+				}
 				usType = usChar2u16( pucByte );
 
 				if( usType == ( uint16_t ) dnsTYPE_A_HOST )
