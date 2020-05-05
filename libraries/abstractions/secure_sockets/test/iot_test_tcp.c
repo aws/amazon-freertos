@@ -2957,7 +2957,7 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
      * name resolves to.  Call once more than the maximum number of addresses
      * per cache entry to ensure that wraparound works.
      */
-    for( i = 0, ulNonUnique = 0 ; i < 7  ; i ++ )
+    for( i = 0, ulNonUnique = 0 ; i < 20  ; i ++ )
     {
         ulIPAddresses[i] = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
