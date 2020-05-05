@@ -1,0 +1,40 @@
+diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
+index 650499f80..26e732f03 100644
+--- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
++++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
+@@ -179,7 +179,11 @@ static void prvSendDHCPDiscover( void );
+ /*
+  * Interpret message received on the DHCP socket.
+  */
++#ifdef CBMC
++BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
++#else
+ static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
++#endif
+ 
+ /*
+  * Generate a DHCP request packet, and send it on the DHCP socket.
+@@ -223,7 +227,11 @@ static void prvCloseDHCPSocket( void );
+ /*-----------------------------------------------------------*/
+ 
+ /* Hold information in between steps in the DHCP state machine. */
++#ifdef CBMC
++DHCPData_t xDHCPData;
++#else
+ static DHCPData_t xDHCPData;
++#endif
+ 
+ /*-----------------------------------------------------------*/
+ 
+@@ -623,7 +631,11 @@ static void prvInitialiseDHCP( void )
+ }
+ /*-----------------------------------------------------------*/
+ 
++#ifdef CBMC
++BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
++#else
+ static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
++#endif
+ {
+ uint8_t *pucUDPPayload;
+ int32_t lBytes;
