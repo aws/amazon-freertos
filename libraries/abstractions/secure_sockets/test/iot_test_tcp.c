@@ -3002,6 +3002,7 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
 #else
             ulNumUniqueIPAddresses++;
 #endif
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
     /* Require at least 4 addresses for AWS IoT broker endpoints */
     if( ulNumUniqueIPAddresses >= 4 )
