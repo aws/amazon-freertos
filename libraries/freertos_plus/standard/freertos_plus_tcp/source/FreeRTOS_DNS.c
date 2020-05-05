@@ -171,8 +171,8 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 		uint32_t ulTTL;                               /* Time-to-Live (in seconds) from the DNS server. */
 		uint32_t ulTimeWhenAddedInSeconds;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-		uint16_t  usNumIPAddresses;
-		uint16_t  usCurrentIPAddress;
+		uint8_t  ucNumIPAddresses;
+		uint8_t  ucCurrentIPAddress;
 #endif
 	} DNSCacheRow_t;
 
@@ -497,7 +497,7 @@ BaseType_t xHasRandom = pdFALSE;
 
 				if( ulIPAddress != 0 )
 				{
-					configPRINTF( ( "FreeRTOS_gethostbyname: found '%s' in cache: %lxip\n", pcHostName, ulIPAddress ) );
+					FreeRTOS_debug_printf( ( "FreeRTOS_gethostbyname: found '%s' in cache: %lxip\n", pcHostName, ulIPAddress ) );
 				}
 				else
 				{
@@ -1472,9 +1472,6 @@ BaseType_t xReturn;
 									BaseType_t xLookUp )
 	{
 	BaseType_t x;
-#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-	BaseType_t y;
-#endif
 	BaseType_t xFound = pdFALSE;
 	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000;
 	uint32_t ulIPAddressIndex = 0;
@@ -1500,9 +1497,9 @@ BaseType_t xReturn;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
                         /* The current IP address index increments without bound and can rollover, */
                         /*  modulo it by the number of IP addresses to keep it in range. */
-                        ulIPAddressIndex = xDNSCache[ x ].usCurrentIPAddress % xDNSCache[ x ].usNumIPAddresses;
+                        ulIPAddressIndex = xDNSCache[ x ].ucCurrentIPAddress % xDNSCache[ x ].ucNumIPAddresses;
 
-                        xDNSCache[ x ].usCurrentIPAddress++;
+                        xDNSCache[ x ].ucCurrentIPAddress++;
 #endif
 						*pulIP = xDNSCache[ x ].ulIPAddress[ulIPAddressIndex];
 					}
@@ -1515,23 +1512,12 @@ BaseType_t xReturn;
 				else
 				{
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-                    for( y = 0; y < xDNSCache[ x ].usNumIPAddresses; y++ )
-                    {
-					    if( xDNSCache[ x ].ulIPAddress[y] == *pulIP )
-                        {
-                            /*
-                             * Duplicate address, just update this entry
-                             */
-                            ulIPAddressIndex = y;
-                        }
-                    }
-                    if ( ( ulIPAddressIndex == 0 ) &&
-                         ( xDNSCache[ x ].usNumIPAddresses < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY ) )
+                    if ( xDNSCache[ x ].ucNumIPAddresses < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
                     {
                         /* If more answers exist than there are IP address storage slots */
                         /* they will overwrite entry 0 */
 
-                        ulIPAddressIndex = xDNSCache[ x ].usNumIPAddresses++;
+                        ulIPAddressIndex = xDNSCache[ x ].ucNumIPAddresses++;
                     }
 #endif
 					xDNSCache[ x ].ulIPAddress[ulIPAddressIndex] = *pulIP;
@@ -1561,8 +1547,8 @@ BaseType_t xReturn;
 					xDNSCache[ xFreeEntry ].ulTTL = ulTTL;
 					xDNSCache[ xFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-					xDNSCache[ xFreeEntry ].usNumIPAddresses = 1;
-					xDNSCache[ xFreeEntry ].usCurrentIPAddress = 0;
+					xDNSCache[ xFreeEntry ].ucNumIPAddresses = 1;
+					xDNSCache[ xFreeEntry ].ucCurrentIPAddress = 0;
 #endif
 					xFreeEntry++;
 
@@ -1576,7 +1562,7 @@ BaseType_t xReturn;
 
 		if( ( xLookUp == 0 ) || ( *pulIP != 0 ) )
 		{
-			configPRINTF( ( "prvProcessDNSCache: %s: '%s' @ %lxip\n", xLookUp ? "look-up" : "add", pcName, FreeRTOS_ntohl( *pulIP ) ) );
+			FreeRTOS_debug_printf( ( "prvProcessDNSCache: %s: '%s' @ %lxip\n", xLookUp ? "look-up" : "add", pcName, FreeRTOS_ntohl( *pulIP ) ) );
 		}
 	}
 
