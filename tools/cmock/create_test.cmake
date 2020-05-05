@@ -146,7 +146,7 @@ function(create_real_library target
             ${real_include_list}
             )
     set_target_properties(${target} PROPERTIES
-                COMPILE_FLAGS " \
+                COMPILE_FLAGS "-Wextra -Wpedantic \
                     -fprofile-arcs -ftest-coverage -fprofile-generate \
                     -include portableDefs.h -Wno-unused-but-set-variable"
                 LINK_FLAGS "-fprofile-arcs -ftest-coverage \
