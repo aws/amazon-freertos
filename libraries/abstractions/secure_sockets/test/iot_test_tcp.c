@@ -2967,12 +2967,13 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
     BaseType_t xResult = pdFAIL;
     uint32_t i;
     uint32_t j;
-    uint32_t ulNonUnique;
+    uint32_t ulIPAddress;
+    uint32_t ulUnique;
     uint32_t ulNumUniqueIPAddresses = 0;
 
     /* Resolve the AWS IoT broker endpoint, which will have multiple IP addresses */
 
-    uint32_t ulIPAddresses[ 7 ] = { 0UL };
+    uint32_t ulIPAddresses[ 10 ] = { 0UL };
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
     /*
@@ -2980,28 +2981,27 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
      * subsequent call will return one of the addresses which the
      * name resolves to.  Call once more than the maximum number of addresses
      * per cache entry to ensure that wraparound works.
+     *
+     * NOTE: Resolving all addresses associated with the AWS IoT broker endpoint
+     * can take some time, so allow 60 seconds to collect all of them.
      */
-    for( i = 0, ulNonUnique = 0 ; i < 20  ; i ++ )
+    for( i = 0 ; i < 60  ; i ++ )
     {
-        ulIPAddresses[i] = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+        ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
-        configPRINTF( ( "%s got address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
-#if 0
-        for( j = 0 ; ( i > 0 ) && ( ulIPAddresses[i] != 0UL) && ( j < i ) ; j++ )
+        configPRINTF( ( "%s got address: %lx\r\n", __FUNCTION__, ulIPAddress ) );
+
+        for( j = 0, ulUnique = 1 ; j < ulNumUniqueIPAddress ; j++ )
         {
-            if( ulIPAddresses[j] == ulIPAddresses[i] )
+            if( ulIPAddresses[ j ] == ulIPAddress )
             {
-                ulNonUnique = 1;     /* This address appears more than once */
+                ulUnique = 0;
             }
         }
-	    if( !ulNonUnique )
-	    {
-            configPRINTF( ( "%s resolved address: %lu\r\n", __FUNCTION__, ulIPAddresses[i] ) );
-            ulNumUniqueIPAddresses++;
+        if( ( ulUnique == 1 ) && ( ulNumUniqueIPAddresses < 10 ) )
+        {
+            ulIPAddresses[ ulNumUniqueIPAddresses++ ] = ulIPAddress;
         }
-#else
-            ulNumUniqueIPAddresses++;
-#endif
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
     /* Require at least 4 addresses for AWS IoT broker endpoints */
