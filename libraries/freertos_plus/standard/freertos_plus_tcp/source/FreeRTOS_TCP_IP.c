@@ -1191,6 +1191,7 @@ uint8_t ucLength;
 			corrupted, we don't like to run into invalid memory and crash. */
 			for( ;; )
 			{
+			        if (uxOptionsLength == 0) break;
 				uxResult = prvSingleStepTCPHeaderOptions( pucPtr, uxOptionsLength, pxSocket, xHasSYNFlag );
 				if( uxResult == 0UL )
 				{
