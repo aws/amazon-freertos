@@ -41,26 +41,32 @@
 #include "task.h"
 
 /*-----------------------------------------------------------*/
-#define testIotRTC_DEFAULT_INVALID_DATE      ( 0xFFFF )
-#define testIotRTC_DEFAULT_CURRENT_YEAR      ( 119 )    /* 2019 */
-#define testIotRTC_DEFAULT_CURRENT_MONTH     ( 0 )      /* January*/
-#define testIotRTC_DEFAULT_CURRENT_DAY       ( 1 )      /* 1st of the month */
-#define testIotRTC_DEFAULT_CURRENT_HOUR      ( 0 )      /* 0th hour */
-#define testIotRTC_DEFAULT_CURRENT_MINUTE    ( 0 )      /* 0th minute */
-#define testIotRTC_DEFAULT_CURRENT_SECOND    ( 0 )      /* 0th second */
+#define testIotRTC_DEFAULT_INVALID_DATE        ( 0xFFFF )
+#define testIotRTC_DEFAULT_CURRENT_WEEK_DAY    ( 2 )    /* 1st of January 2019 is a tuesday */
+#define testIotRTC_DEFAULT_CURRENT_YEAR        ( 119 )  /* 2019 */
+#define testIotRTC_DEFAULT_CURRENT_MONTH       ( 0 )    /* January*/
+#define testIotRTC_DEFAULT_CURRENT_DAY         ( 1 )    /* 1st of the month */
+#define testIotRTC_DEFAULT_CURRENT_HOUR        ( 0 )    /* 0th hour */
+#define testIotRTC_DEFAULT_CURRENT_MINUTE      ( 0 )    /* 0th minute */
+#define testIotRTC_DEFAULT_CURRENT_SECOND      ( 0 )    /* 0th second */
 
-#define testIotRTC_SEC_TO_MSEC               ( 1000 )
-#define testIotRTC_DELAY_SECONDS             ( 2 )
+#define testIotRTC_SEC_TO_MSEC                 ( 1000 )
+#define testIotRTC_DELAY_SECONDS               ( 2 )
 
-#define testIotRTC_DEFAULT_ALARM_TIME        ( 5 )  /* Current time + 5 sec */
-#define testIotRTC_DEFAULT_WAKEUP_TIME       ( 15 ) /* 15 milliseconds from now. */
+#define testIotRTC_DEFAULT_ALARM_TIME          ( 5 )  /* Current time + 5 sec */
+#define testIotRTC_DEFAULT_WAKEUP_TIME         ( 15 ) /* 15 milliseconds from now. */
 
 /*-----------------------------------------------------------*/
+
+/* Globals values which can be overwritten by the test
+ * framework invoking these tests */
+/*-----------------------------------------------------------*/
+int32_t uctestIotRTCInstanceIdx = 0; /**< The RTC instance index to use */
+
 
 /*-----------------------------------------------------------*/
 /** Static globals */
 /*-----------------------------------------------------------*/
-extern IotRtcHandle_t gIotRtcHandle;
 static SemaphoreHandle_t xtestIotRtcSemaphore = NULL;
 
 
@@ -91,20 +97,14 @@ TEST_TEAR_DOWN( TEST_IOT_RTC )
 static void prvRtcAlarmCallback( IotRtcStatus_t xStatus,
                                  void * pvUserContext )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
-    xSemaphoreGiveFromISR( xtestIotRtcSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR( xtestIotRtcSemaphore, NULL );
 }
 
 /*-----------------------------------------------------------*/
 static void prvRtcWakeupCallback( IotRtcStatus_t xStatus,
                                   void * pvUserContext )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
-    xSemaphoreGiveFromISR( xtestIotRtcSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR( xtestIotRtcSemaphore, NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -143,27 +143,16 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcOpenClose )
     int32_t lRetVal;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
     /* Open rtc to initialize hardware. */
-
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
     /* Try to close with non-null handle */
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
-
-    /* Set the global RtcHandle to NULL as we closed the handle */
-    gIotRtcHandle = NULL;
 }
 
 /**
@@ -181,19 +170,15 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcOpenCloseFailure )
     TEST_ASSERT_EQUAL( NULL, xRtcHandle1 );
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle1 = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle1 );
-    }
-    else
-    {
-        xRtcHandle1 = gIotRtcHandle;
-    }
+    xRtcHandle1 = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle1 );
 
-    /* Open rtc again. */
-    xRtcHandle2 = iot_rtc_open( 0 );
-    TEST_ASSERT_EQUAL( NULL, xRtcHandle2 );
+    if( TEST_PROTECT() )
+    {
+        /* Open rtc again. */
+        xRtcHandle2 = iot_rtc_open( uctestIotRTCInstanceIdx );
+        TEST_ASSERT_EQUAL( NULL, xRtcHandle2 );
+    }
 
     /* Close handle */
     lRetVal = iot_rtc_close( xRtcHandle1 );
@@ -216,60 +201,58 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetDateTime )
     int32_t lRetVal, lStatus;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
+
+    if( TEST_PROTECT() )
     {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
+        /* Get the status and check timer is stopped */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcStatus,
+                                 ( void * const ) &lStatus );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eRtcTimerStopped, lStatus );
+
+        xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
+        xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
+        xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
+        xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
+        xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
+        xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
+        xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
+
+        /* Try to get the date and time before the timer is started */
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, &xGetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
+
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+        /* Get the status and check timer is running */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcStatus,
+                                 ( void * const ) &lStatus );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eRtcTimerRunning, lStatus );
+
+
+        /* Delay for 2 sec. */
+        vTaskDelay( ( testIotRTC_DELAY_SECONDS * testIotRTC_SEC_TO_MSEC ) / portTICK_PERIOD_MS );
+
+        /* Get the date and time*/
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, &xGetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+        /* Make sure the current time is greater than what is set. */
+        TEST_ASSERT_EQUAL( xSetDateTime.ucWday, xGetDateTime.ucWday );
+        TEST_ASSERT_EQUAL( xSetDateTime.usYear, xGetDateTime.usYear );
+        TEST_ASSERT_EQUAL( xSetDateTime.ucMonth, xGetDateTime.ucMonth );
+        TEST_ASSERT_EQUAL( xSetDateTime.ucDay, xGetDateTime.ucDay );
+        TEST_ASSERT_EQUAL( xSetDateTime.ucHour, xGetDateTime.ucHour );
+        TEST_ASSERT_EQUAL( xSetDateTime.ucMinute, xGetDateTime.ucMinute );
+        TEST_ASSERT_GREATER_THAN_UINT32( xSetDateTime.ucSecond, xGetDateTime.ucSecond );
     }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
-
-    /* Get the status and check timer is stopped */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcStatus,
-                             ( void * const ) &lStatus );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eRtcTimerStopped, lStatus );
-
-    xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
-    xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
-    xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
-    xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
-    xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
-    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
-
-    /* Try to get the date and time before the timer is started */
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, &xGetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
-
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Get the status and check timer is running */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcStatus,
-                             ( void * const ) &lStatus );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eRtcTimerRunning, lStatus );
-
-
-    /* Delay for 2 sec. */
-    vTaskDelay( ( testIotRTC_DELAY_SECONDS * testIotRTC_SEC_TO_MSEC ) / portTICK_PERIOD_MS );
-
-    /* Get the date and time*/
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, &xGetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Make sure the current time is greater than what is set. */
-    TEST_ASSERT_EQUAL( xSetDateTime.usYear, xGetDateTime.usYear );
-    TEST_ASSERT_EQUAL( xSetDateTime.ucMonth, xGetDateTime.ucMonth );
-    TEST_ASSERT_EQUAL( xSetDateTime.ucDay, xGetDateTime.ucDay );
-    TEST_ASSERT_EQUAL( xSetDateTime.ucHour, xGetDateTime.ucHour );
-    TEST_ASSERT_EQUAL( xSetDateTime.ucMinute, xGetDateTime.ucMinute );
-    TEST_ASSERT_GREATER_THAN_UINT32( xSetDateTime.ucSecond, xGetDateTime.ucSecond );
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
@@ -289,15 +272,8 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetAlarm )
     int32_t lRetVal, lStatus;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
     xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
@@ -305,60 +281,65 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetAlarm )
     xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
     xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
 
-    /* Try to set the Alarm time before starting the timer */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        /* Try to set the Alarm time before starting the timer */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
 
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Set up the callback */
-    iot_rtc_set_callback( xRtcHandle,
-                          prvRtcAlarmCallback,
-                          NULL );
+        /* Set up the callback */
+        iot_rtc_set_callback( xRtcHandle,
+                              prvRtcAlarmCallback,
+                              NULL );
 
-    /* Get the date and time*/
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        /* Get the date and time*/
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Set up alarm to happen after 5 sec. */
-    xAlarmSetDateTime.ucSecond += testIotRTC_DEFAULT_ALARM_TIME;
+        /* Set up alarm to happen after 5 sec. */
+        xAlarmSetDateTime.ucSecond += testIotRTC_DEFAULT_ALARM_TIME;
 
-    /* Set the Alarm time */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        /* Set the Alarm time */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Get the Alarm time and verify */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcAlarm,
-                             ( void * const ) &xAlarmGetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        /* Get the Alarm time and verify */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcAlarm,
+                                 ( void * const ) &xAlarmGetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Make sure Alarm is set correctly */
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.usYear, xAlarmGetDateTime.usYear );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMonth, xAlarmGetDateTime.ucMonth );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucDay, xAlarmGetDateTime.ucDay );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucHour, xAlarmGetDateTime.ucHour );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMinute, xAlarmGetDateTime.ucMinute );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucSecond, xAlarmGetDateTime.ucSecond );
+        /* Make sure Alarm is set correctly */
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.usYear, xAlarmGetDateTime.usYear );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMonth, xAlarmGetDateTime.ucMonth );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucDay, xAlarmGetDateTime.ucDay );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucHour, xAlarmGetDateTime.ucHour );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMinute, xAlarmGetDateTime.ucMinute );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucSecond, xAlarmGetDateTime.ucSecond );
 
-    /* Wait for the Alarm to trigger callback */
-    lRetVal = xSemaphoreTake( xtestIotRtcSemaphore, portMAX_DELAY );
-    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+        /* Wait for the Alarm to trigger callback */
+        lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
+                                  pdMS_TO_TICKS( ( testIotRTC_DEFAULT_ALARM_TIME + 1 ) * testIotRTC_SEC_TO_MSEC ) );
+        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
 
-    /* Get the status and check */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcStatus,
-                             ( void * const ) &lStatus );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eRtcTimerAlarmTriggered,
-                       lStatus & eRtcTimerAlarmTriggered );
+        /* Get the status and check */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcStatus,
+                                 ( void * const ) &lStatus );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eRtcTimerAlarmTriggered,
+                           lStatus & eRtcTimerAlarmTriggered );
+    }
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
@@ -378,16 +359,10 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcCancelAlarm )
     int32_t lRetVal, lStatus;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
     xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
@@ -395,55 +370,59 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcCancelAlarm )
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
     xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Set up the callback */
-    iot_rtc_set_callback( xRtcHandle,
-                          prvRtcAlarmCallback,
-                          NULL );
-
-    /* Get the date and time*/
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Set up alarm to happen after 5 sec. */
-    xAlarmSetDateTime.ucSecond += testIotRTC_DEFAULT_ALARM_TIME;
-
-    /* Set the Alarm time */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Get the Alarm time and verify */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcAlarm,
-                             ( void * const ) &xAlarmGetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Make sure Alarm is set correctly */
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.usYear, xAlarmGetDateTime.usYear );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMonth, xAlarmGetDateTime.ucMonth );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucDay, xAlarmGetDateTime.ucDay );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucHour, xAlarmGetDateTime.ucHour );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMinute, xAlarmGetDateTime.ucMinute );
-    TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucSecond, xAlarmGetDateTime.ucSecond );
-
-    /* Cancel the Alarm */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eCancelRtcAlarm,
-                             NULL );
-
-    if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
         TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-        /* Verify that call-back is NOT called */
-        lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
-                                  pdMS_TO_TICKS( ( testIotRTC_DEFAULT_ALARM_TIME + 1 ) * testIotRTC_SEC_TO_MSEC ) );
-        TEST_ASSERT_EQUAL( pdFALSE, lRetVal );
+        /* Set up the callback */
+        iot_rtc_set_callback( xRtcHandle,
+                              prvRtcAlarmCallback,
+                              NULL );
+
+        /* Get the date and time*/
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+        /* Set up alarm to happen after 5 sec. */
+        xAlarmSetDateTime.ucSecond += testIotRTC_DEFAULT_ALARM_TIME;
+
+        /* Set the Alarm time */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+        /* Get the Alarm time and verify */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcAlarm,
+                                 ( void * const ) &xAlarmGetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+        /* Make sure Alarm is set correctly */
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucWday, xAlarmGetDateTime.ucWday );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.usYear, xAlarmGetDateTime.usYear );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMonth, xAlarmGetDateTime.ucMonth );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucDay, xAlarmGetDateTime.ucDay );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucHour, xAlarmGetDateTime.ucHour );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucMinute, xAlarmGetDateTime.ucMinute );
+        TEST_ASSERT_EQUAL( xAlarmSetDateTime.ucSecond, xAlarmGetDateTime.ucSecond );
+
+        /* Cancel the Alarm */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eCancelRtcAlarm,
+                                 NULL );
+
+        if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+            /* Verify that call-back is NOT called */
+            lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
+                                      pdMS_TO_TICKS( ( testIotRTC_DEFAULT_ALARM_TIME + 1 ) * testIotRTC_SEC_TO_MSEC ) );
+            TEST_ASSERT_EQUAL( pdFALSE, lRetVal );
+        }
     }
 
     lRetVal = iot_rtc_close( xRtcHandle );
@@ -464,16 +443,10 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetWakeup )
     uint32_t lGetWakeupMilliSeconds;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
     xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
@@ -481,54 +454,58 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetWakeup )
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
     xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
-    /* Try to set the wakeup count before the timer is started */
-    lSetWakeupMilliSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcWakeupTime,
-                             ( void * const ) &lSetWakeupMilliSeconds );
-
-    if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
-        TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
-    }
-
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Set up the callback */
-    iot_rtc_set_callback( xRtcHandle,
-                          prvRtcWakeupCallback,
-                          NULL );
-
-    /* Set the wakeup count */
-    lSetWakeupMilliSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcWakeupTime,
-                             ( void * const ) &lSetWakeupMilliSeconds );
-
-    if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
-    {
-        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-        /* Get the wakeup count and check */
+        /* Try to set the wakeup count before the timer is started */
+        lSetWakeupMilliSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
         lRetVal = iot_rtc_ioctl( xRtcHandle,
-                                 eGetRtcWakeupTime,
-                                 ( void * const ) &lGetWakeupMilliSeconds );
+                                 eSetRtcWakeupTime,
+                                 ( void * const ) &lSetWakeupMilliSeconds );
+
+        if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_RTC_NOT_STARTED, lRetVal );
+        }
+
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
         TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-        TEST_ASSERT_NOT_EQUAL( 0, lGetWakeupMilliSeconds );
-        TEST_ASSERT_EQUAL( lSetWakeupMilliSeconds, lGetWakeupMilliSeconds );
 
-        /* Wait for the Wakeup to trigger callback */
-        lRetVal = xSemaphoreTake( xtestIotRtcSemaphore, portMAX_DELAY );
-        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+        /* Set up the callback */
+        iot_rtc_set_callback( xRtcHandle,
+                              prvRtcWakeupCallback,
+                              NULL );
 
-        /* Get the status and check */
+        /* Set the wakeup count */
+        lSetWakeupMilliSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
         lRetVal = iot_rtc_ioctl( xRtcHandle,
-                                 eGetRtcStatus,
-                                 ( void * const ) &lStatus );
-        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( eRtcTimerWakeupTriggered, lStatus );
+                                 eSetRtcWakeupTime,
+                                 ( void * const ) &lSetWakeupMilliSeconds );
+
+        if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+            /* Get the wakeup count and check */
+            lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                     eGetRtcWakeupTime,
+                                     ( void * const ) &lGetWakeupMilliSeconds );
+            TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+            TEST_ASSERT_NOT_EQUAL( 0, lGetWakeupMilliSeconds );
+            TEST_ASSERT_EQUAL( lSetWakeupMilliSeconds, lGetWakeupMilliSeconds );
+
+            /* Wait for the Wakeup to trigger callback */
+            lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
+                                      pdMS_TO_TICKS( ( testIotRTC_DEFAULT_WAKEUP_TIME + 2 ) ) );
+            TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+
+            /* Get the status and check */
+            lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                     eGetRtcStatus,
+                                     ( void * const ) &lStatus );
+            TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+            TEST_ASSERT_EQUAL( eRtcTimerWakeupTriggered, lStatus );
+        }
     }
 
     lRetVal = iot_rtc_close( xRtcHandle );
@@ -549,16 +526,10 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcCancelWakeup )
     uint32_t lGetWakeupSeconds;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
     xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
@@ -566,46 +537,49 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcCancelWakeup )
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
     xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Set up the callback */
-    iot_rtc_set_callback( xRtcHandle,
-                          prvRtcWakeupCallback,
-                          NULL );
-
-    /* Set the wakeup count */
-    lSetWakeupSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcWakeupTime,
-                             ( void * const ) &lSetWakeupSeconds );
-
-    if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+    if( TEST_PROTECT() )
     {
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
         TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-        /* Get the wakeup count and check */
-        lRetVal = iot_rtc_ioctl( xRtcHandle,
-                                 eGetRtcWakeupTime,
-                                 ( void * const ) &lGetWakeupSeconds );
-        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-        TEST_ASSERT_NOT_EQUAL( 0, lGetWakeupSeconds );
-        TEST_ASSERT_EQUAL( lSetWakeupSeconds, lGetWakeupSeconds );
+        /* Set up the callback */
+        iot_rtc_set_callback( xRtcHandle,
+                              prvRtcWakeupCallback,
+                              NULL );
 
-        /* Cancel wakeup timer */
+        /* Set the wakeup count */
+        lSetWakeupSeconds = testIotRTC_DEFAULT_WAKEUP_TIME;
         lRetVal = iot_rtc_ioctl( xRtcHandle,
-                                 eCancelRtcWakeup,
-                                 NULL );
+                                 eSetRtcWakeupTime,
+                                 ( void * const ) &lSetWakeupSeconds );
 
         if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
         {
             TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-            /* Verify that call-back is NOT called */
-            lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
-                                      pdMS_TO_TICKS( testIotRTC_DEFAULT_WAKEUP_TIME + 1 ) );
-            TEST_ASSERT_EQUAL( pdFALSE, lRetVal );
+            /* Get the wakeup count and check */
+            lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                     eGetRtcWakeupTime,
+                                     ( void * const ) &lGetWakeupSeconds );
+            TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+            TEST_ASSERT_NOT_EQUAL( 0, lGetWakeupSeconds );
+            TEST_ASSERT_EQUAL( lSetWakeupSeconds, lGetWakeupSeconds );
+
+            /* Cancel wakeup timer */
+            lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                     eCancelRtcWakeup,
+                                     NULL );
+
+            if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+            {
+                TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+
+                /* Verify that call-back is NOT called */
+                lRetVal = xSemaphoreTake( xtestIotRtcSemaphore,
+                                          pdMS_TO_TICKS( testIotRTC_DEFAULT_WAKEUP_TIME + 1000 ) );
+                TEST_ASSERT_EQUAL( pdFALSE, lRetVal );
+            }
         }
     }
 
@@ -623,15 +597,18 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcGetStatus )
     int32_t lRetVal, lStatus;
 
     /* Open rtc to initialize hardware. */
-    xRtcHandle = iot_rtc_open( 0 );
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
     TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
-    /* Get the status and check timer is stopped */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eGetRtcStatus,
-                             ( void * const ) &lStatus );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eRtcTimerStopped, lStatus );
+    if( TEST_PROTECT() )
+    {
+        /* Get the status and check timer is stopped */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eGetRtcStatus,
+                                 ( void * const ) &lStatus );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        TEST_ASSERT_EQUAL( eRtcTimerStopped, lStatus );
+    }
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
@@ -651,48 +628,45 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetWakeupInvalid )
     uint32_t lGetWakeupMilliSeconds;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
+
+    if( TEST_PROTECT() )
     {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+        xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
+        xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
+        xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
+        xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
+        xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
+        xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
+        xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
-    xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
-    xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
-    xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
-    xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
-    xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
-    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-
-    /* Call ioctl with NULL handle.  Expect error.*/
-    lRetVal = iot_rtc_ioctl( NULL,
-                             eSetRtcWakeupTime,
-                             ( void * const ) &lSetWakeupMilliSeconds );
-    TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
-
-    /* Call ioctl with invalid enum.  Expect error.*/
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             -1,
-                             ( void * const ) &lSetWakeupMilliSeconds );
-    TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
-
-    /* Set the wakeup count */
-    lSetWakeupMilliSeconds = 0;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcWakeupTime,
-                             ( void * const ) &lSetWakeupMilliSeconds );
-
-    if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
-    {
+        /* Call ioctl with NULL handle.  Expect error.*/
+        lRetVal = iot_rtc_ioctl( NULL,
+                                 eSetRtcWakeupTime,
+                                 ( void * const ) &lSetWakeupMilliSeconds );
         TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
+
+        /* Call ioctl with invalid enum.  Expect error.*/
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 -1,
+                                 ( void * const ) &lSetWakeupMilliSeconds );
+        TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
+
+        /* Set the wakeup count */
+        lSetWakeupMilliSeconds = 0;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcWakeupTime,
+                                 ( void * const ) &lSetWakeupMilliSeconds );
+
+        if( lRetVal != IOT_RTC_FUNCTION_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
+        }
     }
 
     lRetVal = iot_rtc_close( xRtcHandle );
@@ -712,79 +686,83 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetAlarmInvalid )
     int32_t lRetVal;
 
     /* Open rtc to initialize hardware. */
-    if( gIotRtcHandle == NULL )
-    {
-        xRtcHandle = iot_rtc_open( 0 );
-        TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
-    }
-    else
-    {
-        xRtcHandle = gIotRtcHandle;
-    }
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
+    TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
     xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
     xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
-    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
+    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND + testIotRTC_DEFAULT_ALARM_TIME;
 
-    /* Set the date and time*/
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        /* Set the date and time*/
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Set up the callback */
-    iot_rtc_set_callback( xRtcHandle,
-                          prvRtcAlarmCallback,
-                          NULL );
+        /* Set up the callback */
+        iot_rtc_set_callback( xRtcHandle,
+                              prvRtcAlarmCallback,
+                              NULL );
 
-    /* Get the date and time*/
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
+        /* Get the date and time*/
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
 
-    /* Set up alarm in the past. */
-    xAlarmSetDateTime.ucSecond -= testIotRTC_DEFAULT_ALARM_TIME;
+        /* Set up alarm in the past. */
+        xAlarmSetDateTime.ucSecond -= testIotRTC_DEFAULT_ALARM_TIME;
 
-    /* Set the Alarm time */
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the Alarm time */
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
 
-    xAlarmSetDateTime.ucSecond = xSetDateTime.ucSecond + 5;
-    xAlarmSetDateTime.ucMonth = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        xAlarmSetDateTime.ucSecond = xSetDateTime.ucSecond + testIotRTC_DEFAULT_ALARM_TIME;
+        xAlarmSetDateTime.ucWday = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    xAlarmSetDateTime.ucMonth = xSetDateTime.ucMonth;
-    xAlarmSetDateTime.ucDay = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        xAlarmSetDateTime.ucWday = xSetDateTime.ucWday;
+        xAlarmSetDateTime.ucMonth = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    xAlarmSetDateTime.ucDay = xSetDateTime.ucDay;
-    xAlarmSetDateTime.ucHour = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        xAlarmSetDateTime.ucMonth = xSetDateTime.ucMonth;
+        xAlarmSetDateTime.ucDay = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    xAlarmSetDateTime.ucHour = xSetDateTime.ucHour;
-    xAlarmSetDateTime.ucMinute = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        xAlarmSetDateTime.ucDay = xSetDateTime.ucDay;
+        xAlarmSetDateTime.ucHour = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    xAlarmSetDateTime.ucMinute = xSetDateTime.ucMinute;
-    xAlarmSetDateTime.ucSecond = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_ioctl( xRtcHandle,
-                             eSetRtcAlarm,
-                             ( void * const ) &xAlarmSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        xAlarmSetDateTime.ucHour = xSetDateTime.ucHour;
+        xAlarmSetDateTime.ucMinute = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+
+        xAlarmSetDateTime.ucMinute = xSetDateTime.ucMinute;
+        xAlarmSetDateTime.ucSecond = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_ioctl( xRtcHandle,
+                                 eSetRtcAlarm,
+                                 ( void * const ) &xAlarmSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+    }
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
@@ -803,49 +781,54 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetDateTimeFuzzing )
     int32_t lRetVal;
 
     /* Open rtc to initialize hardware. */
-    xRtcHandle = iot_rtc_open( 0 );
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
     TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
+    xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
     xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
     xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
     xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
-    /* Set the date and time with invalid year*/
-    xSetDateTime.usYear = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        /* Set the date and time with invalid month*/
+        xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
+        xSetDateTime.ucMonth = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    /* Set the date and time with invalid month*/
-    xSetDateTime.usYear = testIotRTC_DEFAULT_CURRENT_YEAR;
-    xSetDateTime.ucMonth = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the date and time with invalid week day*/
+        xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
+        xSetDateTime.ucWday = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    /* Set the date and time with invalid day*/
-    xSetDateTime.ucMonth = testIotRTC_DEFAULT_CURRENT_MONTH;
-    xSetDateTime.ucDay = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the date and time with invalid day*/
+        xSetDateTime.ucWday = testIotRTC_DEFAULT_CURRENT_WEEK_DAY;
+        xSetDateTime.ucDay = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    /* Set the date and time with invalid hour*/
-    xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
-    xSetDateTime.ucHour = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the date and time with invalid hour*/
+        xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
+        xSetDateTime.ucHour = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    /* Set the date and time with invalid minute*/
-    xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
-    xSetDateTime.ucMinute = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the date and time with invalid minute*/
+        xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
+        xSetDateTime.ucMinute = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
 
-    /* Set the date and time with invalid second*/
-    xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
-    xSetDateTime.ucSecond = testIotRTC_DEFAULT_INVALID_DATE;
-    lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
-    TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+        /* Set the date and time with invalid second*/
+        xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
+        xSetDateTime.ucSecond = testIotRTC_DEFAULT_INVALID_DATE;
+        lRetVal = iot_rtc_set_datetime( xRtcHandle, &xSetDateTime );
+        TEST_ASSERT_EQUAL( IOT_RTC_SET_FAILED, lRetVal );
+    }
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
@@ -866,12 +849,15 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcGetDateTimeFuzzing )
     TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
 
     /* Open rtc to initialize hardware. */
-    xRtcHandle = iot_rtc_open( 0 );
+    xRtcHandle = iot_rtc_open( uctestIotRTCInstanceIdx );
     TEST_ASSERT_NOT_EQUAL( NULL, xRtcHandle );
 
-    /* Get the date and time with NULL buffer*/
-    lRetVal = iot_rtc_get_datetime( xRtcHandle, NULL );
-    TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
+    if( TEST_PROTECT() )
+    {
+        /* Get the date and time with NULL buffer*/
+        lRetVal = iot_rtc_get_datetime( xRtcHandle, NULL );
+        TEST_ASSERT_EQUAL( IOT_RTC_INVALID_VALUE, lRetVal );
+    }
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
