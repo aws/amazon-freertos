@@ -78,7 +78,7 @@ typedef struct _asyncVerificationParams
      * verify the correct body of 'a'-'z' repeating starting from where verification left off last. When it is a new
      * request verification starts at 0 or 'a'.
      */
-    bool readReadyCallbackCountPerResponse[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
+    uint8_t readReadyCallbackCountPerResponse[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
 } _asyncVerificationParams_t;
 
 /*-----------------------------------------------------------*/
