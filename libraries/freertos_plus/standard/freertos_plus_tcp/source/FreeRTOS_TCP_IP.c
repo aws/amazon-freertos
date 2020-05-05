@@ -1171,6 +1171,11 @@ uint8_t ucLength;
 
 	/* A character pointer to iterate through the option data */
 	pucPtr = pxTCPHeader->ucOptdata;
+	if( pxTCPHeader->ucTCPOffset < ( 5U << 4U ) )
+	{
+	        /* avoid integer underflow in computation of ucLength */
+  	        return;
+	}
 	ucLength = ( ( ( pxTCPHeader->ucTCPOffset >> 4U ) - 5U ) << 2U );
 	uxOptionsLength = ( size_t ) ucLength;
 	if( pxNetworkBuffer->xDataLength > uxOptionOffset )
