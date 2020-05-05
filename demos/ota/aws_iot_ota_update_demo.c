@@ -50,6 +50,9 @@
 #include "task.h"
 #include "semphr.h"
 
+/* Set up logging for this demo. */
+#include "iot_demo_logging.h"
+
 /* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
 
@@ -186,7 +189,7 @@ static void _connectionRetryDelay( void )
     /* Add random jitter upto current retry interval .*/
     retryIntervalwithJitter = _retryInterval + ( rand() % _retryInterval );
 
-    configPRINTF( ( "Retrying network connection in %d Secs ", retryIntervalwithJitter ) );
+    IotLogInfo( "Retrying network connection in %d Secs ", retryIntervalwithJitter );
 
     /* Convert mili seconds to ticks.*/
     intervalTicks = pdMS_TO_TICKS( retryIntervalwithJitter * 1000 );
@@ -210,19 +213,19 @@ static void prvNetworkDisconnectCallback( void * param,
     switch( mqttCallbackParams->u.disconnectReason )
     {
         case IOT_MQTT_DISCONNECT_CALLED:
-            configPRINTF( ( "Mqtt disconnected due to invoking diconnect function.\r\n" ) );
+            IotLogInfo( "Mqtt disconnected due to invoking diconnect function.\r\n" );
             break;
 
         case IOT_MQTT_BAD_PACKET_RECEIVED:
-            configPRINTF( ( "Mqtt disconnected due to invalid packet received from the network.\r\n" ) );
+            IotLogInfo( "Mqtt disconnected due to invalid packet received from the network.\r\n" );
             break;
 
         case IOT_MQTT_KEEP_ALIVE_TIMEOUT:
-            configPRINTF( ( "Mqtt disconnected due to Keep-alive response not received.\r\n" ) );
+            IotLogInfo( "Mqtt disconnected due to Keep-alive response not received.\r\n" );
             break;
 
         default:
-            configPRINTF( ( "Mqtt disconnected due to unknown reason." ) );
+            IotLogInfo( "Mqtt disconnected due to unknown reason." );
             break;
     }
 
@@ -286,10 +289,10 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     /* Establish the MQTT connection. */
     if( status == EXIT_SUCCESS )
     {
-        configPRINTF( ( "MQTT demo client identifier is %.*s (length %hu).",
-                        connectInfo.clientIdentifierLength,
-                        connectInfo.pClientIdentifier,
-                        connectInfo.clientIdentifierLength ) );
+        IotLogInfo( "MQTT demo client identifier is %.*s (length %hu).",
+                    connectInfo.clientIdentifierLength,
+                    connectInfo.pClientIdentifier,
+                    connectInfo.clientIdentifierLength );
 
         connectStatus = IotMqtt_Connect( &networkInfo,
                                          &connectInfo,
@@ -298,8 +301,8 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
         if( connectStatus != IOT_MQTT_SUCCESS )
         {
-            configPRINTF( ( "MQTT CONNECT returned error %s.",
-                            IotMqtt_strerror( connectStatus ) ) );
+            IotLogError( "MQTT CONNECT returned error %s.",
+                         IotMqtt_strerror( connectStatus ) );
 
             status = EXIT_FAILURE;
         }
@@ -332,7 +335,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 
     if( eEvent == eOTA_JobEvent_Activate )
     {
-        configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
+        IotLogInfo( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" );
 
         /* OTA job is completed. so delete the network connection. */
         if( _mqttConnection != NULL )
@@ -345,7 +348,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
     }
     else if( eEvent == eOTA_JobEvent_Fail )
     {
-        configPRINTF( ( "Received eOTA_JobEvent_Fail callback from OTA Agent.\r\n" ) );
+        IotLogInfo( "Received eOTA_JobEvent_Fail callback from OTA Agent.\r\n" );
 
         /* Nothing special to do. The OTA agent handles it. */
     }
@@ -357,12 +360,12 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
          * this would be the place to kick off those tests before calling OTA_SetImageState()
          * with the final result of either accepted or rejected. */
 
-        configPRINTF( ( "Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n" ) );
+        IotLogInfo( "Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n" );
         xErr = OTA_SetImageState( eOTA_ImageState_Accepted );
 
         if( xErr != kOTA_Err_None )
         {
-            OTA_LOG_L1( " Error! Failed to set image state as accepted.\r\n" );
+            IotLogError( " Error! Failed to set image state as accepted.\r\n" );
         }
     }
 }
@@ -392,14 +395,14 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
     OTA_State_t eState;
     static OTA_ConnectionContext_t xOTAConnectionCtx;
 
-    configPRINTF( ( "OTA demo version %u.%u.%u\r\n",
-                    xAppFirmwareVersion.u.x.ucMajor,
-                    xAppFirmwareVersion.u.x.ucMinor,
-                    xAppFirmwareVersion.u.x.usBuild ) );
+    IotLogInfo( "OTA demo version %u.%u.%u\r\n",
+                xAppFirmwareVersion.u.x.ucMajor,
+                xAppFirmwareVersion.u.x.ucMinor,
+                xAppFirmwareVersion.u.x.usBuild );
 
     for( ; ; )
     {
-        configPRINTF( ( "Connecting to broker...\r\n" ) );
+        IotLogInfo( "Connecting to broker...\r\n" );
 
         /* Establish a new MQTT connection. */
         if( _establishMqttConnection( awsIotMqttMode,
@@ -437,8 +440,8 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                 /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
                 vTaskDelay( OTA_DEMO_ONE_SECOND_DELAY );
 
-                configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", _pStateStr[ eState ],
-                                OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+                IotLogInfo( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", _pStateStr[ eState ],
+                            OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() );
             }
 
             /* Try to close the MQTT connection. */
@@ -449,7 +452,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
         }
         else
         {
-            configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
+            IotLogError( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" );
         }
 
         /* After failure to connect or a disconnect, delay for retrying connection. */
