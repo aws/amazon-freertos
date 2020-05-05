@@ -2991,7 +2991,7 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
 
         configPRINTF( ( "%s got address: %lx\r\n", __FUNCTION__, ulIPAddress ) );
 
-        for( j = 0, ulUnique = 1 ; j < ulNumUniqueIPAddress ; j++ )
+        for( j = 0, ulUnique = 1 ; j < ulNumUniqueIPAddresses ; j++ )
         {
             if( ulIPAddresses[ j ] == ulIPAddress )
             {
