@@ -110,7 +110,7 @@ static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
  * @brief Flag used to unset, during disconnection of currently connected network. This will
  * trigger a reconnection from the OTA demo task.
  */
-static bool _networkConnected = pdFALSE;
+volatile static bool _networkConnected = false;
 
 /**
  * @brief Connection retry interval in seconds.
@@ -340,7 +340,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
         /* OTA job is completed. so delete the network connection. */
         if( _mqttConnection != NULL )
         {
-            IotMqtt_Disconnect( _mqttConnection, 0 );
+            IotMqtt_Disconnect( _mqttConnection, false );
         }
 
         /* Activate the new firmware image. */
@@ -421,7 +421,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             _retryInterval = OTA_DEMO_CONN_RETRY_BASE_INTERVAL_SECONDS;
 
             /* Update the connection available flag.*/
-            _networkConnected = pdTRUE;
+            _networkConnected = true;
 
             /* Check if OTA Agent is suspended and resume.*/
             if( ( eState = OTA_GetAgentState() ) == eOTA_AgentState_Suspended )
@@ -445,9 +445,9 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             }
 
             /* Try to close the MQTT connection. */
-            if( ( _mqttConnection != NULL ) && _networkConnected )
+            if( _mqttConnection != NULL )
             {
-                IotMqtt_Disconnect( _mqttConnection, false );
+                IotMqtt_Disconnect( _mqttConnection, !( _networkConnected ) );
             }
         }
         else
