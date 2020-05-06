@@ -2959,9 +2959,9 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
      * per cache entry to ensure that wraparound works.
      *
      * NOTE: Resolving all addresses associated with the AWS IoT broker endpoint
-     * can take some time, so allow 30 seconds to collect all of them.
+     * can take some time, so allow 60 seconds to collect all of them.
      */
-    for( i = 0 ; i < 30  ; i ++ )
+    for( i = 0 ; i < 60  ; i ++ )
     {
         ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
