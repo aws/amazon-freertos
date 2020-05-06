@@ -79,7 +79,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
  * a socket. */
-#define ipconfigUSE_DNS_CACHE                      ( 1 )
+#define ipconfigUSE_DNS_CACHE                      ( 0 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
