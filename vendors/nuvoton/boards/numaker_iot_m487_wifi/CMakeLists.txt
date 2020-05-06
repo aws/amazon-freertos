@@ -50,7 +50,6 @@ target_compile_definitions(
     -DPRODUCT_VERSION=m487 
     -DCONFIG_REPEATER 
     -DSUPPORT_MBEDTLS 
-    -DMBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\"
     -DHAL_DFS_MODULE_ENABLED 
     -DLWIP_NO_STDINT_H=1 
     -DLWIP_TIMEVAL_PRIVATE=1
@@ -62,6 +61,12 @@ target_compile_definitions(
     -DM487 
     ${extra_define}
 )
+if(AFR_IS_TESTING)
+    target_compile_definitions(
+        AFR::compiler::mcu_port
+        INTERFACE -DMBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\"
+    )
+endif()
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:ASM>:${assembler_defined_symbols}>
