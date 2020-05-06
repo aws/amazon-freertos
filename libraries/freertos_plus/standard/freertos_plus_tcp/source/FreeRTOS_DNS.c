@@ -1497,7 +1497,9 @@ BaseType_t xReturn;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
                         /* The current IP address index increments without bound and can rollover, */
                         /*  modulo it by the number of IP addresses to keep it in range. */
-                        ulIPAddressIndex = xDNSCache[ x ].ucCurrentIPAddress % xDNSCache[ x ].ucNumIPAddresses;
+                        ulIPAddressIndex = (
+                            xDNSCache[ x ].ucCurrentIPAddress % xDNSCache[ x ].ucNumIPAddresses
+                            ) & 0xff;
 
                         xDNSCache[ x ].ucCurrentIPAddress++;
 #endif
