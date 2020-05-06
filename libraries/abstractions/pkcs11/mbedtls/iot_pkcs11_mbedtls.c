@@ -499,12 +499,19 @@ CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
-    memset( &xP11Context, 0, sizeof( xP11Context ) );
-    xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
-
-    if( xP11Context.xObjectList.xMutex == NULL )
+    if( xP11Context.xIsInitialized == CK_TRUE )
     {
-        xResult = CKR_HOST_MEMORY;
+        xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
+    }
+    else
+    {
+        memset( &xP11Context, 0, sizeof( xP11Context ) );
+        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
+
+        if( xP11Context.xObjectList.xMutex == NULL )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
     }
 
     if( xResult == CKR_OK )
