@@ -1,6 +1,10 @@
 
 #function to create the test executable
-function(create_test test_name test_src link_list dep_list)
+function(create_test test_name
+                     test_src
+                     link_list
+                     dep_list
+                     include_list)
     set(mocks_dir "${CMAKE_CURRENT_BINARY_DIR}/mocks")
     include (CTest)
     get_filename_component(test_src_absolute ${test_src} ABSOLUTE)
@@ -22,6 +26,7 @@ function(create_test test_name test_src link_list dep_list)
         )
     target_include_directories(${test_name} PUBLIC
                                ${mocks_dir}
+                               ${include_list}
         )
     target_link_directories(${test_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -42,8 +47,7 @@ function(create_test test_name test_src link_list dep_list)
     add_test(NAME ${test_name}
              COMMAND ${CMAKE_BINARY_DIR}/bin/${test_name}
              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-#add_test(${test_name} ${CMAKE_BINARY_DIR}/bin/${test_name})
+            )
 endfunction()
 
 # Run the C preprocessor on target files.
@@ -51,7 +55,7 @@ endfunction()
 function(preprocess_mock_list mock_name file_list compiler_args)
     set_property(GLOBAL PROPERTY ${mock_name}_processed TRUE)
     foreach (target_file IN LISTS file_list)
-        # Has to be TARGET ALL so the file is pre-processed before CMOCK 
+        # Has to be TARGET ALL so the file is pre-processed before CMOCK
         # is executed on the file.
         add_custom_command(OUTPUT ${target_file}.backup
             COMMAND scp ${target_file} ${target_file}.backup
@@ -62,7 +66,7 @@ function(preprocess_mock_list mock_name file_list compiler_args)
             DEPENDS ${target_file}.backup
         )
     endforeach()
-    
+
     # Clean up temporary files that were created.
     # First we test to see if the backup file still exists. If it does we revert
     # the change made to the original file.
@@ -76,7 +80,16 @@ endfunction()
 
 # Generates a mock library based on a module's header file
 # places the generated source file in the build directory
-function(create_mock_list mock_name mock_list cmock_config)
+# @param mock_name: name of the target name
+# @param mock_list list of header files to mock
+# @param cmock_config configuration file of the cmock framework
+# @param mock_include_list include list for the target
+# @param mock_define_list special definitions to control compilation
+function(create_mock_list mock_name
+                          mock_list
+                          cmock_config
+                          mock_include_list
+                          mock_define_list)
     set(mocks_dir "${CMAKE_CURRENT_BINARY_DIR}/mocks")
     add_library(${mock_name} SHARED)
     foreach (mock_file IN LISTS mock_list)
@@ -109,10 +122,42 @@ function(create_mock_list mock_name mock_list cmock_config)
     endforeach()
     target_include_directories(${mock_name} PUBLIC
                                ${mocks_dir}
+                               ${mock_include_list}
            )
     set_target_properties(${mock_name} PROPERTIES
                         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
                         POSITION_INDEPENDENT_CODE ON
             )
+    target_compile_definitions(${mock_name} PUBLIC
+            ${mock_define_list}
+        )
     target_link_libraries(${mock_name} libcmock.a libunity.a)
 endfunction()
+
+
+function(create_real_library target
+                             src_file
+                             real_include_list
+                             mock_name)
+    add_library(${target} STATIC
+            ${src_file}
+        )
+    target_include_directories(${target} PUBLIC
+            ${real_include_list}
+            )
+    set_target_properties(${target} PROPERTIES
+                COMPILE_FLAGS "-Wextra -Wpedantic \
+                    -fprofile-arcs -ftest-coverage -fprofile-generate \
+                    -include portableDefs.h -Wno-unused-but-set-variable"
+                LINK_FLAGS "-fprofile-arcs -ftest-coverage \
+                    -fprofile-generate "
+                ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
+            )
+    add_dependencies(${target} ${mock_name})
+    target_link_libraries(${target}
+                    -l${mock_name}
+                    -lgcov
+            )
+
+endfunction()
+
