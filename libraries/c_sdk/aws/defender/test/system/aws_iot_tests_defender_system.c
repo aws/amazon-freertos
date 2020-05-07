@@ -74,7 +74,7 @@
 #define MAX_ADDRESS_LENGTH                   25
 
 /* Use a big number to represent no event happened in defender. */
-#define NO_EVENT                             ( 1u << ( 8 * sizeof( AwsIotDefenderEventType_t ) - 1 ) )
+#define NO_EVENT                             255
 
 static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
                                                                  tcptestECHO_SERVER_ADDR1,
