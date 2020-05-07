@@ -2030,11 +2030,6 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         vPortFree( pxDerKey );
     }
 
-    if( pxRsaCtx != NULL )
-    {
-        vPortFree( pxRsaCtx );
-    }
-
     return xResult;
 }
 
