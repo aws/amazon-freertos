@@ -1562,6 +1562,10 @@ BaseType_t xReturn;
 	/* This must be the first time this function has been called.  Create
 	the socket. */
 	xSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
+	if (xSocket == FREERTOS_INVALID_SOCKET)
+	{
+	    return NULL;
+	}
 
 	/* Auto bind the port. */
 	xAddress.sin_port = 0U;
