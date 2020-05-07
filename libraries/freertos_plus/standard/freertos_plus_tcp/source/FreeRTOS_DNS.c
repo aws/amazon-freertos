@@ -171,8 +171,8 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 		uint32_t ulTTL;                               /* Time-to-Live (in seconds) from the DNS server. */
 		uint32_t ulTimeWhenAddedInSeconds;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-		uint32_t  ulNumIPAddresses;
-		uint32_t  ulCurrentIPAddress;
+		uint8_t  ucNumIPAddresses;
+		uint8_t  ucCurrentIPAddress;
 #endif
 	} DNSCacheRow_t;
 
@@ -1495,11 +1495,15 @@ BaseType_t xReturn;
 					if( ulCurrentTimeSeconds < ( xDNSCache[ x ].ulTimeWhenAddedInSeconds + FreeRTOS_ntohl( xDNSCache[ x ].ulTTL ) ) )
 					{
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-                        /* The current IP address index increments without bound and can rollover, */
-                        /*  modulo it by the number of IP addresses to keep it in range. */
-                        ulIPAddressIndex = xDNSCache[ x ].ulCurrentIPAddress % xDNSCache[ x ].ulNumIPAddresses;
+                        /* The ucCurrentIPAddress value increments without bound and will rollover, */
+                        /*  modulo it by the number of IP addresses to keep it in range.     */
+                        /*  Also perform a final modulo by the max number of IP addresses    */
+                        /*  per DNS cache entry to prevent out-of-bounds access in the event */
+                        /*  that ucNumIPAddresses has been corrupted.                        */
+                        ulIPAddressIndex = ( xDNSCache[ x ].ucCurrentIPAddress %
+                                        xDNSCache[ x ].ucNumIPAddresses ) % ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
 
-                        xDNSCache[ x ].ulCurrentIPAddress++;
+                        xDNSCache[ x ].ucCurrentIPAddress++;
 #endif
 						*pulIP = xDNSCache[ x ].ulIPAddress[ulIPAddressIndex];
 					}
@@ -1512,12 +1516,12 @@ BaseType_t xReturn;
 				else
 				{
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-                    if ( xDNSCache[ x ].ulNumIPAddresses < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
+                    if ( xDNSCache[ x ].ucNumIPAddresses < ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
                     {
                         /* If more answers exist than there are IP address storage slots */
                         /* they will overwrite entry 0 */
 
-                        ulIPAddressIndex = xDNSCache[ x ].ulNumIPAddresses++;
+                        ulIPAddressIndex = xDNSCache[ x ].ucNumIPAddresses++;
                     }
 #endif
 					xDNSCache[ x ].ulIPAddress[ulIPAddressIndex] = *pulIP;
@@ -1547,8 +1551,14 @@ BaseType_t xReturn;
 					xDNSCache[ xFreeEntry ].ulTTL = ulTTL;
 					xDNSCache[ xFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
-					xDNSCache[ xFreeEntry ].ulNumIPAddresses = 1;
-					xDNSCache[ xFreeEntry ].ulCurrentIPAddress = 0;
+					xDNSCache[ xFreeEntry ].ucNumIPAddresses = 1;
+					xDNSCache[ xFreeEntry ].ucCurrentIPAddress = 0;
+
+                    /* Initialize all remaining IP addresses in this entry to 0 */
+                    memset( &xDNSCache[ xFreeEntry ].ulIPAddress[ 1 ],
+                            0,
+                            sizeof( xDNSCache[ xFreeEntry ].ulIPAddress[ 1 ] ) *
+                            ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY-1 );
 #endif
 					xFreeEntry++;
 
