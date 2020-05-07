@@ -299,7 +299,6 @@ const char * pcPkcs11GetThingName( void )
         0x30, 0x00                                            /*15 */
     };
 #else /* ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS */
-
 /** Standard Configuration Structure for ATECC608A devices */
     const uint8_t atecc608_config[] =
     {
