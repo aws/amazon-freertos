@@ -202,7 +202,7 @@ typedef struct
     }                                                                  \
     else                                                               \
     {                                                                  \
-        TEST_ASSERT_EQUAL( expected, actual );                         \
+        TEST_ASSERT_EQUAL_INT( expected, actual );                     \
     }
 
 #define TEST_WIFI_ASSERT_NOT_EQ_REQUIRED_API( expected, actual, result ) \
@@ -222,7 +222,7 @@ typedef struct
     }                                                                             \
     else                                                                          \
     {                                                                             \
-        TEST_ASSERT_EQUAL_MESSAGE( expected, actual, message );                   \
+        TEST_ASSERT_EQUAL_INT_MESSAGE( expected, actual, message );               \
     }
 
 #define TEST_WIFI_ASSERT_NOT_EQ_REQUIRED_API_MSG( expected, actual, result, message ) \
@@ -242,7 +242,7 @@ typedef struct
     }                                                                \
     else                                                             \
     {                                                                \
-        TEST_ASSERT_EQUAL( expected, actual );                       \
+        TEST_ASSERT_EQUAL_INT( expected, actual );                   \
     }
 
 #define TEST_WIFI_ASSERT_NOT_EQ_OPTIONAL_API( expected, actual, result ) \
@@ -262,7 +262,7 @@ typedef struct
     }                                                                             \
     else                                                                          \
     {                                                                             \
-        TEST_ASSERT_EQUAL_MESSAGE( condition, message );                          \
+        TEST_ASSERT_EQUAL_INT_MESSAGE( condition, message );                      \
     }
 
 /* Helper functions. */
