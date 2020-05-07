@@ -3002,7 +3002,7 @@ TEST( Full_TCP, test_dns_cache_multiple_addresses )
         }
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
-    configPRINTF( ( "%s: identified %d unique IP addresses for %s.\r\n",
+    configPRINTF( ( "%s: identified %d different IP addresses for %s.\r\n",
                    __FUNCTION__,
                    ulNumUniqueIPAddresses,
                    clientcredentialMQTT_BROKER_ENDPOINT ) );
