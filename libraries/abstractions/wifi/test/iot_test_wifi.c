@@ -212,7 +212,7 @@ typedef struct
     }                                                                    \
     else                                                                 \
     {                                                                    \
-        TEST_ASSERT_NOT_EQ( expected, actual );                          \
+        TEST_ASSERT_NOT_EQUAL( expected, actual );                       \
     }
 
 #define TEST_WIFI_ASSERT_EQ_REQUIRED_API_MSG( expected, actual, result, message ) \
@@ -1047,7 +1047,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
     {
         xWiFiStatus = WIFI_GetHostIP( testwifiTEST_INVALID_DOMAIN_NAME, ucIPAddr );
 
-        TEST_WIFI_ASSERT_REQUIRED_API( eWiFiSuccess, xWiFiStatus, xWiFiStatus );
+        TEST_WIFI_ASSERT_NOT_EQ_REQUIRED_API( eWiFiSuccess, xWiFiStatus, xWiFiStatus );
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
