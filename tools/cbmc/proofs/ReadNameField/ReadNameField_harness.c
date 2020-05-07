@@ -30,6 +30,29 @@ size_t prvReadNameField( const uint8_t *pucByte,
 			 size_t uxDestLen );
 
 /****************************************************************
+ * The function under test is not defined in all configurations
+ ****************************************************************/
+
+#if ( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )  
+
+/* prvReadNameField is defined in this configuration */
+
+#else
+
+/* prvReadNameField is not defined in this configuration, stub it. */
+
+size_t prvReadNameField( const uint8_t *pucByte,
+			 size_t uxRemainingBytes,
+			 char *pcName,
+			 size_t uxDestLen )
+{
+  return 0;
+}
+
+#endif
+
+
+/****************************************************************
  * Proof of prvReadNameField function contract
  ****************************************************************/
 
