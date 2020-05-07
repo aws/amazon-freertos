@@ -262,7 +262,7 @@ typedef struct
     }                                                                             \
     else                                                                          \
     {                                                                             \
-        TEST_ASSERT_EQUAL_INT_MESSAGE( condition, message );                      \
+        TEST_ASSERT_EQUAL_INT_MESSAGE( expected, actual, message );               \
     }
 
 /* Helper functions. */
