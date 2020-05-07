@@ -1,93 +1,113 @@
-project ("freertos_plus pkcs11 cmock unit test")
-cmake_minimum_required (VERSION 3.13)
-set(3rdparty_dir "${AFR_ROOT_DIR}/libraries/3rdparty")
-set(standard_dir "${AFR_ROOT_DIR}/libraries/freertos_plus/standard")
-set(kernel_dir "${AFR_ROOT_DIR}/freertos_kernel")
+    project ("freertos_plus pkcs11 cmock unit test")
+    cmake_minimum_required (VERSION 3.13)
 
-set(preprocess_commands "-I ${3rdparty_dir}/pkcs11/ -D'CK_PTR=*' -D'NULL_PTR=0' \
-                         -D'CK_DEFINE_FUNCTION( returnType, name )=returnType name'\ 
-                         -D'CK_DECLARE_FUNCTION( returnType, name )=returnType name'\ 
-                         -D'CK_DECLARE_FUNCTION_POINTER( returnType, name )=returnType( CK_PTR name )'\
-                         -D'CK_CALLBACK_FUNCTION( returnType, name )=returnType( CK_PTR name )'")
+# ====================  Define your project name (edit) ========================
+        set(project_name "iot_pkcs11")
 
-separate_arguments(unix_flags UNIX_COMMAND "${preprocess_commands}")
+# =====================  Create your mock here  (edit)  ========================
 
-# Mock library
-list(APPEND mock_list
-    "${kernel_dir}/include/portable.h"
-    "${3rdparty_dir}/pkcs11/pkcs11.h"
-    )
-
-list(APPEND preprocessed_mock_list
-    "${3rdparty_dir}/pkcs11/pkcs11.h"
-    )
-
-
-create_mock_list(pkcs11_mock 
-    "${mock_list}"
-    "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
-    )
-preprocess_mock_list(pkcs11_mock ${preprocessed_mock_list} "${unix_flags}")
-
-
-target_compile_definitions(pkcs11_mock PUBLIC
-        portHAS_STACK_OVERFLOW_CHECKING=1
-        portUSING_MPU_WRAPPERS=1
-        MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+#  list of files to preprocess
+    list(APPEND preprocessed_mock_list
+            "${3rdparty_dir}/pkcs11/pkcs11.h"
         )
 
-add_dependencies(pkcs11_mock
-                 cmock
-                 unity
-                 pre_pkcs11_mock
-                 )
-
-# Real libraries
-add_library(pkcs11_real STATIC
-        ${standard_dir}/pkcs11/src/iot_pkcs11.c
+    set(preprocess_commands
+            "-I ${3rdparty_dir}/pkcs11/ -D'CK_PTR=*' -D'NULL_PTR=0' \
+            -D'CK_DEFINE_FUNCTION( returnType, name )=returnType name'\
+            -D'CK_DECLARE_FUNCTION( returnType, name )=returnType name'\
+            -D'CK_DECLARE_FUNCTION_POINTER( returnType, name )=returnType( CK_PTR name )'\
+            -D'CK_CALLBACK_FUNCTION( returnType, name )=returnType( CK_PTR name )'"
         )
 
-target_include_directories(pkcs11_real PUBLIC
-        ${3rdparty_dir}/pkcs11/
-        ${standard_dir}/pkcs11/include
-        ${CMAKE_CURRENT_BINARY_DIR}/mocks
+# list the files to mock here
+    list(APPEND mock_list
+                "${kernel_dir}/include/portable.h"
+                "${3rdparty_dir}/pkcs11/pkcs11.h"
         )
 
-set_target_properties(pkcs11_real PROPERTIES
-        COMPILE_FLAGS "-Wall  \
-                    -fprofile-arcs -ftest-coverage -fprofile-generate \
-                    -include portableDefs.h -Wno-unused-but-set-variable"
-        LINK_FLAGS "-fprofile-arcs -ftest-coverage \
-                    -fprofile-generate"
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
+# list the directories your mocks need
+    list(APPEND mock_include_list
+            "."
         )
 
-add_dependencies(pkcs11_real pkcs11_mock)
-target_link_libraries(pkcs11_real PUBLIC
-        -lpkcs11_mock
-        -lgcov
-    )
+#list the definitions of your mocks to control what to be included
+    list(APPEND mock_define_list
+            portHAS_STACK_OVERFLOW_CHECKING=1
+            portUSING_MPU_WRAPPERS=1
+            MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+        )
 
-list(APPEND link_list
-        -lpkcs11_mock
-        libunity.a
-        libcmock.a
-        libpkcs11_real.a
-    )
 
-list(APPEND dep_list
-        pkcs11_real
-    )
+# ================= Create the library under test here (edit) ==================
+# list the files you would like to test here
+        list(APPEND real_source_files
+                    ${standard_dir}/pkcs11/src/iot_pkcs11.c
+                )
+
+# list the directories the module under test includes
+        list(APPEND real_include_directories
+            ${3rdparty_dir}/pkcs11/
+            ${standard_dir}/pkcs11/include
+            ${CMAKE_CURRENT_BINARY_DIR}/mocks
+            )
+
+# =====================  Create UnitTest Code here (edit)  =====================
+
+# list the directories your test needs to include
+    list(APPEND test_include_directories
+            ${CMAKE_CURRENT_BINARY_DIR}/mocks
+            ${standard_dir}/pkcs11/include
+            ${3rdparty_dir}/pkcs11
+        )
+
+# =============================  (end edit)  ===================================
+
+    set(mock_name "${project_name}_mock")
+    set(real_name "${project_name}_real")
+    set(pre_mock_name  "pre_${mock_name}")
+
+    create_mock_list(${mock_name}
+            "${mock_list}"
+            "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
+            "${mock_include_list}"
+            "${mock_define_list}"
+            )
+
+
+    separate_arguments(unix_flags UNIX_COMMAND "${preprocess_commands}")
+    preprocess_mock_list(${mock_name}
+                ${preprocessed_mock_list}
+                "${unix_flags}"
+            )
+
+    add_dependencies(${mock_name}
+                    ${pre_mock_name}
+        )
+
+    create_real_library(${real_name}
+                    "${real_source_files}"
+                    "${real_include_directories}"
+                    "${mock_name}"
+            )
+
+    list(APPEND utest_link_list
+            -l${mock_name}
+            lib${real_name}.a
+            libutil.so
+        )
+
+    list(APPEND utest_dep_list
+            ${real_name}
+        )
+
+    set(utest_name "${project_name}_utest")
+    set(utest_source "${project_name}_utest.c")
 
 # Unit test build
-create_test(iot_pkcs11_utest
-        iot_pkcs11_utest.c
-        "${link_list}"
-        "${dep_list}"
+    create_test(${utest_name}
+            "${utest_source}"
+            "${utest_link_list}"
+            "${utest_dep_list}"
+            "${test_include_directories}"
         )
 
-target_include_directories(iot_pkcs11_utest PUBLIC
-        ${CMAKE_CURRENT_BINARY_DIR}/mocks
-        ${standard_dir}/pkcs11/include
-        ${3rdparty_dir}/pkcs11
-        )
