@@ -140,8 +140,9 @@ int32_t FreeRTOS_recvfrom( Socket_t xSocket,
                           "FreeRTOS precondition: pxSourceAddress != NULL" );
     #endif
 
-    size_t xBufferSize;
-    __CPROVER_assume( xBufferSize < CBMC_MAX_OBJECT_SIZE );
+    size_t payload_size;
+    __CPROVER_assume( payload_size + sizeof( UDPPacket_t )
+		      < CBMC_MAX_OBJECT_SIZE );
 
     /****************************************************************
      * TODO: We need to make this lower bound explicit in the Makefile.json
@@ -149,14 +150,26 @@ int32_t FreeRTOS_recvfrom( Socket_t xSocket,
      * DNSMessage_t is a typedef in FreeRTOS_DNS.c
      * sizeof(DNSMessage_t) = 6 * sizeof(uint16_t)
      ****************************************************************/
-    __CPROVER_assume( xBufferSize >= 6 * sizeof( uint16_t ) );
+    __CPROVER_assume( payload_size >= 6 * sizeof( uint16_t ) );
 
     #ifdef CBMC_FREERTOS_RECVFROM_BUFFER_BOUND
-        __CPROVER_assume( xBufferSize <= CBMC_FREERTOS_RECVFROM_BUFFER_BOUND );
+        __CPROVER_assume( payload_size <= CBMC_FREERTOS_RECVFROM_BUFFER_BOUND );
     #endif
 
-    *( ( uint8_t ** ) pvBuffer ) = safeMalloc( xBufferSize );
-    return *( ( uint8_t ** ) pvBuffer ) == NULL ? 0 : xBufferSize;
+    uint32_t buffer_size = payload_size + sizeof( UDPPacket_t );
+    uint8_t *buffer = safeMalloc( buffer_size );
+	
+    if ( buffer == NULL ) {
+      buffer_size = 0;
+    }
+    else
+    {
+      buffer = buffer + sizeof( UDPPacket_t );
+      buffer_size = buffer_size - sizeof( UDPPacket_t );
+    }
+    
+    *( ( uint8_t ** ) pvBuffer ) = buffer;
+    return buffer_size;
 }
 
 /****************************************************************
@@ -195,7 +208,10 @@ void * FreeRTOS_GetUDPPayloadBuffer( size_t xRequestedSizeBytes,
     size_t size;
 
     __CPROVER_assume( size < CBMC_MAX_OBJECT_SIZE );
-    return safeMalloc( size );
+    __CPROVER_assume( size >= sizeof( UDPPacket_t ) );
+
+    uint8_t *buffer = safeMalloc( size );
+    return buffer == NULL ? buffer : buffer + sizeof( UDPPacket_t );
 }
 
 /****************************************************************
@@ -207,7 +223,11 @@ void FreeRTOS_ReleaseUDPPayloadBuffer( void * pvBuffer )
 {
     __CPROVER_assert( pvBuffer != NULL,
                       "FreeRTOS precondition: pvBuffer != NULL" );
-    free( pvBuffer );
+    __CPROVER_assert( __CPROVER_POINTER_OFFSET( pvBuffer )
+		      == sizeof( UDPPacket_t ),
+                      "FreeRTOS precondition: pvBuffer offset" );
+
+    free( pvBuffer - sizeof( UDPPacket_t ) );
 }
 
 /****************************************************************
@@ -217,6 +237,8 @@ void FreeRTOS_ReleaseUDPPayloadBuffer( void * pvBuffer )
  * The real allocator take buffers off a list.
  ****************************************************************/
 
+uint32_t GetNetworkBuffer_failure_count;
+
 NetworkBufferDescriptor_t * pxGetNetworkBufferWithDescriptor( size_t xRequestedSizeBytes,
                                                               TickType_t xBlockTimeTicks )
 {
@@ -224,19 +246,56 @@ NetworkBufferDescriptor_t * pxGetNetworkBufferWithDescriptor( size_t xRequestedS
         xRequestedSizeBytes + ipBUFFER_PADDING < CBMC_MAX_OBJECT_SIZE,
         "pxGetNetworkBufferWithDescriptor: request too big" );
 
+    /*
+      * The semantics of this function is to wait until a buffer with
+      * at least the requested number of bytes becomes available.  If a
+      * timeout occurs before the buffer is available, then return a
+      * NULL pointer.
+      */
+
     NetworkBufferDescriptor_t * desc = safeMalloc( sizeof( *desc ) );
+
+    #ifdef CBMC_GETNETWORKBUFFER_FAILURE_BOUND
+        /*
+          * This interprets the failure bound as being one greater than the
+          * actual number of times GetNetworkBuffer should be allowed to
+          * fail.
+          *
+          * This makes it possible to use the same bound for loop unrolling
+          * which must be one greater than the actual number of times the
+          * loop should be unwound.
+          *
+          * NOTE: Using this bound with --nondet-static requires setting
+          * (or assuming) GetNetworkBuffer_failure_count to a value (like 0)
+          * in the proof harness that won't induce an integer overflow.
+          */
+        GetNetworkBuffer_failure_count++;
+        __CPROVER_assume(
+	    IMPLIES(
+	        GetNetworkBuffer_failure_count >= CBMC_GETNETWORKBUFFER_FAILURE_BOUND,
+		desc != NULL ) );
+    #endif
 
     if( desc != NULL )
     {
-        size_t size;
-        __CPROVER_assume( size < CBMC_MAX_OBJECT_SIZE );
-        desc->pucEthernetBuffer = safeMalloc( size );
-        desc->xDataLength = size;
+        /*
+          * We may want to experiment with allocating space other than
+          * (more than) the exact amount of space requested.
+          */
 
-        __CPROVER_assume(
-            desc->xDataLength <= xRequestedSizeBytes + ipBUFFER_PADDING );
-        __CPROVER_assume(
-            IMPLIES( desc->pucEthernetBuffer == NULL, desc->xDataLength == 0 ) );
+        size_t size = xRequestedSizeBytes;
+        __CPROVER_assume( size < CBMC_MAX_OBJECT_SIZE );
+
+        desc->pucEthernetBuffer = safeMalloc( size );
+        desc->xDataLength = desc->pucEthernetBuffer == NULL ? 0 : size;
+
+        #ifdef CBMC_REQUIRE_NETWORKBUFFER_ETHERNETBUFFER_NONNULL
+            /* This may be implied by the semantics of the function. */
+            __CPROVER_assume( desc->pucEthernetBuffer != NULL );
+        #endif
+
+	/* Allow method to fail again next time */
+	GetNetworkBuffer_failure_count = 0;
     }
 
     return desc;
@@ -264,6 +323,7 @@ void vReleaseNetworkBufferAndDescriptor( NetworkBufferDescriptor_t * const pxNet
  * Abstract FreeRTOS_GetAddressConfiguration
  * https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/API/FreeRTOS_GetAddressConfiguration.html
  ****************************************************************/
+
 void FreeRTOS_GetAddressConfiguration( uint32_t * pulIPAddress,
                                        uint32_t * pulNetMask,
                                        uint32_t * pulGatewayAddress,
@@ -288,6 +348,32 @@ void FreeRTOS_GetAddressConfiguration( uint32_t * pulIPAddress,
     {
         *pulDNSServerAddress = nondet_unint32();
     }
+}
+
+/****************************************************************/
+
+/****************************************************************
+ * This is a collection of methods that are defined by the user
+ * application but are invoked by the FreeRTOS API.
+ ****************************************************************/
+
+/****************************************************************
+ * Abstract FreeRTOS_GetAddressConfiguration
+ * https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/API/vApplicationIPNetworkEventHook.html
+ ****************************************************************/
+
+void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
+{
+}
+
+/****************************************************************
+ * Abstract pcApplicationHostnameHook
+ * https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html
+ ****************************************************************/
+
+const char * pcApplicationHostnameHook( void )
+{
+    return "hostname";
 }
 
 /****************************************************************/
