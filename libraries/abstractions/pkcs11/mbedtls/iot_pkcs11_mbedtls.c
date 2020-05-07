@@ -2234,13 +2234,14 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     {
         lDerKeyLength = mbedtls_pk_write_pubkey_der( &xMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
 
-        if( lDerKeyLength < 0 ) 
+        if( lDerKeyLength < 0 )
         {
             PKCS11_PRINT( ( "mbedTLS sign failed with error %s : %s \r\n",
                             mbedtlsHighLevelCodeOrDefault( lDerKeyLength ),
                             mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
+
         /* Clean up the mbedTLS key context. */
         mbedtls_pk_free( &xMbedContext );
     }
@@ -2824,7 +2825,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject,
                                              CK_ULONG ulMaxObjectCount,
                                              CK_ULONG_PTR pulObjectCount )
-{ 
+{
     /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -3248,7 +3249,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
             if( xResult != CKR_OK )
             {
                 PKCS11_PRINT( ( "ERROR: Unable to retrieve value of private key for signing %d. \r\n", xResult ) );
-				xResult = CKR_KEY_HANDLE_INVALID;
+                xResult = CKR_KEY_HANDLE_INVALID;
             }
         }
     }
@@ -3279,11 +3280,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
             mbedtls_pk_init( &pxSession->xSignKey );
             lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 );
+
             if( lMbedTLSResult != 0 )
             {
                 PKCS11_PRINT( ( "mbedTLS unable to parse private key for signing. %s : %s \r\n",
-                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                 xResult = CKR_KEY_HANDLE_INVALID;
             }
 
@@ -3604,7 +3606,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
             xResult = CKR_CANT_LOCK;
         }
     }
-
 
     /* Check that the mechanism and key type are compatible, supported. */
     if( xResult == CKR_OK )
