@@ -666,7 +666,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 			}
 			else
 			{
-			size_t uxIndex, uxLastIndex, uxLength;
+			size_t uxIndex, uxPayloadDataLength, uxLength;
 
 				/* None of the essential options have been processed yet. */
 				ulProcessed = 0UL;
@@ -675,10 +675,9 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 				is found, taking care not to walk off the end of the options. */
 				pucByte = &( pucUDPPayload[ sizeof( DHCPMessage_IPv4_t ) ] );
 				uxIndex = 0;
-				uxLastIndex = ( ( size_t ) lBytes ) - 1U;
+				uxPayloadDataLength = ( ( size_t ) lBytes ) - sizeof( DHCPMessage_IPv4_t );
 
-
-				while( uxIndex <= uxLastIndex )
+				while( uxIndex < uxPayloadDataLength )
 				{
 					ucOptionCode = pucByte[ uxIndex ];
 					if( ucOptionCode == ( uint8_t ) dhcpOPTION_END_BYTE )
@@ -693,15 +692,14 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 						uxIndex = uxIndex + 1U;
 						continue;
 					}
-
 					/* Stop if the response is malformed. */
-					if( uxIndex < ( uxLastIndex - 1U ) )
+					if( uxIndex + 1U < uxPayloadDataLength )
 					{
 						/* Fetch the length byte. */
 						uxLength = ( size_t ) pucByte[ uxIndex + 1U ];
 						uxIndex = uxIndex + 2U;
 
-						if( uxLastIndex < ( uxIndex + ( uxLength - 1U ) ) )
+						if( !( ( uxIndex + uxLength ) - 1U < uxPayloadDataLength ) )
 						{
 							/* There are not as many bytes left as there should be. */
 							break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
@@ -720,10 +718,18 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 						( void ) memcpy( &( ulParameter ),
 										&( pucByte[ uxIndex ] ),
 										( size_t ) sizeof( ulParameter ) );
+						/* skip over the parameter */
+						uxIndex += sizeof( ulParameter );
 					}
 					else
 					{
 						ulParameter = 0;
+					}
+
+					/* Confirm uxIndex is still a valid index after adjustments to uxIndex above */
+					if( !( uxIndex < uxPayloadDataLength ) )
+					{
+					  break;
 					}
 
 					/* Option-specific handling. */
