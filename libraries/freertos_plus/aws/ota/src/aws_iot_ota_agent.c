@@ -1139,7 +1139,7 @@ static OTA_Err_t prvSuspendHandler( OTA_EventData_t * pxEventData )
     OTA_Err_t xErr = kOTA_Err_None;
 
     /* Log the state change to suspended state.*/
-    OTA_LOG_L1( "[%s] OTA Agent is suspended. %d\r\n", OTA_METHOD_NAME );
+    OTA_LOG_L1( "[%s] OTA Agent is suspended.\r\n", OTA_METHOD_NAME );
 
     return xErr;
 }
@@ -2989,34 +2989,68 @@ OTA_ImageState_t OTA_GetImageState( void )
 /*
  * Suspend OTA Agent task.
  */
-void OTA_Suspend( void )
+OTA_Err_t OTA_Suspend( void )
 {
+    DEFINE_OTA_METHOD_NAME( "OTA_Suspend" );
+
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     /* Stop the request timer. */
     prvStopRequestTimer();
 
-    /*
-     * Send event to OTA agent task.
-     */
-    xEventMsg.xEventId = eOTA_AgentEvent_Suspend;
-    OTA_SignalEvent( &xEventMsg );
+    /* Check if OTA Agent is running. */
+    if( xOTA_Agent.eState != eOTA_AgentState_Stopped )
+    {
+        /*
+         * Send event to OTA agent task.
+         */
+        xEventMsg.xEventId = eOTA_AgentEvent_Suspend;
+        OTA_SignalEvent( &xEventMsg );
+
+        xErr = kOTA_Err_None;
+    }
+    else
+    {
+        OTA_LOG_L1( "[%s] Error: OTA Agent is not running, cannot suspend.\r\n", OTA_METHOD_NAME );
+
+        xErr = kOTA_Err_OTAAgentStopped;
+    }
+
+    return xErr;
 }
 
 /*
  * Resume OTA Agent task.
  */
-void OTA_Resume( void * pxConnection )
+OTA_Err_t OTA_Resume( void * pxConnection )
 {
+    DEFINE_OTA_METHOD_NAME( "OTA_Resume" );
+
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     xEventMsg.pxEventData = pxConnection;
 
-    /*
-     * Send event to OTA agent task.
-     */
-    xEventMsg.xEventId = eOTA_AgentEvent_Resume;
-    OTA_SignalEvent( &xEventMsg );
+    /* Check if OTA Agent is running. */
+    if( xOTA_Agent.eState != eOTA_AgentState_Stopped )
+    {
+        /*
+         * Send event to OTA agent task.
+         */
+        xEventMsg.xEventId = eOTA_AgentEvent_Resume;
+        OTA_SignalEvent( &xEventMsg );
+
+        xErr = kOTA_Err_None;
+    }
+    else
+    {
+        OTA_LOG_L1( "[%s] Error: OTA Agent is not running, cannot resume.\r\n", OTA_METHOD_NAME );
+
+        xErr = kOTA_Err_OTAAgentStopped;
+    }
+
+    return xErr;
 }
 
 /*-----------------------------------------------------------*/

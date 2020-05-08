@@ -200,7 +200,7 @@ static void prvNetworkDisconnectCallback( void * param,
 {
     ( void ) param;
 
-    /* Log the reson for MQTT disconnect.*/
+    /* Log the reason for MQTT disconnect.*/
     switch( mqttCallbackParams->u.disconnectReason )
     {
         case IOT_MQTT_DISCONNECT_CALLED:
@@ -222,9 +222,6 @@ static void prvNetworkDisconnectCallback( void * param,
 
     /* Clear the flag for network connection status.*/
     _networkConnected = false;
-
-    /* Suspend OTA agent.*/
-    OTA_Suspend();
 }
 
 /**
@@ -336,6 +333,13 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 
         /* Activate the new firmware image. */
         OTA_ActivateNewImage();
+
+        /* We should never get here as new image activation must reset the device.*/
+        IotLogError( "New image activation failed.\r\n" );
+
+        for( ; ; )
+        {
+        }
     }
     else if( eEvent == eOTA_JobEvent_Fail )
     {
@@ -435,10 +439,26 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() );
             }
 
-            /* Try to close the MQTT connection. */
-            if( _mqttConnection != NULL )
+            /* Check if we got network disconnect callback and suspend OTA Agent.*/
+            if( _networkConnected == false )
             {
-                IotMqtt_Disconnect( _mqttConnection, !( _networkConnected ) );
+                /* Suspend OTA agent.*/
+                if( OTA_Suspend() == kOTA_Err_None )
+                {
+                    while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Suspended )
+                    {
+                        /* Wait for OTA Agent to process the suspend event. */
+                        IotClock_SleepMs( OTA_DEMO_TASK_DELAY * 1000 );
+                    }
+                }
+            }
+            else
+            {
+                /* Try to close the MQTT connection. */
+                if( _mqttConnection != NULL )
+                {
+                    IotMqtt_Disconnect( _mqttConnection, 0 );
+                }
             }
         }
         else
