@@ -298,7 +298,12 @@ function(cy_kit_generate)
         "${AFR_KERNEL_DIR}/portable/$ENV{CY_FREERTOS_TOOLCHAIN}/ARM_CM4F"	# for portmacro.h
         "${aws_config_dir}"                                                 # for FreeRTOSconfig.h
         "${iot_common_include}"                                             # for iot_config_common.h
-        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
+    )
+
+    target_link_libraries(
+    AFR::kernel::mcu_port
+    INTERFACE
+        3rdparty::tinycrypt
     )
 
     add_library(CyObjStore INTERFACE)
@@ -373,11 +378,6 @@ function(cy_kit_generate)
             "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/shim.FreeRTOS.ARM_CM4.release.a"
         )
 
-        # target_compile_definitions(
-        #     AFR::ble_hal::mcu_port
-        #     INTERFACE
-        #     BLE_SUPPORTED=1
-        # )
     endif()
 
     # Secure sockets
@@ -411,7 +411,7 @@ function(cy_kit_generate)
         "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
         )
     else()
-        # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
+        # Link to AFR::pkcs11_mbedtls if you want to use default implemenƒtation based on mbedtls.
         target_link_libraries(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
