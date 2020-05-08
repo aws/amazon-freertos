@@ -27,6 +27,10 @@ from .aws_ota_test_case import OtaTestCase
 
 
 class OtaTestPreviousVersion(OtaTestCase):
+    """
+    This test verifies that device will reject an update if the update is an older version.
+    """
+
     is_positive = False
 
     def run(self):

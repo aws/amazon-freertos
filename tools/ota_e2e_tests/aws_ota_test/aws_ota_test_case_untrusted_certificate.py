@@ -28,6 +28,11 @@ import os
 
 
 class OtaTestUntrustedCertificate(OtaTestCase):
+    """
+    This test verifies that device will reject an update if the firmware is signed with an untrusted
+    certificate.
+    """
+
     is_positive = False
 
     def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):

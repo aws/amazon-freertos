@@ -29,6 +29,13 @@ import time
 
 
 class OtaTestPresignedUrlExpired(OtaTestCase):
+    """
+    When OTA update is created, user can configure how long the S3 presigned url would expire. This
+    test verifies that device is able to perform OTA even if it cannot finish the download when the
+    url expires. The device is expected to request a new job document which contains a new url to
+    resume the download.
+    """
+
     is_positive = True
 
     @staticmethod
