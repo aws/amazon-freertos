@@ -24,6 +24,8 @@
 #ifndef IOT_CONFIG_H_
 #define IOT_CONFIG_H_
 
+#include <stdbool.h>
+
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
