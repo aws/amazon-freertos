@@ -395,6 +395,12 @@ function(cy_kit_generate)
     # PKCS11
     afr_mcu_port(pkcs11_implementation DEPENDS CyObjStore)
 
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+        "${afr_ports_dir}/pkcs11/hw_poll.c"
+    )
+
     target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
         "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
     )
@@ -423,14 +429,8 @@ function(cy_kit_generate)
             INTERFACE
             "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
         )
-
     endif()
 
-    target_sources(
-        afr_3rdparty_mbedtls
-        INTERFACE
-        "${afr_ports_dir}/pkcs11/hw_poll.c"
-    )
     target_include_directories(afr_3rdparty_mbedtls INTERFACE
         "${cy_psoc6_dir}/psoc6csp/hal/include"
         "${cy_psoc6_dir}/psoc6csp/core_lib/include"
