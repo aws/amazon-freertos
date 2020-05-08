@@ -49,6 +49,8 @@
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
+#define BLE_SUPPORTED      ( 1 )
+#define WIFI_SUPPORTED     ( 1 )
 
 /* Network type configuration for this board. */
 #ifndef DEFAULT_NETWORK
