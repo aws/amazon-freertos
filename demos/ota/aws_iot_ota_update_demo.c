@@ -38,6 +38,10 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
+/* Standard includes. */
+#include <stdio.h>
+#include <string.h>
+
 /* MQTT include. */
 #include "iot_mqtt.h"
 
