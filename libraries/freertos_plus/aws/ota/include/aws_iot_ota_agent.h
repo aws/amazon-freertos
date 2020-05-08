@@ -517,6 +517,7 @@ typedef struct
 #define kOTA_Err_SelfTestTimerFailed     0x2b000000UL     /*!< Attempt to start self-test timer faield. */
 #define kOTA_Err_EventQueueSendFailed    0x2c000000UL     /*!< Posting event message to the event queue failed. */
 #define kOTA_Err_InvalidDataProtocol     0x2d000000UL     /*!< Job does not have a valid protocol for data transfer. */
+#define kOTA_Err_OTAAgentStopped         0x2e000000UL     /*!< Returned when operations are performed that requires OTA Agent running & its stopped. */
 /* @[define_ota_err_codes] */
 
 /* @[define_ota_err_code_helpers] */
@@ -677,16 +678,20 @@ OTA_Err_t OTA_CheckForUpdate( void );
 /* @brief Suspend OTA agent oeprations .
  *
  * @param[in]
- * @return None.
+ *
+ * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
+ * list above.
  */
-void OTA_Suspend( void );
+OTA_Err_t OTA_Suspend( void );
 
 /* @brief Resume OTA agent oeprations .
  *
  * @param[in] pxConnection Update connection context.
- * @return None.
+ *
+ * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
+ * list above.
  */
-void OTA_Resume( void * pxConnection );
+OTA_Err_t OTA_Resume( void * pxConnection );
 
 /*---------------------------------------------------------------------------*/
 /*							Statistics API									 */
