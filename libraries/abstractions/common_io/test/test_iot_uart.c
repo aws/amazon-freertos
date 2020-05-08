@@ -104,18 +104,14 @@ static IotUARTConfig_t xSampleConfig2 =
 static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
                                   void * pvParams )
 {
-    BaseType_t xHigherPriorityTaskWoken;
-
     if( xOpStatus == eUartReadCompleted )
     {
-        xSemaphoreGiveFromISR( xReadCompleteSemaphore, &xHigherPriorityTaskWoken );
+        xSemaphoreGiveFromISR( xReadCompleteSemaphore, NULL );
     }
     else if( xOpStatus == eUartWriteCompleted )
     {
-        xSemaphoreGiveFromISR( xWriteCompleteSemaphore, &xHigherPriorityTaskWoken );
+        xSemaphoreGiveFromISR( xWriteCompleteSemaphore, NULL );
     }
-
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/

@@ -321,6 +321,9 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
+    DEFINE_OTA_METHOD_NAME( "App_OTACompleteCallback" );
+
+    /* OTA job is completed. so delete the MQTT and network connection. */
     if( eEvent == eOTA_JobEvent_Activate )
     {
         IotLogInfo( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" );

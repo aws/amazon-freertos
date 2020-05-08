@@ -1,5 +1,7 @@
-# Set your compiler path here if it's not in the PATH environment variable.
-set(AFR_TOOLCHAIN_PATH "" CACHE INTERNAL "")
+# This file is to provide an easy interface to specify vendor, board, and compiler for FreeRTOS.
+# It is supposed to be processed first by cmake before the top level CMakeLists.txt file. Note the
+# behavior of this file is not officially supported by CMake. After CMake 3.17, there's a better
+# way for this, https://cmake.org/cmake/help/v3.17/variable/CMAKE_PROJECT_PROJECT-NAME_INCLUDE_BEFORE.html
 
 # If VENDOR or BOARD is specified, try to find a match.
 if(DEFINED VENDOR OR DEFINED BOARD)
@@ -22,7 +24,7 @@ if(DEFINED VENDOR OR DEFINED BOARD)
         list(JOIN matched_boards ", " matched_boards)
         message(FATAL_ERROR "Multiple matching boards found: ${matched_boards}")
     else()
-        set(AFR_BOARD "${matched_boards}" CACHE INTERNAL "")
+        set(AFR_BOARD "${matched_boards}" CACHE STRING "")
     endif()
 endif()
 

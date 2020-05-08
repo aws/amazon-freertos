@@ -126,6 +126,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty_stdio.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \

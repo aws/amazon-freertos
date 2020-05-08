@@ -55,7 +55,7 @@
  * @brief Default Invalid Metrics Group.
  * Used by the SetMetrics_with_invalid_metrics_group unit test.
  */
-#define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10000 )
+#define AWS_IOT_DEFENDER_DEFAULT_INVALID_METRICS_GROUP    ( 10 )
 
 /* Empty callback structure passed to startInfo. */
 static const AwsIotDefenderCallback_t _emptyCallback = { .function = NULL, .pCallbackContext = NULL };
