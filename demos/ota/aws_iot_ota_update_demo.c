@@ -41,14 +41,8 @@
 /* MQTT include. */
 #include "iot_mqtt.h"
 
-/* Standard includes. */
-#include <stdio.h>
-#include <string.h>
-
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
+/* Platform includes for demo. */
+#include "platform/iot_clock.h"
 
 /* Set up logging for this demo. */
 #include "iot_demo_logging.h"
@@ -82,7 +76,7 @@
  * @brief The delay used in the main OTA Demo task loop to periodically output the OTA
  * statistics like number of packets received, dropped, processed and queued per connection.
  */
-#define OTA_DEMO_ONE_SECOND_DELAY                    pdMS_TO_TICKS( 1000UL )
+#define OTA_DEMO_TASK_DELAY                          ( 1UL )
 
 /**
  * @brief The base interval in seconds for retrying network connection.
@@ -172,8 +166,7 @@ static void _cleanupOtaDemo( void )
  */
 static void _connectionRetryDelay( void )
 {
-    TickType_t intervalTicks = 0;
-    int retryIntervalwithJitter = 0;
+    unsigned int retryIntervalwithJitter = 0;
 
     if( ( _retryInterval * 2 ) >= OTA_DEMO_CONN_RETRY_MAX_INTERVAL_SECONDS )
     {
@@ -191,10 +184,8 @@ static void _connectionRetryDelay( void )
 
     IotLogInfo( "Retrying network connection in %d Secs ", retryIntervalwithJitter );
 
-    /* Convert mili seconds to ticks.*/
-    intervalTicks = pdMS_TO_TICKS( retryIntervalwithJitter * 1000 );
-
-    vTaskDelay( intervalTicks );
+    /* Delay for the calculated time interval .*/
+    IotClock_SleepMs( retryIntervalwithJitter * 1000 );
 }
 
 /**
@@ -441,7 +432,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             while( ( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped ) && _networkConnected )
             {
                 /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
-                vTaskDelay( OTA_DEMO_ONE_SECOND_DELAY );
+                IotClock_SleepMs( OTA_DEMO_TASK_DELAY * 1000 );
 
                 IotLogInfo( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", _pStateStr[ eState ],
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() );
