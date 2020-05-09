@@ -207,14 +207,13 @@ static void tfm_ns_multi_core_boot(void)
  */
 int main( void )
 {
+    /* Perform any hardware initialization that does not require the RTOS to be
+     * running.  */
+    prvMiscInitialization();
 
 #ifdef CY_TFM_PSA_SUPPORTED
     tfm_ns_multi_core_boot();
 #endif
-
-    /* Perform any hardware initialization that does not require the RTOS to be
-     * running.  */
-    prvMiscInitialization();
 
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
