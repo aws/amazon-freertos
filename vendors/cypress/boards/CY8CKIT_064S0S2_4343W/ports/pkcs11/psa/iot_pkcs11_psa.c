@@ -46,6 +46,10 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/pk_internal.h"
 
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+#include "iot_pkcs11_psa_jitp_status.h"
+#endif
+
 #define PKCS11_PRINT( X )            vLoggingPrintf X
 #define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 #define pkcs11NO_OPERATION           ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFUL )
@@ -1044,7 +1048,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
  */
 #define MAX_PUBLIC_KEY_SIZE    310
     mbedtls_pk_context xMbedContext;
-    int lDerKeyLength;
+    int lDerKeyLength = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_KEY_TYPE xKeyType;
     CK_RV xResult = CKR_OK;
@@ -1181,9 +1185,7 @@ CK_RV prvMbedTLS_Initialize( void )
         CRYPTO_Init();
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
-#define PSA_KEY_ID_VENDOR_DEVICE_KEY (PSA_KEY_ID_VENDOR_MIN + 1)
-
-        status = psa_open_key(PSA_KEY_ID_VENDOR_DEVICE_KEY, &key_handle);
+        status = psa_open_key(pkcs11configVENDOR_DEVICE_KEY_ID, &key_handle);
         if (status == PSA_SUCCESS) {
             P11KeyConfig.uxDevicePrivateKey = key_handle;
             P11KeyConfig.ulDevicePrivateKeyMark = pkcs11OBJECT_PRESENT_MAGIC + sizeof(key_handle);
@@ -1191,7 +1193,7 @@ CK_RV prvMbedTLS_Initialize( void )
         else 
         {
             xResult = CKR_ARGUMENTS_BAD;
-            PKCS11_PRINT( ( "ERROR: Failed to open vendor key(%x) err=0x%x. \r\n", PSA_KEY_ID_VENDOR_DEVICE_KEY, status ) );
+            PKCS11_PRINT( ( "ERROR: Failed to open vendor key(%x) err=0x%x. \r\n", pkcs11configVENDOR_DEVICE_KEY_ID, status ) );
         }
 
         if( xResult == CKR_OK )
@@ -1213,21 +1215,24 @@ CK_RV prvMbedTLS_Initialize( void )
 
         if( xResult == CKR_OK )
         {
-            /* Retrieve JITP certificate info */
-            status = psa_ps_get_info( P11KeyConfig.uxJitpCertificate, &ps_info);
-            if (status == PSA_SUCCESS) {
-                P11KeyConfig.ulJitpCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
-            }
-            else
+            if (GetAwsIoTJITPStatus() == 0)
             {
-               /* Not treat as error if doesn't exist */
-               if (status != PSA_ERROR_INVALID_HANDLE) {
-                   xResult = CKR_ARGUMENTS_BAD;
-               }
-               PKCS11_PRINT( ( "WARN: Failed to retrieve JITP certificate information err=0x%x. \r\n",  status ) );
+                PKCS11_PRINT( ( "INFO: Get JITP certificate info.\r\n" ) );
+                /* Retrieve JITP certificate info */
+                status = psa_ps_get_info( P11KeyConfig.uxJitpCertificate, &ps_info);
+                if (status == PSA_SUCCESS) {
+                    P11KeyConfig.ulJitpCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
+                }
+                else
+                {
+                    /* Optional, Not treat as error if doesn't exist */
+                    if (status != PSA_ERROR_INVALID_HANDLE) {
+                        xResult = CKR_ARGUMENTS_BAD;
+                    }
+                    PKCS11_PRINT( ( "WARN: Failed to retrieve JITP certificate information err=0x%x. \r\n",  status ) );
+                }
             }
         }
-
 #else
         /* PSA Crypto library should haven been initialised successfully in secure world. */
         xP11Context.xIsInitialized = CK_TRUE;
