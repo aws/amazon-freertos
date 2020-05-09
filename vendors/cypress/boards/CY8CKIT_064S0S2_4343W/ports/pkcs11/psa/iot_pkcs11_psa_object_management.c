@@ -36,21 +36,14 @@
 #include "iot_pkcs11_psa_input_format.h"
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
-#define CY_DEVICE_CERTIFICATE_SLOT (0x100)
-#define CY_JITP_CERTIFICATE_SLOT   (0x101)
 
 extern int convert_pem_to_der( const unsigned char * pucInput, size_t xLen,
                         unsigned char * pucOutput, size_t * pxOlen );
 #endif
 
 P11KeyConfig_t P11KeyConfig =
-#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
-{.uxDeviceCertificate = CY_DEVICE_CERTIFICATE_SLOT,
- .uxJitpCertificate = CY_JITP_CERTIFICATE_SLOT,
-#else
-{.uxDeviceCertificate = 5U,
- .uxJitpCertificate = 6U,
-#endif
+{.uxDeviceCertificate = pkcs11configVENDOR_DEVICE_CERTIFICATE_UID,
+ .uxJitpCertificate = pkcs11configVENDOR_JITP_CERTIFICATE_UID,
  .uxRootCertificate = 7U,
 };
 

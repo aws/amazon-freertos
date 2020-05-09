@@ -135,7 +135,7 @@
  * aws_ota_codesigner_certificate.h.
  *
  */
-#define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    0
+#define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    1
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
     #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED      0
