@@ -119,7 +119,6 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/*.c)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.S)\
 	$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.s)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)
 
 # Include app-specific config_files and include dirs before AFR "demo" includes
@@ -132,9 +131,23 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_APP_PATH)\
 	$(CY_AFR_BOARD_APP_PATH)/GeneratedSource\
 	$(CY_AFR_BOARD_APP_PATH)/startup\
-	$(CY_AFR_BOARD_PATH)/ports/pkcs11\
 	$(CY_AFR_BOARD_PATH)/ports/wifi\
 	$(CY_AFR_BOARD_APP_INC)
+
+ifneq ($(CY_TFM_PSA_SUPPORTED),)
+SOURCES+=\
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
+
+INCLUDES+=\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11
+else
+SOURCES+=\
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)
+
+INCLUDES+=\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
+    $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+endif
 
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
@@ -199,12 +212,13 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
 
 INCLUDES+=\
+	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
 	$(CY_AFR_ROOT)/libraries/3rdparty/http_parser\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/include\
@@ -221,9 +235,10 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip/src/portable/arch\
 	$(CY_AFR_ROOT)/libraries/3rdparty/lwip_osal/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_config\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
-	$(CY_AFR_ROOT)/libraries/3rdparty/pkcs11\
+	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
@@ -235,7 +250,6 @@ INCLUDES+=\
 ################################################################################
 
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
 
@@ -253,6 +267,14 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+
+ifneq ($(CY_TFM_PSA_SUPPORTED),)
+SOURCES+=\
+    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+
+endif
+
+
 
 ################################################################################
 # libraries (c_sdk)
