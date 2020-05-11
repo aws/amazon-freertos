@@ -11,13 +11,13 @@ set(
 
 if(AFR_ENABLE_TESTS)
     list(APPEND include_dirs
-        "${CMAKE_CURRENT_LIST_DIR}/../../aws_tests/config_files"
+        "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_tests/config_files"
         "${AMAZON_FREERTOS_FREERTOS_PLUS_DIR}/standard/freertos_plus_posix/include"
         "${AMAZON_FREERTOS_3RDPARTY_DIR}/unity/src"
         )
 else()
     list(APPEND include_dirs
-        "${CMAKE_CURRENT_LIST_DIR}/../../aws_demos/config_files")
+        "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_demos/config_files")
 endif()
 
 # Edit following two lines to set component requirements (see docs)

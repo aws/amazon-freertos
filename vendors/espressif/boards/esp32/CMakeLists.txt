@@ -59,8 +59,8 @@ target_link_options(
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(extra_components_dir "${CMAKE_CURRENT_LIST_DIR}/components")
+set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/../ports")
+set(extra_components_dir "${CMAKE_CURRENT_LIST_DIR}/../components")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -90,12 +90,13 @@ set(
     "${esp_idf_dir}/components/nvs_flash/include"
     "${esp_idf_dir}/components/pthread/include"
     "${esp_idf_dir}/components/newlib/platform_include"
+    "${esp_idf_dir}/components/soc/src/esp32/include"
     "${esp_idf_dir}/components/soc/soc/esp32/include"
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
     "${esp_idf_dir}/components/vfs/include"
     "${extra_components_dir}/freertos/include"
-    "${extra_components_dir}/mbedtls/port/include"
+    "${esp_idf_dir}/components/mbedtls/port/include"
     "${esp_idf_dir}/components/xtensa/esp32/include/xtensa"
     "${esp_idf_dir}/components/xtensa/esp32/include"
     "${esp_idf_dir}/components/xtensa/include"

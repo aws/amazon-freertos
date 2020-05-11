@@ -11,7 +11,7 @@ AMAZON_FREERTOS_3RD_PARTY_DIR := ../../../../../../../../libraries/3rdparty
 AMAZON_FREERTOS_ABSTRACTIONS_DIR := ../../../../../../../../libraries/abstractions
 AMAZON_FREERTOS_ARF_PLUS_DIR := ../../../../../../../../libraries/freertos_plus
 AMAZON_FREERTOS_ARF_KERNEL := ../../../../../../../../freertos_kernel
-AMAZON_FREERTOS_ARF_PORTS := ../../../../../../../../vendors/espressif/boards/esp32/ports
+AMAZON_FREERTOS_ARF_PORTS := ../../../../../../../../vendors/espressif/boards/ports
 AMAZON_FREERTOS_TESTS_DIR := ../../../../../../../../tests
 AMAZON_FREERTOS_DEMOS_DIR := ../../../../../../../../demos
 
@@ -93,7 +93,7 @@ COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
 lib/greengrass/aws_greengrass_discovery.o: CFLAGS+=-Wno-format
 lib/common/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized
 libraries/c_sdk/aws/defender/src/aws_iot_defender_api.o: CFLAGS+=-Wno-unused-but-set-variable
-vendors/espressif/boards/esp32/ports/ble/iot_ble_hal_gatt_server.o: CFLAGS+=-Wno-stringop-overflow
+vendors/espressif/boards/ports/ble/iot_ble_hal_gatt_server.o: CFLAGS+=-Wno-stringop-overflow
 
 ifdef AMAZON_FREERTOS_ENABLE_UNIT_TEST
 COMPONENT_SRCDIRS += ../.. \

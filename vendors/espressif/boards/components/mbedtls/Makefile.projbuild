@@ -1,0 +1,5 @@
+# Anyone compiling mbedTLS code needs the name of the
+# alternative config file
+MBEDTLS_DIR := ../../../esp-idf/components/mbedtls/port/include
+CPPFLAGS += -DMBEDTLS_CONFIG_FILE='"$(MBEDTLS_DIR)/mbedtls/esp_config.h"'
+
