@@ -80,7 +80,7 @@
  * @brief The delay used in the main OTA Demo task loop to periodically output the OTA
  * statistics like number of packets received, dropped, processed and queued per connection.
  */
-#define OTA_DEMO_TASK_DELAY                          ( 1UL )
+#define OTA_DEMO_TASK_DELAY_SECONDS                  ( 1UL )
 
 /**
  * @brief The base interval in seconds for retrying network connection.
@@ -440,7 +440,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             while( ( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped ) && _networkConnected )
             {
                 /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
-                IotClock_SleepMs( OTA_DEMO_TASK_DELAY * 1000 );
+                IotClock_SleepMs( OTA_DEMO_TASK_DELAY_SECONDS * 1000 );
 
                 IotLogInfo( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", _pStateStr[ eState ],
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() );
@@ -455,7 +455,7 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                     while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Suspended )
                     {
                         /* Wait for OTA Agent to process the suspend event. */
-                        IotClock_SleepMs( OTA_DEMO_TASK_DELAY * 1000 );
+                        IotClock_SleepMs( OTA_DEMO_TASK_DELAY_SECONDS * 1000 );
                     }
                 }
             }
