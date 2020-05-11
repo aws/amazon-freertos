@@ -831,6 +831,7 @@ static CK_RV prvEcPubKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
             }
 
             break;
+
         default:
             PKCS11_PRINT( ( "Unknown attribute found for an EC public key. %d \r\n", pxAttribute->type ) );
             xResult = CKR_TEMPLATE_INCONSISTENT;
@@ -1098,10 +1099,10 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
  *
  */
 static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
-                            CK_OBJECT_HANDLE_PTR pxObject,
-                            CK_ATTRIBUTE_PTR pxLabel,
-                            CK_KEY_TYPE xKeyType,
-                            CK_BBOOL xIsPrivate )
+                                 CK_OBJECT_HANDLE_PTR pxObject,
+                                 CK_ATTRIBUTE_PTR pxLabel,
+                                 CK_KEY_TYPE xKeyType,
+                                 CK_BBOOL xIsPrivate )
 {
     CK_RV xResult = CKR_OK;
     CK_BYTE_PTR pxDerKey;
@@ -2077,10 +2078,10 @@ static CK_RV prvCreateECKey( CK_ATTRIBUTE_PTR pxTemplate,
     if( xResult == CKR_OK )
     {
         xResult = prvSaveDerKeyToPal( &xMbedContext,
-                                 pxObject,
-                                 pxLabel,
-                                 CKK_EC,
-                                 xIsPrivate );
+                                      pxObject,
+                                      pxLabel,
+                                      CKK_EC,
+                                      xIsPrivate );
     }
 
     /* Clean up the mbedTLS key context. */
@@ -2145,10 +2146,10 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     if( xResult == CKR_OK )
     {
         xResult = prvSaveDerKeyToPal( &xMbedContext,
-                                 pxObject,
-                                 pxLabel,
-                                 CKK_RSA,
-                                 CK_TRUE );
+                                      pxObject,
+                                      pxLabel,
+                                      CKK_RSA,
+                                      CK_TRUE );
     }
 
     /* Clean up the mbedTLS key context. */
