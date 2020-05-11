@@ -1,5 +1,5 @@
-AMAZON_FREERTOS_ABSTRACTIONS_DIR := ../../../../../../libraries/abstractions
-AMAZON_FREERTOS_3RD_PARTY_DIR := ../../../../../../libraries/3rdparty
+AMAZON_FREERTOS_ABSTRACTIONS_DIR := ../../../../../libraries/abstractions
+AMAZON_FREERTOS_3RD_PARTY_DIR := ../../../../../libraries/3rdparty
 AMAZON_FREERTOS_PORTS_DIR := ../../ports
 
 ifndef AFR_ESP_FREERTOS_TCP
