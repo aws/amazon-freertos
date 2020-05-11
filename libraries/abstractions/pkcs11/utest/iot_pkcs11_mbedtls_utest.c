@@ -446,6 +446,7 @@ void test_pkcs11_C_InitializeSeedFail( void )
 void test_pkcs11_C_InitializeInitTwice( void )
 {
     CK_RV xResult = CKR_OK;
+
     xResult = prvInitializePkcs11();
 
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
