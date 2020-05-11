@@ -83,6 +83,10 @@ static void prvOutputMessage();
 static void prvSpiAsyncCallback( IotSPITransactionStatus_t xStatus,
                                  void * pvUserContext )
 {
+    /* Silence the compiler. */
+    ( void ) xStatus;
+    ( void ) pvUserContext;
+
     xSemaphoreGiveFromISR( xtestIotSPISemaphore, NULL );
 }
 /*-----------------------------------------------------------*/

@@ -126,6 +126,9 @@ TEST_TEAR_DOWN( TEST_IOT_I2C )
 void prvI2CCallback( IotI2COperationStatus_t xOpStatus,
                      void * pvParam )
 {
+    /* Silence the compiler. */
+    ( void ) pvParam;
+
     if( xOpStatus == eI2CCompleted )
     {
         xSemaphoreGiveFromISR( xtestIotI2CSemaphore, NULL );
@@ -357,7 +360,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
         TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
 
         /* i2c ioctl with unsupported request */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, testIotI2C_INVALID_IOCTL_INDEX, &xI2CConfig );
+        lRetVal = iot_i2c_ioctl( xI2CHandle, ( IotI2CIoctlRequest_t ) testIotI2C_INVALID_IOCTL_INDEX, &xI2CConfig );
         TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
     }
 
@@ -484,7 +487,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncAssisted )
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Read from i2c device */
-        lRetVal = iot_i2c_read_async( xI2CHandle, &ucReadBuf, sizeof( ucReadBuf ) );
+        lRetVal = iot_i2c_read_async( xI2CHandle, ucReadBuf, sizeof( ucReadBuf ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
@@ -1188,7 +1191,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncAssisted )
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* Read from i2c device */
-        lRetVal = iot_i2c_read_sync( xI2CHandle, &ucReadBuf, sizeof( ucReadBuf ) );
+        lRetVal = iot_i2c_read_sync( xI2CHandle, ucReadBuf, sizeof( ucReadBuf ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
     }
 
