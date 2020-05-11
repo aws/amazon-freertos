@@ -70,7 +70,7 @@
 #endif
 
 /* Logging Task Defines. */
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 30 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Unit test defines. */
