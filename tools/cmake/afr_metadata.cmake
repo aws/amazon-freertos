@@ -294,14 +294,6 @@ function(afr_write_metadata)
         endif()
     endforeach()
 
-    if(TARGET 3rdparty::mbedtls)
-        list(
-            APPEND src_console
-            "${AFR_3RDPARTY_DIR}/mbedtls_config"
-            "${AFR_3RDPARTY_DIR}/mbedtls_utils"
-        )
-    endif()
-
     # Append extra files for FreeRTOS console.
     list(
         APPEND src_console

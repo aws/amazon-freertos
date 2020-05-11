@@ -36,7 +36,6 @@
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
-#define testrunnerFULL_DEFENDER_ENABLED            0
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_CRYPTO_ENABLED              0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED    0

@@ -46,6 +46,8 @@
 /*-----------------------------------------------------------*/
 #define testIotI2C_BAUDRATE               IOT_I2C_FAST_MODE_BPS
 #define testIotI2C_BAUDRATE_LOW_SPEED     IOT_I2C_STANDARD_MODE_BPS
+#define testIotI2C_INSTANCE               uctestIotI2CInstanceIdx
+#define testIotI2C_INSTANCE_NUM           uctestIotI2CInstanceNum
 #define testIotI2C_DEFAULT_TIMEOUT        500 /**< 500 msec */
 #define testIotI2C_FAST_TIMEOUT           100 /**< 100 msec */
 #define testIotI2C_INVALID_IOCTL_INDEX    UINT32_MAX
@@ -68,13 +70,16 @@ typedef struct CallbackParam
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
 
-uint16_t uctestIotI2CSlaveAddr = 0;             /**< The slave address to be set for the I2C port. */
-uint16_t uctestIotI2CInvalidSlaveAddr = 0xFFFF; /**< The slave address to be set for the I2C port. */
-uint8_t uctestIotI2CDeviceRegister = 0;         /**< The device register to be set for the I2C port. */
-uint8_t uctestIotI2CWriteVal = 0;               /**< The write value to write to device. */
-uint8_t uctestIotI2CInstanceIdx = 0;            /**< The current I2C test instance index */
-uint8_t uctestIotI2CInstanceNum = 1;            /**< The total I2C test instance number */
-uint16_t ucAssistedTestIotI2CSlaveAddr = 0;     /**< The slave address to be set for the assisted test. */
+uint8_t uctestIotI2CSlaveAddr = 0;           /**< The slave address to be set for the I2C port. */
+uint8_t uctestIotI2CInvalidSlaveAddr = 0xFF; /**< The slave address to be set for the I2C port. */
+uint8_t uctestIotI2CDeviceRegister = 0;      /**< The device register to be set for the I2C port. */
+uint8_t uctestIotI2CWriteVal = 0;            /**< The write value to write to device. */
+uint8_t uctestIotI2CInstanceIdx = 0;         /**< The current I2C test instance index */
+uint8_t uctestIotI2CInstanceNum = 1;         /**< The total I2C test instance number */
+
+uint8_t ucAssistedTestIotI2CSlaveAddr = 0;   /**< The slave address to be set for the assisted test. */
+
+extern IotI2CHandle_t gIotI2cHandle[ testIotI2C_HANDLE_NUM ];
 
 /*-----------------------------------------------------------*/
 /* Static Globals */
@@ -102,6 +107,18 @@ TEST_GROUP( TEST_IOT_I2C );
  */
 TEST_SETUP( TEST_IOT_I2C )
 {
+    IotI2CHandle_t xGlobalI2CHandle = gIotI2cHandle[ testIotI2C_INSTANCE ];
+    int32_t lRetVal;
+
+    /* Close global handle it was opened. */
+    if( xGlobalI2CHandle != NULL )
+    {
+        lRetVal = iot_i2c_close( xGlobalI2CHandle );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+
+        gIotI2cHandle[ testIotI2C_INSTANCE ] = NULL;
+    }
+
     if( xtestIotI2CSemaphore == NULL )
     {
         xtestIotI2CSemaphore = xSemaphoreCreateBinary();
@@ -219,7 +236,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseSuccess )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     lRetVal = iot_i2c_close( xI2CHandle );
@@ -234,24 +251,21 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseSuccess )
 TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFail )
 {
     IotI2CHandle_t xI2CHandle;
-    IotI2CHandle_t xI2CHandle_1 = NULL;
+    IotI2CHandle_t xI2CHandle_1;
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
-    if( TEST_PROTECT() )
-    {
-        /* Open i2c to initialize hardware again */
-        xI2CHandle_1 = iot_i2c_open( uctestIotI2CInstanceIdx );
-        TEST_ASSERT_EQUAL( NULL, xI2CHandle_1 );
-    }
+    /* Open i2c to initialize hardware again */
+    xI2CHandle_1 = iot_i2c_open( testIotI2C_INSTANCE );
+    TEST_ASSERT_EQUAL( NULL, xI2CHandle_1 );
 
     lRetVal = iot_i2c_close( xI2CHandle );
     TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
-    /* Close same i2c again which is not open */
+    /* Close same i2c again which is NULL */
     lRetVal = iot_i2c_close( xI2CHandle );
     TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
 
@@ -271,7 +285,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2COpenCloseFailUnsupportInst )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceNum );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE_NUM );
     TEST_ASSERT_EQUAL( NULL, xI2CHandle );
 
     lRetVal = iot_i2c_close( xI2CHandle );
@@ -294,7 +308,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationSuccess )
     xI2CConfig_write.ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -343,7 +357,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -385,7 +399,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadAsyncSuccess )
         .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
     };
 
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -455,7 +469,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncAssisted )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -522,7 +536,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadChainSuccess )
         .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
     };
 
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -587,7 +601,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -649,7 +663,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -705,7 +719,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr )
     uint8_t ucReadValue;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -742,7 +756,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -814,7 +828,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelFail )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -836,7 +850,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelUnsupported )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -871,7 +885,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -947,7 +961,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncAssisted )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -995,7 +1009,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1045,7 +1059,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1098,7 +1112,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadSyncSuccess )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1162,7 +1176,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncAssisted )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1219,7 +1233,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncFail )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1257,7 +1271,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1324,7 +1338,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncAssisted )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1366,7 +1380,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1404,7 +1418,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess )
     };
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )
@@ -1456,7 +1470,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSendNoStopUnsupported )
     int32_t lRetVal;
 
     /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( uctestIotI2CInstanceIdx );
+    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
     TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
 
     if( TEST_PROTECT() )

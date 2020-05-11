@@ -3,9 +3,6 @@ if(CMAKE_CROSSCOMPILING)
     enable_language(ASM)
 endif()
 
-# Export the json compile commands databse.
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
-
 # Set some global path variables.
 get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "FreeRTOS source root.")

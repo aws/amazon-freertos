@@ -27,11 +27,6 @@ from .aws_ota_test_case import OtaTestCase
 
 
 class OtaTestGreaterVersion(OtaTestCase):
-    """
-    Happy path test for a regular OTA update. It creates an update with a newer version, device
-    should be able to update successfully.
-    """
-
     is_positive = True
 
     def run(self):

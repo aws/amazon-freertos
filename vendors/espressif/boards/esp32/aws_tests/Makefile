@@ -17,7 +17,7 @@ export AMAZON_FREERTOS_ENABLE_UNIT_TEST := 1
 EXTRA_COMPONENT_DIRS := $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/aws_tests/application_code/espressif_code \
                         $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/components
 
-ifdef AFR_ESP_FREERTOS_TCP
+ifndef AFR_ESP_LWIP
 EXTRA_COMPONENT_DIRS += $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/components/freertos_tcpip
 else
 CFLAGS += -DAFR_ESP_LWIP

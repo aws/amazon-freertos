@@ -161,12 +161,6 @@ TEST_SETUP( Full_PKCS11_Capabilities )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
-
-    #ifdef PKCS11_TEST_MEMORY_LEAK
-        /* Give the print buffer time to empty */
-        vTaskDelay( 500 );
-        xHeapBefore = xPortGetFreeHeapSize();
-    #endif
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
@@ -177,13 +171,6 @@ TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
-
-    #ifdef PKCS11_TEST_MEMORY_LEAK
-        /* Give the print buffer time to empty */
-        vTaskDelay( 500 );
-        xHeapAfter = xPortGetFreeHeapSize();
-        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
-    #endif
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_Capabilities )
@@ -202,7 +189,6 @@ TEST_SETUP( Full_PKCS11_NoObject )
         vTaskDelay( 500 );
         xHeapBefore = xPortGetFreeHeapSize();
     #endif
-
     CK_RV xResult;
 
     xResult = xInitializePKCS11();
@@ -443,32 +429,26 @@ void prvAfterRunningTests_Object( void )
 {
     /* Check if the test label is the same as the run-time label. */
 
-    /* Only reprovision a device that supports importing private keys. */
-    #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+    /* If labels are the same, then we are assuming that this device does not
+     * have a secure element. */
+    if( ( 0 == strcmp( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
+        ( 0 == strcmp( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+    {
+        /* Delete the old device private key and certificate, if that
+         * operation is supported by this port. Replace
+         * them with known-good AWS IoT credentials. */
+        xDestroyDefaultCryptoObjects( xGlobalSession );
 
-        /* If labels are the same, then we are assuming that this device does not
-         * have a secure element. */
-        if( ( 0 == strcmp( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
-            ( 0 == strcmp( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-        {
-            /* Delete the old device private key and certificate, if that
-             * operation is supported by this port. Replace
-             * them with known-good AWS IoT credentials. */
-            xDestroyDefaultCryptoObjects( xGlobalSession );
+        /* Re-provision the device with default certs
+         * so that subsequent tests are not changed. */
+        vDevModeKeyProvisioning();
+        xCurrentCredentials = eClientCredential;
+    }
 
-            /* Re-provision the device with default certs
-             * so that subsequent tests are not changed. */
-            vDevModeKeyProvisioning();
-            xCurrentCredentials = eClientCredential;
-        }
-        else
-        {
-            /* If the labels are different, then test credentials
-             * and application credentials are stored in separate
-             * slots which were not modified, so nothing special
-             * needs to be done. */
-        }
-    #endif /* if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 ) */
+    /* If the labels are different, then test credentials
+     * and application credentials are stored in separate
+     * slots which were not modified, so nothing special
+     * needs to be done. */
 }
 
 
@@ -860,8 +840,6 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
-
-    vPortFree( pxSlotId );
 
     /* Check for consistency between static configuration and runtime key
      * generation settings. */

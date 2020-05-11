@@ -35,7 +35,7 @@
   :treat_externs: :include
   :includes_c_pre_header:
     - "portableDefs.h"
-  :includes_h_pre_orig_header:
+  :includes_h_pre_orig_headder:
     - "portableDefs.h"
   :includes:
     - "portableDefs.h"

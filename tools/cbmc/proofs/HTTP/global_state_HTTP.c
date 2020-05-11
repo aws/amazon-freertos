@@ -92,7 +92,11 @@ size_t IotNetworkInterfaceReceive( void * pConnection,
   __CPROVER_assert(pConnection, "IotNetworkInterfaceReceive pConnection");
   __CPROVER_assert(pBuffer, "IotNetworkInterfaceReceive pBuffer");
 
-  __CPROVER_havoc_object(pBuffer);
+  /* Fill the entire memory object pointed to by pBuffer with
+   * unconstrained data.  This use of __CPROVER_array_copy with a
+   * single byte is a common CBMC idiom. */
+  uint8_t byte;
+  __CPROVER_array_copy(pBuffer,&byte);
 
   size_t size;
   __CPROVER_assume(size <= bytesRequested);

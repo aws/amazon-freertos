@@ -110,9 +110,6 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
 
 static void prvLoggingTask( void * pvParameters )
 {
-    /* Disable unused parameter warning. */
-    ( void ) pvParameters;
-
     char * pcReceivedString = NULL;
 
     for( ; ; )

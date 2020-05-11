@@ -28,10 +28,6 @@ import os
 
 
 class OtaTestUnsignedImage(OtaTestCase):
-    """
-    This test verifies that device will reject an update if the image is not signed.
-    """
-
     is_positive = False
 
     def run(self):

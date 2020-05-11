@@ -28,11 +28,6 @@ from .aws_ota_aws_agent import *
 
 
 class OtaTestGreaterVersionMinBlockConfig(OtaTestCase):
-    """
-    Same happy path test as OtaTestGreaterVersion but with the number of blocks requested each time
-    set to minimum value.
-    """
-
     is_positive = True
 
     @staticmethod

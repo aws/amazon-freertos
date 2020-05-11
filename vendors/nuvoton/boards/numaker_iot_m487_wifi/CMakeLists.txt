@@ -47,6 +47,8 @@ afr_mcu_port(compiler)
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
+    -D__MICROLIB
+    -D_REENT_SMALL 
     -DPRODUCT_VERSION=m487 
     -DCONFIG_REPEATER 
     -DSUPPORT_MBEDTLS 
@@ -61,12 +63,6 @@ target_compile_definitions(
     -DM487 
     ${extra_define}
 )
-if(AFR_IS_TESTING)
-    target_compile_definitions(
-        AFR::compiler::mcu_port
-        INTERFACE -DMBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\"
-    )
-endif()
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:ASM>:${assembler_defined_symbols}>

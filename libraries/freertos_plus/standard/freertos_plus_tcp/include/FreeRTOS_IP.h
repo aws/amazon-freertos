@@ -30,36 +30,54 @@
 extern "C" {
 #endif
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 /* Application level configuration options. */
 #include "FreeRTOSIPConfig.h"
 #include "FreeRTOSIPConfigDefaults.h"
 #include "IPTraceMacroDefaults.h"
 
-/* Some constants defining the sizes of several parts of a packet */
-#define ipSIZE_OF_ETH_HEADER			14u
-#define ipSIZE_OF_IPv4_HEADER			20u
-#define ipSIZE_OF_IGMP_HEADER			8u
-#define ipSIZE_OF_ICMP_HEADER			8u
-#define ipSIZE_OF_UDP_HEADER			8u
-#define ipSIZE_OF_TCP_HEADER			20u
+/* Some constants defining the sizes of several parts of a packet.
+These defines come before inlucding the configuration header files. */
+#define ipSIZE_OF_ETH_HEADER			14U
+#define ipSIZE_OF_IPv4_HEADER			20U
+#define ipSIZE_OF_IGMP_HEADER			8U
+#define ipSIZE_OF_ICMP_HEADER			8U
+#define ipSIZE_OF_UDP_HEADER			8U
+#define ipSIZE_OF_TCP_HEADER			20U
 
+#define ipSIZE_OF_IPv4_ADDRESS	4U
+
+/*
+ * Generate a randomized TCP Initial Sequence Number per RFC.
+ * This function must be provided by the application builder.
+ */
+extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
+													uint16_t usSourcePort,
+													uint32_t ulDestinationAddress,
+													uint16_t usDestinationPort );
 
 /* The number of octets in the MAC and IP addresses respectively. */
 #define ipMAC_ADDRESS_LENGTH_BYTES ( 6 )
 #define ipIP_ADDRESS_LENGTH_BYTES ( 4 )
 
 /* IP protocol definitions. */
-#define ipPROTOCOL_ICMP			( 1 )
-#define ipPROTOCOL_IGMP         ( 2 )
-#define ipPROTOCOL_TCP			( 6 )
-#define ipPROTOCOL_UDP			( 17 )
+#define ipPROTOCOL_ICMP			( 1U )
+#define ipPROTOCOL_IGMP         ( 2U )
+#define ipPROTOCOL_TCP			( 6U )
+#define ipPROTOCOL_UDP			( 17U )
+
+/* The character used to fill ICMP echo requests, and therefore also the
+character expected to fill ICMP echo replies. */
+#define ipECHO_DATA_FILL_BYTE						'x'
 
 /* Dimensions the buffers that are filled by received Ethernet frames. */
 #define ipSIZE_OF_ETH_CRC_BYTES					( 4UL )
 #define ipSIZE_OF_ETH_OPTIONAL_802_1Q_TAG_BYTES	( 4UL )
 #define ipTOTAL_ETHERNET_FRAME_SIZE				( ( ( uint32_t ) ipconfigNETWORK_MTU ) + ( ( uint32_t ) ipSIZE_OF_ETH_HEADER ) + ipSIZE_OF_ETH_CRC_BYTES + ipSIZE_OF_ETH_OPTIONAL_802_1Q_TAG_BYTES )
 
-/*_RB_ Comment may need updating. */
+
 /* Space left at the beginning of a network buffer storage area to store a
 pointer back to the network buffer.  Should be a multiple of 8 to ensure 8 byte
 alignment is maintained on architectures that require it.
@@ -77,10 +95,11 @@ buffer will have the following contents:
 	uint8_t ucVersionHeaderLength;
 	etc
  */
+
 #if( ipconfigBUFFER_PADDING != 0 )
     #define ipBUFFER_PADDING    ipconfigBUFFER_PADDING
 #else
-    #define ipBUFFER_PADDING    ( 8u + ipconfigPACKET_FILLER_SIZE )
+    #define ipBUFFER_PADDING    ( 8U + ipconfigPACKET_FILLER_SIZE )
 #endif
 
 /* The structure used to store buffers and pass them around the network stack.
@@ -121,12 +140,15 @@ typedef enum ePING_REPLY_STATUS
 	eInvalidData		/* A reply was received to an outgoing ping but the payload of the reply was not correct. */
 } ePingReplyStatus_t;
 
-typedef enum eNETWORK_ADDRESS_TYPE 
+typedef struct xIP_TIMER
 {
-	eNetWorkAddressTypeIPV4,
-	eNetWorkAddressTypeIPV6,
-	eNetWorkAddressTypeHostName
-} eNetWorkAddressType_t;
+	uint32_t
+		bActive : 1,	/* This timer is running and must be processed. */
+		bExpired : 1;	/* Timer has expired and a task must be processed. */
+	TimeOut_t xTimeOut;
+	TickType_t ulRemainingTime;
+	TickType_t ulReloadTime;
+} IPTimer_t;
 
 /* Endian related definitions. */
 #if( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN )
@@ -169,52 +191,45 @@ typedef enum eNETWORK_ADDRESS_TYPE
 	static portINLINE uint32_t FreeRTOS_round_up   (uint32_t a, uint32_t d);
 	static portINLINE uint32_t FreeRTOS_round_down (uint32_t a, uint32_t d);
 	static portINLINE BaseType_t  FreeRTOS_min_BaseType  (BaseType_t  a, BaseType_t  b);
-	static portINLINE BaseType_t  FreeRTOS_max_BaseType  (BaseType_t  a, BaseType_t  b);
-	static portINLINE UBaseType_t FreeRTOS_max_UBaseType (UBaseType_t a, UBaseType_t b);
-	static portINLINE UBaseType_t  	FreeRTOS_min_UBaseType (UBaseType_t  a, UBaseType_t  b);
 
-
-	static portINLINE int32_t  FreeRTOS_max_int32  (int32_t  a, int32_t  b) { return a >= b ? a : b; }
-	static portINLINE uint32_t FreeRTOS_max_uint32 (uint32_t a, uint32_t b) { return a >= b ? a : b; }
-	static portINLINE int32_t  FreeRTOS_min_int32  (int32_t  a, int32_t  b) { return a <= b ? a : b; }
-	static portINLINE uint32_t FreeRTOS_min_uint32 (uint32_t a, uint32_t b) { return a <= b ? a : b; }
-	static portINLINE uint32_t FreeRTOS_round_up   (uint32_t a, uint32_t d) { return d * ( ( a + d - 1u ) / d ); }
+	static portINLINE int32_t  FreeRTOS_max_int32  (int32_t  a, int32_t  b) { return ( a >= b ) ? a : b; }
+	static portINLINE uint32_t FreeRTOS_max_uint32 (uint32_t a, uint32_t b) { return ( a >= b ) ? a : b; }
+	static portINLINE int32_t  FreeRTOS_min_int32  (int32_t  a, int32_t  b) { return ( a <= b ) ? a : b; }
+	static portINLINE uint32_t FreeRTOS_min_uint32 (uint32_t a, uint32_t b) { return ( a <= b ) ? a : b; }
+	static portINLINE uint32_t FreeRTOS_round_up   (uint32_t a, uint32_t d) { return d * ( ( a + d - 1U ) / d ); }
 	static portINLINE uint32_t FreeRTOS_round_down (uint32_t a, uint32_t d) { return d * ( a / d ); }
 
-	static portINLINE BaseType_t  FreeRTOS_max_BaseType  (BaseType_t  a, BaseType_t  b) { return a >= b ? a : b; }
-	static portINLINE UBaseType_t FreeRTOS_max_UBaseType (UBaseType_t a, UBaseType_t b) { return a >= b ? a : b; }
-	static portINLINE BaseType_t  FreeRTOS_min_BaseType  (BaseType_t  a, BaseType_t  b) { return a <= b ? a : b; }
-	static portINLINE UBaseType_t FreeRTOS_min_UBaseType (UBaseType_t  a, UBaseType_t  b) { return a <= b ? a : b; }
+	static portINLINE BaseType_t  FreeRTOS_min_BaseType  (BaseType_t  a, BaseType_t  b) { return ( a <= b ) ? a : b; }
 
 #else
 
-	#define FreeRTOS_max_int32(a,b)  ( ( ( int32_t  ) ( a ) ) >= ( ( int32_t  ) ( b ) ) ? ( ( int32_t  ) ( a ) ) : ( ( int32_t  ) ( b ) ) )
-	#define FreeRTOS_max_uint32(a,b) ( ( ( uint32_t ) ( a ) ) >= ( ( uint32_t ) ( b ) ) ? ( ( uint32_t ) ( a ) ) : ( ( uint32_t ) ( b ) ) )
+	#define FreeRTOS_max_int32(a,b)  ( ( ( ( int32_t  ) ( a ) ) >= ( ( int32_t  ) ( b ) ) ) ? ( ( int32_t  ) ( a ) ) : ( ( int32_t  ) ( b ) ) )
+	#define FreeRTOS_max_uint32(a,b) ( ( ( ( uint32_t ) ( a ) ) >= ( ( uint32_t ) ( b ) ) ) ? ( ( uint32_t ) ( a ) ) : ( ( uint32_t ) ( b ) ) )
 
-	#define FreeRTOS_min_int32(a,b)  ( ( ( int32_t  ) a ) <= ( ( int32_t  ) b ) ? ( ( int32_t  ) a ) : ( ( int32_t  ) b ) )
-	#define FreeRTOS_min_uint32(a,b) ( ( ( uint32_t ) a ) <= ( ( uint32_t ) b ) ? ( ( uint32_t ) a ) : ( ( uint32_t ) b ) )
+	#define FreeRTOS_min_int32(a,b)  ( ( ( ( int32_t  ) a ) <= ( ( int32_t  ) b ) ) ? ( ( int32_t  ) a ) : ( ( int32_t  ) b ) )
+	#define FreeRTOS_min_uint32(a,b) ( ( ( ( uint32_t ) a ) <= ( ( uint32_t ) b ) ) ? ( ( uint32_t ) a ) : ( ( uint32_t ) b ) )
 
 	/*  Round-up: a = d * ( ( a + d - 1 ) / d ) */
 	#define FreeRTOS_round_up(a,d)   ( ( ( uint32_t ) ( d ) ) * ( ( ( ( uint32_t ) ( a ) ) + ( ( uint32_t ) ( d ) ) - 1UL ) / ( ( uint32_t ) ( d ) ) ) )
 	#define FreeRTOS_round_down(a,d) ( ( ( uint32_t ) ( d ) ) * ( ( ( uint32_t ) ( a ) ) / ( ( uint32_t ) ( d ) ) ) )
 
-	#define FreeRTOS_ms_to_tick(ms)  ( ( ms * configTICK_RATE_HZ + 500 ) / 1000 )
-
-	#define FreeRTOS_max_BaseType(a, b)  ( ( ( BaseType_t  ) ( a ) ) >= ( ( BaseType_t  ) ( b ) ) ? ( ( BaseType_t  ) ( a ) ) : ( ( BaseType_t  ) ( b ) ) )
-	#define FreeRTOS_max_UBaseType(a, b) ( ( ( UBaseType_t ) ( a ) ) >= ( ( UBaseType_t ) ( b ) ) ? ( ( UBaseType_t ) ( a ) ) : ( ( UBaseType_t ) ( b ) ) )
 	#define FreeRTOS_min_BaseType(a, b)  ( ( ( BaseType_t  ) ( a ) ) <= ( ( BaseType_t  ) ( b ) ) ? ( ( BaseType_t  ) ( a ) ) : ( ( BaseType_t  ) ( b ) ) )
-	#define FreeRTOS_min_UBaseType(a, b) ( ( ( UBaseType_t ) ( a ) ) <= ( ( UBaseType_t ) ( b ) ) ? ( ( UBaseType_t ) ( a ) ) : ( ( UBaseType_t ) ( b ) ) )
 
 #endif /* ipconfigHAS_INLINE_FUNCTIONS */
 
-#define pdMS_TO_MIN_TICKS( xTimeInMs ) ( pdMS_TO_TICKS( ( xTimeInMs ) ) < ( ( TickType_t ) 1 ) ? ( ( TickType_t ) 1 ) : pdMS_TO_TICKS( ( xTimeInMs ) ) )
+#define ipMS_TO_MIN_TICKS( xTimeInMs ) ( ( pdMS_TO_TICKS( ( xTimeInMs ) ) < ( ( TickType_t ) 1U ) ) ? ( ( TickType_t ) 1U ) : pdMS_TO_TICKS( ( xTimeInMs ) ) )
+
+/* For backward compatibility. */
+#define pdMS_TO_MIN_TICKS( xTimeInMs )	ipMS_TO_MIN_TICKS( xTimeInMs )
 
 #ifndef pdTRUE_SIGNED
 	/* Temporary solution: eventually the defines below will appear in 'Source\include\projdefs.h' */
 	#define pdTRUE_SIGNED		pdTRUE
 	#define pdFALSE_SIGNED		pdFALSE
-	#define pdTRUE_UNSIGNED		( ( UBaseType_t ) 1u )
-	#define pdFALSE_UNSIGNED	( ( UBaseType_t ) 0u )
+	#define pdTRUE_UNSIGNED		( 1U )
+	#define pdFALSE_UNSIGNED	( 0U )
+	#define ipTRUE_BOOL			( 1 == 1 )
+	#define ipFALSE_BOOL		( 1 == 2 )
 #endif
 
 /*
@@ -228,10 +243,18 @@ BaseType_t FreeRTOS_IPInit( const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES
 	const uint8_t ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
 	const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] );
 
-void * FreeRTOS_GetUDPPayloadBuffer( size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks );
-void FreeRTOS_GetAddressConfiguration( uint32_t *pulIPAddress, uint32_t *pulNetMask, uint32_t *pulGatewayAddress, uint32_t *pulDNSServerAddress );
-void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint32_t *pulNetMask, const uint32_t *pulGatewayAddress, const uint32_t *pulDNSServerAddress );
-BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
+void * FreeRTOS_GetUDPPayloadBuffer( size_t uxRequestedSizeBytes, TickType_t uxBlockTimeTicks );
+void FreeRTOS_GetAddressConfiguration( uint32_t *pulIPAddress,
+									   uint32_t *pulNetMask,
+									   uint32_t *pulGatewayAddress,
+									   uint32_t *pulDNSServerAddress );
+
+void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress,
+									   const uint32_t *pulNetMask,
+									   const uint32_t *pulGatewayAddress,
+									   const uint32_t *pulDNSServerAddress );
+
+BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t uxNumberOfBytesToSend, TickType_t uxBlockTimeTicks );
 void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer );
 const uint8_t * FreeRTOS_GetMACAddress( void );
 void FreeRTOS_UpdateMACAddress( const uint8_t ucMACAddress[ipMAC_ADDRESS_LENGTH_BYTES] );
@@ -263,6 +286,12 @@ const char *FreeRTOS_GetTCPStateName( UBaseType_t ulState);
  */
 void FreeRTOS_PrintARPCache( void );
 void FreeRTOS_ClearARP( void );
+
+/* Return pdTRUE if the IPv4 address is a multicast address. */
+BaseType_t xIsIPv4Multicast( uint32_t ulIPAddress );
+
+/* Set the MAC-address that belongs to a given IPv4 multi-cast address. */
+void vSetMultiCastIPv4MacAddress( uint32_t ulIPAddress, MACAddress_t *pxMACAddress );
 
 #if( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
 

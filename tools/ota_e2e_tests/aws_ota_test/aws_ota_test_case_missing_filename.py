@@ -28,11 +28,6 @@ import os
 
 
 class OtaTestMissingFilename(OtaTestCase):
-    """
-    This test verifies that device will reject an update if the job document is missing the required
-    `fileName` parameter.
-    """
-
     is_positive = False
 
     def run(self):

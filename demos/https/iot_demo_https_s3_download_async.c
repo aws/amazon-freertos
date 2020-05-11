@@ -960,7 +960,7 @@ static int _scheduleAsyncRequest( int reqIndex,
                                ( unsigned int ) curByte,
                                ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-    if( ( numWritten < 0 ) || ( numWritten >= ( ( int ) sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ) ) ) )
+    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ) ) )
     {
         IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                      curByte,

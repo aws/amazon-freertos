@@ -49,11 +49,11 @@
 #define otatestpalFIRMWARE_FILE  "dummy.bin"
 
 /**
- * @brief Some boards OTA PAL layers will use the file names passed into it for the
+ * @brief Some boards OTA PAL layers will use the file names passed into it for the 
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM     0
+#define otatestpalUSE_FILE_SYSTEM     1
 
 /**
  * @brief 1 if prvPAL_CheckFileSignature() is implemented in aws_ota_pal.c.

@@ -1175,6 +1175,7 @@ void test_SecureSockets_SetSockOpt_wakeup_callback_socket_close( void )
     event_wait( callback_event );
     deinitSocket( s_so );
     task_join( tsk );
+
     event_delete( callback_event );
 }
 
@@ -1223,6 +1224,8 @@ void test_SecureSockets_SetSockOpt_wakeup_callback( void )
     int32_t ret;
     void * option = &taskComplete_cb; /* user callback for socket event */
 
+    callback_event = event_create();
+
     xTaskCreate_Stub( xTaskCreate_cb );
     so = initSocket();
 
@@ -1233,6 +1236,7 @@ void test_SecureSockets_SetSockOpt_wakeup_callback( void )
     deinitSocket( so );
     TEST_ASSERT_TRUE( userCallback_called );
     userCallback_called = false;
+    event_delete( callback_event );
     free_cb( handle, 1 );
 }
 

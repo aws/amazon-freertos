@@ -463,6 +463,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
 
     IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
     bool reportCreated = false;
+    IotTaskPoolError_t taskPoolError = IOT_TASKPOOL_SUCCESS;
 
     if( !IotSemaphore_TryWait( &_doneSem ) )
     {
@@ -508,7 +509,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
         else
         {
             /* Re-schedule metrics job with period as deferred interval. */
-            ( void ) IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL, _metricsPublishJob, _periodMilliSecond );
+            taskPoolError = IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL, _metricsPublishJob, _periodMilliSecond );
         }
 
         /* Give Done semaphore so AwsIotDefender_Stop() can proceed */

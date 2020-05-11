@@ -245,6 +245,8 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );*/
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );*/
 
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );
+
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy );
 
@@ -297,6 +299,10 @@ TEST( Full_BLE_END_TO_END_MQTT, RestorePreviousSession )
     RUN_MQTT_SYSTEM_TEST( RestorePreviousSession );
 }
 
+TEST( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect )
+{
+    RUN_MQTT_SYSTEM_TEST( WaitAfterDisconnect );
+}
 
 TEST( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy )
 {

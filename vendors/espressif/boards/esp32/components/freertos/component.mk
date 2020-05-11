@@ -9,7 +9,6 @@ endif
 
 COMPONENT_ADD_INCLUDEDIRS := include \
                             ${AMAZON_FREERTOS_ESP32}/config_files \
-                            ${AMAZON_FREERTOS_ESP32}/config_files/default_pkcs11_config \
                             ${AMAZON_FREERTOS_KERNEL_DIR}/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/c_sdk/standard/common/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/freertos_plus/standard/crypto/include \

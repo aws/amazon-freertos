@@ -12,15 +12,12 @@ struct task * task_create( task_callback tc,
     int ret;
     struct task * t = malloc( sizeof( struct task ) );
 
-    if( t != NULL )
-    {
-        ret = pthread_create( &t->tid, NULL, ( void *( * )( void * ) )tc, arg );
+    ret = pthread_create( &t->tid, NULL, ( void *( * )( void * ) )tc, arg );
 
-        if( ret != 0 )
-        {
-            free( t );
-            t = NULL;
-        }
+    if( ret != 0 )
+    {
+        free( t );
+        return NULL;
     }
 
     return t;
@@ -29,10 +26,10 @@ struct task * task_create( task_callback tc,
 void task_join( struct task * t )
 {
     pthread_join( t->tid, NULL );
-    free( t );
 }
 
 void task_kill( struct task * t )
 {
+    free( t );
     pthread_exit( NULL );
 }

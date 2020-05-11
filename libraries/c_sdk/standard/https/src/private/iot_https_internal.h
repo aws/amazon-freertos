@@ -485,8 +485,13 @@ typedef struct _httpsRequest
 /**
  * @brief A map of the method enum to strings
  *
- * These are in the same order as the HTTP request method enums defined in IotHttpsMethod_t.
+ * These are in order to the HTTP request method enums defined in IotHttpsMethod_t.
  */
-extern const char * _pHttpsMethodStrings[];
+static const char * _pHttpsMethodStrings[] = {
+    "GET",
+    "HEAD",
+    "PUT",
+    "POST"
+};
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */

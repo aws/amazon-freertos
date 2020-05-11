@@ -14,7 +14,7 @@ export IDF_PATH := $(AMAZON_FREERTOS_PATH)/vendors/espressif/esp-idf
 EXTRA_COMPONENT_DIRS :=  $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code \
                          $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/components
 
-ifdef AFR_ESP_FREERTOS_TCP
+ifndef AFR_ESP_LWIP
 EXTRA_COMPONENT_DIRS += $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/components/freertos_tcpip
 else
 CFLAGS += -DAFR_ESP_LWIP

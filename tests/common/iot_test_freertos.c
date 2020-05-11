@@ -73,10 +73,6 @@
     void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                         char * pcTaskName )
     {
-        /* Disable unused parameter warnings. */
-        ( void ) xTask;
-        ( void ) pcTaskName;
-
         configPRINT_STRING( ( "ERROR: stack overflow with task \r\n" ) );
         portDISABLE_INTERRUPTS();
 

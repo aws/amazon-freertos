@@ -106,8 +106,6 @@ COMPONENT_SRCDIRS += ../.. \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/mock \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/serializer/test \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test \
-        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test/unit \
-        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test/system \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/unit \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/system \
@@ -137,7 +135,7 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/https/src \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/src \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/mock \
-        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src \
+        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src/private \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/src \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/src
 

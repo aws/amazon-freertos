@@ -40,9 +40,6 @@
  * protections. However, since typical microcontroller applications lack one or
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
- *
- * Note: Do not cast this to a pointer! The library calls sizeof to get the length
- * of this string.
  */
 #define configPKCS11_DEFAULT_USER_PIN    "0000"
 

@@ -266,9 +266,6 @@ static void _readReadyCallback( void * pPrivData,
                                 IotHttpsReturnCode_t rc,
                                 uint16_t status )
 {
-    /* Disable unused parameter warning. */
-    ( void ) rc;
-
     IotHttpsReturnCode_t returnCode;
     uint32_t bodyLen = HTTPS_TEST_RESP_BODY_BUFFER_SIZE;
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
@@ -294,11 +291,6 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
-    /* Disable unused parameter warning. */
-    ( void ) respHandle;
-    ( void ) rc;
-    ( void ) status;
-
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
     IotSemaphore_Post( &( verifParams->finishedSem ) );
