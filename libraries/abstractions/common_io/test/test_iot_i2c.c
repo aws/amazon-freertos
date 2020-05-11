@@ -48,7 +48,7 @@
 #define testIotI2C_BAUDRATE_LOW_SPEED     IOT_I2C_STANDARD_MODE_BPS
 #define testIotI2C_DEFAULT_TIMEOUT        500 /**< 500 msec */
 #define testIotI2C_FAST_TIMEOUT           100 /**< 100 msec */
-#define testIotI2C_INVALID_IOCTL_INDEX    UINT32_MAX
+#define testIotI2C_INVALID_IOCTL_INDEX    UINT8_MAX
 #define testIotI2C_HANDLE_NUM             4
 #define testIotI2C_MAX_TIMEOUT            pdMS_TO_TICKS( 10000 )
 #define testIotI2C_MESSAGE_LENGTH         50
@@ -126,7 +126,7 @@ TEST_TEAR_DOWN( TEST_IOT_I2C )
 void prvI2CCallback( IotI2COperationStatus_t xOpStatus,
                      void * pvParam )
 {
-    /* Silence the compiler. */
+    /* Disable unused parameter warning. */
     ( void ) pvParam;
 
     if( xOpStatus == eI2CCompleted )
@@ -360,7 +360,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
         TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
 
         /* i2c ioctl with unsupported request */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, ( IotI2CIoctlRequest_t ) testIotI2C_INVALID_IOCTL_INDEX, &xI2CConfig );
+        lRetVal = iot_i2c_ioctl( xI2CHandle, testIotI2C_INVALID_IOCTL_INDEX, &xI2CConfig );
         TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
     }
 

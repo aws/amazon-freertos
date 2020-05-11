@@ -104,7 +104,7 @@ static IotUARTConfig_t xSampleConfig2 =
 static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
                                   void * pvParams )
 {
-    /* Silence the compiler. */
+    /* Disable unused parameter warning. */
     ( void ) pvParams;
 
     if( xOpStatus == eUartReadCompleted )
