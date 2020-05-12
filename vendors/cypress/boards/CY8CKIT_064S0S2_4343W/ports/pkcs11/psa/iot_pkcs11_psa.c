@@ -1510,28 +1510,28 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         if( CKR_OK == xResult )
         {
             memset( pxSessionObj, 0, sizeof( P11Session_t ) );
-        }
 
-        pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
+            pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
 
-        if( NULL == pxSessionObj->xSignMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xSignMutexCreated = CK_TRUE;
-        }
+            if( NULL == pxSessionObj->xSignMutex )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+            else
+            {
+                xSignMutexCreated = CK_TRUE;
+            }
 
-        pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
+            pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
 
-        if( NULL == pxSessionObj->xVerifyMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xVerifyMutexCreated = CK_TRUE;
+            if( NULL == pxSessionObj->xVerifyMutex )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+            else
+            {
+                xVerifyMutexCreated = CK_TRUE;
+            }
         }
     }
 
@@ -2046,61 +2046,54 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                     }
                     else
                     {
-                        if( 0 != xResult )
+                        psa_key_handle_t ulKeyHandle = 0;
+                        if( xPalHandle == eAwsDevicePrivateKey )
                         {
-                            xResult = CKR_FUNCTION_FAILED;
+                            ulKeyHandle = P11KeyConfig.uxDevicePrivateKey;
+                        }
+                        else if( xPalHandle == eAwsDevicePublicKey )
+                        {
+                            ulKeyHandle = P11KeyConfig.uxDevicePublicKey;
+                        }
+                        else if( xPalHandle == eAwsCodeSigningKey )
+                        {
+                            ulKeyHandle = P11KeyConfig.uxCodeVerifyKey;
                         }
                         else
                         {
-                            psa_key_handle_t ulKeyHandle = 0;
-                            if( xPalHandle == eAwsDevicePrivateKey )
+                            xResult = CKR_OBJECT_HANDLE_INVALID;
+                        }
+
+                        /* Get the key policy from which the key type can be derived. */
+                        if( xResult == CKR_OK )
+                        {
+                            uxStatus = psa_get_key_attributes( ulKeyHandle, &attributes );
+                            if ( uxStatus != PSA_SUCCESS )
                             {
-                                ulKeyHandle = P11KeyConfig.uxDevicePrivateKey;
+                                xResult = CKR_FUNCTION_FAILED;
                             }
-                            else if( xPalHandle == eAwsDevicePublicKey )
+                        }
+                        if( xResult == CKR_OK )
+                        {
+                            psa_algorithm_t alg = psa_get_key_algorithm(&attributes);
+                            if( PSA_ALG_IS_ECDSA( alg ) )
                             {
-                                ulKeyHandle = P11KeyConfig.uxDevicePublicKey;
+                                xPkcsKeyType = CKK_EC;
                             }
-                            else if( xPalHandle == eAwsCodeSigningKey )
+                            else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( alg ) ||
+                                    PSA_ALG_IS_RSA_PSS( alg ) )
                             {
-                                ulKeyHandle = P11KeyConfig.uxCodeVerifyKey;
+                                xPkcsKeyType = CKK_RSA;
                             }
                             else
                             {
-                                xResult = CKR_OBJECT_HANDLE_INVALID;
+                                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                             }
-
-                            /* Get the key policy from which the key type can be derived. */
-                            if( xResult == CKR_OK )
-                            {
-                                uxStatus = psa_get_key_attributes( ulKeyHandle, &attributes );
-                                if ( uxStatus != PSA_SUCCESS )
-                                {
-                                    xResult = CKR_FUNCTION_FAILED;
-                                }
-                            }
-                            if( xResult == CKR_OK )
-                            {
-                                psa_algorithm_t alg = psa_get_key_algorithm(&attributes);
-                                if( PSA_ALG_IS_ECDSA( alg ) )
-                                {
-                                    xPkcsKeyType = CKK_EC;
-                                }
-                                else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( alg ) ||
-                                        PSA_ALG_IS_RSA_PSS( alg ) )
-                                {
-                                    xPkcsKeyType = CKK_RSA;
-                                }
-                                else
-                                {
-                                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                                }
-                                psa_reset_key_attributes( &attributes );
-                            }
-                            if( xResult == CKR_OK )
-                            {
-                                memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
-                            }
+                            psa_reset_key_attributes( &attributes );
+                        }
+                        if( xResult == CKR_OK )
+                        {
+                            memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
                         }
                     }
 
