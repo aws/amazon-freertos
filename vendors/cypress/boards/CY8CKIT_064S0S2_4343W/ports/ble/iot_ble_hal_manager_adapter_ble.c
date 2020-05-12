@@ -896,7 +896,7 @@ BTStatus_t prvBTMultiAdvSetInstData( uint8_t ucAdapterIf,
         mult_adv_data[index++] = xManufacturerLen+1;
         mult_adv_data[index++] = BTM_BLE_ADVERT_TYPE_MANUFACTURER;
 
-        for(int i=0; i<xServiceDataLen ; i++)
+        for(int i=0; i<xManufacturerLen ; i++)
         {
             mult_adv_data[index+i] = pcManufacturerData[i];
         }
