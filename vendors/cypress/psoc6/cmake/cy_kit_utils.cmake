@@ -396,7 +396,7 @@ function(cy_kit_generate)
     afr_mcu_port(pkcs11_implementation DEPENDS CyObjStore)
 
     target_sources(
-        afr_3rdparty_mbedtls
+        AFR::pkcs11_implementation::mcu_port
         INTERFACE
         "${afr_ports_dir}/pkcs11/hw_poll.c"
     )
