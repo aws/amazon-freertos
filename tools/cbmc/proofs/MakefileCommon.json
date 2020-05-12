@@ -64,7 +64,8 @@
         "$(FREERTOS)/libraries/3rdparty/jsmn",
 
         "$(FREERTOS)/tools/cbmc/include",
-        "$(FREERTOS)/tools/cbmc/windows"
+        "$(FREERTOS)/tools/cbmc/windows",
+        "$(FREERTOS)/tools/cbmc/windows2"
     ],
 
     "CBMCFLAGS ": [
