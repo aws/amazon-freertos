@@ -163,13 +163,6 @@
     #define testwifiTASK_SYNC_TIMEOUT    pdMS_TO_TICKS( 30000 )
 #endif
 
-/* The event group used to synchronize the Wi-Fi multi-task tests. */
-static EventGroupHandle_t xTaskFinishEventGroupHandle;
-
-/* The event group to synchronize task connection and disconnection in the Wi-Fi
- * multi-task test. */
-static EventGroupHandle_t xTaskConnectDisconnectSyncEventGroupHandle;
-
 /* Task status for WiFiSeperateTasksConnectingAndDisconnectingAtOnce test. */
 typedef struct
 {

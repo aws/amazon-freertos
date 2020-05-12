@@ -106,6 +106,7 @@ typedef enum
     eOTA_AgentState_RequestingFileBlock,
     eOTA_AgentState_WaitingForFileBlock,
     eOTA_AgentState_ClosingFile,
+    eOTA_AgentState_Suspended,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
     eOTA_AgentState_All
@@ -128,6 +129,8 @@ typedef enum
     eOTA_AgentEvent_ReceivedFileBlock,
     eOTA_AgentEvent_RequestTimer,
     eOTA_AgentEvent_CloseFile,
+    eOTA_AgentEvent_Suspend,
+    eOTA_AgentEvent_Resume,
     eOTA_AgentEvent_UserAbort,
     eOTA_AgentEvent_Shutdown,
     eOTA_AgentEvent_Max
@@ -514,6 +517,7 @@ typedef struct
 #define kOTA_Err_SelfTestTimerFailed     0x2b000000UL     /*!< Attempt to start self-test timer faield. */
 #define kOTA_Err_EventQueueSendFailed    0x2c000000UL     /*!< Posting event message to the event queue failed. */
 #define kOTA_Err_InvalidDataProtocol     0x2d000000UL     /*!< Job does not have a valid protocol for data transfer. */
+#define kOTA_Err_OTAAgentStopped         0x2e000000UL     /*!< Returned when operations are performed that requires OTA Agent running & its stopped. */
 /* @[define_ota_err_codes] */
 
 /* @[define_ota_err_code_helpers] */
@@ -670,6 +674,24 @@ OTA_ImageState_t OTA_GetImageState( void );
  * list above.
  */
 OTA_Err_t OTA_CheckForUpdate( void );
+
+/* @brief Suspend OTA agent oeprations .
+ *
+ * @param[in]
+ *
+ * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
+ * list above.
+ */
+OTA_Err_t OTA_Suspend( void );
+
+/* @brief Resume OTA agent oeprations .
+ *
+ * @param[in] pxConnection Update connection context.
+ *
+ * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
+ * list above.
+ */
+OTA_Err_t OTA_Resume( void * pxConnection );
 
 /*---------------------------------------------------------------------------*/
 /*							Statistics API									 */

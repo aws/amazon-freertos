@@ -13,6 +13,7 @@ boto3 = "^1.9"
 pyopenssl = "^18.0.0"
 future = "^0.17.1"
 pyparsing = ">=2.0.3,<2.4.0"
+paho-mqtt = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
 
