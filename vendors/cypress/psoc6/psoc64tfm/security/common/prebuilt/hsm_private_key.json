@@ -1,0 +1,8 @@
+{
+  "crv": "P-256",
+  "d": "d-r9nPjLka7g5BHiT7OexYV7na-ofuNfjPPN4XvP_yQ",
+  "kty": "EC",
+  "use": "sig",
+  "x": "sJMsN-2Jo27kc51wVK7xJ2fP9BDkzAc2fZEZMlohHXA",
+  "y": "MWluzmXgXOvdQQDYX3yy1Tk9QoHL-9DZhswZpY0Xe5U"
+}
