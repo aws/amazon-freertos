@@ -2866,7 +2866,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     /* Clean up memory if there was an error finding the object. */
     if( xResult != CKR_OK )
     {
-        if( pxSession != NULL ) 
+        if( pxSession != NULL )
         {
             vPortFree( pxSession->pxFindObjectLabel );
             pxSession->pxFindObjectLabel = NULL;
