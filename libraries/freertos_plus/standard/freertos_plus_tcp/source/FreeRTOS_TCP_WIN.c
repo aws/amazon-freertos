@@ -164,7 +164,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
  * true if there is data to be sent.
  */
 #if( ipconfigUSE_TCP_WIN == 1 )
-	static BaseType_t prvTCPWindowTxHasSpace( TCPWindow_t *pxWindow, uint32_t ulWindowSize );
+	static BaseType_t prvTCPWindowTxHasSpace( TCPWindow_t const * pxWindow, uint32_t ulWindowSize );
 #endif /* ipconfigUSE_TCP_WIN == 1 */
 
 /*
@@ -298,7 +298,7 @@ static portINLINE void vTCPTimerSet( TCPTimer_t *pxTimer )
 static portINLINE uint32_t ulTimerGetAge( const TCPTimer_t *pxTimer );
 static portINLINE uint32_t ulTimerGetAge( const TCPTimer_t *pxTimer )
 {
-	return ( ( xTaskGetTickCount() - pxTimer->ulBorn ) * portTICK_PERIOD_MS );
+	return ( ( xTaskGetTickCount() - ( ( TickType_t ) pxTimer->ulBorn ) ) * portTICK_PERIOD_MS );
 }
 /*-----------------------------------------------------------*/
 
@@ -346,11 +346,11 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 			{
 				/* Could call vListInitialiseItem here but all data has been
 				nulled already.  Set the owner to a segment descriptor. */
-				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xListItem  ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
+				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xSegmentIten  ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
 				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xQueueItem ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
 
 				/* And add it to the pool of available segments */
-				vListInsertFifo( &xSegmentList, &( xTCPSegments[xIndex].xListItem ) );
+				vListInsertFifo( &xSegmentList, &( xTCPSegments[xIndex].xSegmentIten ) );
 			}
 
 			xReturn = pdPASS;
@@ -564,13 +564,13 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 		pxSegment->u.ulFlags = 0UL;
 
 		/* Take it out of xRxSegments/xTxSegments */
-		if( listLIST_ITEM_CONTAINER( &( pxSegment->xListItem ) ) != NULL )
+		if( listLIST_ITEM_CONTAINER( &( pxSegment->xSegmentIten ) ) != NULL )
 		{
-			( void ) uxListRemove( &( pxSegment->xListItem ) );
+			( void ) uxListRemove( &( pxSegment->xSegmentIten ) );
 		}
 
 		/* Return it to xSegmentList */
-		vListInsertFifo( &xSegmentList, &( pxSegment->xListItem ) );
+		vListInsertFifo( &xSegmentList, &( pxSegment->xSegmentIten ) );
 	}
 
 #endif /* ipconfigUSE_TCP_WIN == 1 */
@@ -578,7 +578,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	void vTCPWindowDestroy( TCPWindow_t *pxWindow )
+	void vTCPWindowDestroy( TCPWindow_t const * pxWindow )
 	{
 	const List_t * pxSegments;
 	BaseType_t xRound;
@@ -1181,7 +1181,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	static BaseType_t prvTCPWindowTxHasSpace( TCPWindow_t *pxWindow, uint32_t ulWindowSize )
+	static BaseType_t prvTCPWindowTxHasSpace( TCPWindow_t const * pxWindow, uint32_t ulWindowSize )
 	{
 	uint32_t ulTxOutstanding;
 	BaseType_t xHasSpace;
@@ -1241,9 +1241,9 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 1 )
 
-	BaseType_t xTCPWindowTxHasData( TCPWindow_t *pxWindow, uint32_t ulWindowSize, TickType_t *pulDelay )
+	BaseType_t xTCPWindowTxHasData( TCPWindow_t const * pxWindow, uint32_t ulWindowSize, TickType_t *pulDelay )
 	{
-	TCPSegment_t *pxSegment;
+	TCPSegment_t const * pxSegment;
 	BaseType_t xReturn;
 	TickType_t ulAge, ulMaxAge;
 
@@ -1518,10 +1518,8 @@ const int32_t l500ms = 500;
 		 A Smoothed RTT will increase quickly, but it is conservative when
 		 becoming smaller. */
 
-		for(
-				pxIterator  = listGET_NEXT( pxEnd );
-				( pxIterator != pxEnd ) && ( xSequenceLessThan( ulSequenceNumber, ulLast ) != 0 );
-			)
+		pxIterator  = listGET_NEXT( pxEnd );
+		while( ( pxIterator != pxEnd ) && ( xSequenceLessThan( ulSequenceNumber, ulLast ) != 0 ) )
 		{
 			xDoUnlink = pdFALSE;
 			pxSegment = ipPOINTER_CAST( TCPSegment_t *, listGET_LIST_ITEM_OWNER( pxIterator ) );
@@ -1539,6 +1537,7 @@ const int32_t l500ms = 500;
 			/* Is it ready? */
 			if( ulSequenceNumber != pxSegment->ulSequenceNumber )
 			{
+				/* coverity[break_stmt] : Break statement terminating the loop */
 				break;
 			}
 
@@ -1564,6 +1563,7 @@ const int32_t l500ms = 500;
 							ulFirstSeq, ulFirstSeq + ulDataLength ) );
 					}
 					#endif	/* ipconfigHAS_DEBUG_PRINTF */
+					/* coverity[break_stmt] : Break statement terminating the loop */
 					break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 				}
 
@@ -1652,8 +1652,9 @@ const int32_t l500ms = 500;
 
 		pxEnd = ipPOINTER_CAST( const ListItem_t *, listGET_END_MARKER( &( pxWindow->xWaitQueue ) ) );
 
-		for( pxIterator  = listGET_NEXT( pxEnd );
-			 pxIterator != pxEnd; )
+		pxIterator  = listGET_NEXT( pxEnd );
+
+		while( pxIterator != pxEnd )
 		{
 			/* Get the owner, which is a TCP segment. */
 			pxSegment = ipPOINTER_CAST( TCPSegment_t *, listGET_LIST_ITEM_OWNER( pxIterator ) );
@@ -2037,7 +2038,7 @@ const int32_t l500ms = 500;
 #if( ipconfigUSE_TCP_WIN == 0 )
 
 	/* Destroy a window (always returns NULL) */
-	void vTCPWindowDestroy( TCPWindow_t *pxWindow )
+	void vTCPWindowDestroy( const TCPWindow_t *pxWindow )
 	{
 		/* As in tiny TCP there are no shared segments descriptors, there is
 		nothing to release. */

@@ -105,17 +105,6 @@ struct xIP_HEADER
 typedef struct xIP_HEADER IPHeader_t;
 
 #include "pack_struct_start.h"
-struct xIGMP_HEADER
-{
-	uint8_t ucVersionType;     /* 0 + 1 = 1 */
-	uint8_t ucMaxResponseTime; /* 1 + 1 = 2 */
-	uint16_t usChecksum;       /* 2 + 2 = 4 */
-	uint32_t usGroupAddress;   /* 4 + 4 = 8 */
-}
-#include "pack_struct_end.h"
-typedef struct xIGMP_HEADER IGMPHeader_t;
-
-#include "pack_struct_start.h"
 struct xICMP_HEADER
 {
 	uint8_t ucTypeOfMessage;   /* 0 + 1 = 1 */
@@ -157,18 +146,6 @@ struct xTCP_HEADER
 }
 #include "pack_struct_end.h"
 typedef struct xTCP_HEADER TCPHeader_t;
-
-#include "pack_struct_start.h"
-struct xPSEUDO_HEADER
-{
-	uint32_t ulSourceAddress;
-	uint32_t ulDestinationAddress;
-	uint8_t ucZeros;
-	uint8_t ucProtocol;
-	uint16_t usUDPLength;
-}
-#include "pack_struct_end.h"
-typedef struct xPSEUDO_HEADER PseudoHeader_t;
 
 /*-----------------------------------------------------------*/
 /* Nested protocol packets.                                  */
@@ -291,18 +268,6 @@ setting. */
 /* The offset into an IP packet into which the IP data (payload) starts. */
 #define ipIP_PAYLOAD_OFFSET		( sizeof( IPPacket_t ) )
 
-#include "pack_struct_start.h"
-struct xUDP_IP_FRAGMENT_PARAMETERS
-{
-	uint8_t ucSocketOptions;
-	uint8_t ucPadFor16BitAlignment;
-	uint16_t usFragmentedPacketOffset;
-	uint16_t usFragmentLength;
-	uint16_t usPayloadChecksum;
-}
-#include "pack_struct_end.h"
-typedef struct xUDP_IP_FRAGMENT_PARAMETERS IPFragmentParameters_t;
-
 #if( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN )
 
 	/* Ethernet frame types. */
@@ -366,7 +331,7 @@ rather than duplicated in its own variable. */
 
 /* The local MAC address is accessed from within xDefaultPartUDPPacketHeader,
 rather than duplicated in its own variable. */
-#define ipLOCAL_MAC_ADDRESS ( &xDefaultPartUDPPacketHeader.ucBytes[0] )
+#define ipLOCAL_MAC_ADDRESS ( xDefaultPartUDPPacketHeader.ucBytes )
 
 /* In this library, there is often a cast from a character pointer
  * to a pointer to a struct.
@@ -481,7 +446,7 @@ uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t
 
 /* Socket related private functions. */
 
-/* 
+/*
  * The caller must ensure that pxNetworkBuffer->xDataLength is the UDP packet 
  * payload size (excluding packet headers) and that the packet in pucEthernetBuffer 
  * is at least the size of UDPPacket_t. 
@@ -644,7 +609,8 @@ typedef struct UDPSOCKET
 	#endif /* ipconfigUSE_CALLBACKS */
 } IPUDPSocket_t;
 
-typedef enum eSOCKET_EVENT {
+/* Formally typedef'd as eSocketEvent_t. */
+enum eSOCKET_EVENT {
 	eSOCKET_RECEIVE = 0x0001,
 	eSOCKET_SEND    = 0x0002,
 	eSOCKET_ACCEPT  = 0x0004,
@@ -653,7 +619,7 @@ typedef enum eSOCKET_EVENT {
 	eSOCKET_CLOSED	= 0x0020,
 	eSOCKET_INTR	= 0x0040,
 	eSOCKET_ALL		= 0x007F,
-} eSocketEvent_t;
+};
 
 typedef struct xSOCKET
 {
@@ -757,6 +723,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket );
 /*
  * Some helping function, their meaning should be clear
  */
+ /* coverity[misra_c_2012_rule_2_2_violation] */
 static portINLINE uint32_t ulChar2u32 (const uint8_t *apChr);
 static portINLINE uint32_t ulChar2u32 (const uint8_t *apChr)
 {
@@ -820,9 +787,6 @@ NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( const void * pvB
 #if( ipconfigUSE_TCP == 1 )
 	void vTCPStateChange( FreeRTOS_Socket_t *pxSocket, enum eTCP_STATE eTCPState );
 #endif /* ipconfigUSE_TCP */
-
-/*_RB_ Should this be part of the public API? */
-void FreeRTOS_netstat( void );
 
 /* Returns pdTRUE is this function is called from the IP-task */
 BaseType_t xIsCallingFromIPTask( void );

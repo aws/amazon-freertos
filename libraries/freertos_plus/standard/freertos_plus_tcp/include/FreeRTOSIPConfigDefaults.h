@@ -171,7 +171,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 
 #ifndef	ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS
-	#define	ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS	pdMS_TO_TICKS( 500U )
+	#define	ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS	pdMS_TO_TICKS( 5000U )
 #endif
 
 #ifndef	ipconfigDNS_SEND_BLOCK_TIME_TICKS
@@ -363,7 +363,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif
 
 #ifndef ipconfigTCP_MSS
-	#define ipconfigTCP_MSS		( ( ( uint32_t ) ( ipconfigNETWORK_MTU ) ) - (  ( ( uint32_t ) ( ipSIZE_OF_IPv4_HEADER ) ) + ( ( uint32_t ) ( ipSIZE_OF_TCP_HEADER  ) ) ) )
+	#define ipconfigTCP_MSS		( ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER  ) )
 #endif
 
 /* Each TCP socket has circular stream buffers for Rx and Tx, which
@@ -407,17 +407,18 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigUSE_DNS_CACHE				0
 #endif
 
-#if( ipconfigUSE_DNS_CACHE != 0 )
+#if( ipconfigUSE_DNS != 0 )
 	#ifndef ipconfigDNS_CACHE_NAME_LENGTH
 		/* Per https://tools.ietf.org/html/rfc1035, 253 is the maximum string length
 		of a DNS name. The following default accounts for a null terminator. */
 		#define ipconfigDNS_CACHE_NAME_LENGTH   254
 	#endif
-
-	#ifndef ipconfigDNS_CACHE_ENTRIES
-		#define ipconfigDNS_CACHE_ENTRIES			1
-	#endif
-#endif /* ipconfigUSE_DNS_CACHE != 0 */
+	#if( ipconfigUSE_DNS_CACHE != 0 )
+		#ifndef ipconfigDNS_CACHE_ENTRIES
+			#define ipconfigDNS_CACHE_ENTRIES			1
+		#endif
+	#endif /* ipconfigUSE_DNS_CACHE != 0 */
+#endif
 
 #ifndef ipconfigCHECK_IP_QUEUE_SPACE
 	#define ipconfigCHECK_IP_QUEUE_SPACE			0
@@ -571,7 +572,7 @@ connections, hang protection can help reduce the impact of SYN floods. */
 #endif
 
 #ifndef ipconfigSELECT_USES_NOTIFY
-	#define ipconfigSELECT_USES_NOTIFY 2
+	#define ipconfigSELECT_USES_NOTIFY		0
 #endif
 
 #endif /* FREERTOS_DEFAULT_IP_CONFIG_H */

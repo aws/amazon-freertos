@@ -227,7 +227,7 @@ static DHCPData_t xDHCPData;
 
 /*-----------------------------------------------------------*/
 
-BaseType_t xIsDHCPSocket( const Socket_t xSocket )
+BaseType_t xIsDHCPSocket( Socket_t xSocket )
 {
 BaseType_t xReturn;
 
@@ -342,7 +342,9 @@ BaseType_t xGivingUp = pdFALSE;
 				another discovery. */
 				EP_DHCPData.xDHCPTxPeriod <<= 1;
 
-				if( EP_DHCPData.xDHCPTxPeriod <= ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
+				/* coverity[misra_c_2012_rule_10_4_violation] */
+				/* Essential type of the left hand operand "1000U" (unsigned) is not the same as that of the right operand "100U"(signed). */
+				if( EP_DHCPData.xDHCPTxPeriod <= ( ( TickType_t ) ipconfigMAXIMUM_DISCOVER_TX_PERIOD ) )
 				{
 					if( xApplicationGetRandomNumber( &( EP_DHCPData.ulTransactionId ) ) != pdFALSE )
 					{
@@ -420,7 +422,7 @@ BaseType_t xGivingUp = pdFALSE;
 
 				if( EP_DHCPData.ulLeaseTime == 0UL )
 				{
-					EP_DHCPData.ulLeaseTime = dhcpDEFAULT_LEASE_TIME;
+					EP_DHCPData.ulLeaseTime = ( uint32_t ) dhcpDEFAULT_LEASE_TIME;
 				}
 				else if( EP_DHCPData.ulLeaseTime < dhcpMINIMUM_LEASE_TIME )
 				{
@@ -444,7 +446,7 @@ BaseType_t xGivingUp = pdFALSE;
 					point of giving up - send another request. */
 					EP_DHCPData.xDHCPTxPeriod <<= 1;
 
-					if( EP_DHCPData.xDHCPTxPeriod <= ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
+					if( EP_DHCPData.xDHCPTxPeriod <= ( TickType_t ) ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
 					{
 						EP_DHCPData.xDHCPTxTime = xTaskGetTickCount();
 						prvSendDHCPRequest();
@@ -529,11 +531,13 @@ BaseType_t xGivingUp = pdFALSE;
 		meaning that the conversion is cancelled from here. */
 
 		/* Revert to static IP address. */
+		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean */
 		taskENTER_CRITICAL();
 		{
 			*ipLOCAL_IP_ADDRESS_POINTER = xNetworkAddressing.ulDefaultIPAddress;
 			iptraceDHCP_REQUESTS_FAILED_USING_DEFAULT_IP_ADDRESS( xNetworkAddressing.ulDefaultIPAddress );
 		}
+		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean */
 		taskEXIT_CRITICAL();
 
 		EP_DHCPData.eDHCPState = eNotUsingLeasedAddress;
@@ -549,7 +553,7 @@ BaseType_t xGivingUp = pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
-static void prvCloseDHCPSocket()
+static void prvCloseDHCPSocket( void )
 {
 	if( xDHCPSocket != NULL )
 	{
@@ -571,6 +575,8 @@ TickType_t xTimeoutTime = ( TickType_t ) 0;
 	if( xDHCPSocket == NULL )
 	{
 		xDHCPSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
+		/* coverity[misra_c_2012_rule_11_4_violation] */
+		/* The expression "~0U" of type "unsigned int" is cast to an object pointer type "struct xSOCKET *". */
 		if( xDHCPSocket != FREERTOS_INVALID_SOCKET )
 		{
 
@@ -683,6 +689,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					if( ucOptionCode == ( uint8_t ) dhcpOPTION_END_BYTE )
 					{
 						/* Ready, the last byte has been seen. */
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;
 					}
 					if( ucOptionCode == ( uint8_t ) dhcpIPv4_ZERO_PAD_OPTION_CODE )
@@ -692,22 +699,25 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 						uxIndex = uxIndex + 1U;
 						continue;
 					}
+
 					/* Stop if the response is malformed. */
-					if( uxIndex + 1U < uxPayloadDataLength )
+					if( ( uxIndex + 1U ) < uxPayloadDataLength )
 					{
 						/* Fetch the length byte. */
 						uxLength = ( size_t ) pucByte[ uxIndex + 1U ];
 						uxIndex = uxIndex + 2U;
 
-						if( !( ( uxIndex + uxLength ) - 1U < uxPayloadDataLength ) )
+						if( !( ( ( uxIndex + uxLength ) - 1U ) < uxPayloadDataLength ) )
 						{
 							/* There are not as many bytes left as there should be. */
+							/* coverity[break_stmt] : Break statement terminating the loop */
 							break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 						}
 					}
 					else
 					{
 						/* The length byte is missing. */
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 					}
 
@@ -716,8 +726,9 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					if( uxLength >= sizeof( ulParameter ) )
 					{
 						( void ) memcpy( &( ulParameter ),
-										&( pucByte[ uxIndex ] ),
-										( size_t ) sizeof( ulParameter ) );
+										 &( pucByte[ uxIndex ] ),
+										 ( size_t ) sizeof( ulParameter ) );
+						/* 'uxIndex' will be increased at the end of this loop. */
 					}
 					else
 					{
@@ -727,7 +738,8 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					/* Confirm uxIndex is still a valid index after adjustments to uxIndex above */
 					if( !( uxIndex < uxPayloadDataLength ) )
 					{
-					  break;
+						/* coverity[break_stmt] : Break statement terminating the loop */
+						break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 					}
 
 					/* Option-specific handling. */
@@ -776,13 +788,10 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 
 						case dhcpIPv4_DNS_SERVER_OPTIONS_CODE :
 
-						        if( uxLength == sizeof( uint32_t ) )
-						        {
-								/* ulProcessed is not incremented in this case
-								because the DNS server is not essential.  Only the
-								first DNS server address is taken. */
-								EP_IPv4_SETTINGS.ulDNSServerAddress = ulParameter;
-                                                        }
+							/* ulProcessed is not incremented in this case
+							because the DNS server is not essential.  Only the
+							first DNS server address is taken. */
+							EP_IPv4_SETTINGS.ulDNSServerAddress = ulParameter;
 							break;
 
 						case dhcpIPv4_SERVER_IP_ADDRESS_OPTION_CODE :
@@ -821,7 +830,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 								EP_DHCPData.ulLeaseTime >>= 1UL;
 
 								/* Multiply with configTICK_RATE_HZ to get clock ticks. */
-								EP_DHCPData.ulLeaseTime = configTICK_RATE_HZ * EP_DHCPData.ulLeaseTime;
+								EP_DHCPData.ulLeaseTime = ( uint32_t ) configTICK_RATE_HZ * ( uint32_t ) EP_DHCPData.ulLeaseTime;
 							}
 							break;
 
@@ -835,6 +844,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					/* Jump over the data to find the next option code. */
 					if( uxLength == 0U )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 					}
 					uxIndex = uxIndex + uxLength;
@@ -986,7 +996,7 @@ size_t uxOptionsLength = sizeof( ucDHCPRequestOptions );
 
 static void prvSendDHCPDiscover( void )
 {
-uint8_t *pucUDPPayloadBuffer;
+uint8_t const * pucUDPPayloadBuffer;
 struct freertos_sockaddr xAddress;
 static const uint8_t ucDHCPDiscoverOptions[] =
 {

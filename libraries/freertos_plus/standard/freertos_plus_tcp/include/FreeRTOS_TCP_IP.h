@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-BaseType_t xProcessReceivedTCPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
+BaseType_t xProcessReceivedTCPPacket( NetworkBufferDescriptor_t *pxDescriptor );
 
 typedef enum eTCP_STATE {
 	/* Comments about the TCP states are borrowed from the very useful

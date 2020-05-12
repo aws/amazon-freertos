@@ -265,6 +265,8 @@ uint8_t ucMinAgeFound = 0U;
 					optimisation. */
 					xARPCache[ x ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
 					xARPCache[ x ].ucValid = ( uint8_t ) pdTRUE;
+					/* coverity[misra_c_2012_rule_15_5_violation] */
+					/* An early return can make the code easier to follow. */
 					return;	/*lint !e904 Emergency exit to keep the code simpler. */
 				}
 
@@ -457,7 +459,11 @@ ulAddressToLookup = *pulIPAddress;
 			ulAddressToLookup = *pulIPAddress;
 		}
 
+		#if( ipconfigARP_STORES_REMOTE_ADDRESSES == 1 )
 		if( eReturn == eARPCacheMiss )	/*lint !e774: (Info -- Boolean within 'if' always evaluates to True, depending on configuration. */
+		#else
+		/* No cache look-up was done, so the result is still 'eARPCacheMiss'. */
+		#endif
 		{
 			if( ulAddressToLookup == 0UL )
 			{

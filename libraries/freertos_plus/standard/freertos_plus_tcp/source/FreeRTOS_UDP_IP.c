@@ -312,16 +312,22 @@ const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkB
 		}
 		#endif
 
+		#if( ipconfigUSE_CALLBACKS == 1 ) || ( ipconfigUDP_MAX_RX_PACKETS > 0U )
 		if( xReturn == pdPASS )	/*lint !e774: Boolean within 'if' always evaluates to True, depending on configuration. [MISRA 2012 Rule 14.3, required. */
+		#else
+		/* xReturn is still pdPASS. */
+		#endif
 		{
 			vTaskSuspendAll();
 			{
+				/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 				taskENTER_CRITICAL();
 				{
 					/* Add the network packet to the list of packets to be
 					processed by the socket. */
 					vListInsertEnd( &( pxSocket->u.xUDP.xWaitingPacketsList ), &( pxNetworkBuffer->xBufferListItem ) );
 				}
+				/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 				taskEXIT_CRITICAL();
 			}
 			( void ) xTaskResumeAll();

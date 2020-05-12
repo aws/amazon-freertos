@@ -34,20 +34,22 @@ extern "C" {
 #include "FreeRTOSIPConfig.h"
 #include "IPTraceMacroDefaults.h"
 
-/* Used in the DHCP callback if ipconfigUSE_DHCP_HOOK is set to 1. */
-typedef enum eDHCP_PHASE
-{
-	eDHCPPhasePreDiscover,	/* Driver is about to send a DHCP discovery. */
-	eDHCPPhasePreRequest	/* Driver is about to request DHCP an IP address. */
-} eDHCPCallbackPhase_t;
+#if( ipconfigUSE_DHCP_HOOK != 0 )
+	/* Used in the DHCP callback if ipconfigUSE_DHCP_HOOK is set to 1. */
+	typedef enum eDHCP_PHASE
+	{
+		eDHCPPhasePreDiscover,	/* Driver is about to send a DHCP discovery. */
+		eDHCPPhasePreRequest	/* Driver is about to request DHCP an IP address. */
+	} eDHCPCallbackPhase_t;
 
-/* Used in the DHCP callback if ipconfigUSE_DHCP_HOOK is set to 1. */
-typedef enum eDHCP_ANSWERS
-{
-	eDHCPContinue,			/* Continue the DHCP process */
-	eDHCPUseDefaults,		/* Stop DHCP and use the static defaults. */
-	eDHCPStopNoChanges,		/* Stop DHCP and continue with current settings. */
-} eDHCPCallbackAnswer_t;
+	/* Used in the DHCP callback if ipconfigUSE_DHCP_HOOK is set to 1. */
+	typedef enum eDHCP_ANSWERS
+	{
+		eDHCPContinue,			/* Continue the DHCP process */
+		eDHCPUseDefaults,		/* Stop DHCP and use the static defaults. */
+		eDHCPStopNoChanges,		/* Stop DHCP and continue with current settings. */
+	} eDHCPCallbackAnswer_t;
+#endif	/* #if( ipconfigUSE_DHCP_HOOK != 0 ) */
 
 /* DHCP state machine states. */
 typedef enum
@@ -86,14 +88,16 @@ typedef struct xDHCP_DATA DHCPData_t;
 void vDHCPProcess( BaseType_t xReset );
 
 /* Internal call: returns true if socket is the current DHCP socket */
-BaseType_t xIsDHCPSocket( const Socket_t xSocket );
+BaseType_t xIsDHCPSocket( Socket_t xSocket );
 
-/* Prototype of the hook (or callback) function that must be provided by the
-application if ipconfigUSE_DHCP_HOOK is set to 1.  See the following URL for
-usage information:
-http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html#ipconfigUSE_DHCP_HOOK
-*/
-eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase, uint32_t ulIPAddress );
+#if( ipconfigUSE_DHCP_HOOK != 0 )
+	/* Prototype of the hook (or callback) function that must be provided by the
+	application if ipconfigUSE_DHCP_HOOK is set to 1.  See the following URL for
+	usage information:
+	http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html#ipconfigUSE_DHCP_HOOK
+	*/
+	eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase, uint32_t ulIPAddress );
+#endif	/* ( ipconfigUSE_DHCP_HOOK != 0 ) */
 
 #ifdef __cplusplus
 }	/* extern "C" */

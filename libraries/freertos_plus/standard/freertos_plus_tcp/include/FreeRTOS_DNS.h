@@ -55,11 +55,13 @@ extern "C" {
 #define	ipNBNS_PORT		137	/* NetBIOS Name Service. */
 #define	ipNBDGM_PORT	138 /* Datagram Service, not included. */
 
-/*
- * The following function should be provided by the user and return true if it
- * matches the domain name.
- */
-extern BaseType_t xApplicationDNSQueryHook( const char *pcName );
+#if( ipconfigUSE_LLMNR == 1 ) || ( ipconfigUSE_NBNS == 1 )
+	/*
+	 * The following function should be provided by the user and return true if it
+	 * matches the domain name.
+	 */
+	extern BaseType_t xApplicationDNSQueryHook( const char *pcName );
+#endif	/* ( ipconfigUSE_LLMNR == 1 ) || ( ipconfigUSE_NBNS == 1 ) */
 
 /*
  * LLMNR is very similar to DNS, so is handled by the DNS routines.
@@ -118,16 +120,20 @@ uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer );
  */
 uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
 
-/*
- * The function vDNSInitialise() initialises the DNS module.
- * It will be called "internally", by the IP-task.
- */
-void vDNSInitialise( void );
+#if( ipconfigDNS_USE_CALLBACKS == 1 )
+	/*
+	 * The function vDNSInitialise() initialises the DNS module.
+	 * It will be called "internally", by the IP-task.
+	 */
+	void vDNSInitialise( void );
+#endif	/* ( ipconfigDNS_USE_CALLBACKS == 1 ) */
 
-/*
- * A function local to the library.
- */
-extern void vDNSCheckCallBack( void *pvSearchID );	/*lint !e526 !e830: (Info -- Location cited in prior message) */
+#if( ipconfigDNS_USE_CALLBACKS == 1 )
+	/*
+	 * A function local to the library.
+	 */
+	extern void vDNSCheckCallBack( void *pvSearchID );	/*lint !e526 !e830: (Info -- Location cited in prior message) */
+#endif
 
 
 #ifdef __cplusplus

@@ -38,6 +38,21 @@ extern "C" {
 #include "FreeRTOSIPConfigDefaults.h"
 #include "IPTraceMacroDefaults.h"
 
+#ifdef __COVERITY__
+	/* Coverity static checks don't like inlined functions.
+	As it is up to t users to allow inlining, don't let
+	let Coverity know about it. */
+
+	#ifdef portINLINE
+		/* coverity[misra_c_2012_rule_20_5_violation] */
+		/* The usage of #undef violates the rule. */
+		#undef portINLINE
+
+	#endif
+
+	#define	portINLINE
+#endif
+
 /* Some constants defining the sizes of several parts of a packet.
 These defines come before inlucding the configuration header files. */
 #define ipSIZE_OF_ETH_HEADER			14U
@@ -53,6 +68,8 @@ These defines come before inlucding the configuration header files. */
  * Generate a randomized TCP Initial Sequence Number per RFC.
  * This function must be provided by the application builder.
  */
+/* coverity[misra_c_2012_rule_8_6_violation] */
+/* "ulApplicationGetNextSequenceNumber" is declared but never defined. */
 extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
 													uint16_t usSourcePort,
 													uint32_t ulDestinationAddress,
@@ -133,12 +150,14 @@ typedef enum eNETWORK_EVENTS
 	eNetworkDown	/* The network connection has been lost. */
 } eIPCallbackEvent_t;
 
-typedef enum ePING_REPLY_STATUS
-{
-	eSuccess = 0,		/* A correct reply has been received for an outgoing ping. */
-	eInvalidChecksum,	/* A reply was received for an outgoing ping but the checksum of the reply was incorrect. */
-	eInvalidData		/* A reply was received to an outgoing ping but the payload of the reply was not correct. */
-} ePingReplyStatus_t;
+#if ( ipconfigSUPPORT_OUTGOING_PINGS == 1 )
+	typedef enum ePING_REPLY_STATUS
+	{
+		eSuccess = 0,		/* A correct reply has been received for an outgoing ping. */
+		eInvalidChecksum,	/* A reply was received for an outgoing ping but the checksum of the reply was incorrect. */
+		eInvalidData		/* A reply was received to an outgoing ping but the payload of the reply was not correct. */
+	} ePingReplyStatus_t;
+#endif	/* ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */ 
 
 typedef struct xIP_TIMER
 {
@@ -209,7 +228,7 @@ typedef struct xIP_TIMER
 	#define FreeRTOS_min_int32(a,b)  ( ( ( ( int32_t  ) a ) <= ( ( int32_t  ) b ) ) ? ( ( int32_t  ) a ) : ( ( int32_t  ) b ) )
 	#define FreeRTOS_min_uint32(a,b) ( ( ( ( uint32_t ) a ) <= ( ( uint32_t ) b ) ) ? ( ( uint32_t ) a ) : ( ( uint32_t ) b ) )
 
-	/*  Round-up: a = d * ( ( a + d - 1 ) / d ) */
+	/*  Round-up: divide a by d and round=up the result. */
 	#define FreeRTOS_round_up(a,d)   ( ( ( uint32_t ) ( d ) ) * ( ( ( ( uint32_t ) ( a ) ) + ( ( uint32_t ) ( d ) ) - 1UL ) / ( ( uint32_t ) ( d ) ) ) )
 	#define FreeRTOS_round_down(a,d) ( ( ( uint32_t ) ( d ) ) * ( ( ( uint32_t ) ( a ) ) / ( ( uint32_t ) ( d ) ) ) )
 
@@ -254,12 +273,20 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress,
 									   const uint32_t *pulGatewayAddress,
 									   const uint32_t *pulDNSServerAddress );
 
-BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t uxNumberOfBytesToSend, TickType_t uxBlockTimeTicks );
-void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer );
+#if ( ipconfigSUPPORT_OUTGOING_PINGS == 1 )
+	BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t uxNumberOfBytesToSend, TickType_t uxBlockTimeTicks );
+#endif
+void FreeRTOS_ReleaseUDPPayloadBuffer( void const * pvBuffer );
 const uint8_t * FreeRTOS_GetMACAddress( void );
 void FreeRTOS_UpdateMACAddress( const uint8_t ucMACAddress[ipMAC_ADDRESS_LENGTH_BYTES] );
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
-void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifier );
+#if( ipconfigUSE_NETWORK_EVENT_HOOK == 1 )
+	/* coverity[misra_c_2012_rule_8_6_violation] */
+	/* This function shall be defined by the application. */
+	void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
+#endif
+#if ( ipconfigSUPPORT_OUTGOING_PINGS == 1 )
+	void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifier );
+#endif
 uint32_t FreeRTOS_GetIPAddress( void );
 void FreeRTOS_SetIPAddress( uint32_t ulIPAddress );
 void FreeRTOS_SetNetmask( uint32_t ulNetmask );
@@ -299,6 +326,7 @@ void vSetMultiCastIPv4MacAddress( uint32_t ulIPAddress, MACAddress_t *pxMACAddre
 	have much use, except that a device can be found in a router along with its
 	name. If this option is used the callback below must be provided by the
 	application	writer to return a const string, denoting the device's name. */
+	/* coverity[misra_c_2012_rule_8_6_violation], typically defined in a user module. */
 	const char *pcApplicationHostnameHook( void );
 
 #endif /* ipconfigDHCP_REGISTER_HOSTNAME */
@@ -311,7 +339,10 @@ The function is defined in 'iot_secure_sockets.c'.
 If that module is not included in the project, the application must provide an
 implementation of it.
 The macro's ipconfigRAND32() and configRAND32() are not in use anymore. */
-BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber );
+/* "xApplicationGetRandomNumber" is declared but never defined, because it may
+be defined in a user module. */
+/* coverity[misra_c_2012_rule_8_6_violation] */
+extern BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber );
 
 /* For backward compatibility define old structure names to the newer equivalent
 structure name. */

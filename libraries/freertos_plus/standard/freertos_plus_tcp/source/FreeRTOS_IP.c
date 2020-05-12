@@ -246,6 +246,8 @@ NetworkAddressingParameters_t xNetworkAddressing = { 0, 0, 0, 0, 0 };
 
 /* Default values for the above struct in case DHCP
 does not lead to a confirmed request. */
+/* coverity[misra_c_2012_rule_8_9_violation] */
+/* "xDefaultAddressing" should be defined at block scope. */
 NetworkAddressingParameters_t xDefaultAddressing = { 0, 0, 0, 0, 0 };
 
 /* Used to ensure network down events cannot be missed when they cannot be
@@ -289,6 +291,8 @@ static IPTimer_t xARPTimer;
 #endif
 
 /* Set to pdTRUE when the IP task is ready to start processing packets. */
+/* coverity[misra_c_2012_rule_8_9_violation] */
+/* "xIPTaskInitialised" should be defined at block scope. */
 static BaseType_t xIPTaskInitialised = pdFALSE;
 
 #if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
@@ -298,6 +302,8 @@ static BaseType_t xIPTaskInitialised = pdFALSE;
 
 /*-----------------------------------------------------------*/
 
+/* Coverity want to make pvParameters const, which would make it incompatible. */
+/* coverity[misra_c_2012_rule_8_13_violation] */
 static void prvIPTask( void *pvParameters )
 {
 IPStackEvent_t xReceivedEvent;
@@ -450,7 +456,7 @@ struct freertos_sockaddr xAddress;
 					}
 					#else
 					{
-						vSocketSelect( ( SocketSelect_t * ) ( xReceivedEvent.pvData ) );
+						vSocketSelect( ipPOINTER_CAST( SocketSelect_t *, xReceivedEvent.pvData ) );
 					}
 					#endif	/* ( ipconfigSELECT_USES_NOTIFY != 0 ) */
 				}
@@ -811,9 +817,9 @@ TickType_t uxBlockTime = uxBlockTimeTicks;
 	/* Cap the block time.  The reason for this is explained where
 	ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS is defined (assuming an official
 	FreeRTOSIPConfig.h header file is being used). */
-	if( uxBlockTime > ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS )
+	if( uxBlockTime > ( ( TickType_t ) ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ) )
 	{
-		uxBlockTime = ( TickType_t ) ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS;
+		uxBlockTime = ( ( TickType_t ) ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS );
 	}
 
 	/* Obtain a network buffer with the required amount of storage. */
@@ -917,15 +923,18 @@ NetworkBufferDescriptor_t *pxResult;
 		/* The input here is a pointer to a payload buffer.  Subtract
 		the total size of a UDP/IP header plus the size of the header in
 		the network buffer, usually 8 + 2 bytes. */
-		pucBuffer -= ( sizeof( UDPPacket_t ) + ipBUFFER_PADDING );
+		pucBuffer -= ( sizeof( UDPPacket_t ) + ( ( size_t ) ipBUFFER_PADDING ) );
 
 		/* Here a pointer was placed to the network descriptor,
 		As a pointer is dereferenced, make sure it is well aligned */
+		/* coverity[misra_c_2012_rule_11_4_violation] */
+		/* The object pointer expression "pucBuffer" of type "uint8_t const *" is cast to an integer type "unsigned int". */
 		if( ( ( ( size_t ) pucBuffer ) & ( sizeof( pucBuffer ) - 1U ) ) == 0U )	/*lint !e9078 !e923*/
 		{
 			/* The following statement may trigger a:
 			warning: cast increases required alignment of target type [-Wcast-align].
 			It has been confirmed though that the alignment is suitable. */
+			/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 			pxResult = * ( ipPOINTER_CAST( NetworkBufferDescriptor_t **, pucBuffer ) );
 		}
 		else
@@ -938,7 +947,7 @@ NetworkBufferDescriptor_t *pxResult;
 }
 /*-----------------------------------------------------------*/
 
-void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer )
+void FreeRTOS_ReleaseUDPPayloadBuffer( void const * pvBuffer )
 {
 	vReleaseNetworkBufferAndDescriptor( pxUDPPayloadBuffer_to_NetworkBuffer( pvBuffer ) );
 }
@@ -960,7 +969,7 @@ BaseType_t xReturn = pdFALSE;
 	#ifndef _lint
 	{
 		/* Check if MTU is big enough. */
-		configASSERT( ipconfigNETWORK_MTU >= ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + ipconfigTCP_MSS ) );/*lint !e506: (Warning -- Constant value Boolean [MISRA 2012 Rule 2.1, required]). */
+		configASSERT( ( ( size_t ) ipconfigNETWORK_MTU ) >= ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + ipconfigTCP_MSS ) );/*lint !e506: (Warning -- Constant value Boolean [MISRA 2012 Rule 2.1, required]). */
 		/* Check structure packing is correct. */
 		configASSERT( sizeof( EthernetHeader_t ) == ipEXPECTED_EthernetHeader_t_SIZE );
 		configASSERT( sizeof( ARPHeader_t ) == ipEXPECTED_ARPHeader_t_SIZE );
@@ -1272,7 +1281,7 @@ const EthernetHeader_t *pxEthernetHeader;
 
 	pxEthernetHeader = ipPOINTER_CAST( const EthernetHeader_t *, pucEthernetBuffer );
 
-	if( memcmp( ipLOCAL_MAC_ADDRESS, &( pxEthernetHeader->xDestinationAddress ), sizeof( MACAddress_t ) ) == 0 )
+	if( memcmp( ipLOCAL_MAC_ADDRESS, pxEthernetHeader->xDestinationAddress.ucBytes, sizeof( MACAddress_t ) ) == 0 )
 	{
 		/* The packet was directed to this node - process it. */
 		eReturn = eProcessBuffer;
@@ -1411,7 +1420,11 @@ eFrameProcessingResult_t eReturned = eReleaseBuffer;
 		eReturned = ipCONSIDER_FRAME_FOR_PROCESSING( pxNetworkBuffer->pucEthernetBuffer );
 		pxEthernetHeader = ipPOINTER_CAST( const EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
 
+		/* coverity[misra_c_2012_rule_14_3_violation] */
+		/* The condition "eReturned == eProcessBuffer" must be true. */
+		#if( ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES == 0 )
 		if( eReturned == eProcessBuffer )	/*lint !e774: Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
+		#endif
 		{
 			/* Interpret the received Ethernet packet. */
 			switch( pxEthernetHeader->usFrameType )
@@ -1616,6 +1629,8 @@ uint8_t ucProtocol;
 	if( ( uxHeaderLength > ( pxNetworkBuffer->xDataLength - ipSIZE_OF_ETH_HEADER ) ) ||
 		( uxHeaderLength < ipSIZE_OF_IPv4_HEADER ) )
 	{
+		/* coverity[misra_c_2012_rule_15_5_violation] */
+		/* An early return can make the code easier to follow. */
 		return eReleaseBuffer;	/*lint !e904: Return statement before end of function. */
 	}
 
@@ -1898,6 +1913,8 @@ uint8_t ucProtocol;
 	const char *pcType;
 #endif
 uint16_t usLength;
+uint16_t ucVersionHeaderLength;
+
 
 BaseType_t location = 0;
 
@@ -1906,6 +1923,7 @@ BaseType_t location = 0;
 	{
 	 	usChecksum = ipINVALID_LENGTH;
 		location = 1;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 	 	goto error_exit;	/*lint !e801: Use of goto is deprecated [MISRA 2012 Rule 15.1, advisory]. */
 	}
 
@@ -1914,13 +1932,16 @@ BaseType_t location = 0;
 
 	/* Per https://tools.ietf.org/html/rfc791, the four-bit Internet Header
 	Length field contains the length of the internet header in 32-bit words. */
-	uxIPHeaderLength = 4U * ( ( ( uint8_t ) 0x0FU ) & pxIPPacket->xIPHeader.ucVersionHeaderLength );/*lint !e9031 !e9033 Impermissible cast of composite expression (wider essential type for the destination) [MISRA 2012 Rule 10.8, required]. */
+	ucVersionHeaderLength = pxIPPacket->xIPHeader.ucVersionHeaderLength;
+	ucVersionHeaderLength = ( ucVersionHeaderLength & ( uint8_t ) 0x0FU ) << 2;
+	uxIPHeaderLength = ( UBaseType_t ) ucVersionHeaderLength;
 
 	/* Check for minimum packet size. */
 	if( uxBufferLength < ( sizeof( IPPacket_t ) + ( uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ) ) )
 	{
 	 	usChecksum = ipINVALID_LENGTH;
 		location = 2;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 	 	goto error_exit;	/*lint !e801 */
 	}
 	usLength = pxIPPacket->xIPHeader.usLength;
@@ -1929,6 +1950,7 @@ BaseType_t location = 0;
 	{
 	 	usChecksum = ipINVALID_LENGTH;
 		location = 3;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 	 	goto error_exit;	/*lint !e801 */
 	}
 
@@ -1940,6 +1962,7 @@ BaseType_t location = 0;
 	and IP headers incorrectly aligned. However, either way, the "third"
 	protocol (Layer 3 or 4) header will be aligned, which is the convenience
 	of this calculation. */
+	/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 	pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
 
 	/* Switch on the Layer 3/4 protocol. */
@@ -1949,6 +1972,7 @@ BaseType_t location = 0;
 		{
 			usChecksum = ipINVALID_LENGTH;
 			location = 4;
+			/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 			goto error_exit;	/*lint !e801 */
 		}
 
@@ -1965,6 +1989,7 @@ BaseType_t location = 0;
 		{
 			usChecksum = ipINVALID_LENGTH;
 			location = 5;
+			/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 			goto error_exit;	/*lint !e801 */
 		}
 
@@ -1982,6 +2007,7 @@ BaseType_t location = 0;
 		{
 			usChecksum = ipINVALID_LENGTH;
 			location = 6;
+			/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 			goto error_exit;	/*lint !e801 */
 		}
 
@@ -2004,6 +2030,7 @@ BaseType_t location = 0;
 		/* Unhandled protocol, other than ICMP, IGMP, UDP, or TCP. */
 		usChecksum = ipUNHANDLED_PROTOCOL;
 		location = 7;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 		goto error_exit;	/*lint !e801 */
 	}
 
@@ -2020,6 +2047,7 @@ BaseType_t location = 0;
 		/* Sender hasn't set the checksum, no use to calculate it. */
 		usChecksum = ipCORRECT_CRC;
 		location = 8;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 		goto error_exit;	/*lint !e801 */
 	}
 	else
@@ -2032,8 +2060,8 @@ BaseType_t location = 0;
 	ulLength = ( uint32_t ) usLength;
 	ulLength -= ( ( uint16_t ) uxIPHeaderLength ); /* normally minus 20 */
 
-	if( ( ulLength < sizeof( pxProtPack->xUDPPacket.xUDPHeader ) ) ||
-		( ulLength > ( uint32_t )( ipconfigNETWORK_MTU - uxIPHeaderLength ) ) )
+	if( ( ulLength < ( ( uint32_t ) sizeof( pxProtPack->xUDPPacket.xUDPHeader ) ) ) ||
+		( ulLength > ( ( uint32_t ) ipconfigNETWORK_MTU - ( uint32_t ) uxIPHeaderLength ) ) )
 	{
 		#if( ipconfigHAS_DEBUG_PRINTF != 0 )
 		{
@@ -2047,6 +2075,7 @@ BaseType_t location = 0;
 		format/length */
 		usChecksum = ipINVALID_LENGTH;
 		location = 9;
+		/* coverity[misra_c_2012_rule_15_1_violation], using goto temporarily for easier debugging.. */
 		goto error_exit;	/*lint !e801 */
 	}
 	if( ucProtocol <= ( uint8_t ) ipPROTOCOL_IGMP )
@@ -2183,7 +2212,10 @@ size_t uxDataLengthBytes = uxByteCount;
 	xSum.u32 = ( uint32_t ) usTemp;
 	xTerm.u32 = 0UL;
 
+	/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 	xSource.u8ptr = ipPOINTER_CAST( uint8_t *, pucNextData );
+	/* coverity[misra_c_2012_rule_11_4_violation] */
+	/* The object pointer expression "pucNextData" of type "uint8_t const *" is cast to an integer type "unsigned int". */
 	ulAlignBits = ( ( ( uint32_t ) pucNextData ) & 0x03U ); /*lint !e9078 !e923*/	/* gives 0, 1, 2, or 3 */
 
 	/* If byte (8-bit) aligned... */
@@ -2210,6 +2242,8 @@ size_t uxDataLengthBytes = uxByteCount;
 	/* In this loop, four 32-bit additions will be done, in total 16 bytes.
 	Indexing with constants (0,1,2,3) gives faster code than using
 	post-increments. */
+	/* coverity[misra_c_2012_rule_18_3_violation] */
+	/* The operator "<" is being applied to the pointers "xSource.u32ptr" and "xLastSource.u32ptr", which do not point into the same object. */
 	while( xSource.u32ptr < xLastSource.u32ptr )	/*lint !e946*/
 	{
 		/* Use a secondary Sum2, just to see if the addition produced an
@@ -2253,6 +2287,8 @@ size_t uxDataLengthBytes = uxByteCount;
 	xLastSource.u8ptr = ( uint8_t * ) ( xSource.u8ptr + ( uxDataLengthBytes & ~( ( size_t ) 1 ) ) );	/*lint !e9016 */
 
 	/* Half-word aligned. */
+	/* The operator "<" is being applied to the pointers "xSource.u16ptr" and "xLastSource.u16ptr", which do not point into the same object. */
+	/* coverity[misra_c_2012_rule_18_3_violation] */
 	while( xSource.u16ptr < xLastSource.u16ptr )	/*lint !e946 */
 	{
 		/* At least one more short. */
@@ -2264,12 +2300,18 @@ size_t uxDataLengthBytes = uxByteCount;
 	{
 		xTerm.u8[ 0 ] = xSource.u8ptr[ 0 ];
 	}
+	/* coverity[misra_c_2012_rule_2_2_violation] */
+	/* coverity[assigned_value] */
 	xSum.u32 += xTerm.u32;
 
 	/* Now add all carries again. */
+	/* Assigning value from "xTerm.u32" to "xSum.u32" here, but that stored value is overwritten before it can be used.
+	Coverity doesn't understand about union variables. */
+	/* coverity[misra_c_2012_rule_2_2_violation] */
+	/* coverity[value_overwrite] */
 	xSum.u32 = ( uint32_t ) xSum.u16[ 0 ] + xSum.u16[ 1 ];
 
-	/* The previous summation might have given a 16-bit carry. */
+	/* coverity[value_overwrite] */
 	xSum.u32 = ( uint32_t ) xSum.u16[ 0 ] + xSum.u16[ 1 ];
 
 	if( ( ulAlignBits & 1U ) != 0U )
@@ -2479,12 +2521,16 @@ const char *pcName;
 		case pdFREERTOS_ERRNO_EWOULDBLOCK:    pcName = "EWOULDBLOCK"; break; /* same as EAGAIN */
 		case pdFREERTOS_ERRNO_EISCONN:        pcName = "EISCONN"; break;
 		default:
+			/* Using function "snprintf". */
+			/* coverity[misra_c_2012_rule_21_6_violation] */
 			( void ) snprintf( pcBuffer, uxLength, "Errno %d", ( int32_t ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
 			pcName = NULL;
 			break;
 	}
 	if( pcName != NULL )
 	{
+		/* Using function "snprintf". */
+		/* coverity[misra_c_2012_rule_21_6_violation] */
 		( void ) snprintf( pcBuffer, uxLength, "%s", pcName );	/*lint !e586*/
 	}
 	if( uxLength > 0U )

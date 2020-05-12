@@ -54,13 +54,6 @@ typedef enum
 	eCantSendPacket				/* 2 There is no IP address, or an ARP is still in progress, so the packet cannot be sent. */
 } eARPLookupResult_t;
 
-typedef enum
-{
-	eNotFragment = 0,			/* The IP packet being sent is not part of a fragment. */
-	eFirstFragment,				/* The IP packet being sent is the first in a set of fragmented packets. */
-	eFollowingFragment			/* The IP packet being sent is part of a set of fragmented packets. */
-} eIPFragmentStatus_t;
-
 /*
  * If ulIPAddress is already in the ARP cache table then reset the age of the
  * entry back to its maximum value.  If ulIPAddress is not already in the ARP

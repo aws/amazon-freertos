@@ -145,12 +145,13 @@ static portINLINE void vStreamBufferMoveMid( StreamBuffer_t *pxBuffer, size_t ux
 {
 /* Increment uxMid, but no further than uxHead */
 size_t uxSize = uxStreamBufferMidSpace( pxBuffer );
+size_t uxMoveCount = uxCount;
 
-	if( uxCount > uxSize )
+	if( uxMoveCount > uxSize )
 	{
-		uxCount = uxSize;
+		uxMoveCount = uxSize;
 	}
-	pxBuffer->uxMid += uxCount;
+	pxBuffer->uxMid += uxMoveCount;
 	if( pxBuffer->uxMid >= pxBuffer->LENGTH )
 	{
 		pxBuffer->uxMid -= pxBuffer->LENGTH;
@@ -165,7 +166,7 @@ BaseType_t xReturn;
 size_t uxTail = pxBuffer->uxTail;
 
 	/* Returns true if ( uxLeft < uxRight ) */
-	if( ( uxLeft < uxTail ) ^ ( uxRight < uxTail ) )
+	if( ( ( ( uxLeft < uxTail ) ? 1U : 0U ) ^ ( ( uxRight < uxTail ) ? 1U : 0U )  ) != 0U )
 	{
 		if( uxRight < uxTail )
 		{

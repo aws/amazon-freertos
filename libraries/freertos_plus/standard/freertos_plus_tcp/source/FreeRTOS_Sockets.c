@@ -140,7 +140,7 @@ static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, 
 	/*
 	 * When a child socket gets closed, make sure to update the child-count of the parent
 	 */
-	static void prvTCPSetSocketCount( FreeRTOS_Socket_t *pxSocketToDelete );
+	static void prvTCPSetSocketCount( FreeRTOS_Socket_t const * pxSocketToDelete );
 #endif  /* ipconfigUSE_TCP == 1 */
 
 #if( ipconfigUSE_TCP == 1 )
@@ -148,7 +148,7 @@ static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, 
 	 * Called from FreeRTOS_connect(): make some checks and if allowed, send a
 	 * message to the IP-task to start connecting to a remote socket
 	 */
-	static BaseType_t prvTCPConnectStart( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr *pxAddress );
+	static BaseType_t prvTCPConnectStart( FreeRTOS_Socket_t * pxSocket, struct freertos_sockaddr const * pxAddress );
 #endif /* ipconfigUSE_TCP */
 
 #if( ipconfigUSE_TCP == 1 )
@@ -156,7 +156,7 @@ static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, 
 	 * Check if it makes any sense to wait for a connect event.
 	 * It may return: -EINPROGRESS, -EAGAIN, or 0 for OK.
 	 */
-	static BaseType_t bMayConnect( FreeRTOS_Socket_t *pxSocket );
+	static BaseType_t bMayConnect( FreeRTOS_Socket_t const * pxSocket );
 #endif /* ipconfigUSE_TCP */
 
 #if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
@@ -181,6 +181,8 @@ static BaseType_t prvValidSocket( const FreeRTOS_Socket_t *pxSocket, BaseType_t 
 {
 BaseType_t xReturn;
 
+	/* coverity[misra_c_2012_rule_11_4_violation] */
+	/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 	if( ( pxSocket == NULL ) || ( pxSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xReturn = pdFALSE;
@@ -219,7 +221,7 @@ void vNetworkSocketsInit( void )
 static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, BaseType_t xProtocol, size_t *pxSocketSize )
 {
 BaseType_t xReturn = pdPASS;
-FreeRTOS_Socket_t *pxSocket = NULL;
+FreeRTOS_Socket_t const *pxSocket = NULL;
 
 	/* Asserts must not appear before it has been determined that the network
 	task is ready - otherwise the asserts will fail. */
@@ -286,6 +288,8 @@ Socket_t xReturn;
 
 	if( prvDetermineSocketSize( xDomain, xType, xProtocol, &uxSocketSize ) == pdFAIL )
 	{
+		/* coverity[misra_c_2012_rule_11_4_violation] */
+		/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 		xReturn = FREERTOS_INVALID_SOCKET;
 	}
 	else
@@ -298,87 +302,95 @@ Socket_t xReturn;
 
 		if( pxSocket == NULL )
 		{
-			pxSocket = FREERTOS_INVALID_SOCKET;
+			/* coverity[misra_c_2012_rule_11_4_violation] */
+			/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
+			xReturn = FREERTOS_INVALID_SOCKET;
 			iptraceFAILED_TO_CREATE_SOCKET();
 		}
-		else if( ( xEventGroup = xEventGroupCreate() ) == NULL )	/*lint !e9084 result of assignment operator used in larger expression [MISRA 2012 Rule 13.4, advisory]. */
-		{
-			vPortFreeSocket( pxSocket );
-			pxSocket = FREERTOS_INVALID_SOCKET;
-			iptraceFAILED_TO_CREATE_EVENT_GROUP();
-		}
+		/* coverity[misra_c_2012_rule_13_4_violation]
+		The value returned by the assignment operator in "xEventGroup = xEventGroupCreate()" is being used. */
 		else
 		{
-			if( xProtocol == FREERTOS_IPPROTO_UDP )
+			xEventGroup = xEventGroupCreate();
+			if( xEventGroup == NULL )
 			{
-				iptraceMEM_STATS_CREATE( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
-			}	
+				vPortFreeSocket( pxSocket );
+				/* coverity[misra_c_2012_rule_11_4_violation] */
+				/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
+				xReturn = FREERTOS_INVALID_SOCKET;
+				iptraceFAILED_TO_CREATE_EVENT_GROUP();
+			}
 			else
 			{
-				/* Lint wants at least a comment, in case the macro is empty. */
-				iptraceMEM_STATS_CREATE( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
-			}
-
-			/* Clear the entire space to avoid nulling individual entries. */
-			( void ) memset( pxSocket, 0, uxSocketSize );
-
-			pxSocket->xEventGroup = xEventGroup;
-
-			/* Initialise the socket's members.  The semaphore will be created
-			if the socket is bound to an address, for now the pointer to the
-			semaphore is just set to NULL to show it has not been created. */
-			if( xProtocol == FREERTOS_IPPROTO_UDP )
-			{
-				vListInitialise( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
-
-				#if( ipconfigUDP_MAX_RX_PACKETS > 0U )
+				if( xProtocol == FREERTOS_IPPROTO_UDP )
 				{
-					pxSocket->u.xUDP.uxMaxPackets = ( UBaseType_t ) ipconfigUDP_MAX_RX_PACKETS;
-				}
-				#endif /* ipconfigUDP_MAX_RX_PACKETS > 0 */
-			}
-
-			vListInitialiseItem( &( pxSocket->xBoundSocketListItem ) );
-			listSET_LIST_ITEM_OWNER( &( pxSocket->xBoundSocketListItem ), ipPOINTER_CAST( void *, pxSocket ) );
-
-			pxSocket->xReceiveBlockTime = ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME;
-			pxSocket->xSendBlockTime	= ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME;
-			pxSocket->ucSocketOptions   = ( uint8_t ) FREERTOS_SO_UDPCKSUM_OUT;
-			pxSocket->ucProtocol		= ( uint8_t ) xProtocol; /* protocol: UDP or TCP */
-
-			#if( ipconfigUSE_TCP == 1 )
-			{
-				if( xProtocol == FREERTOS_IPPROTO_TCP )
+					iptraceMEM_STATS_CREATE( tcpSOCKET_UDP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
+				}	
+				else
 				{
-					/* StreamSize is expressed in number of bytes */
-					/* Round up buffer sizes to nearest multiple of MSS */
-					pxSocket->u.xTCP.usCurMSS     = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 Mismatched essential type categories for binary operator [MISRA 2012 Rule 10.4, required]. */
-					pxSocket->u.xTCP.usInitMSS    = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 */
-					pxSocket->u.xTCP.uxRxStreamSize = ( size_t ) ipconfigTCP_RX_BUFFER_LENGTH;	/*lint !e9029 */
-					pxSocket->u.xTCP.uxTxStreamSize = ( size_t ) FreeRTOS_round_up( ipconfigTCP_TX_BUFFER_LENGTH, ipconfigTCP_MSS );	/*lint !e9029 */
-					/* Use half of the buffer size of the TCP windows */
-					#if ( ipconfigUSE_TCP_WIN == 1 )
-					{
-						pxSocket->u.xTCP.uxRxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxRxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
-						pxSocket->u.xTCP.uxTxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxTxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
-					}
-					#else
-					{
-						pxSocket->u.xTCP.uxRxWinSize  = 1U;
-						pxSocket->u.xTCP.uxTxWinSize  = 1U;
-					}
-					#endif
-					/* The above values are just defaults, and can be overridden by
-					calling FreeRTOS_setsockopt().  No buffers will be allocated until a
-					socket is connected and data is exchanged. */
+					/* Lint wants at least a comment, in case the macro is empty. */
+					iptraceMEM_STATS_CREATE( tcpSOCKET_TCP, pxSocket, uxSocketSize + sizeof( StaticEventGroup_t ) );
 				}
+
+				/* Clear the entire space to avoid nulling individual entries. */
+				( void ) memset( pxSocket, 0, uxSocketSize );
+
+				pxSocket->xEventGroup = xEventGroup;
+
+				/* Initialise the socket's members.  The semaphore will be created
+				if the socket is bound to an address, for now the pointer to the
+				semaphore is just set to NULL to show it has not been created. */
+				if( xProtocol == FREERTOS_IPPROTO_UDP )
+				{
+					vListInitialise( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
+
+					#if( ipconfigUDP_MAX_RX_PACKETS > 0U )
+					{
+						pxSocket->u.xUDP.uxMaxPackets = ( UBaseType_t ) ipconfigUDP_MAX_RX_PACKETS;
+					}
+					#endif /* ipconfigUDP_MAX_RX_PACKETS > 0 */
+				}
+
+				vListInitialiseItem( &( pxSocket->xBoundSocketListItem ) );
+				listSET_LIST_ITEM_OWNER( &( pxSocket->xBoundSocketListItem ), ipPOINTER_CAST( void *, pxSocket ) );
+
+				pxSocket->xReceiveBlockTime = ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME;
+				pxSocket->xSendBlockTime	= ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME;
+				pxSocket->ucSocketOptions   = ( uint8_t ) FREERTOS_SO_UDPCKSUM_OUT;
+				pxSocket->ucProtocol		= ( uint8_t ) xProtocol; /* protocol: UDP or TCP */
+
+				#if( ipconfigUSE_TCP == 1 )
+				{
+					if( xProtocol == FREERTOS_IPPROTO_TCP )
+					{
+						/* StreamSize is expressed in number of bytes */
+						/* Round up buffer sizes to nearest multiple of MSS */
+						pxSocket->u.xTCP.usCurMSS     = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 Mismatched essential type categories for binary operator [MISRA 2012 Rule 10.4, required]. */
+						pxSocket->u.xTCP.usInitMSS    = ( uint16_t ) ipconfigTCP_MSS;	/*lint !e9029 */
+						pxSocket->u.xTCP.uxRxStreamSize = ( size_t ) ipconfigTCP_RX_BUFFER_LENGTH;	/*lint !e9029 */
+						pxSocket->u.xTCP.uxTxStreamSize = ( size_t ) FreeRTOS_round_up( ipconfigTCP_TX_BUFFER_LENGTH, ipconfigTCP_MSS );	/*lint !e9029 */
+						/* Use half of the buffer size of the TCP windows */
+						#if ( ipconfigUSE_TCP_WIN == 1 )
+						{
+							pxSocket->u.xTCP.uxRxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxRxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
+							pxSocket->u.xTCP.uxTxWinSize  = FreeRTOS_max_uint32( 1UL, ( uint32_t ) ( pxSocket->u.xTCP.uxTxStreamSize / 2U ) / ipconfigTCP_MSS );	/*lint !e9029 */
+						}
+						#else
+						{
+							pxSocket->u.xTCP.uxRxWinSize  = 1U;
+							pxSocket->u.xTCP.uxTxWinSize  = 1U;
+						}
+						#endif
+						/* The above values are just defaults, and can be overridden by
+						calling FreeRTOS_setsockopt().  No buffers will be allocated until a
+						socket is connected and data is exchanged. */
+					}
+				}
+				#endif  /* ipconfigUSE_TCP == 1 */
+				xReturn = pxSocket;
 			}
-			#endif  /* ipconfigUSE_TCP == 1 */
 		}
-
-		xReturn = pxSocket;
 	}
-
 	/* Remove compiler warnings in the case the configASSERT() is not defined. */
 	( void ) xDomain;
 
@@ -633,11 +645,12 @@ Socket_t xReturn;
  * In this library, the function can only be used with connectionsless sockets
  * (UDP)
  */
+/* coverity[misra_c_2012_rule_8_13_violation] */
 int32_t FreeRTOS_recvfrom( Socket_t xSocket, void *pvBuffer, size_t uxBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, socklen_t *pxSourceAddressLength )
 {
 BaseType_t lPacketCount;
 NetworkBufferDescriptor_t *pxNetworkBuffer;
-FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
+FreeRTOS_Socket_t const * pxSocket = xSocket;
 TickType_t xRemainingTime = ( TickType_t ) 0; /* Obsolete assignment, but some compilers output a warning if its not done. */
 BaseType_t xTimed = pdFALSE;
 TimeOut_t xTimeOut;
@@ -646,6 +659,8 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_UDP, pdTRUE ) == pdFALSE )
 	{
+		/* coverity[misra_c_2012_rule_15_5_violation] */
+		/* An early return can make the code easier to follow. */
 		return -pdFREERTOS_ERRNO_EINVAL;/*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]) */
 	}
 
@@ -672,6 +687,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 						pdTRUE /*xClearOnExit*/, pdFALSE /*xWaitAllBits*/, socketDONT_BLOCK );
 				}
 				#endif /* ipconfigSUPPORT_SIGNALS */
+				/* coverity[break_stmt] : Break statement terminating the loop */
 				break;
 			}
 
@@ -715,6 +731,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 		if( lPacketCount != 0 )
 		{
+			/* coverity[break_stmt] : Break statement terminating the loop */
 			break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 		}
 
@@ -727,7 +744,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( lPacketCount != 0 )
 	{
-
+		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 		taskENTER_CRITICAL();
 		{
 			/* The owner of the list item is the network buffer. */
@@ -740,6 +757,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 				( void ) uxListRemove( &( pxNetworkBuffer->xBufferListItem ) );
 			}
 		}
+		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 		taskEXIT_CRITICAL();
 
 		/* The returned value is the length of the payload data, which is
@@ -809,9 +827,9 @@ IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
 TimeOut_t xTimeOut;
 TickType_t xTicksToWait;
 int32_t lReturn = 0;
-FreeRTOS_Socket_t *pxSocket;
-const size_t uxMaxPayloadLength = ipMAX_UDP_PAYLOAD_LENGTH;
-const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
+FreeRTOS_Socket_t const * pxSocket;
+const size_t uxMaxPayloadLength = ( size_t ) ipMAX_UDP_PAYLOAD_LENGTH;
+const size_t uxPayloadOffset = ( size_t ) ipUDP_PAYLOAD_OFFSET_IPv4;
 
 
 	pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
@@ -828,6 +846,7 @@ const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
 		Passing NULL as the address parameter tells FreeRTOS_bind() to select
 		the address to bind to. */
 		if( socketSOCKET_IS_BOUND( pxSocket ) ||
+			/* coverity[misra_c_2012_rule_13_5_violation] */
 			( FreeRTOS_bind( xSocket, NULL, 0U ) == 0 ) )	/*lint !e9007 side effects on right hand of logical operator, ''||'' [MISRA 2012 Rule 13.5, required]. */
 		{
 			xTicksToWait = pxSocket->xSendBlockTime;
@@ -875,6 +894,7 @@ const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
 				/* When zero copy is used, pvBuffer is a pointer to the
 				payload of a buffer that has already been obtained from the
 				stack.  Obtain the network buffer pointer from the buffer. */
+				/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 				pxNetworkBuffer = pxUDPPayloadBuffer_to_NetworkBuffer( ( void * ) pvBuffer );	/*lint !e9005 attempt to cast away const from a pointer or reference [MISRA 2012 Rule 11.8, required]. */
 			}
 
@@ -902,7 +922,7 @@ const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
 					{
 						if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xUDP.pxHandleSent ) )
 						{
-							pxSocket->u.xUDP.pxHandleSent( pxSocket, uxTotalDataLength );
+							pxSocket->u.xUDP.pxHandleSent( xSocket, uxTotalDataLength );
 						}
 					}
 					#endif /* ipconfigUSE_CALLBACKS */
@@ -950,7 +970,7 @@ const size_t uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
  * by the IP-task to avoid mutual access to the bound-socket-lists
  * (xBoundUDPSocketsList or xBoundTCPSocketsList).
  */
-BaseType_t FreeRTOS_bind( Socket_t xSocket, struct freertos_sockaddr * pxAddress, socklen_t xAddressLength )
+BaseType_t FreeRTOS_bind( Socket_t xSocket, struct freertos_sockaddr const * pxAddress, socklen_t xAddressLength )
 {
 IPStackEvent_t xBindEvent;
 FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
@@ -960,6 +980,8 @@ BaseType_t xReturn = 0;
 
 	configASSERT( xIsCallingFromIPTask() == pdFALSE );
 
+	/* coverity[misra_c_2012_rule_11_4_violation] */
+	/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 	if( ( pxSocket == NULL ) || ( pxSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xReturn = -pdFREERTOS_ERRNO_EINVAL;
@@ -1042,6 +1064,8 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 	( void ) uxAddressLength;
 
 	configASSERT( pxSocket != NULL );
+	/* coverity[misra_c_2012_rule_11_4_violation] */
+	/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 	configASSERT( pxSocket != FREERTOS_INVALID_SOCKET );
 
 	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 1 )
@@ -1064,13 +1088,19 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 	ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND is not set to 1. */
 	configASSERT( pxAddress != NULL );
 
+	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 1 )
+	/* pxAddress is not NULL, no testing needed. */
+	#else
 	if( pxAddress != NULL )	/*lint !e774 Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
+	#endif
 	{
 		if( pxAddress->sin_port == 0U )
 		{
 			pxAddress->sin_port = prvGetPrivatePortNumber( ( BaseType_t ) pxSocket->ucProtocol );
 			if( pxAddress->sin_port == ( uint16_t ) 0U )
 			{
+				/* coverity[misra_c_2012_rule_15_5_violation] */
+				/* An early return can make the code easier to follow. */
 				return -pdFREERTOS_ERRNO_EADDRNOTAVAIL;/*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
 			}
 		}
@@ -1121,11 +1151,13 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 			}
 		}
 	}
+	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 0 )
 	else
 	{
 		xReturn = -pdFREERTOS_ERRNO_EADDRNOTAVAIL;
 		FreeRTOS_debug_printf( ( "vSocketBind: Socket no addr\n" ) );
 	}
+	#endif
 
 	if( xReturn != 0 )
 	{
@@ -1152,6 +1184,8 @@ IPStackEvent_t xCloseEvent;
 xCloseEvent.eEventType = eSocketCloseEvent;
 xCloseEvent.pvData = xSocket;
 
+	/* coverity[misra_c_2012_rule_11_4_violation] */
+	/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 	if( ( xSocket == NULL ) || ( xSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xResult = 0;
@@ -1302,7 +1336,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 	 * parent.  When a listening parent socket is closed, make sure no child-sockets
 	 * keep a pointer to it.
 	 */
-	static void prvTCPSetSocketCount( FreeRTOS_Socket_t *pxSocketToDelete )
+	static void prvTCPSetSocketCount( FreeRTOS_Socket_t const * pxSocketToDelete )
 	{
 	const ListItem_t *pxIterator;
 	const ListItem_t *pxEnd = ipPOINTER_CAST( const ListItem_t *, listGET_END_MARKER( &xBoundTCPSocketsList ) );
@@ -1354,6 +1388,7 @@ BaseType_t xReturn;
 	}
 	else
 	{
+		/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 		ulNewValue = *( ipPOINTER_CAST( uint32_t *, pvOptionValue ) );
 
 		if( lOptionName == FREERTOS_SO_SNDBUF )
@@ -1408,9 +1443,11 @@ FreeRTOS_Socket_t *pxSocket;
 				comments where ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS is defined
 				in FreeRTOSIPConfig.h (assuming an official configuration file
 				is being used. */
-				if( pxSocket->xSendBlockTime > ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS )
+				/* coverity[misra_c_2012_rule_10_4_violation] */
+				if( pxSocket->xSendBlockTime > ( ( TickType_t ) ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ) )
 				{
-					pxSocket->xSendBlockTime = ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS;
+					/* coverity[misra_c_2012_rule_10_4_violation] */
+					pxSocket->xSendBlockTime = ( ( TickType_t ) ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS );
 				}
 			}
 			else
@@ -1434,6 +1471,9 @@ FreeRTOS_Socket_t *pxSocket;
 
 		case FREERTOS_SO_UDPCKSUM_OUT :
 			/* Turn calculating of the UDP checksum on/off for this socket. */
+			/* The expression "pvOptionValue" of type "void const *" is cast to type "BaseType_t". */
+			/*  coverity[misra_c_2012_rule_11_6_violation] */
+			/* That's the way setsockopt works, pass numbers as a pointer value. */
 			lOptionValue = ipNUMERIC_CAST( BaseType_t, pvOptionValue );
 
 			if( lOptionValue == 0 )
@@ -1528,6 +1568,9 @@ FreeRTOS_Socket_t *pxSocket;
 					/* Each socket can have a callback function that is executed
 					when there is an event the socket's owner might want to
 					process. */
+					/* The type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
+					/* coverity[misra_c_2012_rule_11_1_violation] */
+					/* coverity[misra_c_2012_rule_11_8_violation] */
 					pxSocket->pxUserWakeCallback = ( SocketWakeupCallback_t ) pvOptionValue;
 					xReturn = 0;
 				}
@@ -1536,7 +1579,8 @@ FreeRTOS_Socket_t *pxSocket;
 
 			case FREERTOS_SO_SET_LOW_HIGH_WATER:
 				{
-				LowHighWater_t *pxLowHighWater = ipPOINTER_CAST( LowHighWater_t *, pvOptionValue );
+				/* coverity[misra_c_2012_rule_11_8_violation] */
+				const LowHighWater_t *pxLowHighWater = ipPOINTER_CAST( LowHighWater_t *, pvOptionValue );
 
 					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
 					{
@@ -1568,7 +1612,7 @@ FreeRTOS_Socket_t *pxSocket;
 
 			case FREERTOS_SO_WIN_PROPERTIES:	/* Set all buffer and window properties in one call, parameter is pointer to WinProperties_t */
 				{
-					WinProperties_t* pxProps;
+					const WinProperties_t* pxProps;
 
 					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
 					{
@@ -1582,6 +1626,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
+					/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 					pxProps = ipPOINTER_CAST( WinProperties_t *, pvOptionValue );
 
 					xReturn = prvSockopt_so_buffer( pxSocket, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ) );
@@ -1626,6 +1671,7 @@ FreeRTOS_Socket_t *pxSocket;
 					{
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
+					/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bReuseSocket = pdTRUE;
@@ -1645,6 +1691,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
+					/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bCloseAfterSend = pdTRUE;
@@ -1664,6 +1711,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
+					/* coverity[misra_c_2012_rule_11_8_violation] : he type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
 					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.xTCPWindow.u.bits.bSendFullSize = pdTRUE;
@@ -1690,7 +1738,7 @@ FreeRTOS_Socket_t *pxSocket;
 					{
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
-
+					/* coverity[misra_c_2012_rule_11_8_violation] */
 					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bRxStopped = pdTRUE;
@@ -1751,6 +1799,7 @@ const List_t *pxList;
 		/* Only proceed if the random number generator succeeded. */
 		if( xApplicationGetRandomNumber( &( ulRandomSeed ) ) == pdFALSE )
 		{
+			/* coverity[break_stmt] : Break statement terminating the loop */
 			break;
 		}
 
@@ -1830,6 +1879,73 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 
 /*-----------------------------------------------------------*/
 
+const char *FreeRTOS_inet_ntoa( uint32_t ulIPAddress, char *pcBuffer )
+{
+socklen_t uxNibble;
+socklen_t uxIndex = 0;
+const uint8_t *pucAddress = ( const uint8_t * ) &( ulIPAddress );
+const char *pcResult = pcBuffer;
+const socklen_t uxSize = 16;
+
+/* Each nibble is expressed in at most 3 digits, like e.g. "192". */
+#define sockDIGIT_COUNT		3
+
+	for( uxNibble = 0; uxNibble < ipSIZE_OF_IPv4_ADDRESS; uxNibble++ )
+	{
+	uint8_t pucDigits[ sockDIGIT_COUNT ];
+	uint8_t ucValue = pucAddress[ uxNibble ];
+	socklen_t uxSource = sockDIGIT_COUNT - 1;
+	socklen_t uxNeeded;
+
+		for( ;; )
+		{
+			pucDigits[ uxSource ] = ucValue % ( uint8_t ) 10U;
+			ucValue /= ( uint8_t ) 10U;
+			if( uxSource == 1U )
+			{
+				break;
+			}
+			uxSource--;
+		}
+		pucDigits[ 0 ] = ucValue;
+
+		/* Skip leading zeros. */
+		for( uxSource = 0; uxSource < ( socklen_t ) ( sockDIGIT_COUNT - 1 ); uxSource++ )
+		{
+			if( pucDigits[ uxSource ] != 0U )
+			{
+				break;
+			}
+		}
+		/* Write e.g. "192.", which is 3 digits and a dot. */
+		uxNeeded = ( ( socklen_t ) sockDIGIT_COUNT - uxSource ) + 1U;
+		if( ( uxIndex + uxNeeded ) > uxSize )
+		{
+			/* The result won't fit. */
+			pcResult = NULL;
+			break;
+		}
+	
+		for( ; uxSource < ( socklen_t ) sockDIGIT_COUNT; uxSource++ )
+		{
+			pcBuffer[ uxIndex ] = ( char ) ( pucDigits[ uxSource ] + ( char ) '0' );
+			uxIndex++;
+		}
+		if( uxNibble < ( ipSIZE_OF_IPv4_ADDRESS - 1U ) )
+		{
+			pcBuffer[ uxIndex ] = '.';
+		}
+		else
+		{
+			pcBuffer[ uxIndex ] = '\0';
+		}
+		uxIndex++;
+	}
+
+	return pcResult;
+}
+/*-----------------------------------------------------------*/
+
 BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination )
 {
 BaseType_t xResult;
@@ -1880,7 +1996,7 @@ const char *pcReturn;
 	else
 	{
 		( void ) memcpy( &( ulIPAddress ), pvSource, sizeof( ulIPAddress ) );
-		FreeRTOS_inet_ntoa( ulIPAddress, pcDestination );
+		( void ) FreeRTOS_inet_ntoa( ulIPAddress, pcDestination );
 		pcReturn = pcDestination;
 	}
 	return pcReturn;
@@ -2087,11 +2203,13 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	static BaseType_t bMayConnect( FreeRTOS_Socket_t *pxSocket )
+	static BaseType_t bMayConnect( FreeRTOS_Socket_t const * pxSocket )
 	{
 	BaseType_t xResult;
+	/* coverity[misra_c_2012_rule_10_5_violation] */
+	eIPTCPState_t eState = ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState );/*lint !e9034: (Note -- Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required]. */
 
-		switch( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) )
+		switch( eState )
 		{
 			case eCLOSED:
 			case eCLOSE_WAIT:
@@ -2121,7 +2239,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	static BaseType_t prvTCPConnectStart( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr *pxAddress )
+	static BaseType_t prvTCPConnectStart( FreeRTOS_Socket_t * pxSocket, struct freertos_sockaddr const * pxAddress )
 	{
 	BaseType_t xResult = 0;
 
@@ -2191,6 +2309,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	/*
 	 * FreeRTOS_connect: socket wants to connect to a remote port
 	 */
+	/* coverity[misra_c_2012_rule_8_13_violation] */
+	/* Coverity want to make pxAddress a const pointer. Don't want to change a public API. */
 	BaseType_t FreeRTOS_connect( Socket_t xClientSocket, struct freertos_sockaddr *pxAddress, socklen_t xAddressLength )
 	{
 	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t* ) xClientSocket;
@@ -2216,6 +2336,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 					{
 						/* Not yet connected, correct state, non-blocking. */
 						xResult = -pdFREERTOS_ERRNO_EWOULDBLOCK;
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;
 					}
 
@@ -2233,6 +2354,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 				if( xResult < 0 )
 				{
 					/* Return the error */
+					/* coverity[break_stmt] : Break statement terminating the loop */
 					break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 				}
 
@@ -2240,6 +2362,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 				{
 					/* Socket now connected, return a zero */
 					xResult = 0;
+					/* coverity[break_stmt] : Break statement terminating the loop */
 					break;	/*lint !e9011*/
 				}
 
@@ -2280,12 +2403,16 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdTRUE ) == pdFALSE )
 		{
 			/* Not a valid socket or wrong type */
+			/* coverity[misra_c_2012_rule_11_4_violation] */
+			/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 			pxClientSocket = FREERTOS_INVALID_SOCKET;
 		}
 		else if( ( pxSocket->u.xTCP.bits.bReuseSocket == pdFALSE_UNSIGNED ) &&
 				 ( pxSocket->u.xTCP.ucTCPState != ( uint8_t ) eTCP_LISTEN ) )
 		{
 			/* Parent socket is not in listening mode */
+			/* coverity[misra_c_2012_rule_11_4_violation] */
+			/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
 			pxClientSocket = FREERTOS_INVALID_SOCKET;
 		}
 		else
@@ -2353,6 +2480,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 				if( pxClientSocket != NULL )
 				{
+					/* coverity[break_stmt] : Break statement terminating the loop */
 					break;
 				}
 
@@ -2362,6 +2490,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 					xRemainingTime = pxSocket->xReceiveBlockTime;
 					if( xRemainingTime == ( TickType_t ) 0 )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 					}
 
@@ -2375,6 +2504,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 				/* Has the timeout been reached? */
 				if( xTaskCheckForTimeOut( &xTimeOut, &xRemainingTime ) != pdFALSE )
 				{
+					/* coverity[break_stmt] : Break statement terminating the loop */
 					break;	/*lint !e9011 */
 				}
 
@@ -2422,6 +2552,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 			while( xByteCount == 0 )
 			{
+				/*coverity[misra_c_2012_rule_10_5_violation]*/
+				/* The expression "pxSocket->u.xTCP.ucTCPState" of essentially unsigned type is type cast to an essentially enum type. */
 				switch( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) )
 				{
 				case eCLOSED:
@@ -2476,6 +2608,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 					if( ( ( uint32_t ) xFlags & ( uint32_t ) FREERTOS_MSG_DONTWAIT ) != 0U )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 */
 					}
 
@@ -2678,6 +2811,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	BaseType_t xTimed = pdFALSE;
 	TimeOut_t xTimeOut;
 	BaseType_t xCloseAfterSend;
+	const uint8_t *pucSource = ipPOINTER_CAST( const uint8_t *, pvBuffer );
 
 		/* Prevent compiler warnings about unused parameters.  The parameter
 		may be used in future versions. */
@@ -2732,7 +2866,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 						pxSocket->u.xTCP.bits.bCloseRequested = pdTRUE;
 					}
 
-					xByteCount = ( BaseType_t ) uxStreamBufferAdd( pxSocket->u.xTCP.txStream, 0UL, ipPOINTER_CAST( const uint8_t *, pvBuffer ), ( size_t ) xByteCount );
+					xByteCount = ( BaseType_t ) uxStreamBufferAdd( pxSocket->u.xTCP.txStream, 0UL, pucSource, ( size_t ) xByteCount );
 
 					if( xCloseAfterSend != pdFALSE )
 					{
@@ -2762,7 +2896,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 					/* As there are still bytes left to be sent, increase the
 					data pointer. */
-					pvBuffer = &( ipPOINTER_CAST( const uint8_t *, pvBuffer) ) [ xByteCount ];	/*lint !e9044 function parameter modified [MISRA 2012 Rule 17.8, advisory]. */
+					pucSource = &( pucSource [ xByteCount ] );	/*lint !e9044 function parameter modified [MISRA 2012 Rule 17.8, advisory]. */
 				}
 
 				/* Not all bytes have been sent. In case the socket is marked as
@@ -2787,11 +2921,13 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 					if( xRemainingTime == ( TickType_t ) 0 )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 					}
 
 					if( ( ( uint32_t ) xFlags & ( uint32_t ) FREERTOS_MSG_DONTWAIT ) != 0U )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 */
 					}
 
@@ -2806,6 +2942,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 					/* Has the timeout been reached? */
 					if( xTaskCheckForTimeOut( &xTimeOut, &xRemainingTime ) != pdFALSE )
 					{
+						/* coverity[break_stmt] : Break statement terminating the loop */
 						break;	/*lint !e9011 */
 					}
 				}
@@ -3095,8 +3232,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 	const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
 	{
-	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * )xSocket;
-    struct xSTREAM_BUFFER *pxReturn = NULL;
+	FreeRTOS_Socket_t const * pxSocket = ( FreeRTOS_Socket_t const * )xSocket;
+    const struct xSTREAM_BUFFER *pxReturn = NULL;
 
         /* Confirm that this is a TCP socket before dereferencing structure
         member pointers. */
@@ -3210,6 +3347,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 			pxStream = prvTCPCreateStream( pxSocket, pdTRUE );
 			if( pxStream == NULL )
 			{
+				/* coverity[misra_c_2012_rule_15_5_violation] */
+				/* An early return can make the code easier to follow. */
 				return -1;	/*lint !e904 Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
 			}
 		}
@@ -3386,8 +3525,9 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 #endif /* ipconfigUSE_TCP */
 /*-----------------------------------------------------------*/
 
-#if( ipconfigUSE_TCP ==1 )
+#if( ipconfigUSE_TCP == 1 )
 
+	/* coverity[misra_c_2012_rule_8_13_violation] */
 	BaseType_t FreeRTOS_tx_space( Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
@@ -3610,20 +3750,18 @@ BaseType_t FreeRTOS_udp_rx_size( Socket_t xSocket )
 				 pxIterator != pxEndTCP;
 				 pxIterator  = listGET_NEXT( pxIterator ) )
 			{
-				FreeRTOS_Socket_t *pxSocket = ipPOINTER_CAST( FreeRTOS_Socket_t *, listGET_LIST_ITEM_OWNER( pxIterator ) );
+				const FreeRTOS_Socket_t *pxSocket = ipPOINTER_CAST( const FreeRTOS_Socket_t *, listGET_LIST_ITEM_OWNER( pxIterator ) );
 				#if( ipconfigTCP_KEEP_ALIVE == 1 )
 					TickType_t age = xTaskGetTickCount() - pxSocket->u.xTCP.xLastAliveTime;
 				#else
 					TickType_t age = 0U;
 				#endif
-				#if( ipconfigUSE_CALLBACKS == 1 )
-					void *pxHandleReceive = ipPOINTER_CAST( void *, pxSocket->u.xTCP.pxHandleReceive );	/*lint !e9074 !e611 conversion between a pointer to function and another type [MISRA 2012 Rule 11.1, required]. */
-				#else
-					void *pxHandleReceive = NULL;
-				#endif
+
 				char ucChildText[16] = "";
 				if (pxSocket->u.xTCP.ucTCPState == ( uint8_t ) eTCP_LISTEN)
 				{
+					/* Using function "snprintf". */
+					/* coverity[misra_c_2012_rule_21_6_violation] */
 					const int32_t copied_len = snprintf( ucChildText, sizeof( ucChildText ), " %d/%d",	/*lint !e586 snprintf is deprecated. */
 						( int32_t ) pxSocket->u.xTCP.usChildCount,
 						( int32_t ) pxSocket->u.xTCP.usBacklog);
@@ -3642,8 +3780,6 @@ BaseType_t FreeRTOS_udp_rx_size( Socket_t xSocket )
 					( age > 999999u ) ? 999999u : age, /* Format 'age' for printing */
 					pxSocket->u.xTCP.usTimeout,
 					ucChildText ) );
-					/* Remove compiler warnings if FreeRTOS_debug_printf() is not defined. */
-					( void ) pxHandleReceive;
 				count++;
 			}
 
