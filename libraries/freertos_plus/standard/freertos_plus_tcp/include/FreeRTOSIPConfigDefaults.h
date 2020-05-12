@@ -415,7 +415,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#endif
 
 		/* When accessing services which have multiple IP addresses, setting this
-		greater than 1 can improve rellability by returning different IP address
+		greater than 1 can improve reliability by returning different IP address
 		answers on successive calls to FreeRTOS_gethostbyname(). */
 	#ifndef ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 
 		#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 1
