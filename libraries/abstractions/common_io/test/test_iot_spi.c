@@ -83,6 +83,10 @@ static void prvOutputMessage();
 static void prvSpiAsyncCallback( IotSPITransactionStatus_t xStatus,
                                  void * pvUserContext )
 {
+    /* Disable unused parameter warning. */
+    ( void ) xStatus;
+    ( void ) pvUserContext;
+
     xSemaphoreGiveFromISR( xtestIotSPISemaphore, NULL );
 }
 /*-----------------------------------------------------------*/
