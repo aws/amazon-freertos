@@ -63,7 +63,7 @@ typedef struct xTCP_SEGMENT
 	} u;
 #if( ipconfigUSE_TCP_WIN != 0 )
 	struct xLIST_ITEM xQueueItem;	/* TX only: segments can be linked in one of three queues: xPriorityQueue, xTxQueue, and xWaitQueue */
-	struct xLIST_ITEM xSegmentIten;	/* With this item the segment can be connected to a list, depending on who is owning it */
+	struct xLIST_ITEM xSegmentItem;	/* With this item the segment can be connected to a list, depending on who is owning it */
 #endif
 } TCPSegment_t;
 

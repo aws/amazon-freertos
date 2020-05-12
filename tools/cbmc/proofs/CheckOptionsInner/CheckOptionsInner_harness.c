@@ -60,7 +60,7 @@ void harness()
     if( nondet_bool() )
     {
         TCPSegment_t * segment = malloc( sizeof( TCPSegment_t ) );
-        vListInitialiseItem( &segment->xListItem );
+        vListInitialiseItem( &segment->xSegmentItem );
         listSET_LIST_ITEM_OWNER( &segment->xQueueItem, ( void * ) segment );
         vListInsertEnd( &pxSocket->u.xTCP.xTCPWindow.xTxSegments, &segment->xQueueItem );
     }

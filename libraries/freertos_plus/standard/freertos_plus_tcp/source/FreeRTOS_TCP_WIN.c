@@ -346,11 +346,11 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 			{
 				/* Could call vListInitialiseItem here but all data has been
 				nulled already.  Set the owner to a segment descriptor. */
-				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xSegmentIten  ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
+				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xSegmentItem  ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
 				listSET_LIST_ITEM_OWNER( &( xTCPSegments[ xIndex ].xQueueItem ), ipPOINTER_CAST( void *, &( xTCPSegments[ xIndex ] ) ) );
 
 				/* And add it to the pool of available segments */
-				vListInsertFifo( &xSegmentList, &( xTCPSegments[xIndex].xSegmentIten ) );
+				vListInsertFifo( &xSegmentList, &( xTCPSegments[xIndex].xSegmentItem ) );
 			}
 
 			xReturn = pdPASS;
@@ -564,13 +564,13 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 		pxSegment->u.ulFlags = 0UL;
 
 		/* Take it out of xRxSegments/xTxSegments */
-		if( listLIST_ITEM_CONTAINER( &( pxSegment->xSegmentIten ) ) != NULL )
+		if( listLIST_ITEM_CONTAINER( &( pxSegment->xSegmentItem ) ) != NULL )
 		{
-			( void ) uxListRemove( &( pxSegment->xSegmentIten ) );
+			( void ) uxListRemove( &( pxSegment->xSegmentItem ) );
 		}
 
 		/* Return it to xSegmentList */
-		vListInsertFifo( &xSegmentList, &( pxSegment->xSegmentIten ) );
+		vListInsertFifo( &xSegmentList, &( pxSegment->xSegmentItem ) );
 	}
 
 #endif /* ipconfigUSE_TCP_WIN == 1 */
