@@ -162,7 +162,7 @@ static platform_gpio_setting_t gpio_pin_cfg[PLATFORM_GPIO_TOTAL_PIN_NUMBERS] = {
 
 static  wiced_bool_t is_valid_pin( uint32_t port_num, uint32_t pin_num, en_hsiom_sel_t hsiom, GPIO_PRT_Type** port_base )
 {
-    if ( port_num > PLATFORM_GPIO_TABLE_SIZE )
+    if ( port_num >= PLATFORM_GPIO_TABLE_SIZE )
     {
        /* PortNum out of range of valid Port numbers */
        return ( WICED_FALSE );
