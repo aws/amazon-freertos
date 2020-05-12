@@ -1,8 +1,17 @@
+From afc01793c4531cfbe9f92e7ca2ce9364983d987e Mon Sep 17 00:00:00 2001
+From: Mark R Tuttle <mrtuttle@amazon.com>
+Date: Tue, 12 May 2020 15:57:56 +0000
+Subject: [PATCH] modified lib
+
+---
+ .../freertos_plus_tcp/source/FreeRTOS_TCP_IP.c     | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
 diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-index 8eeabe33f..ba80de506 100644
+index dc58621..963b576 100644
 --- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
 +++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-@@ -230,14 +230,22 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
+@@ -198,14 +198,22 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
  /*
   * Parse the TCP option(s) received, if present.
   */
@@ -25,7 +34,7 @@ index 8eeabe33f..ba80de506 100644
  											 size_t uxTotalLength,
  											 FreeRTOS_Socket_t * const pxSocket,
  											 BaseType_t xHasSYNFlag );
-@@ -246,7 +254,11 @@ static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
+@@ -214,7 +222,11 @@ static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
   * Skip past TCP header options when doing Selective ACK, until there are no
   * more options left.
   */
@@ -37,7 +46,7 @@ index 8eeabe33f..ba80de506 100644
  							   size_t uxIndex,
  							   FreeRTOS_Socket_t * const pxSocket );
  
-@@ -1163,7 +1175,11 @@ uint32_t ulInitialSequenceNumber = 0;
+@@ -1137,7 +1149,11 @@ uint32_t ulInitialSequenceNumber = 0;
   * that: ((pxTCPHeader->ucTCPOffset & 0xf0) > 0x50), meaning that the TP header
   * is longer than the usual 20 (5 x 4) bytes.
   */
@@ -48,8 +57,8 @@ index 8eeabe33f..ba80de506 100644
 +#endif
  {
  size_t uxTCPHeaderOffset = ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer );
- ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
-@@ -1215,7 +1231,11 @@ uint8_t ucLength;
+ const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
+@@ -1201,7 +1217,11 @@ uint8_t ucLength;
  }
  /*-----------------------------------------------------------*/
  
@@ -73,3 +82,6 @@ index 8eeabe33f..ba80de506 100644
  							   size_t uxIndex,
  							   FreeRTOS_Socket_t * const pxSocket )
  {
+-- 
+2.7.4
+
