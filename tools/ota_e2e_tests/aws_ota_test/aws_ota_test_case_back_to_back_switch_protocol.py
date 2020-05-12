@@ -28,6 +28,14 @@ from .aws_ota_test_result import OtaTestResult
 
 
 class OtaTestBackToBackSwitchProtocol(OtaTestCase):
+    """
+    This test verifies that device is able to switch data transfer protocol between MQTT and HTTP.
+    It first creates an OTA update over MQTT but with invalid signature to ensure that update is
+    done via MQTT but device won't reboot. Then it creates another OTA update over HTTP with valid
+    signature, device should be able to switch to HTTP to finish the update. Then the same process
+    is repeated but with HTTP first, then MQTT.
+    """
+
     is_positive = True
 
     @classmethod

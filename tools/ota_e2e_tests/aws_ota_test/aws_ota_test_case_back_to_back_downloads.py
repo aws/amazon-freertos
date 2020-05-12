@@ -28,6 +28,10 @@ from .aws_ota_test_result import OtaTestResult
 
 
 class OtaTestBackToBackDownloads(OtaTestCase):
+    """
+    This test creates 3 consecutive OTA updates. The device is expected to update 3 times in a row.
+    """
+
     is_positive = True
 
     def __buildAndOtaInputVersion(self, x, y, z):

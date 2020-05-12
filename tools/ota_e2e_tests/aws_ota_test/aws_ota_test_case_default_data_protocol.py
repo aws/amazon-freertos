@@ -28,6 +28,16 @@ from .aws_ota_test_result import OtaTestResult
 
 
 class OtaTestDefaultDataProtocol(OtaTestCase):
+    """
+    When device supports multiple data transfer protocols, it has a default one to use when the
+    update is created with multiple data transfer protocols enabled. This test builds the initial
+    image with MQTT as the default protocol, and flash to the device. Then it builds another image
+    with HTTP as the default protocol, and uses it to create an OTA update with both MQTT and HTTP
+    enabled. The device is expected to finish the update with MQTT. Then another update is created,
+    the device is expected to finish this update with HTTP because the second image sets HTTP as
+    default protocol.
+    """
+
     is_positive = True
 
     @classmethod
