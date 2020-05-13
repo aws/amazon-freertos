@@ -190,10 +190,10 @@ struct freertos_sockaddr
 
 	#define FreeRTOS_inet_ntoa( ulIPAddress, pucBuffer )									\
 								sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",			\
-									( ( uint32_t ) ( ( ulIPAddress ) & 0xffUL ) ),			\
-									( ( uint32_t ) ( ( ( ulIPAddress ) >> 8 ) & 0xffUL ) ),	\
-									( ( uint32_t ) ( ( ( ulIPAddress ) >> 16 ) & 0xffUL ) ),\
-									( ( uint32_t ) ( ( ulIPAddress ) >> 24 ) ) )
+									( ( unsigned ) ( ( ulIPAddress ) & 0xffUL ) ),			\
+									( ( unsigned ) ( ( ( ulIPAddress ) >> 8 ) & 0xffUL ) ),	\
+									( ( unsigned ) ( ( ( ulIPAddress ) >> 16 ) & 0xffUL ) ),\
+									( ( unsigned ) ( ( ulIPAddress ) >> 24 ) ) )
 
 #else /* ipconfigBYTE_ORDER */
 
@@ -227,8 +227,8 @@ typedef struct xSOCKET_SET *SocketSet_t;
  * http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/FreeRTOS_TCP_API_Functions.html
  */
 Socket_t FreeRTOS_socket( BaseType_t xDomain, BaseType_t xType, BaseType_t xProtocol );
-int32_t FreeRTOS_recvfrom( Socket_t xSocket, void *pvBuffer, size_t uxBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, socklen_t *pxSourceAddressLength );
-int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t uxTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength );
+int32_t FreeRTOS_recvfrom( Socket_t xSocket, void *pvBuffer, size_t xBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, socklen_t *pxSourceAddressLength );
+int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength );
 BaseType_t FreeRTOS_bind( Socket_t xSocket, struct freertos_sockaddr *pxAddress, socklen_t xAddressLength );
 
 /* function to get the local address and IP port */
@@ -241,7 +241,7 @@ BaseType_t xPortHasUDPSocket( uint16_t usPortNr );
 
 BaseType_t FreeRTOS_connect( Socket_t xClientSocket, struct freertos_sockaddr *pxAddress, socklen_t xAddressLength );
 BaseType_t FreeRTOS_listen( Socket_t xSocket, BaseType_t xBacklog );
-BaseType_t FreeRTOS_recv( Socket_t xSocket, void *pvBuffer, size_t uxBufferLength, BaseType_t xFlags );
+BaseType_t FreeRTOS_recv( Socket_t xSocket, void *pvBuffer, size_t xBufferLength, BaseType_t xFlags );
 BaseType_t FreeRTOS_send( Socket_t xSocket, const void *pvBuffer, size_t uxDataLength, BaseType_t xFlags );
 Socket_t FreeRTOS_accept( Socket_t xServerSocket, struct freertos_sockaddr *pxAddress, socklen_t *pxAddressLength );
 BaseType_t FreeRTOS_shutdown (Socket_t xSocket, BaseType_t xHow);
@@ -315,7 +315,7 @@ typedef void (* FOnConnected_t )( Socket_t /* xSocket */, BaseType_t /* ulConnec
  * A user-proved function will be called on reception of a message
  * If the handler returns a positive number, the messages will not be stored
  * For example:
- *		static BaseType_t xOnTCPReceive( Socket_t xSocket, void * pData, size_t uxLength )
+ *		static BaseType_t xOnTCPReceive( Socket_t xSocket, void * pData, size_t xLength )
  *		{
  *			// handle the message
  *			return 1;
@@ -345,21 +345,10 @@ typedef union xTCP_UDP_HANDLER
 	FOnUDPSent_t	pxOnUDPSent;		/* FREERTOS_SO_UDP_SENT_HANDLER */
 } F_TCP_UDP_Handler_t;
 
-BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptionName, const void *pvOptionValue, size_t uxOptionLength );
+BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptionName, const void *pvOptionValue, size_t xOptionLength );
 BaseType_t FreeRTOS_closesocket( Socket_t xSocket );
-
-/* The following function header should be placed in FreeRTOS_DNS.h.
-It is kept here because some applications  expect it in FreeRTOS_Sockets.h.*/
 uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
-
-BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination );
-const char *FreeRTOS_inet_ntop( BaseType_t xAddressFamily, const void *pvSource, char *pcDestination, socklen_t uxSize );
-
-/* Translate from 192.168.1.1 to a 32-bit number. */
 uint32_t FreeRTOS_inet_addr( const char * pcIPAddress );
-BaseType_t FreeRTOS_inet_pton4( const char *pcSource, void *pvDestination );
-const char *FreeRTOS_inet_ntop4( const void *pvSource, char *pcDestination, socklen_t uxSize );
-
 
 /*
  * For the web server: borrow the circular Rx buffer for inspection

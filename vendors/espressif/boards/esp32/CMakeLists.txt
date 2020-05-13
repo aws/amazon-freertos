@@ -5,9 +5,15 @@ set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_devkitc.cmake")
+    set(ECC608_IN_USE FALSE)
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_wrover_kit.cmake")
+    set(ECC608_IN_USE FALSE)
+endif()
+if("${AFR_BOARD_NAME}" STREQUAL "esp32_plus_ecc608a_devkitc")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_plus_ecc608a_devkitc.cmake")
+    set(ECC608_IN_USE TRUE)
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -18,6 +24,8 @@ endif()
 if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
+
+
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
@@ -51,7 +59,7 @@ target_compile_definitions(
     ${IDF_COMPILE_DEFINITIONS}
 )
 
-if(AFR_ESP_LWIP)
+if(NOT AFR_ESP_FREERTOS_TCP)
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
@@ -110,7 +118,7 @@ set(
     "${extra_components_dir}/mbedtls/port/include"
 )
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
     list(APPEND kernel_inc_dirs
     "${extra_components_dir}/freertos_tcpip/ethernet/include"
     "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
@@ -120,6 +128,19 @@ if(NOT AFR_ESP_LWIP)
 else()
     list(APPEND kernel_inc_dirs
     "${esp_idf_dir}/components/tcpip_adapter/include"
+    )
+endif()
+
+if(ECC608_IN_USE)
+    set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
+    set(ecc608a_dir "${mchp_dir}/secure_elements")
+    list(APPEND kernel_inc_dirs
+        "${esp_idf_dir}/components/esp_ringbuf/include"
+        "${board_dir}/config_files/ecc608a_pkcs11_config"
+    )
+else()
+    list(APPEND kernel_inc_dirs
+        "${board_dir}/config_files/default_pkcs11_config"
     )
 endif()
 
@@ -136,7 +157,7 @@ target_include_directories(
 # WiFi
 afr_mcu_port(wifi)
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
@@ -212,14 +233,41 @@ target_include_directories(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
-target_sources(
-    AFR::pkcs11_implementation::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
-)
+if(ECC608_IN_USE)
+    afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_ecc608a)
+    set(
+        ecc608a_hal_src
+            "${ecc608a_dir}/lib/hal/atca_hal.c"
+            "${ecc608a_dir}/lib/hal/hal_freertos.c"
+            "${ecc608a_dir}/lib/hal/hal_esp32_i2c.c"
+            "${ecc608a_dir}/lib/hal/hal_esp32_timer.c"
+            "${ecc608a_dir}/lib/hal/atca_hal.h"
+    )
+    target_include_directories(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${board_dir}/config_files/ecc608a_pkcs11_config"
+    )
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${ecc608a_hal_src}"
+    )
+else()
+    afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
+    target_include_directories(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${board_dir}/config_files/default_pkcs11_config/"
+    )
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+    )
+endif()
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 # FreeRTOS Plus TCP
 afr_mcu_port(freertos_plus_tcp)
 target_sources(
@@ -335,6 +383,15 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
     execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
 endif()
 
+if(ECC608_IN_USE)
+set_source_files_properties(
+    ${ecc608a_dir}/lib/pkcs11/pkcs11_token.c
+    ${ecc608a_dir}/lib/pkcs11/pkcs11_object.c
+    ${ecc608a_dir}/lib/basic/atca_helpers.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-error=pointer-sign -Wno-error=char-subscripts"
+)
+endif()
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
@@ -407,7 +464,7 @@ get_filename_component(
 
 list(APPEND IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
 
-if(NOT AFR_ESP_LWIP)
+if(AFR_ESP_FREERTOS_TCP)
 get_filename_component(
     ABS_NW_EXTRA_COMPONENT_DIRS
     "${extra_components_dir}/freertos_tcpip" ABSOLUTE

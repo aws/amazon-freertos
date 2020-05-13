@@ -83,8 +83,16 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket. */
-#define ipconfigUSE_DNS_CACHE                      ( 1 )
+ * a socket.
+ *
+ * NOTE: Use caution when enabling the DNS cache and connecting to services which
+ * use a load balancer.  Since the cache only holds a single IP address, if that
+ * address is out of date, no connections to the host will succeed until the TTL
+ * expires.  See this GitHub issue for more details.
+ *
+ * https://github.com/FreeRTOS/FreeRTOS/issues/58
+ */
+#define ipconfigUSE_DNS_CACHE                      ( 0 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
@@ -158,7 +166,7 @@ extern uint32_t ulRand();
  * re-transmission time interval reaches ipconfigMAXIMUM_DISCOVER_TX_PERIOD without
  * a DHCP reply being received. */
 #define ipconfigMAXIMUM_DISCOVER_TX_PERIOD \
-    ( 120000U / portTICK_PERIOD_MS )
+    ( 120000 / portTICK_PERIOD_MS )
 
 /* The ARP cache is a table that maps IP addresses to MAC addresses.  The IP
  * stack can only send a UDP message to a remove IP address if it knowns the MAC
@@ -236,7 +244,7 @@ extern uint32_t ulRand();
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
  * lower value can save RAM. */
-#define ipconfigNETWORK_MTU                            1460U
+#define ipconfigNETWORK_MTU                            1460
 
 /* Set ipconfigUSE_DNS to 1 to include a basic DNS client/resolver.  DNS is used
  * through the FreeRTOS_gethostbyname() API function. */

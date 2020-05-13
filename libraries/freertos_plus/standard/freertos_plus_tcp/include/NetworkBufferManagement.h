@@ -46,7 +46,7 @@ UBaseType_t uxGetNumberOfFreeNetworkBuffers( void );
 UBaseType_t uxGetMinimumFreeNetworkBuffers( void );
 
 /* Copy a network buffer into a bigger buffer. */
-NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( const NetworkBufferDescriptor_t * const pxNetworkBuffer,
+NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * const pxNetworkBuffer,
 	size_t uxNewLength);
 
 /* Increase the size of a Network Buffer.

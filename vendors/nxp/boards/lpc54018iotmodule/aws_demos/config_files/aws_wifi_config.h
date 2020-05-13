@@ -55,11 +55,6 @@
 #define wificonfigDNS_QUERY_TIMEOUT           ( 10000 )
 
 /**
- * @brief WiFi semaphore timeout
- */
-#define wificonfigMAX_SEMAPHORE_WAIT_TIME_MS  ( 60000 )
-
-/**
  * @brief Soft Access point SSID
  */
 #define wificonfigACCESS_POINT_SSID_PREFIX    ( "ConfigureMe" )

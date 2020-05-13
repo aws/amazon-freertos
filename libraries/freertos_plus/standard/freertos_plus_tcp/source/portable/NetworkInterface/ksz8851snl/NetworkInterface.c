@@ -1,5 +1,5 @@
 /*
-FreeRTOS+TCP V2.2.1
+FreeRTOS+TCP V2.0.11
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -351,7 +351,7 @@ const TickType_t x5_Seconds = 5000UL;
 		/* The handler task is created at the highest possible priority to
 		ensure the interrupt handler can return directly to it. */
 		xTaskCreate( prvEMACHandlerTask, "KSZ8851", configEMAC_TASK_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xEMACTaskHandle );
-		configASSERT( xEMACTaskHandle != NULL );
+		configASSERT( xEMACTaskHandle );
 	}
 
 	/* When returning non-zero, the stack will become active and
@@ -1166,7 +1166,7 @@ const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( EMAC_MAX_BLOCK_TIME_MS );
 	/* Remove compiler warnings about unused parameters. */
 	( void ) pvParameters;
 
-	configASSERT( xEMACTaskHandle != NULL );
+	configASSERT( xEMACTaskHandle );
 
 	vTaskSetTimeOutState( &xPhyTime );
 	xPhyRemTime = pdMS_TO_TICKS( PHY_LS_LOW_CHECK_TIME_MS );

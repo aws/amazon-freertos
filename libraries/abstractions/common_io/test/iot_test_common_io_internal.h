@@ -174,6 +174,10 @@
     extern uint32_t ulAssistedTestIotSpiInstance; /* SPI assisted tests */
     extern uint32_t ultestIotSpiSlave;            /* SPI assisted tests */
     extern uint32_t ulAssistedTestIotSpiSlave;    /* SPI assisted tests */
+    extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
+    extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
+    extern uint32_t ultestIotSPIFrequency;
+    extern uint32_t ultestIotSPIDummyValue;
 
 /**
  * Board specific SPI config set
@@ -182,9 +186,9 @@
  * @return None
  */
     void SET_TEST_IOT_SPI_CONFIG( int testSet );
-#else
+#else /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
     #define IOT_TEST_COMMON_IO_SPI_SUPPORTED    0
-#endif
+#endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
 
 /* ADC */
 #if defined( IOT_TEST_COMMON_IO_ADC_SUPPORTED ) && ( IOT_TEST_COMMON_IO_ADC_SUPPORTED >= 1 )
@@ -228,12 +232,12 @@
 
 /* I2C */
 #if defined( IOT_TEST_COMMON_IO_I2C_SUPPORTED ) && ( IOT_TEST_COMMON_IO_I2C_SUPPORTED >= 1 )
-    extern uint8_t uctestIotI2CSlaveAddr;         /* Address of Slave I2C (7-bit address) connected to the bus */
-    extern uint8_t uctestIotI2CDeviceRegister;    /* Slave I2C register address used in read/write tests */
-    extern uint8_t uctestIotI2CWriteVal;          /* Write value that will be used in the register write test */
-    extern uint8_t uctestIotI2CInstanceIdx;       /* I2C instance used in the test */
-    extern uint8_t uctestIotI2CInstanceNum;       /* The total number of I2C instances on the device */
-    extern uint8_t ucAssistedTestIotI2CSlaveAddr; /* The slave address to be set for the assisted test. */
+    extern uint16_t uctestIotI2CSlaveAddr;         /* Address of Slave I2C (7-bit address) connected to the bus */
+    extern uint8_t uctestIotI2CDeviceRegister;     /* Slave I2C register address used in read/write tests */
+    extern uint8_t uctestIotI2CWriteVal;           /* Write value that will be used in the register write test */
+    extern uint8_t uctestIotI2CInstanceIdx;        /* I2C instance used in the test */
+    extern uint8_t uctestIotI2CInstanceNum;        /* The total number of I2C instances on the device */
+    extern uint16_t ucAssistedTestIotI2CSlaveAddr; /* The slave address to be set for the assisted test. */
 
 /**
  * Board specific I2C config set

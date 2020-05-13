@@ -1,7 +1,0 @@
-{ "expected-missing-functions":
-  [
-    "vLoggingPrintf"
-  ],
-  "proof-name": "ProcessDHCPReplies",
-  "proof-root": "tools/cbmc/proofs"
-}

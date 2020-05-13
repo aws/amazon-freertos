@@ -1,5 +1,6 @@
 {
   "ENTRY": "CheckOptionsOuter",
+  "BUFFER_SIZE": 100,
   "CBMCFLAGS":
   [
       "--unwind 1",
@@ -16,5 +17,6 @@
   ],
   "DEF":
   [
+    "BUFFER_SIZE={BUFFER_SIZE}"
   ]
 }

@@ -64,7 +64,6 @@ already been made. */
 	#define	pdFREERTOS_ERRNO_ENOTEMPTY		90	/* Directory not empty */
 	#define	pdFREERTOS_ERRNO_ENAMETOOLONG 	91	/* File or path name too long */
 	#define	pdFREERTOS_ERRNO_EOPNOTSUPP		95	/* Operation not supported on transport endpoint */
-	#define	pdFREERTOS_ERRNO_EAFNOSUPPORT	97	/* Address family not supported by protocol */
 	#define	pdFREERTOS_ERRNO_ENOBUFS		105	/* No buffer space available */
 	#define	pdFREERTOS_ERRNO_ENOPROTOOPT	109	/* Protocol not available */
 	#define	pdFREERTOS_ERRNO_EADDRINUSE		112	/* Address already in use */
@@ -82,14 +81,8 @@ already been made. */
 	itself. */
 	#define pdFREERTOS_LITTLE_ENDIAN	0
 	#define pdFREERTOS_BIG_ENDIAN		1
-#else
-	#ifndef	pdFREERTOS_ERRNO_EAFNOSUPPORT
-		#define	pdFREERTOS_ERRNO_EAFNOSUPPORT	97	/* Address family not supported by protocol */
-	#endif /* pdFREERTOS_ERRNO_EAFNOSUPPORT */
-#endif /* pdFREERTOS_ERRNO_NONE */
 
-/* Translate a pdFREERTOS_ERRNO code to a human readable string. */
-const char *FreeRTOS_strerror_r( BaseType_t xErrnum, char *pcBuffer, size_t uxLength );
+#endif /* pdFREERTOS_ERRNO_NONE */
 
 #endif /* FREERTOS_ERRNO_TCP */
 

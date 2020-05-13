@@ -237,6 +237,7 @@ static void _responseCompleteCallback( void * pPrivData,
                                        uint16_t status )
 {
     ( void ) rc;
+    ( void ) respHandle;
 
     bool * pUploadSuccess = ( bool * ) pPrivData;
 

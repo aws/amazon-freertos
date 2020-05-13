@@ -41,8 +41,6 @@ extern "C" {
 	#include "FreeRTOS_TCP_IP.h"
 #endif
 
-#include "semphr.h"
-
 #include "event_groups.h"
 
 typedef struct xNetworkAddressingParameters
@@ -55,7 +53,6 @@ typedef struct xNetworkAddressingParameters
 } NetworkAddressingParameters_t;
 
 extern BaseType_t xTCPWindowLoggingLevel;
-extern QueueHandle_t xNetworkEventQueue;
 
 /*-----------------------------------------------------------*/
 /* Protocol headers.                                         */
@@ -230,13 +227,6 @@ typedef union XPROT_PACKET
 	ICMPPacket_t xICMPPacket;
 } ProtocolPacket_t;
 
-typedef union xPROT_HEADERS
-{
-	ICMPHeader_t xICMPHeader;
-	UDPHeader_t xUDPHeader;
-	TCPHeader_t xTCPHeader;
-} ProtocolHeaders_t;
-
 
 /* The maximum UDP payload length. */
 #define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IPv4_HEADER ) - ipSIZE_OF_UDP_HEADER )
@@ -349,8 +339,7 @@ extern NetworkAddressingParameters_t xNetworkAddressing;
 /* Structure that stores the defaults for netmask, gateway address and DNS.
 These values will be copied to 'xNetworkAddressing' in case DHCP is not used,
 and also in case DHCP does not lead to a confirmed request. */
-/*lint -e9003*/
-extern NetworkAddressingParameters_t xDefaultAddressing;	/*lint !e9003 could define variable 'xDefaultAddressing' at block scope [MISRA 2012 Rule 8.9, advisory]. */
+extern NetworkAddressingParameters_t xDefaultAddressing;
 
 /* True when BufferAllocation_1.c was included, false for BufferAllocation_2.c */
 extern const BaseType_t xBufferAllocFixedSize;
@@ -362,43 +351,11 @@ extern const BaseType_t xBufferAllocFixedSize;
 
 /* The local IP address is accessed from within xDefaultPartUDPPacketHeader,
 rather than duplicated in its own variable. */
-#define ipLOCAL_IP_ADDRESS_POINTER ( ( uint32_t * ) &( xDefaultPartUDPPacketHeader.ulWords[ 20U / sizeof(uint32_t) ] ) )
+#define ipLOCAL_IP_ADDRESS_POINTER ( ( uint32_t * ) &( xDefaultPartUDPPacketHeader.ulWords[ 20u / sizeof(uint32_t) ] ) )
 
 /* The local MAC address is accessed from within xDefaultPartUDPPacketHeader,
 rather than duplicated in its own variable. */
 #define ipLOCAL_MAC_ADDRESS ( &xDefaultPartUDPPacketHeader.ucBytes[0] )
-
-/* In this library, there is often a cast from a character pointer
- * to a pointer to a struct.
- * In order to suppress MISRA warnings, do the cast within a macro,
- * which can be exempt from warnings:
- *
- * 3 required by MISRA:
- * -emacro(740,ipPOINTER_CAST)    // 750:  Unusual pointer cast (incompatible indirect types) [MISRA 2012 Rule 1.3, required])
- * -emacro(9005,ipPOINTER_CAST)   // 9005: attempt to cast away const/volatile from a pointer or reference [MISRA 2012 Rule 11.8, required]
- * -emacro(9087,ipPOINTER_CAST)   // 9087: cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]
- *
- * 2 advisory by MISRA:
- * -emacro(9079,ipPOINTER_CAST)   // 9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory])
- * --emacro((826),ipPOINTER_CAST) // 826:  Suspicious pointer-to-pointer conversion (area too small)
- * 
- * The MISRA warnings can safely be suppressed because all casts are planned with care.
- */
-
-#define ipPOINTER_CAST( TYPE, pointer  ) ( ( TYPE ) ( pointer ) )
-
-/* Sequence and ACK numbers are essentially unsigned (uint32_t). But when
- * a distance is calculated, it is useful to use signed numbers:
- * int32_t lDistance = ( int32_t ) ( ulSeq1 - ulSeq2 );
- *
- * 1 required by MISRA:
- * -emacro(9033,ipNUMERIC_CAST) // 9033: Impermissible cast of composite expression (different essential type categories) [MISRA 2012 Rule 10.8, required])
- *
- * 1 advisory by MISRA:
- * -emacro(9030,ipNUMERIC_CAST) // 9030: Impermissible cast; cannot cast from 'essentially Boolean' to 'essentially signed' [MISRA 2012 Rule 10.5, advisory])
- */
-
-#define ipNUMERIC_CAST( TYPE, expression  ) ( ( TYPE ) ( expression ) )
 
 /* ICMP packets are sent using the same function as UDP packets.  The port
 number is used to distinguish between the two, as 0 is an invalid UDP port. */
@@ -411,15 +368,15 @@ socket events. */
 #define vSetField16( pxBase, xType, xField, usValue ) \
 { \
 	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 0 ] = ( uint8_t ) ( ( usValue ) >> 8 ); \
-	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( usValue ) & 0xffU ); \
+	( ( uint8_t* )( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( usValue ) & 0xff ); \
 }
 
 #define vSetField32( pxBase, xType, xField, ulValue ) \
 { \
 	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 0 ] = ( uint8_t )   ( ( ulValue ) >> 24 ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( ( ulValue ) >> 16 ) & 0xffU ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 2 ] = ( uint8_t ) ( ( ( ulValue ) >> 8 ) & 0xffU ); \
-	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 3 ] = ( uint8_t )   ( ( ulValue ) & 0xffU ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 1 ] = ( uint8_t ) ( ( ( ulValue ) >> 16 ) & 0xff ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 2 ] = ( uint8_t ) ( ( ( ulValue ) >> 8 ) & 0xff ); \
+	( (uint8_t*)( pxBase ) ) [ offsetof( xType, xField ) + 3 ] = ( uint8_t )   ( ( ulValue ) & 0xff ); \
 }
 
 #define vFlip_16( left, right ) \
@@ -427,17 +384,17 @@ socket events. */
 		uint16_t tmp = (left); \
 		(left) = (right); \
 		(right) = tmp; \
-	} while ( ipFALSE_BOOL )
+	} while (0)
 
 #define vFlip_32( left, right ) \
 	do { \
 		uint32_t tmp = (left); \
 		(left) = (right); \
 		(right) = tmp; \
-	} while ( ipFALSE_BOOL )
+	} while (0)
 
 #ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x)	( ( BaseType_t ) ( sizeof( x ) / sizeof( ( x )[ 0 ] ) ) )
+	#define ARRAY_SIZE(x)	(BaseType_t)(sizeof(x)/sizeof(x)[0])
 #endif
 
 /*
@@ -477,7 +434,7 @@ eFrameProcessingResult_t eConsiderFrameForProcessing( const uint8_t * const pucE
 /*
  * Return the checksum generated over xDataLengthBytes from pucNextData.
  */
-uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxByteCount );
+uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t uxDataLengthBytes );
 
 /* Socket related private functions. */
 
@@ -491,7 +448,7 @@ BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer
 /*
  * Initialize the socket list data structures for TCP and UDP. 
  */
-void vNetworkSocketsInit( void );
+BaseType_t vNetworkSocketsInit( void );
 
 /*
  * Returns pdTRUE if the IP task has been created and is initialised.  Otherwise
@@ -738,7 +695,7 @@ void vReturnEthernetFrame( NetworkBufferDescriptor_t * pxNetworkBuffer, BaseType
  * The TCP driver needs to bind a socket at the moment a listening socket
  * creates a new connected socket
  */
-BaseType_t vSocketBind( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr * pxBindAddress, size_t uxAddressLength, BaseType_t xInternal );
+BaseType_t vSocketBind( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr * pxAddress, size_t uxAddressLength, BaseType_t xInternal );
 
 /*
  * Internal function to add streaming data to a TCP socket. If ulIn == true,
@@ -796,13 +753,13 @@ BaseType_t xSendEventToIPTask( eIPEvent_t eEvent );
  * 		eIPEvent_t eEventType;
  *		void *pvData;
  */
-BaseType_t xSendEventStructToIPTask( const IPStackEvent_t *pxEvent, TickType_t uxTimeout );
+BaseType_t xSendEventStructToIPTask( const IPStackEvent_t *pxEvent, TickType_t xTimeout );
 
 /*
  * Returns a pointer to the original NetworkBuffer from a pointer to a UDP
  * payload buffer.
  */
-NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( const void * pvBuffer );
+NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer );
 
 #if( ipconfigZERO_COPY_TX_DRIVER != 0 )
 	/*
@@ -832,16 +789,11 @@ BaseType_t xIsCallingFromIPTask( void );
 typedef struct xSOCKET_SET
 {
 	EventGroupHandle_t xSelectGroup;
+	BaseType_t bApiCalled;	/* True if the API was calling  the private vSocketSelect */
+	FreeRTOS_Socket_t *pxSocket;
 } SocketSelect_t;
 
-extern void vSocketSelect( SocketSelect_t *pxSocketSet );
-
-/* Define the data that must be passed for a 'eSocketSelectEvent'. */
-typedef struct xSocketSelectMessage
-{
-	TaskHandle_t xTaskhandle;
-	SocketSelect_t *pxSocketSet;
-} SocketSelectMessage_t;
+extern void vSocketSelect( SocketSelect_t *pxSocketSelect );
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION */
 
