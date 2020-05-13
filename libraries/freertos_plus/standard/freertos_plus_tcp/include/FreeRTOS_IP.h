@@ -150,14 +150,14 @@ typedef enum eNETWORK_EVENTS
 	eNetworkDown	/* The network connection has been lost. */
 } eIPCallbackEvent_t;
 
-#if ( ipconfigSUPPORT_OUTGOING_PINGS == 1 )
-	typedef enum ePING_REPLY_STATUS
-	{
-		eSuccess = 0,		/* A correct reply has been received for an outgoing ping. */
-		eInvalidChecksum,	/* A reply was received for an outgoing ping but the checksum of the reply was incorrect. */
-		eInvalidData		/* A reply was received to an outgoing ping but the payload of the reply was not correct. */
-	} ePingReplyStatus_t;
-#endif	/* ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */ 
+/* MISRA check: some modules refer to this typedef even tough
+ipconfigSUPPORT_OUTGOING_PINGS is not enabled. */
+typedef enum ePING_REPLY_STATUS
+{
+	eSuccess = 0,		/* A correct reply has been received for an outgoing ping. */
+	eInvalidChecksum,	/* A reply was received for an outgoing ping but the checksum of the reply was incorrect. */
+	eInvalidData		/* A reply was received to an outgoing ping but the payload of the reply was not correct. */
+} ePingReplyStatus_t;
 
 typedef struct xIP_TIMER
 {
@@ -273,9 +273,10 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress,
 									   const uint32_t *pulGatewayAddress,
 									   const uint32_t *pulDNSServerAddress );
 
-#if ( ipconfigSUPPORT_OUTGOING_PINGS == 1 )
-	BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t uxNumberOfBytesToSend, TickType_t uxBlockTimeTicks );
-#endif
+/* MISRA defining 'FreeRTOS_SendPingRequest' should be dependent on 'ipconfigSUPPORT_OUTGOING_PINGS'.
+In order not to break some existing project, define it unconditionally. */
+BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t uxNumberOfBytesToSend, TickType_t uxBlockTimeTicks );
+
 void FreeRTOS_ReleaseUDPPayloadBuffer( void const * pvBuffer );
 const uint8_t * FreeRTOS_GetMACAddress( void );
 void FreeRTOS_UpdateMACAddress( const uint8_t ucMACAddress[ipMAC_ADDRESS_LENGTH_BYTES] );

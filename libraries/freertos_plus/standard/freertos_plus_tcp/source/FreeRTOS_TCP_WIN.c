@@ -1933,7 +1933,7 @@ const int32_t l500ms = 500;
 
 #if( ipconfigUSE_TCP_WIN == 0 )
 
-	BaseType_t xTCPWindowTxHasData( TCPWindow_t *pxWindow, uint32_t ulWindowSize, TickType_t *pulDelay )
+	BaseType_t xTCPWindowTxHasData( TCPWindow_t const *pxWindow, uint32_t ulWindowSize, TickType_t *pulDelay )
 	{
 	TCPSegment_t *pxSegment = &( pxWindow->xTxSegment );
 	BaseType_t xReturn;
