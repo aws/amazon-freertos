@@ -407,6 +407,13 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile, uint1
     configASSERT(pxNetworkProfile != NULL);
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
+        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
+            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
+        {
+            cy_rtos_set_mutex(&wifiMutex);
+            return eWiFiFailure;
+        }
+
         if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
             cy_objstore_read_object(usIndex + CY_FIRST_WIFI_PROFILE, (uint8_t *)pxNetworkProfile, sizeof(WIFINetworkProfile_t)))
         {
@@ -432,6 +439,13 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
     uint32_t size;
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
+        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
+            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
+        {
+            cy_rtos_set_mutex(&wifiMutex);
+            return eWiFiFailure;
+        }
+
         if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
             (cy_objstore_find_object(usIndex + CY_FIRST_WIFI_PROFILE, &index, &size) != CY_OBJSTORE_NO_SUCH_OBJECT &&
             cy_objstore_delete_object(usIndex + CY_FIRST_WIFI_PROFILE) != CY_RSLT_SUCCESS))
