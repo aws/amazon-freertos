@@ -122,8 +122,9 @@ afr_set_board_metadata(FAMILY_NAME "PSoC 6")
 afr_set_board_metadata(DATA_RAM_MEMORY "1024KB")
 afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(CODE_SIGNER "null")
-afr_set_board_metadata(SUPPORTED_IDE "CMakeBuildSystem")
+afr_set_board_metadata(SUPPORTED_IDE "CMakeBuildSystem;ModusToolbox")
 afr_set_board_metadata(RECOMMENDED_IDE "CMakeBuildSystem")
+# settings for CmakeBuildSystem as IDE
 afr_set_board_metadata(IDE_CMakeBuildSystem_NAME "CMakeBuildSystem")
 afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "GCC")
 if("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
@@ -132,6 +133,16 @@ elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
     afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "IAR")
 endif()
 afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "null")
+# settings for ModusToolbox as IDE
+afr_set_board_metadata(IDE_ModusToolbox_NAME "ModusToolbox")
+afr_set_board_metadata(IDE_ModusToolbox_COMPILER "GCC")
+if("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
+    afr_set_board_metadata(IDE_ModusToolbox_COMPILER "ARM")
+elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
+    afr_set_board_metadata(IDE_ModusToolbox_COMPILER "IAR")
+endif()
+afr_set_board_metadata(IDE_ModusToolbox_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/cypress/${AFR_BOARD_NAME}/ModusToolbox/aws_demos")
+# demo project configuration file location
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 #--------------------------------------------------------------------
