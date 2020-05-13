@@ -166,7 +166,7 @@ extern uint32_t ulRand();
  * re-transmission time interval reaches ipconfigMAXIMUM_DISCOVER_TX_PERIOD without
  * a DHCP reply being received. */
 #define ipconfigMAXIMUM_DISCOVER_TX_PERIOD \
-    ( 120000 / portTICK_PERIOD_MS )
+    ( 120000U / portTICK_PERIOD_MS )
 
 /* The ARP cache is a table that maps IP addresses to MAC addresses.  The IP
  * stack can only send a UDP message to a remove IP address if it knowns the MAC
@@ -244,7 +244,7 @@ extern uint32_t ulRand();
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
  * lower value can save RAM. */
-#define ipconfigNETWORK_MTU                            1460
+#define ipconfigNETWORK_MTU                            1460U
 
 /* Set ipconfigUSE_DNS to 1 to include a basic DNS client/resolver.  DNS is used
  * through the FreeRTOS_gethostbyname() API function. */
