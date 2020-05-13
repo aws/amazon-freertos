@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,14 +15,10 @@
  * This file is reserved for vendor-specific definitions.
  */
 
-/**
- * \note This implementation currently doesn't provide support to any
- *       vendor-specific extension or definition, so this header file
- *       is empty.
- */
-
 #ifndef PSA_CRYPTO_EXTRA_H
 #define PSA_CRYPTO_EXTRA_H
+
+#include "psa/crypto_compat.h"
 
 #ifdef __cplusplus
 extern "C" {

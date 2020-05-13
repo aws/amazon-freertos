@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,8 +15,12 @@
 #ifndef __TFM_MAILBOX_H__
 #define __TFM_MAILBOX_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
+#include "device_cfg.h"
+#endif
 #include "psa/client.h"
 
 #ifdef __cplusplus
@@ -24,11 +28,34 @@ extern "C" {
 #endif
 
 /*
- * The number of slots in NSPE mailbox queue and SPE mailbox queue.
- * So far only one slot is supported in either NSPE mailbox queue or
- * SPE mailbox queue.
+ * If multiple outstanding NS PSA Client calls is enabled, multi-core platform
+ * should define the number of mailbox queue slots NUM_MAILBOX_QUEUE_SLOT in
+ * platform device_cfg.h.
+ * Otherwise, NUM_MAILBOX_QUEUE_SLOT is defined as 1.
  */
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
+#ifndef NUM_MAILBOX_QUEUE_SLOT
+#error "Error: Platform doesn't define NUM_MAILBOX_QUEUE_SLOT for mailbox queue"
+#endif
+
+#if (NUM_MAILBOX_QUEUE_SLOT < 2)
+#error "Error: Invalid NUM_MAILBOX_QUEUE_SLOT. The value should be more than 1"
+#endif
+
+/*
+ * The number of slots should be no more than the number of bits in
+ * mailbox_queue_status_t.
+ * Here the value is hardcoded. A better way is to define a sizeof() to
+ * calculate the bits in mailbox_queue_status_t and dump it with pragma message.
+ */
+#if (NUM_MAILBOX_QUEUE_SLOT > 32)
+#error "Error: Invalid NUM_MAILBOX_QUEUE_SLOT. The value should be no more than 32"
+#endif
+#else /* TFM_MULTI_CORE_MULTI_CLIENT_CALL */
+/* Force the number of mailbox queue slots as 1. */
+#undef NUM_MAILBOX_QUEUE_SLOT
 #define NUM_MAILBOX_QUEUE_SLOT              (1)
+#endif /* TFM_MULTI_CORE_MULTI_CLIENT_CALL */
 
 /* PSA client call type value */
 #define MAILBOX_PSA_FRAMEWORK_VERSION       (0x1)
@@ -108,10 +135,13 @@ struct mailbox_reply_t {
 struct ns_mailbox_slot_t {
     struct mailbox_msg_t   msg;
     struct mailbox_reply_t reply;
-
-    void                   *owner;     /* Identification of the owner of this
-                                        * slot
-                                        */
+    void                   *sem;            /* Handle of the semaphore of this
+                                             * slot
+                                             */
+    bool                   is_woken;        /* Indicate that owner task has been
+                                             * or should be woken up, after the
+                                             * replied is received.
+                                             */
 };
 
 typedef uint32_t   mailbox_queue_status_t;
@@ -128,6 +158,19 @@ struct ns_mailbox_queue_t {
                                                  */
 
     struct ns_mailbox_slot_t queue[NUM_MAILBOX_QUEUE_SLOT];
+
+#ifdef TFM_MULTI_CORE_TEST
+    uint32_t                 nr_tx;             /* The total number of
+                                                 * submission of NS PSA Client
+                                                 * calls from NS task via
+                                                 * mailbox.
+                                                 */
+    uint32_t                 nr_used_slots;     /* The total number of used
+                                                 * mailbox queue slots each time
+                                                 * NS thread requests a mailbox
+                                                 * queue slot.
+                                                 */
+#endif
 };
 
 #ifdef __cplusplus

@@ -72,6 +72,19 @@ uint32_t os_wrapper_semaphore_release(void *handle)
     return OS_WRAPPER_SUCCESS;
 }
 
+uint32_t os_wrapper_semaphore_release_isr(void *handle)
+{
+    BaseType_t task_woken = pdFALSE;
+
+    xSemaphoreGiveFromISR((SemaphoreHandle_t)handle, &task_woken);
+    return (task_woken == pdTRUE) ? 1 : 0;
+}
+
+void os_wrapper_isr_yield(uint32_t yield)
+{
+    portEND_SWITCHING_ISR(yield);
+}
+
 uint32_t os_wrapper_semaphore_delete(void *handle)
 {
     SemaphoreHandle_t hsem = (SemaphoreHandle_t)handle;
@@ -148,9 +161,27 @@ uint32_t os_wrapper_join_thread(void* handle)
     return OS_WRAPPER_SUCCESS;
 }
 
-void os_wrapper_delay(uint32_t ms)
+uint32_t os_wrapper_thread_set_flag(void *handle, uint32_t flags)
 {
-   TickType_t tick = ms / portTICK_PERIOD_MS;
+    (void) flags;
+    vTaskResume((TaskHandle_t)handle);
+    return 0;
+}
 
-   vTaskDelay(tick);
+uint32_t os_wrapper_thread_set_flag_isr(void *handle, uint32_t flags)
+{
+    BaseType_t taskWoken = pdFALSE;
+    (void) flags;
+
+    if( handle != NULL ) {
+        vTaskNotifyGiveFromISR( handle, &taskWoken );
+    }
+    portEND_SWITCHING_ISR( taskWoken );
+    return 0;
+}
+
+uint32_t os_wrapper_thread_wait_flag(uint32_t flags, uint32_t timeout)
+{
+    (void) flags;
+    return ulTaskNotifyTake( pdFALSE, timeout );
 }

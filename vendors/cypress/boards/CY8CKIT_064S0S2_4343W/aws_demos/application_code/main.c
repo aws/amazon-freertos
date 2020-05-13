@@ -170,10 +170,10 @@ static void tfm_ns_multi_core_boot(void)
 {
     int32_t ret;
 
-    printf("Non-secure code running on non-secure core.");
+    printf("Non-secure code running on non-secure core.\r\n");
 
     if (tfm_ns_wait_for_s_cpu_ready()) {
-        printf("Error sync'ing with secure core.");
+        printf("Error sync'ing with secure core.\r\n");
 
         /* Avoid undefined behavior after multi-core sync-up failed */
         for (;;) {
@@ -182,7 +182,7 @@ static void tfm_ns_multi_core_boot(void)
 
     ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
     if (ret != MAILBOX_SUCCESS) {
-        printf("Non-secure mailbox initialization failed.");
+        printf("Non-secure mailbox initialization failed.\r\n");
 
         /* Avoid undefined behavior after NS mailbox initialization failed */
         for (;;) {
@@ -272,8 +272,10 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
+#if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();
+#endif
 
         /* Start the demo tasks. */
         DEMO_RUNNER_RunDemos();

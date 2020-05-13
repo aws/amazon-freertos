@@ -52,8 +52,9 @@
 #include "cy_retarget_io.h"
 
 #ifdef CY_TFM_PSA_SUPPORTED
+#include "tfm_multi_core_api.h"
 #include "tfm_ns_interface.h"
-#include "tfm_mailbox.h"
+#include "tfm_ns_mailbox.h"
 #if ( testrunnerFULL_TFM_ENABLED == 1 )
 #include "test_framework_integ_test.h"
 #include "tfm_secure_client_service_api.h"
@@ -177,10 +178,10 @@ static void tfm_ns_multi_core_boot(void)
 {
     int32_t ret;
 
-    printf("Non-secure code running on non-secure core.");
+    printf("Non-secure code running on non-secure core.\r\n");
 
     if (tfm_ns_wait_for_s_cpu_ready()) {
-        printf("Error sync'ing with secure core.");
+        printf("Error sync'ing with secure core.\r\n");
 
         /* Avoid undefined behavior after multi-core sync-up failed */
         for (;;) {
@@ -189,7 +190,7 @@ static void tfm_ns_multi_core_boot(void)
 
     ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
     if (ret != MAILBOX_SUCCESS) {
-        printf("Non-secure mailbox initialization failed.");
+        printf("Non-secure mailbox initialization failed.\r\n");
 
         /* Avoid undefined behavior after NS mailbox initialization failed */
         for (;;) {
@@ -206,14 +207,13 @@ static void tfm_ns_multi_core_boot(void)
  */
 int main( void )
 {
+    /* Perform any hardware initialization that does not require the RTOS to be
+     * running.  */
+    prvMiscInitialization();
 
 #ifdef CY_TFM_PSA_SUPPORTED
     tfm_ns_multi_core_boot();
 #endif
-
-    /* Perform any hardware initialization that does not require the RTOS to be
-     * running.  */
-    prvMiscInitialization();
 
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
