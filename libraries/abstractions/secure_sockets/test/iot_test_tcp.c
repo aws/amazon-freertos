@@ -179,7 +179,7 @@ typedef struct
 #define tcptestNUM_ECHO_CLIENTS               ( 2 )
 #define tcptestMAX_LOOPS_ECHO_CLIENTS_LOOP    ( 10 )
 
-#define dnstestNUM_IP_ADDRESSES               ( 4 )
+#define dnstestNUM_UNIQUE_IP_ADDRESSES        ( 4 )
 
 static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters );
 /****************** Unity Test Code *********************************/
