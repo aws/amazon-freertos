@@ -66,6 +66,12 @@ extern void IotBleMqtt_CleanupSerialize( void );
 #define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
 #endif
 
+/* Increasing MQTT and shadow timeout for the board, as there is a delay in sending large payload over BLE for the board. */
+#define IOT_TEST_MQTT_TIMEOUT_MS   ( 30000 )
+#define AWS_IOT_TEST_SHADOW_TIMEOUT ( 30000 )
+
+
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
