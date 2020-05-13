@@ -36,6 +36,9 @@
 #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "TEST_CY8C"
 
 
+/* Enable to run WiFi provisioning test cases. */
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
+
 
 /* Disable numeric comparison */
 #define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 0 )
