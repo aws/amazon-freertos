@@ -48,7 +48,7 @@
 #define testIotRTC_DEFAULT_CURRENT_DAY         ( 1 )    /* 1st of the month */
 #define testIotRTC_DEFAULT_CURRENT_HOUR        ( 0 )    /* 0th hour */
 #define testIotRTC_DEFAULT_CURRENT_MINUTE      ( 0 )    /* 0th minute */
-#define testIotRTC_DEFAULT_CURRENT_SECOND      ( 0 )    /* 0th second */
+#define testIotRTC_DEFAULT_CURRENT_SECOND      ( 10 )   /* 10th second */
 
 #define testIotRTC_SEC_TO_MSEC                 ( 1000 )
 #define testIotRTC_DELAY_SECONDS               ( 2 )
@@ -695,7 +695,7 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetAlarmInvalid )
     xSetDateTime.ucDay = testIotRTC_DEFAULT_CURRENT_DAY;
     xSetDateTime.ucHour = testIotRTC_DEFAULT_CURRENT_HOUR;
     xSetDateTime.ucMinute = testIotRTC_DEFAULT_CURRENT_MINUTE;
-    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND + testIotRTC_DEFAULT_ALARM_TIME;
+    xSetDateTime.ucSecond = testIotRTC_DEFAULT_CURRENT_SECOND;
 
     if( TEST_PROTECT() )
     {
