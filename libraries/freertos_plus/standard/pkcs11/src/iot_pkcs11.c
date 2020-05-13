@@ -49,7 +49,7 @@
  *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
  */
 static CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
-                      CK_SLOT_ID xSlotId )
+                             CK_SLOT_ID xSlotId )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
