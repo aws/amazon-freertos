@@ -70,12 +70,12 @@ the defined MTU size can contain at least a complete TCP packet. */
 /*
  * The meaning of the TCP flags:
  */
-#define ipTCP_FLAG_FIN			0x0001u /* No more data from sender */
-#define ipTCP_FLAG_SYN			0x0002u /* Synchronize sequence numbers */
-#define ipTCP_FLAG_RST			0x0004u /* Reset the connection */
-#define ipTCP_FLAG_PSH			0x0008u /* Push function: please push buffered data to the recv application */
-#define ipTCP_FLAG_ACK			0x0010u /* Acknowledgment field is significant */
-#define ipTCP_FLAG_URG			0x0020u /* Urgent pointer field is significant */
+#define ipTCP_FLAG_FIN			( ( uint8_t) 0x01u ) /* No more data from sender */
+#define ipTCP_FLAG_SYN			( ( uint8_t) 0x02u ) /* Synchronize sequence numbers */
+#define ipTCP_FLAG_RST			( ( uint8_t) 0x04u ) /* Reset the connection */
+#define ipTCP_FLAG_PSH			( ( uint8_t) 0x08u ) /* Push function: please push buffered data to the recv application */
+#define ipTCP_FLAG_ACK			( ( uint8_t) 0x10u ) /* Acknowledgment field is significant */
+#define ipTCP_FLAG_URG			( ( uint8_t) 0x20u ) /* Urgent pointer field is significant */
 #define ipTCP_FLAG_ECN			0x0040u /* ECN-Echo */
 #define ipTCP_FLAG_CWR			0x0080u /* Congestion Window Reduced */
 #define ipTCP_FLAG_NS			0x0100u /* ECN-nonce concealment protection */
