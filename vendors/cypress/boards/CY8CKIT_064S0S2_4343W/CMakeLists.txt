@@ -141,7 +141,8 @@ if("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
 elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
     afr_set_board_metadata(IDE_ModusToolbox_COMPILER "IAR")
 endif()
-afr_set_board_metadata(IDE_ModusToolbox_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/cypress/${AFR_BOARD_NAME}/ModusToolbox/aws_demos")
+# demo project directory location
+afr_set_board_metadata(IDE_ModusToolbox_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/cypress/${AFR_BOARD_NAME}/mtb/aws_demos")
 # demo project configuration file location
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
