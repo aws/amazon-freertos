@@ -538,6 +538,8 @@ typedef struct
  * - @functionname{ota_function_setimagestate}
  * - @functionname{ota_function_getimagestate}
  * - @functionname{ota_function_checkforupdate}
+ * - @functionname{ota_function_suspend}
+ * - @functionname{ota_function_resume}
  * - @functionname{ota_function_getpacketsreceived}
  * - @functionname{ota_function_getpacketsqueued}
  * - @functionname{ota_function_getpacketsprocessed}
@@ -552,6 +554,8 @@ typedef struct
  * @functionpage{OTA_SetImageState,ota,setimagestate}
  * @functionpage{OTA_GetImageState,ota,getimagestate}
  * @functionpage{OTA_CheckForUpdate,ota,checkforupdate}
+ * @functionpage{OTA_Suspend,ota,suspend}
+ * @functionpage{OTA_Resume,ota,resume}
  * @functionpage{OTA_GetPacketsReceived,ota,getpacketsreceived}
  * @functionpage{OTA_GetPacketsQueued,ota,getpacketsqueued}
  * @functionpage{OTA_GetPacketsProcessed,ota,getpacketsprocessed}
@@ -668,23 +672,24 @@ OTA_Err_t OTA_SetImageState( OTA_ImageState_t eState );
  */
 OTA_ImageState_t OTA_GetImageState( void );
 
-/* @brief Request for the next available OTA job from the job service.
+/**
+ * @brief Request for the next available OTA job from the job service.
  *
  * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
  * list above.
  */
 OTA_Err_t OTA_CheckForUpdate( void );
 
-/* @brief Suspend OTA agent oeprations .
- *
- * @param[in]
+/**
+ * @brief Suspend OTA agent oeprations .
  *
  * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
  * list above.
  */
 OTA_Err_t OTA_Suspend( void );
 
-/* @brief Resume OTA agent oeprations .
+/**
+ * @brief Resume OTA agent oeprations .
  *
  * @param[in] pxConnection Update connection context.
  *
