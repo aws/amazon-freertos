@@ -324,6 +324,8 @@ function(cy_kit_generate)
         INTERFACE
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/iot_wifi_lwip.c"
+        "${afr_ports_dir}/wifi/emac_eapol.h"
+        "${afr_ports_dir}/wifi/iot_wifi_common.h"
     )
     target_include_directories(AFR::wifi::mcu_port INTERFACE
         "${afr_ports_dir}/wifi"
@@ -351,6 +353,7 @@ function(cy_kit_generate)
             "${afr_ports_dir}/ble/iot_ble_hal_manager_adapter_ble.c"
             "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
             "${afr_ports_dir}/ble/wiced_bt_cfg.c"
+            "${afr_ports_dir}/ble/bt_hal_internal.h"
             "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c"
             "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyosal/src/wiced_time_common.c"
             "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_gpio.c"
