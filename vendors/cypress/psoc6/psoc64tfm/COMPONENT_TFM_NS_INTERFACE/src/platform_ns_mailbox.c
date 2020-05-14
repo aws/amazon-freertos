@@ -285,7 +285,7 @@ static bool mailbox_clear_intr(void)
     return true;
 }
 
-void cpuss_interrupts_ipc_5_IRQHandler(void)
+void cpuss_interrupts_ipc_8_IRQHandler(void)
 {
     uint32_t magic;
     mailbox_msg_handle_t handle;
