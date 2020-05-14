@@ -681,7 +681,7 @@ OTA_ImageState_t OTA_GetImageState( void );
 OTA_Err_t OTA_CheckForUpdate( void );
 
 /**
- * @brief Suspend OTA agent oeprations .
+ * @brief Suspend OTA agent operations .
  *
  * @return kOTA_Err_None if successful, otherwise an error code prefixed with 'kOTA_Err_' from the
  * list above.
@@ -689,7 +689,7 @@ OTA_Err_t OTA_CheckForUpdate( void );
 OTA_Err_t OTA_Suspend( void );
 
 /**
- * @brief Resume OTA agent oeprations .
+ * @brief Resume OTA agent operations .
  *
  * @param[in] pxConnection Update connection context.
  *
