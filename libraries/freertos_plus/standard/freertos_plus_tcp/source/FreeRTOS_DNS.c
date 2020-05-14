@@ -105,6 +105,11 @@ name field is an offset to the string, rather than the string itself. */
 type. */
 #define dnsPARSE_ERROR							0UL
 
+#if( ipconfigUSE_DNS_CACHE == 0 )
+	#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY != 1 )
+		#error When DNS caching is disabled, please make ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY equal to 1.
+	#endif
+#endif
 /*
  * Create a socket and bind it to the standard DNS port number.  Return the
  * the created socket - or NULL if the socket could not be created or bound.
@@ -198,10 +203,14 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 	typedef struct xDNS_CACHE_TABLE_ROW
 	{
-		uint32_t ulIPAddress;                         /* The IP address of a DNS cache entry. */
+		uint32_t ulIPAddresses[ ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY ]; /* The IP address(es) of an ARP cache entry. */
 		char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ]; /* The name of the host */
 		uint32_t ulTTL;                               /* Time-to-Live (in seconds) from the DNS server. */
 		uint32_t ulTimeWhenAddedInSeconds;
+#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
+		uint8_t  ucNumIPAddresses;
+		uint8_t  ucCurrentIPAddress;
+#endif
 	} DNSCacheRow_t;
 
 	static DNSCacheRow_t xDNSCache[ ipconfigDNS_CACHE_ENTRIES ];
@@ -651,7 +660,6 @@ TickType_t uxWriteTimeOut_ticks = ipconfigDNS_SEND_BLOCK_TIME_TICKS;
 			/* Get a buffer.  This uses a maximum delay, but the delay will be
 			capped to ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS so the return value
 			still needs to be tested. */
-			FreeRTOS_printf( ( "DNS lookup: \"%s\"\n", pcHostName ) );
 
 			uxHeaderBytes = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER;
 
@@ -1018,18 +1026,18 @@ uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer )
 DNSMessage_t *pxDNSMessageHeader;
 size_t uxPayloadSize;
 
-    /* Only proceed if the payload length indicated in the header
-    appears to be valid. */
-    if( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
-    {
-        uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+	/* Only proceed if the payload length indicated in the header
+	appears to be valid. */
+	if( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
+	{
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
-        if( uxPayloadSize >= sizeof( DNSMessage_t ) )
-        {
+		if( uxPayloadSize >= sizeof( DNSMessage_t ) )
+		{
 			pxDNSMessageHeader =
 				ipPOINTER_CAST( DNSMessage_t *, &( pxNetworkBuffer->pucEthernetBuffer [ sizeof( UDPPacket_t ) ] ) );
 
-            /* The parameter pdFALSE indicates that the reply was not expected. */
+			/* The parameter pdFALSE indicates that the reply was not expected. */
 			( void ) prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
 				uxPayloadSize,
 				pdFALSE );
@@ -1187,7 +1195,9 @@ uint16_t usType = 0;
 
 		if( ( pxDNSMessageHeader->usFlags & dnsRX_FLAGS_MASK ) == dnsEXPECTED_RX_FLAGS )
 		{
-			for( x = 0; x < pxDNSMessageHeader->usAnswers; x++ )
+			const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
+
+			for( x = 0; ( x < pxDNSMessageHeader->usAnswers ) && ( x < usCount ); x++ )
 			{
 			BaseType_t xDoAccept;
 
@@ -1285,11 +1295,7 @@ uint16_t usType = 0;
 					}
 
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );
-					/* Commenting this out since this is not being used later anywhere. 
-					Being cautious by not removing it completely
 					uxSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) );
-					 */
-					break;
 				}
 				else if( uxSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
 				{
@@ -1669,6 +1675,7 @@ BaseType_t xReturn;
 	BaseType_t x;
 	BaseType_t xFound = pdFALSE;
 	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000U;
+	uint32_t ulIPAddressIndex = 0;
 	static BaseType_t xFreeEntry = 0;
 
 		/* MISRA advisory rule 1.2 Relaxed in case of 
@@ -1692,7 +1699,20 @@ BaseType_t xReturn;
 					/* Confirm that the record is still fresh. */
 					if( ulCurrentTimeSeconds < ( xDNSCache[ x ].ulTimeWhenAddedInSeconds + FreeRTOS_ntohl( xDNSCache[ x ].ulTTL ) ) )
 					{
-						*pulIP = xDNSCache[ x ].ulIPAddress;
+#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
+					uint8_t ucIndex;
+						/* The ucCurrentIPAddress value increments without bound and will rollover, */
+						/*  modulo it by the number of IP addresses to keep it in range.     */
+						/*  Also perform a final modulo by the max number of IP addresses    */
+						/*  per DNS cache entry to prevent out-of-bounds access in the event */
+						/*  that ucNumIPAddresses has been corrupted.                        */
+						ucIndex = xDNSCache[ x ].ucCurrentIPAddress % xDNSCache[ x ].ucNumIPAddresses;
+						ucIndex = ucIndex % ( uint8_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
+						ulIPAddressIndex = ucIndex;
+
+						xDNSCache[ x ].ucCurrentIPAddress++;
+#endif
+						*pulIP = xDNSCache[ x ].ulIPAddresses[ ulIPAddressIndex ];
 					}
 					else
 					{
@@ -1702,7 +1722,17 @@ BaseType_t xReturn;
 				}
 				else
 				{
-					xDNSCache[ x ].ulIPAddress = *pulIP;
+#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
+					if ( xDNSCache[ x ].ucNumIPAddresses < ( uint8_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY )
+					{
+						/* If more answers exist than there are IP address storage slots */
+						/* they will overwrite entry 0 */
+
+						ulIPAddressIndex = xDNSCache[ x ].ucNumIPAddresses;
+						xDNSCache[ x ].ucNumIPAddresses++;
+					}
+#endif
+					xDNSCache[ x ].ulIPAddresses[ ulIPAddressIndex ] = *pulIP;
 					xDNSCache[ x ].ulTTL = ulTTL;
 					xDNSCache[ x ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
 				}
@@ -1725,9 +1755,19 @@ BaseType_t xReturn;
 				{
 					( void ) strcpy( xDNSCache[ xFreeEntry ].pcName, pcName );
 
-					xDNSCache[ xFreeEntry ].ulIPAddress = *pulIP;
+					xDNSCache[ xFreeEntry ].ulIPAddresses[ 0 ] = *pulIP;
 					xDNSCache[ xFreeEntry ].ulTTL = ulTTL;
 					xDNSCache[ xFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
+#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
+					xDNSCache[ xFreeEntry ].ucNumIPAddresses = 1;
+					xDNSCache[ xFreeEntry ].ucCurrentIPAddress = 0;
+
+					/* Initialize all remaining IP addresses in this entry to 0 */
+					memset( &xDNSCache[ xFreeEntry ].ulIPAddresses[ 1 ],
+							0,
+							sizeof( xDNSCache[ xFreeEntry ].ulIPAddresses[ 1 ] ) *
+								( ( uint32_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY - 1U ) );
+#endif
 
 					xFreeEntry++;
 

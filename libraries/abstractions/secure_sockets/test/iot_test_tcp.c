@@ -179,6 +179,8 @@ typedef struct
 #define tcptestNUM_ECHO_CLIENTS               ( 2 )
 #define tcptestMAX_LOOPS_ECHO_CLIENTS_LOOP    ( 10 )
 
+#define dnstestNUM_UNIQUE_IP_ADDRESSES        ( 4 )
+
 static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters );
 /****************** Unity Test Code *********************************/
 size_t xHeapB;
@@ -805,6 +807,7 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_Invalid );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_htons_HappyCase );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase );
+    RUN_TEST_CASE( Full_TCP, test_dns_multiple_addresses );
 
     #if ( tcptestSECURE_SERVER == 1 )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_CloseInvalidParams );
@@ -2959,6 +2962,60 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
+/*-----------------------------------------------------------*/
+
+TEST( Full_TCP, test_dns_multiple_addresses )
+{
+    BaseType_t xResult = pdFAIL;
+    uint32_t i;
+    uint32_t j;
+    uint32_t ulIPAddress;
+    uint32_t ulUnique;
+    uint32_t ulNumUniqueIPAddresses = 0;
+
+    /* Resolve the AWS IoT Core endpoint, which will have multiple IP addresses */
+
+    uint32_t ulIPAddresses[ dnstestNUM_UNIQUE_IP_ADDRESSES ] = { 0UL };
+
+    tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
+    /*
+     * Resolve the endpoint to an array of IP addresses. Each subsequent
+     * call will return one of the addresses which the name resolves to.
+     *
+     * NOTE: Resolving addresses can take some time, so allow up to
+     *   60 seconds to collect all of them.
+     */
+    for( i = 0 ; ( i < 60 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ) ; i ++ )
+    {
+        ulIPAddress = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+
+        for( j = 0, ulUnique = 1 ; j < ulNumUniqueIPAddresses ; j++ )
+        {
+            if( ulIPAddresses[ j ] == ulIPAddress )
+            {
+                ulUnique = 0;
+            }
+        }
+        if( ( ulUnique == 1 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ) )
+        {
+            ulIPAddresses[ ulNumUniqueIPAddresses++ ] = ulIPAddress;
+        }
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+    configPRINTF( ( "%s: identified %d different IP addresses for %s.\r\n",
+                   __FUNCTION__,
+                   ulNumUniqueIPAddresses,
+                   clientcredentialMQTT_BROKER_ENDPOINT ) );
+
+    /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
+    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES  )
+    {
+        xResult = pdPASS;
+    }
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
+    tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
+}
+
 /*-----------------------------------------------------------*/
 
 TEST( Full_TCP, AFQP_SOCKETS_inet_addr_quick_HappyCase )
