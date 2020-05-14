@@ -4,7 +4,6 @@
 
     "DEF ": [
 	"CONFIG_MEDTLS_USE_AFR_MEMORY",
-	"MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\"",
 	"WIN32",
 	"WINVER=0x400",
 	"_CONSOLE",
@@ -81,4 +80,3 @@
         "$(FREERTOS)/freertos_kernel/queue.c"
     ]
 }
-
