@@ -407,17 +407,24 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigUSE_DNS_CACHE				0
 #endif
 
-#if( ipconfigUSE_DNS != 0 )
+#if( ipconfigUSE_DNS_CACHE != 0 )
 	#ifndef ipconfigDNS_CACHE_NAME_LENGTH
 		/* Per https://tools.ietf.org/html/rfc1035, 253 is the maximum string length
 		of a DNS name. The following default accounts for a null terminator. */
 		#define ipconfigDNS_CACHE_NAME_LENGTH   254
 	#endif
-	#if( ipconfigUSE_DNS_CACHE != 0 )
-		#ifndef ipconfigDNS_CACHE_ENTRIES
-			#define ipconfigDNS_CACHE_ENTRIES			1
-		#endif
-	#endif /* ipconfigUSE_DNS_CACHE != 0 */
+
+	#ifndef ipconfigDNS_CACHE_ENTRIES
+		#define ipconfigDNS_CACHE_ENTRIES			1
+	#endif
+
+#endif /* ipconfigUSE_DNS_CACHE != 0 */
+
+/* When accessing services which have multiple IP addresses, setting this
+greater than 1 can improve reliability by returning different IP address
+answers on successive calls to FreeRTOS_gethostbyname(). */
+#ifndef ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 
+	#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY 1
 #endif
 
 #ifndef ipconfigCHECK_IP_QUEUE_SPACE
@@ -573,10 +580,6 @@ connections, hang protection can help reduce the impact of SYN floods. */
 
 #ifndef ipconfigSELECT_USES_NOTIFY
 	#define ipconfigSELECT_USES_NOTIFY		0
-#endif
-
-#ifndef ipconfigSELECT_USES_NOTIFY
-	#define ipconfigSELECT_USES_NOTIFY 2
 #endif
 
 #endif /* FREERTOS_DEFAULT_IP_CONFIG_H */
