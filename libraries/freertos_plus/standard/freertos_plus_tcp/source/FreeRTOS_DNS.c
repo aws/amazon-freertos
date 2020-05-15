@@ -1299,11 +1299,6 @@ uint16_t usType = 0;
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );
 					uxSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) );
 
-					#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY <= 1 )
-						/* One response was received, which is enough for this configuration. */
-						break;
-					#endif
-
 				}
 				else if( uxSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
 				{
