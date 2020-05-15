@@ -5,7 +5,6 @@
   # According to the specification MAX_HOST_NAME is upto 255.
   "callback": 1,
   "MAX_HOSTNAME_LEN": 10,
-  "MAX_REQ_SIZE": 50,
   "HOSTNAME_UNWIND": "__eval {MAX_HOSTNAME_LEN} + 1",
   "CBMCFLAGS":
   [
@@ -16,15 +15,16 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/tools/cbmc/stubs/cbmc.goto",
+    "$(FREERTOS)/tools/cbmc/stubs/freertos_api.goto",
     "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
-    "$(FREERTOS)/freertos_kernel/tasks.goto"
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.goto"
   ],
   "DEF":
   [
     "ipconfigDNS_USE_CALLBACKS={callback}",
     "MAX_HOSTNAME_LEN={MAX_HOSTNAME_LEN}",
-    "MAX_REQ_SIZE={MAX_REQ_SIZE}",
+    # This value is defined only when ipconfigUSE_DNS_CACHE==1
     "ipconfigDNS_CACHE_NAME_LENGTH=254"
-  ],
-  "OPT" : "-m32"
+  ]
 }

@@ -3,43 +3,75 @@
     "PROOFS": [ "." ],
 
     "DEF ": [
-	"_DEBUG",
-	"__free_rtos__",
-	"_CONSOLE",
-	"_WIN32_WINNT=0x0500",
+	"CONFIG_MEDTLS_USE_AFR_MEMORY",
+	"WIN32",
 	"WINVER=0x400",
+	"_CONSOLE",
 	"_CRT_SECURE_NO_WARNINGS",
+	"_DEBUG",
+	"_WIN32_WINNT=0x0500",
 	"__PRETTY_FUNCTION__=__FUNCTION__",
+	"__free_rtos__",
+
+        "CBMC",
 	"'configASSERT(X)=__CPROVER_assert(X,\"Assertion Error\")'",
-    "'configPRECONDITION(X)=__CPROVER_assume(X)'"
+        "'configPRECONDITION(X)=__CPROVER_assume(X)'"
     ],
 
-    "INC ": [
-	"$(FREERTOS)/vendors/pc/boards/windows/aws_demos/config_files",
-	"$(FREERTOS)/vendors/pc/boards/windows/aws_demos/application_code",
-	"$(FREERTOS)/demos/include",
-	"$(FREERTOS)/freertos_kernel/include",
-	"$(FREERTOS)/freertos_kernel/portable/MSVC-MingW",
-	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/include",
-	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement",
-	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC",
-	"$(FREERTOS)/libraries/freertos_plus/aws/ota/include",
-	"$(FREERTOS)/libraries/3rdparty/mbedtls/include/mbedtls",
-	"$(FREERTOS)/libraries/3rdparty/tracealyzer_recorder/Include",
-	"$(FREERTOS)/libraries/3rdparty/jsmn",
-	"$(FREERTOS)/libraries/3rdparty/pkcs11",
-	"$(FREERTOS)/libraries/3rdparty/tinycbor",
-	"$(FREERTOS)/libraries/3rdparty/win_pcap",
-	"$(FREERTOS)/libraries/c_sdk/standard/serializer/src/cbor",
-	"$(FREERTOS)/libraries/c_sdk/aws/defender/include",
-	"$(FREERTOS)/tools/cbmc/include"
+  "INC ": [
+        "$(FREERTOS)/freertos_kernel/include",
+        "$(FREERTOS)/freertos_kernel/portable/MSVC-MingW",
+        "$(FREERTOS)/vendors/pc/boards/windows/aws_demos/config_files",
+        "$(FREERTOS)/vendors/pc/boards/windows/aws_demos/application_code",
+        "$(FREERTOS)/demos/include",
+        "$(FREERTOS)/demos/network_manager",
+        "$(FREERTOS)/libraries/c_sdk/standard/common/include/private",
+        "$(FREERTOS)/libraries/c_sdk/standard/common/include",
+        "$(FREERTOS)/libraries/abstractions/platform/include",
+        "$(FREERTOS)/libraries/abstractions/platform/freertos/include",
+        "$(FREERTOS)/libraries/abstractions/secure_sockets/include",
+        "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/test",
+        "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/include",
+        "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC",
+        "$(FREERTOS)/libraries/freertos_plus/standard/tls/include",
+        "$(FREERTOS)/libraries/freertos_plus/standard/crypto/include",
+        "$(FREERTOS)/libraries/freertos_plus/standard/pkcs11/include",
+        "$(FREERTOS)/libraries/abstractions/pkcs11/include",
+        "$(FREERTOS)/libraries/freertos_plus/standard/utils/include",
+        "$(FREERTOS)/demos/dev_mode_key_provisioning/include",
+        "$(FREERTOS)/libraries/c_sdk/aws/defender/include",
+        "$(FREERTOS)/libraries/c_sdk/standard/mqtt/include",
+        "$(FREERTOS)/libraries/c_sdk/standard/serializer/include",
+        "$(FREERTOS)/libraries/c_sdk/aws/shadow/include",
+        "$(FREERTOS)/libraries/c_sdk/standard/https/include",
+        "$(FREERTOS)/libraries/freertos_plus/aws/greengrass/include",
+        "$(FREERTOS)/libraries/freertos_plus/aws/ota/src",
+        "$(FREERTOS)/libraries/freertos_plus/aws/ota/include",
+        "$(FREERTOS)/libraries/3rdparty/mbedtls/include",
+        "$(FREERTOS)/libraries/abstractions/posix/include",
+        "$(FREERTOS)/vendors/pc/boards/windows/ports/posix",
+        "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_posix/include",
+        "$(FREERTOS)/libraries/3rdparty/tracealyzer_recorder/Include",
+        "$(FREERTOS)/libraries/3rdparty/win_pcap",
+        "$(FREERTOS)/libraries/3rdparty/pkcs11",
+        "$(FREERTOS)/libraries/abstractions/pkcs11/mbedtls",
+        "$(FREERTOS)/libraries/3rdparty/mbedtls/include/mbedtls",
+        "$(FREERTOS)/libraries/3rdparty/mbedtls_utils",
+        "$(FREERTOS)/libraries/3rdparty/mbedtls_config",
+        "$(FREERTOS)/libraries/3rdparty/tinycbor",
+        "$(FREERTOS)/libraries/3rdparty/http_parser",
+        "$(FREERTOS)/libraries/3rdparty/jsmn",
+
+        "$(FREERTOS)/tools/cbmc/include",
+        "$(FREERTOS)/tools/cbmc/windows",
+        "$(FREERTOS)/tools/cbmc/windows2"
     ],
 
     "CBMCFLAGS ": [
-	"--object-bits 7",
-	"--32",
-	"--bounds-check",
-	"--pointer-check"
+        "--object-bits 7",
+        "--32",
+        "--bounds-check",
+        "--pointer-check"
     ],
 
     "FORWARD_SLASH": ["/"],
@@ -48,4 +80,3 @@
         "$(FREERTOS)/freertos_kernel/queue.c"
     ]
 }
-
