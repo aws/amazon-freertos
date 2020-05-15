@@ -652,47 +652,47 @@ static CK_RV prvRsaKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
 
         case ( CKA_MODULUS ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* N */
-                                                  NULL, 0,                                       /* P */
-                                                  NULL, 0,                                       /* Q */
-                                                  NULL, 0,                                       /* D */
-                                                  NULL, 0 );                                     /* E */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* N */
+                                                  NULL, 0,                                      /* P */
+                                                  NULL, 0,                                      /* Q */
+                                                  NULL, 0,                                      /* D */
+                                                  NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PUBLIC_EXPONENT ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                         /* N */
-                                                  NULL, 0,                                         /* P */
-                                                  NULL, 0,                                         /* Q */
-                                                  NULL, 0,                                         /* D */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen );  /* E */
+                                                  NULL, 0,                                        /* N */
+                                                  NULL, 0,                                        /* P */
+                                                  NULL, 0,                                        /* Q */
+                                                  NULL, 0,                                        /* D */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen ); /* E */
             break;
 
         case ( CKA_PRIME_1 ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                       /* N */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* P */
-                                                  NULL, 0,                                       /* Q */
-                                                  NULL, 0,                                       /* D */
-                                                  NULL, 0 );                                     /* E */
+                                                  NULL, 0,                                      /* N */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* P */
+                                                  NULL, 0,                                      /* Q */
+                                                  NULL, 0,                                      /* D */
+                                                  NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PRIME_2 ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                       /* N */
-                                                  NULL, 0,                                       /* P */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* Q */
-                                                  NULL, 0,                                       /* D */
-                                                  NULL, 0 );                                     /* E */
+                                                  NULL, 0,                                      /* N */
+                                                  NULL, 0,                                      /* P */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* Q */
+                                                  NULL, 0,                                      /* D */
+                                                  NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PRIVATE_EXPONENT ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                       /* N */
-                                                  NULL, 0,                                       /* P */
-                                                  NULL, 0,                                       /* Q */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* D */
-                                                  NULL, 0 );                                     /* E */
+                                                  NULL, 0,                                      /* N */
+                                                  NULL, 0,                                      /* P */
+                                                  NULL, 0,                                      /* Q */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* D */
+                                                  NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_EXPONENT_1 ):
