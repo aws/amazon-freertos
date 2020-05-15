@@ -2978,6 +2978,7 @@ TEST( Full_TCP, test_dns_multiple_addresses )
     uint32_t ulIPAddresses[ dnstestNUM_UNIQUE_IP_ADDRESSES ] = { 0UL };
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
+
     /*
      * Resolve the endpoint to an array of IP addresses. Each subsequent
      * call will return one of the addresses which the name resolves to.
@@ -2996,22 +2997,26 @@ TEST( Full_TCP, test_dns_multiple_addresses )
                 ulUnique = 0;
             }
         }
+
         if( ( ulUnique == 1 ) && ( ulNumUniqueIPAddresses < dnstestNUM_UNIQUE_IP_ADDRESSES ) )
         {
             ulIPAddresses[ ulNumUniqueIPAddresses++ ] = ulIPAddress;
         }
+
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
+
     configPRINTF( ( "%s: identified %d different IP addresses for %s.\r\n",
-                   __FUNCTION__,
-                   ulNumUniqueIPAddresses,
-                   clientcredentialMQTT_BROKER_ENDPOINT ) );
+                    __FUNCTION__,
+                    ulNumUniqueIPAddresses,
+                    clientcredentialMQTT_BROKER_ENDPOINT ) );
 
     /* Require a minimum number of IP addresses for AWS IoT Core endpoints */
-    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES  )
+    if( ulNumUniqueIPAddresses >= dnstestNUM_UNIQUE_IP_ADDRESSES )
     {
         xResult = pdPASS;
     }
+
     TEST_ASSERT_EQUAL_UINT32_MESSAGE( pdPASS, xResult, "Incorrect number of IP addresses per entry" );
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }

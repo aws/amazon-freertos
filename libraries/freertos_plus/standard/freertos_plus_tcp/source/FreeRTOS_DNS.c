@@ -203,7 +203,8 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 	typedef struct xDNS_CACHE_TABLE_ROW
 	{
-		uint32_t ulIPAddresses[ ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY ]; /* The IP address(es) of an ARP cache entry. */
+		uint32_t ulIPAddress[ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY]; /* The IP address(es) of an ARP cache entry. */
+
 		char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ]; /* The name of the host */
 		uint32_t ulTTL;                               /* Time-to-Live (in seconds) from the DNS server. */
 		uint32_t ulTimeWhenAddedInSeconds;
@@ -1296,6 +1297,12 @@ uint16_t usType = 0;
 
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );
 					uxSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) );
+
+					#if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY <= 1 )
+						/* One response was received, which is enough for this configuration. */
+						break;
+					#endif
+
 				}
 				else if( uxSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
 				{
@@ -1674,7 +1681,9 @@ BaseType_t xReturn;
 	{
 	BaseType_t x;
 	BaseType_t xFound = pdFALSE;
+
 	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000U;
+
 	uint32_t ulIPAddressIndex = 0;
 	static BaseType_t xFreeEntry = 0;
 
@@ -1713,6 +1722,7 @@ BaseType_t xReturn;
 						xDNSCache[ x ].ucCurrentIPAddress++;
 #endif
 						*pulIP = xDNSCache[ x ].ulIPAddresses[ ulIPAddressIndex ];
+
 					}
 					else
 					{
@@ -1733,6 +1743,7 @@ BaseType_t xReturn;
 					}
 #endif
 					xDNSCache[ x ].ulIPAddresses[ ulIPAddressIndex ] = *pulIP;
+
 					xDNSCache[ x ].ulTTL = ulTTL;
 					xDNSCache[ x ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
 				}
@@ -1756,6 +1767,7 @@ BaseType_t xReturn;
 					( void ) strcpy( xDNSCache[ xFreeEntry ].pcName, pcName );
 
 					xDNSCache[ xFreeEntry ].ulIPAddresses[ 0 ] = *pulIP;
+
 					xDNSCache[ xFreeEntry ].ulTTL = ulTTL;
 					xDNSCache[ xFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
 #if( ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY > 1 )
@@ -1768,7 +1780,6 @@ BaseType_t xReturn;
 							sizeof( xDNSCache[ xFreeEntry ].ulIPAddresses[ 1 ] ) *
 								( ( uint32_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY - 1U ) );
 #endif
-
 					xFreeEntry++;
 
 					if( xFreeEntry == ipconfigDNS_CACHE_ENTRIES )
