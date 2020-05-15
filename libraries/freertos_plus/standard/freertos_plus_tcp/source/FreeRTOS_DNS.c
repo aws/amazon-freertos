@@ -1298,10 +1298,7 @@ uint16_t usType = 0U;
 					}
 
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );
-					/* Commenting this out since this is not being used later anywhere. 
-					Being cautious by not removing it completely
 					uxSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) );
-					 */
 				}
 				else if( uxSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
 				{
