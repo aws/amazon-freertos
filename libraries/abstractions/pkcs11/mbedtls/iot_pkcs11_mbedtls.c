@@ -61,8 +61,8 @@
  *
  */
 #ifndef pkcs11configSUPPRESS_ECDSA_MECHANISM
-    #define pkcs11configSUPPRESS_ECDSA_MECHANISM 0
-#endif 
+    #define pkcs11configSUPPRESS_ECDSA_MECHANISM    0
+#endif
 
 /**
  * @brief Represents string to be logged when mbed TLS returned error
@@ -227,7 +227,7 @@ typedef struct P11Session
  * @brief Helper definitions.
  */
 #define PKCS11_MODULE_IS_INITIALIZED    ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )                                                                                          /**< Checks if PKCS #11 module is initialized. */
-#define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ) ? CKR_OK : CKR_SESSION_CLOSED )                           /**< Checks if the current session is open */
+#define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ) ? CKR_OK : CKR_SESSION_CLOSED )                       /**< Checks if the current session is open */
 #define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID ) /**< Checks if the current session is valid */
 #define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )                /**< Checks if the current session is valid and initialized. */
 /*-----------------------------------------------------------*/
@@ -249,6 +249,7 @@ P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 static CK_BBOOL prvOperationActive( P11SessionPtr_t pxSession )
 {
     CK_BBOOL xResult = CK_FALSE;
+
     if( ( pxSession->xOperationDigestMechanism != pkcs11NO_OPERATION ) ||
         ( pxSession->xOperationSignMechanism != pkcs11NO_OPERATION ) ||
         ( pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ) ||
@@ -651,47 +652,47 @@ static CK_RV prvRsaKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
 
         case ( CKA_MODULUS ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                   pxAttribute->pValue, pxAttribute->ulValueLen, /* N */
-                                                   NULL, 0,                                      /* P */
-                                                   NULL, 0,                                      /* Q */
-                                                   NULL, 0,                                      /* D */
-                                                   NULL, 0 );                                    /* E */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* N */
+                                                  NULL, 0,                                       /* P */
+                                                  NULL, 0,                                       /* Q */
+                                                  NULL, 0,                                       /* D */
+                                                  NULL, 0 );                                     /* E */
             break;
 
         case ( CKA_PUBLIC_EXPONENT ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                   NULL, 0,                                        /* N */
-                                                   NULL, 0,                                        /* P */
-                                                   NULL, 0,                                        /* Q */
-                                                   NULL, 0,                                        /* D */
-                                                   pxAttribute->pValue, pxAttribute->ulValueLen ); /* E */
+                                                  NULL, 0,                                         /* N */
+                                                  NULL, 0,                                         /* P */
+                                                  NULL, 0,                                         /* Q */
+                                                  NULL, 0,                                         /* D */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen );  /* E */
             break;
 
         case ( CKA_PRIME_1 ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                   NULL, 0,                                      /* N */
-                                                   pxAttribute->pValue, pxAttribute->ulValueLen, /* P */
-                                                   NULL, 0,                                      /* Q */
-                                                   NULL, 0,                                      /* D */
-                                                   NULL, 0 );                                    /* E */
+                                                  NULL, 0,                                       /* N */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* P */
+                                                  NULL, 0,                                       /* Q */
+                                                  NULL, 0,                                       /* D */
+                                                  NULL, 0 );                                     /* E */
             break;
 
         case ( CKA_PRIME_2 ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                   NULL, 0,                                      /* N */
-                                                   NULL, 0,                                      /* P */
-                                                   pxAttribute->pValue, pxAttribute->ulValueLen, /* Q */
-                                                   NULL, 0,                                      /* D */
-                                                   NULL, 0 );                                    /* E */
+                                                  NULL, 0,                                       /* N */
+                                                  NULL, 0,                                       /* P */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* Q */
+                                                  NULL, 0,                                       /* D */
+                                                  NULL, 0 );                                     /* E */
             break;
 
         case ( CKA_PRIVATE_EXPONENT ):
             lMbedReturn = mbedtls_rsa_import_raw( pxRsaContext,
-                                                   NULL, 0,                                      /* N */
-                                                   NULL, 0,                                      /* P */
-                                                   NULL, 0,                                      /* Q */
-                                                   pxAttribute->pValue, pxAttribute->ulValueLen, /* D */
-                                                   NULL, 0 );                                    /* E */
+                                                  NULL, 0,                                       /* N */
+                                                  NULL, 0,                                       /* P */
+                                                  NULL, 0,                                       /* Q */
+                                                  pxAttribute->pValue, pxAttribute->ulValueLen,  /* D */
+                                                  NULL, 0 );                                     /* E */
             break;
 
         case ( CKA_EXPONENT_1 ):
@@ -899,7 +900,7 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
     }
 
     /* public EC key attributes. */
-    else if( ( xResult == CKR_ATTRIBUTE_VALUE_INVALID  ) && ( xIsPrivate == CK_FALSE ) )
+    else if( ( xResult == CKR_ATTRIBUTE_VALUE_INVALID ) && ( xIsPrivate == CK_FALSE ) )
     {
         xResult = prvEcPubKeyAttParse( pxAttribute, pxMbedContext );
     }
@@ -958,9 +959,9 @@ void prvFindObjectInListByLabel( uint8_t * pcLabel,
  *                               0 if no object found.
  */
 static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
-                                  CK_OBJECT_HANDLE_PTR pxPalHandle,
-                                  uint8_t ** ppcLabel,
-                                  size_t * pxLabelLength )
+                                         CK_OBJECT_HANDLE_PTR pxPalHandle,
+                                         uint8_t ** ppcLabel,
+                                         size_t * pxLabelLength )
 {
     uint32_t ulIndex = xAppHandle - 1UL;
 
@@ -1068,7 +1069,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             }
         }
 
-        if( xObjectFound ==  CK_FALSE )
+        if( xObjectFound == CK_FALSE )
         {
             if( lInsertIndex != -1 )
             {
@@ -1123,7 +1124,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     {
         lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
     }
-    else if( ( xResult == CKR_OK ) && ( xIsPrivate == CK_FALSE ) ) 
+    else if( ( xResult == CKR_OK ) && ( xIsPrivate == CK_FALSE ) )
     {
         lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
     }
@@ -1806,8 +1807,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
  * @return CKR_OK.
  */
 static CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
-                            CK_ULONG ulCount,
-                            CK_OBJECT_HANDLE_PTR pxObject )
+                                   CK_ULONG ulCount,
+                                   CK_OBJECT_HANDLE_PTR pxObject )
 {
     CK_RV xResult = CKR_OK;
     CK_BYTE_PTR pxCertificateValue = NULL;
@@ -1894,8 +1895,8 @@ static void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
  *
  */
 static void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
-                  CK_ATTRIBUTE_PTR pxTemplate,
-                  CK_ULONG ulCount )
+                         CK_ATTRIBUTE_PTR pxTemplate,
+                         CK_ULONG ulCount )
 {
     CK_ATTRIBUTE xAttribute;
     uint32_t ulIndex;
@@ -1928,8 +1929,8 @@ static void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
  * combination.
  */
 static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
-                                  mbedtls_pk_context * pxMbedContext,
-                                  CK_ATTRIBUTE_PTR pxLabel )
+                                         mbedtls_pk_context * pxMbedContext,
+                                         CK_ATTRIBUTE_PTR pxLabel )
 {
     uint8_t * pucData = NULL;
     size_t xDataLength = 0;
@@ -2844,6 +2845,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                 for( ulIndex = 0; ulIndex < xObjectLength; ulIndex++ )
                 {
                     xByte = pucObjectValue[ ulIndex ];
+
                     if( xByte != 0 )
                     {
                         break;
@@ -2852,7 +2854,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
                 if( xByte == 0 ) /* Deleted objects are overwritten completely w/ zero. */
                 {
-                        *pxObject = CK_INVALID_HANDLE;
+                    *pxObject = CK_INVALID_HANDLE;
                 }
                 else
                 {
@@ -3772,7 +3774,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
         {
             xResult = CKR_TEMPLATE_INCONSISTENT;
         }
-
     }
 
     if( xResult != CKR_SESSION_HANDLE_INVALID )
@@ -3797,8 +3798,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
  * @return CKR_OK if successful.
  */
 static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
-                                             CK_ATTRIBUTE_PTR pxAttribute,
-                                             uint32_t * pulAttributeMap )
+                                                     CK_ATTRIBUTE_PTR pxAttribute,
+                                                     uint32_t * pulAttributeMap )
 {
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
@@ -3819,17 +3820,20 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel
                 PKCS11_PRINT( ( "ERROR: Only EC key pair generation is supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
-            break;
-        case ( CKA_SIGN ):
-             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
-             if( xBool != CK_TRUE )
-             {
-                 PKCS11_PRINT( ( "ERROR: Generating private keys that cannot sign is not supported. \r\n" ) );
-                 xResult = CKR_TEMPLATE_INCONSISTENT;
-             }
-             *pulAttributeMap |= SIGN_IN_TEMPLATE;
-             break;
+            break;
+
+        case ( CKA_SIGN ):
+            ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
+
+            if( xBool != CK_TRUE )
+            {
+                PKCS11_PRINT( ( "ERROR: Generating private keys that cannot sign is not supported. \r\n" ) );
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+            }
+
+            *pulAttributeMap |= SIGN_IN_TEMPLATE;
+            break;
 
         case ( CKA_PRIVATE ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
@@ -3839,8 +3843,10 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel
                 PKCS11_PRINT( ( "ERROR: Private must be set to true in order to generate a private key. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             *pulAttributeMap |= PRIVATE_IN_TEMPLATE;
             break;
+
         case ( CKA_TOKEN ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
@@ -3849,6 +3855,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel
                 PKCS11_PRINT( ( "ERROR: Generating private keys that are false for attribute CKA_TOKEN is not supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             break;
 
         default:
@@ -3872,8 +3879,8 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel
  * @return CKR_OK if successful.
  */
 static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
-                                             CK_ATTRIBUTE_PTR pxAttribute,
-                                             uint32_t * pulAttributeMap )
+                                                    CK_ATTRIBUTE_PTR pxAttribute,
+                                                    uint32_t * pulAttributeMap )
 {
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
@@ -3895,14 +3902,17 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                 PKCS11_PRINT( ( "ERROR: Only EC key pair generation is supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             break;
 
         case ( CKA_EC_PARAMS ):
-            if( memcmp( xEcParams, pxAttribute->pValue, sizeof( xEcParams ) ) != 0 ) 
+
+            if( memcmp( xEcParams, pxAttribute->pValue, sizeof( xEcParams ) ) != 0 )
             {
                 PKCS11_PRINT( ( "ERROR: Only P-256 key generation is supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             *pulAttributeMap |= EC_PARAMS_IN_TEMPLATE;
             break;
 
@@ -3914,6 +3924,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                 PKCS11_PRINT( ( "ERROR: Generating public keys that are false for attribute CKA_VERIFY is not supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             *pulAttributeMap |= VERIFY_IN_TEMPLATE;
             break;
 
@@ -4046,15 +4057,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         for( ulIndex = 0; ulIndex < ulPrivateKeyAttributeCount; ++ulIndex )
         {
             xResult = prvCheckGenerateKeyPairPrivateTemplate( &pxPrivateLabel,
-                                                          &pxPrivateKeyTemplate[ ulIndex ], 
-                                                          &xAttributeMap );
+                                                              &pxPrivateKeyTemplate[ ulIndex ],
+                                                              &xAttributeMap );
 
             if( xResult != CKR_OK )
             {
                 break;
             }
         }
-        
+
         if( ( xAttributeMap & xPublicRequiredAttributeMap ) != xPublicRequiredAttributeMap )
         {
             xResult = CKR_TEMPLATE_INCOMPLETE;
@@ -4064,11 +4075,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         xAttributeMap = 0;
+
         for( ulIndex = 0; ulIndex < ulPublicKeyAttributeCount; ++ulIndex )
         {
             xResult = prvCheckGenerateKeyPairPublicTemplate( &pxPublicLabel,
-                                                         &pxPublicKeyTemplate[ ulIndex ], 
-                                                         &xAttributeMap );
+                                                             &pxPublicKeyTemplate[ ulIndex ],
+                                                             &xAttributeMap );
+
             if( xResult != CKR_OK )
             {
                 break;
