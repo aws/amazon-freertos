@@ -94,6 +94,7 @@ typedef struct IotFlashInfo
                                  *   and if sub-sectors of 4k can be write protected then this may be set to 4K*/
     uint8_t ucAsyncSupported;   /*!< Provides a flag to indicate if background erase/program
                                  *   is supported. User must check this before they can setup a callback and wait.*/
+    uint32_t ulFlashID;         /*!< flash chip id */
 } IotFlashInfo_t;
 
 /**
