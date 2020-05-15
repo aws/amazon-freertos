@@ -860,7 +860,7 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
             break;
 
         case ( CKA_TOKEN ):
-            ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
+            ( void ) memcpy( &xBool, ( void * ) pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
             if( xBool == CK_TRUE )
             {
@@ -876,7 +876,7 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
         case ( CKA_EC_PARAMS ):
 
             if( memcmp( ( CK_BYTE[] ) pkcs11DER_ENCODED_OID_P256,
-                        pxAttribute->pValue, pxAttribute->ulValueLen ) )
+                        ( void * ) pxAttribute->pValue, pxAttribute->ulValueLen ) )
             {
                 xResult = CKR_TEMPLATE_INCONSISTENT;
                 PKCS11_PRINT( ( "ERROR: Only elliptic curve P-256 is supported.\r\n" ) );
@@ -1270,7 +1270,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
             if( xResult != CKR_OK )
             {
-                PKCS11_PRINT( ( "ERROR: Failed to remove xAppHandle2 from object list when destroying object memory." ) );
+                PKCS11_WARNING_PRINT( ( "Warning: Failed to remove xAppHandle2 from object list when destroying object memory." ) );
             }
 
             xResult = prvDeleteObjectFromList( xAppHandle );
@@ -3895,7 +3895,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
             break;
 
         case ( CKA_KEY_TYPE ):
-            ( void ) memcpy( &xKeyType, pxAttribute->pValue, sizeof( CK_KEY_TYPE ) );
+            ( void ) memcpy( &xKeyType, ( void * ) pxAttribute->pValue, sizeof( CK_KEY_TYPE ) );
 
             if( xKeyType != CKK_EC )
             {
@@ -4066,7 +4066,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
             }
         }
 
-        if( ( xAttributeMap & xPublicRequiredAttributeMap ) != xPublicRequiredAttributeMap )
+        if( ( xResult == CKR_OK ) && ( ( xAttributeMap & xPrivateRequiredAttributeMap ) != xPrivateRequiredAttributeMap ) )
         {
             xResult = CKR_TEMPLATE_INCOMPLETE;
         }
@@ -4088,7 +4088,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
             }
         }
 
-        if( ( xAttributeMap & xPrivateRequiredAttributeMap ) != xPrivateRequiredAttributeMap )
+        if( ( xResult == CKR_OK ) && ( ( xAttributeMap & xPublicRequiredAttributeMap ) != xPublicRequiredAttributeMap ) )
         {
             xResult = CKR_TEMPLATE_INCOMPLETE;
         }
