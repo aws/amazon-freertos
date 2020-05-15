@@ -188,7 +188,7 @@
         "group_private_key": "../keys/grp_priv_key.json",
         "provision_device_private_key": false,
         "device_private_key": "../keys/dev_priv_key.json",
-        "cy_auth": "../common/prebuilt/cy_auth_2m_b0_sample.jwt"
+        "cy_auth": "../common/prebuilt/cy_auth_2m_s0_sample.jwt"
     },
     "custom_data_sections": ["tfm"],
     "tfm":
