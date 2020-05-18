@@ -63,17 +63,11 @@ TEST_GROUP( TEST_IOT_TSENSOR );
  */
 TEST_SETUP( TEST_IOT_TSENSOR )
 {
-    if( xtestIotTsensorMinSemaphore == NULL )
-    {
-        xtestIotTsensorMinSemaphore = xSemaphoreCreateBinary();
-        TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMinSemaphore );
-    }
+    xtestIotTsensorMinSemaphore = xSemaphoreCreateBinary();
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMinSemaphore );
 
-    if( xtestIotTsensorMaxSemaphore == NULL )
-    {
-        xtestIotTsensorMaxSemaphore = xSemaphoreCreateBinary();
-        TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMaxSemaphore );
-    }
+    xtestIotTsensorMaxSemaphore = xSemaphoreCreateBinary();
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotTsensorMaxSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -83,6 +77,10 @@ TEST_SETUP( TEST_IOT_TSENSOR )
  */
 TEST_TEAR_DOWN( TEST_IOT_TSENSOR )
 {
+    vSemaphoreDelete( xtestIotTsensorMinSemaphore );
+    xtestIotTsensorMinSemaphore = NULL;
+    vSemaphoreDelete( xtestIotTsensorMaxSemaphore );
+    xtestIotTsensorMaxSemaphore = NULL;
 }
 
 /*-----------------------------------------------------------*/
@@ -110,16 +108,6 @@ TEST_GROUP_RUNNER( TEST_IOT_TSENSOR )
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorCalibrationInvalidInputFuzz );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMinThreshold );
     RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMaxThreshold );
-
-    if( xtestIotTsensorMinSemaphore != NULL )
-    {
-        vSemaphoreDelete( xtestIotTsensorMinSemaphore );
-    }
-
-    if( xtestIotTsensorMaxSemaphore != NULL )
-    {
-        vSemaphoreDelete( xtestIotTsensorMaxSemaphore );
-    }
 }
 
 /*-----------------------------------------------------------*/
