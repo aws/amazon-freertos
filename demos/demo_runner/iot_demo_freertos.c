@@ -153,8 +153,8 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                                     pNetworkInterface );
         }
     }
-    else if( ( ( state == eNetworkStateDisabled ) || ( state == eNetworkStateUnknown ) )
-		    && ( demoConnectedNetwork == network ) )
+    else if( ( ( state == eNetworkStateDisabled ) || ( state == eNetworkStateUnknown ) ) &&
+             ( demoConnectedNetwork == network ) )
     {
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {
