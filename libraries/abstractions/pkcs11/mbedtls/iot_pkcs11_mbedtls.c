@@ -866,8 +866,10 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
             }
 
             break;
-    case ( CKA_VERIFY ):
-    case ( CKA_EC_POINT ):
+
+        case ( CKA_VERIFY ):
+        case ( CKA_EC_POINT ):
+
             if( xIsPrivate == CK_FALSE )
             {
                 xResult = prvEcPubKeyAttParse( pxAttribute, pxMbedContext );
@@ -876,9 +878,12 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
             {
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
+
             break;
-    case ( CKA_SIGN ):
-    case ( CKA_VALUE ):
+
+        case ( CKA_SIGN ):
+        case ( CKA_VALUE ):
+
             if( xIsPrivate == CK_TRUE )
             {
                 xResult = prvEcPrivKeyAttParse( pxAttribute, pxMbedContext );
@@ -887,7 +892,9 @@ static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
             {
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
+
             break;
+
         default:
             PKCS11_PRINT( ( "Unknown attribute found for an EC public key. %d \r\n", pxAttribute->type ) );
             xResult = CKR_ATTRIBUTE_TYPE_INVALID;
