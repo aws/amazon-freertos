@@ -371,8 +371,9 @@ It is kept here because some applications  expect it in FreeRTOS_Sockets.h.*/
 BaseType_t FreeRTOS_inet_pton( BaseType_t xAddressFamily, const char *pcSource, void *pvDestination );
 const char *FreeRTOS_inet_ntop( BaseType_t xAddressFamily, const void *pvSource, char *pcDestination, socklen_t uxSize );
 
-/* Translate from 192.168.1.1 to a 32-bit number. */
+/* Convert a null-terminated string in dot-decimal-notation (d.d.d.d) to a 32-bit unsigned integer. */
 uint32_t FreeRTOS_inet_addr( const char * pcIPAddress );
+
 BaseType_t FreeRTOS_inet_pton4( const char *pcSource, void *pvDestination );
 const char *FreeRTOS_inet_ntop4( const void *pvSource, char *pcDestination, socklen_t uxSize );
 

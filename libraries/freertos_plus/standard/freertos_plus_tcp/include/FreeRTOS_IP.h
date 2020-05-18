@@ -40,7 +40,7 @@ extern "C" {
 
 #ifdef __COVERITY__
 	/* Coverity static checks don't like inlined functions.
-	As it is up to t users to allow inlining, don't let
+	As it is up to the users to allow inlining, don't let
 	let Coverity know about it. */
 
 	#ifdef portINLINE
@@ -55,6 +55,8 @@ extern "C" {
 
 /* Some constants defining the sizes of several parts of a packet.
 These defines come before inlucding the configuration header files. */
+/* The size of the Ethernet header is 14, meaning that 802.1Q VLAN tags
+are not ( yet ) supported. */
 #define ipSIZE_OF_ETH_HEADER			14U
 #define ipSIZE_OF_IPv4_HEADER			20U
 #define ipSIZE_OF_IGMP_HEADER			8U
@@ -150,7 +152,7 @@ typedef enum eNETWORK_EVENTS
 	eNetworkDown	/* The network connection has been lost. */
 } eIPCallbackEvent_t;
 
-/* MISRA check: some modules refer to this typedef even tough
+/* MISRA check: some modules refer to this typedef even though
 ipconfigSUPPORT_OUTGOING_PINGS is not enabled. */
 typedef enum ePING_REPLY_STATUS
 {

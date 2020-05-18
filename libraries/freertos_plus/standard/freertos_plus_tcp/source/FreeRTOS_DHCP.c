@@ -344,7 +344,7 @@ BaseType_t xGivingUp = pdFALSE;
 
 				/* coverity[misra_c_2012_rule_10_4_violation] */
 				/* Essential type of the left hand operand "1000U" (unsigned) is not the same as that of the right operand "100U"(signed). */
-				if( EP_DHCPData.xDHCPTxPeriod <= ( ( TickType_t ) ipconfigMAXIMUM_DISCOVER_TX_PERIOD ) )
+				if( EP_DHCPData.xDHCPTxPeriod <= ( TickType_t ) ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
 				{
 					if( xApplicationGetRandomNumber( &( EP_DHCPData.ulTransactionId ) ) != pdFALSE )
 					{

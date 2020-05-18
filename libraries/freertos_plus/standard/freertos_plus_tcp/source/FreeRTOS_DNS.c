@@ -1215,9 +1215,6 @@ uint16_t usType = 0U;
 					return dnsPARSE_ERROR;/*lint !e904 */
 				}
 
-				/* MISRA c 2012 rule 10.8 relaxed. All the variables
-				are capable of handling the data. The should not be
-				any overflow. */
 				uxBytesRead += uxResult;
 				pucByte = &( pucByte[ uxResult ] );
 				uxSourceBytesRemaining -= uxResult;
@@ -1474,7 +1471,9 @@ uint16_t usType = 0U;
 
 			for( ;; )
 			{
-				ucByte = ( ( uint8_t ) ( ( pucSource[ 0 ] - 0x41U ) << 4 ) ) | ( pucSource[ 1 ] - 0x41U );
+			const uint8_t ucCharA = ( uint8_t ) 0x41U;
+
+				ucByte = ( ( uint8_t ) ( ( pucSource[ 0 ] - ucCharA ) << 4 ) ) | ( pucSource[ 1 ] - ucCharA );
 
 				/* Make sure there are no trailing spaces in the name. */
 				if( ( ucByte == ( uint8_t ) ' ' ) && ( pucTarget[ 1 ] == 0U ) )
@@ -1592,7 +1591,7 @@ BaseType_t xReturn;
 	the socket. */
 	xSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
 	/* coverity[misra_c_2012_rule_11_4_violation] */
-	/* FREERTOS_INVALID_SOCKET is a pseudo point with a vvalue of ~0. */
+	/* FREERTOS_INVALID_SOCKET is a pseudo point with a value of ~0. */
 	if( ( xSocket == FREERTOS_INVALID_SOCKET ) || ( xSocket == NULL ) )
 	{
 		/* coverity[misra_c_2012_rule_15_5_violation] */
