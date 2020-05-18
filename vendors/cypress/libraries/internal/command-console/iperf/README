@@ -1,0 +1,123 @@
+This is Iperf v2.0.5.WICED, a tool for measuring Internet bandwidth performance.
+See the doc directory for more documentation.
+Briefly:
+
+  ./configure      -- configure for your machine
+  make             -- compile Iperf
+  make install     -- install Iperf, if desired
+
+  iperf -s               (on machine "foo.bar.edu")
+  iperf -c foo.bar.edu   (on some other machine)
+  iperf -h               (for help screen)
+  iperf -v               (for version information)
+
+Copyright 1999, 2000, 2001, 2002, 2003, 2004
+The Board of Trustees of the University of Illinois
+All rights reserved
+See UI License (doc/ui_license.html) for complete details.
+
+$Id: README,v 1.1.1.1 2004/05/18 01:50:44 kgibbs Exp $
+
+
+This is a port of iperf to the WICED platform. The porting was done by Joshua
+Spence in December 2011. The version number has been changed from v2.0.5 (that
+of the base source code) to v2.0.5.WICED to signify the changes and bugfixes that 
+have been applied.
+
+The contents of this directory contain the necessary source files to build iperf
+for Unix, Windows and the WICED platform. Windows builds are possible under
+both cygwin and minGW. Windows and Unix builds should use the configure script
+to check for required dependencies and to generate a config.h file for the host
+machine. WICED builds need not use the configure script and instead should use
+the WICED makefile (`wiced.mk') to build iperf.
+
+
+As the RTOS's provide no separate stack or heap space for a thread, nor do they
+keep track of memory which a thread has allocated, there is no reliable or 
+clean way to prematurely terminate a command. For this reason, no functionality
+has been provided to terminate a WICED iperf server (which will never terminate
+of its own accord).
+
+In order to disable features of iperf that would not function correctly on the
+WICED platform (due either to missing dependencies or to meaningless operations 
+such as file I/O), preprocessor defines taking the form of NO_XXX (where XXX is
+the disabled feature) are used to disable such un-needed functionality from the
+WICED iperf builds. The defining of these disabling macros is done in the 
+`inc/headers.h' file upoon recognition of a WICED build.
+
+The raw iperf 2.0.5 source code had some well known bugs which had been 
+documented on iperf's SourceForge page. Most of these bugs have been patched,
+using patches provided by other uses on the SourceForge page. The patched bugs
+are detailed below.
+
+The default buffer size has been reduced from 128KB to 1KB. This affects the 
+WICED iperf build only. The WICED platform cannot be expected to have enough 
+free space on the heap for 128KB buffers, and so this was arbitrarily reduced to
+1KB. This didn't seem to have any noticeable impact on performance.
+
+ADDITIONS:
+* Added debug macros that describe various states and actions of iperf clients,
+  servers, etc. See debug.h for more information.
+
+BUGS FIXES:
+* There was a seemingly undocumented feature of iperf known as "single client
+  mode", specified using the `-1' or `--singleclient' command line arguments.
+  This feature does not appear in any iperf documentation, and similarly does 
+  not appear to have any real effect on program execution. Hence, I decide to 
+  implement this rather simple feature which, based purely on an interpretation
+  of the feature's name, should cause an iperf server to terminate (exit 
+  cleanly) after a single iperf client has connected and erformed a bandwidth 
+  test. This feature has been implemented on Unix, Windows and WICED iperf 
+  builds.
+* Fixed a bug which prevented iperf from sleeping for less than one millisecond.
+  See http://stackoverflow.com/questions/85122/sleep-less-than-one-millisecond
+* Added guard include statements whenever `config.h" was included into a source
+  file. The auto-generated `config.h" file doesn't include any guard include
+  directives, and this caused problems with the WICED iperf build. 
+* Added a setitimer implementation for Windows.
+* Added a reset function to GNU getopt functionality. This is needed for a
+  WICED iperf build because the program is always in memory and hence the static
+  variables will never be reset otherwise.
+* Fixed the incorrect use of `new'/`delete' to allocate/deallocate memory for a 
+  C struct.
+* Fixed a bug in which iperf was unable to check for an erroneous return value
+  from a call to `write()'. See 
+  http://sourceforge.net/tracker/?func=detail&aid=3454612&group_id=128336&atid=711373
+* Fixed a bug which caused an iperf server to terminate unexpectedly. See
+  http://sourceforge.net/tracker/index.php?func=detail&aid=1983829&group_id=128336&atid=711371
+* Fixed a bug in which iperf would not free memory associated with multi
+  reports. See http://sourceforge.net/tracker/?func=detail&aid=1852136&group_id=128336&atid=711371
+* Fixed bug with iperf not handling large time values correctly. See
+  http://bugs.debian.org/346099
+* Fixed some typos.
+* Fixed hyphen used as minus sign in manpages.
+* Fix bug with iperf trying to continue execution when binding to a port fails.
+  See http://bugs.debian.org/517239 
+
+NOTES AND LIMITATIONS:
+* File input and output has been disabled for the WICED iperf build as it does
+  not make sense for the WICED platform.
+* Standard input is disabled for the WICED iperf build.
+* Daemon mode is disabled on WICED iperf build as it does not make sense for 
+  the WICED platform.
+* There is no interpretation of environment variables under the WICED iperf 
+  build as it does not make sense for the WICED platform.
+* The WICED iperf app is currently single-threaded only. A multithreading 
+  implementation has been started (but not completed nor tested) and can be 
+  found in the `wiced' directory. Basically, in order to complete multithreading
+  capability for a WICED iperf build, someone must provide a FreeRTOS/ThreadX 
+  implementation of iperf's rather abstract threads, conditions and mutexes.
+* Signals (such as SIGINT and SIGKILL) have been disabled on a WICED iperf build
+  as they do not make sense for the WICED platform.
+* On LwIP, there is no function to set the TCP window size. As a result, the TCP
+  window size may be reported by iperf as either `-1' or `0'.
+* On a WICED iperf build, any time values reported by the RTOS are not "real" 
+  time values, but rather are measured relative to the uptime of the hardware.
+* On a WICED iperf build, we are currently unable to run WICED iperf client with
+  dualtest `-d' option because this option is unavailable in a single threaded 
+  version of iperf.
+* Currently unable to run WICED iperf client with parallel `-P' option because 
+  this option is unavailable in a single threaded version of iperf.
+* FreeRTOS does not support TCP_MAXSEG. If running a WICED iperf client with the
+  `-m' option, iperf will warn that "MSS and MTU size unknown (TCP_MAXSEG not 
+  supported by OS?)".
