@@ -200,7 +200,7 @@ int suiteTearDown( int numFailures )
     xResult = prvInitializePkcs11();       \
     TEST_ASSERT_EQUAL( CKR_OK, xResult );  \
     xResult = prvOpenSession( &xSession ); \
-    TEST_ASSERT_EQUAL( CKR_OK, xResult );  \
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
 #define prvCommonDeinitStubs()              \
     xResult = prvCloseSession( &xSession ); \
