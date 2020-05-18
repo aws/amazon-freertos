@@ -77,10 +77,10 @@ class OtaTestDisconnectResume(OtaTestCase):
         # Start an OTA Update.
         otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
 
-        # Wait up to 3 minute until the job is in progress.
+        # Wait until the job is in progress.
         thing_name = self._otaAwsAgent._iotThing.thing_name
         exec_status = 'QUEUED'
-        timeout = time.time() + 180
+        timeout = time.time() + self._otaConfig['ota_timeout_sec']
         while exec_status == 'QUEUED' and time.time() < timeout:
             exec_status = self.get_job_exec_status(otaUpdateId, thing_name)
             time.sleep(1)
