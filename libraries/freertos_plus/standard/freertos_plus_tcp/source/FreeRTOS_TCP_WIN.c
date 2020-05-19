@@ -1563,8 +1563,7 @@ const int32_t l500ms = 500;
 							ulFirstSeq, ulFirstSeq + ulDataLength ) );
 					}
 					#endif	/* ipconfigHAS_DEBUG_PRINTF */
-					/* coverity[break_stmt] : Break statement terminating the loop */
-					break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+					break;
 				}
 
 				/* This segment is fully ACK'd, set the flag. */

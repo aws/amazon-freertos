@@ -214,10 +214,7 @@ uint8_t ucMinAgeFound = 0U;
 		the reply will surely arrive.  If ipconfigARP_STORES_REMOTE_ADDRESSES is
 		zero the the gateway address is the only option. */
 
-	/* 506: (Warning -- Constant value Boolean [MISRA 2012 Rule 2.1, required]) */
-	/* 774: (Info -- Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]) */
-
-	if( pdTRUE )	/*lint !e774 !e506*/
+	if( pdTRUE )
 #endif
 	{
 		/* Start with the maximum possible number. */
@@ -265,9 +262,7 @@ uint8_t ucMinAgeFound = 0U;
 					optimisation. */
 					xARPCache[ x ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
 					xARPCache[ x ].ucValid = ( uint8_t ) pdTRUE;
-					/* coverity[misra_c_2012_rule_15_5_violation] */
-					/* An early return can make the code easier to follow. */
-					return;	/*lint !e904 Emergency exit to keep the code simpler. */
+					return;
 				}
 
 				/* Found an entry containing ulIPAddress, but the MAC address

@@ -132,7 +132,7 @@ uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
 	/*
 	 * A function local to the library.
 	 */
-	extern void vDNSCheckCallBack( void *pvSearchID );	/*lint !e526 !e830: (Info -- Location cited in prior message) */
+	extern void vDNSCheckCallBack( void *pvSearchID );
 #endif
 
 

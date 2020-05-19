@@ -129,10 +129,7 @@ DHCPv4 uses UDP port number  68 for clients and port number  67 for servers.
 	#define dhcpBROADCAST			0x8000U
 #endif /* ( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN ) */
 
-/*lint -e754 local struct member like 'ucHops' not referenced */
-
-/*lint -e766*/
-#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019*/
+#include "pack_struct_start.h"
 struct xDHCPMessage_IPv4
 {
 	uint8_t ucOpcode;
@@ -151,8 +148,8 @@ struct xDHCPMessage_IPv4
 	uint8_t ucBootFileName[ dhcpBOOT_FILE_NAME_LENGTH ];
 	uint32_t ulDHCPCookie;
 	/* Option bytes from here on. */
-}	/*lint !e659*/
-#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019*/
+}
+#include "pack_struct_end.h"
 typedef struct xDHCPMessage_IPv4 DHCPMessage_IPv4_t;
 
 /* The UDP socket used for all incoming and outgoing DHCP traffic. */
@@ -342,8 +339,6 @@ BaseType_t xGivingUp = pdFALSE;
 				another discovery. */
 				EP_DHCPData.xDHCPTxPeriod <<= 1;
 
-				/* coverity[misra_c_2012_rule_10_4_violation] */
-				/* Essential type of the left hand operand "1000U" (unsigned) is not the same as that of the right operand "100U"(signed). */
 				if( EP_DHCPData.xDHCPTxPeriod <= ( TickType_t ) ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
 				{
 					if( xApplicationGetRandomNumber( &( EP_DHCPData.ulTransactionId ) ) != pdFALSE )
@@ -531,13 +526,11 @@ BaseType_t xGivingUp = pdFALSE;
 		meaning that the conversion is cancelled from here. */
 
 		/* Revert to static IP address. */
-		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean */
 		taskENTER_CRITICAL();
 		{
 			*ipLOCAL_IP_ADDRESS_POINTER = xNetworkAddressing.ulDefaultIPAddress;
 			iptraceDHCP_REQUESTS_FAILED_USING_DEFAULT_IP_ADDRESS( xNetworkAddressing.ulDefaultIPAddress );
 		}
-		/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean */
 		taskEXIT_CRITICAL();
 
 		EP_DHCPData.eDHCPState = eNotUsingLeasedAddress;
@@ -575,8 +568,6 @@ TickType_t xTimeoutTime = ( TickType_t ) 0;
 	if( xDHCPSocket == NULL )
 	{
 		xDHCPSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
-		/* coverity[misra_c_2012_rule_11_4_violation] */
-		/* The expression "~0U" of type "unsigned int" is cast to an object pointer type "struct xSOCKET *". */
 		if( xDHCPSocket != FREERTOS_INVALID_SOCKET )
 		{
 
@@ -710,15 +701,13 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 						if( !( ( ( uxIndex + uxLength ) - 1U ) < uxPayloadDataLength ) )
 						{
 							/* There are not as many bytes left as there should be. */
-							/* coverity[break_stmt] : Break statement terminating the loop */
-							break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+							break;
 						}
 					}
 					else
 					{
 						/* The length byte is missing. */
-						/* coverity[break_stmt] : Break statement terminating the loop */
-						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+						break;
 					}
 
 					/* In most cases, a 4-byte network-endian parameter follows,
@@ -738,8 +727,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					/* Confirm uxIndex is still a valid index after adjustments to uxIndex above */
 					if( !( uxIndex < uxPayloadDataLength ) )
 					{
-						/* coverity[break_stmt] : Break statement terminating the loop */
-						break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+						break;
 					}
 
 					/* Option-specific handling. */
@@ -844,8 +832,7 @@ const uint32_t ulMandatoryOptions = 2UL; /* DHCP server address, and the correct
 					/* Jump over the data to find the next option code. */
 					if( uxLength == 0U )
 					{
-						/* coverity[break_stmt] : Break statement terminating the loop */
-						break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+						break;
 					}
 					uxIndex = uxIndex + uxLength;
 				}
@@ -1046,7 +1033,7 @@ size_t uxOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 0 ] % 0xFDU );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
 		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ulNumbers[ 1 ] % 0xFDU );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
 
-		EP_IPv4_SETTINGS.ulGatewayAddress = FreeRTOS_htonl( 0xA9FE0203UL );
+		EP_IPv4_SETTINGS.ulGatewayAddress = 0UL;
 
 		/* prepare xDHCPData with data to test. */
 		EP_DHCPData.ulOfferedIPAddress =

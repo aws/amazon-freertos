@@ -387,8 +387,7 @@ BaseType_t xResult;
 	static BaseType_t prvTCPStatusAgeCheck( FreeRTOS_Socket_t *pxSocket )
 	{
 	BaseType_t xResult;
-	/* coverity[misra_c_2012_rule_10_5_violation] */
-	eIPTCPState_t eState = ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState );/*lint !e9034: (Note -- Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required] */
+	eIPTCPState_t eState = ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState );
 
 		switch( eState )
 		{
@@ -605,9 +604,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 				pxSocket->u.xTCP.usRemotePort ) );	/* Port on remote machine. */
 			vTCPStateChange( pxSocket, eCLOSE_WAIT );
 		}
-		/* coverity[misra_c_2012_rule_13_5_violation] */
-		/* It would complicate the code to solve this MISRA violation. */
-		else if( ( pxSocket->u.xTCP.bits.bConnPrepared != pdFALSE_UNSIGNED ) || ( prvTCPPrepareConnect( pxSocket ) == pdTRUE ) )	/*lint !e9007 side effects */
+		else if( ( pxSocket->u.xTCP.bits.bConnPrepared != pdFALSE_UNSIGNED ) || ( prvTCPPrepareConnect( pxSocket ) == pdTRUE ) )
 		{
 		ProtocolHeaders_t *pxProtocolHeaders;
 		const UBaseType_t uxHeaderSize = ipSIZE_OF_IPv4_HEADER;
@@ -723,7 +720,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 
 	#if( ipconfigZERO_COPY_TX_DRIVER != 0 )
 	{
-		if( xDoRelease == pdFALSE )/*lint !e774 Boolean within 'if' always evaluates to False [MISRA 2012 Rule 14.3, required]. */
+		if( xDoRelease == pdFALSE )
 		{
 			pxNetworkBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, ( size_t ) pxNetworkBuffer->xDataLength );
 			if( pxNetworkBuffer == NULL )
@@ -928,7 +925,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 		/* Send! */
 		( void ) xNetworkInterfaceOutput( pxNetworkBuffer, xDoRelease );
 
-		if( xDoRelease == pdFALSE )	/*lint !e774: Boolean within 'if' always evaluates to False [MISRA 2012 Rule 14.3, required]. */
+		if( xDoRelease == pdFALSE )
 		{
 			/* Swap-back some fields, as pxBuffer probably points to a socket field
 			containing the packet header. */
@@ -1068,7 +1065,7 @@ uint32_t ulInitialSequenceNumber = 0;
 
 		pxIPHeader->ucVersionHeaderLength = 0x45U;
 		usLength = ( uint16_t ) ( sizeof( TCPPacket_t ) - sizeof( pxTCPPacket->xEthernetHeader ) );
-		pxIPHeader->usLength = FreeRTOS_htons( usLength );	/*lint !e845: (The right argument to operator '|' is certain to be 0. */
+		pxIPHeader->usLength = FreeRTOS_htons( usLength );
 		pxIPHeader->ucTimeToLive = ( uint8_t ) ipconfigTCP_TIME_TO_LIVE;
 
 		pxIPHeader->ucProtocol = ( uint8_t ) ipPROTOCOL_TCP;
@@ -1116,16 +1113,16 @@ uint32_t ulInitialSequenceNumber = 0;
 	{
 		static char retString[10];
 		size_t uxFlags = ( size_t ) xFlags;
-		( void ) snprintf(retString, 	/*lint !e586 !e9029 !e534: (Warning -- function 'snprintf' is deprecated. */
+		( void ) snprintf(retString,
 			sizeof( retString ), "%c%c%c%c%c%c%c%c",
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_FIN ) != 0 )   ? 'F' : '.',	/* 0x0001: No more data from sender */	/*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_SYN ) != 0 )   ? 'S' : '.',	/* 0x0002: Synchronize sequence numbers *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_RST ) != 0 )   ? 'R' : '.',	/* 0x0004: Reset the connection *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_PSH ) != 0 )   ? 'P' : '.',	/* 0x0008: Push function: please push buffered data to the recv application *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_ACK ) != 0 )   ? 'A' : '.',	/* 0x0010: Acknowledgment field is significant *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_URG ) != 0 )   ? 'U' : '.',	/* 0x0020: Urgent pointer field is significant *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_ECN ) != 0 )   ? 'E' : '.',	/* 0x0040: ECN-Echo *//*lint !e586 !e9029*/
-			( ( uxFlags & ( size_t ) tcpTCP_FLAG_CWR ) != 0 )   ? 'C' : '.');	/* 0x0080: Congestion Window Reduced *//*lint !e586 !e9029*/
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_FIN ) != 0 )   ? 'F' : '.',	/* 0x0001: No more data from sender */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_SYN ) != 0 )   ? 'S' : '.',	/* 0x0002: Synchronize sequence numbers */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_RST ) != 0 )   ? 'R' : '.',	/* 0x0004: Reset the connection */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_PSH ) != 0 )   ? 'P' : '.',	/* 0x0008: Push function: please push buffered data to the recv application */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_ACK ) != 0 )   ? 'A' : '.',	/* 0x0010: Acknowledgment field is significant */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_URG ) != 0 )   ? 'U' : '.',	/* 0x0020: Urgent pointer field is significant */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_ECN ) != 0 )   ? 'E' : '.',	/* 0x0040: ECN-Echo */
+			( ( uxFlags & ( size_t ) tcpTCP_FLAG_CWR ) != 0 )   ? 'C' : '.');	/* 0x0080: Congestion Window Reduced */
 		return retString;
 	}
 	/*-----------------------------------------------------------*/
@@ -1159,9 +1156,7 @@ uint8_t ucLength;
 	if( pxTCPHeader->ucTCPOffset <= ( 5U << 4U ) )
 	{
 		/* Avoid integer underflow in computation of ucLength. */
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return;	/*lint !e904: (Note -- Return statement before end of function 'prvCheckOptions(FreeRTOS_Socket_t *, const NetworkBufferDescriptor_t *)' [MISRA 2012 Rule 15.5, advisory]. */
+		return;
 	}
 	ucLength = ( ( ( pxTCPHeader->ucTCPOffset >> 4U ) - 5U ) << 2U );
 	uxOptionsLength = ( size_t ) ucLength;
@@ -1191,7 +1186,7 @@ uint8_t ucLength;
 				uxResult = prvSingleStepTCPHeaderOptions( pucPtr, uxOptionsLength, pxSocket, xHasSYNFlag );
 				if( uxResult == 0UL )
 				{
-					break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+					break;
 				}
 				uxOptionsLength -= uxResult;
 				pucPtr = &( pucPtr[ uxResult ] );
@@ -1215,25 +1210,19 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 	if( pucPtr[ 0U ] == tcpTCP_OPT_END )
 	{
 		/* End of options. */
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return 0U;	/*lint !e904 Return statement before end of function. */
+		return 0U;
 	}
 	if( pucPtr[ 0U ] == tcpTCP_OPT_NOOP )
 	{
 		/* NOP option, inserted to make the length a multiple of 4. */
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return 1U;	/*lint !e904 */
+		return 1U;
 	}
 
 	/* Any other well-formed option must be at least two bytes: the option
 	type byte followed by a length byte. */
 	if( uxRemainingOptionsBytes < 2U )
 	{
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return 0U;	/*lint !e904 */
+		return 0U;
 	}
 #if( ipconfigUSE_TCP_WIN != 0 )
 	else if( pucPtr[ 0 ] == tcpTCP_OPT_WSOPT )
@@ -1242,9 +1231,7 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 		/* Confirm that the option fits in the remaining buffer space. */
 		if( ( uxRemainingOptionsBytes < tcpTCP_OPT_WSOPT_LEN ) || ( pucPtr[ 1 ] != tcpTCP_OPT_WSOPT_LEN ) )
 		{
-			/* coverity[misra_c_2012_rule_15_5_violation] */
-			/* An early return can make the code easier to follow. */
-			return 0U;	/*lint !e904 */
+			return 0U;
 		}
 		/* Option is only valid in SYN phase. */
 		if( xHasSYNFlag != 0 )
@@ -1260,9 +1247,7 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 		/* Confirm that the option fits in the remaining buffer space. */
 		if( ( uxRemainingOptionsBytes < tcpTCP_OPT_MSS_LEN ) || ( pucPtr[ 1 ] != tcpTCP_OPT_MSS_LEN ) )
 		{
-			/* coverity[misra_c_2012_rule_15_5_violation] */
-			/* An early return can make the code easier to follow. */
-			return 0U;	/*lint !e904 */
+			return 0U;
 		}
 
 		/* An MSS option with the correct option length.  FreeRTOS_htons()
@@ -1275,9 +1260,7 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 			/* Perform a basic check on the the new MSS. */
 			if( uxNewMSS == 0U )
 			{
-				/* coverity[misra_c_2012_rule_15_5_violation] */
-				/* An early return can make the code easier to follow. */
-				return 0U;	/*lint !e904 */
+				return 0U;
 			}
 
 			FreeRTOS_debug_printf( ( "MSS change %u -> %lu\n", pxSocket->u.xTCP.usInitMSS, uxNewMSS ) );
@@ -1313,9 +1296,7 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 			/* If the length field is too small or too big, the options are
 			 * malformed, don't process them further.
 			 */
-			/* coverity[misra_c_2012_rule_15_5_violation] */
-			/* An early return can make the code easier to follow. */
-			return 0U;	/*lint !e904 */
+			return 0U;
 		}
 
 		#if( ipconfigUSE_TCP_WIN == 1 )
@@ -1460,7 +1441,7 @@ UBaseType_t uxOptionsLength;
 
 	}
 	#endif	/* ipconfigUSE_TCP_WIN == 0 */
-	return uxOptionsLength; /* bytes, not words. */	/*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+	return uxOptionsLength; /* bytes, not words. */
 }
 
 /*
@@ -1606,9 +1587,7 @@ BaseType_t bAfter  = ipNUMERIC_CAST( BaseType_t, tcpNOW_CONNECTED( ( BaseType_t 
 		}
 		#endif /* ipconfigUSE_CALLBACKS */
 
-		/* coverity[misra_c_2012_rule_10_5_violation] */
-		/* The expression "pxSocket->u.xTCP.ucTCPState" of essentially unsigned type is type cast to an essentially enum type. */
-		if( prvTCPSocketIsActive( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) ) == 0 )/*lint !e9034: (Note -- Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required] */
+		if( prvTCPSocketIsActive( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) ) == 0 )
 		{
 			/* Now the socket isn't in an active state anymore so it
 			won't need further attention of the IP-task.
@@ -1870,7 +1849,7 @@ int32_t lStreamPos;
 	{
 		/* See if the socket owner wants to shutdown this connection. */
 		if( ( pxSocket->u.xTCP.bits.bUserShutdown != pdFALSE_UNSIGNED ) &&
-			( xTCPWindowTxDone( pxTCPWindow ) != pdFALSE ) )	/*lint !e9007 */
+			( xTCPWindowTxDone( pxTCPWindow ) != pdFALSE ) )
 		{
 			pxSocket->u.xTCP.bits.bUserShutdown = pdFALSE_UNSIGNED;
 			pxProtocolHeaders->xTCPHeader.ucTCPFlags |= tcpTCP_FLAG_FIN;
@@ -2203,7 +2182,7 @@ uint16_t usLength;
 	{
 		/* Although we ignore the urgent data, we have to skip it. */
 		lUrgentLength = ( int32_t ) FreeRTOS_htons( pxTCPHeader->usUrgent );
-		*ppucRecvData += lUrgentLength;	/*lint !e9016 pointer arithmetic other than array indexing used [MISRA 2012 Rule 18.4, advisory]. */
+		*ppucRecvData += lUrgentLength;
 		lReceiveLength -= FreeRTOS_min_int32( lReceiveLength, lUrgentLength );
 	}
 
@@ -2671,7 +2650,7 @@ BaseType_t xSendLength = xByteCount;
 		if( ( ulReceiveLength > 0U ) &&							/* Data was sent to this socket. */
 			( lRxSpace >= lMinLength ) &&						/* There is Rx space for more data. */
 			( pxSocket->u.xTCP.bits.bFinSent == pdFALSE_UNSIGNED ) &&	/* Not in a closure phase. */
-			( xSendLength == ipNUMERIC_CAST( BaseType_t, uxIPHeaderSizeSocket( pxSocket ) + ipSIZE_OF_TCP_HEADER ) ) && /* No Tx data or options to be sent. *//*lint !e9007: (Note -- side effects on right hand of logical operator, ''&&'' [MISRA 2012 Rule 13.5, required] */
+			( xSendLength == ipNUMERIC_CAST( BaseType_t, uxIPHeaderSizeSocket( pxSocket ) + ipSIZE_OF_TCP_HEADER ) ) && /* No Tx data or options to be sent. */
 			( pxSocket->u.xTCP.ucTCPState == ( uint8_t ) eESTABLISHED ) &&	/* Connection established. */
 			( pxTCPHeader->ucTCPFlags == tcpTCP_FLAG_ACK ) )		/* There are no other flags than an ACK. */
 		{
@@ -2856,7 +2835,6 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 			}
 		}
 
-		/* coverity[misra_c_2012_rule_10_5_violation] */
 		switch( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) )
 		{
 		case eCLOSED:		/* (server + client) no connection state at all. */
@@ -3047,9 +3025,7 @@ const IPHeader_t *pxIPHeader;
 	/* Check for a minimum packet size. */
 	if( pxNetworkBuffer->xDataLength < ( ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) + ipSIZE_OF_TCP_HEADER ) )
 	{
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return pdFAIL;	/*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+		return pdFAIL;
 	}
 
 	pxIPHeader = ipPOINTER_CAST( const IPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER ] ) );
@@ -3060,9 +3036,7 @@ const IPHeader_t *pxIPHeader;
 	the destination PORT. */
 	pxSocket = ( FreeRTOS_Socket_t * ) pxTCPSocketLookup( ulLocalIP, xLocalPort, ulRemoteIP, xRemotePort );
 
-	/* coverity[misra_c_2012_rule_10_5_violation] */
-	/* The expression "pxSocket->u.xTCP.ucTCPState" of essentially unsigned type is type cast to an essentially enum type. */
-	if( ( pxSocket == NULL ) || ( prvTCPSocketIsActive( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) ) == pdFALSE ) )/*lint !e9034 Expression assigned to a narrower or different essential type [MISRA 2012 Rule 10.3, required] */
+	if( ( pxSocket == NULL ) || ( prvTCPSocketIsActive( ipNUMERIC_CAST( eIPTCPState_t, pxSocket->u.xTCP.ucTCPState ) ) == pdFALSE ) )
 	{
 		/* A TCP messages is received but either there is no socket with the
 		given port number or the there is a socket, but it is in one of these
@@ -3304,9 +3278,7 @@ uint32_t ulInitialSequenceNumber;
 				FreeRTOS_Socket_t *pxNewSocket = ( FreeRTOS_Socket_t * )
 					FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_STREAM, FREERTOS_IPPROTO_TCP );
 
-				/* coverity[misra_c_2012_rule_11_4_violation] */
-				/* FREERTOS_INVALID_SOCKET is a pseudo pointer with a value of ~0. */
-				if( ( pxNewSocket == NULL ) || ( pxNewSocket == FREERTOS_INVALID_SOCKET ) )	/*lint !e923 !e9087 */
+				if( ( pxNewSocket == NULL ) || ( pxNewSocket == FREERTOS_INVALID_SOCKET ) )
 				{
 					FreeRTOS_debug_printf( ( "TCP: Listen: new socket failed\n" ) );
 					( void ) prvTCPSendReset( pxNetworkBuffer );

@@ -79,7 +79,6 @@ name field is an offset to the string, rather than the string itself. */
 
 /* Host types. */
 #define dnsTYPE_A_HOST							0x01U
-/*lint -e750 local macro 'xxx' not referenced [MISRA 2012 Rule 2.5, advisory]. */
 #define dnsCLASS_IN								0x01U
 
 #ifndef _lint
@@ -234,8 +233,7 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 /* Below #include just tells the compiler to pack the structure. 
  * It is included in to make the code more readable */
-/*lint -e754 -e830 -e766*/
-#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+#include "pack_struct_start.h"
 struct xDNSMessage
 {
 	uint16_t usIdentifier;
@@ -243,39 +241,39 @@ struct xDNSMessage
 	uint16_t usQuestions;
 	uint16_t usAnswers;
 	uint16_t usAuthorityRRs;
-	uint16_t usAdditionalRRs;	/*lint !e754 !e830*/
-}	/*lint !e659 */
-#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+	uint16_t usAdditionalRRs;
+}
+#include "pack_struct_end.h"
 typedef struct xDNSMessage DNSMessage_t;
 
 /* A DNS query consists of a header, as described in 'struct xDNSMessage'
 It is followed by 1 or more queries, each one consisting of a name and a tail,
 with two fields: type and class
 */
-#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+#include "pack_struct_start.h"
 struct xDNSTail
 {
 	uint16_t usType;
 	uint16_t usClass;
-}	/*lint !e659 */
-#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+}
+#include "pack_struct_end.h"
 typedef struct xDNSTail DNSTail_t;
 
 /* DNS answer record header. */
-#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+#include "pack_struct_start.h"
 struct xDNSAnswerRecord
 {
 	uint16_t usType;
 	uint16_t usClass;
 	uint32_t ulTTL;
 	uint16_t usDataLength;
-}	/*lint !e659 */
-#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+}
+#include "pack_struct_end.h"
 typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 
 #if( ipconfigUSE_LLMNR == 1 )
 
-	#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+	#include "pack_struct_start.h"
 	struct xLLMNRAnswer
 	{
 		uint8_t ucNameCode;
@@ -285,15 +283,15 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		uint32_t ulTTL;
 		uint16_t usDataLength;
 		uint32_t ulIPAddress;
-	}	/*lint !e659 */
-	#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+	}
+	#include "pack_struct_end.h"
 	typedef struct xLLMNRAnswer LLMNRAnswer_t;
 
 #endif /* ipconfigUSE_LLMNR == 1 */
 
 #if( ipconfigUSE_NBNS == 1 )
 
-	#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+	#include "pack_struct_start.h"
 	struct xNBNSRequest
 	{
 		uint16_t usRequestId;
@@ -307,11 +305,11 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		uint8_t ucNameZero;
 		uint16_t usType;
 		uint16_t usClass;
-	}	/*lint !e659 */
-	#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+	}
+	#include "pack_struct_end.h"
 	typedef struct xNBNSRequest NBNSRequest_t;
 
-	#include "pack_struct_start.h"	/*lint !e537 !e451 !e9019 !e766*/
+	#include "pack_struct_start.h"
 	struct xNBNSAnswer
 	{
 		uint16_t usType;
@@ -320,8 +318,8 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		uint16_t usDataLength;
 		uint16_t usNbFlags;     /* NetBIOS flags 0x6000 : IP-address, big-endian */
 		uint32_t ulIPAddress;
-	}	/*lint !e659 */
-	#include "pack_struct_end.h"	/*lint !e537 !e451 !e9019 !e766*/
+	}
+	#include "pack_struct_end.h"
 	typedef struct xNBNSAnswer NBNSAnswer_t;
 
 	#endif /* ipconfigUSE_NBNS == 1 */
@@ -758,8 +756,7 @@ TickType_t uxWriteTimeOut_ticks = ipconfigDNS_SEND_BLOCK_TIME_TICKS;
 			{
 				/* This DNS lookup is asynchronous, using a call-back:
 				send the request only once. */
-				/* coverity[break_stmt] : Break statement terminating the loop */
-				break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory] */
+				break;
 			}
 		}
 
@@ -777,7 +774,6 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
 {
 DNSMessage_t *pxDNSMessageHeader;
 uint8_t *pucStart, *pucByte;
-/* coverity[misra_c_2012_rule_8_13_violation] , variable could be defined const. */
 DNSTail_t const * pxTail;
 static const DNSMessage_t xDefaultPartDNSHeader =
 {
@@ -828,9 +824,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 		/* Fill in the byte count, then move the pucStart pointer up to
 		the found byte position. */
-		/* coverity[misra_c_2012_rule_11_4_violation] */
-		/* Coverity doesn't like pointer arithmetic. */
-		*pucStart = ( uint8_t ) ( ( uint32_t ) pucByte - ( uint32_t ) pucStart );/*lint !e9078 !e923 */
+		*pucStart = ( uint8_t ) ( ( uint32_t ) pucByte - ( uint32_t ) pucStart );
 		( *pucStart )--;
 
 		pucStart = pucByte;
@@ -848,9 +842,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 	/* Return the total size of the generated message, which is the space from
 	the last written byte to the beginning of the buffer. */
-	/* coverity[misra_c_2012_rule_11_4_violation] */
-	/* Coverity doesn't like pointer arithmetic. */
-	return ( ( uint32_t ) pucByte - ( uint32_t ) pucUDPPayloadBuffer + 1U ) + sizeof( DNSTail_t );/*lint !e9078 !e923 !e834 !e946 !e947 !e438 !e830 */
+	return ( ( uint32_t ) pucByte - ( uint32_t ) pucUDPPayloadBuffer + 1U ) + sizeof( DNSTail_t );
 }
 /*-----------------------------------------------------------*/
 
@@ -913,8 +905,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 				if( ( uxIndex + uxCount ) > uxSourceLen )
 				{
 					uxIndex = 0U;
-					/* coverity[break_stmt] : Break statement terminating the loop */
-					break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
+					break;
 				}
 
 				while( ( uxCount-- != 0U ) && ( uxIndex < uxSourceLen ) )
@@ -1061,7 +1052,7 @@ size_t uxPayloadSize;
 
 		prvTreatNBNS( pucUDPPayloadBuffer,
 					  pxNetworkBuffer->xDataLength,
-					  pxUDPPacket->xIPHeader.ulSourceIPAddress );	/*lint !e826: Suspicious pointer-to-pointer conversion (area too small). */
+					  pxUDPPacket->xIPHeader.ulSourceIPAddress );
 
 		/* The packet was not consumed. */
 		return pdFAIL;
@@ -1089,7 +1080,6 @@ uint16_t usType = 0U;
 	uint16_t usClass = 0U;
 #endif
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
-	/*lint -e438 */
 	BaseType_t xDoStore = xExpected;
 	char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ] = "";
 #endif
@@ -1097,9 +1087,7 @@ uint16_t usType = 0U;
 	/* Ensure that the buffer is of at least minimal DNS message length. */
 	if( uxBufferLength < sizeof( DNSMessage_t ) )
 	{
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return dnsPARSE_ERROR;	/*lint !e904 Return statement before end of function */
+		return dnsPARSE_ERROR;
 	}
 
 	uxSourceBytesRemaining = uxBufferLength;
@@ -1143,9 +1131,7 @@ uint16_t usType = 0U;
 				/* Check for a malformed response. */
 				if( uxResult == 0U )
 				{
-					/* coverity[misra_c_2012_rule_15_5_violation] */
-					/* An early return can make the code easier to follow. */
-					return dnsPARSE_ERROR;/*lint !e904 Return statement before end of function */
+					return dnsPARSE_ERROR;
 				}
 				uxBytesRead += uxResult;
 				pucByte = &( pucByte[ uxResult ] );
@@ -1161,9 +1147,7 @@ uint16_t usType = 0U;
 				/* Check for a malformed response. */
 				if( uxResult == 0U )
 				{
-					/* coverity[misra_c_2012_rule_15_5_violation] */
-					/* An early return can make the code easier to follow. */
-					return dnsPARSE_ERROR;/*lint !e904 Return statement before end of function */
+					return dnsPARSE_ERROR;
 				}
 				uxBytesRead += uxResult;
 				pucByte = &( pucByte[ uxResult ] );
@@ -1187,9 +1171,7 @@ uint16_t usType = 0U;
 			}
 			else
 			{
-				/* coverity[misra_c_2012_rule_15_5_violation] */
-				/* An early return can make the code easier to follow. */
-				return dnsPARSE_ERROR;/*lint !e904 Return statement before end of function */
+				return dnsPARSE_ERROR;
 			}
 		}
 
@@ -1210,9 +1192,7 @@ uint16_t usType = 0U;
 				/* Check for a malformed response. */
 				if( uxResult == 0U )
 				{
-					/* coverity[misra_c_2012_rule_15_5_violation] */
-					/* An early return can make the code easier to follow. */
-					return dnsPARSE_ERROR;/*lint !e904 */
+					return dnsPARSE_ERROR;
 				}
 
 				uxBytesRead += uxResult;
@@ -1223,9 +1203,7 @@ uint16_t usType = 0U;
 				is this an A record? */
 				if( uxSourceBytesRemaining < sizeof( uint16_t ) )
 				{
-					/* coverity[misra_c_2012_rule_15_5_violation] */
-					/* An early return can make the code easier to follow. */
-					return dnsPARSE_ERROR;	/*lint !e904: (Note -- Return statement before end of function 'prvParseDNSReply(uint8_t *, size_t, BaseType_t)' [MISRA 2012 Rule 15.5, advisory]. */
+					return dnsPARSE_ERROR;
 				}
 				usType = usChar2u16( pucByte );
 
@@ -1250,7 +1228,6 @@ uint16_t usType = 0U;
 					/* This is the required record type and is of sufficient size. */
 					/* MISRA c 2012 rule 11.3 relaxed. pucByte is used for byte-by-byte
 					traversal. */
-					/* coverity[misra_c_2012_rule_11_3_violation] */
 					pxDNSAnswerRecord = ipPOINTER_CAST( DNSAnswerRecord_t *, pucByte );
 
 					/* Sanity check the data length of an IPv4 answer. */
@@ -1321,9 +1298,7 @@ uint16_t usType = 0U;
 					else
 					{
 						/* Malformed response. */
-						/* coverity[misra_c_2012_rule_15_5_violation] */
-						/* An early return can make the code easier to understand. */
-						return dnsPARSE_ERROR; /*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+						return dnsPARSE_ERROR;
 					}
 				}
 				else
@@ -1358,8 +1333,8 @@ uint16_t usType = 0U;
 					{
 					BaseType_t xOffset1, xOffset2;
 
-						xOffset1 = ( BaseType_t ) ( pucByte - pucUDPPayloadBuffer );/*lint !e946 !e947 */
-						xOffset2 = ( BaseType_t ) ( ( ( uint8_t * ) pcRequestedName ) - pucUDPPayloadBuffer );/*lint !e946 !e947 */
+						xOffset1 = ( BaseType_t ) ( pucByte - pucUDPPayloadBuffer );
+						xOffset2 = ( BaseType_t ) ( ( ( uint8_t * ) pcRequestedName ) - pucUDPPayloadBuffer );
 
 						pxNetworkBuffer = pxNewBuffer;
 						pucNewBuffer = &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] );
@@ -1389,7 +1364,7 @@ uint16_t usType = 0U;
 					#endif /* lint */
 
 					pxAnswer->ucNameCode = dnsNAME_IS_OFFSET;
-					pxAnswer->ucNameOffset = ( uint8_t ) ( pcRequestedName - ( char * ) pucNewBuffer );	/*lint !e9033 !e946 !e947 */
+					pxAnswer->ucNameOffset = ( uint8_t ) ( pcRequestedName - ( char * ) pucNewBuffer );
 
 					#ifndef _lint
 					vSetField16( pxAnswer, LLMNRAnswer_t, usType, dnsTYPE_A_HOST ); /* Type A: host */
@@ -1398,7 +1373,7 @@ uint16_t usType = 0U;
 					vSetField16( pxAnswer, LLMNRAnswer_t, usDataLength, 4 );
 					vSetField32( pxAnswer, LLMNRAnswer_t, ulIPAddress, FreeRTOS_ntohl( *ipLOCAL_IP_ADDRESS_POINTER ) );
 					#endif /* lint */
-					usLength = ( int16_t ) ( sizeof( *pxAnswer ) + ( size_t ) ( pucByte - pucNewBuffer ) );/*lint !e9033 !e946 !e947 */
+					usLength = ( int16_t ) ( sizeof( *pxAnswer ) + ( size_t ) ( pucByte - pucNewBuffer ) );
 
 					prvReplyDNSMessage( pxNetworkBuffer, usLength );
 
@@ -1415,7 +1390,7 @@ uint16_t usType = 0U;
 		}
 #endif /* ipconfigUSE_LLMNR == 1 */
 		( void ) uxBytesRead;
-	} while( ipFALSE_BOOL );	/*lint !e506 !e9036 !e717 (Info -- do ... while(0);) */
+	} while( ipFALSE_BOOL );
 
 	if( xExpected == pdFALSE )
 	{
@@ -1447,7 +1422,7 @@ uint16_t usType = 0U;
 		/* Check for minimum buffer size. */
 		if( uxBufferLength < uxBytesNeeded )
 		{
-			return;	/*lint !e904: Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+			return;
 		}
 
 		/* Read the request flags in host endianness. */
@@ -1510,7 +1485,7 @@ uint16_t usType = 0U;
 
 			if( ( ( usFlags & dnsNBNS_FLAGS_RESPONSE ) == 0U ) &&
 				( usType == dnsNBNS_TYPE_NET_BIOS ) &&
-				( xApplicationDNSQueryHook( ( const char * ) ucNBNSName ) != pdFALSE ) )	/*lint !e9007: side effects on right hand of logical operator, ''&&'' [MISRA 2012 Rule 13.5, required]) */
+				( xApplicationDNSQueryHook( ( const char * ) ucNBNSName ) != pdFALSE ) )
 			{
 			uint16_t usLength;
 			DNSMessage_t *pxMessage;
@@ -1590,13 +1565,9 @@ BaseType_t xReturn;
 	/* This must be the first time this function has been called.  Create
 	the socket. */
 	xSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
-	/* coverity[misra_c_2012_rule_11_4_violation] */
-	/* FREERTOS_INVALID_SOCKET is a pseudo point with a value of ~0. */
 	if( ( xSocket == FREERTOS_INVALID_SOCKET ) || ( xSocket == NULL ) )
 	{
-		/* coverity[misra_c_2012_rule_15_5_violation] */
-		/* An early return can make the code easier to follow. */
-		return NULL;	/*lint !e904: (Note -- Return statement before end of function 'prvCreateDNSSocket(void)' [MISRA 2012 Rule 15.5, advisory]. */
+		return NULL;
 	}
 
 	/* Auto bind the port. */
@@ -1640,7 +1611,7 @@ BaseType_t xReturn;
 		pxIPHeader->usIdentification	   = FreeRTOS_htons( usPacketIdentifier );
 		usPacketIdentifier++;
 		pxUDPHeader->usLength			   = FreeRTOS_htons( ( uint32_t ) lNetLength + ipSIZE_OF_UDP_HEADER );
-		vFlip_16( pxUDPHeader->usSourcePort, pxUDPHeader->usDestinationPort );	/*lint !e717  !e9036  do ... while(0); */
+		vFlip_16( pxUDPHeader->usSourcePort, pxUDPHeader->usDestinationPort );
 
 		/* Important: tell NIC driver how many bytes must be sent */
 		uxDataLength = ( ( size_t ) lNetLength ) + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER;

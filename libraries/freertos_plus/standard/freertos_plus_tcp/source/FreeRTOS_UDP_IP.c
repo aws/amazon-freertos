@@ -320,14 +320,12 @@ const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkB
 		{
 			vTaskSuspendAll();
 			{
-				/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 				taskENTER_CRITICAL();
 				{
 					/* Add the network packet to the list of packets to be
 					processed by the socket. */
 					vListInsertEnd( &( pxSocket->u.xUDP.xWaitingPacketsList ), &( pxNetworkBuffer->xBufferListItem ) );
 				}
-				/* coverity[misra_c_2012_rule_14_4_violation], expression "0" is not a boolean. */
 				taskEXIT_CRITICAL();
 			}
 			( void ) xTaskResumeAll();
@@ -398,7 +396,7 @@ const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkB
 		#if( ipconfigUSE_NBNS == 1 )
 			/* a NetBIOS request, check for the destination port */
 			if( ( usPort == FreeRTOS_ntohs( ipNBNS_PORT ) ) ||
-				( pxUDPPacket->xUDPHeader.usSourcePort == FreeRTOS_ntohs( ipNBNS_PORT ) ) )/*lint !e9007 !e845 */
+				( pxUDPPacket->xUDPHeader.usSourcePort == FreeRTOS_ntohs( ipNBNS_PORT ) ) )
 			{
 				vARPRefreshCacheEntry( &( pxUDPPacket->xEthernetHeader.xSourceAddress ), pxUDPPacket->xIPHeader.ulSourceIPAddress );
 				xReturn = ( BaseType_t )ulNBNSHandlePacket( pxNetworkBuffer );
