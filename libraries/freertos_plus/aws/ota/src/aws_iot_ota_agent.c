@@ -2152,6 +2152,29 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
     return pstUpdateFile; /* Return the OTA file context. */
 }
 
+/* 
+ * prvValidateDataBlock
+ *
+ * Validate the block index and size. If it is NOT the last block, it MUST be equal to a full block size. 
+ * If it IS the last block, it MUST be equal to the expected remainder. If the block ID is out of range, 
+ * that's an error. 
+*/
+static BaseType_t prvValidateDataBlock(OTA_FileContext_t* C, int32_t ulBlockIndex, int32_t ulBlockSize)
+{
+	BaseType_t xRet = pdFALSE;
+	uint32_t iLastBlock = 0;
+
+	iLastBlock = ( ( C->ulFileSize + (OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
+
+	if (((ulBlockIndex < iLastBlock) && (ulBlockSize == OTA_FILE_BLOCK_SIZE)) ||
+		((ulBlockIndex == iLastBlock) && (ulBlockSize == (C->ulFileSize - (iLastBlock * OTA_FILE_BLOCK_SIZE)))))
+	{
+		xRet = pdTRUE;
+	}
+
+	return xRet;
+}
+
 /*
  * prvIngestDataBlock
  *
@@ -2175,151 +2198,169 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
     uint32_t ulBlockIndex = 0;
     uint8_t * pucPayload = NULL;
     size_t xPayloadSize = 0;
+	uint32_t ulByte = 0;
+	uint8_t ulBitMask = 0;
 
-    if( C != NULL )
-    {
-        if( pxCloseResult != NULL )
-        {
-            *pxCloseResult = kOTA_Err_GenericIngestError; /* Default to a generic ingest function error until we prove success. */
+	/* Check if the file context is NULL. */
+	if ( C == NULL )
+	{
+		eIngestResult = eIngest_Result_NullContext;
+	}
 
-            /* If we have a block bitmap available then process the message. */
-            if( C->pucRxBlockBitmap && ( C->ulBlocksRemaining > 0U ) )
-            {
-                /* Reset or start the firmware request timer. */
-                prvStartRequestTimer( otaconfigFILE_REQUEST_WAIT_MS );
+	/* Check if the result pointer is NULL. */
+	if ( eIngestResult == eIngest_Result_Uninitialized )
+	{
+		if (pxCloseResult == NULL)
+		{
+			eIngestResult = eIngest_Result_NullResultPointer;
+		}
+		else
+		{
+			/* Default to a generic ingest function error until we prove success. */
+			*pxCloseResult = kOTA_Err_GenericIngestError; 
+		}
+	}
 
-                /* Decode the file block received. */
-                if( kOTA_Err_None != xOTA_DataInterface.prvDecodeFileBlock(
-                        pcRawMsg,
-                        ulMsgSize,
-                        &lFileId,
-                        ( int32_t * ) &ulBlockIndex,
-                        ( int32_t * ) &ulBlockSize,
-                        &pucPayload,
-                        &xPayloadSize ) )
-                {
-                    eIngestResult = eIngest_Result_BadData;
-                }
-                else
-                {
-                    /* Validate the block index and size. */
-                    /* If it is NOT the last block, it MUST be equal to a full block size. */
-                    /* If it IS the last block, it MUST be equal to the expected remainder. */
-                    /* If the block ID is out of range, that's an error so abort. */
-                    uint32_t iLastBlock = ( ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
+	/* Decode the received data block. */
+	if (eIngestResult == eIngest_Result_Uninitialized)
+	{
+		/* If we have a block bitmap available then process the message. */
+		if ((C->pucRxBlockBitmap) && (C->ulBlocksRemaining > 0U))
+		{
+			/* Reset or start the firmware request timer. */
+			prvStartRequestTimer(otaconfigFILE_REQUEST_WAIT_MS);
 
-                    if( ( ( ulBlockIndex < iLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
-                        ( ( ulBlockIndex == iLastBlock ) && ( ulBlockSize == ( C->ulFileSize - ( iLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
-                    {
-                        OTA_LOG_L1( "[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
+			/* Decode the file block received. */
+			if ( kOTA_Err_None != xOTA_DataInterface.prvDecodeFileBlock(
+				 pcRawMsg,
+				 ulMsgSize,
+				 &lFileId,
+				 (int32_t*)&ulBlockIndex,
+				 (int32_t*)&ulBlockSize,
+				 &pucPayload,
+				 &xPayloadSize))
+			{
+				eIngestResult = eIngest_Result_BadData;
+			}
+		}
+		else
+		{
+			eIngestResult = eIngest_Result_UnexpectedBlock;
+		}
+	}
 
-                        /* Create bit mask for use in our bitmap. */
-                        uint8_t ulBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE ); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
-                        /* Calculate byte offset into bitmap. */
-                        uint32_t ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
+	/* Validate the received data block.*/
+	if ( eIngestResult == eIngest_Result_Uninitialized )
+	{
+		if ( prvValidateDataBlock( C, ulBlockIndex, ulBlockSize ) )
+		{
+			OTA_LOG_L1("[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize);
 
-                        if( ( C->pucRxBlockBitmap[ ulByte ] & ulBitMask ) == 0U ) /* If we've already received this block... */
-                        {
-                            OTA_LOG_L1( "[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
-                                        ulBlockIndex,
-                                        C->ulBlocksRemaining );
-                            eIngestResult = eIngest_Result_Duplicate_Continue;
-                            *pxCloseResult = kOTA_Err_None; /* This is a success path. */
-                        }
-                        else /* Otherwise, process it normally... */
-                        {
-                            if( C->pucFile != NULL )
-                            {
-                                int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ulBlockSize );
+			/* Create bit mask for use in our bitmap. */
+		    ulBitMask = 1U << (ulBlockIndex % BITS_PER_BYTE); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
 
-                                if( iBytesWritten < 0 )
-                                {
-                                    OTA_LOG_L1( "[%s] Error (%d) writing file block\r\n", OTA_METHOD_NAME, iBytesWritten );
-                                    eIngestResult = eIngest_Result_WriteBlockFailed;
-                                }
-                                else
-                                {
-                                    C->pucRxBlockBitmap[ ulByte ] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
-                                    C->ulBlocksRemaining--;
-                                    eIngestResult = eIngest_Result_Accepted_Continue;
-                                    *pxCloseResult = kOTA_Err_None; /* This is a success path. */
-                                }
-                            }
-                            else
-                            {
-                                OTA_LOG_L1( "[%s] Error: Unable to write block, file handle is NULL.\r\n", OTA_METHOD_NAME );
-                                eIngestResult = eIngest_Result_BadFileHandle;
-                            }
+			/* Calculate byte offset into bitmap. */
+			ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
 
-                            if( C->ulBlocksRemaining == 0U )
-                            {
-                                OTA_LOG_L1( "[%s] Received final expected block of file.\r\n", OTA_METHOD_NAME );
-                                prvStopRequestTimer();            /* Don't request any more since we're done. */
-                                vPortFree( C->pucRxBlockBitmap ); /* Free the bitmap now that we're done with the download. */
-                                C->pucRxBlockBitmap = NULL;
+			/* Check if we've already received this block. */
+			if ( ( ( C->pucRxBlockBitmap[ulByte] ) & ulBitMask ) == 0U )
+			{
+				OTA_LOG_L1("[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
+					       ulBlockIndex,
+					       C->ulBlocksRemaining);
 
-                                if( C->pucFile != NULL )
-                                {
-                                    *pxCloseResult = xOTA_Agent.xPALCallbacks.xCloseFile( C );
+				eIngestResult = eIngest_Result_Duplicate_Continue;
+				*pxCloseResult = kOTA_Err_None; /* This is a success path. */
+			}
+		}
+		else
+		{
+			OTA_LOG_L1("[%s] Error! Block %u out of expected range! Size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize);
+		    eIngestResult = eIngest_Result_BlockOutOfRange;
+		}
+	}
 
-                                    if( *pxCloseResult == kOTA_Err_None )
-                                    {
-                                        OTA_LOG_L1( "[%s] File receive complete and signature is valid.\r\n", OTA_METHOD_NAME );
-                                        eIngestResult = eIngest_Result_FileComplete;
-                                    }
-                                    else
-                                    {
-                                        uint32_t ulCloseResult = ( uint32_t ) *pxCloseResult;
-                                        OTA_LOG_L1( "[%s] Error (%u:0x%06x) closing OTA file.\r\n",
-                                                    OTA_METHOD_NAME,
-                                                    ulCloseResult >> kOTA_MainErrShiftDownBits,
-                                                    ulCloseResult & ( uint32_t ) kOTA_PAL_ErrMask );
+	/* Process the received data block. */
+	if ( eIngestResult == eIngest_Result_Uninitialized )
+	{
+		if (C->pucFile != NULL)
+		{
+			int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock(C, (ulBlockIndex * OTA_FILE_BLOCK_SIZE), pucPayload, ulBlockSize);
 
-                                        if( ( ulCloseResult & kOTA_Main_ErrMask ) == kOTA_Err_SignatureCheckFailed )
-                                        {
-                                            eIngestResult = eIngest_Result_SigCheckFail;
-                                        }
-                                        else
-                                        {
-                                            eIngestResult = eIngest_Result_FileCloseFail;
-                                        }
-                                    }
+			if (iBytesWritten < 0)
+			{
+				OTA_LOG_L1("[%s] Error (%d) writing file block\r\n", OTA_METHOD_NAME, iBytesWritten);
+				eIngestResult = eIngest_Result_WriteBlockFailed;
+			}
+			else
+			{
+				C->pucRxBlockBitmap[ulByte] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
+				C->ulBlocksRemaining--;
+				eIngestResult = eIngest_Result_Accepted_Continue;
+				*pxCloseResult = kOTA_Err_None; 
+			}
+		}
+		else
+		{
+			OTA_LOG_L1("[%s] Error: Unable to write block, file handle is NULL.\r\n", OTA_METHOD_NAME);
+			eIngestResult = eIngest_Result_BadFileHandle;
+		}
 
-                                    C->pucFile = NULL; /* File is now closed so clear the file handle in the context. */
-                                }
-                                else
-                                {
-                                    OTA_LOG_L1( "[%s] Error: File handle is NULL after last block received.\r\n", OTA_METHOD_NAME );
-                                    eIngestResult = eIngest_Result_BadFileHandle;
-                                }
-                            }
-                            else
-                            {
-                                OTA_LOG_L1( "[%s] Remaining: %u\r\n", OTA_METHOD_NAME, C->ulBlocksRemaining );
-                            }
-                        }
-                    }
-                    else
-                    {
-                        OTA_LOG_L1( "[%s] Error! Block %u out of expected range! Size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
-                        eIngestResult = eIngest_Result_BlockOutOfRange;
-                    }
-                }
-            }
-            else
-            {
-                eIngestResult = eIngest_Result_UnexpectedBlock;
-            }
-        }
-        else
-        {
-            eIngestResult = eIngest_Result_NullResultPointer;
-        }
-    }
-    else
-    {
-        eIngestResult = eIngest_Result_NullContext;
-    }
+	}
+
+	/* Close the file and cleanup.*/
+	if (eIngestResult == eIngest_Result_Uninitialized)
+	{
+		if (C->ulBlocksRemaining == 0U)
+		{
+			OTA_LOG_L1("[%s] Received final expected block of file.\r\n", OTA_METHOD_NAME);
+
+			prvStopRequestTimer();            /* Don't request any more since we're done. */
+			vPortFree(C->pucRxBlockBitmap); /* Free the bitmap now that we're done with the download. */
+			C->pucRxBlockBitmap = NULL;
+
+			if (C->pucFile != NULL)
+			{
+				*pxCloseResult = xOTA_Agent.xPALCallbacks.xCloseFile(C);
+
+				if (*pxCloseResult == kOTA_Err_None)
+				{
+					OTA_LOG_L1("[%s] File receive complete and signature is valid.\r\n", OTA_METHOD_NAME);
+					eIngestResult = eIngest_Result_FileComplete;
+				}
+				else
+				{
+					uint32_t ulCloseResult = (uint32_t)*pxCloseResult;
+
+					OTA_LOG_L1("[%s] Error (%u:0x%06x) closing OTA file.\r\n",
+						OTA_METHOD_NAME,
+						ulCloseResult >> kOTA_MainErrShiftDownBits,
+						ulCloseResult& (uint32_t)kOTA_PAL_ErrMask);
+
+					if (  ( ( ulCloseResult ) & ( kOTA_Main_ErrMask ))  == kOTA_Err_SignatureCheckFailed )
+					{
+						eIngestResult = eIngest_Result_SigCheckFail;
+					}
+					else
+					{
+						eIngestResult = eIngest_Result_FileCloseFail;
+					}
+				}
+
+				C->pucFile = NULL; /* File is now closed so clear the file handle in the context. */
+			}
+			else
+			{
+				OTA_LOG_L1("[%s] Error: File handle is NULL after last block received.\r\n", OTA_METHOD_NAME);
+				eIngestResult = eIngest_Result_BadFileHandle;
+			}
+		}
+		else
+		{
+			OTA_LOG_L1("[%s] Remaining: %u\r\n", OTA_METHOD_NAME, C->ulBlocksRemaining);
+		}
+	
+	}
 
     return eIngestResult;
 }
