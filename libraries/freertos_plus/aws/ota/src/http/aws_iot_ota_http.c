@@ -532,8 +532,9 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
     /* OTA Event. */
     OTA_EventMsg_t eventMsg = { 0 };
 
-    /* Bail out if this callback is invoked after the OTA agent is stopped. */
-    if( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_Stopped )
+    /* Bail out if this callback is invoked after the OTA agent is stopped or suspended. */
+    if( ( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_Stopped ) ||
+        ( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_Suspended ) )
     {
         return;
     }
