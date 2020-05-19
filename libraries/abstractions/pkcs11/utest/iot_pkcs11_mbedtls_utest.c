@@ -165,8 +165,11 @@ void * pvPkcs11MallocCb( size_t size,
 void vPkcs11FreeCb( void * ptr,
                     int numCalls )
 {
-    usMallocFreeCalls--;
-    free( ptr );
+    if( ptr != NULL )
+    {
+        usMallocFreeCalls--;
+        free( ptr );
+    }
 }
 
 /* ============================   UNITY FIXTURES ============================ */
@@ -186,6 +189,7 @@ void tearDown( void )
 /* called at the beginning of the whole suite */
 void suiteSetUp()
 {
+    usMallocFreeCalls = 0;
 }
 
 /* called at the end of the whole suite */
@@ -1106,9 +1110,6 @@ void test_pkcs11_C_CreateObjectECPrivKeyDerFail( void )
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 
     prvCommonDeinitStubs();
-
-    /* Since malloc does not require a NULL check, the stub was called one time too many. */
-    usMallocFreeCalls++;
 }
 
 /*!
@@ -1877,14 +1878,8 @@ void test_pkcs11_C_FindObjectsInitBadArgs( void )
     xResult = C_FindObjectsInit( xSession, NULL, ulCount );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 
-    /* Free always gets called but this failure never malloc'd so we don't care. */
-    usMallocFreeCalls++;
-
     xResult = C_FindObjectsInit( xSession, ( CK_ATTRIBUTE_PTR ) &xFindTemplate, -1 );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
-
-    /* Free always gets called but this failure never malloc'd so we don't care. */
-    usMallocFreeCalls++;
 
     /* Clean up after C_FindObjectsInit. */
     xResult = C_FindObjectsFinal( xSession );
@@ -1981,6 +1976,9 @@ void test_pkcs11_C_FindObjectsBadArgs( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( CK_INVALID_HANDLE, xObject );
     TEST_ASSERT_EQUAL( 0, ulFoundCount );
+
+    xResult = C_FindObjectsFinal( xSession );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvCommonDeinitStubs();
 }
