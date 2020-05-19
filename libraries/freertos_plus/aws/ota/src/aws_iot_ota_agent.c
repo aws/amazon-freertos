@@ -1420,320 +1420,353 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
 {
     DEFINE_OTA_METHOD_NAME( "prvParseJSONbyModel" );
 
-    const JSON_DocParam_t * pxModelParam;
+    JSON_DocParam_t * pxModelParam = NULL;
     jsmn_parser xParser;
-    jsmntok_t * pxTokens, * pxValTok;
-    uint32_t ulNumTokens, ulTokenLen;
+    jsmntok_t * pxTokens = NULL, * pxValTok = NULL;
+    uint32_t ulNumTokens = 0, ulTokenLen = 0;
     MultiParmPtr_t xParamAddr; /*lint !e9018 We intentionally use this union to cast the parameter address to the proper type. */
-    uint32_t ulIndex;
-    uint16_t usModelParamIndex;
-    uint32_t ulScanIndex;
-    DocParseErr_t eErr = eDocParseErr_Unknown;
-
+    uint32_t ulIndex = 0;
+    uint16_t usModelParamIndex = 0;
+    uint32_t ulScanIndex = 0;
+    DocParseErr_t eErr = eDocParseErr_None;
 
     /* Reset the Jasmine tokenizer. */
     jsmn_init( &xParser );
 
-    /* Validate some initial parameters. */
+    /* Check if document model is valid. */
     if( pxDocModel == NULL )
     {
         OTA_LOG_L1( "[%s] The pointer to the document model is NULL.\r\n", OTA_METHOD_NAME );
         eErr = eDocParseErr_NullModelPointer;
     }
-    else if( pxDocModel->pxBodyDef == NULL )
+
+    /* Check if document model body ponter is valid.*/
+    if( eErr == eDocParseErr_None )
     {
-        OTA_LOG_L1( "[%s] Document model 0x%08x body pointer is NULL.\r\n", OTA_METHOD_NAME, pxDocModel );
-        eErr = eDocParseErr_NullBodyPointer;
+        if( pxDocModel->pxBodyDef == NULL )
+        {
+            OTA_LOG_L1( "[%s] Document model 0x%08x body pointer is NULL.\r\n", OTA_METHOD_NAME, pxDocModel );
+            eErr = eDocParseErr_NullBodyPointer;
+        }
     }
-    else if( pxDocModel->usNumModelParams > OTA_DOC_MODEL_MAX_PARAMS )
+
+    /* Check number of parameters is valid.*/
+    if( eErr == eDocParseErr_None )
     {
-        OTA_LOG_L1( "[%s] Model has too many parameters (%u).\r\n", OTA_METHOD_NAME, pxDocModel->usNumModelParams );
-        eErr = eDocParseErr_TooManyParams;
+        if( pxDocModel->usNumModelParams > OTA_DOC_MODEL_MAX_PARAMS )
+        {
+            OTA_LOG_L1( "[%s] Model has too many parameters (%u).\r\n", OTA_METHOD_NAME, pxDocModel->usNumModelParams );
+            eErr = eDocParseErr_TooManyParams;
+        }
     }
-    else if( pcJSON == NULL )
+
+    /* Check JSON document pointer is valid.*/
+    if( eErr == eDocParseErr_None )
     {
-        OTA_LOG_L1( "[%s] JSON document pointer is NULL!\r\n", OTA_METHOD_NAME );
-        eErr = eDocParseErr_NullDocPointer;
+        if( pcJSON == NULL )
+        {
+            OTA_LOG_L1( "[%s] JSON document pointer is NULL!\r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_NullDocPointer;
+        }
     }
-    else
+
+    /* Check if token numbe is valid. */
+    if( eErr == eDocParseErr_None )
     {
         pxModelParam = pxDocModel->pxBodyDef;
 
         /* Count the total number of tokens in our JSON document. */
         ulNumTokens = ( uint32_t ) jsmn_parse( &xParser, pcJSON, ( size_t ) ulMsgLen, NULL, 1UL );
 
-        if( ulNumTokens > 0U )
+        if( ulNumTokens <= 0U )
         {
-            /* If the JSON document isn't too big for our token array... */
-            if( ulNumTokens <= OTA_MAX_JSON_TOKENS )
+            OTA_LOG_L1( "[%s] Invalid JSON document. No tokens parsed. \r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_NoTokens;
+        }
+    }
+
+    /* If the JSON document isn't too big for our token array. */
+    if( eErr == eDocParseErr_None )
+    {
+        if( ulNumTokens > OTA_MAX_JSON_TOKENS )
+        {
+            OTA_LOG_L1( "[%s] Document has too many keys.\r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_TooManyTokens;
+        }
+    }
+
+    /* Allocate space on heap for temporary token array. */
+    if( eErr == eDocParseErr_None )
+    {
+        /* Allocate space for the document JSON tokens. */
+        void * pvTokenArray = pvPortMalloc( ulNumTokens * sizeof( jsmntok_t ) );
+        pxTokens = ( jsmntok_t * ) pvTokenArray; /*lint !e9079 !e9087 heap allocations return void* so we allow casting to a pointer to the actual type. */
+
+        if( pxTokens == NULL )
+        {
+            OTA_LOG_L1( "[%s] No memory for JSON tokens.\r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_OutOfMemory;
+        }
+    }
+
+    /* Init Jasmine and check number of tokens.*/
+    if( eErr == eDocParseErr_None )
+    {
+        /* Reset Jasmine again and tokenize the document for real. */
+        jsmn_init( &xParser );
+        ulIndex = ( uint32_t ) jsmn_parse( &xParser, pcJSON, ulMsgLen, pxTokens, ulNumTokens );
+
+        if( ulIndex != ulNumTokens )
+        {
+            OTA_LOG_L1( "[%s] jsmn_parse didn't match token count when parsing.\r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_JasmineCountMismatch;
+        }
+    }
+
+    /* Process JSON tokens. */
+    if( eErr == eDocParseErr_None )
+    {
+        /* Examine each JSON token, searching for job parameters based on our document model. */
+        for( ulIndex = 0U; ( eErr == eDocParseErr_None ) && ( ulIndex < ulNumTokens ); ulIndex++ )
+        {
+            /* All parameter keys are JSON strings. */
+            if( pxTokens[ ulIndex ].type == JSMN_STRING )
             {
-                /* Allocate space for the document JSON tokens. */
-                void * pvTokenArray = pvPortMalloc( ulNumTokens * sizeof( jsmntok_t ) ); /* Allocate space on heap for temporary token array. */
-                pxTokens = ( jsmntok_t * ) pvTokenArray;                                 /*lint !e9079 !e9087 heap allocations return void* so we allow casting to a pointer to the actual type. */
+                /* Search the document model to see if it matches the current key. */
+                ulTokenLen = ( uint32_t ) pxTokens[ ulIndex ].end - ( uint32_t ) pxTokens[ ulIndex ].start;
+                eErr = prvSearchModelForTokenKey( pxDocModel, &pcJSON[ pxTokens[ ulIndex ].start ], ulTokenLen, &usModelParamIndex );
 
-                if( pxTokens != NULL )
+                /* If we didn't find a match in the model, skip over it and its descendants. */
+                if( eErr == eDocParseErr_ParamKeyNotInModel )
                 {
-                    /* Reset Jasmine again and tokenize the document for real. */
-                    jsmn_init( &xParser );
-                    ulIndex = ( uint32_t ) jsmn_parse( &xParser, pcJSON, ulMsgLen, pxTokens, ulNumTokens );
+                    int32_t iRoot = ( int32_t ) ulIndex; /* Create temp root from the unrecognized tokens index. Use signed int since the parent index is signed. */
+                    ulIndex++;                           /* Skip the active key since it's the one we don't recognize. */
 
-                    if( ulIndex == ulNumTokens )
+                    /* Skip tokens whose parents are equal to or deeper than the unrecognized temporary root token level. */
+                    while( ( ulIndex < ulNumTokens ) && ( pxTokens[ ulIndex ].parent >= iRoot ) )
                     {
-                        /* Start the parser in an error free state. */
-                        eErr = eDocParseErr_None;
+                        ulIndex++; /* Skip over all descendants of the unknown parent. */
+                    }
 
-                        /* Examine each JSON token, searching for job parameters based on our document model. */
-                        for( ulIndex = 0U; ( eErr == eDocParseErr_None ) && ( ulIndex < ulNumTokens ); ulIndex++ )
+                    --ulIndex;                /* Adjust for outer for-loop increment. */
+                    eErr = eDocParseErr_None; /* Unknown key structures are simply skipped so clear the error state to continue. */
+                }
+                else if( eErr == eDocParseErr_None )
+                {
+                    /* We found the parameter key in the document model. */
+
+                    /* Get the value field (i.e. the following token) for the parameter. */
+                    pxValTok = &pxTokens[ ulIndex + 1UL ];
+
+                    /* Verify the field type is what we expect for this parameter. */
+                    if( pxValTok->type != pxModelParam[ usModelParamIndex ].eJasmineType )
+                    {
+                        ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
+                        OTA_LOG_L1( "[%s] parameter type mismatch [ %s : %.*s ] type %u, expected %u\r\n",
+                                    OTA_METHOD_NAME, pxModelParam[ usModelParamIndex ].pcSrcKey, ulTokenLen,
+                                    &pcJSON[ pxValTok->start ],
+                                    pxValTok->type, pxModelParam[ usModelParamIndex ].eJasmineType );
+                        eErr = eDocParseErr_FieldTypeMismatch;
+                        /* break; */
+                    }
+                    else if( OTA_DONT_STORE_PARAM == pxModelParam[ usModelParamIndex ].ulDestOffset )
+                    {
+                        /* Nothing to do with this parameter since we're not storing it. */
+                        continue;
+                    }
+                    else
+                    {
+                        /* Get destination offset to parameter storage location. */
+
+                        /* If it's within the models context structure, add in the context instance base address. */
+                        if( pxModelParam[ usModelParamIndex ].ulDestOffset < pxDocModel->ulContextSize )
                         {
-                            /* All parameter keys are JSON strings. */
-                            if( pxTokens[ ulIndex ].type == JSMN_STRING )
+                            xParamAddr.ulVal = pxDocModel->ulContextBase + pxModelParam[ usModelParamIndex ].ulDestOffset;
+                        }
+                        else
+                        {
+                            /* It's a raw pointer so keep it as is. */
+                            xParamAddr.ulVal = pxModelParam[ usModelParamIndex ].ulDestOffset;
+                        }
+
+                        if( eModelParamType_StringCopy == pxModelParam[ usModelParamIndex ].xModelParamType )
+                        {
+                            /* Malloc memory for a copy of the value string plus a zero terminator. */
+                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
+                            void * pvStringCopy = pvPortMalloc( ulTokenLen + 1U );
+
+                            if( pvStringCopy != NULL )
                             {
-                                /* Search the document model to see if it matches the current key. */
-                                ulTokenLen = ( uint32_t ) pxTokens[ ulIndex ].end - ( uint32_t ) pxTokens[ ulIndex ].start;
-                                eErr = prvSearchModelForTokenKey( pxDocModel, &pcJSON[ pxTokens[ ulIndex ].start ], ulTokenLen, &usModelParamIndex );
+                                *xParamAddr.ppvPtr = pvStringCopy;
+                                char * pcStringCopy = *xParamAddr.ppcPtr;
+                                /* Copy parameter string into newly allocated memory. */
+                                memcpy( pcStringCopy, &pcJSON[ pxValTok->start ], ulTokenLen );
+                                /* Zero terminate the new string. */
+                                pcStringCopy[ ulTokenLen ] = '\0';
+                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %s ]\r\n",
+                                            OTA_METHOD_NAME,
+                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                            pcStringCopy );
+                            }
+                            else
+                            { /* Stop processing on error. */
+                                eErr = eDocParseErr_OutOfMemory;
+                                /* break; */
+                            }
+                        }
+                        else if( eModelParamType_StringInDoc == pxModelParam[ usModelParamIndex ].xModelParamType )
+                        {
+                            /* Copy pointer to source string instead of duplicating the string. */
+                            const char * pcStringInDoc = &pcJSON[ pxValTok->start ];
+                            *xParamAddr.ppccPtr = pcStringInDoc;
+                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
+                            OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.*s ]\r\n",
+                                        OTA_METHOD_NAME,
+                                        pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                        ulTokenLen, pcStringInDoc );
+                        }
+                        else if( eModelParamType_UInt32 == pxModelParam[ usModelParamIndex ].xModelParamType )
+                        {
+                            char * pEnd;
+                            const char * pStart = &pcJSON[ pxValTok->start ];
+                            *xParamAddr.pulPtr = strtoul( pStart, &pEnd, 0 );
 
-                                /* If we didn't find a match in the model, skip over it and its descendants. */
-                                if( eErr == eDocParseErr_ParamKeyNotInModel )
-                                {
-                                    int32_t iRoot = ( int32_t ) ulIndex; /* Create temp root from the unrecognized tokens index. Use signed int since the parent index is signed. */
-                                    ulIndex++;                           /* Skip the active key since it's the one we don't recognize. */
+                            if( pEnd == &pcJSON[ pxValTok->end ] )
+                            {
+                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %u ]\r\n",
+                                            OTA_METHOD_NAME,
+                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                            *xParamAddr.pulPtr );
+                            }
+                            else
+                            {
+                                eErr = eDocParseErr_InvalidNumChar;
+                            }
+                        }
+                        else if( eModelParamType_SigBase64 == pxModelParam[ usModelParamIndex ].xModelParamType )
+                        {
+                            /* Allocate space for and decode the base64 signature. */
+                            void * pvSignature = pvPortMalloc( sizeof( Sig256_t ) );
 
-                                    /* Skip tokens whose parents are equal to or deeper than the unrecognized temporary root token level. */
-                                    while( ( ulIndex < ulNumTokens ) && ( pxTokens[ ulIndex ].parent >= iRoot ) )
-                                    {
-                                        ulIndex++; /* Skip over all descendants of the unknown parent. */
-                                    }
+                            if( pvSignature != NULL )
+                            {
+                                size_t xActualLen = 0;
+                                *xParamAddr.ppvPtr = pvSignature;
+                                Sig256_t * pxSig256 = *xParamAddr.ppxSig256Ptr;
+                                ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
 
-                                    --ulIndex;                /* Adjust for outer for-loop increment. */
-                                    eErr = eDocParseErr_None; /* Unknown key structures are simply skipped so clear the error state to continue. */
-                                }
-                                else if( eErr == eDocParseErr_None )
-                                {
-                                    /* We found the parameter key in the document model. */
-
-                                    /* Get the value field (i.e. the following token) for the parameter. */
-                                    pxValTok = &pxTokens[ ulIndex + 1UL ];
-
-                                    /* Verify the field type is what we expect for this parameter. */
-                                    if( pxValTok->type != pxModelParam[ usModelParamIndex ].eJasmineType )
-                                    {
-                                        ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-                                        OTA_LOG_L1( "[%s] parameter type mismatch [ %s : %.*s ] type %u, expected %u\r\n",
-                                                    OTA_METHOD_NAME, pxModelParam[ usModelParamIndex ].pcSrcKey, ulTokenLen,
-                                                    &pcJSON[ pxValTok->start ],
-                                                    pxValTok->type, pxModelParam[ usModelParamIndex ].eJasmineType );
-                                        eErr = eDocParseErr_FieldTypeMismatch;
-                                        /* break; */
-                                    }
-                                    else if( OTA_DONT_STORE_PARAM == pxModelParam[ usModelParamIndex ].ulDestOffset )
-                                    {
-                                        /* Nothing to do with this parameter since we're not storing it. */
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        /* Get destination offset to parameter storage location. */
-
-                                        /* If it's within the models context structure, add in the context instance base address. */
-                                        if( pxModelParam[ usModelParamIndex ].ulDestOffset < pxDocModel->ulContextSize )
-                                        {
-                                            xParamAddr.ulVal = pxDocModel->ulContextBase + pxModelParam[ usModelParamIndex ].ulDestOffset;
-                                        }
-                                        else
-                                        {
-                                            /* It's a raw pointer so keep it as is. */
-                                            xParamAddr.ulVal = pxModelParam[ usModelParamIndex ].ulDestOffset;
-                                        }
-
-                                        if( eModelParamType_StringCopy == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            /* Malloc memory for a copy of the value string plus a zero terminator. */
-                                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-                                            void * pvStringCopy = pvPortMalloc( ulTokenLen + 1U );
-
-                                            if( pvStringCopy != NULL )
-                                            {
-                                                *xParamAddr.ppvPtr = pvStringCopy;
-                                                char * pcStringCopy = *xParamAddr.ppcPtr;
-                                                /* Copy parameter string into newly allocated memory. */
-                                                memcpy( pcStringCopy, &pcJSON[ pxValTok->start ], ulTokenLen );
-                                                /* Zero terminate the new string. */
-                                                pcStringCopy[ ulTokenLen ] = '\0';
-                                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %s ]\r\n",
-                                                            OTA_METHOD_NAME,
-                                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                            pcStringCopy );
-                                            }
-                                            else
-                                            { /* Stop processing on error. */
-                                                eErr = eDocParseErr_OutOfMemory;
-                                                /* break; */
-                                            }
-                                        }
-                                        else if( eModelParamType_StringInDoc == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            /* Copy pointer to source string instead of duplicating the string. */
-                                            const char * pcStringInDoc = &pcJSON[ pxValTok->start ];
-                                            *xParamAddr.ppccPtr = pcStringInDoc;
-                                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-                                            OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.*s ]\r\n",
-                                                        OTA_METHOD_NAME,
-                                                        pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                        ulTokenLen, pcStringInDoc );
-                                        }
-                                        else if( eModelParamType_UInt32 == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            char * pEnd;
-                                            const char * pStart = &pcJSON[ pxValTok->start ];
-                                            *xParamAddr.pulPtr = strtoul( pStart, &pEnd, 0 );
-
-                                            if( pEnd == &pcJSON[ pxValTok->end ] )
-                                            {
-                                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %u ]\r\n",
-                                                            OTA_METHOD_NAME,
-                                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                            *xParamAddr.pulPtr );
-                                            }
-                                            else
-                                            {
-                                                eErr = eDocParseErr_InvalidNumChar;
-                                            }
-                                        }
-                                        else if( eModelParamType_SigBase64 == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            /* Allocate space for and decode the base64 signature. */
-                                            void * pvSignature = pvPortMalloc( sizeof( Sig256_t ) );
-
-                                            if( pvSignature != NULL )
-                                            {
-                                                size_t xActualLen = 0;
-                                                *xParamAddr.ppvPtr = pvSignature;
-                                                Sig256_t * pxSig256 = *xParamAddr.ppxSig256Ptr;
-                                                ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-
-                                                if( mbedtls_base64_decode( pxSig256->ucData, sizeof( pxSig256->ucData ), &xActualLen,
-                                                                           ( const uint8_t * ) &pcJSON[ pxValTok->start ], ulTokenLen ) != 0 )
-                                                { /* Stop processing on error. */
-                                                    OTA_LOG_L1( "[%s] mbedtls_base64_decode failed.\r\n", OTA_METHOD_NAME );
-                                                    eErr = eDocParseErr_Base64Decode;
-                                                    /* break; */
-                                                }
-                                                else
-                                                {
-                                                    pxSig256->usSize = ( uint16_t ) xActualLen;
-                                                    OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.32s... ]\r\n",
-                                                                OTA_METHOD_NAME,
-                                                                pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                                &pcJSON[ pxValTok->start ] );
-                                                }
-                                            }
-                                            else
-                                            {
-                                                /* We failed to allocate needed memory. Everything will be freed below upon failure. */
-                                                eErr = eDocParseErr_OutOfMemory;
-                                            }
-                                        }
-                                        else if( eModelParamType_Ident == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            OTA_LOG_L1( "[%s] Identified parameter [ %s ]\r\n",
-                                                        OTA_METHOD_NAME,
-                                                        pxModelParam[ usModelParamIndex ].pcSrcKey );
-                                            *xParamAddr.pxBoolPtr = pdTRUE;
-                                        }
-
-                                        if( eModelParamType_ArrayCopy == pxModelParam[ usModelParamIndex ].xModelParamType )
-                                        {
-                                            /* Malloc memory for a copy of the value string plus a zero terminator. */
-                                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-                                            void * pvStringCopy = pvPortMalloc( ulTokenLen + 1U );
-
-                                            if( pvStringCopy != NULL )
-                                            {
-                                                *xParamAddr.ppvPtr = pvStringCopy;
-                                                char * pcStringCopy = *xParamAddr.ppcPtr;
-                                                /* Copy parameter string into newly allocated memory. */
-                                                memcpy( pcStringCopy, &pcJSON[ pxValTok->start ], ulTokenLen );
-                                                /* Zero terminate the new string. */
-                                                pcStringCopy[ ulTokenLen ] = '\0';
-                                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %s ]\r\n",
-                                                            OTA_METHOD_NAME,
-                                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                            pcStringCopy );
-                                            }
-                                            else
-                                            { /* Stop processing on error. */
-                                                eErr = eDocParseErr_OutOfMemory;
-                                                /* break; */
-                                            }
-                                        }
-                                        else
-                                        {
-                                            /* Ignore invalid document model type. */
-                                        }
-                                    }
+                                if( mbedtls_base64_decode( pxSig256->ucData, sizeof( pxSig256->ucData ), &xActualLen,
+                                                           ( const uint8_t * ) &pcJSON[ pxValTok->start ], ulTokenLen ) != 0 )
+                                { /* Stop processing on error. */
+                                    OTA_LOG_L1( "[%s] mbedtls_base64_decode failed.\r\n", OTA_METHOD_NAME );
+                                    eErr = eDocParseErr_Base64Decode;
+                                    /* break; */
                                 }
                                 else
                                 {
-                                    /* Nothing special to do. The error will break us out of the loop. */
+                                    pxSig256->usSize = ( uint16_t ) xActualLen;
+                                    OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.32s... ]\r\n",
+                                                OTA_METHOD_NAME,
+                                                pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                                &pcJSON[ pxValTok->start ] );
                                 }
                             }
                             else
                             {
-                                /* Ignore tokens that are not strings and move on to the next. */
+                                /* We failed to allocate needed memory. Everything will be freed below upon failure. */
+                                eErr = eDocParseErr_OutOfMemory;
                             }
                         }
-
-                        /* Free the token memory. */
-                        vPortFree( pxTokens ); /*lint !e850 ulIndex is intentionally modified within the loop to skip over unknown tags. */
-
-                        if( eErr == eDocParseErr_None )
+                        else if( eModelParamType_Ident == pxModelParam[ usModelParamIndex ].xModelParamType )
                         {
-                            uint32_t ulMissingParams = ( pxDocModel->ulParamsReceivedBitmap & pxDocModel->ulParamsRequiredBitmap )
-                                                       ^ pxDocModel->ulParamsRequiredBitmap;
+                            OTA_LOG_L1( "[%s] Identified parameter [ %s ]\r\n",
+                                        OTA_METHOD_NAME,
+                                        pxModelParam[ usModelParamIndex ].pcSrcKey );
+                            *xParamAddr.pxBoolPtr = pdTRUE;
+                        }
 
-                            if( ulMissingParams != 0U )
+                        if( eModelParamType_ArrayCopy == pxModelParam[ usModelParamIndex ].xModelParamType )
+                        {
+                            /* Malloc memory for a copy of the value string plus a zero terminator. */
+                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
+                            void * pvStringCopy = pvPortMalloc( ulTokenLen + 1U );
+
+                            if( pvStringCopy != NULL )
                             {
-                                /* The job document did not have all required document model parameters. */
-                                for( ulScanIndex = 0UL; ulScanIndex < pxDocModel->usNumModelParams; ulScanIndex++ )
-                                {
-                                    if( ( ulMissingParams & ( 1UL << ulScanIndex ) ) != 0UL )
-                                    {
-                                        OTA_LOG_L1( "[%s] parameter not present: %s\r\n",
-                                                    OTA_METHOD_NAME,
-                                                    pxModelParam[ ulScanIndex ].pcSrcKey );
-                                    }
-                                }
-
-                                eErr = eDocParseErr_MalformedDoc;
+                                *xParamAddr.ppvPtr = pvStringCopy;
+                                char * pcStringCopy = *xParamAddr.ppcPtr;
+                                /* Copy parameter string into newly allocated memory. */
+                                memcpy( pcStringCopy, &pcJSON[ pxValTok->start ], ulTokenLen );
+                                /* Zero terminate the new string. */
+                                pcStringCopy[ ulTokenLen ] = '\0';
+                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %s ]\r\n",
+                                            OTA_METHOD_NAME,
+                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                            pcStringCopy );
+                            }
+                            else
+                            { /* Stop processing on error. */
+                                eErr = eDocParseErr_OutOfMemory;
+                                /* break; */
                             }
                         }
                         else
                         {
-                            OTA_LOG_L1( "[%s] Error (%d) parsing JSON document.\r\n", OTA_METHOD_NAME, ( int32_t ) eErr );
+                            /* Ignore invalid document model type. */
                         }
-                    }
-                    else
-                    {
-                        OTA_LOG_L1( "[%s] jsmn_parse didn't match token count when parsing.\r\n", OTA_METHOD_NAME );
-                        eErr = eDocParseErr_JasmineCountMismatch;
                     }
                 }
                 else
                 {
-                    OTA_LOG_L1( "[%s] No memory for JSON tokens.\r\n", OTA_METHOD_NAME );
-                    eErr = eDocParseErr_OutOfMemory;
+                    /* Nothing special to do. The error will break us out of the loop. */
                 }
             }
             else
             {
-                OTA_LOG_L1( "[%s] Document has too many keys.\r\n", OTA_METHOD_NAME );
-                eErr = eDocParseErr_TooManyTokens;
+                /* Ignore tokens that are not strings and move on to the next. */
             }
         }
-        else
+    }
+
+    if( pxTokens != NULL )
+    {
+        /* Free the token memory. */
+        vPortFree( pxTokens ); /*lint !e850 ulIndex is intentionally modified within the loop to skip over unknown tags. */
+    }
+
+    if( eErr == eDocParseErr_None )
+    {
+        uint32_t ulMissingParams = ( pxDocModel->ulParamsReceivedBitmap & pxDocModel->ulParamsRequiredBitmap )
+                                   ^ pxDocModel->ulParamsRequiredBitmap;
+
+        if( ulMissingParams != 0U )
         {
-            OTA_LOG_L1( "[%s] Invalid JSON document. No tokens parsed. \r\n", OTA_METHOD_NAME );
-            eErr = eDocParseErr_NoTokens;
+            /* The job document did not have all required document model parameters. */
+            for( ulScanIndex = 0UL; ulScanIndex < pxDocModel->usNumModelParams; ulScanIndex++ )
+            {
+                if( ( ulMissingParams & ( 1UL << ulScanIndex ) ) != 0UL )
+                {
+                    OTA_LOG_L1( "[%s] parameter not present: %s\r\n",
+                                OTA_METHOD_NAME,
+                                pxModelParam[ ulScanIndex ].pcSrcKey );
+                }
+            }
+
+            eErr = eDocParseErr_MalformedDoc;
+        }
+    }
+    else
+    {
+        OTA_LOG_L1( "[%s] Error (%d) parsing JSON document.\r\n", OTA_METHOD_NAME, ( int32_t ) eErr );
+    }
+
+    /* Check JSON document pointer is valid.*/
+    if( eErr == eDocParseErr_None )
+    {
+        if( pcJSON == NULL )
+        {
+            OTA_LOG_L1( "[%s] JSON document pointer is NULL!\r\n", OTA_METHOD_NAME );
+            eErr = eDocParseErr_NullDocPointer;
         }
     }
 
@@ -2169,27 +2202,29 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
     return pstUpdateFile; /* Return the OTA file context. */
 }
 
-/* 
+/*
  * prvValidateDataBlock
  *
- * Validate the block index and size. If it is NOT the last block, it MUST be equal to a full block size. 
- * If it IS the last block, it MUST be equal to the expected remainder. If the block ID is out of range, 
- * that's an error. 
-*/
-static BaseType_t prvValidateDataBlock(OTA_FileContext_t* C, int32_t ulBlockIndex, int32_t ulBlockSize)
+ * Validate the block index and size. If it is NOT the last block, it MUST be equal to a full block size.
+ * If it IS the last block, it MUST be equal to the expected remainder. If the block ID is out of range,
+ * that's an error.
+ */
+static BaseType_t prvValidateDataBlock( OTA_FileContext_t * C,
+                                        int32_t ulBlockIndex,
+                                        int32_t ulBlockSize )
 {
-	BaseType_t xRet = pdFALSE;
-	uint32_t iLastBlock = 0;
+    BaseType_t xRet = pdFALSE;
+    uint32_t iLastBlock = 0;
 
-	iLastBlock = ( ( C->ulFileSize + (OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
+    iLastBlock = ( ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
 
-	if (((ulBlockIndex < iLastBlock) && (ulBlockSize == OTA_FILE_BLOCK_SIZE)) ||
-		((ulBlockIndex == iLastBlock) && (ulBlockSize == (C->ulFileSize - (iLastBlock * OTA_FILE_BLOCK_SIZE)))))
-	{
-		xRet = pdTRUE;
-	}
+    if( ( ( ulBlockIndex < iLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
+        ( ( ulBlockIndex == iLastBlock ) && ( ulBlockSize == ( C->ulFileSize - ( iLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
+    {
+        xRet = pdTRUE;
+    }
 
-	return xRet;
+    return xRet;
 }
 
 /*
@@ -2215,169 +2250,167 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
     uint32_t ulBlockIndex = 0;
     uint8_t * pucPayload = NULL;
     size_t xPayloadSize = 0;
-	uint32_t ulByte = 0;
-	uint8_t ulBitMask = 0;
+    uint32_t ulByte = 0;
+    uint8_t ulBitMask = 0;
 
-	/* Check if the file context is NULL. */
-	if ( C == NULL )
-	{
-		eIngestResult = eIngest_Result_NullContext;
-	}
+    /* Check if the file context is NULL. */
+    if( C == NULL )
+    {
+        eIngestResult = eIngest_Result_NullContext;
+    }
 
-	/* Check if the result pointer is NULL. */
-	if ( eIngestResult == eIngest_Result_Uninitialized )
-	{
-		if (pxCloseResult == NULL)
-		{
-			eIngestResult = eIngest_Result_NullResultPointer;
-		}
-		else
-		{
-			/* Default to a generic ingest function error until we prove success. */
-			*pxCloseResult = kOTA_Err_GenericIngestError; 
-		}
-	}
+    /* Check if the result pointer is NULL. */
+    if( eIngestResult == eIngest_Result_Uninitialized )
+    {
+        if( pxCloseResult == NULL )
+        {
+            eIngestResult = eIngest_Result_NullResultPointer;
+        }
+        else
+        {
+            /* Default to a generic ingest function error until we prove success. */
+            *pxCloseResult = kOTA_Err_GenericIngestError;
+        }
+    }
 
-	/* Decode the received data block. */
-	if (eIngestResult == eIngest_Result_Uninitialized)
-	{
-		/* If we have a block bitmap available then process the message. */
-		if ((C->pucRxBlockBitmap) && (C->ulBlocksRemaining > 0U))
-		{
-			/* Reset or start the firmware request timer. */
-			prvStartRequestTimer(otaconfigFILE_REQUEST_WAIT_MS);
+    /* Decode the received data block. */
+    if( eIngestResult == eIngest_Result_Uninitialized )
+    {
+        /* If we have a block bitmap available then process the message. */
+        if( ( C->pucRxBlockBitmap ) && ( C->ulBlocksRemaining > 0U ) )
+        {
+            /* Reset or start the firmware request timer. */
+            prvStartRequestTimer( otaconfigFILE_REQUEST_WAIT_MS );
 
-			/* Decode the file block received. */
-			if ( kOTA_Err_None != xOTA_DataInterface.prvDecodeFileBlock(
-				 pcRawMsg,
-				 ulMsgSize,
-				 &lFileId,
-				 (int32_t*)&ulBlockIndex,
-				 (int32_t*)&ulBlockSize,
-				 &pucPayload,
-				 &xPayloadSize))
-			{
-				eIngestResult = eIngest_Result_BadData;
-			}
-		}
-		else
-		{
-			eIngestResult = eIngest_Result_UnexpectedBlock;
-		}
-	}
+            /* Decode the file block received. */
+            if( kOTA_Err_None != xOTA_DataInterface.prvDecodeFileBlock(
+                    pcRawMsg,
+                    ulMsgSize,
+                    &lFileId,
+                    ( int32_t * ) &ulBlockIndex,
+                    ( int32_t * ) &ulBlockSize,
+                    &pucPayload,
+                    &xPayloadSize ) )
+            {
+                eIngestResult = eIngest_Result_BadData;
+            }
+        }
+        else
+        {
+            eIngestResult = eIngest_Result_UnexpectedBlock;
+        }
+    }
 
-	/* Validate the received data block.*/
-	if ( eIngestResult == eIngest_Result_Uninitialized )
-	{
-		if ( prvValidateDataBlock( C, ulBlockIndex, ulBlockSize ) )
-		{
-			OTA_LOG_L1("[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize);
+    /* Validate the received data block.*/
+    if( eIngestResult == eIngest_Result_Uninitialized )
+    {
+        if( prvValidateDataBlock( C, ulBlockIndex, ulBlockSize ) )
+        {
+            OTA_LOG_L1( "[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
 
-			/* Create bit mask for use in our bitmap. */
-		    ulBitMask = 1U << (ulBlockIndex % BITS_PER_BYTE); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
+            /* Create bit mask for use in our bitmap. */
+            ulBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE ); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
 
-			/* Calculate byte offset into bitmap. */
-			ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
+            /* Calculate byte offset into bitmap. */
+            ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
 
-			/* Check if we've already received this block. */
-			if ( ( ( C->pucRxBlockBitmap[ulByte] ) & ulBitMask ) == 0U )
-			{
-				OTA_LOG_L1("[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
-					       ulBlockIndex,
-					       C->ulBlocksRemaining);
+            /* Check if we've already received this block. */
+            if( ( ( C->pucRxBlockBitmap[ ulByte ] ) & ulBitMask ) == 0U )
+            {
+                OTA_LOG_L1( "[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
+                            ulBlockIndex,
+                            C->ulBlocksRemaining );
 
-				eIngestResult = eIngest_Result_Duplicate_Continue;
-				*pxCloseResult = kOTA_Err_None; /* This is a success path. */
-			}
-		}
-		else
-		{
-			OTA_LOG_L1("[%s] Error! Block %u out of expected range! Size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize);
-		    eIngestResult = eIngest_Result_BlockOutOfRange;
-		}
-	}
+                eIngestResult = eIngest_Result_Duplicate_Continue;
+                *pxCloseResult = kOTA_Err_None; /* This is a success path. */
+            }
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Error! Block %u out of expected range! Size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
+            eIngestResult = eIngest_Result_BlockOutOfRange;
+        }
+    }
 
-	/* Process the received data block. */
-	if ( eIngestResult == eIngest_Result_Uninitialized )
-	{
-		if (C->pucFile != NULL)
-		{
-			int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock(C, (ulBlockIndex * OTA_FILE_BLOCK_SIZE), pucPayload, ulBlockSize);
+    /* Process the received data block. */
+    if( eIngestResult == eIngest_Result_Uninitialized )
+    {
+        if( C->pucFile != NULL )
+        {
+            int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ulBlockSize );
 
-			if (iBytesWritten < 0)
-			{
-				OTA_LOG_L1("[%s] Error (%d) writing file block\r\n", OTA_METHOD_NAME, iBytesWritten);
-				eIngestResult = eIngest_Result_WriteBlockFailed;
-			}
-			else
-			{
-				C->pucRxBlockBitmap[ulByte] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
-				C->ulBlocksRemaining--;
-				eIngestResult = eIngest_Result_Accepted_Continue;
-				*pxCloseResult = kOTA_Err_None; 
-			}
-		}
-		else
-		{
-			OTA_LOG_L1("[%s] Error: Unable to write block, file handle is NULL.\r\n", OTA_METHOD_NAME);
-			eIngestResult = eIngest_Result_BadFileHandle;
-		}
+            if( iBytesWritten < 0 )
+            {
+                OTA_LOG_L1( "[%s] Error (%d) writing file block\r\n", OTA_METHOD_NAME, iBytesWritten );
+                eIngestResult = eIngest_Result_WriteBlockFailed;
+            }
+            else
+            {
+                C->pucRxBlockBitmap[ ulByte ] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
+                C->ulBlocksRemaining--;
+                eIngestResult = eIngest_Result_Accepted_Continue;
+                *pxCloseResult = kOTA_Err_None;
+            }
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Error: Unable to write block, file handle is NULL.\r\n", OTA_METHOD_NAME );
+            eIngestResult = eIngest_Result_BadFileHandle;
+        }
+    }
 
-	}
+    /* Close the file and cleanup.*/
+    if( eIngestResult == eIngest_Result_Uninitialized )
+    {
+        if( C->ulBlocksRemaining == 0U )
+        {
+            OTA_LOG_L1( "[%s] Received final expected block of file.\r\n", OTA_METHOD_NAME );
 
-	/* Close the file and cleanup.*/
-	if (eIngestResult == eIngest_Result_Uninitialized)
-	{
-		if (C->ulBlocksRemaining == 0U)
-		{
-			OTA_LOG_L1("[%s] Received final expected block of file.\r\n", OTA_METHOD_NAME);
+            prvStopRequestTimer();            /* Don't request any more since we're done. */
+            vPortFree( C->pucRxBlockBitmap ); /* Free the bitmap now that we're done with the download. */
+            C->pucRxBlockBitmap = NULL;
 
-			prvStopRequestTimer();            /* Don't request any more since we're done. */
-			vPortFree(C->pucRxBlockBitmap); /* Free the bitmap now that we're done with the download. */
-			C->pucRxBlockBitmap = NULL;
+            if( C->pucFile != NULL )
+            {
+                *pxCloseResult = xOTA_Agent.xPALCallbacks.xCloseFile( C );
 
-			if (C->pucFile != NULL)
-			{
-				*pxCloseResult = xOTA_Agent.xPALCallbacks.xCloseFile(C);
+                if( *pxCloseResult == kOTA_Err_None )
+                {
+                    OTA_LOG_L1( "[%s] File receive complete and signature is valid.\r\n", OTA_METHOD_NAME );
+                    eIngestResult = eIngest_Result_FileComplete;
+                }
+                else
+                {
+                    uint32_t ulCloseResult = ( uint32_t ) *pxCloseResult;
 
-				if (*pxCloseResult == kOTA_Err_None)
-				{
-					OTA_LOG_L1("[%s] File receive complete and signature is valid.\r\n", OTA_METHOD_NAME);
-					eIngestResult = eIngest_Result_FileComplete;
-				}
-				else
-				{
-					uint32_t ulCloseResult = (uint32_t)*pxCloseResult;
+                    OTA_LOG_L1( "[%s] Error (%u:0x%06x) closing OTA file.\r\n",
+                                OTA_METHOD_NAME,
+                                ulCloseResult >> kOTA_MainErrShiftDownBits,
+                                ulCloseResult & ( uint32_t ) kOTA_PAL_ErrMask );
 
-					OTA_LOG_L1("[%s] Error (%u:0x%06x) closing OTA file.\r\n",
-						OTA_METHOD_NAME,
-						ulCloseResult >> kOTA_MainErrShiftDownBits,
-						ulCloseResult& (uint32_t)kOTA_PAL_ErrMask);
+                    if( ( ( ulCloseResult ) & ( kOTA_Main_ErrMask ) ) == kOTA_Err_SignatureCheckFailed )
+                    {
+                        eIngestResult = eIngest_Result_SigCheckFail;
+                    }
+                    else
+                    {
+                        eIngestResult = eIngest_Result_FileCloseFail;
+                    }
+                }
 
-					if (  ( ( ulCloseResult ) & ( kOTA_Main_ErrMask ))  == kOTA_Err_SignatureCheckFailed )
-					{
-						eIngestResult = eIngest_Result_SigCheckFail;
-					}
-					else
-					{
-						eIngestResult = eIngest_Result_FileCloseFail;
-					}
-				}
-
-				C->pucFile = NULL; /* File is now closed so clear the file handle in the context. */
-			}
-			else
-			{
-				OTA_LOG_L1("[%s] Error: File handle is NULL after last block received.\r\n", OTA_METHOD_NAME);
-				eIngestResult = eIngest_Result_BadFileHandle;
-			}
-		}
-		else
-		{
-			OTA_LOG_L1("[%s] Remaining: %u\r\n", OTA_METHOD_NAME, C->ulBlocksRemaining);
-		}
-	
-	}
+                C->pucFile = NULL; /* File is now closed so clear the file handle in the context. */
+            }
+            else
+            {
+                OTA_LOG_L1( "[%s] Error: File handle is NULL after last block received.\r\n", OTA_METHOD_NAME );
+                eIngestResult = eIngest_Result_BadFileHandle;
+            }
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Remaining: %u\r\n", OTA_METHOD_NAME, C->ulBlocksRemaining );
+        }
+    }
 
     return eIngestResult;
 }
