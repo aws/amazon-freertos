@@ -169,6 +169,7 @@ void iot_rtc_set_callback( IotRtcHandle_t const pxRtcHandle,
  *      - xRequest is invalid
  *      - pvBuffer == NULL (excluding eCancelRtcAlarm, eCancelRtcWakeup)
  *      - if date/time is set in the past for eSetRtcAlarm
+ *   - IOT_RTC_SET_FAILED if date/time is invalid for eSetRtcAlarm.
  *   - IOT_RTC_NOT_STARTED on error
  *   - IOT_RTC_FUNCTION_NOT_SUPPORTED if feature not supported
  *      - Only valid for eCancelRtcAlarm, eCancelRtcWakeup
