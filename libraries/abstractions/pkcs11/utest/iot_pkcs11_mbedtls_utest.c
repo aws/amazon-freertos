@@ -213,6 +213,17 @@ int suiteTearDown( int numFailures )
     TEST_ASSERT_EQUAL( CKR_OK, xResult )
 
 /*!
+ * @brief Helper function to stub mbedtls_pk_free.
+ *
+ */
+void vMbedPkFree( mbedtls_pk_context * pxCtx,
+                  int lCallCount )
+{
+    ( void ) lCallCount;
+    vPkcs11FreeCb( pxCtx->pk_ctx, 1 );
+}
+
+/*!
  * @brief Helper function to initialize PKCS #11.
  *
  */
@@ -985,7 +996,7 @@ void test_pkcs11_C_CreateObjectECPrivKeyBadAtt( void )
     mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
     PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
     vLoggingPrintf_CMockIgnore();
-    mbedtls_pk_free_CMockIgnore();
+    mbedtls_pk_free_Stub( vMbedPkFree );
     vPortFree_Stub( vPkcs11FreeCb );
     xResult = C_CreateObject( xSession,
                               ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
@@ -1038,9 +1049,6 @@ void test_pkcs11_C_CreateObjectECPrivKeyBadAtt( void )
                               sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
                               &xObject );
     TEST_ASSERT_EQUAL( CKR_FUNCTION_FAILED, xResult );
-
-    /* The memory allocated in the last call to C_CreateObject will be freed by the PKCS #11 context. */
-    usMallocFreeCalls--;
 
     prvCommonDeinitStubs();
 }
@@ -1146,7 +1154,7 @@ void test_pkcs11_C_CreateObjectECPubKey( void )
     mbedtls_ecp_point_read_binary_IgnoreAndReturn( 0 );
     mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
     mbedtls_pk_write_pubkey_der_IgnoreAndReturn( 1 );
-    mbedtls_pk_free_CMockIgnore();
+    mbedtls_pk_free_Stub( vMbedPkFree );
     PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
     xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
     xQueueGenericSend_IgnoreAndReturn( pdTRUE );
@@ -1159,11 +1167,6 @@ void test_pkcs11_C_CreateObjectECPubKey( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvCommonDeinitStubs();
-
-    /* TODO: Remove this. Currently memory is malloc'd by PKCS #11 and free'd in the
-     * MbedTLS stack, but those functions are stubbed out. Need to update this test case
-     * to have a memory life cycle that is properly mocked. */
-    usMallocFreeCalls--;
 }
 
 /*
@@ -1288,7 +1291,7 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
     mbedtls_rsa_import_raw_IgnoreAndReturn( 0 );
     mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
     mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
-    mbedtls_pk_free_CMockIgnore();
+    mbedtls_pk_free_Stub( vMbedPkFree );
     PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
     xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
     xQueueGenericSend_IgnoreAndReturn( pdTRUE );
@@ -1301,11 +1304,6 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvCommonDeinitStubs();
-
-    /* TODO: Remove this. Currently memory is malloc'd by PKCS #11 and free'd in the
-     * MbedTLS stack, but those functions are stubbed out. Need to update this test case
-     * to have a memory life cycle that is properly mocked. */
-    usMallocFreeCalls--;
 }
 
 /*
@@ -1333,7 +1331,7 @@ void test_pkcs11_C_CreateObjectRSAPrivKeyBadAtt( void )
     mbedtls_pk_init_CMockIgnore();
     pvPortMalloc_Stub( pvPkcs11MallocCb );
     mbedtls_rsa_init_CMockIgnore();
-    mbedtls_pk_free_CMockIgnore();
+    mbedtls_pk_free_Stub( vMbedPkFree );
     vPortFree_Stub( vPkcs11FreeCb );
     vLoggingPrintf_CMockIgnore();
     xResult = C_CreateObject( xSession,
@@ -1374,11 +1372,6 @@ void test_pkcs11_C_CreateObjectRSAPrivKeyBadAtt( void )
     TEST_ASSERT_EQUAL( CKR_FUNCTION_FAILED, xResult );
 
     prvCommonDeinitStubs();
-
-    /* TODO: Remove this. Currently memory is malloc'd by PKCS #11 and free'd in the
-     * MbedTLS stack, but those functions are stubbed out. Need to update this test case
-     * to have a memory life cycle that is properly mocked. */
-    usMallocFreeCalls -= 4;
 }
 
 /*
