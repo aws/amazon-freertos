@@ -138,7 +138,10 @@ function(cy_kit_generate)
     # is BLE supported?
     string(FIND "${ARG_DEFINES}" "CY_BLE_SUPPORTED" check_ble_supported)
     if (NOT ("${check_ble_supported}" STREQUAL "-1"))
-       set(CY_BLE_SUPPORTED 1)
+       # BLE is only supported for arm-gcc
+       if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
+          set(CY_BLE_SUPPORTED 1)
+       endif()
     endif()
 
     # is CY_BOOT_USE_EXTERNAL_FLASH supported?
