@@ -247,6 +247,10 @@ static OTA_Err_t prvResetDevice( void );
 
 static bool_t prvInSelftest( void );
 
+/* Function to handle events that were unexpected in the current state. */
+
+static void prvHandleUnexpectedEvents( OTA_EventMsg_t * pxEventMsg );
+
 /* OTA state event handler functions. */
 
 static OTA_Err_t prvStartHandler( OTA_EventData_t * pxEventData );
@@ -1843,9 +1847,6 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     OTA_FileContext_t xFileContext = { 0 };
     OTA_FileContext_t * C = &xFileContext;
 
-    OTA_LOG_L1( "[%s] Size of OTA_FileContext_t [%d]\r\n", OTA_METHOD_NAME, sizeof( xFileContext ) );
-
-
     JSON_DocModel_t xOTA_JobDocModel;
 
     if( prvInitDocModel( &xOTA_JobDocModel,
@@ -2052,10 +2053,14 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
         }
     }
 
-    /* If we failed, free the reserved file context (C) to make it available again. */
+    /* If we failed, close the open files. */
     if( pxFinalFile == NULL )
     {
-        ( void ) prvOTA_Close( C );
+        /* Free the current reserved file context. */
+        prvOTA_FreeContext( C );
+
+        /* Close any open files. */
+        ( void ) prvOTA_Close( &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] );
     }
 
     /* Return pointer to populated file context or NULL if it failed. */
@@ -2399,6 +2404,42 @@ static void prvAgentShutdownCleanup( void )
     }
 }
 
+/*
+ * Handle any events that were unexpected in the current state.
+ */
+static void prvHandleUnexpectedEvents( OTA_EventMsg_t * pxEventMsg )
+{
+    DEFINE_OTA_METHOD_NAME( "prvHandleUnexpectedEvents" );
+
+    OTA_LOG_L1( "[%s] Unexpected Event. Current State [%s] Received Event  [%s] \n",
+                OTA_METHOD_NAME,
+                pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
+                pcOTA_Event_Strings[ pxEventMsg->xEventId ] );
+
+    /* Perform any cleanup operations required for specifc unhandled events.*/
+    switch( pxEventMsg->xEventId )
+    {
+        case eOTA_AgentEvent_ReceivedJobDocument:
+
+            /* Received job event is not handled , release the buffer.*/
+            prvOTAEventBufferFree( pxEventMsg->pxEventData );
+
+            break;
+
+        case eOTA_AgentEvent_ReceivedFileBlock:
+
+            /* Received file data event is not handled , release the buffer.*/
+            prvOTAEventBufferFree( pxEventMsg->pxEventData );
+
+            break;
+
+        default:
+
+            /* Nothing to do here.*/
+            break;
+    }
+}
+
 static void prvOTAAgentTask( void * pUnused )
 {
     DEFINE_OTA_METHOD_NAME( "prvOTAAgentTask" );
@@ -2466,10 +2507,10 @@ static void prvOTAAgentTask( void * pUnused )
 
             if( i == ulTransitionTableLen )
             {
-                OTA_LOG_L1( "[%s] Unexpected Event. Current State [%s] Event  [%s]  \n",
-                            OTA_METHOD_NAME,
-                            pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
-                            pcOTA_Event_Strings[ xEventMsg.xEventId ] );
+                /*
+                 * Handle unexpected events.
+                 */
+                prvHandleUnexpectedEvents( &xEventMsg );
             }
         }
     }
