@@ -747,7 +747,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
         pxLabel = ppxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
-                                                ( const char * ) pxLabel,
+                                                ( char * ) pxLabel,
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
@@ -762,7 +762,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
             if( xResult == CKR_OK )
             {
                 xResult = xFindObjectWithLabelAndClass( xSession,
-                                                        ( const char * ) pxLabel,
+                                                        ( char * ) pxLabel,
                                                         xClass[ uiIndex ],
                                                         &xObjectHandle );
             }

@@ -48,8 +48,8 @@
  *
  *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
  */
-CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
-                      CK_SLOT_ID xSlotId )
+static CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
+                             CK_SLOT_ID xSlotId )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
@@ -196,12 +196,12 @@ CK_RV xInitializePkcs11Token( void )
             xTokenFlags = pxTokenInfo->flags;
         }
 
-        if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
+        if( ( CKR_OK == xResult ) && ( ( CKF_TOKEN_INITIALIZED & xTokenFlags ) != CKF_TOKEN_INITIALIZED ) )
         {
             /* Initialize the token if it is not already. */
             xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
                                                    ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
-                                                   sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
+                                                   sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1UL,
                                                    ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
         }
     }
@@ -270,7 +270,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         xResult = pxFunctionList->C_Login( *pxSession,
                                            CKU_USER,
                                            ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
-                                           sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
+                                           sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1UL );
     }
 
     return xResult;
@@ -278,7 +278,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 /*-----------------------------------------------------------*/
 
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    const char * pcLabelName,
+                                    char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle )
 {
@@ -294,7 +294,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     else
     {
         xTemplate[ 0 ].type = CKA_LABEL;
-        xTemplate[ 0 ].pValue = ( char * ) pcLabelName;
+        xTemplate[ 0 ].pValue = ( CK_VOID_PTR ) pcLabelName;
         xTemplate[ 0 ].ulValueLen = strlen( pcLabelName );
 
         xTemplate[ 1 ].type = CKA_CLASS;
@@ -325,7 +325,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
-    if( ( NULL != pxHandle ) && ( ulCount == 0 ) )
+    if( ( NULL != pxHandle ) && ( ulCount == 0UL ) )
     {
         *pxHandle = CK_INVALID_HANDLE;
     }
@@ -335,11 +335,11 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
-CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * puc32ByteHashedMessage,
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( const uint8_t * puc32ByteHashedMessage,
                                                 uint8_t * puc51ByteHashOidBuffer )
 {
     CK_RV xResult = CKR_OK;
-    uint8_t pucOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
+    const uint8_t pucOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
 
     if( ( puc32ByteHashedMessage == NULL ) || ( puc51ByteHashOidBuffer == NULL ) )
     {
@@ -348,8 +348,8 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * puc32ByteHashedMessage
 
     if( xResult == CKR_OK )
     {
-        memcpy( puc51ByteHashOidBuffer, pucOidSequence, sizeof( pucOidSequence ) );
-        memcpy( &puc51ByteHashOidBuffer[ sizeof( pucOidSequence ) ], puc32ByteHashedMessage, 32 );
+        ( void ) memcpy( puc51ByteHashOidBuffer, pucOidSequence, sizeof( pucOidSequence ) );
+        ( void ) memcpy( &puc51ByteHashOidBuffer[ sizeof( pucOidSequence ) ], puc32ByteHashedMessage, 32 );
     }
 
     return xResult;

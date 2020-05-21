@@ -186,7 +186,7 @@ typedef struct PKCS11_CertificateTemplate
     CK_ATTRIBUTE xValue;           /**< @brief CKA_VALUE, the DER byte array of the certificate contents. */
     CK_ATTRIBUTE xLabel;           /**< @brief CKA_LABEL. */
     CK_ATTRIBUTE xTokenObject;     /**< @brief CKA_TOKEN. */
-} PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
+} PKCS11_CertificateTemplate_t;
 
 /*------------------------ PKCS #11 wrapper functions -------------------------*/
 
@@ -299,7 +299,7 @@ CK_RV xInitializePkcs11Token( void );
  */
 /* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    const char * pcLabelName,
+                                    char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
 /* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
@@ -324,7 +324,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *
  */
 /* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
-CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * puc32ByteHashedMessage,
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( const uint8_t * puc32ByteHashedMessage,
                                                 uint8_t * puc51ByteHashOidBuffer );
 /* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 

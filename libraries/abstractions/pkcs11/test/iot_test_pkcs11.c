@@ -561,7 +561,7 @@ void prvFindObjectTest( void )
 
     /* Try to find an object that has never been created. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            ( const char * ) "This label doesn't exist",
+                                            ( char * ) "This label doesn't exist",
                                             CKO_PUBLIC_KEY,
                                             &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
