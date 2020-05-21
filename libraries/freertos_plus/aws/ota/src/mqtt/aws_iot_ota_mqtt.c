@@ -362,6 +362,177 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 }
 
 /*
+ * Publish a message to the job status topic.
+ */
+static void prvPublishStatusMessage( OTA_AgentContext_t * pxAgentCtx,
+                                     OTA_JobStatus_t eStatus,
+                                     const char * pcMsg,
+                                     uint32_t ulMsgSize,
+                                     IotMqttQos_t eQOS )
+{
+    DEFINE_OTA_METHOD_NAME( "prvPublishStatusMessage" );
+
+    uint32_t ulTopicLen = 0;
+    IotMqttError_t eResult;
+    char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
+
+    /* Try to build the dynamic job status topic . */
+    ulTopicLen = ( uint32_t ) snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
+                                        sizeof( pcTopicBuffer ),
+                                        pcOTA_JobStatus_TopicTemplate,
+                                        pxAgentCtx->pcThingName,
+                                        pxAgentCtx->pcOTA_Singleton_ActiveJobName );
+
+    /* If the topic name was built, try to publish the status message to it. */
+    if( ( ulTopicLen > 0UL ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
+    {
+        OTA_LOG_L1( "[%s] Msg: %s\r\n", OTA_METHOD_NAME, pcMsg );
+        eResult = prvPublishMessage(
+            pxAgentCtx,
+            pcTopicBuffer,
+            ( uint16_t ) ulTopicLen,
+            &pcMsg[ 0 ],
+            ulMsgSize,
+            eQOS );
+
+        if( eResult != IOT_MQTT_SUCCESS )
+        {
+            OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] '%s' to %s\r\n", OTA_METHOD_NAME, pcOTA_JobStatus_Strings[ eStatus ], pcTopicBuffer );
+        }
+    }
+    else
+    {
+        OTA_LOG_L1( "[%s] Failed to build job status topic!\r\n", OTA_METHOD_NAME );
+    }
+}
+
+static uint32_t prvBuildStatusMessageReceiving( char * pcMsgBuffer,
+                                                size_t xMsgBufferSize,
+                                                OTA_JobStatus_t eStatus,
+                                                OTA_FileContext_t * pxOTAFileCtx )
+{
+    DEFINE_OTA_METHOD_NAME( "prvBuildStatusMessageReceiving" );
+
+    uint32_t ulNumBlocks = 0;
+    uint32_t ulReceived = 0;
+    uint32_t ulMsgSize = 0;
+
+    if( pxOTAFileCtx != NULL )
+    {
+        ulNumBlocks = ( pxOTAFileCtx->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
+        ulReceived = ulNumBlocks - pxOTAFileCtx->ulBlocksRemaining;
+
+        if( ( ulReceived % OTA_UPDATE_STATUS_FREQUENCY ) == 0U ) /* Output a status update once in a while. */
+        {
+            ulMsgSize = ( uint32_t ) snprintf( pcMsgBuffer,      /*lint -e586 Intentionally using snprintf. */
+                                               xMsgBufferSize,
+                                               pcOTA_JobStatus_StatusTemplate,
+                                               pcOTA_JobStatus_Strings[ eStatus ] );
+            ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
+                                                xMsgBufferSize - ulMsgSize,
+                                                pcOTA_JobStatus_ReceiveDetailsTemplate,
+                                                pcOTA_String_Receive,
+                                                ulReceived,
+                                                ulNumBlocks );
+        }
+    }
+    else
+    {
+        /* Can't send a status update without data from the OTA context. Some calls intentionally
+         * don't use a context structure but never with this reason code so log this error. */
+        OTA_LOG_L1( "[%s] Error: null context pointer!\r\n", OTA_METHOD_NAME );
+    }
+
+    return ulMsgSize;
+}
+
+static uint32_t prvBuildStatusMessageSelfTest( char * pcMsgBuffer,
+                                               size_t xMsgBufferSize,
+                                               OTA_JobStatus_t eStatus,
+                                               int32_t lReason )
+{
+    uint32_t ulMsgSize = 0;
+
+    /* We're no longer receiving but we're still In Progress so we are implicitly in the Self
+     * Test phase. Prepare to update the job status with the self_test phase (ready or active). */
+    ulMsgSize = ( uint32_t ) snprintf( pcMsgBuffer, /*lint -e586 Intentionally using snprintf. */
+                                       xMsgBufferSize,
+                                       pcOTA_JobStatus_StatusTemplate,
+                                       pcOTA_JobStatus_Strings[ eStatus ] );
+    ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
+                                        xMsgBufferSize - ulMsgSize,
+                                        pcOTA_JobStatus_SelfTestDetailsTemplate,
+                                        pcOTA_JSON_SelfTestKey,
+                                        pcOTA_JobReason_Strings[ lReason ],
+                                        xAppFirmwareVersion.u.ulVersion32 );
+
+    return ulMsgSize;
+}
+
+static uint32_t prvBuildStatusMessageFinish( char * pcMsgBuffer,
+                                             size_t xMsgBufferSize,
+                                             OTA_JobStatus_t eStatus,
+                                             int32_t lReason,
+                                             int32_t lSubReason )
+{
+    uint32_t ulMsgSize = 0;
+
+    ulMsgSize = ( uint32_t ) snprintf( pcMsgBuffer, /*lint -e586 Intentionally using snprintf. */
+                                       xMsgBufferSize,
+                                       pcOTA_JobStatus_StatusTemplate,
+                                       pcOTA_JobStatus_Strings[ eStatus ] );
+
+    /* FailedWithVal uses a numeric OTA error code and sub-reason code to cover the case where there
+     * may be too many description strings to reasonably include in the code.
+     */
+    if( eStatus == eJobStatus_FailedWithVal )
+    {
+        ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
+                                            xMsgBufferSize - ulMsgSize,
+                                            pcOTA_JobStatus_ReasonValTemplate,
+                                            lReason,
+                                            lSubReason );
+    }
+
+    /* If the status update is for "Succeeded," we are identifying the version of firmware
+     * that has been accepted. This makes it easy to find the version associated with each
+     * device (aka Thing) when examining the OTA jobs on the service side via the CLI or
+     * possibly with some console tool.
+     */
+    else if( eStatus == eJobStatus_Succeeded )
+    {
+        AppVersion32_t xNewVersion;
+
+        xNewVersion.u.lVersion32 = lSubReason;
+        ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
+                                            xMsgBufferSize - ulMsgSize,
+                                            pcOTA_JobStatus_SucceededStrTemplate,
+                                            pcOTA_JobReason_Strings[ lReason ],
+                                            xNewVersion.u.x.ucMajor,
+                                            xNewVersion.u.x.ucMinor,
+                                            xNewVersion.u.x.usBuild );
+    }
+
+    /* Status updates that are NOT "InProgress" or "Succeeded" or "FailedWithVal" map status and
+     * reason codes to a string plus a sub-reason code.
+     */
+    else
+    {
+        ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
+                                            xMsgBufferSize - ulMsgSize,
+                                            pcOTA_JobStatus_ReasonStrTemplate,
+                                            pcOTA_JobReason_Strings[ lReason ],
+                                            lSubReason );
+    }
+
+    return ulMsgSize;
+}
+
+/*
  * This function queues callback events for processing.
  */
 static void prvSendCallbackEvent( void * pvCallbackContext,
@@ -523,170 +694,47 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
 {
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus_Mqtt" );
 
-    uint32_t ulTopicLen, ulNumBlocks, ulReceived, ulMsgSize;
-    IotMqttError_t eResult;
-    IotMqttQos_t eQOS;
-    char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
-    char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
-
-    /*
-     * Get the current file context.
-     */
-    OTA_FileContext_t * C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
-
-    /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
-    eQOS = IOT_MQTT_QOS_1;
-
     /* A message size of zero means don't publish anything. */
-    ulMsgSize = 0UL;
+    uint32_t ulMsgSize = 0;
+    /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
+    IotMqttQos_t eQOS = IOT_MQTT_QOS_1;
+    char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
+
+    /* Get the current file context. */
+    OTA_FileContext_t * C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
     if( eStatus == eJobStatus_InProgress )
     {
         if( lReason == ( int32_t ) eJobReason_Receiving )
         {
-            if( C != NULL )
-            {
-                ulNumBlocks = ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
-                ulReceived = ulNumBlocks - C->ulBlocksRemaining;
+            ulMsgSize = prvBuildStatusMessageReceiving( pcMsg, sizeof( pcMsg ), eStatus, C );
 
-                if( ( ulReceived % OTA_UPDATE_STATUS_FREQUENCY ) == 0U ) /* Output a status update once in a while. */
-                {
-                    /* Downgrade Progress updates to QOS 0 to avoid overloading MQTT buffers during active streaming. */
-                    eQOS = IOT_MQTT_QOS_0;
-                    ulMsgSize = ( uint32_t ) snprintf( pcMsg, /*lint -e586 Intentionally using snprintf. */
-                                                       sizeof( pcMsg ),
-                                                       pcOTA_JobStatus_StatusTemplate,
-                                                       pcOTA_JobStatus_Strings[ eStatus ] );
-                    ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                                        sizeof( pcMsg ) - ulMsgSize,
-                                                        pcOTA_JobStatus_ReceiveDetailsTemplate,
-                                                        pcOTA_String_Receive,
-                                                        ulReceived,
-                                                        ulNumBlocks );
-                }
-                else
-                { /* Don't send a status update yet. */
-                    ulMsgSize = 0UL;
-                }
-            }
-            else
+            if( ulMsgSize > 0 )
             {
-                /* Can't send a status update without data from the OTA context. Some calls intentionally
-                 * don't use a context structure but never with this reason code so log this error. */
-                OTA_LOG_L1( "[%s] Error: null context pointer!\r\n", OTA_METHOD_NAME );
-                ulMsgSize = 0UL;
+                /* Downgrade Progress updates to QOS 0 to avoid overloading MQTT buffers during active streaming. */
+                eQOS = IOT_MQTT_QOS_0;
             }
         }
         else
         {
-            /* We're no longer receiving but we're still In Progress so we are implicitly in the Self
-             * Test phase. Prepare to update the job status with the self_test phase (ready or active). */
-            ulMsgSize = ( uint32_t ) snprintf( pcMsg, /*lint -e586 Intentionally using snprintf. */
-                                               sizeof( pcMsg ),
-                                               pcOTA_JobStatus_StatusTemplate,
-                                               pcOTA_JobStatus_Strings[ eStatus ] );
-            ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                                sizeof( pcMsg ) - ulMsgSize,
-                                                pcOTA_JobStatus_SelfTestDetailsTemplate,
-                                                pcOTA_JSON_SelfTestKey,
-                                                pcOTA_JobReason_Strings[ lReason ],
-                                                xAppFirmwareVersion.u.ulVersion32 );
+            ulMsgSize = prvBuildStatusMessageSelfTest( pcMsg, sizeof( pcMsg ), eStatus, lReason );
         }
     }
     else
     {
         if( eStatus < eNumJobStatusMappings )
         {
-            /* Status updates that are NOT "IN PROGRESS" or "SUCCEEDED" map status and reason codes
-             * to a string plus a sub-reason code except for FailedWithVal status. FailedWithVal uses
-             * a numeric OTA error code and sub-reason code to cover the case where there may be too
-             * many description strings to reasonably include in the code.
-             */
-            ulMsgSize = ( uint32_t ) snprintf( pcMsg, /*lint -e586 Intentionally using snprintf. */
-                                               sizeof( pcMsg ),
-                                               pcOTA_JobStatus_StatusTemplate,
-                                               pcOTA_JobStatus_Strings[ eStatus ] );
-
-            if( eStatus == eJobStatus_FailedWithVal )
-            {
-                ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                                    sizeof( pcMsg ) - ulMsgSize,
-                                                    pcOTA_JobStatus_ReasonValTemplate,
-                                                    lReason,
-                                                    lSubReason );
-            }
-
-            /* If the status update is for "SUCCEEDED," we are identifying the version of firmware
-             * that has been accepted. This makes it easy to find the version associated with each
-             * device (aka Thing) when examining the OTA jobs on the service side via the CLI or
-             * possibly with some console tool.
-             */
-            else if( eStatus == eJobStatus_Succeeded )
-            {
-                AppVersion32_t xNewVersion;
-
-                xNewVersion.u.lVersion32 = lSubReason;
-                ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                                    sizeof( pcMsg ) - ulMsgSize,
-                                                    pcOTA_JobStatus_SucceededStrTemplate,
-                                                    pcOTA_JobReason_Strings[ lReason ],
-                                                    xNewVersion.u.x.ucMajor,
-                                                    xNewVersion.u.x.ucMinor,
-                                                    xNewVersion.u.x.usBuild );
-            }
-            else
-            {
-                ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                                    sizeof( pcMsg ) - ulMsgSize,
-                                                    pcOTA_JobStatus_ReasonStrTemplate,
-                                                    pcOTA_JobReason_Strings[ lReason ],
-                                                    lSubReason );
-            }
+            ulMsgSize = prvBuildStatusMessageFinish( pcMsg, sizeof( pcMsg ), eStatus, lReason, lSubReason );
         }
         else
-        { /* Unknown status code. Just ignore it. */
-            ulMsgSize = 0UL;
+        {
+            OTA_LOG_L1( "[%s] Unknown status code: %d\r\n", OTA_METHOD_NAME, eStatus );
         }
     }
 
     if( ulMsgSize > 0UL )
     {
-        /* Try to build the dynamic job status topic . */
-        ulTopicLen = ( uint32_t ) snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
-                                            sizeof( pcTopicBuffer ),
-                                            pcOTA_JobStatus_TopicTemplate,
-                                            pxAgentCtx->pcThingName,
-                                            pxAgentCtx->pcOTA_Singleton_ActiveJobName );
-
-        /* If the topic name was built, try to publish the status message to it. */
-        if( ( ulTopicLen > 0UL ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
-        {
-            OTA_LOG_L1( "[%s] Msg: %s\r\n", OTA_METHOD_NAME, pcMsg );
-            eResult = prvPublishMessage(
-                pxAgentCtx,
-                pcTopicBuffer,
-                ( uint16_t ) ulTopicLen,
-                &pcMsg[ 0 ],
-                ulMsgSize,
-                eQOS );
-
-            if( eResult != IOT_MQTT_SUCCESS )
-            {
-                OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-            }
-            else
-            {
-                OTA_LOG_L1( "[%s] '%s' to %s\r\n", OTA_METHOD_NAME, pcOTA_JobStatus_Strings[ eStatus ], pcTopicBuffer );
-            }
-        }
-        else
-        {
-            OTA_LOG_L1( "[%s] Failed to build job status topic!\r\n", OTA_METHOD_NAME );
-        }
-    }
-    else
-    {
-        /* Just ignore the zero length message. */
+        prvPublishStatusMessage( pxAgentCtx, eStatus, pcMsg, ulMsgSize, eQOS );
     }
 
     return kOTA_Err_None;
