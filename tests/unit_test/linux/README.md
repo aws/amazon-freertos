@@ -137,7 +137,7 @@ endif()
     * Testing functions must start with *test_*
     * We use unity to test and assert results
 8.  You should be ready to go by now<br>
-    Always remember, if it is not tested it doens't work :( ... Happy Testing!
+    Always remember, if it is not tested it doesn't work :( ... Happy Testing!
 
 
 
