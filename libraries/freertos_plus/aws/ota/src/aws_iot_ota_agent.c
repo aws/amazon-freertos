@@ -73,16 +73,6 @@ typedef struct OTAStateTableEntry
 } OTAStateTableEntry_t;
 
 /*
-  * Returns the byte offset of the element 'e' in the typedef structure 't'.
-  * Setting an arbitrarily large base of 0x10000 and masking off that base allows
-  * us to do the same thing as a zero offset without the lint warnings of using a
-  * null pointer. No structure is anywhere near 64K in size.
-  */
-/*lint -emacro((923,9078),OFFSET_OF) Intentionally cast pointer to uint32_t because we are using it as an offset. */
-
-#define OFFSET_OF( t, e )    ( ( uint32_t ) ( &( ( t * ) 0x10000UL )->e ) & 0xffffUL )
-
-/*
   * This union allows us to access document model parameter addresses as their
   * actual type without casting every time we access a parameter.
   */
@@ -1823,23 +1813,23 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     {
         { pcOTA_JSON_ClientTokenKey,   OTA_JOB_PARAM_OPTIONAL, { ( uint32_t ) &xOTA_Agent.pcClientTokenFromJob }, eModelParamType_StringInDoc, JSMN_STRING    }, /*lint !e9078 !e923 Get address of token as value. */
         { pcOTA_JSON_ExecutionKey,     OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_JobIDKey,         OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucJobName )    }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_JobIDKey,         OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pucJobName )     }, eModelParamType_StringCopy,  JSMN_STRING    },
         { pcOTA_JSON_StatusDetailsKey, OTA_JOB_PARAM_OPTIONAL, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_SelfTestKey,      OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, xIsInSelfTest ) }, eModelParamType_Ident,       JSMN_STRING    },
-        { pcOTA_JSON_UpdatedByKey,     OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, ulUpdaterVersion )}, eModelParamType_UInt32,      JSMN_STRING    },
+        { pcOTA_JSON_SelfTestKey,      OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, xIsInSelfTest )  }, eModelParamType_Ident,       JSMN_STRING    },
+        { pcOTA_JSON_UpdatedByKey,     OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, ulUpdaterVersion )}, eModelParamType_UInt32,      JSMN_STRING    },
         { pcOTA_JSON_JobDocKey,        OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
         { pcOTA_JSON_OTAUnitKey,       OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_StreamNameKey,    OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, pucStreamName ) }, eModelParamType_StringCopy,  JSMN_STRING    },
-        { pcOTA_JSON_ProtocolsKey,     OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucProtocols )  }, eModelParamType_ArrayCopy,   JSMN_ARRAY     },
+        { pcOTA_JSON_StreamNameKey,    OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, pucStreamName )  }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_ProtocolsKey,     OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pucProtocols )   }, eModelParamType_ArrayCopy,   JSMN_ARRAY     },
         { pcOTA_JSON_FileGroupKey,     OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Array,       JSMN_ARRAY     },
-        { pcOTA_JSON_FilePathKey,      OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucFilePath )   }, eModelParamType_StringCopy,  JSMN_STRING    },
-        { pcOTA_JSON_FileSizeKey,      OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, ulFileSize )    }, eModelParamType_UInt32,      JSMN_PRIMITIVE },
-        { pcOTA_JSON_FileIDKey,        OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, ulServerFileID )}, eModelParamType_UInt32,      JSMN_PRIMITIVE },
-        { pcOTA_JSON_FileCertNameKey,  OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucCertFilepath )}, eModelParamType_StringCopy,  JSMN_STRING    },
-        { pcOTA_JSON_UpdateDataUrlKey, OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, pucUpdateUrlPath )}, eModelParamType_StringCopy,  JSMN_STRING    },
-        { pcOTA_JSON_AuthSchemeKey,    OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, pucAuthScheme ) }, eModelParamType_StringCopy,  JSMN_STRING    },
-        { cOTA_JSON_FileSignatureKey,  OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pxSignature )   }, eModelParamType_SigBase64,   JSMN_STRING    },
-        { pcOTA_JSON_FileAttributeKey, OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, ulFileAttributes )}, eModelParamType_UInt32,      JSMN_PRIMITIVE },
+        { pcOTA_JSON_FilePathKey,      OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pucFilePath )    }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_FileSizeKey,      OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, ulFileSize )     }, eModelParamType_UInt32,      JSMN_PRIMITIVE },
+        { pcOTA_JSON_FileIDKey,        OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, ulServerFileID ) }, eModelParamType_UInt32,      JSMN_PRIMITIVE },
+        { pcOTA_JSON_FileCertNameKey,  OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pucCertFilepath )}, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_UpdateDataUrlKey, OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, pucUpdateUrlPath )}, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_AuthSchemeKey,    OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, pucAuthScheme )  }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { cOTA_JSON_FileSignatureKey,  OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pxSignature )    }, eModelParamType_SigBase64,   JSMN_STRING    },
+        { pcOTA_JSON_FileAttributeKey, OTA_JOB_PARAM_OPTIONAL, { offsetof( OTA_FileContext_t, ulFileAttributes )}, eModelParamType_UInt32,      JSMN_PRIMITIVE },
     };
 
     OTA_JobParseErr_t eErr = eOTA_JobParseErr_Unknown;
@@ -2410,6 +2400,8 @@ static void prvAgentShutdownCleanup( void )
 static void prvHandleUnexpectedEvents( OTA_EventMsg_t * pxEventMsg )
 {
     DEFINE_OTA_METHOD_NAME( "prvHandleUnexpectedEvents" );
+
+    configASSERT( pxEventMsg );
 
     OTA_LOG_L1( "[%s] Unexpected Event. Current State [%s] Received Event  [%s] \n",
                 OTA_METHOD_NAME,
