@@ -123,6 +123,7 @@ uint32_t app_timer_create(app_timer_id_t const *      p_timer_id,
     app_timer_info_t * pinfo = (app_timer_info_t*)(*p_timer_id);
     uint32_t      err_code = NRF_SUCCESS;
     unsigned long timer_mode;
+    TimerHandle_t timer_handle;
 
     if ((timeout_handler == NULL) || (p_timer_id == NULL))
     {
@@ -133,26 +134,40 @@ uint32_t app_timer_create(app_timer_id_t const *      p_timer_id,
         return NRF_ERROR_INVALID_STATE;
     }
 
-    if (pinfo->osHandle == NULL)
+    /* If a FreeRTOS timer already exists, delete and recreate the timer. */
+    if (pinfo->osHandle != NULL)
     {
-        /* New timer is created */
-        memset(pinfo, 0, sizeof(app_timer_info_t));
+        timer_handle = ( TimerHandle_t ) ( pinfo->osHandle );
+        /* Return error if the timer is active */
+        if( xTimerIsTimerActive( timer_handle ) )
+        {
+            return NRF_ERROR_INVALID_STATE;
+        }
 
-        if (mode == APP_TIMER_MODE_SINGLE_SHOT)
-            timer_mode = pdFALSE;
-        else
-            timer_mode = pdTRUE;
+        if( xTimerDelete( timer_handle, portMAX_DELAY ) != pdTRUE )
+        {
+            return NRF_ERROR_INVALID_STATE;
+        }
+    }
 
-        pinfo->func = timeout_handler;
-        pinfo->osHandle = xTimerCreate(" ", 1000, timer_mode, pinfo, app_timer_callback);
+    /* New timer is created */
+    memset(pinfo, 0, sizeof(app_timer_info_t));
 
-        if (pinfo->osHandle == NULL)
-            err_code = NRF_ERROR_NULL;
+    if (mode == APP_TIMER_MODE_SINGLE_SHOT)
+    {
+        timer_mode = pdFALSE;
     }
     else
     {
-        /* Timer cannot be reinitialized using FreeRTOS API */
-        return NRF_ERROR_INVALID_STATE;
+        timer_mode = pdTRUE;
+    }
+
+    pinfo->func = timeout_handler;
+    pinfo->osHandle = xTimerCreate(" ", 1000, timer_mode, pinfo, app_timer_callback);
+
+    if (pinfo->osHandle == NULL)
+    {
+        err_code = NRF_ERROR_NULL;
     }
 
     return err_code;

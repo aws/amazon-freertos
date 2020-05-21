@@ -443,7 +443,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
  * @return Zero on success.
  */
 static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
-                                          const char * pcLabelName,
+                                          char * pcLabelName,
                                           CK_OBJECT_CLASS xClass,
                                           mbedtls_x509_crt * pxCertificateContext )
 {
