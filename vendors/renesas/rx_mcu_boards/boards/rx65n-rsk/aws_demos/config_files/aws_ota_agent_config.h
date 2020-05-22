@@ -32,6 +32,11 @@
 #define _AWS_OTA_AGENT_CONFIG_H_
 
 /**
+ * @brief Special OTA Agent printing definition (moved from lib/include/aws_iot_ota_agent.h).
+ */
+#define OTA_DEBUG_LOG_LEVEL                     1
+
+/**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
 #define otaconfigSTACK_SIZE                     3584U

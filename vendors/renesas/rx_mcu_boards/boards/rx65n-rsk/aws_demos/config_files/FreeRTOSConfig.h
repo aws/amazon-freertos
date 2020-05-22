@@ -29,7 +29,7 @@
 #include "serial_term_uart.h"
 
 /* Unity includes. */
-#if defined( AMAZON_FREERTOS_ENABLE_UNIT_TESTS )
+#if defined(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
 #include "unity_internals.h"
 #elif defined(ENABLE_UNIT_TESTS)
 #include "unity.h"
