@@ -2154,6 +2154,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
 static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
                                                      uint32_t ulMsgLen )
 {
+    DEFINE_OTA_METHOD_NAME( "prvGetFileContextFromJob" );
+
     uint32_t ulIndex;
     uint32_t ulNumBlocks;              /* How many data pages are in the expected update image. */
     uint32_t ulBitmapLen;              /* Length of the file block bitmap in bytes. */
@@ -2162,73 +2164,69 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
 
     bool_t bUpdateJob = false;
 
-    DEFINE_OTA_METHOD_NAME( "prvGetFileContextFromJob" );
-
     /* Populate an OTA file context from the OTA job document. */
 
     pstUpdateFile = prvParseJobDoc( pcRawMsg, ulMsgLen, &bUpdateJob );
 
-    if( !bUpdateJob )
+    if( bUpdateJob )
     {
-        if( ( pstUpdateFile != NULL ) && ( prvInSelftest() == false ) )
+        OTA_LOG_L1( "[%s] We receive a job update.\r\n", OTA_METHOD_NAME );
+    }
+
+    if( !bUpdateJob && ( pstUpdateFile != NULL ) && ( prvInSelftest() == false ) )
+    {
+        if( pstUpdateFile->pucRxBlockBitmap != NULL )
         {
-            if( pstUpdateFile->pucRxBlockBitmap != NULL )
+            vPortFree( pstUpdateFile->pucRxBlockBitmap ); /* Free any previously allocated bitmap. */
+            pstUpdateFile->pucRxBlockBitmap = NULL;
+        }
+
+        /* Calculate how many bytes we need in our bitmap for tracking received blocks.
+         * The below calculation requires power of 2 page sizes. */
+
+        ulNumBlocks = ( pstUpdateFile->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
+        ulBitmapLen = ( ulNumBlocks + ( BITS_PER_BYTE - 1U ) ) >> LOG2_BITS_PER_BYTE;
+        pstUpdateFile->pucRxBlockBitmap = ( uint8_t * ) pvPortMalloc( ulBitmapLen ); /*lint !e9079 FreeRTOS malloc port returns void*. */
+
+        if( pstUpdateFile->pucRxBlockBitmap != NULL )
+        {
+            /* Set all bits in the bitmap to the erased state (we use 1 for erased just like flash memory). */
+            memset( pstUpdateFile->pucRxBlockBitmap, ( int ) OTA_ERASED_BLOCKS_VAL, ulBitmapLen );
+
+            /* Mark as used any pages in the bitmap that are out of range, based on the file size.
+             * This keeps us from requesting those pages during retry processing or if using a windowed
+             * block request. It also avoids erroneously accepting an out of range data block should it
+             * get past any safety checks.
+             * Files aren't always a multiple of 8 pages (8 bits/pages per byte) so some bits of the
+             * last byte may be out of range and those are the bits we want to clear. */
+
+            uint8_t ulBit = 1U << ( BITS_PER_BYTE - 1U );
+            uint32_t ulNumOutOfRange = ( ulBitmapLen * BITS_PER_BYTE ) - ulNumBlocks;
+
+            for( ulIndex = 0U; ulIndex < ulNumOutOfRange; ulIndex++ )
             {
-                vPortFree( pstUpdateFile->pucRxBlockBitmap ); /* Free any previously allocated bitmap. */
-                pstUpdateFile->pucRxBlockBitmap = NULL;
+                pstUpdateFile->pucRxBlockBitmap[ ulBitmapLen - 1U ] &= ~ulBit;
+                ulBit >>= 1U;
             }
 
-            /* Calculate how many bytes we need in our bitmap for tracking received blocks.
-             * The below calculation requires power of 2 page sizes. */
+            pstUpdateFile->ulBlocksRemaining = ulNumBlocks; /* Initialize our blocks remaining counter. */
 
-            ulNumBlocks = ( pstUpdateFile->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
-            ulBitmapLen = ( ulNumBlocks + ( BITS_PER_BYTE - 1U ) ) >> LOG2_BITS_PER_BYTE;
-            pstUpdateFile->pucRxBlockBitmap = ( uint8_t * ) pvPortMalloc( ulBitmapLen ); /*lint !e9079 FreeRTOS malloc port returns void*. */
+            /* Create/Open the OTA file on the file system. */
+            xErr = xOTA_Agent.xPALCallbacks.xCreateFileForRx( pstUpdateFile );
 
-            if( pstUpdateFile->pucRxBlockBitmap != NULL )
+            if( xErr != kOTA_Err_None )
             {
-                /* Set all bits in the bitmap to the erased state (we use 1 for erased just like flash memory). */
-                memset( pstUpdateFile->pucRxBlockBitmap, ( int ) OTA_ERASED_BLOCKS_VAL, ulBitmapLen );
-
-                /* Mark as used any pages in the bitmap that are out of range, based on the file size.
-                 * This keeps us from requesting those pages during retry processing or if using a windowed
-                 * block request. It also avoids erroneously accepting an out of range data block should it
-                 * get past any safety checks.
-                 * Files aren't always a multiple of 8 pages (8 bits/pages per byte) so some bits of the
-                 * last byte may be out of range and those are the bits we want to clear. */
-
-                uint8_t ulBit = 1U << ( BITS_PER_BYTE - 1U );
-                uint32_t ulNumOutOfRange = ( ulBitmapLen * BITS_PER_BYTE ) - ulNumBlocks;
-
-                for( ulIndex = 0U; ulIndex < ulNumOutOfRange; ulIndex++ )
-                {
-                    pstUpdateFile->pucRxBlockBitmap[ ulBitmapLen - 1U ] &= ~ulBit;
-                    ulBit >>= 1U;
-                }
-
-                pstUpdateFile->ulBlocksRemaining = ulNumBlocks; /* Initialize our blocks remaining counter. */
-
-                /* Create/Open the OTA file on the file system. */
-                xErr = xOTA_Agent.xPALCallbacks.xCreateFileForRx( pstUpdateFile );
-
-                if( xErr != kOTA_Err_None )
-                {
-                    ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
-                    ( void ) prvOTA_Close( pstUpdateFile ); /* Ignore false result since we're setting the pointer to null on the next line. */
-                    pstUpdateFile = NULL;
-                }
-            }
-            else
-            {
-                /* Can't receive the image without enough memory. */
-                ( void ) prvOTA_Close( pstUpdateFile );
+                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, ( int32_t ) xErr );
+                ( void ) prvOTA_Close( pstUpdateFile ); /* Ignore false result since we're setting the pointer to null on the next line. */
                 pstUpdateFile = NULL;
             }
         }
-    }
-    else
-    {
-        OTA_LOG_L1( "[%s] We receive a job update.\r\n", OTA_METHOD_NAME );
+        else
+        {
+            /* Can't receive the image without enough memory. */
+            ( void ) prvOTA_Close( pstUpdateFile );
+            pstUpdateFile = NULL;
+        }
     }
 
     return pstUpdateFile; /* Return the OTA file context. */
@@ -2798,7 +2796,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
             /*
              * Store the Thing name to be used for topics later.
              */
-            memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL );     /* Include zero terminator when saving the Thing name. */
+            memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL ); /* Include zero terminator when saving the Thing name. */
         }
 
         xReturn = prvStartOTAAgentTask( pvConnectionContext, xTicksToWait );
