@@ -179,7 +179,7 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C );
 /* Internal function to set the image state including an optional reason code. */
 
 static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
-                                             uint32_t ulReason );
+                                             int32_t ulReason );
 
 /* The default OTA callback handler if not provided to OTA_AgentInit(). */
 
@@ -513,14 +513,14 @@ static void prvStopRequestTimer( void )
 }
 
 static void prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
-                                              uint32_t ulSubReason )
+                                              int32_t lSubReason )
 {
     int32_t lReason = 0;
 
     if( eState == eOTA_ImageState_Testing )
     {
         /* We discovered we're ready for test mode, put job status in self_test active. */
-        xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_SelfTestActive, ( int32_t ) NULL );
+        xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, eJobReason_SelfTestActive, 0 );
     }
     else
     {
@@ -528,7 +528,7 @@ static void prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
         {
             /* Now that we've accepted the firmware update, we can complete the job. */
             prvStopSelfTestTimer();
-            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, xAppFirmwareVersion.u.lVersion32 );
+            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Succeeded, eJobReason_Accepted, xAppFirmwareVersion.u.lVersion32 );
         }
         else
         {
@@ -537,7 +537,7 @@ static void prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
              * doesn't allow us to set REJECTED after the job has been started already).
              */
             lReason = eState == eOTA_ImageState_Rejected ? eJobReason_Rejected : eJobReason_Aborted;
-            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Failed, lReason, ( int32_t ) ulSubReason );
+            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Failed, lReason, lSubReason );
         }
 
         /*
@@ -549,7 +549,7 @@ static void prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
 }
 
 static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
-                                             uint32_t ulReason )
+                                             int32_t lReason )
 {
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
@@ -571,9 +571,9 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
          * the original reject reason code since it is possible for the PAL to fail to update the image state in some
          * cases (e.g. a reset already caused the bundle rollback and we failed to rollback again).
          */
-        if( ulReason == kOTA_Err_None )
+        if( lReason == kOTA_Err_None )
         {
-            ulReason = ( uint32_t ) xErr; /*lint !e9044 intentionally override lReason since we failed within this function. */
+            lReason = ( int32_t ) xErr; /*lint !e9044 intentionally override lReason since we failed within this function. */
         }
     }
 
@@ -582,7 +582,7 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
 
     if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
     {
-        prvUpdateJobStatusFromImageState( eState, ulReason );
+        prvUpdateJobStatusFromImageState( eState, lReason );
         xErr = kOTA_Err_None;
     }
     else
@@ -949,7 +949,7 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
              * Failed to set the data interface so abort the OTA.If there is a valid job id,
              * then a job status update will be sent.
              */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn );
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, ( int32_t ) xReturn );
         }
     }
 
@@ -1028,7 +1028,7 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
             prvStopRequestTimer();
 
             /* Failed to send data request abort and close file. */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xErr );
+            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, ( int32_t ) xErr );
 
             /* Send shutdown event. */
             xEventMsg.xEventId = eOTA_AgentEvent_Shutdown;
@@ -2260,8 +2260,8 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
  * that's an error.
  */
 static BaseType_t prvValidateDataBlock( OTA_FileContext_t * C,
-                                        int32_t ulBlockIndex,
-                                        int32_t ulBlockSize )
+                                        uint32_t ulBlockIndex,
+                                        uint32_t ulBlockSize )
 {
     BaseType_t xRet = pdFALSE;
     uint32_t ulLastBlock = 0;
