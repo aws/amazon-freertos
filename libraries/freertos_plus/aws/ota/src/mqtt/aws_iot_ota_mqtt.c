@@ -201,7 +201,7 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
                                           0, /* flags */
                                           OTA_SUBSCRIBE_WAIT_MS );
 
-                  if( eResult == IOT_MQTT_SUCCESS )
+        if( eResult == IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
             bResult = pdTRUE;
@@ -804,11 +804,12 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
     DEFINE_OTA_METHOD_NAME( "prvRequestFileBlock_Mqtt" );
 
-    uint32_t ulMsgSizeToPublish;
     size_t xMsgSizeFromStream;
-    uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
-    IotMqttError_t eResult;
-    OTA_Err_t xErr = kOTA_Err_None;
+    uint32_t ulNumBlocks, ulBitmapLen;
+    uint32_t ulMsgSizeToPublish = 0;
+    uint32_t ulTopicLen = 0;
+    IotMqttError_t eResult = IOT_MQTT_STATUS_PENDING;
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     char pcMsg[ OTA_REQUEST_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
 
@@ -837,59 +838,57 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx )
                 ulBitmapLen,
                 otaconfigMAX_NUM_BLOCKS_REQUEST ) )
         {
-            ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
-
-            /* Try to build the dynamic data REQUEST topic and subscribe to it. */
-            ulTopicLen = ( uint32_t ) snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
-                                                sizeof( pcTopicBuffer ),
-                                                pcOTA_GetStream_TopicTemplate,
-                                                pxAgentCtx->pcThingName,
-                                                ( const char * ) C->pucStreamName );
-
-            if( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
-            {
-                eResult = prvPublishMessage(
-                    pxAgentCtx,
-                    pcTopicBuffer,
-                    ( uint16_t ) ulTopicLen,
-                    &pcMsg[ 0 ],
-                    ulMsgSizeToPublish,
-                    IOT_MQTT_QOS_0 );
-
-                if( eResult != IOT_MQTT_SUCCESS )
-                {
-                    OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-                    xErr = kOTA_Err_PublishFailed;
-                }
-                else
-                {
-                    OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-                }
-
-                /* Restart the timer regardless if we published the Get Stream Request message
-                 * or not.
-                 *
-                 * If we published the message, then the timer will be used to time
-                 * out the OTA not continuing again.
-                 *
-                 * If we failed to publish the message, then
-                 * the timer will be used to retry publishing the message again later.
-                 *
-                 * In both cases the max momentum, if reached, will be used to stop publishing
-                 * the Get Stream Request message. */
-                /*prvStartRequestTimer(C);*/
-            }
-            else
-            {
-                /* 0 should never happen since we supply the format strings. It must be overflow. */
-                OTA_LOG_L1( "[%s] Failed to build stream topic!\r\n", OTA_METHOD_NAME );
-                xErr = kOTA_Err_TopicTooLarge;
-            }
+            xErr = kOTA_Err_None;
         }
         else
         {
             OTA_LOG_L1( "[%s] CBOR encode failed.\r\n", OTA_METHOD_NAME );
             xErr = kOTA_Err_FailedToEncodeCBOR;
+        }
+    }
+
+    if( xErr == kOTA_Err_None )
+    {
+        ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
+
+        /* Try to build the dynamic data REQUEST topic to publish to. */
+        ulTopicLen = ( uint32_t ) snprintf( pcTopicBuffer, /*lint -e586 Intentionally using snprintf. */
+                                            sizeof( pcTopicBuffer ),
+                                            pcOTA_GetStream_TopicTemplate,
+                                            pxAgentCtx->pcThingName,
+                                            ( const char * ) C->pucStreamName );
+
+        if( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
+        {
+            xErr = kOTA_Err_None;
+        }
+        else
+        {
+            /* 0 should never happen since we supply the format strings. It must be overflow. */
+            OTA_LOG_L1( "[%s] Failed to build stream topic!\r\n", OTA_METHOD_NAME );
+            xErr = kOTA_Err_TopicTooLarge;
+        }
+    }
+
+    if( xErr == kOTA_Err_None )
+    {
+        eResult = prvPublishMessage(
+            pxAgentCtx,
+            pcTopicBuffer,
+            ( uint16_t ) ulTopicLen,
+            &pcMsg[ 0 ],
+            ulMsgSizeToPublish,
+            IOT_MQTT_QOS_0 );
+
+        if( eResult != IOT_MQTT_SUCCESS )
+        {
+            OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+            xErr = kOTA_Err_PublishFailed;
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
+            xErr = kOTA_Err_None;
         }
     }
 
