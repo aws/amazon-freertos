@@ -586,7 +586,6 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait );
 
-
 /**
  * @brief Internal OTA Agent initialization function.
  *
@@ -610,8 +609,6 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
                                     const uint8_t * pucThingName,
                                     OTA_PAL_Callbacks_t * xCallbacks,
                                     TickType_t xTicksToWait );
-
-
 
 /**
  * @brief Signal to the OTA Agent to shut down.

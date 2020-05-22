@@ -185,25 +185,25 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
 
 static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent );
 
-/* Default Custom Callback handler if not provided to OTA_AgentInit_internal() */
+/* Default Custom Callback handler if not provided to OTA_AgentInit() */
 
 static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
                                                       uint32_t ulMsgLen );
 
-/* Default Reset Device handler if not provided to OTA_AgentInit_internal() */
+/* Default Reset Device handler if not provided to OTA_AgentInit() */
 
 static OTA_Err_t prvPAL_DefaultResetDevice( uint32_t ulServerFileID );
 
-/* Default Get Platform Image State handler if not provided to OTA_AgentInit_internal() */
+/* Default Get Platform Image State handler if not provided to OTA_AgentInit() */
 
 static OTA_PAL_ImageState_t prvPAL_DefaultGetPlatformImageState( uint32_t ulServerFileID );
 
-/* Default Set Platform Image State handler if not provided to OTA_AgentInit_internal() */
+/* Default Set Platform Image State handler if not provided to OTA_AgentInit() */
 
 static OTA_Err_t prvPAL_DefaultSetPlatformImageState( uint32_t ulServerFileID,
                                                       OTA_ImageState_t eState );
 
-/* Default Activate New Image handler if not provided to OTA_AgentInit_internal() */
+/* Default Activate New Image handler if not provided to OTA_AgentInit() */
 
 static OTA_Err_t prvPAL_DefaultActivateNewImage( uint32_t ulServerFileID );
 
@@ -715,6 +715,101 @@ static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
     OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent which is not supported.\r\n", OTA_METHOD_NAME );
 
     return eOTA_JobParseErr_NonConformingJobDoc;
+}
+
+static void prvSetPALCallbacks( OTA_PAL_Callbacks_t * xCallbacks )
+{
+    configASSERT( xCallbacks != NULL );
+
+    if( xCallbacks->xAbort != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xAbort = xCallbacks->xAbort;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xAbort = prvPAL_Abort;
+    }
+
+    if( xCallbacks->xActivateNewImage != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xActivateNewImage = xCallbacks->xActivateNewImage;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xActivateNewImage = prvPAL_DefaultActivateNewImage;
+    }
+
+    if( xCallbacks->xCloseFile != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xCloseFile = xCallbacks->xCloseFile;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xCloseFile = prvPAL_CloseFile;
+    }
+
+    if( xCallbacks->xCreateFileForRx != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xCreateFileForRx = xCallbacks->xCreateFileForRx;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xCreateFileForRx = prvPAL_CreateFileForRx;
+    }
+
+    if( xCallbacks->xGetPlatformImageState != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xGetPlatformImageState = xCallbacks->xGetPlatformImageState;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xGetPlatformImageState = prvPAL_DefaultGetPlatformImageState;
+    }
+
+    if( xCallbacks->xResetDevice != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xResetDevice = xCallbacks->xResetDevice;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xResetDevice = prvPAL_DefaultResetDevice;
+    }
+
+    if( xCallbacks->xSetPlatformImageState != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xSetPlatformImageState = xCallbacks->xSetPlatformImageState;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xSetPlatformImageState = prvPAL_DefaultSetPlatformImageState;
+    }
+
+    if( xCallbacks->xWriteBlock != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xWriteBlock = xCallbacks->xWriteBlock;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xWriteBlock = prvPAL_WriteBlock;
+    }
+
+    if( xCallbacks->xCompleteCallback != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xCompleteCallback = prvDefaultOTACompleteCallback;
+    }
+
+    if( xCallbacks->xCustomJobCallback != NULL )
+    {
+        xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
+    }
+    else
+    {
+        xOTA_Agent.xPALCallbacks.xCustomJobCallback = prvDefaultCustomJobCallback;
+    }
 }
 
 static OTA_Err_t prvStartHandler( OTA_EventData_t * pxEventData )
@@ -2530,6 +2625,77 @@ static void prvOTAAgentTask( void * pUnused )
     }
 }
 
+static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
+                                        TickType_t xTicksToWait )
+{
+    BaseType_t xReturn = 0;
+    uint32_t ulIndex = 0;
+
+    /*
+     * The actual OTA Task and queue control structure. Only created once.
+     */
+    static TaskHandle_t pxOTA_TaskHandle;
+    static StaticQueue_t xStaticQueue;
+
+    portENTER_CRITICAL();
+
+    /*
+     * The current OTA image state as set by the OTA agent.
+     */
+    xOTA_Agent.eImageState = eOTA_ImageState_Unknown;
+
+    /*
+     * Save the current connection context provided by the user.
+     */
+    xOTA_Agent.pvConnectionContext = pvConnectionContext;
+
+    /*
+     * Create the queue used to pass event messages to the OTA task.
+     */
+    xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_EventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
+    configASSERT( xOTA_Agent.xOTA_EventQueue );
+
+    /*
+     * Create the queue used to pass event messages to the OTA task.
+     */
+    xOTA_Agent.xOTA_ThreadSafetyMutex = xSemaphoreCreateMutex();
+    configASSERT( xOTA_Agent.xOTA_ThreadSafetyMutex );
+
+    /*
+     * Initialize all file paths to NULL.
+     */
+    for( ulIndex = 0; ulIndex < OTA_MAX_FILES; ulIndex++ )
+    {
+        xOTA_Agent.pxOTA_Files[ ulIndex ].pucFilePath = NULL;
+    }
+
+    /*
+     * Make sure OTA event buffers are clear.
+     */
+    for( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
+    {
+        xEventBuffer[ ulIndex ].bBufferUsed = false;
+    }
+
+    xReturn = xTaskCreate( prvOTAAgentTask, "OTA Agent Task", otaconfigSTACK_SIZE, NULL, otaconfigAGENT_PRIORITY, &pxOTA_TaskHandle );
+
+    portEXIT_CRITICAL(); /* Protected elements are initialized. It's now safe to context switch. */
+
+    /*
+     * If task creation succeed, wait for the OTA agent to be ready before proceeding. Otherwise,
+     * let it fall through to exit.
+     */
+    if( xReturn == pdPASS )
+    {
+        while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState != eOTA_AgentState_Ready ) )
+        {
+            vTaskDelay( 1 );
+        }
+    }
+
+    return xReturn;
+}
+
 BaseType_t OTA_SignalEvent( const OTA_EventMsg_t * const pxEventMsg )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_SignalEvent" );
@@ -2569,20 +2735,19 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
 {
-    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
-
     OTA_State_t xState;
 
     if( xOTA_Agent.eState == eOTA_AgentState_Stopped )
     {
         /* Init default OTA pal callbacks. */
-        OTA_PAL_Callbacks_t xDefaultCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
+        OTA_PAL_Callbacks_t xPALCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
 
         /* Set the OTA complete callback. */
-        xDefaultCallbacks.xCompleteCallback = xFunc;
+        xPALCallbacks.xCompleteCallback = xFunc;
 
-        xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xDefaultCallbacks, xTicksToWait );
+        xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xPALCallbacks, xTicksToWait );
     }
+    /* If OTA agent is already running, just update the CompleteCallback and reset the statistics. */
     else
     {
         if( xFunc != NULL )
@@ -2604,15 +2769,8 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentInit_internal" );
 
-    static TaskHandle_t pxOTA_TaskHandle;
-    uint32_t ulIndex;
     BaseType_t xReturn = 0;
     OTA_EventMsg_t xEventMsg = { 0 };
-
-    /*
-     * The actual OTA queue control structure. Only created once.
-     */
-    static StaticQueue_t xStaticQueue;
 
     /*
      * OTA Task is not running yet so update the state to init direclty in OTA context.
@@ -2624,98 +2782,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
      * The OTA agent context is initialized with the prvPAL values. So, if null is passed in, don't
      * do anything and just use the defaults in the OTA structure.
      */
-    if( xCallbacks != NULL )
-    {
-        if( xCallbacks->xAbort != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xAbort = xCallbacks->xAbort;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xAbort = prvPAL_Abort;
-        }
-
-        if( xCallbacks->xActivateNewImage != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xActivateNewImage = xCallbacks->xActivateNewImage;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xActivateNewImage = prvPAL_DefaultActivateNewImage;
-        }
-
-        if( xCallbacks->xCloseFile != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xCloseFile = xCallbacks->xCloseFile;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xCloseFile = prvPAL_CloseFile;
-        }
-
-        if( xCallbacks->xCreateFileForRx != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xCreateFileForRx = xCallbacks->xCreateFileForRx;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xCreateFileForRx = prvPAL_CreateFileForRx;
-        }
-
-        if( xCallbacks->xGetPlatformImageState != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xGetPlatformImageState = xCallbacks->xGetPlatformImageState;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xGetPlatformImageState = prvPAL_DefaultGetPlatformImageState;
-        }
-
-        if( xCallbacks->xResetDevice != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xResetDevice = xCallbacks->xResetDevice;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xResetDevice = prvPAL_DefaultResetDevice;
-        }
-
-        if( xCallbacks->xSetPlatformImageState != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xSetPlatformImageState = xCallbacks->xSetPlatformImageState;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xSetPlatformImageState = prvPAL_DefaultSetPlatformImageState;
-        }
-
-        if( xCallbacks->xWriteBlock != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xWriteBlock = xCallbacks->xWriteBlock;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xWriteBlock = prvPAL_WriteBlock;
-        }
-
-        if( xCallbacks->xCompleteCallback != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xCompleteCallback = prvDefaultOTACompleteCallback;
-        }
-
-        if( xCallbacks->xCustomJobCallback != NULL )
-        {
-            xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
-        }
-        else
-        {
-            xOTA_Agent.xPALCallbacks.xCustomJobCallback = prvDefaultCustomJobCallback;
-        }
-    }
+    prvSetPALCallbacks( xCallbacks );
 
     /*
      * Initialize the OTA control interface based on the application protocol
@@ -2731,7 +2798,11 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
     xOTA_Agent.xStatistics.ulOTA_PacketsQueued = 0;
     xOTA_Agent.xStatistics.ulOTA_PacketsProcessed = 0;
 
-    if( pcThingName != NULL )
+    if( pcThingName == NULL )
+    {
+        OTA_LOG_L1( "[%s]Error: Thing name is NULL.\r\n", OTA_METHOD_NAME );
+    }
+    else
     {
         uint32_t ulStrLen = strlen( ( const char * ) pcThingName );
 
@@ -2740,79 +2811,10 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
             /*
              * Store the Thing name to be used for topics later.
              */
-            memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL ); /* Include zero terminator when saving the Thing name. */
+            memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL );     /* Include zero terminator when saving the Thing name. */
         }
 
-        portENTER_CRITICAL();
-
-        if( xOTA_Agent.eState == eOTA_AgentState_Init )
-        {
-            /*
-             * The current OTA image state as set by the OTA agent.
-             */
-            xOTA_Agent.eImageState = eOTA_ImageState_Unknown;
-
-            /*
-             * Save the current connection context provided by the user.
-             */
-            xOTA_Agent.pvConnectionContext = pvConnectionContext;
-
-            /*
-             * Create the queue used to pass event messages to the OTA task.
-             */
-            xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_EventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
-            configASSERT( xOTA_Agent.xOTA_EventQueue );
-
-            /*
-             * Create the queue used to pass event messages to the OTA task.
-             */
-            xOTA_Agent.xOTA_ThreadSafetyMutex = xSemaphoreCreateMutex();
-            configASSERT( xOTA_Agent.xOTA_ThreadSafetyMutex );
-
-            /*
-             * Initialize all file paths to NULL.
-             */
-            for( ulIndex = 0; ulIndex < OTA_MAX_FILES; ulIndex++ )
-            {
-                xOTA_Agent.pxOTA_Files[ ulIndex ].pucFilePath = NULL;
-            }
-
-            /*
-             * Make sure OTA event buffers are clear.
-             */
-            for( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
-            {
-                xEventBuffer[ ulIndex ].bBufferUsed = false;
-            }
-
-            xReturn = xTaskCreate( prvOTAAgentTask, "OTA Agent Task", otaconfigSTACK_SIZE, NULL, otaconfigAGENT_PRIORITY, &pxOTA_TaskHandle );
-            portEXIT_CRITICAL(); /* Protected elements are initialized. It's now safe to context switch. */
-
-            if( xReturn == pdPASS )
-            {
-                /*
-                 * Wait for the OTA agent to be ready before proceeding.
-                 */
-                while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState != eOTA_AgentState_Ready ) )
-                {
-                    vTaskDelay( 1 );
-                }
-            }
-            else
-            {
-                /*
-                 * Task creation failed so fall through to exit.
-                 */
-            }
-        }
-        else
-        {
-            portEXIT_CRITICAL();
-        }
-    }
-    else
-    {
-        OTA_LOG_L1( "[%s]Error: Thing name is NULL.\r\n", OTA_METHOD_NAME );
+        xReturn = prvStartOTAAgentTask( pvConnectionContext, xTicksToWait );
     }
 
     if( xOTA_Agent.eState == eOTA_AgentState_Ready )
