@@ -518,112 +518,82 @@ static void prvStopRequestTimer( void )
     }
 }
 
-static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
-                                             uint32_t ulReason )
+static void prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
+                                              uint32_t ulSubReason )
 {
-    DEFINE_OTA_METHOD_NAME( "prvSetImageStateWithReason" );
+    int32_t lReason = 0;
 
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
-
-    if( ( eState > eOTA_ImageState_Unknown ) && ( eState <= eOTA_LastImageState ) )
+    if( eState == eOTA_ImageState_Testing )
     {
-        /*
-         * Call the platform specific code to set the image state.
-         */
-        xErr = xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eState );
-
-        /*
-         * If the platform image state couldn't be set correctly, force fail the update.
-         */
-        if( xErr != kOTA_Err_None )
-        {
-            /*
-             * Maintain Aborted since it's also a failed OTA and we want the initial failure type.
-             */
-            if( eState != eOTA_ImageState_Aborted )
-            {
-                eState = eOTA_ImageState_Rejected; /*lint !e9044 intentionally override eState since we failed within this function. */
-
-                if( ulReason == kOTA_Err_None )
-                {
-                    /*
-                     * Capture the failure reason if not already set (and we're not already Aborted as checked above).
-                     */
-                    ulReason = ( uint32_t ) xErr; /*lint !e9044 intentionally override lReason since we failed within this function. */
-                }
-                else
-                {
-                    /*
-                     * Keep the original reject reason code since it is possible for the PAL
-                     * to fail to update the image state in some cases (e.g. a reset already
-                     * caused the bundle rollback and we failed to rollback again).
-                     */
-                }
-            }
-            else
-            {
-                /*
-                 * If it was aborted, keep the original abort reason code. That's more useful
-                 * to the OTA operator.
-                 */
-            }
-        }
-
-        /*
-         * Update the image state in OTA context.
-         */
-        xOTA_Agent.eImageState = eState;
-
-        if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
-        {
-            if( eState == eOTA_ImageState_Testing )
-            {
-                /*
-                 * We discovered we're ready for test mode, put job status in self_test active.
-                 */
-                xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_SelfTestActive, ( int32_t ) NULL );
-            }
-            else
-            {
-                if( eState == eOTA_ImageState_Accepted )
-                {
-                    /*
-                     * Now that we've accepted the firmware update, we can complete the job.
-                     */
-                    prvStopSelfTestTimer();
-                    xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, xAppFirmwareVersion.u.lVersion32 );
-                }
-                else if( eState == eOTA_ImageState_Rejected )
-                {
-                    /*
-                     * The firmware update was rejected, complete the job as FAILED (Job service
-                     * doesn't allow us to set REJECTED after the job has been started already).
-                     */
-                    xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Failed, ( int32_t ) eJobReason_Rejected, ( int32_t ) ulReason );
-                }
-                else /* All other states have been checked so it must be ABORTED. */
-                {
-                    /* Complete the job as FAILED. */
-                    xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Failed, ( int32_t ) eJobReason_Aborted, ( int32_t ) ulReason );
-                }
-
-                /*
-                 * We don't need the job name memory anymore since we're done with this job.
-                 */
-                vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
-            }
-
-            xErr = kOTA_Err_None;
-        }
-        else
-        {
-            xErr = kOTA_Err_NoActiveJob;
-        }
+        /* We discovered we're ready for test mode, put job status in self_test active. */
+        xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_SelfTestActive, ( int32_t ) NULL );
     }
     else
     {
-        xErr = kOTA_Err_BadImageState;
+        if( eState == eOTA_ImageState_Accepted )
+        {
+            /* Now that we've accepted the firmware update, we can complete the job. */
+            prvStopSelfTestTimer();
+            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, xAppFirmwareVersion.u.lVersion32 );
+        }
+        else
+        {
+            /*
+             * The firmware update was either rejected or aborted, complete the job as FAILED (Job service
+             * doesn't allow us to set REJECTED after the job has been started already).
+             */
+            lReason = eState == eOTA_ImageState_Rejected ? eJobReason_Rejected : eJobReason_Aborted;
+            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Failed, lReason, ( int32_t ) ulSubReason );
+        }
+
+        /*
+         * We don't need the job name memory anymore since we're done with this job.
+         */
+        vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+        xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
+    }
+}
+
+static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
+                                             uint32_t ulReason )
+{
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+
+    configASSERT( eState > eOTA_ImageState_Unknown && eState <= eOTA_LastImageState );
+
+    /* Call the platform specific code to set the image state. */
+    xErr = xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eState );
+
+    /*
+     * If the platform image state couldn't be set correctly, force fail the update by setting the
+     * image state to "Rejected" unless it's already in "Aborted".
+     */
+    if( ( xErr != kOTA_Err_None ) && ( eState != eOTA_ImageState_Aborted ) )
+    {
+        eState = eOTA_ImageState_Rejected; /*lint !e9044 intentionally override eState since we failed within this function. */
+
+        /*
+         * Capture the failure reason if not already set (and we're not already Aborted as checked above). Otherwise Keep
+         * the original reject reason code since it is possible for the PAL to fail to update the image state in some
+         * cases (e.g. a reset already caused the bundle rollback and we failed to rollback again).
+         */
+        if( ulReason == kOTA_Err_None )
+        {
+            ulReason = ( uint32_t ) xErr; /*lint !e9044 intentionally override lReason since we failed within this function. */
+        }
+    }
+
+    /* Now update the image state and job status on service side. */
+    xOTA_Agent.eImageState = eState;
+
+    if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
+    {
+        prvUpdateJobStatusFromImageState( eState, ulReason );
+        xErr = kOTA_Err_None;
+    }
+    else
+    {
+        xErr = kOTA_Err_NoActiveJob;
     }
 
     return xErr;
