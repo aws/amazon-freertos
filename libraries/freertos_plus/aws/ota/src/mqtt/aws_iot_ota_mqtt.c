@@ -149,55 +149,66 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
     bool_t bResult = pdFALSE;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
     IotMqttSubscription_t stJobsSubscription;
+    IotMqttError_t eResult = IOT_MQTT_STATUS_PENDING;
+    uint16_t usTopicLen = 0;
     OTA_ConnectionContext_t * pvConnContext = pxAgentCtx->pvConnectionContext;
+
+    /* Build the first topic. */
+    usTopicLen = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
+                                        sizeof( pcJobTopic ),
+                                        pcOTA_JobsGetNextAccepted_TopicTemplate,
+                                        pxAgentCtx->pcThingName );
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
     stJobsSubscription.qos = IOT_MQTT_QOS_1;
-    stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;            /* Point to local string storage. Built below. */
-    stJobsSubscription.callback.pCallbackContext = ( void * ) pxAgentCtx;     /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
+    stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;        /* Point to local string storage. Built below. */
+    stJobsSubscription.callback.pCallbackContext = ( void * ) pxAgentCtx; /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stJobsSubscription.callback.function = prvJobPublishCallback;
-    stJobsSubscription.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
-                                                                  sizeof( pcJobTopic ),
-                                                                  pcOTA_JobsGetNextAccepted_TopicTemplate,
-                                                                  pxAgentCtx->pcThingName );
+    stJobsSubscription.topicFilterLength = usTopicLen;
 
-    if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
+    if( ( usTopicLen > 0U ) && ( usTopicLen < sizeof( pcJobTopic ) ) )
     {
         /* Subscribe to the first of two jobs topics. */
-        if( IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
-                                    &stJobsSubscription,
-                                    1, /* Subscriptions count */
-                                    0, /* flags */
-                                    OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+        eResult = IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
+                                          &stJobsSubscription,
+                                          1, /* Subscriptions count */
+                                          0, /* flags */
+                                          OTA_SUBSCRIBE_WAIT_MS );
+
+        if( eResult == IOT_MQTT_SUCCESS )
         {
-            OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
+            OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
+            /* Build the second topic. */
+            usTopicLen = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
+                                                sizeof( pcJobTopic ),
+                                                pcOTA_JobsNotifyNext_TopicTemplate,
+                                                pxAgentCtx->pcThingName );
         }
         else
         {
-            OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
-            stJobsSubscription.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
-                                                                          sizeof( pcJobTopic ),
-                                                                          pcOTA_JobsNotifyNext_TopicTemplate,
-                                                                          pxAgentCtx->pcThingName );
+            OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
+        }
+    }
 
-            if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
-            {
-                /* Subscribe to the second of two jobs topics. */
-                if( IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
-                                            &stJobsSubscription,
-                                            1, /* Subscriptions count */
-                                            0, /* flags */
-                                            OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
-                {
-                    OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
-                }
-                else
-                {
-                    OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
-                    bResult = pdTRUE;
-                }
-            }
+    if( ( eResult == IOT_MQTT_SUCCESS ) && ( usTopicLen > 0U ) && ( usTopicLen < sizeof( pcJobTopic ) ) )
+    {
+        /* Subscribe to the second of two jobs topics. */
+        stJobsSubscription.topicFilterLength = usTopicLen;
+        eResult = IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
+                                          &stJobsSubscription,
+                                          1, /* Subscriptions count */
+                                          0, /* flags */
+                                          OTA_SUBSCRIBE_WAIT_MS );
+
+                  if( eResult == IOT_MQTT_SUCCESS )
+        {
+            OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
+            bResult = pdTRUE;
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
         }
     }
 
