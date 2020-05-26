@@ -34,13 +34,13 @@ The JSON file contains the following options:
 1. logging
     1. Enable this option to output log all messages received to a file.
 1. secure-connection
-    1. Enable this option to switch to using TLS for the echo server. Note you will have to complete the credential creation prequisite. 
+    1. Enable this option to switch to using TLS for the echo server. Note you will have to complete the credential creation prerequisite. 
 1. server-port
     1. Specify which port to open a socket on.
 1. server-certificate-location
-    1. Relative or abosolute path to the server certificate generated in the credetial creation prequisite.
+    1. Relative or absolute path to the server certificate generated in the credential creation prerequisite.
 1. server-key-location
-    1. Relative or abosolute path to the server key generated in the credetial creation prequisite.
+    1. Relative or absolute path to the server key generated in the credential creation prerequisite.
 ## Example Configuration
 ```json
 {
@@ -66,9 +66,9 @@ You have to alter these 3 files:
 
 * {amazon-freertos-root-directory}/tests/include/aws_clientcredential.h
 * {amazon-freertos-root-directory}/tests/include/aws_clientcredential_keys.h
-* {amazon-freertos-root-directory}/tests/include/aws_test_utils.h
+* {amazon-freertos-root-directory}/tests/include/aws_test_tcp.h
 
-After following the prequisite steps, you should have the following files:
+After following the prerequisite steps, you should have the following files:
 * certs/client.csr
 * certs/client.key
 * certs/client.pem
