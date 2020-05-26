@@ -15,7 +15,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2014 Renesas Electronics Corporation. All rights reserved.    
+* Copyright (C) 2013 Renesas Electronics Corporation. All rights reserved.    
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name     : r_s12ad_rx_config.h
@@ -24,6 +24,7 @@
 * History : DD.MM.YYYY Version Description
 *           22.07.2013 1.00    Initial Release.
 *           21.04.2014 1.20    Updated for RX210 advanced features; RX110/63x support.
+*           05.04.2019 4.00    Deleted the macro definition of ADC_CFG_PGA_GAIN.
 ***********************************************************************************************************************/
 #ifndef S12AD_CONFIG_H
 #define S12AD_CONFIG_H
@@ -38,17 +39,5 @@ Configuration Options
  * Setting to 1 includes parameter checking; 0 compiles out parameter checking.
  */
 #define ADC_CFG_PARAM_CHECKING_ENABLE   BSP_CFG_PARAM_CHECKING_ENABLE
-
-
-/*
- * RX210 Series only; Temperature Sensor Programmable Gain Amplifier (PGA)
- * SELECT PGA GAIN TO MATCH AVCC0 VOLTAGE RANGE:
- *   0:   1.8V <= AVcc0 <  2.7V; default; good for all actual voltages
- *   1:   2.7V <= AVcc0 <  3.6V
- *   2:   3.6V <= AVcc0 <  4.5V
- *   3:   4.5V <= AVcc0 <= 5.5V
- */
-#define ADC_CFG_PGA_GAIN    (0)
-
 
 #endif /* S12AD_CONFIG_H */

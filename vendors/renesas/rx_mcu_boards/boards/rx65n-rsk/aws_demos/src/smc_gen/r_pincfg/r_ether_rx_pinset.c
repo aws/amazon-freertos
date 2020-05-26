@@ -22,7 +22,7 @@
 * Device(s)    : R5F565NEDxFC
 * Tool-Chain   : RXC toolchain
 * Description  : Setting of port and mpc registers
-* Creation Date: 2020-04-23
+* Creation Date: 2020-04-09
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -41,7 +41,7 @@ Global variables and functions
 * Arguments    : none
 * Return Value : none
 ***********************************************************************************************************************/
-void R_ETHER_PinSet_ETHERC0_MII(void)
+void R_ETHER_PinSet_ETHERC0_MII()
 {
     R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
 

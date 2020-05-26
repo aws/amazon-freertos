@@ -15,7 +15,7 @@
  * following link:
  * http://www.renesas.com/disclaimer
  *
- * Copyright (C) 2014 Renesas Electronics Corporation. All rights reserved.
+ * Copyright (C) 2014-2019 Renesas Electronics Corporation. All rights reserved.
  ***********************************************************************************************************************/
 /***********************************************************************************************************************
  * File Name    : r_flash_rx_config_reference.h
@@ -35,10 +35,6 @@
 ***********************************************************************************************************************/
 #ifndef FLASH_CONFIG_HEADER_FILE
 #define FLASH_CONFIG_HEADER_FILE
-
-/* Set the following value to 0 when building without using the FIT BSP Module */
-#define FLASH_CFG_USE_FIT_BSP       (1)
-
 
 /***********************************************************************************************************************
  Configuration Options
@@ -71,7 +67,7 @@
  * started. Notification of the operation completion is done via the callback 
  * function. 
  */
-#define FLASH_CFG_DATA_FLASH_BGO   (0)
+#define FLASH_CFG_DATA_FLASH_BGO   (1)
 
 
 /******************************************************************************
@@ -85,7 +81,7 @@
  * INTERRUPT ROUTINES MUST BE IN RAM.  
  * See sections 2.17 Usage Notes in the App Note.
  */
-#define FLASH_CFG_CODE_FLASH_BGO   (0)
+#define FLASH_CFG_CODE_FLASH_BGO   (1)
 
 
 /******************************************************************************
@@ -97,26 +93,6 @@
  * See section 2.16 in the App Note.
  */
 #define FLASH_CFG_CODE_FLASH_RUN_FROM_ROM   (1)
-
-
-/******************************************************************************
- SET IPL OF FLASH READY INTERRUPT
-******************************************************************************/
-#define FLASH_CFG_FLASH_READY_IPL   (5)     // Flash type 2 only
-
-
-/******************************************************************************
- ENABLE OR DISABLE LOCK BIT PROTECTION
-******************************************************************************/
-/* Each erasure block has a corresponding lock bit that can be used to
- * protect that block from being programmed/erased after the lock bit is
- * set. The use of lock bits can be used or ignored.
- * Setting this to 1 will cause lock bits to be ignored and programs/erases to a
- * block will not be limited.
- * Setting this to 0 will cause lock bits to be used as the user configures through
- * the Control command. This only applies to ROM as the DF does not have lock bits.
- */
-#define FLASH_CFG_IGNORE_LOCK_BITS  (1)     // Flash type 2 only
 
 
 #endif /* FLASH_CONFIG_HEADER_FILE */

@@ -15,7 +15,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.    
+* Copyright (C) 2013 Renesas Electronics Corporation. All rights reserved.    
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name     : r_byteq_config.h
@@ -25,6 +25,8 @@
 *         : 24.07.2013 1.00     Initial Release
 *         : 11.21.2014 1.20     Removed dependency to BSP
 *         : 30.09.2015 1.50     Added dependency to BSP
+*         : 01.06.2018 1.70     Changed the default value of the following macro definition.
+*                                - BYTEQ_CFG_MAX_CTRL_BLKS - Changed the default value from 4 to 32.
 ***********************************************************************************************************************/
 #ifndef BYTEQ_CONFIG_H
 #define BYTEQ_CONFIG_H

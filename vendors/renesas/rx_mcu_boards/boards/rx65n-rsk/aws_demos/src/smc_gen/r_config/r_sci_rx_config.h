@@ -15,7 +15,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2013-2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name     : r_sci_rx_config.h
@@ -70,6 +70,8 @@ Configuration Options
  * * = port connector RSKRX11x
  * u = channel used by the USB-UART port (G1CUSB0)
  * a = this channel is used only for RX130-512KB
+ * n = this channel is not available for RX65N-64pin.
+ * s = this channel is not available in simple SPI mode.
  * RX MCU supported channels
  *
  * CH#  110 111 113 130 230 231 23T 24T 24U 64M 71M 65N 66T 72T 23W 72M 13T 72N 66N
