@@ -2722,10 +2722,7 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
 {
-    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
-
-    BaseType_t xReturn = 0;
-    OTA_EventMsg_t xEventMsg = { 0 };
+    OTA_State_t xState;
 
     if( xOTA_Agent.eState == eOTA_AgentState_Stopped )
     {
@@ -2735,69 +2732,7 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
         /* Set the OTA complete callback. */
         xPALCallbacks.xCompleteCallback = xFunc;
 
-        /*
-         * OTA Task is not running yet so update the state to init direclty in OTA context.
-         */
-        xOTA_Agent.eState = eOTA_AgentState_Init;
-
-        /*
-         * Check all the callbacks for null values and initialize the values in the ota agent context.
-         * The OTA agent context is initialized with the prvPAL values. So, if null is passed in, don't
-         * do anything and just use the defaults in the OTA structure.
-         */
-        prvSetPALCallbacks( &xPALCallbacks );
-
-        /*
-         * Initialize the OTA control interface based on the application protocol
-         * selected.
-         */
-        prvSetControlInterface( &xOTA_ControlInterface );
-
-        /*
-         * Reset all the statistics counters.
-         */
-        xOTA_Agent.xStatistics.ulOTA_PacketsReceived = 0;
-        xOTA_Agent.xStatistics.ulOTA_PacketsDropped = 0;
-        xOTA_Agent.xStatistics.ulOTA_PacketsQueued = 0;
-        xOTA_Agent.xStatistics.ulOTA_PacketsProcessed = 0;
-
-        if( pcThingName == NULL )
-        {
-            OTA_LOG_L1( "[%s]Error: Thing name is NULL.\r\n", OTA_METHOD_NAME );
-        }
-        else
-        {
-            uint32_t ulStrLen = strlen( ( const char * ) pcThingName );
-
-            if( ulStrLen <= otaconfigMAX_THINGNAME_LEN )
-            {
-                /*
-                 * Store the Thing name to be used for topics later.
-                 */
-                memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL ); /* Include zero terminator when saving the Thing name. */
-            }
-
-            xReturn = prvStartOTAAgentTask( pvConnectionContext, xTicksToWait );
-        }
-
-        if( xOTA_Agent.eState == eOTA_AgentState_Ready )
-        {
-            OTA_LOG_L1( "[%s] OTA Task is Ready.\r\n", OTA_METHOD_NAME );
-
-            /*
-             * OTA agent is ready so send event to start update process.
-             */
-            xEventMsg.xEventId = eOTA_AgentEvent_Start;
-
-            /* Send signal to OTA task. */
-            OTA_SignalEvent( &xEventMsg );
-        }
-        else
-        {
-            OTA_LOG_L1( "[%s] Failed to start the OTA Task, Error Code :%08x  Queue:%08x\r\n", OTA_METHOD_NAME, xReturn );
-
-            xOTA_Agent.eState = eOTA_AgentState_Stopped;
-        }
+        xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xPALCallbacks, xTicksToWait );
     }
     /* If OTA agent is already running, just update the CompleteCallback and reset the statistics. */
     else
@@ -2808,8 +2743,87 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
         }
 
         memset( &xOTA_Agent.xStatistics, 0, sizeof( xOTA_Agent.xStatistics ) );
+        xState = xOTA_Agent.eState;
     }
 
+    return xState;
+}
+
+OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
+                                    const uint8_t * pcThingName,
+                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    TickType_t xTicksToWait )
+{
+    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit_internal" );
+
+    BaseType_t xReturn = 0;
+    OTA_EventMsg_t xEventMsg = { 0 };
+
+    /*
+     * OTA Task is not running yet so update the state to init direclty in OTA context.
+     */
+    xOTA_Agent.eState = eOTA_AgentState_Init;
+
+    /*
+     * Check all the callbacks for null values and initialize the values in the ota agent context.
+     * The OTA agent context is initialized with the prvPAL values. So, if null is passed in, don't
+     * do anything and just use the defaults in the OTA structure.
+     */
+    prvSetPALCallbacks( xCallbacks );
+
+    /*
+     * Initialize the OTA control interface based on the application protocol
+     * selected.
+     */
+    prvSetControlInterface( &xOTA_ControlInterface );
+
+    /*
+     * Reset all the statistics counters.
+     */
+    xOTA_Agent.xStatistics.ulOTA_PacketsReceived = 0;
+    xOTA_Agent.xStatistics.ulOTA_PacketsDropped = 0;
+    xOTA_Agent.xStatistics.ulOTA_PacketsQueued = 0;
+    xOTA_Agent.xStatistics.ulOTA_PacketsProcessed = 0;
+
+    if( pcThingName == NULL )
+    {
+        OTA_LOG_L1( "[%s]Error: Thing name is NULL.\r\n", OTA_METHOD_NAME );
+    }
+    else
+    {
+        uint32_t ulStrLen = strlen( ( const char * ) pcThingName );
+
+        if( ulStrLen <= otaconfigMAX_THINGNAME_LEN )
+        {
+            /*
+             * Store the Thing name to be used for topics later.
+             */
+            memcpy( xOTA_Agent.pcThingName, pcThingName, ulStrLen + 1UL );     /* Include zero terminator when saving the Thing name. */
+        }
+
+        xReturn = prvStartOTAAgentTask( pvConnectionContext, xTicksToWait );
+    }
+
+    if( xOTA_Agent.eState == eOTA_AgentState_Ready )
+    {
+        OTA_LOG_L1( "[%s] OTA Task is Ready.\r\n", OTA_METHOD_NAME );
+
+        /*
+         * OTA agent is ready so send event to start update process.
+         */
+        xEventMsg.xEventId = eOTA_AgentEvent_Start;
+
+        /* Send signal to OTA task. */
+        OTA_SignalEvent( &xEventMsg );
+    }
+    else
+    {
+        OTA_LOG_L1( "[%s] Failed to start the OTA Task, Error Code :%08x  Queue:%08x\r\n", OTA_METHOD_NAME, xReturn );
+
+        xOTA_Agent.eState = eOTA_AgentState_Stopped;
+    }
+
+    /* Return status of agent. */
     return xOTA_Agent.eState;
 }
 

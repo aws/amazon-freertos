@@ -587,6 +587,30 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            TickType_t xTicksToWait );
 
 /**
+ * @brief Internal OTA Agent initialization function.
+ *
+ * Initialize the OTA engine by starting the OTA Agent ("OTA Task") in the system. This function must
+ * be called with the MQTT messaging client context before calling @ref ota_function_checkforupdate. Only one
+ * OTA Agent may exist.
+ *
+ * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
+ * @param[in] pucThingName A pointer to a C string holding the Thing name.
+ * @param[in] xCallbacks Static callback structure for various OTA events. This function will have
+ * input of the state of the OTA image after download and during self-test.
+ * @param[in] xTicksToWait The number of ticks to wait until the OTA Task signals that it is ready.
+ * If this is set to zero, then the function will return immediately after creating the OTA task but
+ * the OTA task may not be ready to operate yet. The state may be queried with @ref ota_function_getagentstate.
+ *
+ * @return The state of the OTA Agent upon return from the OTA_State_t enum.
+ * If the agent was successfully initialized and ready to operate, the state will be
+ * eOTA_AgentState_Ready. Otherwise, it will be one of the other OTA_State_t enum values.
+ */
+OTA_State_t OTA_AgentInit_internal( void * pvClient,
+                                    const uint8_t * pucThingName,
+                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    TickType_t xTicksToWait );
+
+/**
  * @brief Signal to the OTA Agent to shut down.
  *
  * Signals the OTA agent task to shut down. The OTA agent will unsubscribe from all MQTT job
