@@ -88,7 +88,7 @@
  *  Please note that this must be set larger than zero.
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST  1U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST  2U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -115,7 +115,7 @@
  *
  * Note - Only MQTT is supported at this time for control operations.
  */
-#define configENABLED_CONTROL_PROTOCOL       ( OTA_DATA_OVER_MQTT )
+#define configENABLED_CONTROL_PROTOCOL       ( OTA_CONTROL_OVER_MQTT )
 
 /**
  * @brief The protocol selected for OTA data operations.
