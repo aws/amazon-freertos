@@ -410,6 +410,111 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/jsmn/jsmn.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/croutine.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/croutine.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/entropy_hardware_poll.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/entropy_hardware_poll.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/freertos_start.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/freertos_start.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/freertos_start.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/freertos_start.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/serial_term_uart.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/serial_term_uart.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/serial_term_uart.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/serial_term_uart.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/Renesas/RX600v2/port.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/port.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/Renesas/RX600v2/port_asm.src</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/port_asm.src</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/Renesas/RX600v2/portmacro.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/portmacro.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
@@ -810,6 +915,76 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_clock_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_threads_freertos.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/platform/freertos/iot_threads_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/iot_device_metrics.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/iot_init.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/iot_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
@@ -1203,11 +1378,6 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
