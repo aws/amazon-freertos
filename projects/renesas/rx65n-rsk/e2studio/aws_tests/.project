@@ -370,71 +370,6 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/Renesas/RX600v2/port.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/port.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/Renesas/RX600v2/port_asm.src</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/port_asm.src</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/Renesas/RX600v2/portmacro.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/freertos_kernel/portable/Renesas/RX600v2/portmacro.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
@@ -498,6 +433,11 @@
 			<name>libraries/3rdparty/mbedtls/library/chacha20.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/chacha20.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chachapoly.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
@@ -585,6 +525,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/hkdf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/hkdf.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
@@ -625,6 +570,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/nist_kw.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/nist_kw.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
@@ -648,6 +598,11 @@
 			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
@@ -678,6 +633,11 @@
 			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/poly1305.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/poly1305.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
@@ -803,16 +763,6 @@
 			<name>libraries/3rdparty/mbedtls/library/xtea.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/src/unity.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/unity/src/unity.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/unity/src/unity.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/unity/src/unity.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/unity/src/unity_internals.h</name>
@@ -955,6 +905,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aria.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/aria.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</locationURI>
@@ -998,6 +953,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
@@ -1100,6 +1065,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
@@ -1145,6 +1115,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
@@ -1170,6 +1145,11 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
@@ -1193,6 +1173,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
@@ -1568,16 +1553,6 @@
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_declare.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_declare.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_define.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_define.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_ggd_system.c</name>
