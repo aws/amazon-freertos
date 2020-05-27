@@ -96,35 +96,35 @@ typedef struct
  */
 typedef enum
 {
-    eBTStatusSuccess,       /**< Success. */
-    eBTStatusFail,          /**< Generic fail. */
-    eBTStatusNotReady,      /**< Service/Driver/Peripheral not ready. */
-    eBTStatusNoMem,         /**< Failed to allocate memory. */
-    eBTStatusBusy,          /**< Service/Driver/Peripheral busy. */
-    eBTStatusDone,          /**< Request already completed. */
-    eBTStatusUnsupported,   /**< Unsupported request/call. */
-    eBTStatusParamInvalid,  /**< Invalid parameter. */
-    eBTStatusUnHandled,     /**< . */
-    eBTStatusAuthFailure,   /**< Authentication procedure failed. */
-    eBTStatusRMTDevDown,    /**< . */
-    eBTStatusAuthRejected,  /**< Authentication rejected. */
-    eBTStatusWakeLockError, /**< . */
-    eBTStatusLinkLoss       /**< Link lost. */
+    eBTStatusSuccess = 0,        /**< Success. */
+    eBTStatusFail = 1,           /**< Generic fail. */
+    eBTStatusNotReady = 2,       /**< Service/Driver/Peripheral not ready. */
+    eBTStatusNoMem = 3,          /**< Failed to allocate memory. */
+    eBTStatusBusy = 4,           /**< Service/Driver/Peripheral busy. */
+    eBTStatusDone = 5,           /**< Request already completed. */
+    eBTStatusUnsupported = 6,    /**< Unsupported request/call. */
+    eBTStatusParamInvalid = 7,   /**< Invalid parameter. */
+    eBTStatusUnHandled = 8,      /**< . */
+    eBTStatusAuthFailure = 9,    /**< Authentication procedure failed. */
+    eBTStatusRMTDevDown = 10,    /**< . */
+    eBTStatusAuthRejected = 11,  /**< Authentication rejected. */
+    eBTStatusWakeLockError = 12, /**< . */
+    eBTStatusLinkLoss = 13       /**< Link lost. */
 } BTStatus_t;
 
 typedef enum
 {
-    eProfileHeadset,           /**< Headset and Handsfree profile. */
-    eBTProfileA2DP,            /**< A2DP Source profile. */
-    eBTProfileAVRCPTarget,     /**< AVRCP Target profile. */
-    eBTProfileA2DPSink,        /**< A2DP Sink profile. */
-    eBTProfileAVRCPController, /**< AVRCP Controller profile. */
-    eBTProfileInputDevice,     /**< Human Input Device (HID) Host profile. */
-    eBTProfileHeadsetClient,   /**< Headset Client (HFP-HF role) profile. */
-    eBTProfileGATT,
-    eBTProfileSock,            /** Sockets */
+    eProfileHeadset = 0,           /**< Headset and Handsfree profile. */
+    eBTProfileA2DP = 1,            /**< A2DP Source profile. */
+    eBTProfileAVRCPTarget = 2,     /**< AVRCP Target profile. */
+    eBTProfileA2DPSink = 3,        /**< A2DP Sink profile. */
+    eBTProfileAVRCPController = 4, /**< AVRCP Controller profile. */
+    eBTProfileInputDevice = 5,     /**< Human Input Device (HID) Host profile. */
+    eBTProfileHeadsetClient = 6,   /**< Headset Client (HFP-HF role) profile. */
+    eBTProfileGATT = 7,
+    eBTProfileSock = 8,            /** Sockets */
     /* TODO : Add other profiles? */
-    eBTProfileMaxID
+    eBTProfileMaxID = 9
 } BTProfile_t;
 
 /**
@@ -132,11 +132,11 @@ typedef enum
  */
 typedef enum
 {
-    eBTIONone,            /**< No IO. */
-    eBTIODisplayOnly,     /**< No input, only display. */
-    eBTIODisplayYesNo,    /**< Display + yes/no input. */
-    eBTIOKeyboardOnly,    /**< Only input, keyboard. */
-    eBTIOKeyboardDisplay, /**< Keyboard and Display. */
+    eBTIONone = 0,            /**< No IO. */
+    eBTIODisplayOnly = 1,     /**< No input, only display. */
+    eBTIODisplayYesNo = 2,    /**< Display + yes/no input. */
+    eBTIOKeyboardOnly = 3,    /**< Only input, keyboard. */
+    eBTIOKeyboardDisplay = 4, /**< Keyboard and Display. */
 } BTIOtypes_t;
 
 #endif /* _BT_HAL_MANAGER_TYPES_H_ */
