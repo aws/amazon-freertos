@@ -861,7 +861,7 @@ typedef struct
     BTStatus_t ( * pxGetStackFeaturesSupport )( uint32_t * pulFeatureMask );
 } BTInterface_t;
 
-extern const BTInterface_t * BTGetBluetoothInterface();
+const BTInterface_t * BTGetBluetoothInterface();
 
 #endif /* _BT_HAL_MANAGER_H_ */
 /** @} */

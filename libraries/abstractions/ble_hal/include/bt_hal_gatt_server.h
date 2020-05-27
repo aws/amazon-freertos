@@ -482,7 +482,7 @@ typedef struct
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
-     * @param[in,out] pxService GATT Service structure. When pxAddServiceBlob returns,
+     * @param[in,out] pxService GATT Service structure. When @ref pxAddServiceBlob returns,
      * pxService->pusHandlesBuffer is filled with corresponding attribute handles.
      *
      * @return Returns eBTStatusSuccess on successful call.

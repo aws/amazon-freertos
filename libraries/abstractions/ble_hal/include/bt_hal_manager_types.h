@@ -104,11 +104,11 @@ typedef enum
     eBTStatusDone = 5,           /**< Request already completed. */
     eBTStatusUnsupported = 6,    /**< Unsupported request/call. */
     eBTStatusParamInvalid = 7,   /**< Invalid parameter. */
-    eBTStatusUnHandled = 8,      /**< . */
+    eBTStatusUnHandled = 8,      /**< Unhandled */
     eBTStatusAuthFailure = 9,    /**< Authentication procedure failed. */
-    eBTStatusRMTDevDown = 10,    /**< . */
+    eBTStatusRMTDevDown = 10,    /**< Remote Device Down */
     eBTStatusAuthRejected = 11,  /**< Authentication rejected. */
-    eBTStatusWakeLockError = 12, /**< . */
+    eBTStatusWakeLockError = 12, /**< Wake lock error */
     eBTStatusLinkLoss = 13       /**< Link lost. */
 } BTStatus_t;
 
@@ -121,10 +121,10 @@ typedef enum
     eBTProfileAVRCPController = 4, /**< AVRCP Controller profile. */
     eBTProfileInputDevice = 5,     /**< Human Input Device (HID) Host profile. */
     eBTProfileHeadsetClient = 6,   /**< Headset Client (HFP-HF role) profile. */
-    eBTProfileGATT = 7,
-    eBTProfileSock = 8,            /** Sockets */
+    eBTProfileGATT = 7,            /**< GATT profile */
+    eBTProfileSock = 8,            /**< Socket profile */
     /* TODO : Add other profiles? */
-    eBTProfileMaxID = 9
+    eBTProfileMaxID = 9            /**< Max profile index */
 } BTProfile_t;
 
 /**

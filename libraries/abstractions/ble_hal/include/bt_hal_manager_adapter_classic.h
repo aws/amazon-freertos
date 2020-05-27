@@ -229,8 +229,8 @@ typedef struct
 
 /**
  *
- * @brief Callback invoked in response to pxGetClassicDeviceProperty
- * and pxSetClassicDeviceProperty.
+ * @brief Callback invoked in response to @ref pxGetClassicDeviceProperty
+ * and @ref pxSetClassicDeviceProperty.
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
  * @param[in] ulNumProperties Number of classic specific properties.
@@ -242,8 +242,8 @@ typedef void (* BTClassicDevicePropertiesCallback_t)( BTStatus_t xStatus,
 
 /**
  *
- * @brief Callback invoked in response to pxGetRemoteClassicDeviceProperty
- * and pxSetRemoteClassicDeviceProperty.
+ * @brief Callback invoked in response to @ref pxGetRemoteClassicDeviceProperty
+ * and @ref pxSetRemoteClassicDeviceProperty.
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
  * @param[in] pxBdAddr Address of the Remote device
@@ -267,15 +267,15 @@ typedef void (* BTDeviceFoundCallback_t)( uint32_t ulNumProperties,
                                           BTClassicProperty_t * pxProperties );
 
 /**
- * @brief Callback invoked in response to pxStartDiscovery
- * and pxStopDiscovery
+ * @brief Callback invoked in response to @ref pxStartDiscovery
+ * and @ref pxStopDiscovery
  *
  * @param[in] xState Discovery state
  */
 typedef void (* BTDiscoveryStateChangedCallback_t)( BTDiscoveryState_t xState );
 
 /**
- * @brief Callback invoked in response to ACL connection state changed callback
+ * @brief Callback invoked in response to ACL connection state change
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
  * @param[in] pxRemoteBdAddr Address of the Remote device
@@ -396,7 +396,7 @@ typedef struct
     const void * ( *ppvGetProfileInterface )( BTProfile_t xProfile );
 } BTClassicInterface_t;
 
-extern const BTClassicInterface_t * BT_GetClassicAdapter();
+const BTClassicInterface_t * BT_GetClassicAdapter();
 
 #endif /* _BT_HAL_MANAGER_ADAPTER_CLASSIC_ */
 /** @} */
