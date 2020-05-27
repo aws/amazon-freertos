@@ -1221,7 +1221,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
             }
             else
             {
-                PKCS11_WARNING_PRINT( ( "Warning: Trying to destroy an object with an unknown label." ) );
+                PKCS11_WARNING_PRINT( ( "Warning: Trying to destroy an object with an unknown label. \r\n" ) );
             }
 
             if( xPalHandle != CK_INVALID_HANDLE )
