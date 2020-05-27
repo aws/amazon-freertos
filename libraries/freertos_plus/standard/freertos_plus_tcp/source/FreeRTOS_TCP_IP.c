@@ -210,13 +210,16 @@ static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
 											 FreeRTOS_Socket_t * const pxSocket,
 											 BaseType_t xHasSYNFlag );
 
-/*
- * Skip past TCP header options when doing Selective ACK, until there are no
- * more options left.
- */
-static void prvReadSackOption( const uint8_t * const pucPtr,
-							   size_t uxIndex,
-							   FreeRTOS_Socket_t * const pxSocket );
+#if( ipconfigUSE_TCP_WIN == 1 )
+	/*
+	 * Skip past TCP header options when doing Selective ACK, until there are no
+	 * more options left.
+	 */
+	static void prvReadSackOption( const uint8_t * const pucPtr,
+								   size_t uxIndex,
+								   FreeRTOS_Socket_t * const pxSocket );
+#endif/* ( ipconfigUSE_TCP_WIN == 1 ) */
+
 
 /*
  * Set the initial properties in the options fields, like the preferred
@@ -1327,47 +1330,50 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 }
 /*-----------------------------------------------------------*/
 
-static void prvReadSackOption( const uint8_t * const pucPtr,
-							   size_t uxIndex,
-							   FreeRTOS_Socket_t * const pxSocket )
-{
-uint32_t ulFirst = ulChar2u32( &( pucPtr[ uxIndex ] ) );
-uint32_t ulLast  = ulChar2u32( &( pucPtr[ uxIndex + 4U ] ) );
-uint32_t ulCount = ulTCPWindowTxSack( &( pxSocket->u.xTCP.xTCPWindow ), ulFirst, ulLast );;
-
-	/* ulTCPWindowTxSack( ) returns the number of bytes which have been acked
-	 * starting from the head position.  Advance the tail pointer in txStream.
-	 */
-	if( ( pxSocket->u.xTCP.txStream  != NULL ) && ( ulCount > 0U ) )
+#if( ipconfigUSE_TCP_WIN == 1 )
+	static void prvReadSackOption( const uint8_t * const pucPtr,
+								   size_t uxIndex,
+								   FreeRTOS_Socket_t * const pxSocket )
 	{
-		/* Just advancing the tail index, 'ulCount' bytes have been confirmed. */
-		( void ) uxStreamBufferGet( pxSocket->u.xTCP.txStream, 0, NULL, ( size_t ) ulCount, pdFALSE );
-		pxSocket->xEventBits |= ( EventBits_t ) eSOCKET_SEND;
+	uint32_t ulFirst = ulChar2u32( &( pucPtr[ uxIndex ] ) );
+	uint32_t ulLast  = ulChar2u32( &( pucPtr[ uxIndex + 4U ] ) );
+	uint32_t ulCount = ulTCPWindowTxSack( &( pxSocket->u.xTCP.xTCPWindow ), ulFirst, ulLast );;
 
-		#if ipconfigSUPPORT_SELECT_FUNCTION == 1
+		/* ulTCPWindowTxSack( ) returns the number of bytes which have been acked
+		 * starting from the head position.  Advance the tail pointer in txStream.
+		 */
+		if( ( pxSocket->u.xTCP.txStream  != NULL ) && ( ulCount > 0U ) )
 		{
-			if( ( pxSocket->xSelectBits & ( EventBits_t ) eSELECT_WRITE ) != 0U )
-			{
-				/* The field 'xEventBits' is used to store regular socket events
-				 * (at most 8), as well as 'select events', which will be left-shifted.
-				 */
-				pxSocket->xEventBits |= ( ( EventBits_t ) eSELECT_WRITE ) << SOCKET_EVENT_BIT_COUNT;
-			}
-		}
-		#endif
+			/* Just advancing the tail index, 'ulCount' bytes have been confirmed. */
+			( void ) uxStreamBufferGet( pxSocket->u.xTCP.txStream, 0, NULL, ( size_t ) ulCount, pdFALSE );
+			pxSocket->xEventBits |= ( EventBits_t ) eSOCKET_SEND;
 
-		/* In case the socket owner has installed an OnSent handler,
-		call it now. */
-		#if( ipconfigUSE_CALLBACKS == 1 )
-		{
-			if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleSent ) )
+			#if ipconfigSUPPORT_SELECT_FUNCTION == 1
 			{
-				pxSocket->u.xTCP.pxHandleSent( pxSocket, ulCount );
+				if( ( pxSocket->xSelectBits & ( EventBits_t ) eSELECT_WRITE ) != 0U )
+				{
+					/* The field 'xEventBits' is used to store regular socket events
+					 * (at most 8), as well as 'select events', which will be left-shifted.
+					 */
+					pxSocket->xEventBits |= ( ( EventBits_t ) eSELECT_WRITE ) << SOCKET_EVENT_BIT_COUNT;
+				}
 			}
+			#endif
+
+			/* In case the socket owner has installed an OnSent handler,
+			call it now. */
+			#if( ipconfigUSE_CALLBACKS == 1 )
+			{
+				if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleSent ) )
+				{
+					pxSocket->u.xTCP.pxHandleSent( pxSocket, ulCount );
+				}
+			}
+			#endif /* ipconfigUSE_CALLBACKS == 1  */
 		}
-		#endif /* ipconfigUSE_CALLBACKS == 1  */
 	}
-}
+
+#endif	/* ( ipconfigUSE_TCP_WIN != 0 ) */
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_TCP_WIN != 0 )
