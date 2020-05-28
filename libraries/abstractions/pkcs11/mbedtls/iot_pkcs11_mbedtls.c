@@ -239,13 +239,16 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
 {
     CK_RV xResult = CKR_OK;
 
-    /* An integer constant expression with the value 0 or 1 of either signedness
-      * may be cast to a type which is defined as essentially Boolean.
-      * This allows the implementation of non-C99 Boolean models.
-      * The PKCS #11 standard defines the boolean type as CK_BBOOL, whose
-      * underlying type is an unsigned char, therefore conforming to the MISRA
-      * exception.
-      */
+   /** MISRA Rule 10.5 - Cannot cast from unsigned to signed.
+    * The rule 10.5 is violated because type of the boolean macros defined by PKCS #11
+    * are 0 and 1, which results in a signed integer, meanwhile the underlying 
+    * type of CK_BBOOL is an unsigned char.
+    *
+    * This means that our implementation conforms to the exception provided by MISRA
+    * To quote MISRA: "An integer constant expression with the value 0 or 1 of either signedness 
+    * may be cast to a type which is defined as essentially Boolean. 
+    * This allows the implementation of non-C99 Boolean models."
+    */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
     {
@@ -280,6 +283,7 @@ static P11Session_t * prvSessionPointerFromHandle( const CK_SESSION_HANDLE xSess
   */
 static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xResult = ( CK_BBOOL ) CK_FALSE;
 
@@ -288,6 +292,7 @@ static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
         ( pxSession->xOperationVerifyMechanism != pkcs11NO_OPERATION ) ||
         ( pxSession->pxFindObjectLabel != NULL ) )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         xResult = ( CK_BBOOL ) CK_TRUE;
     }
@@ -441,6 +446,7 @@ CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_TRUE )
     {
@@ -474,6 +480,7 @@ CK_RV prvMbedTLS_Initialize( void )
         }
         else
         {
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             xP11Context.xIsInitialized = ( CK_BBOOL ) CK_TRUE;
         }
@@ -520,6 +527,7 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
                               CK_ATTRIBUTE ** ppxLabel )
 {
     CK_RV xResult = CKR_OK;
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
 
@@ -556,6 +564,7 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
         case ( CKA_TOKEN ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -603,6 +612,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         case ( CKA_TOKEN ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, pxAttribute->ulValueLen );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -694,6 +704,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                    const mbedtls_pk_context * pxMbedContext )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
     int32_t lMbedReturn = 0;
@@ -704,6 +715,7 @@ static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     {
         ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xBool == ( CK_BBOOL ) CK_FALSE )
         {
@@ -737,6 +749,7 @@ static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                   const mbedtls_pk_context * pxMbedContext )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
     int32_t lMbedReturn = 0;
@@ -747,6 +760,7 @@ static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     {
         ( void ) memcpy( &xBool, pxAttribute->pValue, pxAttribute->ulValueLen );
 
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xBool == ( CK_BBOOL ) CK_FALSE )
         {
@@ -783,6 +797,7 @@ static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                CK_BBOOL xIsPrivate )
 {
     CK_RV xResult = CKR_OK;
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
     const CK_BYTE pxEcCurve[] = pkcs11DER_ENCODED_OID_P256;
@@ -802,6 +817,7 @@ static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             pxEcBoolAtt = ( CK_BBOOL * ) pxAttribute->pValue;
             ( void ) memcpy( &xBool, pxEcBoolAtt, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -825,6 +841,7 @@ static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         case ( CKA_VERIFY ):
         case ( CKA_EC_POINT ):
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xIsPrivate == ( CK_BBOOL ) CK_FALSE )
             {
@@ -840,6 +857,7 @@ static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         case ( CKA_SIGN ):
         case ( CKA_VALUE ):
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
             {
@@ -886,7 +904,7 @@ static void prvFindObjectInListByLabel( const uint8_t * pcLabel,
     *pxPalHandle = CK_INVALID_HANDLE;
     *pxAppHandle = CK_INVALID_HANDLE;
 
-    for( ulIndex = 0; ulIndex < ( uint32_t ) pkcs11configMAX_NUM_OBJECTS; ulIndex++ )
+    for( ulIndex = 0; ulIndex < pkcs11configMAX_NUM_OBJECTS; ulIndex++ )
     {
         if( 0 == memcmp( pcLabel, xP11Context.xObjectList.xObjects[ ulIndex ].xLabel, xLabelLength ) )
         {
@@ -991,6 +1009,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     CK_RV xResult = CKR_OK;
     BaseType_t xGotSemaphore;
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xObjectFound = ( CK_BBOOL ) CK_FALSE;
     int32_t lInsertIndex = -1;
@@ -1005,6 +1024,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == xPalHandle )
             {
                 /* Object already exists in list. */
+                /* See explanation in prvCheckValidSessionAndModule for this exception. */
                 /* coverity[misra_c_2012_rule_10_5_violation] */
                 xObjectFound = ( CK_BBOOL ) CK_TRUE;
                 break;
@@ -1019,6 +1039,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             }
         }
 
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xObjectFound == ( CK_BBOOL ) CK_FALSE )
         {
@@ -1071,11 +1092,13 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         xResult = CKR_HOST_MEMORY;
     }
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
         lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
     }
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
@@ -1103,6 +1126,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         }
     }
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) && ( xKeyType == CKK_EC ) )
     {
@@ -1159,6 +1183,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         uint8_t * pcLabel = NULL;
         size_t xLabelLength = 0;
         uint32_t ulObjectLength = 0;
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
         CK_RV xResult = CKR_OK;
@@ -1274,6 +1299,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
         CK_RV xResult = CKR_OK;
 
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
         {
@@ -1304,6 +1330,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
 
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
         {
@@ -1321,6 +1348,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
             vSemaphoreDelete( xP11Context.xObjectList.xMutex );
         }
 
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         xP11Context.xIsInitialized = ( CK_BBOOL ) CK_FALSE;
     }
@@ -1462,6 +1490,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL tokenPresent,
       * on a physical token, this parameter is ignored. */
     ( void ) ( tokenPresent );
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
@@ -1649,6 +1678,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     ( void ) Notify;
 
     /* Check that the PKCS #11 module is initialized. */
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
@@ -1959,6 +1989,7 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 {
     uint8_t * pucData = NULL;
     uint32_t ulDataLength = 0;
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_RV xResult = CKR_OK;
@@ -1973,6 +2004,7 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
     else if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
         *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         xIsPrivate = ( CK_BBOOL ) CK_FALSE;
     }
@@ -1988,6 +2020,7 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
         {
@@ -2179,6 +2212,7 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
                                       pxObject,
                                       pxLabel,
                                       CKK_RSA,
+                                      /* See explanation in prvCheckValidSessionAndModule for this exception. */
                                       /* coverity[misra_c_2012_rule_10_5_violation] */
                                       ( CK_BBOOL ) CK_TRUE );
     }
@@ -2220,6 +2254,7 @@ static CK_RV prvCreatePrivateKey( CK_ATTRIBUTE * pxTemplate,
             xResult = prvCreateECKey( pxTemplate,
                                       ulCount,
                                       pxObject,
+                                      /* See explanation in prvCheckValidSessionAndModule for this exception. */
                                       /* coverity[misra_c_2012_rule_10_5_violation] */
                                       ( CK_BBOOL ) CK_TRUE );
         }
@@ -2258,6 +2293,7 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
     #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
         else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             xResult = prvCreateECKey( pxTemplate, ulCount, pxObject, ( CK_BBOOL ) CK_FALSE );
         }
@@ -2447,6 +2483,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                                                    CK_ATTRIBUTE_PTR pTemplate,
                                                    CK_ULONG ulCount )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_ULONG iAttrib;
@@ -2497,6 +2534,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
         if( 0 == mbedtls_pk_parse_key( &xKeyContext, pxObjectValue, ulLength, NULL, 0 ) )
         {
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
             {
@@ -2552,6 +2590,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                 case CKA_VALUE:
 
+                    /* See explanation in prvCheckValidSessionAndModule for this exception. */
                     /* coverity[misra_c_2012_rule_10_5_violation] */
                     if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
                     {
@@ -2742,6 +2781,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE )
         {
@@ -2840,6 +2880,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
 
     uint8_t * pucObjectValue = NULL;
     uint32_t xObjectLength = 0;
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_BYTE xByte = 0;
@@ -3011,6 +3052,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE )
         {
@@ -3223,6 +3265,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
                                           CK_MECHANISM_PTR pMechanism,
                                           CK_OBJECT_HANDLE hKey )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_OBJECT_HANDLE xPalHandle;
@@ -3243,6 +3286,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE ) )
     {
@@ -3272,6 +3316,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     /* Check that a private key was retrieved. */
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xIsPrivate != ( CK_BBOOL ) CK_TRUE )
         {
@@ -3396,6 +3441,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     CK_ULONG xSignatureLength = 0;
     size_t xExpectedInputLength = 0;
     CK_BYTE_PTR pxSignatureBuffer = pSignature;
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xSignatureGenerated = ( CK_BBOOL ) CK_FALSE;
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
@@ -3471,6 +3517,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
                     }
 
                     ( void ) xSemaphoreGive( pxSessionObj->xSignMutex );
+                    /* See explanation in prvCheckValidSessionAndModule for this exception. */
                     /* coverity[misra_c_2012_rule_10_5_violation] */
                     xSignatureGenerated = ( CK_BBOOL ) CK_TRUE;
                 }
@@ -3485,6 +3532,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     if( xResult == CKR_OK )
     {
         /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( ( pxSessionObj->xOperationSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == ( CK_BBOOL ) CK_TRUE ) )
         {
@@ -3540,6 +3588,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                                             CK_MECHANISM_PTR pMechanism,
                                             CK_OBJECT_HANDLE hKey )
 {
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     P11Session_t * pxSession;
@@ -3559,6 +3608,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE ) )
     {
@@ -3591,6 +3641,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     /* Check that a public key was retrieved. */
     if( xResult == CKR_OK )
     {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xIsPrivate != ( CK_BBOOL ) CK_FALSE )
         {
@@ -3879,6 +3930,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
         case ( CKA_SIGN ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -3892,6 +3944,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
         case ( CKA_PRIVATE ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -3905,6 +3958,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
         case ( CKA_TOKEN ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
@@ -3977,6 +4031,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
         case ( CKA_VERIFY ):
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
