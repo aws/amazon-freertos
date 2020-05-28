@@ -119,7 +119,7 @@ elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
 endif()
 afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "null")
 # settings for ModusToolbox as IDE
-afr_set_board_metadata(IDE_ModusToolbox_NAME "ModusToolbox")
+afr_set_board_metadata(IDE_ModusToolbox_NAME "Eclipse IDE for ModusToolbox")
 afr_set_board_metadata(IDE_ModusToolbox_COMPILER "GCC")
 if("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
     afr_set_board_metadata(IDE_ModusToolbox_COMPILER "ARM")
