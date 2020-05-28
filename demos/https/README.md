@@ -25,7 +25,7 @@
 ### Usage
 1. Run the presigned_url_gen.py with your s3 **bucket-name** and s3 object key **object-key**.  
    ```
-   python presigned_urls_gen.py --bucket my_bucket --key object-key
+    python presigned_urls_gen.py --bucket <YOUR BUCKET NAME> --key <YOUR OBJECT KEY> 
    ```  
    An example expected output:  
    ```
