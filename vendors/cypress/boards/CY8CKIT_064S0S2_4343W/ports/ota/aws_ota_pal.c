@@ -733,7 +733,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
 
 _exit_CloseFile:
 
-    if ( C->lFileHandle != 0 )
+    if ( C != NULL && C->lFileHandle != 0 )
     {
         const struct flash_area *fap;
         fap = (const struct flash_area *)C->lFileHandle;

@@ -46,6 +46,10 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/pk_internal.h"
 
+#if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+#include "iot_pkcs11_psa_jitp_status.h"
+#endif
+
 #define PKCS11_PRINT( X )            vLoggingPrintf X
 #define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 #define pkcs11NO_OPERATION           ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFUL )
@@ -1044,7 +1048,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
  */
 #define MAX_PUBLIC_KEY_SIZE    310
     mbedtls_pk_context xMbedContext;
-    int lDerKeyLength;
+    int lDerKeyLength = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_KEY_TYPE xKeyType;
     CK_RV xResult = CKR_OK;
@@ -1181,9 +1185,7 @@ CK_RV prvMbedTLS_Initialize( void )
         CRYPTO_Init();
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
-#define PSA_KEY_ID_VENDOR_DEVICE_KEY (PSA_KEY_ID_VENDOR_MIN + 1)
-
-        status = psa_open_key(PSA_KEY_ID_VENDOR_DEVICE_KEY, &key_handle);
+        status = psa_open_key(pkcs11configVENDOR_DEVICE_KEY_ID, &key_handle);
         if (status == PSA_SUCCESS) {
             P11KeyConfig.uxDevicePrivateKey = key_handle;
             P11KeyConfig.ulDevicePrivateKeyMark = pkcs11OBJECT_PRESENT_MAGIC + sizeof(key_handle);
@@ -1191,7 +1193,7 @@ CK_RV prvMbedTLS_Initialize( void )
         else 
         {
             xResult = CKR_ARGUMENTS_BAD;
-            PKCS11_PRINT( ( "ERROR: Failed to open vendor key(%x) err=0x%x. \r\n", PSA_KEY_ID_VENDOR_DEVICE_KEY, status ) );
+            PKCS11_PRINT( ( "ERROR: Failed to open vendor key(%x) err=0x%x. \r\n", pkcs11configVENDOR_DEVICE_KEY_ID, status ) );
         }
 
         if( xResult == CKR_OK )
@@ -1213,21 +1215,24 @@ CK_RV prvMbedTLS_Initialize( void )
 
         if( xResult == CKR_OK )
         {
-            /* Retrieve JITP certificate info */
-            status = psa_ps_get_info( P11KeyConfig.uxJitpCertificate, &ps_info);
-            if (status == PSA_SUCCESS) {
-                P11KeyConfig.ulJitpCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
-            }
-            else
+            if (GetAwsIoTJITPStatus() == 0)
             {
-               /* Not treat as error if doesn't exist */
-               if (status != PSA_ERROR_INVALID_HANDLE) {
-                   xResult = CKR_ARGUMENTS_BAD;
-               }
-               PKCS11_PRINT( ( "WARN: Failed to retrieve JITP certificate information err=0x%x. \r\n",  status ) );
+                PKCS11_PRINT( ( "INFO: Get JITP certificate info.\r\n" ) );
+                /* Retrieve JITP certificate info */
+                status = psa_ps_get_info( P11KeyConfig.uxJitpCertificate, &ps_info);
+                if (status == PSA_SUCCESS) {
+                    P11KeyConfig.ulJitpCertificateMark = pkcs11OBJECT_PRESENT_MAGIC | ps_info.size;
+                }
+                else
+                {
+                    /* Optional, Not treat as error if doesn't exist */
+                    if (status != PSA_ERROR_INVALID_HANDLE) {
+                        xResult = CKR_ARGUMENTS_BAD;
+                    }
+                    PKCS11_PRINT( ( "WARN: Failed to retrieve JITP certificate information err=0x%x. \r\n",  status ) );
+                }
             }
         }
-
 #else
         /* PSA Crypto library should haven been initialised successfully in secure world. */
         xP11Context.xIsInitialized = CK_TRUE;
@@ -1505,28 +1510,28 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         if( CKR_OK == xResult )
         {
             memset( pxSessionObj, 0, sizeof( P11Session_t ) );
-        }
 
-        pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
+            pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
 
-        if( NULL == pxSessionObj->xSignMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xSignMutexCreated = CK_TRUE;
-        }
+            if( NULL == pxSessionObj->xSignMutex )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+            else
+            {
+                xSignMutexCreated = CK_TRUE;
+            }
 
-        pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
+            pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
 
-        if( NULL == pxSessionObj->xVerifyMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-        else
-        {
-            xVerifyMutexCreated = CK_TRUE;
+            if( NULL == pxSessionObj->xVerifyMutex )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+            else
+            {
+                xVerifyMutexCreated = CK_TRUE;
+            }
         }
     }
 
@@ -2041,61 +2046,54 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                     }
                     else
                     {
-                        if( 0 != xResult )
+                        psa_key_handle_t ulKeyHandle = 0;
+                        if( xPalHandle == eAwsDevicePrivateKey )
                         {
-                            xResult = CKR_FUNCTION_FAILED;
+                            ulKeyHandle = P11KeyConfig.uxDevicePrivateKey;
+                        }
+                        else if( xPalHandle == eAwsDevicePublicKey )
+                        {
+                            ulKeyHandle = P11KeyConfig.uxDevicePublicKey;
+                        }
+                        else if( xPalHandle == eAwsCodeSigningKey )
+                        {
+                            ulKeyHandle = P11KeyConfig.uxCodeVerifyKey;
                         }
                         else
                         {
-                            psa_key_handle_t ulKeyHandle = 0;
-                            if( xPalHandle == eAwsDevicePrivateKey )
+                            xResult = CKR_OBJECT_HANDLE_INVALID;
+                        }
+
+                        /* Get the key policy from which the key type can be derived. */
+                        if( xResult == CKR_OK )
+                        {
+                            uxStatus = psa_get_key_attributes( ulKeyHandle, &attributes );
+                            if ( uxStatus != PSA_SUCCESS )
                             {
-                                ulKeyHandle = P11KeyConfig.uxDevicePrivateKey;
+                                xResult = CKR_FUNCTION_FAILED;
                             }
-                            else if( xPalHandle == eAwsDevicePublicKey )
+                        }
+                        if( xResult == CKR_OK )
+                        {
+                            psa_algorithm_t alg = psa_get_key_algorithm(&attributes);
+                            if( PSA_ALG_IS_ECDSA( alg ) )
                             {
-                                ulKeyHandle = P11KeyConfig.uxDevicePublicKey;
+                                xPkcsKeyType = CKK_EC;
                             }
-                            else if( xPalHandle == eAwsCodeSigningKey )
+                            else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( alg ) ||
+                                    PSA_ALG_IS_RSA_PSS( alg ) )
                             {
-                                ulKeyHandle = P11KeyConfig.uxCodeVerifyKey;
+                                xPkcsKeyType = CKK_RSA;
                             }
                             else
                             {
-                                xResult = CKR_OBJECT_HANDLE_INVALID;
+                                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                             }
-
-                            /* Get the key policy from which the key type can be derived. */
-                            if( xResult == CKR_OK )
-                            {
-                                uxStatus = psa_get_key_attributes( ulKeyHandle, &attributes );
-                                if ( uxStatus != PSA_SUCCESS )
-                                {
-                                    xResult = CKR_FUNCTION_FAILED;
-                                }
-                            }
-                            if( xResult == CKR_OK )
-                            {
-                                psa_algorithm_t alg = psa_get_key_algorithm(&attributes);
-                                if( PSA_ALG_IS_ECDSA( alg ) )
-                                {
-                                    xPkcsKeyType = CKK_EC;
-                                }
-                                else if( PSA_ALG_IS_RSA_PKCS1V15_SIGN( alg ) ||
-                                        PSA_ALG_IS_RSA_PSS( alg ) )
-                                {
-                                    xPkcsKeyType = CKK_RSA;
-                                }
-                                else
-                                {
-                                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                                }
-                                psa_reset_key_attributes( &attributes );
-                            }
-                            if( xResult == CKR_OK )
-                            {
-                                memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
-                            }
+                            psa_reset_key_attributes( &attributes );
+                        }
+                        if( xResult == CKR_OK )
+                        {
+                            memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
                         }
                     }
 

@@ -263,6 +263,7 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     ap.xSecurity = whd_tosecurity(record->security);
     ap.cRSSI = record->signal_strength;
     ap.cChannel = record->channel;
+    ap.ucHidden = 0;
     data->aps[data->offset] = ap;
     data->offset++;  
 }

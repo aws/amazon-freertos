@@ -123,7 +123,8 @@ INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)
+    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
+    $(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
     $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
@@ -377,6 +378,11 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
+	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/*.c)\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\

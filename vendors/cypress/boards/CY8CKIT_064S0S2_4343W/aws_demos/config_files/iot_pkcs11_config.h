@@ -138,9 +138,14 @@
 #define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    0
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
-#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    0
+    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED      0
+    #define pkcs11configVENDOR_DEVICE_KEY_ID               (PSA_KEY_ID_VENDOR_MIN + 1)
+    #define pkcs11configVENDOR_DEVICE_CERTIFICATE_UID      (0x100)
+    #define pkcs11configVENDOR_JITP_CERTIFICATE_UID        (0x101)
+    #define pkcs11configVENDOR_JITP_STATUS_UID             (0x1)
+#else
+    #define pkcs11configVENDOR_DEVICE_CERTIFICATE_UID      (0x5)
+    #define pkcs11configVENDOR_JITP_CERTIFICATE_UID        (0x6)
 #endif
-
-
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
