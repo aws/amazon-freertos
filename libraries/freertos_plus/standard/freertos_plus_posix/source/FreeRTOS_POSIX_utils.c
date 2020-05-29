@@ -188,7 +188,6 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 {
     int64_t llPartialSec = 0;
     int iStatus = 0;
-    struct timespec temp = { 0 };
 
     /* Check parameters. */
     if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) )
@@ -228,18 +227,14 @@ int UTILS_TimespecAdd( const struct timespec * const x,
             llPartialSec = ( pxResult->tv_nsec ) / NANOSECONDS_PER_SECOND;
             pxResult->tv_nsec = ( pxResult->tv_nsec ) % NANOSECONDS_PER_SECOND;
 
-            /* Calculate the addition result in 2 parts.
-              * 1. Addition of input parameter values.
-              * 2. Addition of seconds carry-over from nano-seconds addition
-              */
-
-            /* Step 1. in calculating the tv_sec result. */
-            temp.tv_sec = x->tv_sec + y->tv_sec;
+            /* Perform addition for the seconds result. */
+            pxResult->tv_sec = x->tv_sec + y->tv_sec + llPartialSec;
 
             if( ( x->tv_sec < 0 ) && ( y->tv_sec < 0 ) )
             {
                 /* Check for overflow. */
-                if( ( temp.tv_sec > x->tv_sec ) && ( temp.tv_sec > y->tv_sec ) )
+                if( ( pxResult->tv_sec > x->tv_sec ) && ( pxResult->tv_sec > y->tv_sec ) &&
+                    ( pxResult->tv_sec > llPartialSec ) )
                 {
                     iStatus = 1;
                 }
@@ -248,19 +243,8 @@ int UTILS_TimespecAdd( const struct timespec * const x,
             else
             {
                 /* Check for overflow. */
-                if( ( temp.tv_sec < x->tv_sec ) || ( temp.tv_sec < y->tv_sec ) )
-                {
-                    iStatus = 1;
-                }
-            }
-
-            if( iStatus == 0 )
-            {
-                /* Step 2. in calculating the tv_sec result. */
-                pxResult->tv_sec = temp.tv_sec + llPartialSec;
-
-                /* Check for overflow. */
-                if( ( pxResult->tv_sec < temp.tv_sec ) || ( pxResult->tv_sec < llPartialSec ) )
+                if( ( pxResult->tv_sec < x->tv_sec ) || ( pxResult->tv_sec < y->tv_sec ) ||
+                    ( pxResult->tv_sec < llPartialSec ) )
                 {
                     iStatus = 1;
                 }
