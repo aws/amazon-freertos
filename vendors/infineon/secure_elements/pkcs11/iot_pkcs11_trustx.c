@@ -1109,11 +1109,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
         /*
          *   Reset OPTIGA(TM) Trust X and open an application on it
          */
-        xResult = PKCS11_PAL_Initialize();
-        if( xResult == CKR_OK )
-        {
-            xResult = prvOPTIGATrustX_Initialize();
-        }
+        xResult = prvOPTIGATrustX_Initialize();
 
 
         CK_OBJECT_HANDLE xObject;
