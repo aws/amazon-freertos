@@ -1302,6 +1302,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pInitArgs )
     if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
         xResult = PKCS11_PAL_Initialize();
+
         if( xResult == CKR_OK )
         {
             xResult = prvMbedTLS_Initialize();
