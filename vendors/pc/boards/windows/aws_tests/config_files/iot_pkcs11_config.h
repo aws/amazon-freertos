@@ -62,6 +62,16 @@
 #define pkcs11configMAX_NUM_OBJECTS                        6
 
 /**
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
+ *
+ * @note The windows test port has an abnormally large value in order to have 
+ * enough sessions to successfully run all the model based PKCS #11 tests.
+ */
+#define pkcs11configMAX_SESSIONS                           250
+
+
+/**
  * @brief Set to 1 if a PAL destroy object is implemented.
  *
  * If set to 0, no PAL destroy object is implemented, and this functionality
