@@ -199,14 +199,15 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 
     if( iStatus == 0 )
     {
+        /* Determine the signedness of the underlying type of timespec.tv_nsec. */
+        isSigned = ( ~temp.tv_nsec < 0 ) ? 1u : 0u;
+
         /* Perform addition for nanoseconds result. */
         pxResult->tv_nsec = x->tv_nsec + y->tv_nsec;
 
-        /* Check if the addition resulted in an overflow. */
-
-        /* Note: The detection of overflow depends on the type signedness of
+        /* Check if the addition resulted in an overflow.
+          * Note: The detection of overflow depends on the type signedness of
           * the timespec members .*/
-        isSigned = ( ( temp.tv_nsec > 0 ) && ( ~temp.tv_nsec < 0 ) ) ? 1u : 0u;
 
         /* Case when timespec.tv_nsec is a signed type. */
         if( isSigned == 1u )
@@ -233,6 +234,9 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 
         if( iStatus == 0 )
         {
+            /* Determine the signedness of the underlying type of timespec.tv_nsec. */
+            isSigned = ( ~temp.tv_sec < 0 ) ? 1u : 0u;
+
             llPartialSec = ( pxResult->tv_nsec ) / NANOSECONDS_PER_SECOND;
             pxResult->tv_nsec = ( pxResult->tv_nsec ) % NANOSECONDS_PER_SECOND;
 
@@ -245,7 +249,6 @@ int UTILS_TimespecAdd( const struct timespec * const x,
             /* Check if addition resulted in an overflow.
               * Note: The detection of overflow depends on the type signedness of
               * the timespec members .*/
-            isSigned = ( ( temp.tv_sec > 0 ) && ( ~temp.tv_sec < 0 ) ) ? 1u : 0u;
 
             /* Case when timespec.tv_sec is a signed type. */
             if( isSigned == 1u )
