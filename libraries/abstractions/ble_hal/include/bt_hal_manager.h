@@ -60,9 +60,15 @@
 #define btPATCH_VERSION    1
 
 /**
- * @brief  Stringified version number.
+ * @brief  Help functions to convert version to string.
  */
-#define btSTRING_VERSION                        # btMAJOR_VERSION "." # btMINOR_VERSION "." # btPATCH_VERSION
+#define btSTR_HELPER( x, y, z )    # x "." # y "." # z
+#define btSTR( x, y, z )           btSTR_HELPER( x, y, z )
+
+ /**
+  * @brief  Stringified version number.
+  */
+#define btSTRING_VERSION                        btSTR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
 
 /**
  * Stack feature support bit mask
