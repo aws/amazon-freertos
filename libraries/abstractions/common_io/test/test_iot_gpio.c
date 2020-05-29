@@ -670,23 +670,23 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
             switch( eGpioInterrupt )
             {
                 case eGpioInterruptRising:
-                    TEST_MESSAGE( "Rising edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Rising edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptFalling:
-                    TEST_MESSAGE( "Falling edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Falling edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptEdge:
-                    TEST_MESSAGE( "Both edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Both edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptLow:
-                    TEST_MESSAGE( "low-level interrupts not supported." );
+                    /* TEST_MESSAGE( "low-level interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptHigh:
-                    TEST_MESSAGE( "high-level interrupts not supported." );
+                    /* TEST_MESSAGE( "high-level interrupts not supported." ); */
                     break;
 
                 default:
