@@ -191,6 +191,9 @@ int UTILS_TimespecAdd( const struct timespec * const x,
     struct timespec temp = { .tv_sec = 1, .tv_nsec = 1 };
     uint8_t isSigned = 1u;
 
+    configPRINTF( ( "Input tv_sec values: x->tv_sec: %u, y->tv_sec:%u",
+                    x->tv_sec, y->tv_sec ) );
+
     /* Check input parameters. None of the parameters should be NULL,
       * and the input parameters values should be positive. */
     if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) ||
