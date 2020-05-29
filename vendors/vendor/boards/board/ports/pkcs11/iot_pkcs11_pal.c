@@ -36,6 +36,17 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * @brief Initializes the PKCS #11 PAL.
+ *
+ * @return CKR_OK on success.
+ * CKR_FUNCTION_FAILED on failure.
+ */
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    CK_RV xReturn = CKR_OK;
+    return xReturn;
+}
 
 /**
 * @brief Writes a file to local storage.

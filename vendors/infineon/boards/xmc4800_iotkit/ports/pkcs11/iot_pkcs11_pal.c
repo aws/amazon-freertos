@@ -356,23 +356,8 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 }
 /*-----------------------------------------------------------*/
 
-extern CK_RV prvMbedTLS_Initialize( void );
-
-/**
- * @brief Initialize the Cryptoki module for use.
- *
- * Overrides the implementation of C_Initialize in
- * iot_pkcs11_mbedtls.c when pkcs11configC_INITIALIZE_ALT
- * is defined.
- */
-#ifndef pkcs11configC_INITIALIZE_ALT
-    #error XMC4800 requires alternate C_Initialization
-#endif
-
-CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( pvInitArgs );
-
+CK_RV PKCS11_PAL_Initialize( void )
+{   
     CK_RV xResult = CKR_OK;
 
     E_EEPROM_XMC4_Init( &e_eeprom, sizeof( P11KeyConfig_t ) );
@@ -380,11 +365,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
     if( E_EEPROM_XMC4_IsFlashEmpty() == false )
     {
         E_EEPROM_XMC4_ReadArray( 0, ( uint8_t * const ) &P11KeyConfig, sizeof( P11KeyConfig_t ) );
-    }
-
-    if( xResult == CKR_OK )
-    {
-        xResult = prvMbedTLS_Initialize();
     }
 
     return xResult;

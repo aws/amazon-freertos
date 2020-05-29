@@ -379,6 +379,11 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
 
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /* PKCS #11 PAL Implementation. */
 
 /**

@@ -32,8 +32,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-
 /**
  * @brief PKCS #11 default user PIN.
  *
@@ -128,7 +126,7 @@
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"/* #define pkcs11configC_INITIALIZE_ALT */
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"/* 
 
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

@@ -299,6 +299,11 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 #endif /* ifdef USE_OFFLOAD_SSL */
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Saves an object in non-volatile storage.
  *

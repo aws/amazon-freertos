@@ -152,6 +152,10 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
 
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
 
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,

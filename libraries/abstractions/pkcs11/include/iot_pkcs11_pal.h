@@ -41,6 +41,8 @@
 /**
  * @functions_page{pkcs11_pal,PKCS #11 PAL, PKCS #11 PAL}
  * @functions_brief{PKCS #11 PAL Layer}
+ * - @function_name{pkcs11_pal_function_initialize}
+ * @function_brief{pkcs11_pal_function_initialize}
  * - @function_name{pkcs11_pal_function_saveobject}
  * @function_brief{pkcs11_pal_function_saveobject}
  * - @function_name{pkcs11_pal_function_destroyobject}
@@ -70,6 +72,16 @@
  * @function_snippet{pkcs11_pal,getobjectvaluecleanup,this}
  * @copydoc PKCS11_PAL_GetObjectValueCleanup
  */
+
+/**
+ * @brief Initializes the PKCS #11 PAL.
+ *
+ * @return CKR_OK on success.
+ * CKR_FUNCTION_FAILED on failure.
+ */
+/* @[declare_pkcs11_pal_initialize] */
+CK_RV PKCS11_PAL_Initialize( void );
+/* @[declare_pkcs11_pal_initialize] */
 
 /**
  * @brief Saves an object in non-volatile storage.

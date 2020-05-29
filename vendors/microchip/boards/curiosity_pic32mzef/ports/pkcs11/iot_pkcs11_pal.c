@@ -109,6 +109,11 @@ static uint64_t PIC32MZ_HW_TRNG_Get( void );
 
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Saves an object in non-volatile storage.
  *
