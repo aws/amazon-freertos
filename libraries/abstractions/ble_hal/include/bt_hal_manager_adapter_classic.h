@@ -44,9 +44,9 @@
  */
 typedef enum
 {
-    eBTScanModeNone = 0,                    /**< Not visible */
-    eBTScanModeConnectable = 1,             /**< Connectable */
-    eBTScanModeConnectableDiscoverable = 2  /**< Connectable and Discoverable */
+    eBTScanModeNone = 0,                   /**< Not visible */
+    eBTScanModeConnectable = 1,            /**< Connectable */
+    eBTScanModeConnectableDiscoverable = 2 /**< Connectable and Discoverable */
 } BTScanMode_t;
 
 
@@ -55,8 +55,8 @@ typedef enum
  */
 typedef enum
 {
-    eBTPageScanInterval220ms = 0,   /**< 220 ms page scan interval */
-    eBTPageScanInterval1280ms = 1   /**< 1280 ms page scan interval */
+    eBTPageScanInterval220ms = 0, /**< 220 ms page scan interval */
+    eBTPageScanInterval1280ms = 1 /**< 1280 ms page scan interval */
 } BTScanParam_t;
 
 
@@ -65,8 +65,8 @@ typedef enum
  */
 typedef enum
 {
-    eBTDiscoveryStopped = 0,    /**< Discovery Stopped */
-    eBTDiscoveryStarted = 1     /**< Discovery Started */
+    eBTDiscoveryStopped = 0, /**< Discovery Stopped */
+    eBTDiscoveryStarted = 1  /**< Discovery Started */
 } BTDiscoveryState_t;
 
 /**
@@ -113,8 +113,8 @@ typedef struct
  */
 typedef enum
 {
-    eBTScanTypeStandard = 0,    /**< Standard Scan Type */
-    eBTScanTypeInterlaced = 1   /**< Interlaced Scan Type */
+    eBTScanTypeStandard = 0,  /**< Standard Scan Type */
+    eBTScanTypeInterlaced = 1 /**< Interlaced Scan Type */
 } BTScanType_t;
 
 /**

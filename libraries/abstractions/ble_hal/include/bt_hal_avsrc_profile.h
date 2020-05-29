@@ -46,10 +46,10 @@
  */
 typedef enum
 {
-    eBTAvsrcConnectionStateDisconnected = 0,    /**< Disconnected */
-    eBTAvsrcConnectionStateConnecting = 1,      /**< Connecting */
-    eBTAvsrcConnectionStateConnected = 2,       /**< Connected */
-    eBTAvsrcConnectionStateDisconnecting = 3    /**< Disconnecting */
+    eBTAvsrcConnectionStateDisconnected = 0, /**< Disconnected */
+    eBTAvsrcConnectionStateConnecting = 1,   /**< Connecting */
+    eBTAvsrcConnectionStateConnected = 2,    /**< Connected */
+    eBTAvsrcConnectionStateDisconnecting = 3 /**< Disconnecting */
 } BTAvConnectionState_t;
 
 /**
@@ -57,9 +57,9 @@ typedef enum
  */
 typedef enum
 {
-    eBTAvsrcAudioStateRemoteSuspend = 0,    /**< Audio Suspended */
-    eBTAvsrcAudioStateStopped = 1,          /**< Audio Stopped */
-    eBTAvsrcAudioStateStarted = 2,          /**< Audio Started */
+    eBTAvsrcAudioStateRemoteSuspend = 0, /**< Audio Suspended */
+    eBTAvsrcAudioStateStopped = 1,       /**< Audio Stopped */
+    eBTAvsrcAudioStateStarted = 2,       /**< Audio Started */
 } BTAvAudioState_t;
 
 /** Audio callback structure */

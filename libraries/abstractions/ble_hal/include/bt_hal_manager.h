@@ -65,9 +65,9 @@
 #define btSTR_HELPER( x, y, z )    # x "." # y "." # z
 #define btSTR( x, y, z )           btSTR_HELPER( x, y, z )
 
- /**
-  * @brief  Stringified version number.
-  */
+/**
+ * @brief  Stringified version number.
+ */
 #define btSTRING_VERSION                        btSTR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
 
 /**

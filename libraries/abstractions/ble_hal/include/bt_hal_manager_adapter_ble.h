@@ -102,6 +102,7 @@ typedef struct
 } BTGattAdvName_t;
 
 /*TODO enum for usAdvertisingEventProperties */
+
 /**
  * @brief Advertising Parameters
  */
