@@ -1,32 +1,32 @@
 /*
- * FreeRTOS POSIX V1.1.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
- */
+  * FreeRTOS POSIX V1.1.3
+  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy of
+  * this software and associated documentation files (the "Software"), to deal in
+  * the Software without restriction, including without limitation the rights to
+  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+  * the Software, and to permit persons to whom the Software is furnished to do so,
+  * subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  *
+  * http://aws.amazon.com/freertos
+  * http://www.FreeRTOS.org
+  */
 
 /**
- * @file FreeRTOS_POSIX_utils.c
- * @brief Implementation of utility functions in utils.h
- */
+  * @file FreeRTOS_POSIX_utils.c
+  * @brief Implementation of utility functions in utils.h
+  */
 
 /* C standard library includes. */
 #include <stddef.h>
@@ -123,8 +123,8 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
         llTotalTicks = ( int64_t ) configTICK_RATE_HZ * ( pxTimespec->tv_sec );
 
         /* Convert timespec.tv_nsec to ticks. This value does not have to be checked
-         * for overflow because a valid timespec has 0 <= tv_nsec < 1000000000 and
-         * NANOSECONDS_PER_TICK > 1. */
+          * for overflow because a valid timespec has 0 <= tv_nsec < 1000000000 and
+          * NANOSECONDS_PER_TICK > 1. */
         lNanoseconds = pxTimespec->tv_nsec / ( long ) NANOSECONDS_PER_TICK +                  /* Whole nanoseconds. */
                        ( long ) ( pxTimespec->tv_nsec % ( long ) NANOSECONDS_PER_TICK != 0 ); /* Add 1 to round up if needed. */
 
@@ -188,6 +188,7 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 {
     int64_t llPartialSec = 0;
     int iStatus = 0;
+    struct timespec temp = { 0 };
 
     /* Check parameters. */
     if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) )
@@ -197,24 +198,72 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 
     if( iStatus == 0 )
     {
-        /* Perform addition. */
+        /* Perform addition for nanoseconds result. */
         pxResult->tv_nsec = x->tv_nsec + y->tv_nsec;
 
-        /* check for overflow in case nsec value was invalid */
-        if( pxResult->tv_nsec < 0 )
+        /* Check if the addition resulted in an overflow. */
+        /* Note: The detection of overflow depends on the type of input operands combination.*/
+
+        /* Case when both input operands are negative. */
+        if( ( x->tv_nsec < 0 ) && ( y->tv_nsec < 0 ) )
         {
-            iStatus = 1;
+            /* Check for overflow. */
+            if( ( pxResult->tv_nsec > x->tv_nsec ) && ( pxResult->tv_nsec > y->tv_nsec ) )
+            {
+                iStatus = 1;
+            }
         }
+        /* Case when at least one of the operands is not negative. */
         else
+        {
+            /* Check for overflow. */
+            if( ( pxResult->tv_nsec < x->tv_nsec ) || ( pxResult->tv_nsec < y->tv_nsec ) )
+            {
+                iStatus = 1;
+            }
+        }
+
+        if( iStatus == 0 )
         {
             llPartialSec = ( pxResult->tv_nsec ) / NANOSECONDS_PER_SECOND;
             pxResult->tv_nsec = ( pxResult->tv_nsec ) % NANOSECONDS_PER_SECOND;
-            pxResult->tv_sec = x->tv_sec + y->tv_sec + llPartialSec;
 
-            /* check for overflow */
-            if( pxResult->tv_sec < 0 )
+            /* Calculate the addition result in 2 parts.
+              * 1. Addition of input parameter values.
+              * 2. Addition of seconds carry-over from nano-seconds addition
+              */
+
+            /* Step 1. in calculating the tv_sec result. */
+            temp.tv_sec = x->tv_sec + y->tv_sec;
+
+            if( ( x->tv_sec < 0 ) && ( y->tv_sec < 0 ) )
             {
-                iStatus = 1;
+                /* Check for overflow. */
+                if( ( temp.tv_sec > x->tv_sec ) && ( temp.tv_sec > y->tv_sec ) )
+                {
+                    iStatus = 1;
+                }
+            }
+            /* At least one of the operands is positive. */
+            else
+            {
+                /* Check for overflow. */
+                if( ( temp.tv_sec < x->tv_sec ) || ( temp.tv_sec < y->tv_sec ) )
+                {
+                    iStatus = 1;
+                }
+            }
+
+            if( iStatus == 0 )
+            {
+                /* Step 2. in calculating the tv_sec result. */
+                pxResult->tv_sec = temp.tv_sec + llPartialSec;
+
+                /* Check for overflow. */
+                if( ( pxResult->tv_sec < temp.tv_sec ) || ( pxResult->tv_sec < llPartialSec ) )
+                {
+                    iStatus = 1;
+                }
             }
         }
     }
