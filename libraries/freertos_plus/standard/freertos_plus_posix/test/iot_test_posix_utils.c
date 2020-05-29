@@ -45,8 +45,8 @@
 #include "unity.h"
 
 /*-----------------------------------------------------------*/
-#define TIME_T_SIGNED_MAX      ( time_t ) ( ( 1UL << ( ( sizeof( time_t ) << 3 ) - 1 ) ) - 1 )
-#define TIME_T_UNSIGNED_MAX    ( time_t ) ( ( 1UL << ( ( sizeof( time_t ) << 3 ) ) ) - 1 )
+#define TIME_T_SIGNED_MAX      ( time_t ) ( ( ( time_t ) 1 << ( ( sizeof( time_t ) << 3 ) - 1 ) ) - 1 )
+#define TIME_T_UNSIGNED_MAX    ( time_t ) ( ( ( time_t ) 1 << ( ( sizeof( time_t ) << 3 ) ) ) - 1 )
 
 static const struct timespec signedCheck = { .tv_sec = 1, .tv_nsec = 1 };
 static uint8_t isTimespecTvSecSigned;
