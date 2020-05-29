@@ -90,8 +90,8 @@ extern void vLoggingPrintf( const char * pcFormatString,
  */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
 #define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
-#define ipconfigDNS_CACHE_NAME_LENGTH              ( 16 )
-#define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
+#define ipconfigDNS_CACHE_NAME_LENGTH              ( 81 )
+#define ipconfigDNS_CACHE_ENTRIES                  ( 2 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
