@@ -1,35 +1,35 @@
 /*
- * FreeRTOS POSIX V1.1.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
- */
+  * FreeRTOS POSIX V1.1.3
+  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy of
+  * this software and associated documentation files (the "Software"), to deal in
+  * the Software without restriction, including without limitation the rights to
+  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+  * the Software, and to permit persons to whom the Software is furnished to do so,
+  * subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  *
+  * http://aws.amazon.com/freertos
+  * http://www.FreeRTOS.org
+  */
 
 /**
- * @file iot_test_posix_utils.c
- * @brief Tests for POSIX utility functions.
- *
- * Some utility functions are considered adequately tested by other functions
- * and therefore aren't tested here.
- */
+  * @file iot_test_posix_utils.c
+  * @brief Tests for POSIX utility functions.
+  *
+  * Some utility functions are considered adequately tested by other functions
+  * and therefore aren't tested here.
+  */
 
 /* C standard library includes. */
 #include <string.h>
@@ -100,13 +100,13 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd )
     TEST_ASSERT_EQUAL_INT( 1, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 200000000, xResult.tv_nsec );
 
-    /* Add timespec with negative y. */
-    x.tv_sec = 5;
+    /* Add timespec with negative x and y. */
+    x.tv_sec = -1;
     x.tv_nsec = 0;
     y.tv_sec = -6;
     y.tv_nsec = 100000000;
     TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
-    TEST_ASSERT_EQUAL_INT( -1, xResult.tv_sec );
+    TEST_ASSERT_EQUAL_INT( -7, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 100000000, xResult.tv_nsec );
 
     /* Add non-compliant timespec where y.tv_nsec < 0. */
