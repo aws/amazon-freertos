@@ -191,52 +191,32 @@ int UTILS_TimespecAdd( const struct timespec * const x,
     struct timespec temp = { .tv_sec = 1, .tv_nsec = 1 };
     uint8_t isSigned = 1u;
 
-    /* Check parameters. */
-    if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) )
+    /* Check input parameters. None of the parameters should be NULL,
+      * and the input parameters values should be positive. */
+    if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) ||
+        ( x->tv_sec < 0 ) || ( x->tv_nsec < 0 ) ||
+        ( y->tv_sec < 0 ) || ( y->tv_nsec < 0 ) )
     {
         iStatus = -1;
     }
 
     if( iStatus == 0 )
     {
-        /* Determine the signedness of the underlying type of timespec.tv_nsec. */
-        isSigned = ( ~temp.tv_nsec < 0 ) ? 1u : 0u;
-
         /* Perform addition for nanoseconds result. */
         pxResult->tv_nsec = x->tv_nsec + y->tv_nsec;
-
-        /* Check if the addition resulted in an overflow.
-          * Note: The detection of overflow depends on the type signedness of
-          * the timespec members .*/
-
-        /* Case when timespec.tv_nsec is a signed type. */
-        if( isSigned == 1u )
-        {
-            configPRINTF( ( "Identified that tv_nsec type is signed: %ld, %ld",
-                            x->tv_nsec, y->tv_nsec ) );
-
-            /* Check for overflow. */
-            if( pxResult->tv_nsec < 0 )
-            {
-                configPRINTF( ( "Detected overflow in tv_nsec: ReturnStatus=%d", iStatus ) );
-                iStatus = 1;
-            }
-        }
-        /* Check for overflow when timespec.tv_sec is an unsigned type. */
-        else if( ( pxResult->tv_nsec < x->tv_nsec ) || ( pxResult->tv_nsec < y->tv_nsec ) )
-        {
-            configPRINTF( ( "Detected overflow in tv_nsec: ReturnStatus=%d", iStatus ) );
-            iStatus = 1;
-        }
 
         configPRINTF( ( "Values after nsec addition: tv_nsec=%ld, tv_sec=%d\n",
                         pxResult->tv_nsec, pxResult->tv_sec ) );
 
-        if( iStatus == 0 )
+        /* Check if the addition resulted in an overflow.*/
+        if( ( pxResult->tv_nsec < x->tv_nsec ) || ( pxResult->tv_nsec < y->tv_nsec ) )
         {
-            /* Determine the signedness of the underlying type of timespec.tv_nsec. */
-            isSigned = ( ~temp.tv_sec < 0 ) ? 1u : 0u;
-
+            configPRINTF( ( "Detected overflow in tv_nsec: ReturnStatus=%d", iStatus ) );
+            iStatus = 1;
+        }
+        else
+        {
+            /* Prune the nanoseconds value to be less than NANOSECONDS_PER_SECOND. */
             llPartialSec = ( pxResult->tv_nsec ) / NANOSECONDS_PER_SECOND;
             pxResult->tv_nsec = ( pxResult->tv_nsec ) % NANOSECONDS_PER_SECOND;
 
@@ -246,30 +226,10 @@ int UTILS_TimespecAdd( const struct timespec * const x,
             configPRINTF( ( "Values after sec addition: tv_nsec=%ld, tv_sec=%d\n",
                             pxResult->tv_nsec, pxResult->tv_sec ) );
 
-            /* Check if addition resulted in an overflow.
-              * Note: The detection of overflow depends on the type signedness of
-              * the timespec members .*/
-
-            /* Case when timespec.tv_sec is a signed type. */
-            if( isSigned == 1u )
+            /* Check if addition resulted in an overflow. */
+            if( ( pxResult->tv_sec < x->tv_sec ) || ( pxResult->tv_sec < y->tv_sec ) ||
+                ( pxResult->tv_sec < llPartialSec ) )
             {
-                configPRINTF( ( "Identified that tv_sec is signed: %ld, %ld",
-                                x->tv_sec, y->tv_sec ) );
-
-                /* Check for overflow. */
-                if( pxResult->tv_sec < 0 )
-                {
-                    configPRINTF( ( "Detected overflow in tv_sec: ReturnStatus=%d", iStatus ) );
-                    iStatus = 1;
-                }
-            }
-            /* Case when timespec.tv_sec is an unsigned type. */
-            else if( ( pxResult->tv_sec < x->tv_sec ) || ( pxResult->tv_sec < y->tv_sec ) ||
-                     ( pxResult->tv_sec < llPartialSec ) )
-            {
-                configPRINTF( ( "Identified that tv_sec is unsigned: %lu, %lu, %ld",
-                                x->tv_sec, y->tv_sec, llPartialSec ) );
-
                 configPRINTF( ( "Detected overflow in tv_sec: ReturnStatus=%d", iStatus ) );
 
                 iStatus = 1;
