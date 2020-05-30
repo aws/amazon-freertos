@@ -399,6 +399,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 {
   char host_name[20];
   WIFIReturnCode_t status = eWiFiSuccess;
+  int ret;
 
   /* Check params */
   if ((pucIPAddr == NULL) || (usCount == 0))
@@ -415,7 +416,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     {
 	  uint32_t time;
 
-      if (esp_ping(host_name, &time, 1) != espOK)
+      if ( (ret = esp_ping(host_name, &time, 1) ) != espOK)
       {
   	    status = eWiFiFailure;
   	    break;
@@ -431,6 +432,8 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
   {
     status = eWiFiTimeout;
   }
+
+  ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
 
   return status;
 }

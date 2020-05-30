@@ -42,8 +42,8 @@
 #include "limits.h"
 #include "esp/esp.h"
 
-#define CONNECT_BIT    (1 << 0)
-#define DISCONNECT_BIT (1 << 1)
+#define CONNECT_BIT       ( 1 << 0 )
+#define DISCONNECT_BIT    ( 1 << 1 )
 
 SemaphoreHandle_t xWiFiSemaphoreHandle; /**< Wi-Fi module semaphore. */
 const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );
@@ -51,344 +51,346 @@ const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WA
 static TaskHandle_t xTaskToNotify = NULL;
 static BaseType_t xIsWiFiInitialized = pdFALSE;
 
-espr_t esp_callback_func(esp_cb_t* cb)
+espr_t esp_callback_func( esp_cb_t * cb )
 {
-  switch (cb->type) {
-    case ESP_CB_INIT_FINISH:
+    switch( cb->type )
     {
-      //configPRINT("Library initialized!\r\n");
-      break;
+        case ESP_CB_INIT_FINISH:
+            /*configPRINT("Library initialized!\r\n"); */
+            break;
+
+        case ESP_CB_RESET_FINISH:
+            /*configPRINT("Device reset sequence finished!\r\n"); */
+            break;
+
+        case ESP_CB_RESET:
+            /*configPRINT("Device reset detected!\r\n"); */
+            break;
+
+        case ESP_CB_WIFI_CONNECTED:
+            xTaskNotify( xTaskToNotify, CONNECT_BIT, eSetValueWithOverwrite );
+            break;
+
+        case ESP_CB_WIFI_DISCONNECTED:
+            /*configPRINT("Wifi Disconnected\r\n"); */
+            /*xSemaphoreGive(xWiFiConnectSemaphoreHandle); */
+            xTaskNotify( xTaskToNotify, DISCONNECT_BIT, eSetValueWithOverwrite );
+            break;
+
+        default:
+            break;
     }
 
-    case ESP_CB_RESET_FINISH:
-    {
-      //configPRINT("Device reset sequence finished!\r\n");
-      break;
-    }
-
-    case ESP_CB_RESET:
-    {
-      //configPRINT("Device reset detected!\r\n");
-      break;
-    }
-
-    case ESP_CB_WIFI_CONNECTED:
-    {
-      xTaskNotify(xTaskToNotify, CONNECT_BIT, eSetValueWithOverwrite);
-      break;
-    }
-
-    case ESP_CB_WIFI_DISCONNECTED:
-    {
-      //configPRINT("Wifi Disconnected\r\n");
-      //xSemaphoreGive(xWiFiConnectSemaphoreHandle);
-      xTaskNotify(xTaskToNotify, DISCONNECT_BIT, eSetValueWithOverwrite);
-      break;
-    }
-	default: break;
-  }
-  return espOK;
+    return espOK;
 }
 
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_On( void )
 {
-  if (xIsWiFiInitialized == pdFALSE)
-  {
-    if (esp_init(esp_callback_func, 1) != espOK)
+    if( xIsWiFiInitialized == pdFALSE )
     {
-      return eWiFiFailure;
+        if( esp_init( esp_callback_func, 1 ) != espOK )
+        {
+            return eWiFiFailure;
+        }
+
+        xWiFiSemaphoreHandle = xSemaphoreCreateBinary();
+
+        if( xWiFiSemaphoreHandle == NULL )
+        {
+            return eWiFiFailure;
+        }
+
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+
+        xIsWiFiInitialized = pdTRUE;
     }
 
-    xWiFiSemaphoreHandle = xSemaphoreCreateBinary();
-    if (xWiFiSemaphoreHandle == NULL)
-    {
-      return eWiFiFailure;
-    }
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-
-    xIsWiFiInitialized = pdTRUE;
-  }
-
-  return eWiFiSuccess;
+    return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_Off( void )
 {
-  return eWiFiSuccess;
+    return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-  BaseType_t xResult;
-  uint32_t ulNotifiedValue;
-  WIFIReturnCode_t status = eWiFiFailure;
+    BaseType_t xResult;
+    uint32_t ulNotifiedValue;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  if ((pxNetworkParams == NULL) || (pxNetworkParams->pcSSID == NULL))
-  {
-	return eWiFiFailure;
-  }
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    /* Store the handle of the calling task. */
-    xTaskToNotify = xTaskGetCurrentTaskHandle();
-
-    if (esp_sta_has_ip())
-	{
-	  if (esp_sta_quit(1) == espOK)
-	  {
-	      xResult = xTaskNotifyWait( pdFALSE,    /* Don't clear bits on entry. */
-	                                 ULONG_MAX,        /* Clear all bits on exit. */
-	                                 &ulNotifiedValue, /* Stores the notified value. */
-									 xSemaphoreWaitTicks );
-
-	      if (xResult == pdTRUE)
-	      {
-	    	if (ulNotifiedValue == DISCONNECT_BIT)
-	    	{
-	          status = eWiFiSuccess;
-	        }
-	      }
-	  }
-	}
-
-    if (esp_sta_join(pxNetworkParams->pcSSID, pxNetworkParams->pcPassword, NULL, 0, 1) == espOK)
+    if( ( pxNetworkParams == NULL ) || ( pxNetworkParams->pcSSID == NULL ) )
     {
-      xResult = xTaskNotifyWait( pdFALSE,    /* Don't clear bits on entry. */
-                                 ULONG_MAX,        /* Clear all bits on exit. */
-                                 &ulNotifiedValue, /* Stores the notified value. */
-								 xSemaphoreWaitTicks );
-
-      if (xResult == pdTRUE)
-      {
-    	if (ulNotifiedValue == CONNECT_BIT)
-    	{
-          status = eWiFiSuccess;
-        }
-      }
+        return eWiFiFailure;
     }
 
-	/* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        /* Store the handle of the calling task. */
+        xTaskToNotify = xTaskGetCurrentTaskHandle();
 
-  return status;
+        if( esp_sta_has_ip() )
+        {
+            if( esp_sta_quit( 1 ) == espOK )
+            {
+                xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
+                                           ULONG_MAX,        /* Clear all bits on exit. */
+                                           &ulNotifiedValue, /* Stores the notified value. */
+                                           xSemaphoreWaitTicks );
+
+                if( xResult == pdTRUE )
+                {
+                    if( ulNotifiedValue == DISCONNECT_BIT )
+                    {
+                        status = eWiFiSuccess;
+                    }
+                }
+            }
+        }
+
+        if( esp_sta_join( pxNetworkParams->pcSSID, pxNetworkParams->pcPassword, NULL, 0, 1 ) == espOK )
+        {
+            xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
+                                       ULONG_MAX,        /* Clear all bits on exit. */
+                                       &ulNotifiedValue, /* Stores the notified value. */
+                                       xSemaphoreWaitTicks );
+
+            if( xResult == pdTRUE )
+            {
+                if( ulNotifiedValue == CONNECT_BIT )
+                {
+                    status = eWiFiSuccess;
+                }
+            }
+        }
+
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_Disconnect( void )
 {
-  BaseType_t xResult;
-  uint32_t ulNotifiedValue;
-  WIFIReturnCode_t status = eWiFiFailure;
+    BaseType_t xResult;
+    uint32_t ulNotifiedValue;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-	/* Store the handle of the calling task. */
-	xTaskToNotify = xTaskGetCurrentTaskHandle();
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        /* Store the handle of the calling task. */
+        xTaskToNotify = xTaskGetCurrentTaskHandle();
 
-	if (esp_sta_has_ip())
-	{
-      if (esp_sta_quit(1) == espOK)
-      {
-	      xResult = xTaskNotifyWait( pdFALSE,    /* Don't clear bits on entry. */
-	                                 ULONG_MAX,        /* Clear all bits on exit. */
-	                                 &ulNotifiedValue, /* Stores the notified value. */
-									 xSemaphoreWaitTicks );
+        if( esp_sta_has_ip() )
+        {
+            if( esp_sta_quit( 1 ) == espOK )
+            {
+                xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
+                                           ULONG_MAX,        /* Clear all bits on exit. */
+                                           &ulNotifiedValue, /* Stores the notified value. */
+                                           xSemaphoreWaitTicks );
 
-	      if (xResult == pdTRUE)
-	      {
-	    	if (ulNotifiedValue == DISCONNECT_BIT)
-	    	{
-	          status = eWiFiSuccess;
-	        }
-	      }
-      }
-	}
-	else
-	{
-	  status = eWiFiSuccess;
-	}
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+                if( xResult == pdTRUE )
+                {
+                    if( ulNotifiedValue == DISCONNECT_BIT )
+                    {
+                        status = eWiFiSuccess;
+                    }
+                }
+            }
+        }
+        else
+        {
+            status = eWiFiSuccess;
+        }
 
-  return status;
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_Reset( void )
 {
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    if (esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, 1) == espOK)
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
-      status = eWiFiSuccess;
+        if( esp_reset_with_delay( ESP_CFG_RESET_DELAY_DEFAULT, 1 ) == espOK )
+        {
+            status = eWiFiSuccess;
+        }
+
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
-
-  return status;
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                             uint8_t ucNumNetworks )
 {
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  if ((pxBuffer == NULL) || (ucNumNetworks == 0))
-  {
-	return eWiFiFailure;
-  }
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    esp_ap_t APs[ESP_CFG_MAX_DETECTED_AP];
-	size_t found_aps = 0;
-
-	if (ucNumNetworks > ESP_CFG_MAX_DETECTED_AP)
-	{
-	  ucNumNetworks = ESP_CFG_MAX_DETECTED_AP;
-	}
-
-	if (esp_sta_list_ap(NULL, APs, ucNumNetworks, &found_aps, 1) == espOK)
+    if( ( pxBuffer == NULL ) || ( ucNumNetworks == 0 ) )
     {
-   	  for (int32_t i = 0; i < ucNumNetworks; ++i)
-   	  {
-   		memcpy(pxBuffer[i].cSSID, APs[i].ssid, wificonfigMAX_SSID_LEN);
-   	    memcpy(pxBuffer[i].ucBSSID, APs[i].mac.mac, wificonfigMAX_BSSID_LEN);
-   	    pxBuffer[i].cRSSI = APs[i].rssi;
-   	    pxBuffer[i].xSecurity = APs[i].ecn;
-   	    pxBuffer[i].cChannel = APs[i].ch;
-   	  }
-
-      status = eWiFiSuccess;
+        return eWiFiFailure;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        esp_ap_t APs[ ESP_CFG_MAX_DETECTED_AP ];
+        size_t found_aps = 0;
 
-  return status;
+        if( ucNumNetworks > ESP_CFG_MAX_DETECTED_AP )
+        {
+            ucNumNetworks = ESP_CFG_MAX_DETECTED_AP;
+        }
+
+        if( esp_sta_list_ap( NULL, APs, ucNumNetworks, &found_aps, 1 ) == espOK )
+        {
+            for( int32_t i = 0; i < ucNumNetworks; ++i )
+            {
+                memcpy( pxBuffer[ i ].cSSID, APs[ i ].ssid, wificonfigMAX_SSID_LEN );
+                memcpy( pxBuffer[ i ].ucBSSID, APs[ i ].mac.mac, wificonfigMAX_BSSID_LEN );
+                pxBuffer[ i ].cRSSI = APs[ i ].rssi;
+                pxBuffer[ i ].xSecurity = APs[ i ].ecn;
+                pxBuffer[ i ].cChannel = APs[ i ].ch;
+            }
+
+            status = eWiFiSuccess;
+        }
+
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
-__STATIC_INLINE esp_mode_t aws_mode_conversion(WIFIDeviceMode_t xDeviceMode)
+__STATIC_INLINE esp_mode_t aws_mode_conversion( WIFIDeviceMode_t xDeviceMode )
 {
-  switch (xDeviceMode)
-  {
-#if ESP_CFG_MODE_STATION
-    case eWiFiModeStation:
-      return ESP_MODE_STA;
-      break;
-#endif
+    switch( xDeviceMode )
+    {
+        #if ESP_CFG_MODE_STATION
+            case eWiFiModeStation:
+                return ESP_MODE_STA;
 
-#if ESP_CFG_MODE_ACCESS_POINT
-    case eWiFiModeAP:
-      return ESP_MODE_AP;
-      break;
-#endif
+                break;
+        #endif
 
-#if ESP_CFG_MODE_STATION_ACCESS_POINT
-    case eWiFiModeP2P:
-      return ESP_MODE_STA_AP;
-      break;
-#endif
+        #if ESP_CFG_MODE_ACCESS_POINT
+            case eWiFiModeAP:
+                return ESP_MODE_AP;
 
-    default:
-      return ESP_MODE_NOT_SUPPORTED;
-      break;
-  }
+                break;
+        #endif
+
+        #if ESP_CFG_MODE_STATION_ACCESS_POINT
+            case eWiFiModeP2P:
+                return ESP_MODE_STA_AP;
+
+                break;
+        #endif
+
+        default:
+            return ESP_MODE_NOT_SUPPORTED;
+
+            break;
+    }
 }
 
 WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
 {
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    esp_mode_t mode = aws_mode_conversion(xDeviceMode);
-    if (mode == ESP_MODE_NOT_SUPPORTED)
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
-	  status = eWiFiNotSupported;
+        esp_mode_t mode = aws_mode_conversion( xDeviceMode );
+
+        if( mode == ESP_MODE_NOT_SUPPORTED )
+        {
+            status = eWiFiNotSupported;
+        }
+
+        if( esp_set_wifi_mode( mode, 1 ) == espOK )
+        {
+            status = eWiFiSuccess;
+        }
+
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
     }
 
-    if (esp_set_wifi_mode(mode, 1) == espOK)
-    {
-      status = eWiFiSuccess;
-    }
-
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
-
-  return status;
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 {
-  if (pxDeviceMode == NULL)
-  {
-	return eWiFiFailure;
-  }
+    if( pxDeviceMode == NULL )
+    {
+        return eWiFiFailure;
+    }
 
-  *pxDeviceMode = eWiFiModeStation;
-  return eWiFiSuccess;
+    *pxDeviceMode = eWiFiModeStation;
+    return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkProfile,
                                   uint16_t * pusIndex )
 {
-  return eWiFiNotSupported;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
                                   uint16_t usIndex )
 {
-  return eWiFiNotSupported;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
-  return eWiFiNotSupported;
+    return eWiFiNotSupported;
 }
 
 /*-----------------------------------------------------------*/
@@ -397,133 +399,135 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
                             uint16_t usCount,
                             uint32_t ulIntervalMS )
 {
-  char host_name[20];
-  WIFIReturnCode_t status = eWiFiSuccess;
+    char host_name[ 20 ];
+    WIFIReturnCode_t status = eWiFiSuccess;
+    int ret;
 
-  /* Check params */
-  if ((pucIPAddr == NULL) || (usCount == 0))
-  {
-    return eWiFiFailure;
-  }
-
-  sprintf(host_name, "%d.%d.%d.%d", pucIPAddr[0], pucIPAddr[1], pucIPAddr[2], pucIPAddr[3]);
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    for (int32_t i = 0; i < usCount; ++i)
+    /* Check params */
+    if( ( pucIPAddr == NULL ) || ( usCount == 0 ) )
     {
-	  uint32_t time;
-
-      if (esp_ping(host_name, &time, 1) != espOK)
-      {
-  	    status = eWiFiFailure;
-  	    break;
-      }
-
-      vTaskDelay(pdMS_TO_TICKS(ulIntervalMS));
+        return eWiFiFailure;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    sprintf( host_name, "%d.%d.%d.%d", pucIPAddr[ 0 ], pucIPAddr[ 1 ], pucIPAddr[ 2 ], pucIPAddr[ 3 ] );
 
-  return status;
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        for( int32_t i = 0; i < usCount; ++i )
+        {
+            uint32_t time;
+
+            if( ( ret = esp_ping( host_name, &time, 1 ) ) != espOK )
+            {
+                status = eWiFiFailure;
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( ulIntervalMS ) );
+        }
+
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
-  esp_ip_t gw;
-  esp_ip_t nm;
+    esp_ip_t gw;
+    esp_ip_t nm;
 
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  if (pucIPAddr == NULL)
-  {
-	return eWiFiFailure;
-  }
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    if (esp_sta_getip((esp_ip_t *)pucIPAddr, &gw, &nm, 0, 1) == espOK)
+    if( pucIPAddr == NULL )
     {
-      status = eWiFiSuccess;
+        return eWiFiFailure;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if( esp_sta_getip( ( esp_ip_t * ) pucIPAddr, &gw, &nm, 0, 1 ) == espOK )
+        {
+            status = eWiFiSuccess;
+        }
 
-  return status;
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac )
 {
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  if (pucMac == NULL)
-  {
-	return eWiFiFailure;
-  }
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    if (esp_sta_getmac((esp_mac_t *)pucMac, 0, 1) == espOK)
+    if( pucMac == NULL )
     {
-      status = eWiFiSuccess;
+        return eWiFiFailure;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if( esp_sta_getmac( ( esp_mac_t * ) pucMac, 0, 1 ) == espOK )
+        {
+            status = eWiFiSuccess;
+        }
 
-  return status;
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
                                  uint8_t * pucIPAddr )
 {
-  WIFIReturnCode_t status = eWiFiFailure;
+    WIFIReturnCode_t status = eWiFiFailure;
 
-  if ((pcHost == NULL) || (pucIPAddr == NULL))
-  {
-	return eWiFiFailure;
-  }
-
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-    if (esp_dns_getbyhostname(pcHost, (esp_ip_t *)pucIPAddr, 1) == espOK)
+    if( ( pcHost == NULL ) || ( pucIPAddr == NULL ) )
     {
-      status = eWiFiSuccess;
+        return eWiFiFailure;
     }
 
-    /* Release semaphore */
-    xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
-  else
-  {
-    status = eWiFiTimeout;
-  }
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if( esp_dns_getbyhostname( pcHost, ( esp_ip_t * ) pucIPAddr, 1 ) == espOK )
+        {
+            status = eWiFiSuccess;
+        }
 
-  return status;
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
+    else
+    {
+        status = eWiFiTimeout;
+    }
+
+    return status;
 }
 /*-----------------------------------------------------------*/
 
@@ -559,23 +563,23 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t WIFI_IsConnected(void)
+BaseType_t WIFI_IsConnected( void )
 {
-  BaseType_t status = 0;
+    BaseType_t status = 0;
 
-  /* Acquire semaphore */
-  if (xSemaphoreTake(xWiFiSemaphoreHandle, xSemaphoreWaitTicks) == pdTRUE)
-  {
-	status = esp_sta_has_ip();
+    /* Acquire semaphore */
+    if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        status = esp_sta_has_ip();
 
-	/* Release semaphore */
-	xSemaphoreGive(xWiFiSemaphoreHandle);
-  }
+        /* Release semaphore */
+        xSemaphoreGive( xWiFiSemaphoreHandle );
+    }
 
-  return status;
+    return status;
 }
 
-WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback )
 {
     /** Needs to implement dispatching network state change events **/
     return eWiFiNotSupported;
