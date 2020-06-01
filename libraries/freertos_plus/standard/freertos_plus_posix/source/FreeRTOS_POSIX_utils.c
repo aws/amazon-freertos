@@ -186,13 +186,10 @@ int UTILS_TimespecAdd( const struct timespec * const x,
                        const struct timespec * const y,
                        struct timespec * const pxResult )
 {
-    int64_t llPartialSec = 0;
+    uint64_t llPartialSec = 0;
     int iStatus = 0;
     struct timespec temp = { .tv_sec = 1, .tv_nsec = 1 };
     uint8_t isSigned = 1u;
-
-    configPRINTF( ( "Input tv_sec values: x->tv_sec: %u, y->tv_sec:%u",
-                    x->tv_sec, y->tv_sec ) );
 
     /* Check input parameters. None of the parameters should be NULL,
       * and the input parameters values should be positive. */
@@ -202,6 +199,9 @@ int UTILS_TimespecAdd( const struct timespec * const x,
     {
         iStatus = -1;
     }
+
+    configPRINTF( ( "Input tv_sec values: x->tv_sec: %u, y->tv_sec:%u",
+                    x->tv_sec, y->tv_sec ) );
 
     if( iStatus == 0 )
     {
