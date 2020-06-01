@@ -1,35 +1,35 @@
 /*
-  * FreeRTOS POSIX V1.1.3
-  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a copy of
-  * this software and associated documentation files (the "Software"), to deal in
-  * the Software without restriction, including without limitation the rights to
-  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-  * the Software, and to permit persons to whom the Software is furnished to do so,
-  * subject to the following conditions:
-  *
-  * The above copyright notice and this permission notice shall be included in all
-  * copies or substantial portions of the Software.
-  *
-  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  *
-  * http://aws.amazon.com/freertos
-  * http://www.FreeRTOS.org
-  */
+ * FreeRTOS POSIX V1.1.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 /**
-  * @file iot_test_posix_utils.c
-  * @brief Tests for POSIX utility functions.
-  *
-  * Some utility functions are considered adequately tested by other functions
-  * and therefore aren't tested here.
-  */
+ * @file iot_test_posix_utils.c
+ * @brief Tests for POSIX utility functions.
+ *
+ * Some utility functions are considered adequately tested by other functions
+ * and therefore aren't tested here.
+ */
 
 /* C standard library includes. */
 #include <string.h>
@@ -154,9 +154,9 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd_Overflow )
     struct timespec y = { .tv_sec = 0, .tv_nsec = 0 };
 
     /* Note: An overflow occurrence depends on the signedness of the
-      * underlying type of timespec.tv_sec member. Thus, we have different
-      * tests between platforms that use signed and unsigned types for
-      * timespec.tv_sec. */
+     * underlying type of timespec.tv_sec member. Thus, we have different
+     * tests between platforms that use signed and unsigned types for
+     * timespec.tv_sec. */
     if( isTimespecTvSecSigned )
     {
         x.tv_sec = TIME_T_SIGNED_MAX;
