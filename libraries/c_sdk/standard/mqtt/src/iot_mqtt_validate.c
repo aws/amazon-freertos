@@ -42,6 +42,7 @@
 bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
 {
     IOT_FUNCTION_ENTRY( bool, true );
+    uint16_t adjustedKeepAliveSec = 0;
 
     /* Check for NULL. */
     if( pConnectInfo == NULL )
@@ -128,6 +129,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
         EMPTY_ELSE_MARKER;
     }
 
+    adjustedKeepAliveSec = pConnectInfo->keepAliveSeconds;
+
     /* Check for compatibility with the AWS IoT MQTT service limits. */
     if( pConnectInfo->awsIotMqttMode == true )
     {
@@ -150,6 +153,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
             IotLogWarn( "AWS IoT does not support disabling keep-alive. Default keep-alive "
                         "of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
         }
         else if( pConnectInfo->keepAliveSeconds < AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE )
         {
@@ -157,6 +162,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
                         "An interval of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE,
                         AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE;
         }
         else if( pConnectInfo->keepAliveSeconds > AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE )
         {
@@ -164,6 +171,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
                         "An interval of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE,
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
         }
         else
         {
@@ -176,12 +185,13 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
     }
 
     /* Check that keep alive is not too short. */
-    if( pConnectInfo->keepAliveSeconds != 0 )
+    if( adjustedKeepAliveSec != 0 )
     {
-        if( ( pConnectInfo->keepAliveSeconds * 1000 ) <= IOT_MQTT_RESPONSE_WAIT_MS )
+        /* If wait time is too long, keep alive jobs will time out while waiting for PINGRESP. */
+        if( ( adjustedKeepAliveSec * 1000 ) <= IOT_MQTT_RESPONSE_WAIT_MS )
         {
             IotLogError( "Keep alive interval %d ms must be longer than response wait time %d ms.",
-                         pConnectInfo->keepAliveSeconds * 1000,
+                         adjustedKeepAliveSec * 1000,
                          IOT_MQTT_RESPONSE_WAIT_MS );
 
             IOT_SET_AND_GOTO_CLEANUP( false );

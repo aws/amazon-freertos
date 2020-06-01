@@ -722,16 +722,10 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
              * so a PINGREQ will be transmitted in the next execution. */
             pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
 
-            /* Check if keep alive time is nonzero and greater than wait time. */
-            if( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS )
-            {
-                /* Subtract time taken for PINGRESP check. */
-                scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
+            IotMqtt_Assert( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS );
+
+            /* Subtract time taken for PINGRESP check. */
+            scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
         }
         else
         {
