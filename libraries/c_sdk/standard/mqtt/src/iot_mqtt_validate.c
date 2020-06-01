@@ -175,6 +175,27 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
         EMPTY_ELSE_MARKER;
     }
 
+    /* Check that keep alive is not too short. */
+    if( pConnectInfo->keepAliveSeconds != 0 )
+    {
+        if( ( pConnectInfo->keepAliveSeconds * 1000 ) <= IOT_MQTT_RESPONSE_WAIT_MS )
+        {
+            IotLogError( "Keep alive interval %d ms must be longer than response wait time %d ms.",
+                         pConnectInfo->keepAliveSeconds * 1000,
+                         IOT_MQTT_RESPONSE_WAIT_MS );
+
+            IOT_SET_AND_GOTO_CLEANUP( false );
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
     IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 

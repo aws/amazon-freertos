@@ -650,6 +650,7 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     bool status = true;
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     size_t bytesSent = 0;
+    uint32_t scheduleDelay = 0;
 
     /* Retrieve the MQTT connection from the context. */
     _mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) pContext;
@@ -716,8 +717,21 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
         {
             IotLogDebug( "(MQTT connection %p) PINGRESP was received.", pMqttConnection );
 
-            /* PINGRESP was received. Schedule the next PINGREQ transmission. */
+            /* PINGRESP was received. Schedule the next PINGREQ transmission.
+             * Control actual delay with another variable, but keep this here
+             * so a PINGREQ will be transmitted in the next execution. */
             pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
+
+            /* Check if keep alive time is nonzero and greater than wait time. */
+            if( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS )
+            {
+                /* Subtract time taken for PINGRESP check. */
+                scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
         else
         {
@@ -734,15 +748,24 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
      * response shortly. */
     if( status == true )
     {
+        if( scheduleDelay == 0U )
+        {
+            scheduleDelay = pMqttConnection->nextKeepAliveMs;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+
         taskPoolStatus = IotTaskPool_ScheduleDeferred( pTaskPool,
                                                        pKeepAliveJob,
-                                                       pMqttConnection->nextKeepAliveMs );
+                                                       scheduleDelay );
 
         if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
         {
             IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
                          pMqttConnection,
-                         ( unsigned long ) pMqttConnection->nextKeepAliveMs );
+                         ( unsigned long ) scheduleDelay );
         }
         else
         {
