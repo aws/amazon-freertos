@@ -414,9 +414,9 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
   {
     for (int32_t i = 0; i < usCount; ++i)
     {
-	  uint32_t time;
-
-      if ( (ret = esp_ping(host_name, &time, 1) ) != espOK)
+      uint32_t time;
+      ret = esp_ping(host_name, &time, 1);
+      if ( ret != espOK )
       {
   	    status = eWiFiFailure;
   	    break;
