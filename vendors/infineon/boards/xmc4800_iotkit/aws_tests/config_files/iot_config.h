@@ -25,9 +25,11 @@
 #define IOT_CONFIG_H_
 
 /* Platform thread priority. */
-#define IOT_THREAD_DEFAULT_PRIORITY    5
+#define IOT_THREAD_DEFAULT_PRIORITY      5
 
-#define IOT_LOG_LEVEL_HTTPS            IOT_LOG_DEBUG
+#define IOT_LOG_LEVEL_HTTPS              IOT_LOG_DEBUG
+
+#define IOT_THREAD_DEFAULT_STACK_SIZE    4096
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
