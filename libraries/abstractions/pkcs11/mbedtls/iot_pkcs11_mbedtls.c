@@ -187,6 +187,7 @@ typedef struct P11Object_t
 typedef struct P11ObjectList_t
 {
     SemaphoreHandle_t xMutex;                            /**< @brief Mutex that protects write operations to the xObjects array. */
+    StaticSemaphore_t xMutexBuffer;                      /**< @brief Mutex buffer in order to avoid calling Malloc. */
     P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ]; /**< @brief List of PKCS #11 objects. */
 } P11ObjectList_t;
 
@@ -200,6 +201,8 @@ typedef struct P11Struct_t
     CK_BBOOL xIsInitialized;                     /**< @brief Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
     mbedtls_ctr_drbg_context xMbedDrbgCtx;       /**< @brief CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
     mbedtls_entropy_context xMbedEntropyContext; /**< @brief Entropy context for PKCS #11 module - used to collect entropy for RNG. */
+    SemaphoreHandle_t xSessionMutex;             /**< @brief Mutex that protects write operations to the pxSession array. */
+    StaticSemaphore_t xSessionMutexBuffer;       /**< @brief Mutex buffer in order to avoid calling Malloc. */
     P11ObjectList_t xObjectList;                 /**< @brief List of PKCS #11 objects that have been found/created since module initialization.
                                                   *         The array position indicates the "App Handle"  */
 } P11Struct_t;
@@ -212,6 +215,7 @@ typedef struct P11Struct_t
 typedef struct P11Session
 {
     CK_ULONG ulState;                            /**< @brief Stores the session flags. */
+    CK_BBOOL xOpened;                            /**< @brief Set to CK_TRUE upon opening PKCS #11 session. */
     CK_MECHANISM_TYPE xOperationDigestMechanism; /**< @brief Indicates if a digest operation is in progress. */
     CK_BYTE * pxFindObjectLabel;                 /**< @brief Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;              /**< @brief Find object length flag. */
@@ -231,6 +235,11 @@ typedef struct P11Session
  * Entropy/randomness and object lists are shared across PKCS #11 sessions.
  */
 static P11Struct_t xP11Context;
+
+/**
+ * @brief The global PKCS #11 session list.
+ */
+static P11Session_t pxP11Sessions[ pkcs11configMAX_SESSIONS ] = { 0 };
 
 /**
  * @brief Helper to check if the current session is initialized and valid.
@@ -258,6 +267,11 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
     {
         xResult = CKR_SESSION_HANDLE_INVALID;
     }
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    else if( pxSession->xOpened == ( CK_BBOOL ) CK_FALSE )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
     else
     {
         /* Session is initialized and valid. */
@@ -269,13 +283,17 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
 /**
  * @brief Maps an opaque caller session handle into its internal state structure.
  */
-static P11Session_t * prvSessionPointerFromHandle( const CK_SESSION_HANDLE xSession )
+static P11Session_t * prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 {
-    /* PKCS #11 uses opaque integer handles to manage sessions.
-     * It is necessary to cast this to a pointer in order to
-     * retrieve the session. */
-    /* coverity[misra_c_2012_rule_11_4_violation] */
-    return ( P11Session_t * ) xSession;
+    P11Session_t * pxSession = NULL;
+
+    if( ( xSession >= 1 ) && ( xSession <= pkcs11configMAX_SESSIONS ) )
+    {
+        /* Decrement by 1, invalid handles in PKCS #11 are defined to be 0. */
+        pxSession = &pxP11Sessions[ xSession - 1 ];
+    }
+
+    return pxSession;
 }
 
 /**
@@ -455,9 +473,13 @@ CK_RV prvMbedTLS_Initialize( void )
     else
     {
         ( void ) memset( &xP11Context, 0, sizeof( xP11Context ) );
-        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
+        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutexStatic(
+            &xP11Context.xObjectList.xMutexBuffer );
 
-        if( xP11Context.xObjectList.xMutex == NULL )
+        xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
+            &xP11Context.xSessionMutexBuffer );
+
+        if( ( xP11Context.xObjectList.xMutex == NULL ) || ( xP11Context.xSessionMutex == NULL ) )
         {
             xResult = CKR_HOST_MEMORY;
         }
@@ -1668,6 +1690,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 {
     CK_RV xResult = CKR_OK;
     P11Session_t * pxSessionObj = NULL;
+    uint32_t ulSessionCount = 0;
 
     ( void ) ( slotID );
     ( void ) ( pApplication );
@@ -1702,19 +1725,36 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
      */
     if( CKR_OK == xResult )
     {
-        pxSessionObj = ( P11Session_t * ) pvPortMalloc( sizeof( struct P11Session ) );
-
-        if( NULL == pxSessionObj )
+        /* Get next open session slot. */
+        if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) == pdTRUE )
         {
-            xResult = CKR_HOST_MEMORY;
+            for( ulSessionCount = 0; ulSessionCount < ( uint32_t ) pkcs11configMAX_SESSIONS; ++ulSessionCount )
+            {
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                if( pxP11Sessions[ ulSessionCount ].xOpened == ( CK_BBOOL ) CK_FALSE )
+                {
+                    xResult = CKR_OK;
+                    pxSessionObj = &pxP11Sessions[ ulSessionCount ];
+                    /* coverity[misra_c_2012_rule_10_5_violation] */
+                    pxSessionObj->xOpened = ( CK_BBOOL ) CK_TRUE;
+                    break;
+                }
+                else
+                {
+                    /* No available session. */
+                    xResult = CKR_SESSION_COUNT;
+                }
+            }
+
+            ( void ) xSemaphoreGive( xP11Context.xSessionMutex );
+        }
+        else
+        {
+            xResult = CKR_FUNCTION_FAILED;
         }
 
-        /*
-         * Zero out the session structure.
-         */
         if( CKR_OK == xResult )
         {
-            ( void ) memset( pxSessionObj, 0, sizeof( P11Session_t ) );
             pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
 
             if( NULL == pxSessionObj->xSignMutex )
@@ -1752,6 +1792,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 
     if( CKR_OK != xResult )
     {
+        PKCS11_PRINT( ( "Failed to open a new session with error %d \r\n", xResult ) );
+
         if( pxSessionObj != NULL )
         {
             if( pxSessionObj->xSignMutex != NULL )
@@ -1764,16 +1806,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
                 vSemaphoreDelete( pxSessionObj->xVerifyMutex );
             }
 
-            vPortFree( pxSessionObj );
+            ( void ) memset( pxSessionObj, 0, sizeof( P11Session_t ) );
+            *phSession = CK_INVALID_HANDLE;
         }
     }
     else
     {
-        /* PKCS #11 uses opaque integer handles to manage sessions.
-         * It is necessary to cast this to a pointer in order to
-         * retrieve the session. */
-        /* coverity[misra_c_2012_rule_11_4_violation] */
-        *phSession = ( CK_SESSION_HANDLE ) pxSessionObj;
+        /* Increment by one, as invalid handles in PKCS #11 are 0. */
+        ++ulSessionCount;
+        *phSession = ulSessionCount;
     }
 
     return xResult;
@@ -1794,9 +1835,19 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
 {
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
-    CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
+    CK_RV xResult = CKR_OK;
 
-    if( xResult == CKR_OK )
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
+    {
+        xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
+    }
+    else if( pxSession == NULL )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    else if( pxSession->xOpened == ( CK_BBOOL ) CK_TRUE )
     {
         /*
          * Tear down the session.
@@ -1818,7 +1869,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
 
         mbedtls_sha256_free( &pxSession->xSHA256Context );
 
-        vPortFree( pxSession );
+        /* memset clears the open flag, so there is no need to set it to CK_FALSE */
+        ( void ) memset( pxSession, 0, sizeof( P11Session_t ) );
+    }
+    else
+    {
+        /* MISRA */
     }
 
     return xResult;
@@ -2503,9 +2559,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     const P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
 
-    if( ( NULL == pTemplate ) || ( 0UL == ulCount ) )
+    if( ( CKR_OK == xResult ) && ( ( ( NULL == pTemplate ) ) || ( 0UL == ulCount ) ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    if( ( CKR_OK == xResult ) && ( CK_INVALID_HANDLE == hObject ) )
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
     }
 
     if( xResult == CKR_OK )
