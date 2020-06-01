@@ -283,15 +283,14 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
 /**
  * @brief Maps an opaque caller session handle into its internal state structure.
  */
-static P11Session_t * prvSessionPointerFromHandle( const CK_SESSION_HANDLE xSession )
+static P11Session_t * prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 {
     P11Session_t * pxSession = NULL;
-    CK_SESSION_HANDLE xSessionHandle = xSession - 1;
 
-    if( xSessionHandle < pkcs11configMAX_SESSIONS )
+    if( ( xSession >= 1 ) && (xSession <= pkcs11configMAX_SESSIONS ) )
     {
         /* Decrement by 1, invalid handles in PKCS #11 are defined to be 0. */
-        pxSession = &pxP11Sessions[ xSessionHandle ];
+        pxSession = &pxP11Sessions[ xSession - 1 ];
     }
 
     return pxSession;
