@@ -1,32 +1,32 @@
 /*
-  * FreeRTOS POSIX V1.1.3
-  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a copy of
-  * this software and associated documentation files (the "Software"), to deal in
-  * the Software without restriction, including without limitation the rights to
-  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-  * the Software, and to permit persons to whom the Software is furnished to do so,
-  * subject to the following conditions:
-  *
-  * The above copyright notice and this permission notice shall be included in all
-  * copies or substantial portions of the Software.
-  *
-  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  *
-  * http://aws.amazon.com/freertos
-  * http://www.FreeRTOS.org
-  */
+ * FreeRTOS POSIX V1.1.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 /**
-  * @file FreeRTOS_POSIX_utils.c
-  * @brief Implementation of utility functions in utils.h
-  */
+ * @file FreeRTOS_POSIX_utils.c
+ * @brief Implementation of utility functions in utils.h
+ */
 
 /* C standard library includes. */
 #include <stddef.h>
@@ -123,8 +123,8 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
         llTotalTicks = ( int64_t ) configTICK_RATE_HZ * ( pxTimespec->tv_sec );
 
         /* Convert timespec.tv_nsec to ticks. This value does not have to be checked
-          * for overflow because a valid timespec has 0 <= tv_nsec < 1000000000 and
-          * NANOSECONDS_PER_TICK > 1. */
+         * for overflow because a valid timespec has 0 <= tv_nsec < 1000000000 and
+         * NANOSECONDS_PER_TICK > 1. */
         lNanoseconds = pxTimespec->tv_nsec / ( long ) NANOSECONDS_PER_TICK +                  /* Whole nanoseconds. */
                        ( long ) ( pxTimespec->tv_nsec % ( long ) NANOSECONDS_PER_TICK != 0 ); /* Add 1 to round up if needed. */
 
@@ -192,7 +192,7 @@ int UTILS_TimespecAdd( const struct timespec * const x,
     uint8_t isSigned = 1u;
 
     /* Check input parameters. None of the parameters should be NULL,
-      * and the input parameters values should be positive. */
+     * and the input parameters values should be positive. */
     if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) ||
         ( x->tv_sec < 0 ) || ( x->tv_nsec < 0 ) ||
         ( y->tv_sec < 0 ) || ( y->tv_nsec < 0 ) )
