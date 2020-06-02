@@ -212,6 +212,8 @@ CY_OPENOCD_PROGRAM_FLASH= -s ${CY_OPENOCD_DIR}/scripts \
                           -c "resume; reset; exit"
 
 program: build qprogram
+
+qprogram: memcalc
 	@echo;\
 	echo "Programming PSoC64 ... ";\
 	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_FLASH)
