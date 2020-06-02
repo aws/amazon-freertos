@@ -111,6 +111,12 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
     /* Make sure resources are freed up */
     iot_gpio_close( xtestIotGpioHandleA );
     iot_gpio_close( xtestIotGpioHandleB );
+
+    if ( xtestIotGpioSemaphore != NULL )
+    {
+        vSemaphoreDelete(xtestIotGpioSemaphore);
+        xtestIotGpioSemaphore = NULL;
+    }
 }
 
 /*-----------------------------------------------------------*/
