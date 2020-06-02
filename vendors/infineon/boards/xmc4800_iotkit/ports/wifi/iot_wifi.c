@@ -419,6 +419,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
       if ( ret != espOK )
       {
   	    status = eWiFiFailure;
+            ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
   	    break;
       }
 
@@ -433,7 +434,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     status = eWiFiTimeout;
   }
 
-  ESP_CFG_DBG_OUT( "WIFI_Ping returning %d \r\n", ret );
 
   return status;
 }
