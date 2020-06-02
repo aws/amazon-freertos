@@ -779,10 +779,16 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
              * and Call 3 is KeepAliveMS. */
             pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
 
-            IotMqtt_Assert( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS );
-
-            /* Subtract time taken for PINGRESP check. */
-            scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
+            /* Check if keep alive time is nonzero and greater than wait time. */
+            if( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS )
+            {
+                /* Subtract time taken for PINGRESP check. */
+                scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
         else
         {
