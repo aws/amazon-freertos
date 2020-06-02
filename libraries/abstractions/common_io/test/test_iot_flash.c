@@ -538,7 +538,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 
@@ -627,7 +627,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 
@@ -725,7 +725,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 
