@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# This file is used by CMake to create the build commands to sign an OTA image
+#
+# Modify at your peril !
+#
+# The @ VAR @ values are substituted when CMake is run.
+# The output file will be in the same directory as the .elf, .hex, etc files
+
+set -e
+
+echo ""
+echo  "@IMGTOOL_SCRIPT_COMMAND@ Hex, creating bin."
+
+#
+# If this app is being built for OTA (and using MCUBoot)
+cd @MCUBOOT_SCRIPT_FILE_DIR@
+
+# @IMGTOOL_SCRIPT_COMMAND@ the file !
+python3 @IMGTOOL_SCRIPT_NAME@ @IMGTOOL_SCRIPT_COMMAND@ @FLASH_ERASE_VALUE@ -e little --align 8 -H @MCUBOOT_HEADER_SIZE@ --pad-header -M @MCUBOOT_MAX_IMG_SECTORS@ -v @CY_BUILD_VERSION@ -L @CY_BOOT_PRIMARY_1_START@ -S @CY_BOOT_PRIMARY_1_SIZE@ @CY_SIGNING_KEY_ARG@ @CY_OUTPUT_FILE_PATH_HEX@ @CY_OUTPUT_FILE_PATH_SIGNED_HEX@
+
+# back to our build directory
+cd @CMAKE_BINARY_DIR@
+
+# Convert signed hex file to Binary for AWS uploading
+"@GCC_OBJCOPY@" --input-target=ihex --output-target=binary @CY_OUTPUT_FILE_PATH_SIGNED_HEX@ @CY_OUTPUT_FILE_PATH_BIN@
+echo  " Done."
+
+# get size of binary file for components.json
+BIN_SIZE=$(ls -l "@CY_OUTPUT_FILE_NAME_BIN@" | awk '{printf $6}')
+
+# create "components.json" file
+echo "{\"numberOfComponents\":\"2\",\"version\":\"@CY_BUILD_VERSION@\",\"files\":["                    >  @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"components.json\",\"fileType\": \"component_list\"},"                             >> @CY_COMPONENTS_JSON_NAME@
+echo "{\"fileName\":\"@CY_OUTPUT_FILE_NAME_BIN@\",\"fileType\": \"NSPE\",\"fileSize\":\"$BIN_SIZE\"}]}" >> @CY_COMPONENTS_JSON_NAME@
+
+# create tarball for OTA
+tar -cf @CY_OUTPUT_FILE_NAME_TAR@ @CY_COMPONENTS_JSON_NAME@ @CY_OUTPUT_FILE_NAME_BIN@
+
+echo ""
+echo "Application Name                         : @AFR_TARGET_APP_NAME@"
+echo "Application Version                      : @CY_BUILD_VERSION@"
+echo "Primary 1 Slot Start                     : @CY_BOOT_PRIMARY_1_START@"
+echo "Primary 1 Slot Size                      : @CY_BOOT_PRIMARY_1_SIZE@"
+echo "FLASH ERASE Value (NOTE: Empty for 0xff) : @FLASH_ERASE_VALUE@"
+echo "Cypress MCUBoot Header size              : @MCUBOOT_HEADER_SIZE@"
+echo "Max 512 bytes sectors for Application    : @CY_APP_MAX_IMG_SECTORS@"
+echo "App Src Dir: @app_dir@"
+if [ "@SIGNING_KEY_PATH@" != "" ]
+then
+echo "Signing key: @SIGNING_KEY_PATH@"
+fi
+
+echo ""
+
+#
+ls -l @CY_OUTPUT_FILE_PATH_WILD@
+
+echo ""
+echo "@CY_OUTPUT_FILE_NAME_TAR@ File List"
+# print tar file list
+tar -t -f @CY_OUTPUT_FILE_NAME_TAR@
+
+echo ""
