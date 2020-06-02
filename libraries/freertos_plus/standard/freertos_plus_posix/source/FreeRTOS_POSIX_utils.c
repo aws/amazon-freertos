@@ -202,11 +202,11 @@ int UTILS_TimespecAdd( const struct timespec * const x,
         iStatus = -1;
     }
 
-    configPRINTF( ( "Input tv_sec values: x->tv_sec: %u, y->tv_sec:%u",
-                    x->tv_sec, y->tv_sec ) );
-
     if( iStatus == 0 )
     {
+        configPRINTF( ( "Input tv_sec values: x->tv_sec: %u, y->tv_sec:%u",
+                        x->tv_sec, y->tv_sec ) );
+
         /* Perform addition for the nanoseconds member. */
         pxResult->tv_nsec = x->tv_nsec + y->tv_nsec;
 
