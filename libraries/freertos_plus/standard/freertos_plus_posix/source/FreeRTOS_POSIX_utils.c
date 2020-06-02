@@ -203,7 +203,7 @@ int UTILS_TimespecAdd( const struct timespec * const x,
         /* Perform addition for the nanoseconds member. */
         pxResult->tv_nsec = x->tv_nsec + y->tv_nsec;
 
-        /* Check if the addition resulted in an overflow.*/
+        /* Check if the addition resulted in an overflow. */
         if( ( pxResult->tv_nsec < x->tv_nsec ) || ( pxResult->tv_nsec < y->tv_nsec ) )
         {
             iStatus = 1;
