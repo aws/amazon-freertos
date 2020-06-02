@@ -191,12 +191,8 @@ int UTILS_TimespecAdd( const struct timespec * const x,
 
     /* Check input parameters. None of the parameters should be NULL,
      * and the input parameters values should be positive. */
-    if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) )
-    {
-        iStatus = -1;
-    }
-
-    if( ( x->tv_sec < 0 ) || ( x->tv_nsec < 0 ) ||
+    if( ( pxResult == NULL ) || ( x == NULL ) || ( y == NULL ) ||
+        ( x->tv_sec < 0 ) || ( x->tv_nsec < 0 ) ||
         ( y->tv_sec < 0 ) || ( y->tv_nsec < 0 ) )
     {
         iStatus = -1;
