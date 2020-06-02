@@ -59,7 +59,8 @@
 /**
  * @brief Max passphrase length
  */
-#define wificonfigMAX_PASSPHRASE_LEN          ( 64 )
+// Maximum allowed WPA2 passphrase length (per specification) is 63
+#define wificonfigMAX_PASSPHRASE_LEN          ( 63 )
 
 /**
  * @brief Soft Access point SSID
