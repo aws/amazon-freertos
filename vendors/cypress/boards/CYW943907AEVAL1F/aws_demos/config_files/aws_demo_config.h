@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V1.4.7
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -46,27 +46,17 @@
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE    ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigDEMO_PRIORITY     ( tskIDLE_PRIORITY + 5 )
-#define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI )
+#define democonfigDEMO_STACKSIZE                          ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_PRIORITY                           ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                           ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#define democonfigSHADOW_DEMO_NUM_TASKS             ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY         ( tskIDLE_PRIORITY )
-#define shadowDemoUPDATE_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT    pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
-
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS      ( 1 )
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS        ( 1 )
-
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY           ( tskIDLE_PRIORITY )
-
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
