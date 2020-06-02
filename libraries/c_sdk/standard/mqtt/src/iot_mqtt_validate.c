@@ -187,7 +187,11 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
     /* Check that keep alive is not too short. */
     if( adjustedKeepAliveSec != 0 )
     {
-        /* If wait time is too long, keep alive jobs will time out while waiting for PINGRESP. */
+        /* After sending a PINGREQ, we wait for IOT_MQTT_RESPONSE_WAIT_MS to
+         * receive the corresponding PINGRESP. If the PINGRESP is received within
+         * IOT_MQTT_RESPONSE_WAIT_MS, we schedule another job to send PINGREQ.
+         * If the IOT_MQTT_RESPONSE_WAIT_MS is longer than keep alive interval,
+         * we will fail to send PINGRESP on time. */
         if( ( adjustedKeepAliveSec * 1000 ) <= IOT_MQTT_RESPONSE_WAIT_MS )
         {
             IotLogError( "Keep alive interval %d ms must be longer than response wait time %d ms.",
