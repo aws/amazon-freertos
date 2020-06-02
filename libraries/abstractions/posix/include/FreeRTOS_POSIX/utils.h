@@ -93,14 +93,14 @@ void UTILS_NanosecondsToTimespec( int64_t llSource,
 /**
  * @brief Calculates pxResult = x + y.
  *
- * This function supports both signed and unsigned integer definitions of
- * the time_t type that is used for the timespec.tv_sec member.
+ * This function supports both signed and unsigned type definitions of
+ * the timespec.tv_sec member.
  *
  * @param[in] x The first argument for addition.
  * @param[in] y The second argument for addition.
  * @param[out] pxResult Where the result of the calculation is stored.
  *
- * @return -1 if any argument was NULL or any of the input values is negative;
+ * @return -1 if any argument is NULL or any of the input values is negative;
  * 1 if there is an overflow in the result; otherwise, 0 for success.
  */
 int UTILS_TimespecAdd( const struct timespec * const x,
