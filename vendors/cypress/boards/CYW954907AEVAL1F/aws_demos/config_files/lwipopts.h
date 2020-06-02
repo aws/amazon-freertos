@@ -141,18 +141,6 @@ extern "C" {
 #endif
 
 /**
- * MEMP_NUM_REASSDATA: the number of IP packets simultaneously queued for
- * reassembly (whole packets, not fragments!)
- */
-#if IP_REASS_MAX_PBUFS > 1
-#ifndef MEMP_NUM_REASSDATA
-#define MEMP_NUM_REASSDATA              (IP_REASS_MAX_PBUFS - 1)
-#endif
-#else
-#define MEMP_NUM_REASSDATA              0
-#endif
-
-/**
  * PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. The default is
  * designed to accommodate single full size TCP frame in one pbuf, including
  * TCP_MSS, IP header, and link header.
