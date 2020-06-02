@@ -126,7 +126,7 @@
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"/* 
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
