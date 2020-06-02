@@ -112,11 +112,8 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
     iot_gpio_close( xtestIotGpioHandleA );
     iot_gpio_close( xtestIotGpioHandleB );
 
-    if ( xtestIotGpioSemaphore != NULL )
-    {
-        vSemaphoreDelete(xtestIotGpioSemaphore);
-        xtestIotGpioSemaphore = NULL;
-    }
+    vSemaphoreDelete( xtestIotGpioSemaphore );
+    xtestIotGpioSemaphore = NULL;
 }
 
 /*-----------------------------------------------------------*/
