@@ -97,6 +97,8 @@ TEST_GROUP( TEST_IOT_GPIO );
  */
 TEST_SETUP( TEST_IOT_GPIO )
 {
+    xtestIotGpioSemaphore = xSemaphoreCreateBinary();
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -109,6 +111,9 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
     /* Make sure resources are freed up */
     iot_gpio_close( xtestIotGpioHandleA );
     iot_gpio_close( xtestIotGpioHandleB );
+
+    vSemaphoreDelete( xtestIotGpioSemaphore );
+    xtestIotGpioSemaphore = NULL;
 }
 
 /*-----------------------------------------------------------*/
@@ -118,9 +123,6 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
  */
 TEST_GROUP_RUNNER( TEST_IOT_GPIO )
 {
-    xtestIotGpioSemaphore = xSemaphoreCreateBinary();
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioSemaphore );
-
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenClose );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenOpenClose );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseClose );
@@ -414,7 +416,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
                 ulPerfCountFastDelta = 0xFFFFFFFF - ulPerfCount0 + ulPerfCount1 + 1;
             }
 
-            TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
+            TEST_ASSERT_GREATER_THAN( ulPerfCountSlowDelta, ulPerfCountFastDelta );
         }
     }
 
