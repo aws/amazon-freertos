@@ -1364,8 +1364,7 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     IotMqttDisconnectReason_t expectedReason = IOT_MQTT_KEEP_ALIVE_TIMEOUT;
 
     /* An estimate for the amount of time this test requires. */
-    const uint32_t sleepTimeMs = ( KEEP_ALIVE_COUNT * SHORT_KEEP_ALIVE_MS ) +
-                                 ( IOT_MQTT_RESPONSE_WAIT_MS * KEEP_ALIVE_COUNT ) + 1500;
+    const uint32_t sleepTimeMs = ( ( 2 + KEEP_ALIVE_COUNT ) * SHORT_KEEP_ALIVE_MS ) + 1500;
 
     /* Print a newline so this test may log its status. */
     UNITY_PRINT_EOL();
