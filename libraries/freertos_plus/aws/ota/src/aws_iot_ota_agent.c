@@ -1825,20 +1825,11 @@ static OTA_Err_t prvValidateUpdateVersion( OTA_FileContext_t * C )
         /* Check if version reported is the same as the running version. */
         else if( C->ulUpdaterVersion == xAppFirmwareVersion.u.ulVersion32 )
         {
-            if( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
-                ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) )
-            /*lint !e9007 We don't provide a modifiable variable to strtoul.*/
-            {
-                /* The version is the same so either we're not actually the new firmware or
-                 * someone messed up and sent firmware with the same version. In either case,
-                 * this is a failure of the OTA update so reject the job.
-                 */
-                OTA_LOG_L1( "[%s] We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
-            }
-            else
-            {
-                OTA_LOG_L1( "[%s] Invalid client token. Device must be rebooted first.\r\n", OTA_METHOD_NAME );
-            }
+            /* The version is the same so either we're not actually the new firmware or
+             * someone messed up and sent firmware with the same version. In either case,
+             * this is a failure of the OTA update so reject the job.
+             */
+            OTA_LOG_L1( "[%s] We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
 
             xErr = kOTA_Err_SameFirmwareVersion;
         }
