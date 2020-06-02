@@ -460,7 +460,7 @@ static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
  * @note: Before prvMbedTLS_Initialize can be called, CRYPTO_Init()
  * must be called to initialize the mbedTLS mutex functions.
  */
-CK_RV prvMbedTLS_Initialize( void )
+static CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
@@ -1292,8 +1292,6 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
 /*-------------------------------------------------------------*/
 
-#if !defined( pkcs11configC_INITIALIZE_ALT )
-
 /**
  * @brief Initializes Cryptoki.
  *
@@ -1315,27 +1313,31 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
  * for more information.
  */
 /* @[declare_pkcs11_mbedtls_c_initialize] */
-    CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pInitArgs )
+CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pInitArgs )
+{
+    ( void ) ( pInitArgs );
+
+    CK_RV xResult = CKR_OK;
+
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
+    if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
-        ( void ) ( pInitArgs );
+        xResult = PKCS11_PAL_Initialize();
 
-        CK_RV xResult = CKR_OK;
-
-        /* See explanation in prvCheckValidSessionAndModule for this exception. */
-        /* coverity[misra_c_2012_rule_10_5_violation] */
-        if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
+        if( xResult == CKR_OK )
         {
             xResult = prvMbedTLS_Initialize();
         }
-        else
-        {
-            xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
-        }
-
-        return xResult;
     }
+    else
+    {
+        xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
+    }
+
+    return xResult;
+}
 /* @[declare_pkcs11_mbedtls_c_initialize] */
-#endif /* if !defined( pkcs11configC_INITIALIZE_ALT ) */
 
 /**
  * @brief Clean up miscellaneous Cryptoki-associated resources.

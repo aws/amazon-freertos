@@ -1093,42 +1093,36 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 /*-------------------------------------------------------------*/
 
-#if !defined( pkcs11configC_INITIALIZE_ALT )
-
 /**
  * @brief Initialize the Cryptoki module for use.
  *
- * Overrides the implementation of C_Initialize in
- * aws_pkcs11_trustx.c when pkcs11configC_INITIALIZE_ALT
- * is defined.
  */
+CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
+{ /*lint !e9072 It's OK to have different parameter name. */
+    ( void ) ( pvInitArgs );
 
-    CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-    { /*lint !e9072 It's OK to have different parameter name. */
-        ( void ) ( pvInitArgs );
+    CK_RV xResult = CKR_OK;
 
-        CK_RV xResult = CKR_OK;
+    /* Ensure that the FreeRTOS heap is used. */
+    if( xP11Context.xIsInitialized != CK_TRUE )
+    {
+        /*
+         *   Reset OPTIGA(TM) Trust X and open an application on it
+         */
+        xResult = prvOPTIGATrustX_Initialize();
 
-        /* Ensure that the FreeRTOS heap is used. */
-        if( xP11Context.xIsInitialized != CK_TRUE )
-        {
-            /*
-             *   Reset OPTIGA(TM) Trust X and open an application on it
-             */
-            xResult = prvOPTIGATrustX_Initialize();
 
-            CK_OBJECT_HANDLE xObject;
-            CK_OBJECT_HANDLE xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
-            xResult = prvAddObjectToList( xPalHandle, &xObject, ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
-        }
-        else
-        {
-            xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
-        }
-
-        return xResult;
+        CK_OBJECT_HANDLE xObject;
+        CK_OBJECT_HANDLE xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
+        xResult = prvAddObjectToList( xPalHandle, &xObject, ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) );
     }
-#endif /* if !defined( pkcs11configC_INITIALIZE_ALT ) */
+    else
+    {
+        xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
+    }
+
+    return xResult;
+}
 
 /**
  * @brief Un-initialize the Cryptoki module.

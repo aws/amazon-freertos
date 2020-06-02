@@ -161,6 +161,11 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
     }
 }
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Writes a file to local storage.
  *

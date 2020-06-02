@@ -278,40 +278,15 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
      * to be done. */
 }
 
-
-/**
- *      PKCS#11 Override
- *
- */
-
-extern CK_RV prvMbedTLS_Initialize( void );
-
-/**
- * @brief Initialize the Cryptoki module for use.
- *
- * Overrides the implementation of C_Initialize in
- * iot_pkcs11_mbedtls.c when pkcs11configC_INITIALIZE_ALT
- * is defined.
- */
-#ifndef pkcs11configC_INITIALIZE_ALT
-    #error LPC54018 requires alternate C_Initialization
-#endif
-
-CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-{ /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( pvInitArgs );
+CK_RV PKCS11_PAL_Initialize( void )
+{ 
 
     CK_RV xResult = CKR_OK;
 
     /* Initialize flash storage. */
     if( pdTRUE == mflash_init( g_cert_files, 1 ) )
     {
-        xResult = CKR_OK;
-    }
-
-    if( xResult == CKR_OK )
-    {
-        xResult = prvMbedTLS_Initialize();
+        xResult = CKR_FUNCTION_FAILED;
     }
 
     return xResult;

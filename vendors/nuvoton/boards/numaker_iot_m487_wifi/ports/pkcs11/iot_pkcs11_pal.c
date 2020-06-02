@@ -302,6 +302,11 @@ static BaseType_t prvFLASH_ReadFile( char * pcFileName,
     return xResult;
 }
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
 * @brief Writes a file to local storage.
 *

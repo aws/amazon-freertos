@@ -171,6 +171,11 @@ void prvHandleToFilenamePrivate( CK_OBJECT_HANDLE   xHandle,
 
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Saves an object in non-volatile storage.
  *
