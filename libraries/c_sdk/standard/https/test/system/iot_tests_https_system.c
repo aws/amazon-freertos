@@ -55,7 +55,7 @@
  * This address MUST NOT start with http:// or https://.
  */
 #ifndef IOT_TEST_HTTPS_SERVER_HOST_NAME
-    #define IOT_TEST_HTTPS_SERVER_HOST_NAME    "postman-echo.com"
+    #define IOT_TEST_HTTPS_SERVER_HOST_NAME    "freertos-ci.ddnsfree.com"
 #endif
 
 /**
