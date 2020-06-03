@@ -46,6 +46,9 @@
 #include "bt_hal_manager_types.h"
 #include "bt_hal_manager.h"
 
+/**
+ * @brief Scan Filter Parameters
+ */
 typedef struct
 {
     uint8_t ucAdapterIf;
@@ -63,6 +66,9 @@ typedef struct
     uint16_t usNumOfTrackingEntries;
 } BTGattFiltParamSetup_t;
 
+/**
+ * @brief Advertising Address Type
+ */
 typedef enum
 {
     BTAddrTypePublic,
@@ -71,6 +77,9 @@ typedef enum
     BTAddrTypeResolvable,
 } BTAddrType_t;
 
+/**
+ * @brief Advertising Type
+ */
 typedef enum
 {
     BTAdvInd,
@@ -78,6 +87,9 @@ typedef enum
     BTAdvNonconnInd,
 } BTAdvProperties_t;
 
+/**
+ * @brief Advertising Name Format
+ */
 typedef struct
 {
     enum
@@ -90,6 +102,10 @@ typedef struct
 } BTGattAdvName_t;
 
 /*TODO enum for usAdvertisingEventProperties */
+
+/**
+ * @brief Advertising Parameters
+ */
 typedef struct
 {
     BTAdvProperties_t usAdvertisingEventProperties;
@@ -115,6 +131,9 @@ typedef struct
     BTAddrType_t xAddrType;
 } BTGattAdvertismentParams_t;
 
+/**
+ * @brief Local supported LE features
+ */
 typedef struct
 {
     uint16_t usVersionSupported;
@@ -130,7 +149,9 @@ typedef struct
     bool bDebugLoggingSupported;
 } BTLocalLeFeatures_t;
 
-/* Bluetooth local device and Remote Device property types */
+/**
+ * @brief BLE device property type
+ */
 typedef enum
 {
     /**
@@ -141,7 +162,9 @@ typedef enum
     eBTPropertyLocalLeFeatures,
 } BTBlePropertyType_t;
 
-/** Bluetooth Adapter Property data structure */
+/**
+ * @brief BLE Device Property
+ */
 typedef struct
 {
     BTBlePropertyType_t xType;

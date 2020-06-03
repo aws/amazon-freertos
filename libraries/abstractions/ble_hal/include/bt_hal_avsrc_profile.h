@@ -41,28 +41,44 @@
 #include <stdint.h>
 #include "bt_hal_manager_types.h"
 
-/** Bluetooth AV connection states */
+/**
+ * @brief Bluetooth AV connection states
+ */
 typedef enum
 {
-    eBTAvsrcConnectionStateDisconnected = 0,
-    eBTAvsrcConnectionStateConnecting,
-    eBTAvsrcConnectionStateConnected,
-    eBTAvsrcConnectionStateDisconnecting
+    eBTAvsrcConnectionStateDisconnected = 0, /**< Disconnected */
+    eBTAvsrcConnectionStateConnecting = 1,   /**< Connecting */
+    eBTAvsrcConnectionStateConnected = 2,    /**< Connected */
+    eBTAvsrcConnectionStateDisconnecting = 3 /**< Disconnecting */
 } BTAvConnectionState_t;
 
-/** Bluetooth AV data path states */
+/**
+ * @brief Bluetooth AV data path states
+ */
 typedef enum
 {
-    eBTAvsrcAudioStateRemoteSuspend = 0,
-    eBTAvsrcAudioStateStopped,
-    eBTAvsrcAudioStateStarted,
+    eBTAvsrcAudioStateRemoteSuspend = 0, /**< Audio Suspended */
+    eBTAvsrcAudioStateStopped = 1,       /**< Audio Stopped */
+    eBTAvsrcAudioStateStarted = 2,       /**< Audio Started */
 } BTAvAudioState_t;
 
-/** Callback invoked in to notifiy AV connection state change */
+/** Audio callback structure */
+
+/**
+ * @brief Callback invoked in to notify AV connection state change
+ *
+ * @param[in] xState Connection state
+ * @param[in] pxBdAddr Address of the Remote device
+ */
 typedef void (* BTAvsrcConnectionStateCallback_t)( BTAvConnectionState_t xState,
                                                    BTBdaddr_t * pxBdAddr );
 
-/** Callback invoked in to notifiy AV Audio state change */
+/**
+ * @brief Callback invoked in to notify AV Audio state change
+ *
+ * @param[in] xState Audio state
+ * @param[in] pxBdAddr Address of the Remote device
+ */
 typedef void (* BTAvsrcAudioStateCallback_t)( BTAvAudioState_t xState,
                                               BTBdaddr_t * pxBdAddr );
 
@@ -109,7 +125,7 @@ typedef struct
     BTStatus_t ( * pxAvsrcDisconnect )( BTBdaddr_t * pxRemote_addr );
 } BTAvsrcInterface_t;
 
-extern const BTAvsrcInterface_t * BT_GetAvsrcInterface();
+const BTAvsrcInterface_t * BT_GetAvsrcInterface();
 
 #endif /* _BT_HAL_AVSRC_PROFILE_H */
 /** @} */
