@@ -519,10 +519,10 @@ static CK_RV prvMbedTLS_Initialize( void )
     {
         ( void ) memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutexStatic(
-            &xP11Context.xObjectList.xMutexBuffer );
+            &( xP11Context.xObjectList.xMutexBuffer ) );
 
         xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
-            &xP11Context.xSessionMutexBuffer );
+            &( xP11Context.xSessionMutexBuffer ) );
 
         if( ( xP11Context.xObjectList.xMutex == NULL ) ||
             ( xP11Context.xSessionMutex == NULL ) )
@@ -535,12 +535,12 @@ static CK_RV prvMbedTLS_Initialize( void )
     {
         CRYPTO_Init();
         /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
-        mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
+        mbedtls_entropy_init(  ( &xP11Context.xMbedEntropyContext ) );
+        mbedtls_ctr_drbg_init( ( &xP11Context.xMbedDrbgCtx ) );
 
-        if( 0 != mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
+        if( 0 != mbedtls_ctr_drbg_seed( ( &xP11Context.xMbedDrbgCtx ),
                                         mbedtls_entropy_func,
-                                        &xP11Context.xMbedEntropyContext,
+                                        ( &xP11Context.xMbedEntropyContext ),
                                         NULL,
                                         0 ) )
         {
@@ -758,19 +758,19 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_EXPONENT_1 ):
-            lMbedReturn = mbedtls_mpi_read_binary( &pxRsaContext->DP,
+            lMbedReturn = mbedtls_mpi_read_binary( &( pxRsaContext->DP ),
                                                    pxAttribute->pValue,
                                                    pxAttribute->ulValueLen );
             break;
 
         case ( CKA_EXPONENT_2 ):
-            lMbedReturn = mbedtls_mpi_read_binary( &pxRsaContext->DQ,
+            lMbedReturn = mbedtls_mpi_read_binary( &( pxRsaContext->DQ ),
                                                    pxAttribute->pValue,
                                                    pxAttribute->ulValueLen );
             break;
 
         case ( CKA_COEFFICIENT ):
-            lMbedReturn = mbedtls_mpi_read_binary( &pxRsaContext->QP,
+            lMbedReturn = mbedtls_mpi_read_binary( &( pxRsaContext->QP ),
                                                    pxAttribute->pValue,
                                                    pxAttribute->ulValueLen );
             break;
@@ -824,7 +824,7 @@ static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     }
     else
     {
-        lMbedReturn = mbedtls_mpi_read_binary( &pxKeyPair->d,
+        lMbedReturn = mbedtls_mpi_read_binary( &( pxKeyPair->d ),
                                                pxAttribute->pValue,
                                                pxAttribute->ulValueLen );
 
@@ -871,8 +871,8 @@ static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     }
     else
     {
-        lMbedReturn = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
-                                                     &pxKeyPair->Q,
+        lMbedReturn = mbedtls_ecp_point_read_binary( &( pxKeyPair->grp ),
+                                                     &( pxKeyPair->Q ),
                                                      ( ( uint8_t * ) ( pxAttribute->pValue ) + 2U ),
                                                      ( pxAttribute->ulValueLen - 2U ) );
 
@@ -1096,7 +1096,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
         if( xP11Context.xObjectList.xObjects[ ulIndex ].xHandle !=
             CK_INVALID_HANDLE )
         {
-            ( void ) memset( &xP11Context.xObjectList.xObjects[ ulIndex ],
+            ( void ) memset( &( xP11Context.xObjectList.xObjects[ ulIndex ] ),
                              0,
                              sizeof( P11Object_t ) );
         }
@@ -1148,7 +1148,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     {
         for( ; lSearchIndex >= 0; lSearchIndex-- )
         {
-            pxObject = &xP11Context.xObjectList.xObjects[ lSearchIndex ];
+            pxObject = &( xP11Context.xObjectList.xObjects[ lSearchIndex ] );
 
             if( pxObject->xHandle == xPalHandle )
             {
@@ -1508,8 +1508,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
 
     if( xResult == CKR_OK )
     {
-        mbedtls_entropy_free( &xP11Context.xMbedEntropyContext );
-        mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
+        mbedtls_entropy_free( &( xP11Context.xMbedEntropyContext ) );
+        mbedtls_ctr_drbg_free( &( xP11Context.xMbedDrbgCtx ) );
 
         if( xP11Context.xObjectList.xMutex != NULL )
         {
@@ -1775,7 +1775,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
                 /* The mechanism is supported. Copy out the details and break
                  * out of the loop. */
                 ( void ) memcpy( pInfo,
-                                 &( pxSupportedMechanisms[ ulMech ].xInfo ),
+                                 &( ( pxSupportedMechanisms[ ulMech ].xInfo ) ),
                                  sizeof( CK_MECHANISM_INFO ) );
                 xResult = CKR_OK;
                 break;
@@ -2007,7 +2007,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
         /*
          * Tear down the session.
          */
-        mbedtls_pk_free( &pxSession->xSignKey );
+        mbedtls_pk_free( &( pxSession->xSignKey ) );
 
         if( NULL != pxSession->xSignMutex )
         {
@@ -2015,14 +2015,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
         }
 
         /* Free the public key context if it exists. */
-        mbedtls_pk_free( &pxSession->xVerifyKey );
+        mbedtls_pk_free( ( &pxSession->xVerifyKey ) );
 
         if( NULL != pxSession->xVerifyMutex )
         {
             vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
-        mbedtls_sha256_free( &pxSession->xSHA256Context );
+        mbedtls_sha256_free( ( &pxSession->xSHA256Context ) );
 
         /* memset clears the open flag, so there is no need to set it
          * to CK_FALSE */
@@ -2345,10 +2345,10 @@ static CK_RV prvCreateECKey( CK_ATTRIBUTE * pxTemplate,
             /* Initialize the context. */
             xMbedContext.pk_ctx = pxKeyPair;
             mbedtls_ecp_keypair_init( pxKeyPair );
-            mbedtls_ecp_group_init( &pxKeyPair->grp );
+            mbedtls_ecp_group_init( &( pxKeyPair->grp ) );
 
             /* At this time, only P-256 curves are supported. */
-            lMbedTLSReturn = mbedtls_ecp_group_load( &pxKeyPair->grp,
+            lMbedTLSReturn = mbedtls_ecp_group_load( &( pxKeyPair->grp ),
                                                      MBEDTLS_ECP_DP_SECP256R1 );
 
             if( lMbedTLSReturn != 0 )
@@ -2976,8 +2976,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                         pxKeyPair = ( mbedtls_ecp_keypair * ) xKeyContext.pk_ctx;
                         /* Mark the point as uncompressed. */
                         *( ( uint8_t * ) pxAttribute->pValue ) = 0x04;
-                        lMbedTLSResult = mbedtls_ecp_tls_write_point( &pxKeyPair->grp,
-                                                                      &pxKeyPair->Q,
+                        lMbedTLSResult = mbedtls_ecp_tls_write_point( &( pxKeyPair->grp ),
+                                                                      &( pxKeyPair->Q ),
                                                                       MBEDTLS_ECP_PF_UNCOMPRESSED,
                                                                       &xSize,
                                                                       ( uint8_t * ) pxAttribute->pValue + 1,
@@ -3382,9 +3382,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
      */
     if( xResult == CKR_OK )
     {
-        mbedtls_sha256_init( &pxSession->xSHA256Context );
+        mbedtls_sha256_init( &( pxSession->xSHA256Context ) );
 
-        if( 0 != mbedtls_sha256_starts_ret( &pxSession->xSHA256Context, 0 ) )
+        if( 0 != mbedtls_sha256_starts_ret( &( pxSession->xSHA256Context, 0 ) ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -3441,7 +3441,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        if( 0 != mbedtls_sha256_update_ret( &pxSession->xSHA256Context,
+        if( 0 != mbedtls_sha256_update_ret( &( pxSession->xSHA256Context ),
                                             pPart,
                                             ulPartLen ) )
         {
@@ -3453,7 +3453,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
     if( ( xResult != CKR_OK ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
-        mbedtls_sha256_free( &pxSession->xSHA256Context );
+        mbedtls_sha256_free( &( pxSession->xSHA256Context ) );
     }
 
     return xResult;
@@ -3542,7 +3542,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
         ( xResult != CKR_SESSION_HANDLE_INVALID ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
-        mbedtls_sha256_free( &pxSession->xSHA256Context );
+        mbedtls_sha256_free( &( pxSession->xSHA256Context ) );
     }
 
     return xResult;
@@ -3656,10 +3656,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         {
             /* Free the private key context if it exists.
              * TODO: Check if the key is the same as was used previously. */
-            mbedtls_pk_free( &pxSession->xSignKey );
+            mbedtls_pk_free( &( pxSession->xSignKey ) );
 
-            mbedtls_pk_init( &pxSession->xSignKey );
-            lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xSignKey,
+            mbedtls_pk_init( &( pxSession->xSignKey ) );
+            lMbedTLSResult = mbedtls_pk_parse_key( &( pxSession->xSignKey ),
                                                    pulKeyData,
                                                    ulKeyDataLength,
                                                    NULL,
@@ -3690,7 +3690,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     /* Check that the mechanism and key type are compatible, supported. */
     if( xResult == CKR_OK )
     {
-        xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
+        xKeyType = mbedtls_pk_get_type( &( pxSession->xSignKey ) );
 
         if( pMechanism->mechanism == CKM_RSA_PKCS )
         {
@@ -3830,14 +3830,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             {
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
-                    lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                    lMbedTLSResult = mbedtls_pk_sign( &( pxSessionObj->xSignKey ),
                                                       MBEDTLS_MD_NONE,
                                                       pData,
                                                       ulDataLen,
                                                       pxSignatureBuffer,
                                                       &xExpectedInputLength,
                                                       mbedtls_ctr_drbg_random,
-                                                      &xP11Context.xMbedDrbgCtx );
+                                                      &( xP11Context.xMbedDrbgCtx ) );
 
                     if( lMbedTLSResult != 0 )
                     {
@@ -4004,15 +4004,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
             /* Free the public key context if it exists.
              * TODO: Check if the key is the same as used by last
              * verify operation. */
-            mbedtls_pk_free( &pxSession->xVerifyKey );
+            mbedtls_pk_free( &( pxSession->xVerifyKey ) );
 
-            mbedtls_pk_init( &pxSession->xVerifyKey );
+            mbedtls_pk_init( &( pxSession->xVerifyKey ) );
 
-            if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey,
+            if( 0 != mbedtls_pk_parse_public_key( &( pxSession->xVerifyKey ),
                                                   pucKeyData,
                                                   ulKeyDataLength ) )
             {
-                if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey,
+                if( 0 != mbedtls_pk_parse_key( &( pxSession->xVerifyKey ),
                                                pucKeyData,
                                                ulKeyDataLength,
                                                NULL,
@@ -4036,7 +4036,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     /* Check that the mechanism and key type are compatible, supported. */
     if( xResult == CKR_OK )
     {
-        xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
+        xKeyType = mbedtls_pk_get_type( &( pxSession->xSignKey ) );
 
         if( pMechanism->mechanism == CKM_RSA_X_509 )
         {
@@ -4162,7 +4162,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                 /* Verify the signature. If a public key is present, use it. */
                 if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
                 {
-                    if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
+                    if( 0 != mbedtls_pk_verify( &( pxSessionObj->xVerifyKey ),
                                                 MBEDTLS_MD_SHA256,
                                                 pData,
                                                 ulDataLen,
@@ -4223,10 +4223,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                     {
                         pxEcdsaContext = pxSessionObj->xVerifyKey.pk_ctx;
                         lMbedTLSResult = mbedtls_ecdsa_verify(
-                            &pxEcdsaContext->grp,
+                            &( pxEcdsaContext->grp ),
                             pData,
                             ulDataLen,
-                            &pxEcdsaContext->Q,
+                            &( pxEcdsaContext->Q ),
                             &xR,
                             &xS );
                     }
@@ -4632,7 +4632,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),
                                       mbedtls_ctr_drbg_random,
-                                      &xP11Context.xMbedDrbgCtx ) )
+                                      &( xP11Context.xMbedDrbgCtx ) ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -4733,7 +4733,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx,
+        lMbedResult = mbedtls_ctr_drbg_random( &( xP11Context.xMbedDrbgCtx ),
                                                RandomData,
                                                ulRandomLen );
 
