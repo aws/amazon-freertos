@@ -284,7 +284,7 @@ CK_RV PKCS11_PAL_Initialize( void )
     CK_RV xResult = CKR_OK;
 
     /* Initialize flash storage. */
-    if( pdTRUE == mflash_init( g_cert_files, 1 ) )
+    if( pdFALSE == mflash_init( g_cert_files, 1 ) )
     {
         xResult = CKR_FUNCTION_FAILED;
     }
