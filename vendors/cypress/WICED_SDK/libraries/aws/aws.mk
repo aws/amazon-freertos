@@ -142,7 +142,7 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/iot_pkcs11_pal.c   \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
 
-$(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
+GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
@@ -163,5 +163,5 @@ $(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utlils \
                     $(AFR_THIRDPARTY_PATH)unity/src
 
-$(NAME)_DEFINES := MBEDTLS_CONFIG_FILE="<aws_mbedtls_config.h>"\
-				   CONFIG_MEDTLS_USE_AFR_MEMORY
+GLOBAL_DEFINES := MBEDTLS_CONFIG_FILE="<aws_mbedtls_config.h>" \
+                  CONFIG_MEDTLS_USE_AFR_MEMORY
