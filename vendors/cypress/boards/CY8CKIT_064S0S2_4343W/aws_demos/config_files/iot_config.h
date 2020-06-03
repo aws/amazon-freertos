@@ -77,8 +77,11 @@
 
 /* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
 typedef struct IotMqttSerializer IotMqttSerializer_t;
-extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
-#define IOT_DEMO_MQTT_SERIALIZER                demoGetMqttSerializer()
+
+#if defined (MQTT_DEMO_TYPE_ENABLED)
+    extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
+    #define IOT_DEMO_MQTT_SERIALIZER                demoGetMqttSerializer()
+#endif
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
