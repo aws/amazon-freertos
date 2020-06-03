@@ -2104,6 +2104,7 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
     return xResult;
 }
 
+#if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
 /**
  * @brief Helper function for importing elliptic curve keys from
  * template using C_CreateObject.
@@ -2210,6 +2211,7 @@ static CK_RV prvCreateECKey( CK_ATTRIBUTE * pxTemplate,
 
     return xResult;
 }
+#endif
 
 /**
  * @brief Helper function for parsing RSA Private Key attribute templates
@@ -2355,6 +2357,8 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             xResult = prvCreateECKey( pxTemplate, ulCount, pxObject, ( CK_BBOOL ) CK_FALSE );
         }
+    #else
+        ( void ) pxObject;
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
