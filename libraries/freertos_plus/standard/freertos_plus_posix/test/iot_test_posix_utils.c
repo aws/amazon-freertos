@@ -45,10 +45,6 @@
 #include "unity.h"
 
 /*-----------------------------------------------------------*/
-/* Constants that represent max values for signed and unsigned definitions of time_t */
-#define TIME_T_SIGNED_MAX      ( time_t ) ( ( ( time_t ) 1 << ( ( sizeof( time_t ) << 3 ) - 1 ) ) - 1 )
-#define TIME_T_UNSIGNED_MAX    ( ( time_t ) ~0 )
-
 static const struct timespec signedCheck = { .tv_sec = 1, .tv_nsec = 1 };
 static uint8_t isTimespecTvSecSigned;
 
@@ -159,7 +155,24 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd_Overflow )
      * timespec.tv_sec. */
     if( isTimespecTvSecSigned )
     {
-        x.tv_sec = TIME_T_SIGNED_MAX;
+        /* Assign max value to x.tv_sec depending on its integer width. */
+        if( sizeof( x.tv_sec ) == sizeof( int ) )
+        {
+            x.tv_sec = INT_MAX;
+        }
+        else if( sizeof( x.tv_sec ) == sizeof( long int ) )
+        {
+            x.tv_sec = LONG_MAX;
+        }
+        else if( sizeof( x.tv_sec ) == sizeof( long long int ) )
+        {
+            x.tv_sec = LLONG_MAX;
+        }
+        else
+        {
+            TEST_FAIL_MESSAGE( "Sizeof(timespec.tv_sec does not match int, long int or long long int" );
+        }
+
         y.tv_sec = 2;
         y.tv_nsec = 100000000;
         TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
@@ -168,7 +181,25 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd_Overflow )
     else
     {
         /* timespec.tv_sec is of unsigned type. */
-        x.tv_sec = TIME_T_UNSIGNED_MAX;
+
+        /* Assign max value to x.tv_sec depending on its integer width. */
+        if( sizeof( x.tv_sec ) == sizeof( unsigned int ) )
+        {
+            x.tv_sec = UINT_MAX;
+        }
+        else if( sizeof( x.tv_sec ) == sizeof( unsigned long int ) )
+        {
+            x.tv_sec = ULONG_MAX;
+        }
+        else if( sizeof( x.tv_sec ) == sizeof( unsigned long long int ) )
+        {
+            x.tv_sec = ULLONG_MAX;
+        }
+        else
+        {
+            TEST_FAIL_MESSAGE( "Sizeof(timespec.tv_sec does not match int, long int or long long int" );
+        }
+
         y.tv_sec = 2;
         y.tv_nsec = 100000000;
         TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
