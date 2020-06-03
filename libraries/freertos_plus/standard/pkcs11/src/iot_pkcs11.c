@@ -316,7 +316,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
      * on the search template provided by the caller. */
     if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_FindObjectsInit( xSession, 
+        xResult = pxFunctionList->C_FindObjectsInit( xSession,
                                                      xTemplate,
                                                      sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
     }
@@ -358,11 +358,11 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( const uint8_t * puc32ByteHashedM
 
     if( xResult == CKR_OK )
     {
-        ( void ) memcpy( puc51ByteHashOidBuffer, 
+        ( void ) memcpy( puc51ByteHashOidBuffer,
                          pucOidSequence,
                          sizeof( pucOidSequence ) );
         ( void ) memcpy( &puc51ByteHashOidBuffer[ sizeof( pucOidSequence ) ],
-                         puc32ByteHashedMessage, 
+                         puc32ByteHashedMessage,
                          32 );
     }
 
