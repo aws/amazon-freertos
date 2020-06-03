@@ -21,14 +21,16 @@ endif()
 
 #--------------------------------------------------------------------
 # common directories
-set(cy_psoc6_dir    "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/psoc6")
-set(cy_common_dir   "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/common")
-set(cy_whd_dir      "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/whd")
-set(cy_capsense_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/capsense")
-set(cy_clib_dir     "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/clib_support")
-set(cy_board_dir    "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/boards/${AFR_BOARD_NAME}")
-set(cy_libraries_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/libraries/")
-set(afr_ports_dir   "${cy_board_dir}/ports")
+set(cy_psoc6_dir     "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/psoc6")
+set(cy_common_dir    "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/common")
+set(cy_whd_dir       "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/whd")
+set(cy_bluetooth_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/bluetooth")
+set(cy_clib_dir      "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/clib_support")
+set(cy_ota_dir       "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/ota")
+set(cy_capsense_dir  "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/capsense")
+set(cy_libraries_dir "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/MTB/libraries/")
+set(cy_board_dir     "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/boards/${AFR_BOARD_NAME}")
+set(afr_ports_dir    "${cy_board_dir}/ports")
 
 #--------------------------------------------------------------------
 # Set initial info for the application
@@ -100,7 +102,7 @@ endif()
 # You can change this as a command line arg "-DMCUBOOT_DIR=<dir>"
 #
 if((NOT MCUBOOT_DIR) OR ("${MCUBOOT_DIR}" STREQUAL ""))
-    set(MCUBOOT_DIR             "${cy_common_dir}/mcuboot")
+    set(MCUBOOT_DIR             "${cy_ota_dir}/mcuboot")
 else()
     get_filename_component(MCUBOOT_DIR "${MCUBOOT_DIR}" ABSOLUTE)
     message("MCUBoot directory: ${MCUBOOT_DIR}")
@@ -108,10 +110,10 @@ endif()
 
 # signing scripts and keys from MCUBoot
 set(IMGTOOL_SCRIPT_NAME         "./imgtool.py")
-set(MCUBOOT_SCRIPT_FILE_DIR     "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/tools/scripts")
-set(MCUBOOT_KEY_DIR             "${cy_common_dir}/mcuboot/keys")
+set(MCUBOOT_SCRIPT_FILE_DIR     "${cy_ota_dir}/scripts")
+set(MCUBOOT_KEY_DIR             "${MCUBOOT_DIR}/keys")
 # look for mcuboot_logging.h locally before mcuboot repo
-set(MCUBOOT_CYFLASH_PAL_DIR     "${cy_common_dir}/mcuboot/cy_flash_pal")
+set(MCUBOOT_CYFLASH_PAL_DIR     "${MCUBOOT_DIR}/cy_flash_pal")
 
 #--------------------------------------------------------------------
 # Allow application to add elements of the build

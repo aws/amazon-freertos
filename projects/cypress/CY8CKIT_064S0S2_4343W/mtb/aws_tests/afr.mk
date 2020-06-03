@@ -29,9 +29,9 @@
 # Global settings
 ################################################################################
 
-CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
+CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6pdl
 
-MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
+MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/MTB/ota/mcuboot/cy_flash_pal
 
 # Artifact locations for launch configs
 CY_AFR_APPLOC=$(notdir $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST))))))
@@ -61,10 +61,11 @@ CY_EXTRA_INCLUDES=$(CY_AFR_BOARD_APP_PATH)/$(TARGET).mk
 LINKER_SCRIPT=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
 
 # Use auto-discovery for cypress files and set the paths
-CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
-CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(CY_AFR_TARGET)
+CY_AFR_VENDOR_PATH=$(CY_AFR_ROOT)/vendors/cypress
+CY_EXTAPP_PATH=$(CY_AFR_VENDOR_PATH)/MTB
+CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
 CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/cy_code
-MCUBOOT_DIR=$(CY_EXTAPP_PATH)/common/mcuboot
+MCUBOOT_DIR=$(CY_EXTAPP_PATH)/ota/mcuboot
 
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
@@ -87,14 +88,13 @@ endif
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-	$(CY_EXTAPP_PATH)/apps\
 	$(CY_EXTAPP_PATH)/bluetooth\
-	$(CY_EXTAPP_PATH)/boards\
 	$(CY_EXTAPP_PATH)/common\
-	$(CY_EXTAPP_PATH)/lwip\
-	$(CY_EXTAPP_PATH)/libraries\
-	$(CY_EXTAPP_PATH)/WICED_SDK\
-	$(CY_EXTAPP_PATH)/freertos_thirdparty_port
+	$(CY_EXTAPP_PATH)/ota\
+	$(CY_AFR_VENDOR_PATH)/boards\
+	$(CY_AFR_VENDOR_PATH)/lwip\
+	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
+	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
 
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
@@ -227,8 +227,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
-	$(CY_EXTAPP_PATH)/lwip
-
 
 ################################################################################
 # libraries (abstractions)
@@ -451,8 +449,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/*.c)\
 	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
 	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
@@ -472,8 +470,8 @@ INCLUDES+=\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/include\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+	$(CY_EXTAPP_PATH)/common/utilities/untar\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files\
 	$(CY_AFR_BOARD_PATH)/ports/ota\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\

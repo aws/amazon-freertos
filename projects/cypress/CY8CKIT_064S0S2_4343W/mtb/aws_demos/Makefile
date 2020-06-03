@@ -145,7 +145,7 @@ CY_APP_PATH=
 
 # Relative path to the "base" library. It provides the core makefile build 
 # infrastructure.
-CY_BASELIB_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make
+CY_BASELIB_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6make
 
 # Absolute path to the compiler's "bin" directory. 
 #

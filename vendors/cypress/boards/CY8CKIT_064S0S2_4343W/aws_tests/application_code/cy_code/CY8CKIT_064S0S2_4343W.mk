@@ -187,7 +187,7 @@ ifeq ($(OTA_SUPPORT),1)
     # For signing, use "sign", and key path
     IMGTOOL_COMMAND_ARG=sign
     CY_SIGNING_KEY_ARG="-k $(MCUBOOT_KEY_FILE)"
-    SIGN_SCRIPT_FILE_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make/make/scripts/sign_tar.bash
+    SIGN_SCRIPT_FILE_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc6make/make/scripts/sign_tar.bash
 
     CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
 
