@@ -576,7 +576,8 @@ static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
 
         if( xAttribute.type == CKA_CLASS )
         {
-            ( void ) memcpy( pxClass, xAttribute.pValue,
+            ( void ) memcpy( pxClass, 
+                             xAttribute.pValue,
                              sizeof( CK_OBJECT_CLASS ) );
             xResult = CKR_OK;
             break;
