@@ -34,6 +34,7 @@
 /* Standard includes. */
 /* For FILE type in OTA_FileContext_t.*/
 #include <stdio.h>
+#include <stdbool.h>
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"
