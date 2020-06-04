@@ -2487,7 +2487,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
     }
 
     /* Close the file and cleanup.*/
-    if( eIngestResult == eIngest_Result_Uninitialized )
+    if( eIngestResult == eIngest_Result_Accepted_Continue )
     {
         if( C->ulBlocksRemaining == 0U )
         {
