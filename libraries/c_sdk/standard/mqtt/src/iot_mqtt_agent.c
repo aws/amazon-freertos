@@ -62,16 +62,18 @@
 #ifdef _MSC_VER
     #define STRINGISE_IMPL( x )    # x
     #define STRINGISE( x )         STRINGISE_IMPL( x )
+    /* File and line number macros are added explicitly as MSVC does */
+    /* not add them for #pragma message directive. */
     #define FILE_LINE_LINK    __FILE__ "(" STRINGISE( __LINE__ ) ") : "
-    #pragma message ( FILE_LINE_LINK "WARNING: 1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
+    #pragma message ( FILE_LINE_LINK "WARNING: 1.4.x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
 #elif defined( __GNUC__ )
     /* GCC compilers issue -Wcpp warning for #warning directive. */
-    #pragma message ( "WARNING: 1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
+    #pragma message ( "WARNING: 1.4.x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
 #elif defined( __TI_COMPILER_VERSION__ )
-    #warn "1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
-#else
+    #warn "1.4.x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
+#else /* ifdef _MSC_VER */
     /* IAR and Renesas toolchains support the #warning directive. */
-    #warning "1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
+    #warning "1.4.x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
 #endif /* ifdef _MSC_VER */
 
 /**
