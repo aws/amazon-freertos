@@ -785,7 +785,7 @@ static CK_RV prvRsaKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
     {
         CK_BBOOL xBool = CK_FALSE;
         int32_t lMbedReturn = 0;
-        CK_RV xResult == CKR_OK;
+        CK_RV xResult = CKR_OK;
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
         switch( pxAttribute->type )
