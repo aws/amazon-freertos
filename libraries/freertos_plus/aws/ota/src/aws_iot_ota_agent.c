@@ -725,6 +725,8 @@ static OTA_Err_t prvStartHandler( OTA_EventData_t * pxEventData )
     OTA_Err_t xReturn = kOTA_Err_None;
     OTA_EventMsg_t xEventMsg = { 0 };
 
+    /* Start self-test timer, if platform is in self-test. */
+    prvStartSelfTestTimer();
 
     /* Send event to OTA task to get job document. */
     xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
@@ -746,7 +748,7 @@ static OTA_Err_t prvInSelfTestHandler( OTA_EventData_t * pxEventData )
     OTA_LOG_L1( "[%s] prvInSelfTestHandler, platform is in self-test.\r\n", OTA_METHOD_NAME );
 
     /* Check the platform's OTA update image state. It should also be in self test. */
-    if( prvStartSelfTestTimer() == pdTRUE )
+    if( prvInSelftest() == true )
     {
         /* Callback for application specific self-test. */
         xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_StartTest );
