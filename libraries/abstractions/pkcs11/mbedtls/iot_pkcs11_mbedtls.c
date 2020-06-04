@@ -2206,6 +2206,9 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                                  CK_ULONG ulCount,
                                  CK_OBJECT_HANDLE_PTR pxObject )
 {
+    /* Suppress unused parameter warning if ECDSA is suppressed. */
+    ( void ) pxObject;
+
     CK_KEY_TYPE xKeyType = 0;
     CK_RV xResult = CKR_OK;
 
@@ -2215,16 +2218,12 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     {
         xResult = CKR_ATTRIBUTE_TYPE_INVALID;
     }
-
     #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
         else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
             xResult = prvCreateECKey( pxTemplate, ulCount, pxObject, CK_FALSE );
         }
-    #else
-        /* Suppress unused parameter warning. */
-        ( void ) pxObject;
-    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
+    #endif
     else
     {
         PKCS11_PRINT( ( "Invalid key type %d \r\n", xKeyType ) );
