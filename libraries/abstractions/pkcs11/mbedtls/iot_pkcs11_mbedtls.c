@@ -2081,7 +2081,7 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
         return xResult;
     }
-#endif
+#endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
 
 /**
  * @brief Helper function for parsing RSA Private Key attribute templates
