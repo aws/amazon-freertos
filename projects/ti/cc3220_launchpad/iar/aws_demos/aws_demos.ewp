@@ -2413,6 +2413,9 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h</name>
+						</file>
 					</group>
 				</group>
 			</group>
