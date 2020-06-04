@@ -53,17 +53,8 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The 1.4x API defined in this file is on a deprecation path.
- * This macro represents the text to display as a warning message in builds
- * that include this file.
- */
-#define DEPRECATION_WARN                                          \
-    "1.4x MQTT compatability API is on the path of DEPRECATION. " \
-    "Please contact AWS for support."
-
-/**
- * @brief Display a deprecation warning message for the 1.4x compatibility API
- * in build outputs depending of all supported toolchains.
+ * @brief The 1.4x API defined in this file is on a deprecation path. We display
+ * a deprecation warning message in build outputs depending of all supported toolchains.
  *
  * This logic uses toolchain-specific macros to issue warning message with preprocessor
  * directives supported by the toolchain.
@@ -72,15 +63,15 @@
     #define STRINGISE_IMPL( x )    # x
     #define STRINGISE( x )         STRINGISE_IMPL( x )
     #define FILE_LINE_LINK    __FILE__ "(" STRINGISE( __LINE__ ) ") : "
-    #pragma message ( __FILE__ "(" STRINGISE( __LINE__ ) ") : WARNING: " DEPRECATION_WARN )
-#elif defined( __GNUC__ ) /* GCC compilers issue -Wcpp warning for #warning directive. */
-    #pragma message ( "WARNING:" DEPRECATION_WARN )
+    #pragma message ( FILE_LINE_LINK "WARNING: 1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
+#elif defined( __GNUC__ )
+    /* GCC compilers issue -Wcpp warning for #warning directive. */
+    #pragma message ( "WARNING: 1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support." )
 #elif defined( __TI_COMPILER_VERSION__ )
-    #warn "1.4x MQTT API is on the path of DEPRECATION. Please contact AWS for support."
+    #warn "1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
 #else
-    /* IAR and Renesas toolchains do not perform macro replacement. */
-    /* Thus, we do not use DEPRECATION_WARN macro here. */
-    #warning "1.4x MQTT API is on the path of DEPRECATION. Please contact AWS for support."
+    /* IAR and Renesas toolchains support the #warning directive. */
+    #warning "1.4x MQTT compatibility API is on the path of DEPRECATION. Please contact AWS for support."
 #endif /* ifdef _MSC_VER */
 
 /**
