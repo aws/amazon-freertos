@@ -32,6 +32,7 @@
 
 /* Driver model includes */
 #include "iot_uart.h"
+#include "iot_test_common_io_internal.h"
 
 /* FreeRTOS includes */
 #include "FreeRTOS.h"
