@@ -53,7 +53,7 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The 1.4x API defined in this file is on a deprecation path. We display
+ * @brief The 1.4.x API defined in this file is on a deprecation path. We display
  * a deprecation warning message in build outputs depending of all supported toolchains.
  *
  * This logic uses toolchain-specific macros to issue warning message with preprocessor
