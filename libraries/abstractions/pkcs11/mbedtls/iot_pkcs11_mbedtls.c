@@ -535,7 +535,7 @@ static CK_RV prvMbedTLS_Initialize( void )
     {
         CRYPTO_Init();
         /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init(  &( xP11Context.xMbedEntropyContext ) );
+        mbedtls_entropy_init( &( xP11Context.xMbedEntropyContext ) );
         mbedtls_ctr_drbg_init( &( xP11Context.xMbedDrbgCtx ) );
 
         if( 0 != mbedtls_ctr_drbg_seed( &( xP11Context.xMbedDrbgCtx ),
@@ -576,7 +576,7 @@ static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
 
         if( xAttribute.type == CKA_CLASS )
         {
-            ( void ) memcpy( pxClass, 
+            ( void ) memcpy( pxClass,
                              xAttribute.pValue,
                              sizeof( CK_OBJECT_CLASS ) );
             xResult = CKR_OK;
@@ -1395,7 +1395,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
                 prvFindObjectInListByLabel(
                     ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                     strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ),
-                    &xPalHandle, 
+                    &xPalHandle,
                     &xAppHandle2 );
             }
             else if( 0 == strncmp( xLabel.pValue,
@@ -1881,8 +1881,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
         if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) ==
             pdTRUE )
         {
-            for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS; 
-                    ++ulSessionCount )
+            for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS;
+                 ++ulSessionCount )
             {
                 /* coverity[misra_c_2012_rule_10_5_violation] */
                 if( pxP11Sessions[ ulSessionCount ].xOpened ==
@@ -3211,7 +3211,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
         /* Try to find the object in module's list first. */
         prvFindObjectInListByLabel( pxSession->pxFindObjectLabel,
                                     strlen( ( const char * ) pxSession->pxFindObjectLabel ),
-                                    &xPalHandle, 
+                                    &xPalHandle,
                                     phObject );
 
         /* Check with the PAL if the object was previously stored. */
@@ -4642,7 +4642,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, 
+        lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx,
                                                    pucDerFile,
                                                    pkcs11KEY_GEN_MAX_DER_SIZE );
 
