@@ -535,12 +535,12 @@ static CK_RV prvMbedTLS_Initialize( void )
     {
         CRYPTO_Init();
         /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init(  ( &xP11Context.xMbedEntropyContext ) );
-        mbedtls_ctr_drbg_init( ( &xP11Context.xMbedDrbgCtx ) );
+        mbedtls_entropy_init(  &( xP11Context.xMbedEntropyContext ) );
+        mbedtls_ctr_drbg_init( &( xP11Context.xMbedDrbgCtx ) );
 
-        if( 0 != mbedtls_ctr_drbg_seed( ( &xP11Context.xMbedDrbgCtx ),
+        if( 0 != mbedtls_ctr_drbg_seed( &( xP11Context.xMbedDrbgCtx ),
                                         mbedtls_entropy_func,
-                                        ( &xP11Context.xMbedEntropyContext ),
+                                        &( xP11Context.xMbedEntropyContext ),
                                         NULL,
                                         0 ) )
         {
@@ -1395,7 +1395,8 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
                 prvFindObjectInListByLabel(
                     ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                     strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ),
-                    &xPalHandle, &xAppHandle2 );
+                    &xPalHandle, 
+                    &xAppHandle2 );
             }
             else if( 0 == strncmp( xLabel.pValue,
                                    pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
@@ -1880,7 +1881,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
         if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) ==
             pdTRUE )
         {
-            for( ; ulSessionCount < pkcs11configMAX_SESSIONS; ++ulSessionCount )
+            for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS; 
+                    ++ulSessionCount )
             {
                 /* coverity[misra_c_2012_rule_10_5_violation] */
                 if( pxP11Sessions[ ulSessionCount ].xOpened ==
@@ -2015,14 +2017,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
         }
 
         /* Free the public key context if it exists. */
-        mbedtls_pk_free( ( &pxSession->xVerifyKey ) );
+        mbedtls_pk_free( &( pxSession->xVerifyKey ) );
 
         if( NULL != pxSession->xVerifyMutex )
         {
             vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
-        mbedtls_sha256_free( ( &pxSession->xSHA256Context ) );
+        mbedtls_sha256_free( &( pxSession->xSHA256Context ) );
 
         /* memset clears the open flag, so there is no need to set it
          * to CK_FALSE */
@@ -2774,8 +2776,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     {
         /*
          * Copy the object into a buffer.
-         */
-        /*pcLabel and xSize are ignored. */
+         * pcLabel and xSize are ignored. */
         prvFindObjectInListByHandle( hObject, &xPalHandle, &pcLabel, &xSize );
 
         if( xPalHandle != CK_INVALID_HANDLE )
@@ -3210,7 +3211,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
         /* Try to find the object in module's list first. */
         prvFindObjectInListByLabel( pxSession->pxFindObjectLabel,
                                     strlen( ( const char * ) pxSession->pxFindObjectLabel ),
-                                    &xPalHandle, phObject );
+                                    &xPalHandle, 
+                                    phObject );
 
         /* Check with the PAL if the object was previously stored. */
         if( *phObject == CK_INVALID_HANDLE )
@@ -3527,7 +3529,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
             }
             else
             {
-                if( 0 != mbedtls_sha256_finish_ret( &pxSession->xSHA256Context,
+                if( 0 != mbedtls_sha256_finish_ret( &( pxSession->xSHA256Context ),
                                                     pDigest ) )
                 {
                     xResult = CKR_FUNCTION_FAILED;
@@ -4640,7 +4642,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, pucDerFile,
+        lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, 
+                                                   pucDerFile,
                                                    pkcs11KEY_GEN_MAX_DER_SIZE );
 
         if( lMbedResult > 0 )
