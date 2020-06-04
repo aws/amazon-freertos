@@ -1792,6 +1792,10 @@ static IotHttpsReturnCode_t _parseHttpsMessage( _httpParserInfo_t * pHttpParserI
     const char * pHttpParserErrorDescription = NULL;
     http_parser * pHttpParser = &( pHttpParserInfo->responseParser );
 
+    /* Disable -Wunused-but-set-variable for local variables used for logging. */
+    ( void ) parsedBytes;
+    ( void ) pHttpParserErrorDescription;
+
     IotLogDebug( "Now parsing HTTP message buffer to process a response." );
     parsedBytes = pHttpParserInfo->parseFunc( pHttpParser, &_httpParserSettings, pBuf, len );
     IotLogDebug( "http-parser parsed %d bytes out of %d specified.", parsedBytes, len );
@@ -2028,6 +2032,9 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
     IotHttpsReturnCode_t parserStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
     size_t numBytesRecv = 0;
+
+    /* Disable -Wunused-but-set-variable for local variables used for logging. */
+    ( void ) pHttpParserErrorDescription;
 
     /* Even if there is not body, the parser state will become body complete after the headers finish. */
     while( pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE )
@@ -3266,6 +3273,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     IotHttpsResponseBufferState_t savedBufferState = PROCESSING_STATE_NONE;
     IotHttpsResponseParserState_t savedParserState = PARSER_STATE_NONE;
     size_t numParsed = 0;
+
+    /* Disable -Wunused-but-set-variable for local variables used for logging. */
+    ( void ) numParsed;
+    ( void ) pHttpParserErrorDescription;
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( respHandle );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pName );
