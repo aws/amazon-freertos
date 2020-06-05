@@ -47,7 +47,7 @@
 
 ### Over the Air Update V1.2.0
 
-- Fixed an issue where self-test timer is started after receiving the AWS IoT Job document. The fix makes the timer start before any job document parsing is done.
+- Fixed an issue for when an OTA job is force cancelled when its related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix makes the self-start timer start when the OTA agent on the device starts, before receiving the OTA job.
 
 ### Espressif
 
