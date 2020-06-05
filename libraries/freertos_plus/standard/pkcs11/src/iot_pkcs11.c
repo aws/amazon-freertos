@@ -60,8 +60,10 @@ static CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
     {
         xResult = pxFunctionList->C_OpenSession( xSlotId,
                                                  CKF_SERIAL_SESSION | CKF_RW_SESSION,
-                                                 NULL, /* Application defined pointer. */
-                                                 NULL, /* Callback function. */
+                                                 /* Application defined pointer. */
+                                                 NULL,
+                                                 /* Callback function. */
+                                                 NULL,
                                                  pxSession );
     }
 
@@ -82,7 +84,8 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
     if( xResult == CKR_OK )
     {
         xResult = pxFunctionList->C_GetSlotList( CK_TRUE, /* Token Present. */
-                                                 NULL,    /* We just want to know how many slots there are. */
+                                                          /* We just want to know how many slots there are. */
+                                                 NULL,
                                                  pxSlotCount );
     }
 
@@ -118,7 +121,10 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
 /*-----------------------------------------------------------*/
 
 #ifdef CreateMutex
-    #undef CreateMutex /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+
+/* This is a workaround because CreateMutex is redefined to CreateMutexW in
+ * synchapi.h in windows. :/ */
+    #undef CreateMutex
 #endif
 
 /*-----------------------------------------------------------*/
@@ -184,7 +190,8 @@ CK_RV xInitializePkcs11Token( void )
              * has multiple slots, insert logic for selecting an appropriate
              * slot here.
              */
-            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ],
+                                                      pxTokenInfo );
         }
         else
         {
@@ -196,7 +203,8 @@ CK_RV xInitializePkcs11Token( void )
             xTokenFlags = pxTokenInfo->flags;
         }
 
-        if( ( CKR_OK == xResult ) && ( ( CKF_TOKEN_INITIALIZED & xTokenFlags ) != CKF_TOKEN_INITIALIZED ) )
+        if( ( CKR_OK == xResult ) && ( ( CKF_TOKEN_INITIALIZED & xTokenFlags )
+                                       != CKF_TOKEN_INITIALIZED ) )
         {
             /* Initialize the token if it is not already. */
             xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
@@ -308,7 +316,9 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
      * on the search template provided by the caller. */
     if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_FindObjectsInit( xSession, xTemplate, sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
+        xResult = pxFunctionList->C_FindObjectsInit( xSession,
+                                                     xTemplate,
+                                                     sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
     }
 
     if( CKR_OK == xResult )
@@ -348,8 +358,12 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( const uint8_t * puc32ByteHashedM
 
     if( xResult == CKR_OK )
     {
-        ( void ) memcpy( puc51ByteHashOidBuffer, pucOidSequence, sizeof( pucOidSequence ) );
-        ( void ) memcpy( &puc51ByteHashOidBuffer[ sizeof( pucOidSequence ) ], puc32ByteHashedMessage, 32 );
+        ( void ) memcpy( puc51ByteHashOidBuffer,
+                         pucOidSequence,
+                         sizeof( pucOidSequence ) );
+        ( void ) memcpy( &puc51ByteHashOidBuffer[ sizeof( pucOidSequence ) ],
+                         puc32ByteHashedMessage,
+                         32 );
     }
 
     return xResult;
