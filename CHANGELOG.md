@@ -1,5 +1,59 @@
 # Change Log for FreeRTOS
 
+## New Features
+
+### Over the Air Update V1.2.0
+
+- Added feature to suspend and resume OTA Agent using new APIs provided. This allows OTA Agent to resume download after suspending it for any tasks like re-establishing MQTT connection. 
+- OTA Demo is updated to check for MQTT disconnect, suspend OTA operations and try reconnecting with exponential delay and jitter. After successful connection the demo resumes OTA Agent operations.
+- Added new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
+
+### Espressif
+
+- New Board: <b>ESP32-WROOM_32-SE</b> is now qualified by FreeRTOS. It was earlier supported in Preview mode before.
+- Support OTA data over HTTP together with BLE on ESP32 when SPIRAM is enabled.
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows WiFi provisioning of devices through a web-server running on the device and a provisioning mobile application to enter WiFi credentials onto the device for provisioning. This requires use of lwIP as the networking stack.
+
+## Updates
+
+### FreeRTOS+POSIX Utils V1.2.0
+
+- Update UTILS_TimespecAdd POSIX utility function to support both signed and unsigned definitions of struct timespec.tv_sec. (Some implementations use unsigned definition of time_t to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+
+### MQTT Client Library V2.2.0
+
+- Improvements in Keep-Alive mechanism : MQTT protocol requires PING requests to be sent  when the connection is idle. This update will  stop sending PING requests when connection is not idle. Earlier, the client library would sometimes disconnect the connection during OTA, when traffic is heavy, due to timeout for server PING response. This update fixes the disconnect issue during OTA.
+- Bug fix for Keep-Alive interval: The MQTT library was incorrectly sending PING requests at intervals greater than the keep alive period sent in the CONNECT request. This change fixes the problem.
+
+### PKCS#11
+
+- Added doxygen to various PKCS #11 files.
+- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+
+### Bluetooth Low Energy Management Library V2.1.0
+
+- Added new API IotBle_SetDeviceName() to set the BLE device name at runtime.
+- Made fixes to IotBle_On() and IotBle_Off() APIs
+- Accommodate larger-than-expected writes to RXLargeMesg Gatt Characteristic.
+
+### FreeRTOS+TCP V2.2.0
+
+- Added ability to cache multiple IP addresses per DNS entry.
+
+### Mbed TLS v2.16.6
+
+- Upgraded the version of Mbed TLS to v2.16.6.
+- Submoduled the Mbed TLS library.
+
+### Over the Air Update V1.2.0
+
+- Fixed an issue where self-test timer is started after receiving the AWS IoT Job document. The fix makes the timer start before any job document parsing is done.
+
+### Espressif
+
+- Replaced ESP-IDF code to be a submodule pointer to the official Espressif-ID repository.
+- Updated LwIP as the default networking stack. 
+
 ## 202002.00 2/18/2020
 
 ### New Features
