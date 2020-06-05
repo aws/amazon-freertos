@@ -72,6 +72,17 @@ func secureEcho(certPath string, keyPath string, port string, verbose bool) {
 		MinVersion: tls.VersionTLS12,
 		RootCAs:    serverCAPool,
 		ClientAuth: tls.RequireAnyClientCert,
+		// Cipher suites supported by AWS IoT Core. Note this is the intersection of the set
+		// of cipher suites supported by GO and by AWS IoT Core.
+		// See the complete list of supported cipher suites at https://docs.aws.amazon.com/iot/latest/developerguide/transport-security.html.
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_AES_128_GCM_SHA256,
+			tls.TLS_AES_256_GCM_SHA384,
+		},
 	}
 
 	tlsConfig.Rand = rand.Reader
