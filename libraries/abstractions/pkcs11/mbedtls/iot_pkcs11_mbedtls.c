@@ -3386,7 +3386,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
     {
         mbedtls_sha256_init( &( pxSession->xSHA256Context ) );
 
-        if( 0 != mbedtls_sha256_starts_ret( &( pxSession->xSHA256Context ), 0 ) ) 
+        if( 0 != mbedtls_sha256_starts_ret( &( pxSession->xSHA256Context ), 0 ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
