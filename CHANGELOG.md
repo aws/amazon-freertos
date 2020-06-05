@@ -10,7 +10,7 @@
 
 ### Espressif
 
-- New Board: <b>ESP32-WROOM_32-SE</b> is now qualified by FreeRTOS. It was earlier supported in Preview mode before.
+- New Board: <b>ESP32-WROOM_32-SE</b> is now qualified by FreeRTOS. It was earlier supported in Preview mode.
 - Support OTA data over HTTP together with BLE on ESP32 when SPIRAM is enabled.
 - Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows WiFi provisioning of devices through a web-server running on the device and a provisioning mobile application to enter WiFi credentials onto the device for provisioning. This requires use of lwIP as the networking stack.
 
@@ -18,7 +18,7 @@
 
 ### FreeRTOS+POSIX Utils V1.2.0
 
-- Update UTILS_TimespecAdd POSIX utility function to support both signed and unsigned definitions of struct timespec.tv_sec. (Some implementations use unsigned definition of time_t to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+- Update UTILS_TimespecAdd POSIX utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
 
 ### MQTT Client Library V2.2.0
 
@@ -33,7 +33,7 @@
 ### Bluetooth Low Energy Management Library V2.1.0
 
 - Added new API IotBle_SetDeviceName() to set the BLE device name at runtime.
-- Made fixes to IotBle_On() and IotBle_Off() APIs
+- Made fixes to IotBle_On() and IotBle_Off() APIs.
 - Accommodate larger-than-expected writes to RXLargeMesg Gatt Characteristic.
 
 ### FreeRTOS+TCP V2.2.0
@@ -51,7 +51,7 @@
 
 ### Espressif
 
-- Replaced ESP-IDF code to be a submodule pointer to the official Espressif-ID repository.
+- Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
 - Updated LwIP as the default networking stack. 
 
 ## 202002.00 2/18/2020
