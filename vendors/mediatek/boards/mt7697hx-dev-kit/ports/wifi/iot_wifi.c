@@ -1448,10 +1448,15 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
                              (uint32_t)usCount,
                              ulIntervalMS);
 
-    if (count < 0)
+    if( count < 0 )
         return eWiFiFailure;
 
-    return count == usCount ? eWiFiSuccess : eWiFiFailure;
+    if( count != usCount )
+    {
+        printf("WIFI_Ping: only %d pings reached out of %d\n", count, usCount);
+    }
+
+    return eWiFiSuccess;
 }
 
 /*-----------------------------------------------------------*/
