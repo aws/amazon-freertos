@@ -1,5 +1,7 @@
 # Change Log for FreeRTOS
 
+## 202006.00 6/11/2020
+
 ## New Features
 
 ### Over the Air Update V1.2.0
