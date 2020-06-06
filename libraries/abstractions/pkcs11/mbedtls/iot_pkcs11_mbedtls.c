@@ -2214,10 +2214,10 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                                  CK_ULONG ulCount,
                                  CK_OBJECT_HANDLE_PTR pxObject )
 {
-    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 )
         /* Suppress unused parameter warning if ECDSA is suppressed. */
         ( void ) pxObject;
-    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 ) */
 
     CK_KEY_TYPE xKeyType = 0;
     CK_RV xResult = CKR_OK;
