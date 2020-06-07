@@ -2189,11 +2189,6 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
@@ -2609,11 +2604,6 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
@@ -2844,6 +2834,16 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
@@ -2867,6 +2867,11 @@
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
