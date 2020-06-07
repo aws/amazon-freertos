@@ -18,17 +18,28 @@
 
 ### FreeRTOS+POSIX Utils V1.2.0
 
-- Update UTILS_TimespecAdd POSIX utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
 
 ### MQTT Client Library V2.2.0
 
 - Improvements in Keep-Alive mechanism : MQTT protocol requires PING requests to be sent  when the connection is idle. This update will  stop sending PING requests when connection is not idle. Earlier, the client library would sometimes disconnect the connection during OTA, when traffic is heavy, due to timeout for server PING response. This update fixes the disconnect issue during OTA.
 - Bug fix for Keep-Alive interval: The MQTT library was incorrectly sending PING requests at intervals greater than the keep alive period sent in the CONNECT request. This change fixes the problem.
 
-### PKCS#11
+### Secure Sockets LwIP V1.2.0
+
+- Added bug fixes at places of potential Seg Faults.
+
+### PKCS#11 V2.1.0
 
 - Added doxygen to various PKCS #11 files.
 - Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+
+### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
+
+- Updates to HAL API to match Bluetooth Specification V5.0
+- Change BTStatus_t to BTGattStatus_t for GATT Client callbacks
+- Add pxMultiAdvSetInstRawData in bt_hal_manager_adapter_ble
+- Add back pxBondedCb and ucTimeout and mark as deprecated
 
 ### Bluetooth Low Energy Management Library V2.1.0
 
