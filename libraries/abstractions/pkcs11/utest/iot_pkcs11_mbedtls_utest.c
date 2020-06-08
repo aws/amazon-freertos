@@ -231,7 +231,8 @@ static CK_RV prvInitializePkcs11()
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
+    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -267,7 +268,9 @@ static CK_RV prvOpenSession( CK_SESSION_HANDLE_PTR pxSession )
     CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &pxSession );
+    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     xResult = C_OpenSession( 0, xFlags, NULL, 0, pxSession );
 
     return xResult;
@@ -420,7 +423,8 @@ void test_pkcs11_C_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
+    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -440,7 +444,8 @@ void test_pkcs11_C_InitializeMemFail( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( NULL );
+    PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
+    xQueueCreateMutexStatic_IgnoreAndReturn( NULL );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -458,7 +463,8 @@ void test_pkcs11_C_InitializeSeedFail( void )
 {
     CK_RV xResult = CKR_OK;
 
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
+    PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
+    xQueueCreateMutexStatic_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     CRYPTO_Init_Ignore();
     mbedtls_entropy_init_Ignore();
     mbedtls_ctr_drbg_init_Ignore();
@@ -796,21 +802,21 @@ void test_pkcs11_C_OpenSession( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
+    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) 1 );
     xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = prvUninitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
-    vPkcs11FreeCb( ( void * ) xSession, 1 );
 }
 
 /*!
-  * @brief C_OpenSession fail due to not allocating a Queue.
+  * @brief C_OpenSession mutex allocation failures.
   *
   */
-void test_pkcs11_C_OpenSessionQueueMemFail( void )
+void test_pkcs11_C_OpenSessionMutexMem( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
@@ -820,16 +826,22 @@ void test_pkcs11_C_OpenSessionQueueMemFail( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     pvPortMalloc_Stub( pvPkcs11MallocCb );
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
-    xQueueCreateMutex_IgnoreAndReturn( NULL );
-    vPortFree_Stub( vPkcs11FreeCb );
-    vQueueDelete_CMockIgnore();
+    xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+    xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( ( SemaphoreHandle_t ) 1 );
+    vLoggingPrintf_Ignore();
+    vQueueDelete_Ignore();
     xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 
-    pvPortMalloc_Stub( pvPkcs11MallocCb );
-    xQueueCreateMutex_IgnoreAndReturn( NULL );
-    xQueueCreateMutex_IgnoreAndReturn( ( SemaphoreHandle_t ) &xResult );
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
+    xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
+    TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
+
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
+    xQueueCreateMutex_ExpectAnyArgsAndReturn( NULL );
     xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
 
@@ -846,7 +858,8 @@ void test_pkcs11_C_OpenSessionUninit( void )
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
     CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
-
+    
+    vLoggingPrintf_Ignore();
     xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
 }
@@ -864,6 +877,7 @@ void test_pkcs11_C_OpenSessionBadArgs( void )
     xResult = prvInitializePkcs11();
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
+    vLoggingPrintf_Ignore();
     xResult = C_OpenSession( 0, xFlags, NULL, 0, NULL );
     TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 
