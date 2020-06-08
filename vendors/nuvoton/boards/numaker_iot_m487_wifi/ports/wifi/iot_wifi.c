@@ -256,8 +256,8 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr, uint16_t usCount, uint32_t ulIn
 
     if (xSemaphoreTake(xNuWiFi.xWifiSem, xSemaphoreWaitTicks) == pdTRUE) {
         for (i = 0 ; i < usCount ; i++) {
-            ret = ESP_WIFI_Ping(&xNuWiFi.xWifiObject, pucIPAddr); 
-            if ( ret == ESP_WIFI_STATUS_OK) {
+            ret = ESP_WIFI_Ping(&xNuWiFi.xWifiObject, pucIPAddr);
+            if (ret == ESP_WIFI_STATUS_OK) {
                 xWiFiRet = eWiFiSuccess;
                 if (i < usCount - 1) {
                     vTaskDelay(pdMS_TO_TICKS(ulIntervalMS));
