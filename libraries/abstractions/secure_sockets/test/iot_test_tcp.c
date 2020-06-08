@@ -440,8 +440,23 @@ size_t xHeapA;
 /* Group declaration required by Unity framework. */
 TEST_GROUP( Full_TCP );
 
+/* Extended test group for tests which aren't required for qualification
+ * but demonstrate additional features or preferred behavior.
+ */
+TEST_GROUP( Full_TCP_Extended );
+
 /* Setup required by Unity framework. */
 TEST_SETUP( Full_TCP )
+{
+    #if ( tcptestMEMORYWATCH == 1 )
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapB = xPortGetFreeHeapSize();
+    #endif
+}
+
+/* Setup required by Unity framework. */
+TEST_SETUP( Full_TCP_Extended )
 {
     #if ( tcptestMEMORYWATCH == 1 )
         /* Give the print buffer time to empty */
@@ -453,6 +468,31 @@ TEST_SETUP( Full_TCP )
 /* Tear down required by Unity framework.
  * Closes the global socket if it was left open by the test. */
 TEST_TEAR_DOWN( Full_TCP )
+{
+    int32_t lReturn;
+
+    if( TEST_PROTECT() )
+    {
+        if( xSocketOpen == pdTRUE )
+        {
+            lReturn = SOCKETS_Close( xSocket );
+            xSocketOpen = pdFALSE;
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, lReturn, "SOCKETS_Close failed in tear down. \r\n" );
+        }
+    }
+
+    #if ( tcptestMEMORYWATCH == 1 )
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapA = xPortGetFreeHeapSize();
+
+        configPRINTF( ( "Heap before: %d, Heap After: %d \r\n", xHeapB, xHeapA ) );
+    #endif
+}
+
+/* Tear down required by Unity framework.
+ * Closes the global socket if it was left open by the test. */
+TEST_TEAR_DOWN( Full_TCP_Extended )
 {
     int32_t lReturn;
 
@@ -1097,6 +1137,13 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
+}
+
+/*-------------------------------------------------------------------*/
+
+TEST_GROUP_RUNNER( Full_TCP_Extended )
+{
+    RUN_TEST_CASE( Full_TCP, test_dns_multiple_addresses );
 }
 
 /*-------------------------------------------------------------------*/
