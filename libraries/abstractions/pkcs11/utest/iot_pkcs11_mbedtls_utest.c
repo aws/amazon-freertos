@@ -1,27 +1,27 @@
 /*
-  * FreeRTOS PKCS #11 V2.0.3
-  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a copy of
-  * this software and associated documentation files (the "Software"), to deal in
-  * the Software without restriction, including without limitation the rights to
-  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-  * the Software, and to permit persons to whom the Software is furnished to do so,
-  * subject to the following conditions:
-  *
-  * The above copyright notice and this permission notice shall be included in all
-  * copies or substantial portions of the Software.
-  *
-  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  *
-  * http://aws.amazon.com/freertos
-  * http://www.FreeRTOS.org
-  */
+ * FreeRTOS PKCS #11 V2.0.3
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 /* C runtime includes. */
 #include <stdlib.h>
@@ -133,7 +133,7 @@ static uint16_t usMallocFreeCalls = 0;
 /* Internal struct to facilitate passing RSA params to mbedTLS. */
 
 /* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
-  * to numbers that could be interpreted as negative */
+ * to numbers that could be interpreted as negative */
 typedef struct RsaParams_t
 {
     CK_BYTE modulus[ MODULUS_LENGTH + 1 ];
@@ -149,8 +149,8 @@ typedef struct RsaParams_t
 /* ==========================  CALLBACK FUNCTIONS =========================== */
 
 /*!
-  * @brief Wrapper stub for malloc.
-  */
+ * @brief Wrapper stub for malloc.
+ */
 void * pvPkcs11MallocCb( size_t size,
                          int numCalls )
 {
@@ -159,9 +159,9 @@ void * pvPkcs11MallocCb( size_t size,
 }
 
 /*!
-  * @brief Wrapper stub for free.
-  *
-  */
+ * @brief Wrapper stub for free.
+ *
+ */
 void vPkcs11FreeCb( void * ptr,
                     int numCalls )
 {
@@ -213,9 +213,9 @@ int suiteTearDown( int numFailures )
     TEST_ASSERT_EQUAL( CKR_OK, xResult )
 
 /*!
-  * @brief Helper function to stub mbedtls_pk_free.
-  *
-  */
+ * @brief Helper function to stub mbedtls_pk_free.
+ *
+ */
 void vMbedPkFree( mbedtls_pk_context * pxCtx,
                   int lCallCount )
 {
@@ -224,9 +224,9 @@ void vMbedPkFree( mbedtls_pk_context * pxCtx,
 }
 
 /*!
-  * @brief Helper function to initialize PKCS #11.
-  *
-  */
+ * @brief Helper function to initialize PKCS #11.
+ *
+ */
 static CK_RV prvInitializePkcs11()
 {
     CK_RV xResult = CKR_OK;
@@ -243,9 +243,9 @@ static CK_RV prvInitializePkcs11()
 }
 
 /*!
-  * @brief Helper function to initialize PKCS #11.
-  *
-  */
+ * @brief Helper function to initialize PKCS #11.
+ *
+ */
 static CK_RV prvUninitializePkcs11()
 {
     CK_RV xResult = CKR_OK;
@@ -259,9 +259,9 @@ static CK_RV prvUninitializePkcs11()
 }
 
 /*!
-  * @brief Helper function to create a PKCS #11 session.
-  *
-  */
+ * @brief Helper function to create a PKCS #11 session.
+ *
+ */
 static CK_RV prvOpenSession( CK_SESSION_HANDLE_PTR pxSession )
 {
     CK_RV xResult = CKR_OK;
@@ -277,9 +277,9 @@ static CK_RV prvOpenSession( CK_SESSION_HANDLE_PTR pxSession )
 }
 
 /*!
-  * @brief Helper function to close a PKCS #11 session.
-  *
-  */
+ * @brief Helper function to close a PKCS #11 session.
+ *
+ */
 static CK_RV prvCloseSession( CK_SESSION_HANDLE_PTR pxSession )
 {
     CK_RV xResult = CKR_OK;
@@ -294,9 +294,9 @@ static CK_RV prvCloseSession( CK_SESSION_HANDLE_PTR pxSession )
 }
 
 /*!
-  * @brief Helper function to create a x509 certificate.
-  *
-  */
+ * @brief Helper function to create a x509 certificate.
+ *
+ */
 static CK_RV prvCreateCert( CK_SESSION_HANDLE_PTR pxSession,
                             CK_OBJECT_HANDLE_PTR pxObject )
 {
@@ -322,9 +322,9 @@ static CK_RV prvCreateCert( CK_SESSION_HANDLE_PTR pxSession,
 }
 
 /*!
-  * @brief Helper function to create an EC Private Key.
-  *
-  */
+ * @brief Helper function to create an EC Private Key.
+ *
+ */
 static CK_RV prvCreateEcPriv( CK_SESSION_HANDLE_PTR pxSession,
                               CK_OBJECT_HANDLE_PTR pxObject )
 {
@@ -367,9 +367,9 @@ static CK_RV prvCreateEcPriv( CK_SESSION_HANDLE_PTR pxSession,
 }
 
 /*!
-  * @brief Helper function to create a EC Public Key.
-  *
-  */
+ * @brief Helper function to create a EC Public Key.
+ *
+ */
 static CK_RV prvCreateEcPub( CK_SESSION_HANDLE_PTR pxSession,
                              CK_OBJECT_HANDLE_PTR pxObject )
 {
@@ -416,9 +416,9 @@ static CK_RV prvCreateEcPub( CK_SESSION_HANDLE_PTR pxSession,
 /* ======================  TESTING C_Initialize  ============================ */
 
 /*!
-  * @brief C_Initialize happy path.
-  *
-  */
+ * @brief C_Initialize happy path.
+ *
+ */
 void test_pkcs11_C_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
@@ -437,9 +437,9 @@ void test_pkcs11_C_Initialize( void )
 }
 
 /*!
-  * @brief C_Initialize memory failure when creating a mutex.
-  *
-  */
+ * @brief C_Initialize memory failure when creating a mutex.
+ *
+ */
 void test_pkcs11_C_InitializeMemFail( void )
 {
     CK_RV xResult = CKR_OK;
@@ -456,9 +456,9 @@ void test_pkcs11_C_InitializeMemFail( void )
 }
 
 /*!
-  * @brief C_Initialize failed to seed DRBG.
-  *
-  */
+ * @brief C_Initialize failed to seed DRBG.
+ *
+ */
 void test_pkcs11_C_InitializeSeedFail( void )
 {
     CK_RV xResult = CKR_OK;
@@ -475,9 +475,9 @@ void test_pkcs11_C_InitializeSeedFail( void )
 }
 
 /*!
-  * @brief C_Initialize already initialized.
-  *
-  */
+ * @brief C_Initialize already initialized.
+ *
+ */
 void test_pkcs11_C_InitializeInitTwice( void )
 {
     CK_RV xResult = CKR_OK;
@@ -496,9 +496,9 @@ void test_pkcs11_C_InitializeInitTwice( void )
 /* ======================  TESTING C_Finalize  ============================ */
 
 /*!
-  * @brief C_Finalize initialize was not already called.
-  *
-  */
+ * @brief C_Finalize initialize was not already called.
+ *
+ */
 void test_pkcs11_C_FinalizeUninitialized( void )
 {
     CK_RV xResult = CKR_OK;
@@ -511,9 +511,9 @@ void test_pkcs11_C_FinalizeUninitialized( void )
 }
 
 /*!
-  * @brief C_Finalize was called with a non-null pointer.
-  *
-  */
+ * @brief C_Finalize was called with a non-null pointer.
+ *
+ */
 void test_pkcs11_C_FinalizeBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -529,9 +529,9 @@ void test_pkcs11_C_FinalizeBadArgs( void )
 /* ======================  TESTING C_GetFunctionList  ============================ */
 
 /*!
-  * @brief C_GetFunctionList happy path.
-  *
-  */
+ * @brief C_GetFunctionList happy path.
+ *
+ */
 void test_pkcs11_C_GetFunctionList( void )
 {
     CK_RV xResult = CKR_OK;
@@ -543,9 +543,9 @@ void test_pkcs11_C_GetFunctionList( void )
 }
 
 /*!
-  * @brief C_GetFunctionList bad args.
-  *
-  */
+ * @brief C_GetFunctionList bad args.
+ *
+ */
 void test_pkcs11_C_GetFunctionListBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -558,9 +558,9 @@ void test_pkcs11_C_GetFunctionListBadArgs( void )
 /* ======================  TESTING C_GetSlotList  ============================ */
 
 /*!
-  * @brief C_GetSlotList happy path.
-  *
-  */
+ * @brief C_GetSlotList happy path.
+ *
+ */
 void test_pkcs11_C_GetSlotList( void )
 {
     CK_RV xResult = CKR_OK;
@@ -586,9 +586,9 @@ void test_pkcs11_C_GetSlotList( void )
 }
 
 /*!
-  * @brief C_GetSlotList NULL SlotList.
-  *
-  */
+ * @brief C_GetSlotList NULL SlotList.
+ *
+ */
 void test_pkcs11_C_GetSlotListNullSlot( void )
 {
     CK_RV xResult = CKR_OK;
@@ -609,9 +609,9 @@ void test_pkcs11_C_GetSlotListNullSlot( void )
 }
 
 /*!
-  * @brief C_GetSlotList NULL SlotCount.
-  *
-  */
+ * @brief C_GetSlotList NULL SlotCount.
+ *
+ */
 void test_pkcs11_C_GetSlotListNullCount( void )
 {
     CK_RV xResult = CKR_OK;
@@ -628,9 +628,9 @@ void test_pkcs11_C_GetSlotListNullCount( void )
 }
 
 /*!
-  * @brief C_GetSlotList 0 object count, valid slotlist.
-  *
-  */
+ * @brief C_GetSlotList 0 object count, valid slotlist.
+ *
+ */
 void test_pkcs11_C_GetSlotListBadObjCount( void )
 {
     CK_RV xResult = CKR_OK;
@@ -652,9 +652,9 @@ void test_pkcs11_C_GetSlotListBadObjCount( void )
 }
 
 /*!
-  * @brief C_GetSlotList PKCS #11 Not initialized.
-  *
-  */
+ * @brief C_GetSlotList PKCS #11 Not initialized.
+ *
+ */
 void test_pkcs11_C_GetSlotListUninit( void )
 {
     CK_RV xResult = CKR_OK;
@@ -672,12 +672,12 @@ void test_pkcs11_C_GetSlotListUninit( void )
 /* ======================  TESTING C_GetTokenInfo  ============================ */
 
 /*!
-  * @brief C_GetTokenInfo Happy path.
-  *
-  * @note this test will need to be updated if this port needs to start returning
-  * token information.
-  *
-  */
+ * @brief C_GetTokenInfo Happy path.
+ *
+ * @note this test will need to be updated if this port needs to start returning
+ * token information.
+ *
+ */
 void test_pkcs11_C_GetTokenInfo( void )
 {
     CK_RV xResult = CKR_OK;
@@ -688,9 +688,9 @@ void test_pkcs11_C_GetTokenInfo( void )
 /* ======================  TESTING C_GetMechanismInfo  ============================ */
 
 /*!
-  * @brief C_GetMechanismInfo happy path.
-  *
-  */
+ * @brief C_GetMechanismInfo happy path.
+ *
+ */
 void test_pkcs11_C_GetMechanismInfo( void )
 {
     CK_RV xResult = CKR_OK;
@@ -744,9 +744,9 @@ void test_pkcs11_C_GetMechanismInfo( void )
 }
 
 /*!
-  * @brief C_GetMechanismInfo NULL info pointer.
-  *
-  */
+ * @brief C_GetMechanismInfo NULL info pointer.
+ *
+ */
 void test_pkcs11_C_GetMechanismInfoNullInfoPtr( void )
 {
     CK_RV xResult = CKR_OK;
@@ -757,9 +757,9 @@ void test_pkcs11_C_GetMechanismInfoNullInfoPtr( void )
 }
 
 /*!
-  * @brief C_GetMechanismInfo Bad Mechanism.
-  *
-  */
+ * @brief C_GetMechanismInfo Bad Mechanism.
+ *
+ */
 void test_pkcs11_C_GetMechanismInfoBadMech( void )
 {
     CK_RV xResult = CKR_OK;
@@ -773,12 +773,12 @@ void test_pkcs11_C_GetMechanismInfoBadMech( void )
 /* ======================  TESTING C_InitToken  ============================ */
 
 /*!
-  * @brief C_InitToken Happy path.
-  *
-  * @note currently the port behaves like a fixed token, and doesn't do anything
-  * when this function is called.
-  *
-  */
+ * @brief C_InitToken Happy path.
+ *
+ * @note currently the port behaves like a fixed token, and doesn't do anything
+ * when this function is called.
+ *
+ */
 void test_pkcs11_C_InitToken( void )
 {
     CK_RV xResult = CKR_OK;
@@ -789,9 +789,9 @@ void test_pkcs11_C_InitToken( void )
 /* ======================  TESTING C_OpenSession  ============================ */
 
 /*!
-  * @brief C_OpenSession happy path.
-  *
-  */
+ * @brief C_OpenSession happy path.
+ *
+ */
 void test_pkcs11_C_OpenSession( void )
 {
     CK_RV xResult = CKR_OK;
@@ -813,9 +813,9 @@ void test_pkcs11_C_OpenSession( void )
 }
 
 /*!
-  * @brief C_OpenSession mutex allocation failures.
-  *
-  */
+ * @brief C_OpenSession mutex allocation failures.
+ *
+ */
 void test_pkcs11_C_OpenSessionMutexMem( void )
 {
     CK_RV xResult = CKR_OK;
@@ -850,24 +850,24 @@ void test_pkcs11_C_OpenSessionMutexMem( void )
 }
 
 /*!
-  * @brief C_OpenSession PKCS #11 Uninitialized.
-  *
-  */
+ * @brief C_OpenSession PKCS #11 Uninitialized.
+ *
+ */
 void test_pkcs11_C_OpenSessionUninit( void )
 {
     CK_RV xResult = CKR_OK;
     CK_SESSION_HANDLE xSession = 0;
     CK_FLAGS xFlags = CKF_SERIAL_SESSION | CKF_RW_SESSION;
-    
+
     vLoggingPrintf_Ignore();
     xResult = C_OpenSession( 0, xFlags, NULL, 0, &xSession );
     TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
 }
 
 /*!
-  * @brief C_OpenSession bad args.
-  *
-  */
+ * @brief C_OpenSession bad args.
+ *
+ */
 void test_pkcs11_C_OpenSessionBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -891,9 +891,9 @@ void test_pkcs11_C_OpenSessionBadArgs( void )
 /* ======================  TESTING C_CloseSession  ============================ */
 
 /*!
-  * @brief C_CloseSession happy path.
-  *
-  */
+ * @brief C_CloseSession happy path.
+ *
+ */
 void test_pkcs11_C_CloseSession( void )
 {
     CK_RV xResult = CKR_OK;
@@ -909,9 +909,9 @@ void test_pkcs11_C_CloseSession( void )
 }
 
 /*!
-  * @brief C_CloseSession PKCS #11 not initialized.
-  *
-  */
+ * @brief C_CloseSession PKCS #11 not initialized.
+ *
+ */
 void test_pkcs11_C_CloseSessionUninit( void )
 {
     CK_RV xResult = CKR_OK;
@@ -922,9 +922,9 @@ void test_pkcs11_C_CloseSessionUninit( void )
 }
 
 /*!
-  * @brief C_CloseSession PKCS #11 invalid session.
-  *
-  */
+ * @brief C_CloseSession PKCS #11 invalid session.
+ *
+ */
 void test_pkcs11_C_CloseSessionBadSession( void )
 {
     CK_RV xResult = CKR_OK;
@@ -942,11 +942,11 @@ void test_pkcs11_C_CloseSessionBadSession( void )
 /* ======================  TESTING C_Login  ============================ */
 
 /*!
-  * @brief C_Login happy path.
-  *
-  * @note This test will need to be updated if support is added for C_Login.
-  *
-  */
+ * @brief C_Login happy path.
+ *
+ * @note This test will need to be updated if support is added for C_Login.
+ *
+ */
 void test_pkcs11_C_Login( void )
 {
     CK_RV xResult = CKR_OK;
@@ -958,9 +958,9 @@ void test_pkcs11_C_Login( void )
 /* ======================  TESTING C_CreateObject  ============================ */
 
 /*!
-  * @brief C_CreateObject Creating an EC private key happy path.
-  *
-  */
+ * @brief C_CreateObject Creating an EC private key happy path.
+ *
+ */
 void test_pkcs11_C_CreateObjectECPrivKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1010,10 +1010,10 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an EC private key attribute failures.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an EC private key attribute failures.
+ *
+ */
 void test_pkcs11_C_CreateObjectECPrivKeyBadAtt( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1101,10 +1101,10 @@ void test_pkcs11_C_CreateObjectECPrivKeyBadAtt( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an EC private key fails when saving to DER.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an EC private key fails when saving to DER.
+ *
+ */
 void test_pkcs11_C_CreateObjectECPrivKeyDerFail( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1168,9 +1168,9 @@ void test_pkcs11_C_CreateObjectECPrivKeyDerFail( void )
 }
 
 /*!
-  * @brief C_CreateObject Creating an EC public key happy path.
-  *
-  */
+ * @brief C_CreateObject Creating an EC public key happy path.
+ *
+ */
 void test_pkcs11_C_CreateObjectECPubKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1217,10 +1217,10 @@ void test_pkcs11_C_CreateObjectECPubKey( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an EC public key attribute failures.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an EC public key attribute failures.
+ *
+ */
 void test_pkcs11_C_CreateObjectECPubKeyBadAtt( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1268,7 +1268,7 @@ void test_pkcs11_C_CreateObjectECPubKeyBadAtt( void )
     TEST_ASSERT_EQUAL( CKR_MECHANISM_INVALID, xResult );
 
     /* Reuse the variable. The goal being to pass a bad attribute class to
-      * C_CreateObject */
+     * C_CreateObject */
     xPublicKeyTemplate[ 0 ].pValue = &xFaultyPublicKeyType;
     xPublicKeyTemplate[ 1 ].pValue = &xPublicKeyType;
     xResult = C_CreateObject( xSession,
@@ -1312,10 +1312,10 @@ void test_pkcs11_C_CreateObjectECPubKeyBadAtt( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an RSA Private key happy path.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an RSA Private key happy path.
+ *
+ */
 void test_pkcs11_C_CreateObjectRSAPrivKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1354,10 +1354,10 @@ void test_pkcs11_C_CreateObjectRSAPrivKey( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an RSA private key attribute failures.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an RSA private key attribute failures.
+ *
+ */
 void test_pkcs11_C_CreateObjectRSAPrivKeyBadAtt( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1422,12 +1422,12 @@ void test_pkcs11_C_CreateObjectRSAPrivKeyBadAtt( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating an RSA Public key happy path.
-  *
-  * Note: This test will need to be updated should this port support RSA public keys.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating an RSA Public key happy path.
+ *
+ * Note: This test will need to be updated should this port support RSA public keys.
+ *
+ */
 void test_pkcs11_C_CreateObjectRSAPubKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1456,10 +1456,10 @@ void test_pkcs11_C_CreateObjectRSAPubKey( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Creating a Certificate happy path.
-  *
-  */
+ *!
+ * @brief C_CreateObject Creating a Certificate happy path.
+ *
+ */
 void test_pkcs11_C_CreateObjectCertificate( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1489,10 +1489,10 @@ void test_pkcs11_C_CreateObjectCertificate( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Bad Certificate type.
-  *
-  */
+ *!
+ * @brief C_CreateObject Bad Certificate type.
+ *
+ */
 void test_pkcs11_C_CreateObjectCertificateBadType( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1523,10 +1523,10 @@ void test_pkcs11_C_CreateObjectCertificateBadType( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Bad Certificate token value.
-  *
-  */
+ *!
+ * @brief C_CreateObject Bad Certificate token value.
+ *
+ */
 void test_pkcs11_C_CreateObjectCertificateBadToken( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1557,10 +1557,10 @@ void test_pkcs11_C_CreateObjectCertificateBadToken( void )
 }
 
 /*
-  *!
-  * @brief C_CreateObject Unknown Certificate Attribute.
-  *
-  */
+ *!
+ * @brief C_CreateObject Unknown Certificate Attribute.
+ *
+ */
 void test_pkcs11_C_CreateObjectCertificateUnkownAtt( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1594,9 +1594,9 @@ void test_pkcs11_C_CreateObjectCertificateUnkownAtt( void )
 /* ======================  TESTING C_GetAttributeValue  ============================ */
 
 /*!
-  * @brief C_GetAttributeValue get value of a certificate happy path.
-  *
-  */
+ * @brief C_GetAttributeValue get value of a certificate happy path.
+ *
+ */
 void test_pkcs11_C_GetAttributeValueCert( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1624,9 +1624,9 @@ void test_pkcs11_C_GetAttributeValueCert( void )
 }
 
 /*!
-  * @brief C_GetAttributeValue test attribute parsing of PKCS #11 templates.
-  *
-  */
+ * @brief C_GetAttributeValue test attribute parsing of PKCS #11 templates.
+ *
+ */
 void test_pkcs11_C_GetAttributeValueAttParsing( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1675,7 +1675,7 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     /* This is hard coded in the library. We need to update this test case and the
-      * library code to either have this in the config or use a macro instead of a magic number. */
+     * library code to either have this in the config or use a macro instead of a magic number. */
     TEST_ASSERT_EQUAL( 67, xTemplate.ulValueLen );
 
     xTemplate.pValue = &ulPoint;
@@ -1772,9 +1772,9 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
 }
 
 /*!
-  * @brief C_GetAttributeValue paths.
-  *
-  */
+ * @brief C_GetAttributeValue paths.
+ *
+ */
 void test_pkcs11_C_GetAttributeValuePrivKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1863,9 +1863,9 @@ void test_pkcs11_C_GetAttributeValuePrivKey( void )
 /* ======================  TESTING C_FindObjectsInit  ============================ */
 
 /*!
-  * @brief C_FindObjectsInit happy path.
-  *
-  */
+ * @brief C_FindObjectsInit happy path.
+ *
+ */
 void test_pkcs11_C_FindObjectsInit( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1894,9 +1894,9 @@ void test_pkcs11_C_FindObjectsInit( void )
 }
 
 /*!
-  * @brief C_FindObjectsInit Active Operation.
-  *
-  */
+ * @brief C_FindObjectsInit Active Operation.
+ *
+ */
 void test_pkcs11_C_FindObjectsInitActiveOp( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1926,16 +1926,16 @@ void test_pkcs11_C_FindObjectsInitActiveOp( void )
     TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
 
     /* The memory that was initialized in the first call gets free'd in the second
-      * call because they share a session. */
+     * call because they share a session. */
     usMallocFreeCalls--;
 
     prvCommonDeinitStubs();
 }
 
 /*!
-  * @brief C_FindObjectsInit Bad args.
-  *
-  */
+ * @brief C_FindObjectsInit Bad args.
+ *
+ */
 void test_pkcs11_C_FindObjectsInitBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -1971,9 +1971,9 @@ void test_pkcs11_C_FindObjectsInitBadArgs( void )
 /* ======================  TESTING C_FindObjects  ============================ */
 
 /*!
-  * @brief C_FindObjects happy path.
-  *
-  */
+ * @brief C_FindObjects happy path.
+ *
+ */
 void test_pkcs11_C_FindObjects( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2014,9 +2014,9 @@ void test_pkcs11_C_FindObjects( void )
 }
 
 /*!
-  * @brief C_FindObjects bad args.
-  *
-  */
+ * @brief C_FindObjects bad args.
+ *
+ */
 void test_pkcs11_C_FindObjectsBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2065,9 +2065,9 @@ void test_pkcs11_C_FindObjectsBadArgs( void )
 /* ======================  TESTING C_FindObjectsFinal  ============================ */
 
 /*!
-  * @brief C_FindObjectsFinal happy path.
-  *
-  */
+ * @brief C_FindObjectsFinal happy path.
+ *
+ */
 void test_pkcs11_C_FindObjectsFinal( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2098,9 +2098,9 @@ void test_pkcs11_C_FindObjectsFinal( void )
 /* ======================  TESTING C_DigestInit  ============================ */
 
 /*!
-  * @brief C_DigestInit happy path.
-  *
-  */
+ * @brief C_DigestInit happy path.
+ *
+ */
 void test_pkcs11_C_DigestInit( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2121,9 +2121,9 @@ void test_pkcs11_C_DigestInit( void )
 /* ======================  TESTING C_DigestUpdate  ============================ */
 
 /*!
-  * @brief C_DigestUpdate happy path.
-  *
-  */
+ * @brief C_DigestUpdate happy path.
+ *
+ */
 void test_pkcs11_C_DigestUpdate( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2148,9 +2148,9 @@ void test_pkcs11_C_DigestUpdate( void )
 }
 
 /*!
-  * @brief C_DigestUpdate bad args.
-  *
-  */
+ * @brief C_DigestUpdate bad args.
+ *
+ */
 void test_pkcs11_C_DigestUpdateBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2188,9 +2188,9 @@ void test_pkcs11_C_DigestUpdateBadArgs( void )
 /* ======================  TESTING C_DigestFinal  ============================ */
 
 /*!
-  * @brief C_DigestFinal happy path.
-  *
-  */
+ * @brief C_DigestFinal happy path.
+ *
+ */
 void test_pkcs11_C_DigestFinal( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2222,9 +2222,9 @@ void test_pkcs11_C_DigestFinal( void )
 }
 
 /*!
-  * @brief C_DigestFinal bad args.
-  *
-  */
+ * @brief C_DigestFinal bad args.
+ *
+ */
 void test_pkcs11_C_DigestFinalBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2261,9 +2261,9 @@ void test_pkcs11_C_DigestFinalBadArgs( void )
 /* ======================  TESTING PKCS11_PAL_DestroyObject  ============================ */
 
 /*!
-  * @brief PKCS11_PAL_DestroyObject happy path.
-  *
-  */
+ * @brief PKCS11_PAL_DestroyObject happy path.
+ *
+ */
 void test_pkcs11_PKCS11_PAL_DestroyObject( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2289,9 +2289,9 @@ void test_pkcs11_PKCS11_PAL_DestroyObject( void )
 }
 
 /*!
-  * @brief PKCS11_PAL_DestroyObject PKCS11_PAL_SAVE returns an invalid handle.
-  *
-  */
+ * @brief PKCS11_PAL_DestroyObject PKCS11_PAL_SAVE returns an invalid handle.
+ *
+ */
 void test_pkcs11_PKCS11_PAL_DestroyObjectBadSave( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2317,9 +2317,9 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectBadSave( void )
 }
 
 /*!
-  * @brief PKCS11_PAL_DestroyObject PKCS11_PAL_SAVE malloc fail.
-  *
-  */
+ * @brief PKCS11_PAL_DestroyObject PKCS11_PAL_SAVE malloc fail.
+ *
+ */
 void test_pkcs11_PKCS11_PAL_DestroyObjectMemFail( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2341,9 +2341,9 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectMemFail( void )
 }
 
 /*!
-  * @brief PKCS11_PAL_DestroyObject PAL Destroy on a public key.
-  *
-  */
+ * @brief PKCS11_PAL_DestroyObject PAL Destroy on a public key.
+ *
+ */
 void test_pkcs11_PKCS11_PAL_DestroyObjectPubKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2372,9 +2372,9 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectPubKey( void )
 }
 
 /*!
-  * @brief PKCS11_PAL_DestroyObject PAL Destroy on a private key.
-  *
-  */
+ * @brief PKCS11_PAL_DestroyObject PAL Destroy on a private key.
+ *
+ */
 void test_pkcs11_PKCS11_PAL_DestroyObjectPrivKey( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2404,9 +2404,9 @@ void test_pkcs11_PKCS11_PAL_DestroyObjectPrivKey( void )
 /* ======================  TESTING C_SignInit  ============================ */
 
 /*!
-  * @brief C_SignInit ECDSA happy path.
-  *
-  */
+ * @brief C_SignInit ECDSA happy path.
+ *
+ */
 void test_pkcs11_C_SignInitECDSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2436,9 +2436,9 @@ void test_pkcs11_C_SignInitECDSA( void )
 }
 
 /*!
-  * @brief C_SignInit ECDSA bad args.
-  *
-  */
+ * @brief C_SignInit ECDSA bad args.
+ *
+ */
 void test_pkcs11_C_SignInitECDSABadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2507,9 +2507,9 @@ void test_pkcs11_C_SignInitECDSABadArgs( void )
 /* ======================  TESTING C_Sign  ============================ */
 
 /*!
-  * @brief C_Sign ECDSA happy path.
-  *
-  */
+ * @brief C_Sign ECDSA happy path.
+ *
+ */
 void test_pkcs11_C_SignECDSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2551,9 +2551,9 @@ void test_pkcs11_C_SignECDSA( void )
 }
 
 /*!
-  * @brief C_Sign RSA happy path.
-  *
-  */
+ * @brief C_Sign RSA happy path.
+ *
+ */
 void test_pkcs11_C_SignRSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2595,9 +2595,9 @@ void test_pkcs11_C_SignRSA( void )
 }
 
 /*!
-  * @brief C_Sign Bad args.
-  *
-  */
+ * @brief C_Sign Bad args.
+ *
+ */
 void test_pkcs11_C_SignBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2650,9 +2650,9 @@ void test_pkcs11_C_SignBadArgs( void )
 /* ======================  TESTING C_VerifyInit  ============================ */
 
 /*!
-  * @brief C_VerifyInit ECDSA happy path.
-  *
-  */
+ * @brief C_VerifyInit ECDSA happy path.
+ *
+ */
 void test_pkcs11_C_VerifyInitECDSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2686,9 +2686,9 @@ void test_pkcs11_C_VerifyInitECDSA( void )
 }
 
 /*!
-  * @brief C_VerifyInit ECDSA bad args.
-  *
-  */
+ * @brief C_VerifyInit ECDSA bad args.
+ *
+ */
 void test_pkcs11_C_VerifyInitBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2760,9 +2760,9 @@ void test_pkcs11_C_VerifyInitBadArgs( void )
 /* ======================  TESTING C_Verify  ============================ */
 
 /*!
-  * @brief C_Verify ECDSA happy path.
-  *
-  */
+ * @brief C_Verify ECDSA happy path.
+ *
+ */
 void test_pkcs11_C_VerifyECDSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2810,9 +2810,9 @@ void test_pkcs11_C_VerifyECDSA( void )
 }
 
 /*!
-  * @brief C_Verify RSA happy path.
-  *
-  */
+ * @brief C_Verify RSA happy path.
+ *
+ */
 void test_pkcs11_C_VerifyRSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2852,9 +2852,9 @@ void test_pkcs11_C_VerifyRSA( void )
 }
 
 /*!
-  * @brief C_Verify Bad args.
-  *
-  */
+ * @brief C_Verify Bad args.
+ *
+ */
 void test_pkcs11_C_VerifyBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -2956,9 +2956,9 @@ void test_pkcs11_C_VerifyBadArgs( void )
 /* ======================  TESTING C_GenerateKeyPair  ============================ */
 
 /*!
-  * @brief C_GenerateKeyPair ECDSA happy path.
-  *
-  */
+ * @brief C_GenerateKeyPair ECDSA happy path.
+ *
+ */
 void test_pkcs11_C_GenerateKeyPairECDSA( void )
 {
     CK_RV xResult = CKR_OK;
@@ -3018,9 +3018,9 @@ void test_pkcs11_C_GenerateKeyPairECDSA( void )
 }
 
 /*!
-  * @brief C_GenerateKeyPair Bad Args.
-  *
-  */
+ * @brief C_GenerateKeyPair Bad Args.
+ *
+ */
 void test_pkcs11_C_GenerateKeyPairBadArgs( void )
 {
     CK_RV xResult = CKR_OK;
@@ -3125,9 +3125,9 @@ void test_pkcs11_C_GenerateKeyPairBadArgs( void )
 /* ======================  TESTING C_GenerateRandom  ============================ */
 
 /*!
-  * @brief C_GenerateRandom happy path.
-  *
-  */
+ * @brief C_GenerateRandom happy path.
+ *
+ */
 void test_pkcs11_C_GenerateRandom( void )
 {
     CK_RV xResult = CKR_OK;
@@ -3145,9 +3145,9 @@ void test_pkcs11_C_GenerateRandom( void )
 }
 
 /*!
-  * @brief C_GenerateRandom drbg failed.
-  *
-  */
+ * @brief C_GenerateRandom drbg failed.
+ *
+ */
 void test_pkcs11_C_GenerateRandomDrbgFail( void )
 {
     CK_RV xResult = CKR_OK;
@@ -3168,9 +3168,9 @@ void test_pkcs11_C_GenerateRandomDrbgFail( void )
 /* ======================  TESTING C_DestroyObject  ============================ */
 
 /*!
-  * @brief C_GenerateRandom happy path.
-  *
-  */
+ * @brief C_GenerateRandom happy path.
+ *
+ */
 void test_pkcs11_C_DestroyObject( void )
 {
     CK_RV xResult = CKR_OK;
