@@ -63,7 +63,7 @@ CONFIG=Debug
 VERBOSE=
 
 # OTA_SUPPORT needed for some AWS Demos
-OTA_SUPPORT=1
+OTA_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration

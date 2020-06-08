@@ -786,6 +786,10 @@ function(cy_kit_generate)
                 COMMAND "${SIGN_SCRIPT_FILE_PATH}"
                 )
         endif()
+    else()
+        target_include_directories(${AFR_TARGET_APP_NAME} PUBLIC
+        "${MCUBOOT_DIR}/sysflash"
+        )
     endif(OTA_SUPPORT)
         
 
