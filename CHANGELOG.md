@@ -40,7 +40,7 @@
 #### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
 
 - Change status parameter type for GATT Client callbacks to match Bluetooth 5.0.
-- Add pxMultiAdvSetInstRawData API to set raw advertisement data for Multi advertisement instances.
+- Add pxMultiAdvSetInstRawData API to set raw advertisement data for multi-advertisement instances.
 - Mark pxBondedCb callback and ucTimeout variables as deprecated.
 
 #### Bluetooth Low Energy Management Library V2.1.0
