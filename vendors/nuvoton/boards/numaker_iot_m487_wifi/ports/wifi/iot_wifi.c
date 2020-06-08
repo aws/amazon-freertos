@@ -248,6 +248,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr, uint16_t usCount, uint32_t ulIn
 {
     WIFIReturnCode_t xWiFiRet = eWiFiFailure;
     uint32_t i;
+    int ret;
 
     if (pucIPAddr == NULL || usCount == 0) {
         return xWiFiRet;
@@ -255,11 +256,14 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr, uint16_t usCount, uint32_t ulIn
 
     if (xSemaphoreTake(xNuWiFi.xWifiSem, xSemaphoreWaitTicks) == pdTRUE) {
         for (i = 0 ; i < usCount ; i++) {
-            if (ESP_WIFI_Ping(&xNuWiFi.xWifiObject, pucIPAddr) == ESP_WIFI_STATUS_OK) {
+            ret = ESP_WIFI_Ping(&xNuWiFi.xWifiObject, pucIPAddr); 
+            if ( ret == ESP_WIFI_STATUS_OK) {
                 xWiFiRet = eWiFiSuccess;
                 if (i < usCount - 1) {
                     vTaskDelay(pdMS_TO_TICKS(ulIntervalMS));
                 }
+            } else {
+                configPRINTF("WIFI_Ping ESP_WIFI_Ping Not OK %d\n", ret);
             }
         }
         xSemaphoreGive(xNuWiFi.xWifiSem);
