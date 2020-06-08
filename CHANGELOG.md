@@ -12,7 +12,7 @@
 
 #### Espressif
 
-- New Board: <b>ESP32-WROOM_32-SE</b> is now qualified by FreeRTOS. It was earlier supported in Preview mode.
+- New Board: <b>ESP32-WROOM-32SE</b> is now qualified with FreeRTOS. It was previously supported in Preview mode.
 - Support OTA data over HTTP together with BLE on ESP32 when SPIRAM is enabled.
 - Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows WiFi provisioning of devices through a web-server running on the device and a provisioning mobile application to enter WiFi credentials onto the device for provisioning. This requires use of lwIP as the networking stack.
 
