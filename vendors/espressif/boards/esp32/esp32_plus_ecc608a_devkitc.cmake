@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
+# FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "ESP32-DevKitC-With-MCHP-ATECC608A")
 afr_set_board_metadata(DISPLAY_NAME "ESP32-DevKitC with ATECC608A")
