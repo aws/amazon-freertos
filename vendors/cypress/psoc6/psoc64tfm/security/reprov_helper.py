@@ -229,7 +229,7 @@ def main(argv):
         exit(1)
 
     if not options.device:
-        options.device = "CY8CKIT-064S0S2-4343W"
+        options.device = "cys06xxa"
         answer = input("\r\nDevice is not provided, use default {}? (Y/n): "
                         .format(options.device))
         if answer == 'N' or answer == 'n':

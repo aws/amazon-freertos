@@ -1,10 +1,10 @@
-### CY8CKIT-064S0S2-4343W BSP
+### CY8CKIT_064S0S2_4343W BSP
 The CY8CKIT-064S0S2-4343W PSoC 64 Wi-Fi BT Pioneer Kit is a low-cost hardware platform that enables design and debug of PSoC 6 MCUs. It comes with a Murata 1LV Module (CYW4343W Wi-Fi + Bluetooth Combo Chip), industry-leading CapSense for touch buttons and slider, on-board debugger/programmer with KitProg3, microSD card interface, 512-Mb Quad-SPI NOR flash, PDM-PCM microphone, and a thermistor.
 
 NOTE: BSPs are versioned by family. This means that version 1.2.0 of any BSP in a family (eg: PSoC 6) will have the same software maturity level. However, not all updates are necessarily applicable for each BSP in the family so not all version numbers will exist for each board. Additionally, new BSPs may not start at version 1.0.0. In the event of adding a common feature across all BSPs, the libraries are assigned the same version number. For example if BSP_A is at v1.3.0 and BSP_B is at v1.2.0, the event will trigger a version update to v1.4.0 for both BSP_A and BSP_B. This allows the common feature to be tracked in a consistent way.
 
 ### What's Included?
-The CY8CKIT-064S0S2-4343W library includes the following:
+The CY8CKIT_064S0S2_4343W library includes the following:
 * BSP specific makefile to configure the build process for the board
 * cybsp.c/h files to initialize the board and any system peripherals
 * cybsp_types.h file describing basic board setup
