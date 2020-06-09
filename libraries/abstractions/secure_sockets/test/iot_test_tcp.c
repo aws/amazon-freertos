@@ -1142,7 +1142,7 @@ TEST_GROUP_RUNNER( Full_TCP )
 
 TEST_GROUP_RUNNER( Full_TCP_Extended )
 {
-    RUN_TEST_CASE( Full_TCP_Extended, test_dns_multiple_addresses );
+    RUN_TEST_CASE( Full_TCP_Extended, SOCKETS_dns_multiple_addresses );
 }
 
 /*-------------------------------------------------------------------*/
@@ -3262,7 +3262,7 @@ TEST( Full_TCP, AFQP_SOCKETS_htons_HappyCase )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TCP_Extended, test_dns_multiple_addresses )
+TEST( Full_TCP_Extended SOCKETS_dns_multiple_addresses )
 {
     BaseType_t xResult = pdFAIL;
     uint32_t i;
