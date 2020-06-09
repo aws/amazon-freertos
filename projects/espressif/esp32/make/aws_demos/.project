@@ -232,7 +232,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor</name>
+			<name>libraries/3rdparty/tinycbor/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -342,69 +342,49 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/LICENSE</name>
+			<name>libraries/3rdparty/tinycbor/src/LICENSE</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/LICENSE</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/LICENSE</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/assert_p.h</name>
+			<name>libraries/3rdparty/tinycbor/src/cbor.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/assert_p.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cbor.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cbor.h</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cbor.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborconstants_p.h</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborconstants_p.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborerrorstrings.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborerrorstrings.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborparser.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<name>libraries/3rdparty/tinycbor/src/compilersupport_p.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/compilersupport_p.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/compilersupport_p.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/extract_number_p.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/extract_number_p.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/math_support_p.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/math_support_p.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/compilersupport_p.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycrypt/.gitignore</name>
