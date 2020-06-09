@@ -26,7 +26,7 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../libraries/abstractions/platform/include/ \
 				 -I$(d)/../../../../../libraries/3rdparty/pkcs11/ \
 				 -I$(d)/../../../../../libraries/3rdparty/mbedtls/ \
-				 -I$(d)/../../../../../libraries/3rdparty/tinycbor/ \
+				 -I$(d)/../../../../../libraries/3rdparty/tinycbor/src/ \
 				 -I$(d)/../../../../../libraries/3rdparty/tinycrypt/ \
 				 -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS=1 \
 				 -DUNITY_INCLUDE_CONFIG_H=1
