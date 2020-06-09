@@ -692,7 +692,8 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
                     break;
 
                 default:
-                    TEST_MESSAGE( "Interrupt feature not supported." );
+                    /* TEST_MESSAGE( "Interrupt feature not supported." ); */
+                    break;
             }
         }
     }
