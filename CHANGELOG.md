@@ -12,7 +12,7 @@
 
 #### Espressif
 
-- New Board: <b>ESP32-WROOM_32-SE</b> is now qualified by FreeRTOS. It was earlier supported in Preview mode.
+- New Board: <b>ESP32-WROOM-32SE</b> is now qualified with FreeRTOS. It was previously supported in Preview mode.
 - Support OTA data over HTTP together with BLE on ESP32 when SPIRAM is enabled.
 - Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows WiFi provisioning of devices through a web-server running on the device and a provisioning mobile application to enter WiFi credentials onto the device for provisioning. This requires use of lwIP as the networking stack.
 
@@ -20,17 +20,28 @@
 
 #### FreeRTOS+POSIX Utils V1.2.0
 
-- Update UTILS_TimespecAdd POSIX utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
 
 #### MQTT Client Library V2.2.0
 
 - Improvements in Keep-Alive mechanism : MQTT protocol requires PING requests to be sent  when the connection is idle. This update will  stop sending PING requests when connection is not idle. Earlier, the client library would sometimes disconnect the connection during OTA, when traffic is heavy, due to timeout for server PING response. This update fixes the disconnect issue during OTA.
 - Bug fix for Keep-Alive interval: The MQTT library was incorrectly sending PING requests at intervals greater than the keep alive period sent in the CONNECT request. This change fixes the problem.
 
-#### PKCS#11
+#### Secure Sockets LwIP V1.2.0
+
+- Fix invalid memory access - ss_ctx_t context is shared and sent to a user callback. If the socket is closed and subsequently freed during callback execution, the callback can potentially access the invalid context.
+- Add fixes for potential invalid memory accesses, at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
+
+#### PKCS#11 V2.1.0
 
 - Added doxygen to various PKCS #11 files.
 - Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+
+#### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
+
+- Change status parameter type for GATT Client callbacks to match Bluetooth 5.0.
+- Add pxMultiAdvSetInstRawData API to set raw advertisement data for multi-advertisement instances.
+- Mark pxBondedCb callback and ucTimeout variables as deprecated.
 
 #### Bluetooth Low Energy Management Library V2.1.0
 
