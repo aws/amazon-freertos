@@ -1483,11 +1483,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
@@ -1903,11 +1898,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
@@ -2138,39 +2128,49 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborerrorstrings.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborparser.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/http_parser/http_parser.h</name>
