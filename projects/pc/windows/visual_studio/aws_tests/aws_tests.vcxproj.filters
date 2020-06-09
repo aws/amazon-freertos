@@ -88,7 +88,6 @@
 		<Filter Include="libraries\freertos_plus\aws\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
-		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty"/>
 		<Filter Include="vendors\pc\boards\windows\ports\ota"/>
@@ -137,6 +136,7 @@
 		<Filter Include="libraries\3rdparty\unity\extras\fixture\src"/>
 		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
 		<Filter Include="libraries\3rdparty\unity\extras"/>
+		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
 		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
@@ -697,6 +697,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h">
+			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
 		</ClInclude>
@@ -1236,9 +1239,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c">
-			<Filter>libraries\3rdparty\mbedtls\library</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>
 		</ClCompile>
@@ -1392,32 +1392,35 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c">
 			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c">
+			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
 			<Filter>libraries\3rdparty\unity\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
 			<Filter>libraries\3rdparty\http_parser</Filter>
