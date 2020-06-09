@@ -409,5 +409,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
     $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
     $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
-    
+else
+INCLUDES+=\
+	$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/sysflash
 endif
