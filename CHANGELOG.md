@@ -29,8 +29,8 @@
 
 #### Secure Sockets LwIP V1.2.0
 
-- Fix SegFault - ss_ctx_t context is shared and sent to a user callback, in the meantime if the socket is closed and subsequently freed, the callback task still holds a reference to the invalid context.
-- Add fixes for potential Seg Faults , at one place by validating socket handle before de-referencing, and at another place that freed memory that was not allocated.
+- Fix invalid memory access - ss_ctx_t context is shared and sent to a user callback. If the socket is closed and subsequently freed during callback execution, the callback can potentially access the invalid context.
+- Add fixes for potential invalid memory accesses, at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
 
 #### PKCS#11 V2.1.0
 
