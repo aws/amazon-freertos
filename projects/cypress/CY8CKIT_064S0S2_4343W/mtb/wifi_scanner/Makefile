@@ -39,9 +39,7 @@ CY_BUILD_LOCATION=$(abspath $(CY_BUILD_RELATIVE_LOCATION))
 ################################################################################
 
 # Target board/hardware
-TARGET=CY8CKIT-064S0S2-4343W
-# Underscore needed for directory
-TARGET_UNDERSCORE=$(subst -,_,$(TARGET))
+TARGET=CY8CKIT_064S0S2_4343W
 
 # Core processor
 CORE?=CM4
