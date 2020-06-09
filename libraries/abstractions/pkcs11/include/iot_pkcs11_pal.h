@@ -97,8 +97,8 @@ CK_RV PKCS11_PAL_Initialize( void );
  */
 /* @[declare_pkcs11_pal_saveobject] */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize );
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize );
 /* @[declare_pkcs11_pal_saveobject] */
 
 /**
@@ -124,8 +124,8 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
  * Returns eInvalidHandle if unsuccessful.
  */
 /* @[declare_pkcs11_pal_findobject] */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength );
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+                                        CK_ULONG usLength );
 /* @[declare_pkcs11_pal_findobject] */
 
 
@@ -153,9 +153,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * error.
  */
 /* @[declare_pkcs11_pal_getobjectvalue] */
-BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      uint8_t ** ppucData,
-                                      uint32_t * pulDataSize,
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
                                       CK_BBOOL * pIsPrivate );
 /* @[declare_pkcs11_pal_getobjectvalue] */
 
@@ -168,8 +168,8 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
-                                       uint32_t ulBufferSize );
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucBuffer,
+                                       CK_ULONG ulBufferSize );
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
 
 #endif /* IOT_PKCS11_PAL include guard. */

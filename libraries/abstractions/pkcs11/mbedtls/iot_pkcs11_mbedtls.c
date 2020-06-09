@@ -172,6 +172,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 typedef struct P11Object_t
 {
     CK_OBJECT_HANDLE xHandle;                           /**< @brief The "PAL Handle". */
+    CK_ULONG xLabelSize;                                /**< @brief Size of label. */
     CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ]; /**< @brief Plus 1 for the null terminator. */
 } P11Object_t;
 
@@ -218,7 +219,7 @@ typedef struct P11Session
     CK_BBOOL xOpened;                            /**< @brief Set to CK_TRUE upon opening PKCS #11 session. */
     CK_MECHANISM_TYPE xOperationDigestMechanism; /**< @brief Indicates if a digest operation is in progress. */
     CK_BYTE * pxFindObjectLabel;                 /**< @brief Pointer to the label for the search in progress. Should be NULL if no search in progress. */
-    uint8_t xFindObjectLabelLength;              /**< @brief Find object length flag. */
+    CK_ULONG xFindObjectLabelLen;                /**< @brief Size of current search label. */
     CK_MECHANISM_TYPE xOperationVerifyMechanism; /**< @brief The mechanism of verify operation in progress. Set during C_VerifyInit. */
     SemaphoreHandle_t xVerifyMutex;              /**< @brief Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;               /**< @brief Verification key.  Set during C_VerifyInit. */
@@ -287,10 +288,10 @@ static P11Session_t * prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 {
     P11Session_t * pxSession = NULL;
 
-    if( ( xSession >= 1 ) && ( xSession <= pkcs11configMAX_SESSIONS ) )
+    if( ( xSession >= 1UL ) && ( xSession <= pkcs11configMAX_SESSIONS ) )
     {
         /* Decrement by 1, invalid handles in PKCS #11 are defined to be 0. */
-        pxSession = &pxP11Sessions[ xSession - 1 ];
+        pxSession = &pxP11Sessions[ xSession - 1UL ];
     }
 
     return pxSession;
@@ -520,7 +521,7 @@ static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
                                 CK_OBJECT_CLASS * pxClass )
 {
     CK_RV xResult = CKR_TEMPLATE_INCOMPLETE;
-    uint32_t ulIndex = 0;
+    CK_ULONG ulIndex = 0;
 
     /* Search template for class attribute. */
     for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
@@ -916,8 +917,8 @@ static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
  * @param[out] pxAppHandle       Pointer to the application handle to be provided.
  *                               CK_INVALID_HANDLE if no object found.
  */
-static void prvFindObjectInListByLabel( const uint8_t * pcLabel,
-                                        size_t xLabelLength,
+static void prvFindObjectInListByLabel( const CK_BYTE_PTR pcLabel,
+                                        CK_ULONG xLabelLength,
                                         CK_OBJECT_HANDLE_PTR pxPalHandle,
                                         CK_OBJECT_HANDLE_PTR pxAppHandle )
 {
@@ -948,8 +949,8 @@ static void prvFindObjectInListByLabel( const uint8_t * pcLabel,
  */
 static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
                                          CK_OBJECT_HANDLE_PTR pxPalHandle,
-                                         uint8_t ** ppcLabel,
-                                         size_t * pxLabelLength )
+                                         CK_BYTE_PTR * ppcLabel,
+                                         CK_ULONG_PTR pxLabelLength )
 {
     uint32_t ulIndex = xAppHandle - 1UL;
 
@@ -962,7 +963,7 @@ static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
         if( xP11Context.xObjectList.xObjects[ ulIndex ].xHandle != CK_INVALID_HANDLE )
         {
             *ppcLabel = xP11Context.xObjectList.xObjects[ ulIndex ].xLabel;
-            *pxLabelLength = strlen( ( const char * ) xP11Context.xObjectList.xObjects[ ulIndex ].xLabel ) + 1UL;
+            *pxLabelLength = xP11Context.xObjectList.xObjects[ ulIndex ].xLabelSize;
             *pxPalHandle = xP11Context.xObjectList.xObjects[ ulIndex ].xHandle;
         }
     }
@@ -980,7 +981,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
     CK_RV xResult = CKR_OK;
     BaseType_t xGotSemaphore = pdFALSE;
-    uint32_t ulIndex = xAppHandle - 1;
+    uint32_t ulIndex = xAppHandle - 1UL;
 
     if( ulIndex >= pkcs11configMAX_NUM_OBJECTS )
     {
@@ -1025,58 +1026,57 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
  */
 static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                                  CK_OBJECT_HANDLE_PTR pxAppHandle,
-                                 const uint8_t * pcLabel,
-                                 size_t xLabelLength )
+                                 const CK_BYTE_PTR pcLabel,
+                                 CK_ULONG xLabelLength )
 {
-    CK_RV xResult = CKR_OK;
-    BaseType_t xGotSemaphore;
+    CK_RV xResult = CKR_HOST_MEMORY;
 
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xObjectFound = ( CK_BBOOL ) CK_FALSE;
-    int32_t lInsertIndex = -1;
-    int32_t lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1;
+    uint32_t ulSearchIndex = 0;
 
-    xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
-
-    if( xGotSemaphore == pdTRUE )
+    if( pdTRUE == xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY ) )
     {
-        for( lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1; lSearchIndex >= 0; lSearchIndex-- )
+        for( ulSearchIndex = 0; ulSearchIndex < pkcs11configMAX_NUM_OBJECTS; ulSearchIndex++ )
         {
-            if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == xPalHandle )
+            if( xResult == CKR_OK )
+            {
+                break;
+            }
+
+            if( xP11Context.xObjectList.xObjects[ ulSearchIndex ].xHandle == xPalHandle )
             {
                 /* Object already exists in list. */
                 /* See explanation in prvCheckValidSessionAndModule for this exception. */
                 /* coverity[misra_c_2012_rule_10_5_violation] */
+                xResult = CKR_OK;
                 xObjectFound = ( CK_BBOOL ) CK_TRUE;
-                break;
             }
-            else if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == CK_INVALID_HANDLE )
+            else if( xP11Context.xObjectList.xObjects[ ulSearchIndex ].xHandle == CK_INVALID_HANDLE )
             {
-                lInsertIndex = lSearchIndex;
+                xResult = CKR_OK;
             }
             else
             {
-                /* Ignore other object handles. */
+                /* Cannot find a free object. */
             }
         }
 
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
-        if( xObjectFound == ( CK_BBOOL ) CK_FALSE )
+        if( ( xResult == CKR_OK ) && ( xObjectFound == ( CK_BBOOL ) CK_FALSE ) )
         {
-            if( lInsertIndex != -1 )
+            if( xLabelLength < pkcs11configMAX_LABEL_LENGTH )
             {
-                if( xLabelLength < pkcs11configMAX_LABEL_LENGTH )
-                {
-                    xP11Context.xObjectList.xObjects[ lInsertIndex ].xHandle = xPalHandle;
-                    ( void ) memcpy( xP11Context.xObjectList.xObjects[ lInsertIndex ].xLabel, pcLabel, xLabelLength );
-                    *pxAppHandle = lInsertIndex + 1;
-                }
-                else
-                {
-                    xResult = CKR_DATA_LEN_RANGE;
-                }
+                xP11Context.xObjectList.xObjects[ ulSearchIndex - 1UL ].xHandle = xPalHandle;
+                ( void ) memcpy( xP11Context.xObjectList.xObjects[ ulSearchIndex - 1UL ].xLabel, pcLabel, xLabelLength );
+                xP11Context.xObjectList.xObjects[ ulSearchIndex - 1UL ].xLabelSize = xLabelLength;
+                *pxAppHandle = ulSearchIndex;
+            }
+            else
+            {
+                xResult = CKR_DATA_LEN_RANGE;
             }
         }
 
@@ -1202,19 +1202,21 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 #if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
     CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
     {
-        uint8_t * pcLabel = NULL;
-        size_t xLabelLength = 0;
-        uint32_t ulObjectLength = 0;
+        CK_BYTE_PTR pcLabel = NULL;
+        CK_ULONG xLabelLength = 0;
+        CK_ULONG ulObjectLength = 0;
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
         CK_RV xResult = CKR_OK;
-        uint8_t * pxObject = NULL;
+        CK_BYTE_PTR pxObject = NULL;
         CK_ATTRIBUTE xLabel = { 0 };
         CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
         CK_OBJECT_HANDLE xPalHandle2 = CK_INVALID_HANDLE;
         CK_OBJECT_HANDLE xAppHandle2 = CK_INVALID_HANDLE;
         CK_BYTE_PTR pxZeroedData = NULL;
+        CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+        CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
 
         prvFindObjectInListByHandle( xHandle, &xPalHandle, &pcLabel, &xLabelLength );
 
@@ -1260,11 +1262,13 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         {
             if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabel.ulValueLen ) )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                /* Remove NULL terminator in comparison. */
+                prvFindObjectInListByLabel( pxPubKeyLabel, strlen( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) - 1UL, &xPalHandle, &xAppHandle2 );
             }
             else if( 0 == strncmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabel.ulValueLen ) )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                /* Remove NULL terminator in comparison. */
+                prvFindObjectInListByLabel( pxPrivKeyLabel, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) - 1UL, &xPalHandle, &xAppHandle2 );
             }
             else
             {
@@ -1730,7 +1734,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
         /* Get next open session slot. */
         if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) == pdTRUE )
         {
-            for( ulSessionCount = 0; ulSessionCount < ( uint32_t ) pkcs11configMAX_SESSIONS; ++ulSessionCount )
+            for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS; ++ulSessionCount )
             {
                 /* coverity[misra_c_2012_rule_10_5_violation] */
                 if( pxP11Sessions[ ulSessionCount ].xOpened == ( CK_BBOOL ) CK_FALSE )
@@ -1930,7 +1934,7 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     CK_CERTIFICATE_TYPE xCertificateType = 0;
-    uint32_t ulIndex = 0;
+    CK_ULONG ulIndex = 0;
 
     /* Search for the pointer to the certificate VALUE. */
     for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
@@ -1963,7 +1967,11 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
     if( xResult == CKR_OK )
     {
         xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
-        /* TODO: If this fails, should the object be wiped back out of flash?  But what if that fails?!?!? */
+    }
+
+    if( xResult != CKR_OK )
+    {
+        xResult = PKCS11_PAL_DestroyObject( *pxObject );
     }
 
     return xResult;
@@ -2012,7 +2020,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
                          CK_ULONG ulCount )
 {
     CK_ATTRIBUTE xAttribute;
-    uint32_t ulIndex;
+    CK_ULONG ulIndex;
 
     *ppxLabel = NULL;
 
@@ -2045,23 +2053,25 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
                                          mbedtls_pk_context * pxMbedContext,
                                          const CK_ATTRIBUTE * pxLabel )
 {
-    uint8_t * pucData = NULL;
-    uint32_t ulDataLength = 0;
+    CK_BYTE_PTR pucData = NULL;
+    CK_ULONG ulDataLength = 0;
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_RV xResult = CKR_OK;
     int32_t lMbedResult = 0;
+    CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+    CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS };
 
     *pxPalHandle = CK_INVALID_HANDLE;
 
     if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+        *pxPalHandle = PKCS11_PAL_FindObject( pxPubKeyLabel, pxLabel->ulValueLen );
     }
     else if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+        *pxPalHandle = PKCS11_PAL_FindObject( pxPrivKeyLabel, pxLabel->ulValueLen );
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         xIsPrivate = ( CK_BBOOL ) CK_FALSE;
@@ -2550,13 +2560,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     const mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0UL;
     CK_OBJECT_CLASS xClass;
-    uint8_t * pxObjectValue = NULL;
-    uint32_t ulLength = 0;
-    const uint8_t ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
+    CK_BYTE_PTR pxObjectValue = NULL;
+    CK_ULONG ulLength = 0;
+    const CK_BYTE ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
     int32_t lMbedTLSResult = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
-    size_t xSize;
-    uint8_t * pcLabel = NULL;
+    CK_ULONG xSize;
+    size_t xMbedSize;
+    CK_BYTE_PTR pcLabel = NULL;
 
     const P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
@@ -2755,12 +2766,17 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                     {
                         pxKeyPair = ( mbedtls_ecp_keypair * ) xKeyContext.pk_ctx;
                         *( ( uint8_t * ) pTemplate[ iAttrib ].pValue ) = 0x04; /* Mark the point as uncompressed. */
+
+                        /* Copy xSize value to avoid casting a CK_ULONG size pointer
+                         * to a size_t sized pointer. */
+                        xMbedSize = xSize;
                         lMbedTLSResult = mbedtls_ecp_tls_write_point( &pxKeyPair->grp,
                                                                       &pxKeyPair->Q,
                                                                       MBEDTLS_ECP_PF_UNCOMPRESSED,
-                                                                      &xSize,
+                                                                      &xMbedSize,
                                                                       ( uint8_t * ) pTemplate[ iAttrib ].pValue + 1,
                                                                       pTemplate[ iAttrib ].ulValueLen - 1UL );
+                        xSize = xMbedSize;
 
                         if( lMbedTLSResult < 0 )
                         {
@@ -2856,7 +2872,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     /* Malloc space to save template information. */
     if( xResult == CKR_OK )
     {
-        pxFindObjectLabel = pvPortMalloc( pTemplate->ulValueLen + 1UL ); /* Add 1 to guarantee null termination for PAL. */
+        /* Add a NULL terminator. */
+        pxFindObjectLabel = pvPortMalloc( pTemplate->ulValueLen + 1UL );
+        pxSession->xFindObjectLabelLen = pTemplate->ulValueLen;
+
         pxSession->pxFindObjectLabel = pxFindObjectLabel;
 
         if( pxFindObjectLabel != NULL )
@@ -2897,6 +2916,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     {
         vPortFree( pxFindObjectLabel );
         pxSession->pxFindObjectLabel = NULL;
+        pxSession->xFindObjectLabelLen = 0;
     }
 
     return xResult;
@@ -2941,14 +2961,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
 
-    uint8_t * pucObjectValue = NULL;
-    uint32_t xObjectLength = 0;
+    CK_BYTE_PTR pucObjectValue = NULL;
+    CK_ULONG xObjectLength = 0;
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_BYTE xByte = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
-    uint32_t ulIndex;
+    CK_ULONG ulIndex;
 
     /*
      * Check parameters.
@@ -2976,17 +2996,17 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     if( xResult == CKR_OK )
     {
         /* Try to find the object in module's list first. */
-        prvFindObjectInListByLabel( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &xPalHandle, phObject );
+        prvFindObjectInListByLabel( pxSession->pxFindObjectLabel, pxSession->xFindObjectLabelLen, &xPalHandle, phObject );
 
         /* Check with the PAL if the object was previously stored. */
         if( *phObject == CK_INVALID_HANDLE )
         {
-            xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
+            xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, pxSession->xFindObjectLabelLen );
         }
 
         if( xPalHandle != CK_INVALID_HANDLE )
         {
-            xResult = PKCS11_PAL_GetObjectValue( xPalHandle, ( uint8_t ** ) &pucObjectValue, ( uint32_t * ) &xObjectLength, &xIsPrivate );
+            xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pucObjectValue, &xObjectLength, &xIsPrivate );
 
             if( xResult == CKR_OK )
             {
@@ -3006,7 +3026,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
                 }
                 else
                 {
-                    xResult = prvAddObjectToList( xPalHandle, phObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
+                    xResult = prvAddObjectToList( xPalHandle, phObject, pxSession->pxFindObjectLabel, pxSession->xFindObjectLabelLen );
                     *pulObjectCount = 1;
                 }
 
@@ -3029,6 +3049,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
         {
             vPortFree( pxSession->pxFindObjectLabel );
             pxSession->pxFindObjectLabel = NULL;
+            pxSession->xFindObjectLabelLen = 0;
         }
     }
 
@@ -3077,6 +3098,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE hSession )
          */
         vPortFree( pxSession->pxFindObjectLabel );
         pxSession->pxFindObjectLabel = NULL;
+        pxSession->xFindObjectLabelLen = 0;
     }
 
     return xResult;
@@ -3332,14 +3354,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_OBJECT_HANDLE xPalHandle;
-    uint8_t * pxLabel = NULL;
-    size_t xLabelLength = 0;
+    CK_BYTE_PTR pxLabel = NULL;
+    CK_ULONG xLabelLength = 0;
     mbedtls_pk_type_t xKeyType;
 
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
-    uint8_t * pulKeyData = NULL;
-    uint32_t ulKeyDataLength = 0;
+    CK_BYTE_PTR pulKeyData = NULL;
+    CK_ULONG ulKeyDataLength = 0;
     int32_t lMbedTLSResult = 0;
 
 
@@ -3655,12 +3677,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     P11Session_t * pxSession;
-    uint8_t * pucKeyData = NULL;
-    uint32_t ulKeyDataLength = 0;
+    CK_BYTE_PTR pucKeyData = NULL;
+    CK_ULONG ulKeyDataLength = 0;
     mbedtls_pk_type_t xKeyType;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
-    uint8_t * pxLabel = NULL;
-    size_t xLabelLength = 0;
+    CK_BYTE_PTR pxLabel = NULL;
+    CK_ULONG xLabelLength = 0;
 
     pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
