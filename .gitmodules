@@ -33,3 +33,4 @@
 [submodule "tinycbor"]
 	path = libraries/3rdparty/tinycbor
 	url = https://github.com/intel/tinycbor.git
+	branch = v0.5.2
