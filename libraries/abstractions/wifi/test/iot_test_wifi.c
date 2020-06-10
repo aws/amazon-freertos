@@ -895,6 +895,11 @@ TEST( Full_WiFi, AFQP_WiFiGetIP )
 
         /* Assert that the IP address is found. */
         TEST_ASSERT( *( ( uint32_t * ) ucIPAddr ) != 0 );
+
+        TEST_ASSERT( ( ucIPAddr[ 0 ] >= 0 ) && ( ucIPAddr[ 0 ] <= 255 ) );
+        TEST_ASSERT( ( ucIPAddr[ 1 ] >= 0 ) && ( ucIPAddr[ 1 ] <= 255 ) );
+        TEST_ASSERT( ( ucIPAddr[ 2 ] >= 0 ) && ( ucIPAddr[ 2 ] <= 255 ) );
+        TEST_ASSERT( ( ucIPAddr[ 3 ] >= 0 ) && ( ucIPAddr[ 3 ] <= 255 ) );
     }
     else
     {
