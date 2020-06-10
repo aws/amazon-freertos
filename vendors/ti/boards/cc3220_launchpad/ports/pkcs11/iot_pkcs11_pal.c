@@ -419,8 +419,8 @@ CK_RV PKCS11_PAL_Initialize( void )
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+                                        CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
@@ -471,10 +471,10 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
  * error.
  */
-BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      uint8_t ** ppucData,
-                                      uint32_t * pulDataSize,
-                                      CK_BBOOL * xIsPrivate )
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
     int32_t iReadBytes = 0;
@@ -559,8 +559,8 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
  * @param[in] ulDataSize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
-                                       uint32_t ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucBuffer,
+                                       CK_ULONG ulBufferSize )
 {
     /* Unused parameters. */
     ( void ) ulDataSize;
@@ -586,8 +586,8 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
  * eInvalidHandle = 0 if unsuccessful.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize )
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize )
 {
     char * pcFileName = NULL;
     char * pcPemBuffer = NULL;

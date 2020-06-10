@@ -319,8 +319,8 @@ CK_RV PKCS11_PAL_Initialize( void )
 * @return The file handle of the object that was stored.
 */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-    uint8_t * pucData,
-    uint32_t ulDataSize )
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize )
 {
     char                *pcFileName = NULL;
     CK_OBJECT_HANDLE    xHandle     = eInvalidHandle;
@@ -355,8 +355,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 * @return The object handle if operation was successful.
 * Returns eInvalidHandle if unsuccessful.
 */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-    uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+                                        CK_ULONG usLength )
 {
     uint8_t     *pucData = NULL;
     uint32_t    dataSize = 0;  
@@ -409,9 +409,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
 * error.
 */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-    uint8_t ** ppucData,
-    uint32_t * pulDataSize,
-    CK_BBOOL * pIsPrivate )
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
 
     CK_RV ulReturn = CKR_OK;
@@ -465,8 +465,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 * @param[in] ulDataSize    The length of the buffer to free.
 *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
 */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
-    uint32_t ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucBuffer,
+                                       CK_ULONG ulBufferSize )
 {
     /* Unused parameters. */
     ( void ) pucData;
