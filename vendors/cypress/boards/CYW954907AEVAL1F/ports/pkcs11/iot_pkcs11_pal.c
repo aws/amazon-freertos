@@ -64,6 +64,11 @@ enum eObjectHandles
     eAwsCodeSigningKey
 };
 
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate );
+
 /* Converts a label to its respective filename and handle. */
 void prvLabelToFilenameHandle( uint8_t * pcLabel,
                                char ** pcFileName,
