@@ -242,6 +242,8 @@ if(ECC608_IN_USE)
             "${ecc608a_dir}/lib/hal/hal_esp32_i2c.c"
             "${ecc608a_dir}/lib/hal/hal_esp32_timer.c"
             "${ecc608a_dir}/lib/hal/atca_hal.h"
+            "${ecc608a_dir}/lib/hal/atca_start_config.h"
+            "${ecc608a_dir}/lib/hal/atca_start_iface.h"
     )
     target_include_directories(
         AFR::pkcs11_implementation::mcu_port
