@@ -486,11 +486,11 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( xHandle == eAwsDevicePrivateKey )
     {
-        *xIsPrivate = CK_TRUE;
+        *pIsPrivate = CK_TRUE;
     }
     else
     {
-        *xIsPrivate = CK_FALSE;
+        *pIsPrivate = CK_FALSE;
     }
 
     if( pcFileName == NULL )

@@ -186,10 +186,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 }
 
 
-CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate );
 /**
 * @brief Translates a PKCS #11 label into an object handle.
 *
