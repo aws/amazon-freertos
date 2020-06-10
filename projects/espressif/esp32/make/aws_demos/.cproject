@@ -34,7 +34,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/third_party/jsmn}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/aws/FreeRTOS-Plus-TCP/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/third_party/esp-idf/components/log/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/third_party/tinycbor}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/third_party/tinycbor/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_demos/lib/aws/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1970904055" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>

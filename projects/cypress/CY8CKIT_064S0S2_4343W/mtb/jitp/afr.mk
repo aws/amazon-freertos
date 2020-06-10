@@ -216,7 +216,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/library/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
 
@@ -241,7 +241,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor\
+	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
 	$(CY_EXTAPP_PATH)/lwip

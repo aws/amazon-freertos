@@ -38,7 +38,7 @@
 		</Midl>
 		<ClCompile>
 			<Optimization>Disabled</Optimization>
-			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls_utils;..\..\..\..\..\libraries\3rdparty\mbedtls_config;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\http_parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls_utils;..\..\..\..\..\libraries\3rdparty\mbedtls_config;..\..\..\..\..\libraries\3rdparty\tinycbor\src;..\..\..\..\..\libraries\3rdparty\http_parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
 			<PreprocessorDefinitions>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<MinimalRebuild/>
 			<BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -270,6 +270,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h"/>
@@ -413,7 +414,6 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy_poll.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hkdf.c"/>
@@ -465,12 +465,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c"/>
 	</ItemGroup>

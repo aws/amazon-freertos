@@ -335,7 +335,7 @@
 							<MiscControls>--C99</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; CONFIG_MEDTLS_USE_AFR_MEMORY PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1 AMAZON_FREERTOS_ENABLE_UNIT_TESTS UNITY_INCLUDE_CONFIG_H</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/lwip/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip_osal/include;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -2002,16 +2002,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
-					<Files>
-						<File>
-							<FileName>mbedtls_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/abstractions/platform/test/</GroupName>
 					<Files>
 						<File>
@@ -2368,11 +2358,6 @@
 							<FileName>error.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/error.c</FilePath>
-						</File>
-						<File>
-							<FileName>mbedtls_error.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.c</FilePath>
 						</File>
 						<File>
 							<FileName>gcm.c</FileName>
@@ -2795,11 +2780,6 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/error.h</FilePath>
 						</File>
 						<File>
-							<FileName>mbedtls_error.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.h</FilePath>
-						</File>
-						<File>
 							<FileName>gcm.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</FilePath>
@@ -3023,6 +3003,26 @@
 							<FileName>xtea.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
+					<Files>
+						<File>
+							<FileName>mbedtls_utils.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
+						</File>
+						<File>
+							<FileName>mbedtls_error.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.h</FilePath>
+						</File>
+						<File>
+							<FileName>mbedtls_error.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -3377,42 +3377,42 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/tinycbor/</GroupName>
+					<GroupName>libraries/3rdparty/tinycbor/src/</GroupName>
 					<Files>
 						<File>
 							<FileName>cborpretty.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborpretty_stdio.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty_stdio.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborencoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborencoder_close_container_checked.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborerrorstrings.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborerrorstrings.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
 						</File>
 					</Files>
 				</Group>

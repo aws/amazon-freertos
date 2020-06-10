@@ -374,7 +374,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot; MBEDTLS_USER_CONFIG_FILE=\&quot;mbedtls_user_config.h\&quot; CONFIG_MEDTLS_USE_AFR_MEMORY; UNITY_INCLUDE_CONFIG_H RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487 __little_endian__=1 NDEBUG</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/application_code/nuvoton_code;../../../../../tests/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_tests/application_code/nuvoton_code;../../../../../tests/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/defender/src;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/test/mock;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/c_sdk/standard/https/test/access;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/c_sdk/standard/https/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -1736,16 +1736,6 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
-					<Files>
-						<File>
-							<FileName>mbedtls_utils.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
-						</File>
-					</Files>
-				</Group>
-				<Group>
 					<GroupName>libraries/3rdparty/mbedtls/library/</GroupName>
 					<Files>
 						<File>
@@ -1892,11 +1882,6 @@
 							<FileName>error.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/library/error.c</FilePath>
-						</File>
-						<File>
-							<FileName>mbedtls_error.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.c</FilePath>
 						</File>
 						<File>
 							<FileName>gcm.c</FileName>
@@ -2319,11 +2304,6 @@
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/error.h</FilePath>
 						</File>
 						<File>
-							<FileName>mbedtls_error.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.h</FilePath>
-						</File>
-						<File>
 							<FileName>gcm.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</FilePath>
@@ -2551,6 +2531,26 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/3rdparty/mbedtls_utils/</GroupName>
+					<Files>
+						<File>
+							<FileName>mbedtls_utils.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</FilePath>
+						</File>
+						<File>
+							<FileName>mbedtls_error.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.h</FilePath>
+						</File>
+						<File>
+							<FileName>mbedtls_error.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/mbedtls_utils/mbedtls_error.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/3rdparty/pkcs11/</GroupName>
 					<Files>
 						<File>
@@ -2616,42 +2616,42 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/tinycbor/</GroupName>
+					<GroupName>libraries/3rdparty/tinycbor/src/</GroupName>
 					<Files>
 						<File>
 							<FileName>cborpretty.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborpretty_stdio.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty_stdio.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborencoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborencoder_close_container_checked.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborerrorstrings.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborerrorstrings.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
 						</File>
 					</Files>
 				</Group>
