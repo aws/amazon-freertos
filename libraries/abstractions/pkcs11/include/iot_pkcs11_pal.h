@@ -154,9 +154,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
  */
 /* @[declare_pkcs11_pal_getobjectvalue] */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      CK_BYTE_PTR * ppucData,
-                                      CK_ULONG_PTR pulDataSize,
-                                      CK_BBOOL * pIsPrivate );
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate );
 /* @[declare_pkcs11_pal_getobjectvalue] */
 
 /**
