@@ -344,8 +344,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
 /*-----------------------------------------------------------*/
 
-void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucBuffer,
-                                       CK_ULONG ulBufferSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize )
 {
     /* Unused parameters. */
     ( void ) ulDataSize;

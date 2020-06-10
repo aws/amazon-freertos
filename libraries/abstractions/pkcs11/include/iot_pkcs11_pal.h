@@ -162,14 +162,14 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 /**
  * @brief Cleanup after PKCS11_GetObjectValue().
  *
- * @param[in] pucBuffer      The buffer to free.
+ * @param[in] pucData       The buffer to free.
  *                          (*ppucData from PKCS11_PAL_GetObjectValue())
- * @param[in] ulBufferSize   The length of the buffer to free.
+ * @param[in] ulDatasize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
-void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucBuffer,
-                                       CK_ULONG ulBufferSize );
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize );
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
 
 #endif /* IOT_PKCS11_PAL include guard. */
