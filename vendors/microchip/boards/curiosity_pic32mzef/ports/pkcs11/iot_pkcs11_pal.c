@@ -222,7 +222,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pLabel         Pointer to the label of the object
+ * @param[in] pxLabel         Pointer to the label of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -230,7 +230,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
@@ -239,26 +239,26 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     const P11KeyConfig_t * P11ConfigFlashPtr = ( const P11KeyConfig_t * ) KVA0_TO_KVA1( PKCS11_CERTIFICATE_SECTION_START_ADDRESS );
 
     /* TODO: Check if object actually exists/has been created before returning. */
-    if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, usLength )  )
+    if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, usLength )  )
     {
         xHandle = eAwsDeviceCertificate;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceCertificate;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, usLength ) )
     {
         xHandle = eAwsDevicePrivateKey;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, usLength ) )
     {
         /* Public and private key are stored together in same file. */
         xHandle = eAwsDevicePublicKey;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configFILE_CODE_SIGN_PUBLIC_KEY, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configFILE_CODE_SIGN_PUBLIC_KEY, usLength ) )
     {
         xHandle = eAwsCodeSigningKey;
                 pCertFlash = &P11ConfigFlashPtr->xCodeVerificationKey;

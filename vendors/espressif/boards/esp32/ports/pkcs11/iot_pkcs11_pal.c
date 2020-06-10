@@ -191,7 +191,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                               &pcFileName,
                               &xHandle );
 
-    ESP_LOGD(TAG, "Writing file %s, %d bytes", pcFileName, ulDataSize);
+    ESP_LOGD(TAG, "Writing file %s, %d bytes", ( char * ) pcFileName, ( uint32_t ) ulDataSize);
     nvs_handle handle;
     esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READWRITE, &handle);
     if (err != ESP_OK) {
@@ -199,7 +199,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         return eInvalidHandle;
     }
 
-    err = nvs_set_blob(handle, pcFileName, pucData, ulDataSize);
+    err = nvs_set_blob(handle, pcFileName, ( char * ) pucData, ( uint32_t ) ulDataSize);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "failed nvs set blob %d", err);
         nvs_close(handle);
@@ -223,7 +223,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
@@ -232,7 +232,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     initialize_nvs_partition();
 
     /* Translate from the PKCS#11 label to local storage file name. */
-    prvLabelToFilenameHandle( pcLabel,
+    prvLabelToFilenameHandle( pxLabel,
                               &pcFileName,
                               &xHandle );
 

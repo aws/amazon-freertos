@@ -419,7 +419,7 @@ CK_RV PKCS11_PAL_Initialize( void )
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
@@ -428,7 +428,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     SlFsFileInfo_t FsFileInfo = { 0 };
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pLabel,
+    prvLabelToFilenameHandle( pxLabel,
                               &pcFileName,
                               &xHandle );
 

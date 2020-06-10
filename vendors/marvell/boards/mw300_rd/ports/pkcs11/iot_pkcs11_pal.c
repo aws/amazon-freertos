@@ -162,7 +162,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
@@ -170,7 +170,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     int ret;
 
     /* Translate from the PKCS#11 label to local storage file name. */
-    prvLabelToFilenameHandle(pcLabel, &pcFileName, &xHandle);
+    prvLabelToFilenameHandle(pxLabel, &pcFileName, &xHandle);
 
     if (pcFileName == NULL) {
         /* TODO: Check what print function to use */

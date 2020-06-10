@@ -195,13 +195,13 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Translate from the PKCS#11 label to local storage file name. */
-    if( 0 == memcmp( pLabel,
+    if( 0 == memcmp( pxLabel,
                      &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                      sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
     {
@@ -210,7 +210,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
             xHandle = eAwsDeviceCertificate;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
     {
@@ -219,7 +219,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
             xHandle = eAwsDevicePrivateKey;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
     {
@@ -228,7 +228,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
             xHandle = eAwsDevicePublicKey;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_CODE_VERIFICATION_KEY,
                           sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
     {

@@ -144,14 +144,14 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 * Port-specific object handle retrieval.
 *
 *
-* @param[in] pLabel         Pointer to the label of the object
+* @param[in] pxLabel         Pointer to the label of the object
 *                           who's handle should be found.
 * @param[in] usLength       The length of the label, in bytes.
 *
 * @return The object handle if operation was successful.
 * Returns eInvalidHandle if unsuccessful.
 */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
                                         CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle ;
@@ -159,7 +159,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pLabel,
     if (cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
         return eInvalidHandle ;
 
-    prvLabelToFilenameHandle( pLabel, &xHandle );
+    prvLabelToFilenameHandle( pxLabel, &xHandle );
 
     if (cy_objstore_find_object(xHandle, NULL, NULL) != CY_RSLT_SUCCESS)
         return eInvalidHandle ;
