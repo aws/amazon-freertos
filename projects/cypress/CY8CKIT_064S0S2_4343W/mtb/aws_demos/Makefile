@@ -39,7 +39,7 @@ CY_BUILD_LOCATION=$(abspath $(CY_BUILD_RELATIVE_LOCATION))
 ################################################################################
 
 # Target board/hardware
-TARGET=CY8CKIT-064S0S2-4343W
+TARGET=CY8CKIT_064S0S2_4343W
 
 # Name of application (used to derive name of final linked file).
 APPNAME=$(CY_AFR_BUILD)
