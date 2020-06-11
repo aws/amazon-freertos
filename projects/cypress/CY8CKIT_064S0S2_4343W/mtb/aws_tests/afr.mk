@@ -204,13 +204,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborpretty_stdio.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborpretty.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborparser_dup_string.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborparser.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborerrorstrings.c\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/cborencoder.c
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/*c)
 
 ifneq ($(CY_USE_ALL_NETIF),)
 SOURCES+=\
@@ -230,7 +224,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls/include/mbedtls\
 	$(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils\
-	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor\
+	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_EXTAPP_PATH)/lwip
