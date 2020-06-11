@@ -34,6 +34,7 @@
 #if AFR_ESP_LWIP
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
+#include "tcpip_adapter.h"
 #else
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -42,6 +43,7 @@
 #include "esp_smartconfig.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+
 
 static const char *TAG = "WIFI";
 static EventGroupHandle_t wifi_event_group;
@@ -1072,7 +1074,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
-
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
@@ -1080,12 +1081,35 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     if (pucIPAddr == NULL) {
         return xRetVal;
     }
-#if !AFR_ESP_LWIP
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+#if !AFR_ESP_LWIP
         *( ( uint32_t * ) pucIPAddr ) = FreeRTOS_GetIPAddress();
         xRetVal = eWiFiSuccess;
+#else /* running lwip */
+        tcpip_adapter_ip_info_t ipInfo;
+        int ret;
+
+        ret = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+        if (ret == ESP_OK)
+        {
+            xRetVal = eWiFiSuccess;
+            memcpy( pucIPAddr, &ipInfo.ip.addr, sizeof( ipInfo.ip.addr ) );
+            configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                          __FUNCTION__,
+                          pucIPAddr[0],
+                          pucIPAddr[1],
+                          pucIPAddr[2],
+                          pucIPAddr[3]));
+        }
+        else
+        {
+            configPRINTF(("%s: tcpip_adapter_get_ip_info_error:  %d",
+                        __FUNCTION__,
+                        ret));
+        }
+#endif
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
     }
@@ -1093,8 +1117,6 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     {
         xRetVal = eWiFiTimeout;
     }
-#endif
-
     return xRetVal;
 }
 /*-----------------------------------------------------------*/
