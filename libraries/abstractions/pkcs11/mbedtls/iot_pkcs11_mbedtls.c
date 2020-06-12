@@ -1030,13 +1030,14 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                                  CK_ULONG xLabelLength )
 {
     CK_RV xResult = CKR_HOST_MEMORY;
-
+    BaseType_t xGotSemaphore;
+    xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xObjectFound = ( CK_BBOOL ) CK_FALSE;
     uint32_t ulSearchIndex = 0;
 
-    if( pdTRUE == xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY ) )
+    if( pdTRUE == xGotSemaphore )
     {
         for( ulSearchIndex = 0; ulSearchIndex < pkcs11configMAX_NUM_OBJECTS; ulSearchIndex++ )
         {
@@ -2872,7 +2873,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     /* Malloc space to save template information. */
     if( xResult == CKR_OK )
     {
-        /* Add a NULL terminator. */
+        /* Plus one to leave room for a NULL terminator. */
         pxFindObjectLabel = pvPortMalloc( pTemplate->ulValueLen + 1UL );
         pxSession->xFindObjectLabelLen = pTemplate->ulValueLen;
 
@@ -2880,6 +2881,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
 
         if( pxFindObjectLabel != NULL )
         {
+            /* Plus one so buffer is guaranteed to end with a NULL terminator. */
             ( void ) memset( pxFindObjectLabel, 0, pTemplate->ulValueLen + 1UL );
         }
         else
