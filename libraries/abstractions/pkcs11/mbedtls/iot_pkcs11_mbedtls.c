@@ -1031,6 +1031,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 {
     CK_RV xResult = CKR_HOST_MEMORY;
     BaseType_t xGotSemaphore;
+
     xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
