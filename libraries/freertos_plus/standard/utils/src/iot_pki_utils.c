@@ -42,10 +42,10 @@
 
 /* Convert the EC signature from DER encoded to PKCS #11 format. */
 /* @[declare pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
-int32_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
+BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
                                                const uint8_t * pxMbedSignature )
 {
-    int32_t xReturn = 0;
+    BaseType_t xReturn = 0;
     const uint8_t * pxNextLength;
     uint8_t ucSigComponentLength;
 
@@ -119,19 +119,19 @@ int32_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 
 /* Convert an EC signature from PKCS #11 format to DER encoded. */
 /* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
-int32_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
+BaseType_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
                                                size_t * pxSigLen )
 {
-    int32_t xResult = 0;
+    BaseType_t xReturn = 0;
     uint8_t * pucSigPtr;
     uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
 
     if( ( pucSig == NULL ) || ( pxSigLen == NULL ) )
     {
-        xResult = FAILURE;
+        xReturn  = FAILURE;
     }
 
-    if( xResult == 0 )
+    if( xReturn == 0 )
     {
         ( void ) memcpy( ucTemp, pucSig, 64 );
 
@@ -197,6 +197,6 @@ int32_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
         *pxSigLen = pucSig[ 1 ] + 2UL;
     }
 
-    return xResult;
+    return xReturn;
 }
 /* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
