@@ -100,14 +100,14 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @brief Macro for logging in PKCS #11.
  *
  */
-#define PKCS11_PRINT( X )            vLoggingPrintf X
+#define PKCS11_PRINT( X )            configPRINTF( X )
 
 /**
  * @ingroup pkcs11_macros
  * @brief Macro for logging warnings in PKCS #11.
  *
  */
-#define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
+#define PKCS11_WARNING_PRINT( X )    /* configPRINTF( X ) */
 
 /**
  * @ingroup pkcs11_macros

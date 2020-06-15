@@ -35,7 +35,6 @@
 /*-----------------------------------------------------------*/
 
 #include "FreeRTOS.h"
-#include "FreeRTOSIPConfig.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 
@@ -58,7 +57,7 @@
  * @brief PKCS #11 logging macro.
  *
  */
-#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
+#define PKCS11_PAL_PRINT( X )    configPRINTF( X )
 
 /**
  * @ingroup pkcs11_enums

@@ -25,7 +25,6 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-#include "FreeRTOSIPConfig.h"
 #include "iot_crypto.h"
 
 /* mbedTLS includes. */
@@ -50,7 +49,7 @@
 
 
 
-#define CRYPTO_PRINT( X )    vLoggingPrintf X
+#define CRYPTO_PRINT( X )    configPRINTF( X )
 
 /**
  * @brief Internal signature verification context structure
