@@ -43,7 +43,7 @@
 /* Convert the EC signature from DER encoded to PKCS #11 format. */
 /* @[declare pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
 BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
-                                               const uint8_t * pxMbedSignature )
+                                                  const uint8_t * pxMbedSignature )
 {
     BaseType_t xReturn = 0;
     const uint8_t * pxNextLength;
@@ -120,7 +120,7 @@ BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 /* Convert an EC signature from PKCS #11 format to DER encoded. */
 /* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
 BaseType_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
-                                               size_t * pxSigLen )
+                                                  size_t * pxSigLen )
 {
     BaseType_t xReturn = 0;
     uint8_t * pucSigPtr;
@@ -128,7 +128,7 @@ BaseType_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
 
     if( ( pucSig == NULL ) || ( pxSigLen == NULL ) )
     {
-        xReturn  = FAILURE;
+        xReturn = FAILURE;
     }
 
     if( xReturn == 0 )
