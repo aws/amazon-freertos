@@ -1501,9 +1501,10 @@ ES_WIFI_Status_t ES_WIFI_GetSystemConfig(ES_WIFIObject_t *Obj, ES_WIFI_SystemCon
 ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms)
 {
   ES_WIFI_Status_t ret;
-  uint8_t ipAddress[4];
-  uint32_t timeout, numValuesRead;
-  LOCK_WIFI();  
+  uint8_t responseIpAddress[4];
+  int rtt, valuesRead = 0, responseStart = 0;
+  uint16_t responsesParsed = 0;
+  LOCK_WIFI();
 
   sprintf((char*)Obj->CmdData,"T1=%d.%d.%d.%d\r", address[0],address[1],
           address[2],address[3]);
@@ -1546,25 +1547,48 @@ ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t c
            * the 5 values (i.e. sscanf returns 5), it is a success response. We
            * will not be able to read the RTT value in case of timeout as sscanf
            * will not be able to parse "Timeout" as integer. As a result,
-           * numValuesRead will not be 5 and it will be detected as timeout.
+           * valuesRead will not be 5 and it will be detected as timeout.
            */
-          numValuesRead = sscanf((char*)Obj->CmdData, "\r\n%hhu.%hhu.%hhu.%hhu,%lu", &ipAddress[0],
-                                                                                     &ipAddress[1],
-                                                                                     &ipAddress[2],
-                                                                                     &ipAddress[3],
-                                                                                     &timeout);
-          if(numValuesRead == 5 &&
-             ipAddress[0] == address[0] &&
-             ipAddress[1] == address[1] &&
-             ipAddress[2] == address[2] &&
-             ipAddress[3] == address[3])
+          /* Assume timeout unless we find a successful response. */
+          ret = ES_WIFI_STATUS_TIMEOUT;
+          do
           {
-            ret = ES_WIFI_STATUS_OK;
-          }
-          else
-          {
-            ret = ES_WIFI_STATUS_TIMEOUT;
-          }
+            /* Parse the first response. */
+            valuesRead = sscanf((char*)&(Obj->CmdData[responseStart]),
+                                   "\r\n%hhu.%hhu.%hhu.%hhu,%d",
+                                   &responseIpAddress[0],
+                                   &responseIpAddress[1],
+                                   &responseIpAddress[2],
+                                   &responseIpAddress[3],
+                                   &rtt);
+
+            if(valuesRead == 5 &&
+              responseIpAddress[0] == address[0] &&
+              responseIpAddress[1] == address[1] &&
+              responseIpAddress[2] == address[2] &&
+              responseIpAddress[3] == address[3])
+            {
+              /* We found a successful ping response and so we can stop. */
+              ret = ES_WIFI_STATUS_OK;
+              break;
+            }
+            else
+            {
+              /* Move past the \r at the beginning of the current response so
+               * that the loop below gets to the next \r which marks the start
+               * of the next response. */
+              responseStart++;
+
+              /* Current ping response was not a successful ping - move to the
+               * beginning of the next response. */
+              while(Obj->CmdData[responseStart] != '\0' && Obj->CmdData[responseStart] != '\r')
+              {
+                responseStart++;
+              }
+            }
+
+            responsesParsed++;
+          } while(responsesParsed < count);
         }
       }
     }
