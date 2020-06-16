@@ -58,8 +58,8 @@
 
 /**
  * @brief Max passphrase length
+ * Maximum allowed WPA2 passphrase length (per specification) is 63
  */
-// Maximum allowed WPA2 passphrase length (per specification) is 63
 #define wificonfigMAX_PASSPHRASE_LEN          ( 63 )
 
 /**
