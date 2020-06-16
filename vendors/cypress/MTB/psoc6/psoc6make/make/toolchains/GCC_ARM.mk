@@ -118,7 +118,6 @@ CY_TOOLCHAIN_LDFLAGS=\
 	$(CY_TOOLCHAIN_VFP_FLAGS)\
 	$(CY_TOOLCHAIN_COMMON_FLAGS)\
 	--enable-objc-gc\
-	--specs=nano.specs\
 	-Wl,--gc-sections,--undefined=uxTopUsedPriority
 
 #
