@@ -237,6 +237,9 @@ int main( void )
                      ucMACAddress );
 #endif /* CY_USE_FREERTOS_TCP */
 
+    /* Add 20s delay to let serial port establish a connection to PC before starting the tests */
+    vTaskDelay( pdMS_TO_TICKS( 1000 ) * 20 );
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
