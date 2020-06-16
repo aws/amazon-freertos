@@ -1549,10 +1549,10 @@ ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t c
            * numValuesRead will not be 5 and it will be detected as timeout.
            */
           numValuesRead = sscanf((char*)Obj->CmdData, "\r\n%hhu.%hhu.%hhu.%hhu,%lu", &ipAddress[0],
-                                                                      &ipAddress[1],
-                                                                      &ipAddress[2],
-                                                                      &ipAddress[3],
-                                                                      &timeout);
+                                                                                     &ipAddress[1],
+                                                                                     &ipAddress[2],
+                                                                                     &ipAddress[3],
+                                                                                     &timeout);
           if(numValuesRead == 5 &&
              ipAddress[0] == address[0] &&
              ipAddress[1] == address[1] &&
