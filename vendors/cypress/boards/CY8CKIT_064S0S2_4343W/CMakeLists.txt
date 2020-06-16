@@ -30,7 +30,7 @@
 #--------------------------------------------------------------------
 # Cypress Defines
 #
-include("${AFR_VENDORS_DIR}/cypress/psoc6/cmake/cy_defines.cmake")
+include("${AFR_VENDORS_DIR}/cypress/MTB/psoc6/cmake/cy_defines.cmake")
 
 #--------------------------------------------------------------------
 # Default linker script for this board

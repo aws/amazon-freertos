@@ -392,31 +392,31 @@ function(cy_kit_generate)
             "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
             "${afr_ports_dir}/ble/wiced_bt_cfg.c"
             "${afr_ports_dir}/ble/bt_hal_internal.h"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyosal/src/wiced_time_common.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_gpio.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_clock.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_uart.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_bluetooth.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/ring_buffer.c"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c"
+            "${cy_bluetooth_dir}/psoc6/cyosal/src/cybt_osal_amzn_freertos.c"
+            "${cy_bluetooth_dir}/psoc6/cyosal/src/wiced_time_common.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform_gpio.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform_clock.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform_uart.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform_bluetooth.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/platform_bt_nvram.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/ring_buffer.c"
+            "${cy_bluetooth_dir}/psoc6/cyhal/src/bt_firmware_controller.c"
         )
 
         target_include_directories(AFR::ble_hal::mcu_port INTERFACE
             "${afr_ports_dir}/ble"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyosal/include"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/psoc6/cyhal/include"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/include"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/include/stackHeaders"
+            "${cy_bluetooth_dir}/psoc6/cyosal/include"
+            "${cy_bluetooth_dir}/psoc6/cyhal/include"
+            "${cy_bluetooth_dir}/include"
+            "${cy_bluetooth_dir}/include/stackHeaders"
         )
 
         target_link_libraries(
             AFR::ble_hal::mcu_port
             INTERFACE
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/bluetooth.FreeRTOS.ARM_CM4.release.a"
-            "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/bluetooth/shim.FreeRTOS.ARM_CM4.release.a"
+            "${cy_bluetooth_dir}/bluetooth.FreeRTOS.ARM_CM4.release.a"
+            "${cy_bluetooth_dir}/shim.FreeRTOS.ARM_CM4.release.a"
         )
 
     endif()
@@ -646,8 +646,8 @@ function(cy_kit_generate)
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_smif_psoc6.c"
             "${MCUBOOT_DIR}/bootutil/src/bootutil_misc.c"
-            "${cy_libraries_dir}/internal/utilities/untar/untar.c"
-            "${cy_libraries_dir}/internal/utilities/JSON_parser/JSON.c"
+            "${cy_common_dir}/utilities/untar/untar.c"
+            "${cy_common_dir}/utilities/JSON_parser/JSON.c"
         )
 
         # common ota includes
@@ -660,8 +660,8 @@ function(cy_kit_generate)
             "${MCUBOOT_CYFLASH_PAL_DIR}"
             "${MCUBOOT_CYFLASH_PAL_DIR}/include"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi"
-            "${cy_libraries_dir}/internal/utilities/untar"
-            "${cy_libraries_dir}/internal/utilities/JSON_parser"
+            "${cy_common_dir}/utilities/untar"
+            "${cy_common_dir}/utilities/JSON_parser"
             "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
             "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
             "${cy_psoc6_dir}/psoc6pdl/devices/include"

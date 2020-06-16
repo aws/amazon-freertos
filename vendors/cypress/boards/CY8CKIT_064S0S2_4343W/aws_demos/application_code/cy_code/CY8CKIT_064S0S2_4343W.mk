@@ -132,11 +132,11 @@ ifeq ($(OTA_SUPPORT),1)
     # Change to non-zero if stored in external FLASH
     CY_FLASH_ERASE_VALUE=0
 
-    # MCUBoot location
-    CY_COMMON_DIR=$(CY_EXTAPP_PATH)/common
+    # OTA location
+    CY_OTA_DIR=$(CY_EXTAPP_PATH)/ota
 
     ifeq ($(MCUBOOT_DIR),)
-    MCUBOOT_DIR=$(CY_COMMON_DIR)/mcuboot
+    MCUBOOT_DIR=$(CY_OTA_DIR)/mcuboot
     endif
     MCUBOOT_DIR_ABSOLUTE=$(abspath $(MCUBOOT_DIR))
 
@@ -157,7 +157,7 @@ ifeq ($(OTA_SUPPORT),1)
     IMGTOOL_SCRIPT_NAME=./imgtool.py
     MCUBOOT_SCRIPT_FILE_DIR=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/security
     MCUBOOT_KEY_DIR=$(MCUBOOT_SCRIPT_FILE_DIR)/keys
-    MCUBOOT_CYFLASH_PAL_DIR=$(CY_COMMON_DIR)/mcuboot/cy_flash_pal
+    MCUBOOT_CYFLASH_PAL_DIR=$(CY_OTA_DIR)/mcuboot/cy_flash_pal
 
     DEFINES+=OTA_SUPPORT=1 \
         MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) \
@@ -190,7 +190,7 @@ ifeq ($(OTA_SUPPORT),1)
     # For signing, use "sign", and key path
     IMGTOOL_COMMAND_ARG=sign
     CY_SIGNING_KEY_ARG="-k $(MCUBOOT_KEY_FILE)"
-    SIGN_SCRIPT_FILE_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make/make/scripts/sign_tar.bash
+    SIGN_SCRIPT_FILE_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc6make/make/scripts/sign_tar.bash
 
     CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
 

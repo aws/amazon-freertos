@@ -41,11 +41,12 @@ ifeq ($(OS),Windows_NT)
 endif
 CY_PROJECT_DIR=$(CY_PROJECT_DIR_ABS)
 
-CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
+CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6pdl
 
 # Use auto-discovery for cypress files and set the paths
-CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
-CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(CY_AFR_TARGET)
+CY_AFR_VENDOR_PATH=$(CY_AFR_ROOT)/vendors/cypress
+CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB
+CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
 
 # NOTE this is still aws_demos for cy_code inclusion
 # This will change when cy_code is made to be board-level specific (rahter than app-level specific)
@@ -54,7 +55,7 @@ CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/aws_demos/application_code/cy_code
 # cert file for enterprise
 CY_AFR_BOARD_APP_INC=$(CY_AFR_BOARD_PATH)/aws_demos/application_code
 
-MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/common/mcuboot/cy_flash_pal
+MCUBOOT_CYFLASH_PAL_DIR=$(CY_AFR_ROOT)/vendors/cypress/MTB/ota/mcuboot/cy_flash_pal
 
 # Artifact locations for launch configs
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(APPNAME)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
@@ -104,14 +105,13 @@ DEFINES+=MBEDTLS_CONFIG_FILE=\"cy_mbedtls_config.h\"
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-	$(CY_EXTAPP_PATH)/apps\
-	$(CY_EXTAPP_PATH)/bluetooth\
-	$(CY_EXTAPP_PATH)/boards\
+	$(CY_EXTAPP_PATH)/ota\
 	$(CY_EXTAPP_PATH)/common\
-	$(CY_EXTAPP_PATH)/libraries\
-	$(CY_EXTAPP_PATH)/lwip\
-	$(CY_EXTAPP_PATH)/freertos_thirdparty_port\
-	$(CY_EXTAPP_PATH)/WICED_SDK
+	$(CY_EXTAPP_PATH)/bluetooth\
+	$(CY_AFR_VENDOR_PATH)/boards\
+	$(CY_AFR_VENDOR_PATH)/lwip\
+	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port\
+	$(CY_AFR_VENDOR_PATH)/WICED_SDK
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
@@ -244,7 +244,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
-	$(CY_EXTAPP_PATH)/lwip
 
 
 ################################################################################
@@ -401,12 +400,12 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
- 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-    $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
 	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
 
 INCLUDES+=\
@@ -418,8 +417,8 @@ INCLUDES+=\
     $(MCUBOOT_CYFLASH_PAL_DIR)/include\
     $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
     $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
-    $(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
+    $(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+    $(CY_EXTAPP_PATH)/common/utilities/untar\
 	$(CY_AFR_BOARD_PATH)/ports/ota\
     $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
