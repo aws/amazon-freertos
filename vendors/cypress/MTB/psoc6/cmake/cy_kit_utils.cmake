@@ -754,37 +754,39 @@ function(cy_kit_generate)
         target_include_directories(AFR::kernel::mcu_port INTERFACE
             "${MCUBOOT_DIR}/mcuboot_header"
         )
-            
-        if(CY_TFM_PSA)
-            # TFM uses a different linker script and signing tool
-            # see next if() section after endif(CY_ALTERNATE_APP)
-        else()
-            # non-TFM signing
+        
+        if(NOT AFR_METADATA_MODE)
+            if(CY_TFM_PSA)
+                # TFM uses a different linker script and signing tool
+                # see next if() section after endif(CY_ALTERNATE_APP)
+            else()
+                # non-TFM signing
 
-            #------------------------------------------------------------
-            # Create our script filename in this scope
-            set(SIGN_SCRIPT_FILE_NAME           "sign_${AFR_TARGET_APP_NAME}.sh")
-            set(SIGN_SCRIPT_FILE_PATH           "${CMAKE_BINARY_DIR}/${SIGN_SCRIPT_FILE_NAME}")
-            set(SIGN_SCRIPT_FILE_PATH_TMP       "${CMAKE_BINARY_DIR}/tmp/${SIGN_SCRIPT_FILE_NAME}")
-            set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}")
-            set(CY_OUTPUT_FILE_PATH_ELF         "${CY_OUTPUT_FILE_PATH}.elf")
-            set(CY_OUTPUT_FILE_PATH_HEX         "${CY_OUTPUT_FILE_PATH}.hex")
-            set(CY_OUTPUT_FILE_PATH_SIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.signed.hex")
-            set(CY_OUTPUT_FILE_NAME_BIN         "${AFR_TARGET_APP_NAME}.bin")
-            set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}.bin")
-            set(CY_OUTPUT_FILE_PATH_TAR         "${CY_OUTPUT_FILE_PATH}.tar")
-            set(CY_OUTPUT_FILE_PATH_WILD        "${CY_OUTPUT_FILE_PATH}.*")
-            set(CY_COMPONENTS_JSON_NAME         "components.json")
-            set(CY_OUTPUT_FILE_NAME_TAR         "${AFR_TARGET_APP_NAME}.tar")
+                #------------------------------------------------------------
+                # Create our script filename in this scope
+                set(SIGN_SCRIPT_FILE_NAME           "sign_${AFR_TARGET_APP_NAME}.sh")
+                set(SIGN_SCRIPT_FILE_PATH           "${CMAKE_BINARY_DIR}/${SIGN_SCRIPT_FILE_NAME}")
+                set(SIGN_SCRIPT_FILE_PATH_TMP       "${CMAKE_BINARY_DIR}/tmp/${SIGN_SCRIPT_FILE_NAME}")
+                set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${AFR_TARGET_APP_NAME}")
+                set(CY_OUTPUT_FILE_PATH_ELF         "${CY_OUTPUT_FILE_PATH}.elf")
+                set(CY_OUTPUT_FILE_PATH_HEX         "${CY_OUTPUT_FILE_PATH}.hex")
+                set(CY_OUTPUT_FILE_PATH_SIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.signed.hex")
+                set(CY_OUTPUT_FILE_NAME_BIN         "${AFR_TARGET_APP_NAME}.bin")
+                set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}.bin")
+                set(CY_OUTPUT_FILE_PATH_TAR         "${CY_OUTPUT_FILE_PATH}.tar")
+                set(CY_OUTPUT_FILE_PATH_WILD        "${CY_OUTPUT_FILE_PATH}.*")
+                set(CY_COMPONENTS_JSON_NAME         "components.json")
+                set(CY_OUTPUT_FILE_NAME_TAR         "${AFR_TARGET_APP_NAME}.tar")
 
-            # creates the script to call imgtool.py to sign the image
-            config_cy_mcuboot_sign_script("${CMAKE_BINARY_DIR}")
+                # creates the script to call imgtool.py to sign the image
+                config_cy_mcuboot_sign_script("${CMAKE_BINARY_DIR}")
 
-            add_custom_command(
-                TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
-                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-                COMMAND "${SIGN_SCRIPT_FILE_PATH}"
-                )
+                add_custom_command(
+                    TARGET "${AFR_TARGET_APP_NAME}" POST_BUILD
+                    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+                    COMMAND "${SIGN_SCRIPT_FILE_PATH}"
+                    )
+            endif()
         endif()
     else()
         target_include_directories(${AFR_TARGET_APP_NAME} PUBLIC
@@ -793,7 +795,7 @@ function(cy_kit_generate)
     endif(OTA_SUPPORT)
         
 
-    if(CY_TFM_PSA)
+    if(CY_TFM_PSA AND (NOT AFR_METADATA_MODE))
         set(CY_AWS_ELF  "${CMAKE_BINARY_DIR}/aws.elf")
         set(CY_CM0_IMG "${CMAKE_BINARY_DIR}/cm0.hex")
         set(CY_CM4_IMG "${CMAKE_BINARY_DIR}/cm4.hex")
