@@ -36,8 +36,8 @@ from cysecuretools.execute.programmer.pyocd_wrapper import ResetType
 # ./reprov_helper.py -f <path to fw-loader>
 #
 # non-interactive:
-# ./reprov_helper.py -f <path to fw-loader> -d CY8CKIT-064S0S2-4343W \
-#                    -p policy/policy_multi_img_CM0p_CM4_debug_2M.json \
+# ./reprov_helper.py -f <path to fw-loader> -d cys06xxa \
+#                    -p policy/policy_multi_CM0_CM4_jitp.json \
 #                    -[existing-keys|new-keys] -s <serial number> -y
 
 
@@ -247,7 +247,7 @@ def main(argv):
         exit(1)
 
     if not options.policy_file:
-        options.policy_file = 'policy_multi_img_CM0p_CM4_debug_2M.json'
+        options.policy_file = 'policy_multi_CM0_CM4_jitp.json'
         options.policy_file = os.path.join('policy',
                                            options.policy_file)
         answer = \
@@ -322,7 +322,7 @@ def main(argv):
     if ret != 0:
         exit(1)
 
-    print("Wait for 10 seconds while device is being enumareated...")
+    print("Wait for 10 seconds while device is being enumerated...")
     sleep(10)
 
     # invalidate SPE image in Flash so it won't run.
