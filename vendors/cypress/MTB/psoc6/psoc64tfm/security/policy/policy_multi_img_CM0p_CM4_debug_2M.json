@@ -55,7 +55,7 @@
                     5
                 ],
                 "bootloader_keys": [
-                    { "kid": 5, "key": "../common/prebuilt/oem_state.json" }
+                    { "kid": 5, "key": "../keys/oem_state.json" }
                 ],
                 "id": 0,
                 "launch": 1,
@@ -176,19 +176,19 @@
     },
     "provisioning":
     {
-        "packet_dir": "../packet",
+        "packet_dir": "../packets",
         "chain_of_trust": ["../certificates/device_cert.pem", "../certificates/rootCA.pem"]
     },
     "pre_build": {
-        "oem_public_key": "../common/prebuilt/oem_state.json",
-        "oem_private_key": "../common/prebuilt/oem_state.json",
-        "hsm_public_key": "../common/prebuilt/hsm_state.json",
-        "hsm_private_key": "../common/prebuilt/hsm_state.json",
+        "oem_public_key": "../keys/oem_state.json",
+        "oem_private_key": "../keys/oem_state.json",
+        "hsm_public_key": "../keys/hsm_state.json",
+        "hsm_private_key": "../keys/hsm_state.json",
         "provision_group_private_key": false,
         "group_private_key": "../keys/grp_priv_key.json",
         "provision_device_private_key": false,
         "device_private_key": "../keys/dev_priv_key.json",
-        "cy_auth": "../common/prebuilt/cy_auth_2m_s0_sample.jwt"
+        "cy_auth": "../packets/cy_auth_2m_s0_sample.jwt"
     },
     "custom_data_sections": ["tfm"],
     "tfm":
