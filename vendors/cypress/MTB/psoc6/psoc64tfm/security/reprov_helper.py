@@ -20,15 +20,25 @@ import os
 import platform
 import sys, argparse
 import subprocess
-import time
-import getpass
 import json
+from time import sleep
 
 from cysecuretools import CySecureTools
-from cysecuretools.execute.sys_call import get_prov_details
-from cysecuretools.execute.programmer.programmer import ProgrammingTool
 from cysecuretools.execute.provisioning_lib.cyprov_pem import PemKey
 from OpenSSL import crypto, SSL
+from cysecuretools.execute.programmer.programmer import ProgrammingTool
+from cysecuretools.execute.programmer.base import AP
+from cysecuretools.core.target_director import Target
+from cysecuretools.execute.programmer.pyocd_wrapper import ResetType
+
+# Examples
+# minimal parameters for default values:
+# ./reprov_helper.py -f <path to fw-loader>
+#
+# non-interactive:
+# ./reprov_helper.py -f <path to fw-loader> -d cys06xxa \
+#                    -p policy/policy_multi_CM0_CM4_jitp.json \
+#                    -[existing-keys|new-keys] -s <serial number> -y
 
 
 def myargs(argv):
@@ -52,19 +62,44 @@ def myargs(argv):
                         help="Device manufacturing part number",
                         required=False)
 
-    parser.add_argument('-o', '--oocd',
-                        dest='oocd_path',
+    parser.add_argument('-f', '--fw-loader',
+                        dest='fw_path',
                         action='store',
                         type=str,
-                        help="Path to OpenOCD tool",
+                        help="Path to FW loader tool",
+                        required=True)
+
+    parser.add_argument('-s', '--serial',
+                        dest='serial_number',
+                        action='store',
+                        type=str,
+                        help="Device unique serial number",
+                        required=False)
+
+    parser.add_argument('-new-keys',
+                        dest='new_keys',
+                        action='store_true',
+                        help="Create a new set keys if defined",
+                        required=False)
+
+    parser.add_argument('-existing-keys',
+                        dest='existing_keys',
+                        action='store_true',
+                        help="Force to use existing set keys if defined",
+                        required=False)
+
+    parser.add_argument('-y',
+                        dest='force_reprov',
+                        action='store_true',
+                        help="Force reprovisioning",
                         required=False)
 
     options = parser.parse_args(argv)
     return options
 
 
-def create_app_keys():
-    cytools.create_keys()
+def create_app_keys(overwrite=None):
+    cytools.create_keys(overwrite)
 
 
 def read_device_pub_key():
@@ -93,7 +128,7 @@ def read_device_pub_key():
     return 0
 
 
-def generate_device_cert(
+def generate_device_cert(dev_serial_num,
     dev_pub_key_path="keys/device_pub_key.pem",
     ca_priv_key_path="certificates/rootCA.key",
     ca_cert_path="certificates/rootCA.pem"):
@@ -114,13 +149,6 @@ def generate_device_cert(
                                            open(ca_priv_key_path, 'r').read())
     ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM,
                                       open(ca_cert_path, 'r').read())
-
-    dev_serial_num = \
-        input("\r\nSelect unique device serial number for {} (digits only):\n"
-                            .format(cytools.target_name.upper()))
-    if not dev_serial_num.isnumeric():
-        print('Error: device serial number not number')
-        return 1
 
     # create cert signed by ca_cert
     cert = crypto.X509()
@@ -146,14 +174,24 @@ def create_provisioning_packet():
 
 
 def re_provision_device(device, policy):
-    answer = input('Reprovision the device. Are you sure? (y/N): ')
-    if answer == 'y' or answer == 'Y':
-        cytools.re_provision_device()
-    else:
-        print('Reprovision skipped.')
+     cytools.re_provision_device()
 
 
-def oocd_command(cmd):
+def erase_flash(addr, size):
+    tool = ProgrammingTool.create(cytools.PROGRAMMING_TOOL)
+    tool.connect(cytools.target_name)
+    print('Erasing address {hex(addr)}, size {hex(size)} ...')
+    ap = tool.get_ap()
+    tool.set_ap(AP.CMx)
+    tool.erase(addr, size)
+    print('Erasing complete\n')
+    tool.reset(ResetType.HW)
+    sleep(3)
+    tool.disconnect()
+    return 0
+
+
+def exec_shell_command(cmd):
     if not isinstance(cmd, list) or not cmd:
         raise Exception("Command must be in a non-empty list")
 
@@ -170,59 +208,53 @@ def oocd_command(cmd):
     return ret, ''.join(output)
 
 
-def erase_user_images(oocd_path):
-    #TBD: replace oocd it with pyocd
-    if not oocd_path:
-        oocd_path = '/tools/openocd'
-        print("Path to OOCD was not provided, trying {}".format(oocd_path))
+def switch_kitprog3_mode(fwloader_path, mode):
+    # Supported modes are:
+    # 'kp3-hid', 'kp3-bulk', 'kp3-bootloader', 'kp3-daplink'
 
     if platform.system() == "Windows":
-        openocd_bin = 'bin/openocd.exe'
+        fwloader_bin = 'bin/fw-loader.exe'
     else:
-        openocd_bin = 'bin/openocd'
+        fwloader_bin = 'bin/fw-loader'
 
-    openocd = os.path.join(oocd_path,
-                              openocd_bin)
-    if os.path.isfile(openocd):
-        print("OOCD location: {}".format(openocd))
+    fwloader = os.path.join(fwloader_path,
+                              fwloader_bin)
+    if os.path.isfile(fwloader):
+        print("fw-loader location: {}".format(fwloader))
     else:
-        print("Failed to find OOCD at {}".format(openocd))
+        print("Failed to find fw-loader at {}".format(fwloader))
         return 1
 
+    ret, output = exec_shell_command([
+        fwloader,
+        '--mode', mode])
 
-    max_tries = 3
-    for retries in range(0, max_tries):
-        ret, output = oocd_command([
-            openocd,
-            '-s', os.path.join(oocd_path, 'scripts'),
-            '-f', 'interface/kitprog3.cfg',
-            '-f', 'target/psoc6_2m_secure.cfg',
-            '-c', 'init; reset init',
-            '-c', 'flash erase_address 0x10000000 0x1d0000',
-            '-c', 'resume; reset; exit' ])
-        if ret == 0:
-            # success
-            return (ret, output)
-        else:
-            print("OOCD communication error, retrying")
+    if ret != 0:
+        print("Error: {}".format(output))
 
-    print("OOCD communication error, giving up after {} retries"
-           .format(max_tries))
-    return (ret, output)
+    return ret
 
 
 def main(argv):
+
+    create_signing_keys = False
+
     options = myargs(argv)
     print("options: {}\r\n".format(options))
 
+    if not options.fw_path:
+        print("Please provide path to fw-loader")
+        exit(1)
+
     if not options.policy_file:
-        options.policy_file = 'policy_multi_img_CM0p_CM4_debug_2M.json'
+        options.policy_file = 'policy_multi_CM0_CM4_jitp.json'
         options.policy_file = os.path.join('policy',
                                            options.policy_file)
         answer = \
             input('Policy file name was not provided, use default {}? (Y/n): '
                    .format(options.policy_file))
         if answer == 'N' or answer == 'n':
+            print("Please specify policy as a parameter: `-p <policy>`")
             exit(1)
     if not os.path.isfile(options.policy_file):
         print("Policy file {} doesn't exit.".format(options.policy_file))
@@ -233,54 +265,88 @@ def main(argv):
         answer = input("\r\nDevice is not provided, use default {}? (Y/n): "
                         .format(options.device))
         if answer == 'N' or answer == 'n':
+            print("Please specify device as a parameter: `-d <device>'")
             exit(1)
 
-#   Create cysecuretools object
+    # Create cysecuretools object
     global cytools
     cytools = CySecureTools(options.device, options.policy_file)
 
-#   erase existing user images
-    print("\r\nPlease make sure the board is in CMSIS-DAP mode (LED is on)")
-    answer = input("and press any key")
-    print("Erasing the user images...")
-    ret, output = erase_user_images(options.oocd_path)
-    if ret != 0:
-        return 1
-
-    print("Wait while the board completes reboot...")
-    time.sleep(5)
-
-    print("\r\nPlease switch to DAP Link mode (LED is blinking)")
-    input('and press any key when ready')
-    print("Wait for 10 seconds while device is being enumareated...")
-    time.sleep(10)
-
-#   signing keys
-    answer = \
-        input('\r\nDo you want to create a new set of keys (y/N): ')
-    if answer == 'Y' or answer == 'y':
-        print('Create new keys.')
-        create_app_keys()
+    if not options.serial_number:
+        dev_serial_num = \
+            input("\r\nSelect unique device serial number for {} (digits only):\n"
+                                .format(cytools.target_name.upper()))
+        if not dev_serial_num.isnumeric():
+            print('Error: device serial number not number')
+            exit(1)
     else:
-        # TBD: check if the keys exist (open json, read keys)
-        print('Will use existing keys.')
+        dev_serial_num = options.serial_number
+
+    # signing keys
+    if not options.new_keys and not options.existing_keys:
+        answer = \
+            input('\r\nDo you want to create a new set of keys (y/N): ')
+        if answer == 'Y' or answer == 'y':
+            print('Will create new keys.')
+            create_signing_keys = True
+        else:
+            # TBD: check if the keys exist (open json, read keys)
+            print('Will use existing keys.')
+    else:
+        if options.new_keys:
+            create_signing_keys = True
+        else:
+            create_signing_keys = False
+
+    print("\r\n")
+    print("##################################################################")
+    print("Current configuration:")
+    print("Policy file:             {}".format(options.policy_file))
+    print("Device:                  {}".format(options.device))
+    print("Serial Number:           {}".format(dev_serial_num))
+    print("Create new signing keys: {}".format(create_signing_keys))
+    print("##################################################################")
+    print("\r\n")
+
+    if not options.force_reprov:
+        answer = input('Reprovision the device. Are you sure? (y/N): ')
+        if answer is not 'y' and answer is not 'Y':
+            print('Reprovision skipped.')
+            exit(1)
+
+    if create_signing_keys == True:
+        print('Creating new signing keys.')
+        create_app_keys(overwrite=True)
+
+    ret = switch_kitprog3_mode(options.fw_path, 'kp3-daplink')
+    if ret != 0:
+        exit(1)
+
+    print("Wait for 10 seconds while device is being enumerated...")
+    sleep(10)
+
+    # invalidate SPE image in Flash so it won't run.
+    ret = erase_flash(0x10000000, 0x1000)
+    if ret != 0:
+        exit(1)
 
     ret = read_device_pub_key()
     if ret != 0:
-        return 1
+        exit(1)
 
-    ret = generate_device_cert()
+    ret = generate_device_cert(dev_serial_num)
     if ret != 0:
-        return 1
+        exit(1)
 
     create_provisioning_packet()
 
-    ret = re_provision_device(options.device, options.policy_file)
-    if ret != 0:
-        return 1
+    re_provision_device(options.device, options.policy_file)
 
-    print('\r\nSwitch back to the CMSIS-DAP mode (mode LED is on)')
-    return 0
+    ret = switch_kitprog3_mode(options.fw_path, 'kp3-bulk')
+    if ret != 0:
+        exit(1)
+
+    exit(0)
 
 
 if __name__ == "__main__":
