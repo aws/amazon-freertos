@@ -305,15 +305,10 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                     uint32_t preScaler = 0;
                     uint8_t divisor = 0;
 
-                    while( sysClkTmp > ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreq )
+                    while( ( sysClkTmp > ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreq ) && ( divisor < 7 ) )
                     {
                         divisor++;
                         sysClkTmp = ( sysClkTmp >> 1 );
-
-                        if( divisor >= 7 )
-                        {
-                            break;
-                        }
                     }
 
                     preScaler = ( ( ( divisor & 0x4 ) == 0 ) ? 0x0 : SPI_CR1_BR_2 ) |
