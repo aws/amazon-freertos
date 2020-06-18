@@ -14,7 +14,7 @@ function(cy_cfg_toolchain)
     set(ENV{COMMON_FLAGS} "-mthumb;-ffunction-sections;-fdata-sections;-funsigned-char;-fno-exceptions;-g;-fdiagnostics-color=always")
     set(ENV{VFP_FLAGS} "-mfloat-abi=softfp;-mfpu=fpv4-sp-d16")
     set(ENV{CORE_FLAGS} "-mcpu=cortex-m4")
-    set(ENV{LDFLAGS} "--specs=nano.specs;-Wl,--gc-sections,--undefined=uxTopUsedPriority")
+    set(ENV{LDFLAGS} "-Wl,--gc-sections,--undefined=uxTopUsedPriority")
 
     # list(FIND ... doesn't work reliably with lists in environment variables :-/
     set(check "$ENV{CY_DEVICES_WITH_M0P}")
