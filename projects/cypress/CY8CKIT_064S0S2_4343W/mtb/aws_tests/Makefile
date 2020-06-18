@@ -72,7 +72,7 @@ VERBOSE=
 OTA_SUPPORT=0
 
 # FreeRTOS plus TCP
-CY_USE_FREERTOS_PLUS_TCP=1
+CY_USE_FREERTOS_PLUS_TCP=0
 
 ################################################################################
 # Advanced Configuration
