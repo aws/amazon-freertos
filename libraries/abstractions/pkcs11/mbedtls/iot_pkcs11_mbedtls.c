@@ -1218,7 +1218,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         CK_OBJECT_HANDLE xAppHandle2 = CK_INVALID_HANDLE;
         CK_BYTE_PTR pxZeroedData = NULL;
         CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
-        CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+        CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS };
 
         prvFindObjectInListByHandle( xHandle, &xPalHandle, &pcLabel, &xLabelLength );
 
@@ -2567,8 +2567,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     const CK_BYTE ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
     int32_t lMbedTLSResult = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
-    CK_ULONG xSize;
-    size_t xMbedSize;
+    CK_ULONG xSize = 0;
+    size_t xMbedSize = 0;
     CK_BYTE_PTR pcLabel = NULL;
 
     const P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
