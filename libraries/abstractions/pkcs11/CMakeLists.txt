@@ -75,6 +75,7 @@ if(ECC608_IN_USE)
             AFR::crypto
             AFR::pkcs11_implementation
             AFR::utils
+    )
 elseif(PKCS11_PSA)
     afr_module(NAME pkcs11_psa INTERFACE)
     set(src_dir "${CMAKE_CURRENT_LIST_DIR}/psa")

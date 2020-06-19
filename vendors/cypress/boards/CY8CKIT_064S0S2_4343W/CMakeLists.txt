@@ -136,6 +136,9 @@ afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR
 #
 include("${cy_psoc6_dir}/cmake/cy_kit_utils.cmake")
 
+# Set this to compile the PKCS #11 PSA shim. 
+set(PKCS11_PSA TRUE)
+
 cy_kit_generate(
     DEVICE "CYB0644ABZI-S2D44"
     LINKER_SCRIPT "${LINKER_SCRIPT_NAME}"

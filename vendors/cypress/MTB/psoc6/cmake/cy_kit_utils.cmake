@@ -133,6 +133,7 @@ function(cy_kit_generate)
     string(FIND "${ARG_DEFINES}" "CY_TFM_PSA_SUPPORTED" check_tfm_psa)
     if (NOT ("${check_tfm_psa}" STREQUAL "-1"))
        set(CY_TFM_PSA "1")
+       set(PKCS11_PSA TRUE)
     endif()
 
     # is BLE supported?
@@ -454,12 +455,10 @@ function(cy_kit_generate)
 
     if(CY_TFM_PSA)
         # Link to AFR::pkcs11_psa use implementation based on TF-M PSA.
-        set(PKCS11_PSA TRUE)
-        afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_psa)
-        target_include_directories(
+        target_link_libraries(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
-                "${board_dir}/ports/pkcs11/psa"
+            AFR::pkcs11_psa
         )
         target_sources(
             AFR::pkcs11_implementation::mcu_port
