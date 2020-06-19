@@ -27,7 +27,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define FREERTOS_CONFIG_H
 
 /* Ensure stdint is only used by the compiler, and not the assembler. */
-#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) || defined( __GNUC__)
+#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) || defined( __GNUC__) || defined(__TI_COMPILER_VERSION__)
     #include "unity_internals.h"
     #include <stdint.h>
     extern uint32_t SystemCoreClock;
