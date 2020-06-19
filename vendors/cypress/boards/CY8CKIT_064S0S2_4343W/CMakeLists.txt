@@ -132,6 +132,8 @@ afr_set_board_metadata(IDE_ModusToolbox_PROJECT_LOCATION "${AFR_ROOT_DIR}/projec
 # demo project configuration file location
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
+set(PKCS11_PSA TRUE)
+
 #--------------------------------------------------------------------
 # Include general kit functions
 #

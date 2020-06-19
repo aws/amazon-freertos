@@ -118,9 +118,11 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c) \
+    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)
 
 INCLUDES+=\
+    $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/ \
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
