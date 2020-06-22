@@ -441,7 +441,7 @@ endif
 ifeq ($(OTA_SUPPORT),1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ota/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/ota/ports/$(CY_AFR_TARGET)/*.c)\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
@@ -453,8 +453,7 @@ SOURCES+=\
 	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
-	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 
 # Test code
 SOURCES+=\
@@ -473,7 +472,6 @@ INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
 	$(CY_EXTAPP_PATH)/common/utilities/untar\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files\
-	$(CY_AFR_BOARD_PATH)/ports/ota\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
