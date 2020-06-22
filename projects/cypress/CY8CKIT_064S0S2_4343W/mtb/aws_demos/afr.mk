@@ -175,8 +175,9 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/tcp/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/shadow/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)
-
+	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)
+	
 INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common\
 	$(CY_AFR_ROOT)/demos/dev_mode_key_provisioning\
@@ -273,7 +274,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/cbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/json/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/*c)
 
 # MQTT without ble
 SOURCES+=\
@@ -305,6 +307,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
+	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
+	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/private
 
 ################################################################################
 # libraries (freertos_plus)
