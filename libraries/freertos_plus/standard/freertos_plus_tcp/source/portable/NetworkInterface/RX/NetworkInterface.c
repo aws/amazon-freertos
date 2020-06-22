@@ -108,9 +108,6 @@ void get_random_number( uint8_t * data,
                         uint32_t len );
 
 void prvLinkStatusChange( BaseType_t xStatus );
-#if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources( void );
-#endif
 
 /***********************************************************************************************************************
  * Function Name: xNetworkInterfaceInitialise ()
@@ -203,56 +200,6 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescript
 } /* End of function xNetworkInterfaceOutput() */
 
 
-#if ( ipconfigHAS_PRINTF != 0 )
-    static void prvMonitorResources()
-    {
-        static UBaseType_t uxLastMinBufferCount = 0u;
-        static UBaseType_t uxCurrentBufferCount = 0u;
-        static size_t uxMinLastSize = 0uL;
-        static size_t uxCurLastSize = 0uL;
-        size_t uxMinSize;
-        size_t uxCurSize;
-
-        uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
-
-        if( uxLastMinBufferCount != uxCurrentBufferCount )
-        {
-            /* The logging produced below may be helpful
-             * while tuning +TCP: see how many buffers are in use. */
-            uxLastMinBufferCount = uxCurrentBufferCount;
-            FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
-                               uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
-        }
-
-        uxMinSize = xPortGetMinimumEverFreeHeapSize();
-        uxCurSize = xPortGetFreeHeapSize();
-
-        if( uxMinLastSize != uxMinSize )
-        {
-            uxCurLastSize = uxCurSize;
-            uxMinLastSize = uxMinSize;
-            FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", uxCurSize, uxMinSize ) );
-        }
-
-        #if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
-            {
-                static UBaseType_t uxLastMinQueueSpace = 0;
-                UBaseType_t uxCurrentCount = 0u;
-
-                uxCurrentCount = uxGetMinimumIPQueueSpace();
-
-                if( uxLastMinQueueSpace != uxCurrentCount )
-                {
-                    /* The logging produced below may be helpful
-                     * while tuning +TCP: see how many buffers are in use. */
-                    uxLastMinQueueSpace = uxCurrentCount;
-                    FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
-                }
-            }
-        #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
-    }
-#endif /* ( ipconfigHAS_PRINTF != 0 ) */
-
 /***********************************************************************************************************************
  * Function Name: prvEMACDeferredInterruptHandlerTask ()
  * Description  : The deferred interrupt handler is a standard RTOS task.
@@ -286,11 +233,10 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
 
     for( ; ; )
     {
-        #if ( ipconfigHAS_PRINTF != 0 )
-            {
-                prvMonitorResources();
-            }
-        #endif /* ipconfigHAS_PRINTF != 0 ) */
+		/* Call a function that monitors resources: the amount of free network
+		buffers and the amount of free space on the heap.  See FreeRTOS_IP.c
+		for more detailed comments. */
+		vPrintResourceStats();
 
         /* Wait for the Ethernet MAC interrupt to indicate that another packet
          * has been received.  */
