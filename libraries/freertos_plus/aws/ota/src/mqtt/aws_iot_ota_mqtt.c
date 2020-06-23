@@ -453,8 +453,6 @@ static uint32_t prvBuildStatusMessageReceiving( char * pcMsgBuffer,
     }
     else
     {
-        /* Can't send a status update without data from the OTA context. Some calls intentionally
-         * don't use a context structure but never with this reason code so log this error. */
         OTA_LOG_L1( "[%s] Error: null context pointer!\r\n", OTA_METHOD_NAME );
     }
 
@@ -468,8 +466,6 @@ static uint32_t prvBuildStatusMessageSelfTest( char * pcMsgBuffer,
 {
     uint32_t ulMsgSize = 0;
 
-    /* We're no longer receiving but we're still In Progress so we are implicitly in the Self
-     * Test phase. Prepare to update the job status with the self_test phase (ready or active). */
     ulMsgSize = ( uint32_t ) snprintf( pcMsgBuffer, /*lint -e586 Intentionally using snprintf. */
                                        xMsgBufferSize,
                                        pcOTA_JobStatus_StatusTemplate,
@@ -728,6 +724,8 @@ OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
         }
         else
         {
+            /* We're no longer receiving but we're still In Progress so we are implicitly in the Self
+             * Test phase. Prepare to update the job status with the self_test phase (ready or active). */
             ulMsgSize = prvBuildStatusMessageSelfTest( pcMsg, sizeof( pcMsg ), eStatus, lReason );
         }
     }
