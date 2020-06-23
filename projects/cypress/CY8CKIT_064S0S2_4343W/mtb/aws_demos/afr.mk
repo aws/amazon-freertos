@@ -170,6 +170,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
@@ -203,7 +205,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/*.c)
 
 ifneq ($(CY_USE_ALL_NETIF),)
 SOURCES+=\
@@ -225,6 +228,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(CY_AFR_VENDOR_PATH)/lwip
 
 
 ################################################################################
@@ -270,7 +275,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/cbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/json/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/*c)
 
 # MQTT without ble
 SOURCES+=\
@@ -302,6 +308,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
+	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 
 ################################################################################
 # libraries (freertos_plus)
@@ -312,6 +319,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src/*.c)
 
 ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
 SOURCES+=\
@@ -332,7 +340,10 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/include\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src
+
 
 ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
 INCLUDES+=\
@@ -383,32 +394,32 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/*.c)\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
 	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-    $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
 	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
 	
 INCLUDES+=\
-    $(MCUBOOT_DIR)\
-    $(MCUBOOT_DIR)/mcuboot_header\
-    $(MCUBOOT_DIR)/bootutil/include\
-    $(MCUBOOT_DIR)/sysflash\
-    $(MCUBOOT_CYFLASH_PAL_DIR)\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
-    $(CY_EXTAPP_PATH)/common/utilities/untar\
-    $(CY_AFR_BOARD_PATH)/ports/ota\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(MCUBOOT_DIR)\
+	$(MCUBOOT_DIR)/mcuboot_header\
+	$(MCUBOOT_DIR)/bootutil/include\
+	$(MCUBOOT_DIR)/sysflash\
+	$(MCUBOOT_CYFLASH_PAL_DIR)\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+	$(CY_EXTAPP_PATH)/common/utilities/untar\
+	$(CY_AFR_BOARD_PATH)/ports/ota\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
-    $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
+	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
 else
 INCLUDES+=\
 	$(MCUBOOT_DIR)/sysflash
