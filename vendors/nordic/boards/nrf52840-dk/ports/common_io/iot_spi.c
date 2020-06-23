@@ -34,6 +34,7 @@
 
 /* Main includes. */
 #include "iot_spi.h"
+#include "iot_spi_config.h"
 
 #define IOT_SPI_BLOCKING_TIMEOUT    ( ( uint32_t ) 3000UL ) /* In milliseconds */
 #define IOT_SPI_CLOSED              ( ( uint8_t ) 0 )
@@ -47,63 +48,62 @@ typedef struct SpiContext {
 typedef struct IotSPIDescriptor
 {
     SpiContext_t const * pxSpiContext;          /* Nordic Handle */
-    IotSPIMasterConfig_t xConfig;                /* Master Configuration */
-    IotSPICallback_t xSpiCallback;               /* Callback function */
-    void * pvUserContext;                        /* User context passed in callback */
-    uint8_t sOpened;                             /* Bit flags to track different states. */
+    IotSPIMasterConfig_t xConfig;               /* Master Configuration */
+    IotSPICallback_t     xSpiCallback;          /* Callback function */
+    void *               pvUserContext;         /* User context passed in callback */
+    uint8_t              sOpened;               /* Bit flags to track different states. */
 } IotSPIDescriptor_t;
 /*-----------------------------------------------------------*/
 
-#define RADIO_RESET                                 NRF_GPIO_PIN_MAP(0, 3)  // Out: Active LOW shield reset
-#define RADIO_MOSI                                  NRF_GPIO_PIN_MAP(1, 13) // Out: SPI Slave input
-#define RADIO_MISO                                  NRF_GPIO_PIN_MAP(1, 14) // In : SPI Slave output
-#define RADIO_SCLK                                  NRF_GPIO_PIN_MAP(1, 15) // Out: SPI Slave clock
-#define RADIO_NSS                                   NRF_GPIO_PIN_MAP(1, 8)  // Out: SPI Slave select
-#define RADIO_BUSY                                  NRF_GPIO_PIN_MAP(1, 4)  // In :
-#define RADIO_DIO_1                                 NRF_GPIO_PIN_MAP(1, 6)  // In : Setup to be the IRQ line. Needs GPIOTE
+static const IotSPIMasterConfig_t xDefaultConfig = {
+    .ulFreq       = NRF_DRV_SPI_FREQ_4M,
+    .eMode        = eSPIMode0,
+    .eSetBitOrder = eSPIMSBFirst,
+    .ucDummyValue = 0xFF
+};
 
 static SpiContext_t xSpiContexts[] =
 {
     {
         .instance = NRF_DRV_SPI_INSTANCE(0),
         .config   = {
-            .sck_pin      = NRF_GPIO_PIN_MAP(1, 15),                
-            .mosi_pin     = NRF_GPIO_PIN_MAP(1, 13),                
-            .miso_pin     = NRF_GPIO_PIN_MAP(1, 14),                
+            .sck_pin      = IOT_COMMON_IO_SPI_1_SCLK_PIN,                
+            .mosi_pin     = IOT_COMMON_IO_SPI_1_MOSI_PIN,                
+            .miso_pin     = IOT_COMMON_IO_SPI_1_MISO_PIN,                
             .ss_pin       = NRF_DRV_SPI_PIN_NOT_USED,                
             .irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY,         
-            .orc          = 0xFF,                                    
-            .frequency    = NRF_DRV_SPI_FREQ_4M,                     
-            .mode         = NRF_DRV_SPI_MODE_0,                      
-            .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         
+            .orc          = xDefaultConfig.ucDummyValue,                                    
+            .frequency    = xDefaultConfig.ulFreq,                     
+            .mode         = xDefaultConfig.eMode,                      
+            .bit_order    = xDefaultConfig.eMode == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,         
         }
     },
     {
         .instance = NRF_DRV_SPI_INSTANCE(1),
         .config   = {
-            .sck_pin      = NRF_DRV_SPI_PIN_NOT_USED,                
-            .mosi_pin     = NRF_DRV_SPI_PIN_NOT_USED,                
-            .miso_pin     = NRF_DRV_SPI_PIN_NOT_USED,                
+            .sck_pin      = IOT_COMMON_IO_SPI_2_SCLK_PIN,                
+            .mosi_pin     = IOT_COMMON_IO_SPI_2_MOSI_PIN,                
+            .miso_pin     = IOT_COMMON_IO_SPI_2_MISO_PIN,                
             .ss_pin       = NRF_DRV_SPI_PIN_NOT_USED,                
             .irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY,         
-            .orc          = 0xFF,                                    
-            .frequency    = NRF_DRV_SPI_FREQ_4M,                     
-            .mode         = NRF_DRV_SPI_MODE_0,                      
-            .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         
+            .orc          = xDefaultConfig.ucDummyValue,                                    
+            .frequency    = xDefaultConfig.ulFreq,                     
+            .mode         = xDefaultConfig.eMode,                      
+            .bit_order    = xDefaultConfig.eMode == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,         
         }
     },
     {
         .instance = NRF_DRV_SPI_INSTANCE(2),
         .config   = {
-            .sck_pin      = NRF_DRV_SPI_PIN_NOT_USED,                
-            .mosi_pin     = NRF_DRV_SPI_PIN_NOT_USED,                
-            .miso_pin     = NRF_DRV_SPI_PIN_NOT_USED,                
+            .sck_pin      = IOT_COMMON_IO_SPI_3_SCLK_PIN,                
+            .mosi_pin     = IOT_COMMON_IO_SPI_3_MOSI_PIN,                
+            .miso_pin     = IOT_COMMON_IO_SPI_3_MISO_PIN,                
             .ss_pin       = NRF_DRV_SPI_PIN_NOT_USED,                
             .irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY,         
-            .orc          = 0xFF,                                    
-            .frequency    = NRF_DRV_SPI_FREQ_4M,                     
-            .mode         = NRF_DRV_SPI_MODE_0,                      
-            .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         
+            .orc          = xDefaultConfig.ucDummyValue,                                    
+            .frequency    = xDefaultConfig.ulFreq,                     
+            .mode         = xDefaultConfig.eMode,                      
+            .bit_order    = xDefaultConfig.eMode == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,          
         }
     }
 };
@@ -127,7 +127,7 @@ static int32_t prvSpiTransfer(nrf_drv_spi_t const * const pxInstance,
 static IotSPIDescriptor_t xSpi1 =
 {
     .pxSpiContext  = &xSpiContexts[ 0 ],
-    .xConfig       = { 0 },
+    .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
     .sOpened       = IOT_SPI_CLOSED,
@@ -136,7 +136,7 @@ static IotSPIDescriptor_t xSpi1 =
 static IotSPIDescriptor_t xSpi2 =
 {
     .pxSpiContext  = &xSpiContexts[ 1 ],
-    .xConfig       = { 0 },
+    .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
     .sOpened       = IOT_SPI_CLOSED,
@@ -145,7 +145,7 @@ static IotSPIDescriptor_t xSpi2 =
 static IotSPIDescriptor_t xSpi3 =
 {
     .pxSpiContext  = &xSpiContexts[ 2 ],
-    .xConfig       = { 0 },
+    .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
     .sOpened       = IOT_SPI_CLOSED,
@@ -166,7 +166,6 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
 
         if( xHandle->sOpened == IOT_SPI_CLOSED )
         {
-            /* Leave the handler and handler context as NULL to initialize driver as blocking */
             const SpiContext_t * pxSpi = xHandle->pxSpiContext;
             if (NRF_SUCCESS != nrf_drv_spi_init(&pxSpi->instance, &pxSpi->config, prvSpiEventHandler, ( void * ) xHandle))
             {
@@ -222,13 +221,13 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                     IotSPIMasterConfig_t * pxUserConfig = ( IotSPIMasterConfig_t * ) pvBuffer;
 
                     /* Ensure valid user config inputs */
-                    if (pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_125K ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_250K ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_500K ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_1M ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_2M ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_4M ||
-                        pxUserConfig->ulFreqPrescaler != NRF_SPI_FREQ_8M)
+                    if (pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_125K &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_250K &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_500K &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_1M &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_2M &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_4M &&
+                        pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_8M)
                         {
                             return;
                         }
@@ -237,7 +236,8 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                     /* Prepare configuration per user request */
                     pxSpi->config.mode = (nrf_drv_spi_mode_t) pxUserConfig->eMode;
                     pxSpi->config.bit_order = pxUserConfig->eSetBitOrder == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST;
-                    pxSpi->config.frequency = pxUserConfig->ulFreqPrescaler;
+                    pxSpi->config.frequency = pxUserConfig->ulFreq;
+                    pxSpi->config.orc       = pxUserConfig->ucDummyValue;
 
                     /* Re-initialize the instance with updated config */
                     nrf_drv_spi_uninit(&pxSpi->instance);
@@ -256,10 +256,10 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
 
             case eSPIGetMasterConfig:
 
-                ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreqPrescaler = pxSPIPeripheral->xConfig.ulFreqPrescaler;
-                ( ( IotSPIMasterConfig_t * ) pvBuffer )->eMode           = pxSPIPeripheral->xConfig.eMode;
-                ( ( IotSPIMasterConfig_t * ) pvBuffer )->eSetBitOrder    = pxSPIPeripheral->xConfig.eSetBitOrder;
-                ( ( IotSPIMasterConfig_t * ) pvBuffer )->ucDummyValue    = pxSPIPeripheral->xConfig.ucDummyValue;
+                ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreq       = pxSPIPeripheral->xConfig.ulFreq;
+                ( ( IotSPIMasterConfig_t * ) pvBuffer )->eMode        = pxSPIPeripheral->xConfig.eMode;
+                ( ( IotSPIMasterConfig_t * ) pvBuffer )->eSetBitOrder = pxSPIPeripheral->xConfig.eSetBitOrder;
+                ( ( IotSPIMasterConfig_t * ) pvBuffer )->ucDummyValue = pxSPIPeripheral->xConfig.ucDummyValue;
 
                 lError = IOT_SPI_SUCCESS;
 
@@ -477,6 +477,11 @@ int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral )
         if (!bTransferDone)
         {
             nrf_drv_spi_abort( &pxSpi->instance );
+
+            CRITICAL_REGION_ENTER();
+            bTransferDone = true;
+            CRITICAL_REGION_EXIT();
+
             lError = IOT_SPI_SUCCESS;
         }
         else 
