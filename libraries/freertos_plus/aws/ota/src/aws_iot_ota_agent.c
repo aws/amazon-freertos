@@ -1423,6 +1423,7 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
     JSON_DocParam_t * pxModelParam = NULL;
     jsmn_parser xParser;
     jsmntok_t * pxTokens = NULL, * pxValTok = NULL;
+    int32_t jsmn_result = 0;
     uint32_t ulNumTokens = 0, ulTokenLen = 0;
     MultiParmPtr_t xParamAddr; /*lint !e9018 We intentionally use this union to cast the parameter address to the proper type. */
     uint32_t ulIndex = 0;
@@ -1476,16 +1477,17 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
         pxModelParam = pxDocModel->pxBodyDef;
 
         /* Count the total number of tokens in our JSON document. */
-        ulNumTokens = ( uint32_t ) jsmn_parse( &xParser, pcJSON, ( size_t ) ulMsgLen, NULL, 1UL );
+        jsmn_result = jsmn_parse( &xParser, pcJSON, ( size_t ) ulMsgLen, NULL, 1UL );
+        ulNumTokens = jsmn_result < 0 ? 0 : ( uint32_t ) jsmn_result;
 
-        if( ulNumTokens <= 0U )
+        if( ulNumTokens == 0 )
         {
             OTA_LOG_L1( "[%s] Invalid JSON document. No tokens parsed. \r\n", OTA_METHOD_NAME );
             eErr = eDocParseErr_NoTokens;
         }
     }
 
-    /* If the JSON document isn't too big for our token array. */
+    /* Check if the JSON document isn't too big for our token array. */
     if( eErr == eDocParseErr_None )
     {
         if( ulNumTokens > OTA_MAX_JSON_TOKENS )
@@ -1499,8 +1501,7 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
     if( eErr == eDocParseErr_None )
     {
         /* Allocate space for the document JSON tokens. */
-        void * pvTokenArray = pvPortMalloc( ulNumTokens * sizeof( jsmntok_t ) );
-        pxTokens = ( jsmntok_t * ) pvTokenArray; /*lint !e9079 !e9087 heap allocations return void* so we allow casting to a pointer to the actual type. */
+        pxTokens = ( jsmntok_t * ) pvPortMalloc( ulNumTokens * sizeof( jsmntok_t ) );
 
         if( pxTokens == NULL )
         {
@@ -1567,7 +1568,6 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                                     &pcJSON[ pxValTok->start ],
                                     pxValTok->type, pxModelParam[ usModelParamIndex ].eJasmineType );
                         eErr = eDocParseErr_FieldTypeMismatch;
-                        /* break; */
                     }
                     else if( OTA_DONT_STORE_PARAM == pxModelParam[ usModelParamIndex ].ulDestOffset )
                     {
@@ -1611,7 +1611,6 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                             else
                             { /* Stop processing on error. */
                                 eErr = eDocParseErr_OutOfMemory;
-                                /* break; */
                             }
                         }
                         else if( eModelParamType_StringInDoc == pxModelParam[ usModelParamIndex ].xModelParamType )
@@ -1660,7 +1659,6 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                                 { /* Stop processing on error. */
                                     OTA_LOG_L1( "[%s] mbedtls_base64_decode failed.\r\n", OTA_METHOD_NAME );
                                     eErr = eDocParseErr_Base64Decode;
-                                    /* break; */
                                 }
                                 else
                                 {
@@ -1707,7 +1705,6 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                             else
                             { /* Stop processing on error. */
                                 eErr = eDocParseErr_OutOfMemory;
-                                /* break; */
                             }
                         }
                         else
@@ -1758,16 +1755,6 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
     else
     {
         OTA_LOG_L1( "[%s] Error (%d) parsing JSON document.\r\n", OTA_METHOD_NAME, ( int32_t ) eErr );
-    }
-
-    /* Check JSON document pointer is valid.*/
-    if( eErr == eDocParseErr_None )
-    {
-        if( pcJSON == NULL )
-        {
-            OTA_LOG_L1( "[%s] JSON document pointer is NULL!\r\n", OTA_METHOD_NAME );
-            eErr = eDocParseErr_NullDocPointer;
-        }
     }
 
     configASSERT( eErr != eDocParseErr_Unknown );
@@ -2214,12 +2201,12 @@ static BaseType_t prvValidateDataBlock( OTA_FileContext_t * C,
                                         int32_t ulBlockSize )
 {
     BaseType_t xRet = pdFALSE;
-    uint32_t iLastBlock = 0;
+    uint32_t ulLastBlock = 0;
 
-    iLastBlock = ( ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
+    ulLastBlock = ( ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
 
-    if( ( ( ulBlockIndex < iLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
-        ( ( ulBlockIndex == iLastBlock ) && ( ulBlockSize == ( C->ulFileSize - ( iLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
+    if( ( ( ulBlockIndex < ulLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
+        ( ( ulBlockIndex == ulLastBlock ) && ( ulBlockSize == ( C->ulFileSize - ( ulLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
     {
         xRet = pdTRUE;
     }
@@ -2251,7 +2238,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
     uint8_t * pucPayload = NULL;
     size_t xPayloadSize = 0;
     uint32_t ulByte = 0;
-    uint8_t ulBitMask = 0;
+    uint8_t ucBitMask = 0;
 
     /* Check if the file context is NULL. */
     if( C == NULL )
@@ -2309,13 +2296,13 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
             OTA_LOG_L1( "[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
 
             /* Create bit mask for use in our bitmap. */
-            ulBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE ); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
+            ucBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE ); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
 
             /* Calculate byte offset into bitmap. */
             ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
 
             /* Check if we've already received this block. */
-            if( ( ( C->pucRxBlockBitmap[ ulByte ] ) & ulBitMask ) == 0U )
+            if( ( ( C->pucRxBlockBitmap[ ulByte ] ) & ucBitMask ) == 0U )
             {
                 OTA_LOG_L1( "[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
                             ulBlockIndex,
@@ -2346,7 +2333,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
             }
             else
             {
-                C->pucRxBlockBitmap[ ulByte ] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
+                C->pucRxBlockBitmap[ ulByte ] &= ~ucBitMask; /* Mark this block as received in our bitmap. */
                 C->ulBlocksRemaining--;
                 eIngestResult = eIngest_Result_Accepted_Continue;
                 *pxCloseResult = kOTA_Err_None;
