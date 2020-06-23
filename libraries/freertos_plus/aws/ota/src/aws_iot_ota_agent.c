@@ -687,94 +687,94 @@ static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
     return eOTA_JobParseErr_NonConformingJobDoc;
 }
 
-static void prvSetPALCallbacks( OTA_PAL_Callbacks_t * xCallbacks )
+static void prvSetPALCallbacks( OTA_PAL_Callbacks_t * pxCallbacks )
 {
-    configASSERT( xCallbacks != NULL );
+    configASSERT( pxCallbacks != NULL );
 
-    if( xCallbacks->xAbort != NULL )
+    if( pxCallbacks->xAbort != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xAbort = xCallbacks->xAbort;
+        xOTA_Agent.xPALCallbacks.xAbort = pxCallbacks->xAbort;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xAbort = prvPAL_Abort;
     }
 
-    if( xCallbacks->xActivateNewImage != NULL )
+    if( pxCallbacks->xActivateNewImage != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xActivateNewImage = xCallbacks->xActivateNewImage;
+        xOTA_Agent.xPALCallbacks.xActivateNewImage = pxCallbacks->xActivateNewImage;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xActivateNewImage = prvPAL_DefaultActivateNewImage;
     }
 
-    if( xCallbacks->xCloseFile != NULL )
+    if( pxCallbacks->xCloseFile != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xCloseFile = xCallbacks->xCloseFile;
+        xOTA_Agent.xPALCallbacks.xCloseFile = pxCallbacks->xCloseFile;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xCloseFile = prvPAL_CloseFile;
     }
 
-    if( xCallbacks->xCreateFileForRx != NULL )
+    if( pxCallbacks->xCreateFileForRx != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xCreateFileForRx = xCallbacks->xCreateFileForRx;
+        xOTA_Agent.xPALCallbacks.xCreateFileForRx = pxCallbacks->xCreateFileForRx;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xCreateFileForRx = prvPAL_CreateFileForRx;
     }
 
-    if( xCallbacks->xGetPlatformImageState != NULL )
+    if( pxCallbacks->xGetPlatformImageState != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xGetPlatformImageState = xCallbacks->xGetPlatformImageState;
+        xOTA_Agent.xPALCallbacks.xGetPlatformImageState = pxCallbacks->xGetPlatformImageState;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xGetPlatformImageState = prvPAL_DefaultGetPlatformImageState;
     }
 
-    if( xCallbacks->xResetDevice != NULL )
+    if( pxCallbacks->xResetDevice != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xResetDevice = xCallbacks->xResetDevice;
+        xOTA_Agent.xPALCallbacks.xResetDevice = pxCallbacks->xResetDevice;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xResetDevice = prvPAL_DefaultResetDevice;
     }
 
-    if( xCallbacks->xSetPlatformImageState != NULL )
+    if( pxCallbacks->xSetPlatformImageState != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xSetPlatformImageState = xCallbacks->xSetPlatformImageState;
+        xOTA_Agent.xPALCallbacks.xSetPlatformImageState = pxCallbacks->xSetPlatformImageState;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xSetPlatformImageState = prvPAL_DefaultSetPlatformImageState;
     }
 
-    if( xCallbacks->xWriteBlock != NULL )
+    if( pxCallbacks->xWriteBlock != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xWriteBlock = xCallbacks->xWriteBlock;
+        xOTA_Agent.xPALCallbacks.xWriteBlock = pxCallbacks->xWriteBlock;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xWriteBlock = prvPAL_WriteBlock;
     }
 
-    if( xCallbacks->xCompleteCallback != NULL )
+    if( pxCallbacks->xCompleteCallback != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
+        xOTA_Agent.xPALCallbacks.xCompleteCallback = pxCallbacks->xCompleteCallback;
     }
     else
     {
         xOTA_Agent.xPALCallbacks.xCompleteCallback = prvDefaultOTACompleteCallback;
     }
 
-    if( xCallbacks->xCustomJobCallback != NULL )
+    if( pxCallbacks->xCustomJobCallback != NULL )
     {
-        xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
+        xOTA_Agent.xPALCallbacks.xCustomJobCallback = pxCallbacks->xCustomJobCallback;
     }
     else
     {
@@ -2749,7 +2749,7 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
 
 OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
                                     const uint8_t * pcThingName,
-                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    OTA_PAL_Callbacks_t * pxCallbacks,
                                     TickType_t xTicksToWait )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentInit_internal" );
@@ -2767,7 +2767,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
      * The OTA agent context is initialized with the prvPAL values. So, if null is passed in, don't
      * do anything and just use the defaults in the OTA structure.
      */
-    prvSetPALCallbacks( xCallbacks );
+    prvSetPALCallbacks( pxCallbacks );
 
     /*
      * Initialize the OTA control interface based on the application protocol
