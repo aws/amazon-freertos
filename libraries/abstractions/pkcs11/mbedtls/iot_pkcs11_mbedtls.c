@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V2.1.0
+ * FreeRTOS PKCS #11 V2.0.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -725,46 +725,42 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
  *
  */
 #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
-    static CK_RV prvEcPrivKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
-                                       mbedtls_pk_context * pxMbedContext )
+    static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
+                                       const mbedtls_pk_context * pxMbedContext )
     {
-        CK_BBOOL xBool = CK_FALSE;
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
         int32_t lMbedReturn = 0;
         CK_RV xResult = CKR_OK;
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
-        switch( pxAttribute->type )
+        if( pxAttribute->type == CKA_SIGN )
         {
-            case ( CKA_SIGN ):
-                ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
+            ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
-                if( xBool == CK_FALSE )
-                {
-                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                    PKCS11_PRINT( ( "ERROR: Only EC private keys with signing privileges are supported. \r\n" ) );
-                }
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
+            /* coverity[misra_c_2012_rule_10_5_violation] */
+            if( xBool == ( CK_BBOOL ) CK_FALSE )
+            {
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                PKCS11_PRINT( ( "ERROR: Only EC private keys with signing privileges are supported. \r\n" ) );
+            }
+        }
+        else
+        {
+            lMbedReturn = mbedtls_mpi_read_binary( &pxKeyPair->d,
+                                                   pxAttribute->pValue,
+                                                   pxAttribute->ulValueLen );
 
-                break;
-
-            case ( CKA_VALUE ):
-                lMbedReturn = mbedtls_mpi_read_binary( &pxKeyPair->d,
-                                                       pxAttribute->pValue,
-                                                       pxAttribute->ulValueLen );
-
-                if( lMbedReturn != 0 )
-                {
-                    xResult = CKR_FUNCTION_FAILED;
-                    PKCS11_PRINT( ( "mbedTLS mpi read binary failed with error %s : %s \r\n",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedReturn ),
-                                    mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
-                }
-
-                break;
-
-            default:
-                PKCS11_PRINT( ( "Unknown attribute found for an EC private key. %d \r\n", pxAttribute->type ) );
-                xResult = CKR_ATTRIBUTE_TYPE_INVALID;
-                break;
+            if( lMbedReturn != 0 )
+            {
+                xResult = CKR_FUNCTION_FAILED;
+                PKCS11_PRINT( ( "mbedTLS mpi read binary failed with error %s : ",
+                                mbedtlsHighLevelCodeOrDefault( lMbedReturn ) ) );
+                PKCS11_PRINT( ( "%s \r\n",
+                                mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
+            }
         }
 
         return xResult;
@@ -776,49 +772,43 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
  *
  */
 #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
-    static CK_RV prvEcPubKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
-                                      mbedtls_pk_context * pxMbedContext )
+    static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
+                                      const mbedtls_pk_context * pxMbedContext )
     {
-        CK_BBOOL xBool = CK_FALSE;
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
         int32_t lMbedReturn = 0;
         CK_RV xResult = CKR_OK;
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
-        switch( pxAttribute->type )
+        if( pxAttribute->type == CKA_VERIFY )
         {
-            case ( CKA_VERIFY ):
-                ( void ) memcpy( &xBool, pxAttribute->pValue, pxAttribute->ulValueLen );
+            ( void ) memcpy( &xBool, pxAttribute->pValue, pxAttribute->ulValueLen );
 
-                if( xBool == CK_FALSE )
-                {
-                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                    PKCS11_PRINT( ( "Only EC public keys with verify permissions supported. \r\n" ) );
-                }
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
+            /* coverity[misra_c_2012_rule_10_5_violation] */
+            if( xBool == ( CK_BBOOL ) CK_FALSE )
+            {
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                PKCS11_PRINT( ( "Only EC public keys with verify permissions supported. \r\n" ) );
+            }
+        }
+        else
+        {
+            lMbedReturn = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
+                                                         &pxKeyPair->Q,
+                                                         ( ( uint8_t * ) ( pxAttribute->pValue ) + 2U ),
+                                                         ( pxAttribute->ulValueLen - 2U ) );
 
-                break;
-
-            case ( CKA_EC_POINT ):
-                /* The first 2 bytes are for ASN1 type/length encoding. */
-                lMbedReturn = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
-                                                             &pxKeyPair->Q,
-                                                             ( ( uint8_t * ) ( pxAttribute->pValue ) + 2 ),
-                                                             ( pxAttribute->ulValueLen - 2 ) );
-
-                if( lMbedReturn != 0 )
-                {
-                    xResult = CKR_FUNCTION_FAILED;
-                    PKCS11_PRINT( ( "mbedTLS ecp point read binary failed with %s : ",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedReturn ) ) );
-                    PKCS11_PRINT( ( " %s \r\n",
-                                    mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
-                }
-
-                break;
-
-            default:
-                PKCS11_PRINT( ( "Unknown attribute found for an EC public key. %d \r\n", pxAttribute->type ) );
-                xResult = CKR_ATTRIBUTE_TYPE_INVALID;
-                break;
+            if( lMbedReturn != 0 )
+            {
+                xResult = CKR_FUNCTION_FAILED;
+                PKCS11_PRINT( ( "mbedTLS ecp point read binary failed with %s : ",
+                                mbedtlsHighLevelCodeOrDefault( lMbedReturn ) ) );
+                PKCS11_PRINT( ( "%s \r\n",
+                                mbedtlsLowLevelCodeOrDefault( lMbedReturn ) ) );
+            }
         }
 
         return xResult;
@@ -830,12 +820,17 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
  *
  */
 #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
-    static CK_RV prvEcKeyAttParse( CK_ATTRIBUTE_PTR pxAttribute,
-                                   mbedtls_pk_context * pxMbedContext,
+    static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
+                                   const mbedtls_pk_context * pxMbedContext,
                                    CK_BBOOL xIsPrivate )
     {
         CK_RV xResult = CKR_OK;
-        CK_BBOOL xBool = CK_FALSE;
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
+        const CK_BYTE pxEcCurve[] = pkcs11DER_ENCODED_OID_P256;
+        const CK_BYTE * pxEcAttVal = NULL;
+        const CK_BBOOL * pxEcBoolAtt = NULL;
 
         /* Common EC key attributes. */
         switch( pxAttribute->type )
@@ -847,9 +842,12 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 break;
 
             case ( CKA_TOKEN ):
-                ( void ) memcpy( &xBool, ( void * ) pxAttribute->pValue, sizeof( CK_BBOOL ) );
+                pxEcBoolAtt = ( CK_BBOOL * ) pxAttribute->pValue;
+                ( void ) memcpy( &xBool, pxEcBoolAtt, sizeof( CK_BBOOL ) );
 
-                if( xBool != CK_TRUE )
+                /* See explanation in prvCheckValidSessionAndModule for this exception. */
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                if( xBool != ( CK_BBOOL ) CK_TRUE )
                 {
                     PKCS11_PRINT( ( "ERROR: Only token key creation is supported. \r\n" ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
@@ -858,9 +856,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 break;
 
             case ( CKA_EC_PARAMS ):
+                pxEcAttVal = ( CK_BYTE * ) pxAttribute->pValue;
 
-                if( memcmp( ( CK_BYTE[] ) pkcs11DER_ENCODED_OID_P256,
-                            ( void * ) pxAttribute->pValue, pxAttribute->ulValueLen ) )
+                if( memcmp( pxEcCurve, pxEcAttVal, pxAttribute->ulValueLen ) != 0 )
                 {
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                     PKCS11_PRINT( ( "ERROR: Only elliptic curve P-256 is supported.\r\n" ) );
@@ -871,7 +869,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             case ( CKA_VERIFY ):
             case ( CKA_EC_POINT ):
 
-                if( xIsPrivate == CK_FALSE )
+                /* See explanation in prvCheckValidSessionAndModule for this exception. */
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                if( xIsPrivate == ( CK_BBOOL ) CK_FALSE )
                 {
                     xResult = prvEcPubKeyAttParse( pxAttribute, pxMbedContext );
                 }
@@ -885,7 +885,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             case ( CKA_SIGN ):
             case ( CKA_VALUE ):
 
-                if( xIsPrivate == CK_TRUE )
+                /* See explanation in prvCheckValidSessionAndModule for this exception. */
+                /* coverity[misra_c_2012_rule_10_5_violation] */
+                if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
                 {
                     xResult = prvEcPrivKeyAttParse( pxAttribute, pxMbedContext );
                 }
@@ -2058,24 +2060,30 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
     static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
                                              mbedtls_pk_context * pxMbedContext,
-                                             CK_ATTRIBUTE_PTR pxLabel )
+                                             const CK_ATTRIBUTE * pxLabel )
     {
-        uint8_t * pucData = NULL;
-        size_t xDataLength = 0;
-        CK_BBOOL xIsPrivate = CK_TRUE;
+        CK_BYTE_PTR pucData = NULL;
+        CK_ULONG ulDataLength = 0;
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
         CK_RV xResult = CKR_OK;
         int32_t lMbedResult = 0;
+        CK_BYTE pxPubKeyLabel[] = { pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS };
+        CK_BYTE pxPrivKeyLabel[] = { pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS };
 
         *pxPalHandle = CK_INVALID_HANDLE;
 
         if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
         {
-            *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+            *pxPalHandle = PKCS11_PAL_FindObject( pxPubKeyLabel, pxLabel->ulValueLen );
         }
         else if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
         {
-            *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
-            xIsPrivate = CK_FALSE;
+            *pxPalHandle = PKCS11_PAL_FindObject( pxPrivKeyLabel, pxLabel->ulValueLen );
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
+            /* coverity[misra_c_2012_rule_10_5_violation] */
+            xIsPrivate = ( CK_BBOOL ) CK_FALSE;
         }
         else
         {
@@ -2084,27 +2092,30 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
         if( *pxPalHandle != CK_INVALID_HANDLE )
         {
-            xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
+            xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, &ulDataLength, &xIsPrivate );
         }
 
         if( xResult == CKR_OK )
         {
-            if( xIsPrivate == CK_TRUE )
+            /* See explanation in prvCheckValidSessionAndModule for this exception. */
+            /* coverity[misra_c_2012_rule_10_5_violation] */
+            if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
             {
-                lMbedResult = mbedtls_pk_parse_key( pxMbedContext, pucData, xDataLength, NULL, 0 );
+                lMbedResult = mbedtls_pk_parse_key( pxMbedContext, pucData, ulDataLength, NULL, 0 );
             }
             else
             {
-                lMbedResult = mbedtls_pk_parse_public_key( pxMbedContext, pucData, xDataLength );
+                lMbedResult = mbedtls_pk_parse_public_key( pxMbedContext, pucData, ulDataLength );
             }
 
-            PKCS11_PAL_GetObjectValueCleanup( pucData, xDataLength );
+            PKCS11_PAL_GetObjectValueCleanup( pucData, ulDataLength );
         }
 
-        if( lMbedResult != 0UL )
+        if( lMbedResult != 0 )
         {
-            PKCS11_PRINT( ( "mbedTLS pk parse failed with error %s : %s \r\n",
-                            mbedtlsHighLevelCodeOrDefault( lMbedResult ),
+            PKCS11_PRINT( ( "mbedTLS pk parse failed with error %s : ",
+                            mbedtlsHighLevelCodeOrDefault( lMbedResult ) ) );
+            PKCS11_PRINT( ( "%s \r\n",
                             mbedtlsLowLevelCodeOrDefault( lMbedResult ) ) );
             *pxPalHandle = CK_INVALID_HANDLE;
         }
@@ -2123,7 +2134,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
  *
  */
 #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
-    static CK_RV prvCreateECKey( CK_ATTRIBUTE_PTR pxTemplate,
+    static CK_RV prvCreateECKey( CK_ATTRIBUTE * pxTemplate,
                                  CK_ULONG ulCount,
                                  CK_OBJECT_HANDLE_PTR pxObject,
                                  CK_BBOOL xIsPrivate )
@@ -2178,8 +2189,9 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
                 if( lMbedTLSReturn != 0 )
                 {
-                    PKCS11_PRINT( ( "mbedTLS ECP curve load failed with error %s : %s \r\n",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSReturn ),
+                    PKCS11_PRINT( ( "mbedTLS ECP curve load failed with error %s : ",
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSReturn ) ) );
+                    PKCS11_PRINT( ( "%s \r\n",
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSReturn ) ) );
                     xResult = CKR_FUNCTION_FAILED;
                 }
@@ -2348,13 +2360,13 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
                                  CK_ULONG ulCount,
                                  CK_OBJECT_HANDLE_PTR pxObject )
 {
+    CK_KEY_TYPE xKeyType = 0;
+    CK_RV xResult = CKR_OK;
+
     #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 )
         /* Suppress unused parameter warning if ECDSA is suppressed. */
         ( void ) pxObject;
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 ) */
-
-    CK_KEY_TYPE xKeyType = 0;
-    CK_RV xResult = CKR_OK;
 
     prvGetKeyType( &xKeyType, pxTemplate, ulCount );
 
