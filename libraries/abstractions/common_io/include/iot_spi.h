@@ -102,7 +102,7 @@ typedef enum
  */
 typedef struct IotSPIMasterConfig
 {
-    uint32_t ulFreqPrescaler;      /*!< SPI Clk Prescaler. spi_clk = src_clk_hz << ulFreqPrescalar */
+    uint32_t ulFreq;               /*!< SPI frequency set for data transmission in Hz. */
     IotSPIMode_t eMode;            /*!< Mode selected as per enum IotSPIMode_t. */
     IotSPIBitOrder_t eSetBitOrder; /*!< Bit Order selected as per enum IotSPIBitOrder_t. */
     uint8_t ucDummyValue;          /*!< The dummy value sent by master for SPI Read. */

@@ -1119,6 +1119,9 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess )
         lRetVal = iot_spi_ioctl( xSPIHandle, eSPISetMasterConfig, &xTestConfig );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 
+        /* Set a callback for async call */
+        iot_spi_set_callback( xSPIHandle, prvSpiAsyncCallback, NULL );
+
         /* use some data to transfer.  Send even, expect odd */
         lRetVal = iot_spi_transfer_async( xSPIHandle, ucTxBuf, ucRxBuf, 4 );
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
