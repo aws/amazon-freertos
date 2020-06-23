@@ -2549,14 +2549,51 @@ static void prvHandleUnexpectedEvents( OTA_EventMsg_t * pxEventMsg )
     }
 }
 
-static void prvOTAAgentTask( void * pUnused )
+/*
+ * Execute the handler for selected index from the transition table.
+ */
+static void prvExecuteHandler( uint32_t index,
+                               const OTA_EventMsg_t * const pxEventMsg )
+{
+    DEFINE_OTA_METHOD_NAME( "prvExecuteHandler" );
+
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+
+    if( OTATransitionTable[ index ].xHandler )
+    {
+        xErr = OTATransitionTable[ index ].xHandler( pxEventMsg->pxEventData );
+
+        if( xErr == kOTA_Err_None )
+        {
+            OTA_LOG_L1( "[%s] Called handler. Current State [%s] Event [%s] New state [%s] \n",
+                        OTA_METHOD_NAME,
+                        pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
+                        pcOTA_Event_Strings[ pxEventMsg->xEventId ],
+                        pcOTA_AgentState_Strings[ OTATransitionTable[ index ].xNextState ] );
+
+            /*
+             * Update the current state in OTA agent context.
+             */
+            xOTA_Agent.eState = OTATransitionTable[ index ].xNextState;
+        }
+        else
+        {
+            OTA_LOG_L1( "[%s] Handler failed. Current State [%s] Event  [%s] Error Code [%d] \n",
+                        OTA_METHOD_NAME,
+                        pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
+                        pcOTA_Event_Strings[ pxEventMsg->xEventId ],
+                        xErr );
+        }
+    }
+}
+
+static void prvOTAAgentTask( void * pvUnused )
 {
     DEFINE_OTA_METHOD_NAME( "prvOTAAgentTask" );
 
-    ( void ) pUnused;
+    ( void ) pvUnused;
 
     OTA_EventMsg_t xEventMsg = { 0 };
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     uint32_t ulTransitionTableLen = sizeof( OTATransitionTable ) / sizeof( OTATransitionTable[ 0 ] );
     uint32_t i = 0;
 
@@ -2572,45 +2609,25 @@ static void prvOTAAgentTask( void * pUnused )
          */
         if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
         {
+            /*
+             * Search for the state and event from the table.
+             */
             for( i = 0; i < ulTransitionTableLen; i++ )
             {
-                if( ( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState ) || ( OTATransitionTable[ i ].xCurrentState == eOTA_AgentState_All ) )
+                if( ( ( OTATransitionTable[ i ].xCurrentState == xOTA_Agent.eState ) ||
+                      ( OTATransitionTable[ i ].xCurrentState == eOTA_AgentState_All ) ) &&
+                    ( OTATransitionTable[ i ].xEventId == xEventMsg.xEventId ) )
                 {
-                    OTA_LOG_L3( "[%s] , State matched [%s]\n", OTA_METHOD_NAME, pcOTA_AgentState_Strings[ i ] );
+                    OTA_LOG_L3( "[%s] , State matched [%s],  Event matched  [%s]\n",
+                                OTA_METHOD_NAME,
+                                pcOTA_AgentState_Strings[ i ]
+                                pcOTA_Event_Strings[ i ] );
 
-                    if( OTATransitionTable[ i ].xEventId == xEventMsg.xEventId )
-                    {
-                        OTA_LOG_L3( "[%s] , Event matched  [%s]\n", OTA_METHOD_NAME, pcOTA_Event_Strings[ i ] );
-
-                        if( OTATransitionTable[ i ].xHandler )
-                        {
-                            xErr = OTATransitionTable[ i ].xHandler( xEventMsg.pxEventData );
-
-                            if( xErr == kOTA_Err_None )
-                            {
-                                OTA_LOG_L1( "[%s] Called handler. Current State [%s] Event [%s] New state [%s] \n",
-                                            OTA_METHOD_NAME,
-                                            pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
-                                            pcOTA_Event_Strings[ xEventMsg.xEventId ],
-                                            pcOTA_AgentState_Strings[ OTATransitionTable[ i ].xNextState ] );
-
-                                /*
-                                 * Update the current state in OTA agent context.
-                                 */
-                                xOTA_Agent.eState = OTATransitionTable[ i ].xNextState;
-                            }
-                            else
-                            {
-                                OTA_LOG_L1( "[%s] Handler failed. Current State [%s] Event  [%s] Error Code [%d] \n",
-                                            OTA_METHOD_NAME,
-                                            pcOTA_AgentState_Strings[ xOTA_Agent.eState ],
-                                            pcOTA_Event_Strings[ xEventMsg.xEventId ],
-                                            xErr );
-                            }
-                        }
-
-                        break;
-                    }
+                    /*
+                     * Execute the handler function.
+                     */
+                    prvExecuteHandler( i, &xEventMsg );
+                    break;
                 }
             }
 
