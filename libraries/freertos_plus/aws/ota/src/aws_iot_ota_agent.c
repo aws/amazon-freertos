@@ -1975,51 +1975,23 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
 
                 if( otaconfigAllowDowngrade || ( xErrVersionCheck == kOTA_Err_None ) )
                 {
-                    if( C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32 )
-                    {
-                        /* The running firmware version is newer than the firmware that performed
-                         * the update so this means we're ready to start the self test phase.
-                         *
-                         * Set image state accordingly and update job status with self test identifier.
-                         */
-                        ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, ( uint32_t ) NULL );
-                    }
-                    else
-                    {
-                        if( C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32 )
-                        {
-                            /* The running firmware is older than the firmware that performed the update so reject the job. */
-                            OTA_LOG_L1( "[%s] Rejecting image because version is older than previous.\r\n", OTA_METHOD_NAME );
-                            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
-                        }
-                        else /* Version reported is the same as the running version. */
-                        {
-                            if( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
-                                ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) ) /*lint !e9007 We don't provide a modifiable variable to strtoul. */
-                            {
-                                /* The version is the same so either we're not actually the new firmware or
-                                 * someone messed up and sent firmware with the same version. In either case,
-                                 * this is a failure of the OTA update so reject the job. */
-                                OTA_LOG_L1( "[%s] Failing job. We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
-                                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_SameFirmwareVersion );
-                            }
-                            else
-                            {
-                                OTA_LOG_L1( "[%s] Ignoring job. Device must be rebooted first.\r\n", OTA_METHOD_NAME );
-                            }
-                        }
+                    /* The running firmware version is newer than the firmware that performed
+                     * the update or downgrade is allowed so this means we're ready to start
+                     * the self test phase.
+                     *
+                     * Set image state accordingly and update job status with self test identifier.
+                     */
+                    OTA_LOG_L1( "[%s] Setting image state to Testing for file ID %d\r\n", OTA_METHOD_NAME, xOTA_Agent.ulServerFileID );
 
                     ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, xErrVersionCheck );
                 }
                 else
                 {
-                    /* The running firmware version is newer than the firmware that performed
-                     * the update so this means we're ready to start the self test phase.
-                     *
-                     * Set image state accordingly and update job status with self test identifier.
-                     */
-                    OTA_LOG_L1( "[%s] Setting image state to Testing for file ID %d\r\n", OTA_METHOD_NAME, xOTA_Agent.ulServerFileID );
-                    ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, ( uint32_t ) NULL );
+                    OTA_LOG_L1( "[%s] Downgrade or same version not allowed, rejecting the update & rebooting.\r\n", OTA_METHOD_NAME );
+                    ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, xErrVersionCheck );
+
+                    /* All reject cases must reset the device. */
+                    ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
                 }
             }
             else
