@@ -52,7 +52,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
-        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor/src \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
@@ -65,7 +65,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
-                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor/src \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \

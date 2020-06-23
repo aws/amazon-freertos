@@ -2376,12 +2376,17 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/3rdparty/tinycbor/</GroupName>
+					<GroupName>libraries/3rdparty/tinycbor/src/</GroupName>
 					<Files>
 						<File>
 							<FileName>cborpretty.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty.c</FilePath>
+						</File>
+						<File>
+							<FileName>cborpretty_stdio.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborpretty_stdio.c</FileName>
@@ -2391,27 +2396,27 @@
 						<File>
 							<FileName>cborencoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborencoder_close_container_checked.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborerrorstrings.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborerrorstrings.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser.c</FilePath>
 						</File>
 						<File>
 							<FileName>cborparser_dup_string.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</FilePath>
+							<FilePath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</FilePath>
 						</File>
 					</Files>
 				</Group>

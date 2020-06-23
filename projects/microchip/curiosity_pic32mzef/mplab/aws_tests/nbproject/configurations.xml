@@ -639,13 +639,15 @@
 					<itemPath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</itemPath>
 				</logicalFolder>
 				<logicalFolder name="tinycbor" displayName="tinycbor" projectFiles="true">
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborpretty.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborpretty_stdio.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborencoder.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborparser.c</itemPath>
-					<itemPath>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</itemPath>
+					<logicalFolder name="src" displayName="src" projectFiles="true">
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborerrorstrings.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborparser.c</itemPath>
+						<itemPath>../../../../../libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</itemPath>
+					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="tinycrypt" displayName="tinycrypt" projectFiles="true">
 					<logicalFolder name="lib" displayName="lib" projectFiles="true">

@@ -125,6 +125,7 @@
 		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
+		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
 		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
@@ -1653,17 +1654,17 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
 			<Filter>libraries\3rdparty\http_parser</Filter>

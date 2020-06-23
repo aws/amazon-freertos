@@ -32,7 +32,4 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-/* #define pkcs11configC_INITIALIZE_ALT */
-
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

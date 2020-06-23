@@ -564,7 +564,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 uint16_t num_aps = ucNumNetworks;
                 esp_wifi_scan_get_ap_records(&num_aps, ap_info);
                 for (int i = 0; i < num_aps; i++) {
-                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN);
+                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN + 1);
                     memcpy(pxBuffer[i].ucBSSID, ap_info[i].bssid, wificonfigMAX_BSSID_LEN);
                     pxBuffer[i].cRSSI = ap_info[i].rssi;
                     pxBuffer[i].cChannel = ap_info[i].primary;
@@ -1313,9 +1313,13 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         /* ssid/password is required */
-        strlcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        /* SSID can be a non NULL terminated string if ssid_len is specified.
+         * Hence, memcpy is used to support 32 character long SSID name.
+         */
+        memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        wifi_config.ap.ssid_len = pxNetworkParams->ucSSIDLength;
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
         ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);

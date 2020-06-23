@@ -40,9 +40,6 @@
 
 extern const char * pcPkcs11GetThingName(void);
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-/* #define pkcs11configC_INITIALIZE_ALT */
-
 /**
  * @brief ESP32 NVS Partition where PKCS #11 data is stored
  */

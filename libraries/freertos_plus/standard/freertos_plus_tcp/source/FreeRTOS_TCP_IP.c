@@ -874,6 +874,9 @@ NetworkBufferDescriptor_t xTempBuffer;
 		usPacketIdentifier++;
 		pxIPHeader->usFragmentOffset = 0U;
 
+		/* Important: tell NIC driver how many bytes must be sent. */
+		pxNetworkBuffer->xDataLength = ulLen + ipSIZE_OF_ETH_HEADER;
+
 		#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 		{
 			/* calculate the IP header checksum, in case the driver won't do that. */
@@ -898,9 +901,6 @@ NetworkBufferDescriptor_t xTempBuffer;
 			pxNetworkBuffer->pxNextBuffer = NULL;
 		}
 		#endif
-
-		/* Important: tell NIC driver how many bytes must be sent. */
-		pxNetworkBuffer->xDataLength = ulLen + ipSIZE_OF_ETH_HEADER;
 
 		/* Fill in the destination MAC addresses. */
 		( void ) memcpy( &( pxEthernetHeader->xDestinationAddress ),

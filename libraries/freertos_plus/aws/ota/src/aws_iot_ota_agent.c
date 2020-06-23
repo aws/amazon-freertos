@@ -1798,6 +1798,53 @@ static DocParseErr_t prvInitDocModel( JSON_DocModel_t * pxDocModel,
     return eErr;
 }
 
+/*
+ * Validate the version of the update received.
+ */
+static OTA_Err_t prvValidateUpdateVersion( OTA_FileContext_t * C )
+{
+    DEFINE_OTA_METHOD_NAME( "prvValidateUpdateVersion" );
+
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+
+    /* Only check for versions if the target is self */
+    if( xOTA_Agent.ulServerFileID == 0 )
+    {
+        /* Check if update version received is newer than current version.*/
+        if( C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32 )
+        {
+            OTA_LOG_L1( "[%s] The update version is newer than the version on device.\r\n", OTA_METHOD_NAME );
+
+            xErr = kOTA_Err_None;
+        }
+        /* Check if update version received is older than current version.*/
+        else if( C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32 )
+        {
+            OTA_LOG_L1( "[%s] The update version is older than the version on device.\r\n", OTA_METHOD_NAME );
+
+            xErr = kOTA_Err_DowngradeNotAllowed;
+        }
+        /* Check if version reported is the same as the running version. */
+        else if( C->ulUpdaterVersion == xAppFirmwareVersion.u.ulVersion32 )
+        {
+            /* The version is the same so either we're not actually the new firmware or
+             * someone messed up and sent firmware with the same version. In either case,
+             * this is a failure of the OTA update so reject the job.
+             */
+            OTA_LOG_L1( "[%s] We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
+
+            xErr = kOTA_Err_SameFirmwareVersion;
+        }
+    }
+    else
+    {
+        /* For any other ulServerFileID.*/
+        xErr = kOTA_Err_None;
+    }
+
+    return xErr;
+}
+
 /* Parse the OTA job document and validate. Return the populated
  * OTA context if valid otherwise return NULL.
  */
@@ -1838,6 +1885,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     OTA_FileContext_t * pxFinalFile = NULL;
     OTA_FileContext_t xFileContext = { 0 };
     OTA_FileContext_t * C = &xFileContext;
+    OTA_Err_t xErrVersionCheck = kOTA_Err_Uninitialized;
 
     JSON_DocModel_t xOTA_JobDocModel;
 
@@ -1922,8 +1970,10 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             {
                 OTA_LOG_L1( "[%s] In self test mode.\r\n", OTA_METHOD_NAME );
 
-                /* Only check for versions if the target is self */
-                if( xOTA_Agent.ulServerFileID == 0 )
+                /* Validate version of the update received.*/
+                xErrVersionCheck = prvValidateUpdateVersion( C );
+
+                if( otaconfigAllowDowngrade || ( xErrVersionCheck == kOTA_Err_None ) )
                 {
                     if( C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32 )
                     {
@@ -1959,9 +2009,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                             }
                         }
 
-                        /* All reject cases must reset the device. */
-                        ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
-                    }
+                    ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, xErrVersionCheck );
                 }
                 else
                 {

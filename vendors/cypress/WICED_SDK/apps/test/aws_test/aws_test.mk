@@ -69,7 +69,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
                     $(AFR_THIRDPARTY_PATH)unity/src \
                     $(AFR_THIRDPARTY_PATH)unity/extras/fixture/src \
-                    $(AFR_THIRDPARTY_PATH)tinycbor \
+                    $(AFR_THIRDPARTY_PATH)tinycbor/src \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
@@ -125,13 +125,13 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)tests/common/iot_tests_network.c \
                       $(AFR_THIRDPARTY_PATH)unity/src/unity.c \
                       $(AFR_THIRDPARTY_PATH)unity/extras/fixture/src/unity_fixture.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder.c\
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder_close_container_checked.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborerrorstrings.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty_stdio.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder_close_container_checked.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborerrorstrings.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborparser.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborparser_dup_string.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty_stdio.c \
                       $(AFR_ABSTRACTIONS_PATH)wifi/test/iot_test_wifi.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test/iot_test_tls.c \
                       $(AFR_ABSTRACTIONS_PATH)secure_sockets/test/iot_test_tcp.c \

@@ -1,3 +1,7 @@
+if(AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(utest)
+    return()
+endif()
 afr_module(INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
