@@ -44,11 +44,12 @@ typedef struct SpiContext
 {
     nrf_drv_spi_t instance;
     nrf_drv_spi_config_t config;
+    volatile bool bTransferDone;
 } SpiContext_t;
 
 typedef struct IotSPIDescriptor
 {
-    SpiContext_t const * pxSpiContext; /* Nordic Handle */
+    SpiContext_t * const pxSpiContext; /* Nordic Handle */
     IotSPIMasterConfig_t xConfig;      /* Master Configuration */
     IotSPICallback_t xSpiCallback;     /* Callback function */
     void * pvUserContext;              /* User context passed in callback */
@@ -79,7 +80,8 @@ static SpiContext_t xSpiContexts[] =
             .frequency    = xDefaultConfig.ulFreq,
             .mode         = xDefaultConfig.eMode,
             .bit_order    = xDefaultConfig.eSetBitOrder == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,
-        }
+        },
+        .bTransferDone = true
     },
     {
         .instance = NRF_DRV_SPI_INSTANCE( 1 ),
@@ -94,7 +96,8 @@ static SpiContext_t xSpiContexts[] =
             .frequency    = xDefaultConfig.ulFreq,
             .mode         = xDefaultConfig.eMode,
             .bit_order    = xDefaultConfig.eSetBitOrder == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,
-        }
+        },
+        .bTransferDone = true
     },
     {
         .instance = NRF_DRV_SPI_INSTANCE( 2 ),
@@ -109,22 +112,22 @@ static SpiContext_t xSpiContexts[] =
             .frequency    = xDefaultConfig.ulFreq,
             .mode         = xDefaultConfig.eMode,
             .bit_order    = xDefaultConfig.eSetBitOrder == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,
-        }
+        },
+        .bTransferDone = true
     }
 };
 
 /*
  * Forward declare event handler passed to NRF SPI controller.
  * Invokes user callbacks for async modes.
- * Sync modes poll atomic flags to track state
+ * Sync modes poll instance-specific atomic flags to track state
  */
-static volatile bool bTransferDone = true;
 static void prvSpiEventHandler( nrf_drv_spi_evt_t const * pxEvent,
                                 void * pvContext );
 static int32_t prvSpiTransfer( IotSPIHandle_t const xSpiHandle,
-                               uint8_t const * pucTxBuffer,
+                               uint8_t const * const pucTxBuffer,
                                size_t xTxSize,
-                               uint8_t const * pucRxBuffer,
+                               uint8_t * const pucRxBuffer,
                                size_t xRxSize,
                                bool bSync );
 
@@ -219,7 +222,7 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
         {
             case eSPISetMasterConfig:
 
-                if( !bTransferDone )
+                if( !pxSpi->bTransferDone )
                 {
                     lError = IOT_SPI_BUS_BUSY;
                 }
@@ -236,7 +239,7 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                         ( pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_4M ) &&
                         ( pxUserConfig->ulFreq != NRF_DRV_SPI_FREQ_8M ) )
                     {
-                        return;
+                        return lError;
                     }
 
                     /* Prepare configuration per user request */
@@ -479,14 +482,14 @@ int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral )
 
     if( ( pxSPIPeripheral != NULL ) && ( pxSPIPeripheral->sOpened == IOT_SPI_OPENED ) )
     {
-        const SpiContext_t * pxSpi = pxSPIPeripheral->pxSpiContext;
+        SpiContext_t * const pxSpi = pxSPIPeripheral->pxSpiContext;
 
-        if( !bTransferDone )
+        if( !pxSpi->bTransferDone )
         {
             nrf_drv_spi_abort( &pxSpi->instance );
 
             CRITICAL_REGION_ENTER();
-            bTransferDone = true;
+            pxSpi->bTransferDone = true;
             CRITICAL_REGION_EXIT();
 
             lError = IOT_SPI_SUCCESS;
@@ -509,14 +512,14 @@ void prvSpiEventHandler( nrf_drv_spi_evt_t const * pxEvent,
                          void * pvContext )
 {
     IotSPIHandle_t xHandle = ( IotSPIHandle_t ) pvContext;
-    const SpiContext_t * pxSpi = xHandle->pxSpiContext;
+    SpiContext_t * const pxSpi = xHandle->pxSpiContext;
 
     switch( pxEvent->type )
     {
         case NRF_DRV_SPI_EVENT_DONE:
             /* Adjust atomic flags. These are used by sync modes for polling and reproduces internal nRF_SDK blocking behaviour */
             CRITICAL_REGION_ENTER();
-            bTransferDone = true;
+            pxSpi->bTransferDone = true;
             CRITICAL_REGION_EXIT();
 
             /* In case of async transfers, event handlers should have been set, and should now be invoked */
@@ -538,18 +541,18 @@ void prvSpiEventHandler( nrf_drv_spi_evt_t const * pxEvent,
  * Called by other CommonIO that check input parameters before calling.
  */
 static int32_t prvSpiTransfer( IotSPIHandle_t const pxSPIPeripheral,
-                               uint8_t const * pucTxBuffer,
+                               uint8_t const * const pucTxBuffer,
                                size_t xTxSize,
-                               uint8_t const * pucRxBuffer,
+                               uint8_t * const pucRxBuffer,
                                size_t xRxSize,
                                bool bSync )
 {
     int32_t lError = IOT_SPI_SUCCESS;
+    SpiContext_t * pxSpiContext = pxSPIPeripheral->pxSpiContext;
 
-    if( bTransferDone )
+    if( pxSpiContext->bTransferDone )
     {
         IotSPICallback_t pxUserCallback;
-        SpiContext_t * pxSpiContext = pxSPIPeripheral->pxSpiContext;
 
         /* Less code by just making callback NULL while in sync transfer. i.e. no callback
          * This is fine because it's not possible for any transaction to fire if any transaction, sync or async, is underway.
@@ -562,7 +565,7 @@ static int32_t prvSpiTransfer( IotSPIHandle_t const pxSPIPeripheral,
 
         /* There was no transfer in progress, so we can safely attempt a new transfer */
         CRITICAL_REGION_ENTER();
-        bTransferDone = false;
+        pxSpiContext->bTransferDone = false;
         CRITICAL_REGION_EXIT();
 
         ret_code_t xTransferStatus = nrf_drv_spi_transfer( &pxSpiContext->instance, pucTxBuffer, xTxSize, pucRxBuffer, xRxSize );
@@ -570,7 +573,7 @@ static int32_t prvSpiTransfer( IotSPIHandle_t const pxSPIPeripheral,
         if( NRF_SUCCESS != xTransferStatus )
         {
             CRITICAL_REGION_ENTER();
-            bTransferDone = true;
+            pxSpiContext->bTransferDone = true;
             CRITICAL_REGION_EXIT();
 
             lError = IOT_SPI_TRANSFER_ERROR;
@@ -580,7 +583,7 @@ static int32_t prvSpiTransfer( IotSPIHandle_t const pxSPIPeripheral,
             if( bSync )
             {
                 /* For sync transfers, we block until they complete */
-                while( !bTransferDone )
+                while( !pxSpiContext->bTransferDone )
                 {
                 }
 
