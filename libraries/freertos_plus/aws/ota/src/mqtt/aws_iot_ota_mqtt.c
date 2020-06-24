@@ -121,11 +121,11 @@ static void prvDataPublishCallback( void * pvCallbackContext,
 
 /* Subscribe to the jobs notification topic (i.e. New file version available). */
 
-static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * pxAgentCtx );
+static bool prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * pxAgentCtx );
 
 /* UnSubscribe from the firmware update receive topic. */
 
-static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx );
+static bool prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx );
 
 /* UnSubscribe from the jobs notification topic. */
 
@@ -142,11 +142,11 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 
 /* Subscribe to the OTA job notification topics. */
 
-static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * pxAgentCtx )
+static bool prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * pxAgentCtx )
 {
     DEFINE_OTA_METHOD_NAME( "prvSubscribeToJobNotificationTopics" );
 
-    bool_t bResult = pdFALSE;
+    bool bResult = false;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
     IotMqttSubscription_t stJobsSubscription;
     IotMqttError_t eResult = IOT_MQTT_STATUS_PENDING;
@@ -204,7 +204,7 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
         if( eResult == IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
-            bResult = pdTRUE;
+            bResult = true;
         }
         else
         {
@@ -218,13 +218,13 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
 /*
  * UnSubscribe from the OTA data stream topic.
  */
-static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx )
+static bool prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx )
 {
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromDataStream" );
 
     IotMqttSubscription_t xUnSub;
 
-    bool_t bResult = pdFALSE;
+    bool bResult = false;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
     xUnSub.qos = IOT_MQTT_QOS_0;
@@ -254,7 +254,7 @@ static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCt
             else
             {
                 OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, pcOTA_RxStreamTopic );
-                bResult = pdTRUE;
+                bResult = true;
             }
         }
         else
@@ -473,7 +473,7 @@ static uint32_t prvBuildStatusMessageSelfTest( char * pcMsgBuffer,
     ulMsgSize += ( uint32_t ) snprintf( &pcMsgBuffer[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
                                         xMsgBufferSize - ulMsgSize,
                                         pcOTA_JobStatus_SelfTestDetailsTemplate,
-                                        pcOTA_JSON_SelfTestKey,
+                                        OTA_JSON_SELF_TEST_KEY,
                                         pcOTA_JobReason_Strings[ lReason ],
                                         xAppFirmwareVersion.u.ulVersion32 );
 
@@ -644,7 +644,7 @@ OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t * pxAgentCtx )
     char pcMsg[ CONST_STRLEN( pcOTA_GetNextJob_MsgTemplate ) + U32_MAX_PLACES + otaconfigMAX_THINGNAME_LEN ];
 
     /* Subscribe to the OTA job notification topic. */
-    if( prvSubscribeToJobNotificationTopics( pxAgentCtx ) == ( bool_t ) pdTRUE )
+    if( prvSubscribeToJobNotificationTopics( pxAgentCtx ) )
     {
         OTA_LOG_L1( "[%s] Request #%u\r\n", OTA_METHOD_NAME, ulReqCounter );
         /*lint -e586 Intentionally using snprintf. */
