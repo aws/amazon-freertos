@@ -1265,14 +1265,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c">
 			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
-			<Filter>libraries\3rdparty\tinycbor</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c">
+			<Filter>libraries\3rdparty\tinycbor\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c">
 			<Filter>libraries\3rdparty\tinycbor\src</Filter>

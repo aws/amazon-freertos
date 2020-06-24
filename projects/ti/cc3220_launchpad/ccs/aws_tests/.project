@@ -2138,7 +2138,7 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
 		</link>

@@ -1918,17 +1918,17 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
 		</link>

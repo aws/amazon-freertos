@@ -2388,12 +2388,7 @@
 			<locationURI>BASE_DIR/libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty_stdio.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/3rdparty/tinycbor/cborpretty_stdio.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
 		</link>

@@ -466,13 +466,13 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty_stdio.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c"/>
 	</ItemGroup>
