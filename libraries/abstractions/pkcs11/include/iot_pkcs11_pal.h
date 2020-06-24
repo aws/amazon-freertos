@@ -74,7 +74,10 @@
  */
 
 /**
- * @brief Initializes the PKCS #11 PAL.
+ * @brief Initializes the PKCS #11 PAL. 
+ *
+ * This is always called first in C_Initialize if the module is not already
+ * initialized.
  *
  * @return CKR_OK on success.
  * CKR_FUNCTION_FAILED on failure.

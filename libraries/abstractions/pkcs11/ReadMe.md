@@ -34,23 +34,28 @@ If you will also be completing a first-time MCU port for FreeRTOS, you may wish 
  
 The PAL interface is defined as follows.
 ```
+CK_RV PKCS11_PAL_Initialize( void );
+
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( 
     CK_ATTRIBUTE_PTR pxLabel,
-    uint8_t * pucData,
-    uint32_t ulDataSize );
+    CK_BYTE_PTR pucData,
+    CK_ULONG ulDataSize );
  
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( 
-    uint8_t * pLabel,
-    uint8_t usLength );
+    CK_BYTE_PTR pxLabel,
+    CK_ULONG usLength );
  
 CK_RV PKCS11_PAL_GetObjectValue(
      CK_OBJECT_HANDLE xHandle,
-    uint8_t ** ppucData,
-    uint32_t * pulDataSize,
-    CK_BBOOL * pIsPrivate );
+     CK_BYTE_PTR * ppucData,
+     CK_ULONG_PTR pulDataSize,
+     CK_BBOOL * pIsPrivate );
  
 void PKCS11_PAL_GetObjectValueCleanup( 
-    uint8_t * pucData,
-    uint32_t ulDataSize );
+    CK_BYTE_PTR pucData,
+    CK_ULONG ulDataSize );
+    
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
 ```
 A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/vendors/vendor/boards/board/ports/pkcs11/iot_pkcs11_pal.c.
