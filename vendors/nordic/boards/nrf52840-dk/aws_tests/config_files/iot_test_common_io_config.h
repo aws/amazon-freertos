@@ -45,6 +45,11 @@
 /*------------------------SPI-------------------------------*/
 #define IOT_TEST_COMMON_IO_SPI_SUPPORTED                     1
 
+//#define IOT_TEST_COMMON_IO_SPI_LOOPBACK                      1
+#ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK 
+    #define IOT_TEST_COMMON_IO_SPI_LOOPBACK                  0
+#endif
+
 #define SPI_TEST_SET                                         1
 
 static const uint8_t  spiTestPort[ SPI_TEST_SET ] = { 0 };
