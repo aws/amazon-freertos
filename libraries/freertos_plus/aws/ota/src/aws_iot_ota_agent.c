@@ -1109,7 +1109,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
         if( xResult == eIngest_Result_FileComplete )
         {
             /* File receive is complete and authenticated. Update the job status with the self_test ready identifier. */
-            xErr = xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_SigCheckPassed, 0 );
+            xErr = xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, eJobReason_SigCheckPassed, 0 );
 
             if( xErr != kOTA_Err_None )
             {
@@ -1162,7 +1162,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
             /* We're actively receiving a file so update the job status as needed. */
             /* First reset the momentum counter since we received a good block. */
             xOTA_Agent.ulRequestMomentum = 0;
-            xErr = xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, 0 );
+            xErr = xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, eJobReason_Receiving, 0 );
 
             if( xErr != kOTA_Err_None )
             {
@@ -2167,7 +2167,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 C->pucJobName = NULL;
                 xOTAErr = xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent,
                                                                     eJobStatus_Succeeded,
-                                                                    ( int32_t ) eJobReason_Accepted,
+                                                                    eJobReason_Accepted,
                                                                     0 );
 
                 if( xOTAErr != kOTA_Err_None )
