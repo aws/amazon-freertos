@@ -71,7 +71,7 @@
 									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
 									<listOptionValue builtIn="false" value="MXL12835F"/>
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
-									<listOptionValue builtIn="false" value="BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_FLEXCOMM"/>
+									<listOptionValue builtIn="false" value="BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_USBCDC"/>
 									<listOptionValue builtIn="false" value="IMG_BAUDRATE=96000000"/>
 									<listOptionValue builtIn="false" value="XIP_IMAGE"/>
 									<listOptionValue builtIn="false" value="BOARD_USE_VIRTUALCOM"/>
