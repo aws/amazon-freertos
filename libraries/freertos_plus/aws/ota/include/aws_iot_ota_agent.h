@@ -586,7 +586,6 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait );
 
-
 /**
  * @brief Internal OTA Agent initialization function.
  *
@@ -596,7 +595,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
  *
  * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
  * @param[in] pucThingName A pointer to a C string holding the Thing name.
- * @param[in] xCallbacks Static callback structure for various OTA events. This function will have
+ * @param[in] pxCallbacks Static callback structure for various OTA events. This function will have
  * input of the state of the OTA image after download and during self-test.
  * @param[in] xTicksToWait The number of ticks to wait until the OTA Task signals that it is ready.
  * If this is set to zero, then the function will return immediately after creating the OTA task but
@@ -608,10 +607,8 @@ OTA_State_t OTA_AgentInit( void * pvClient,
  */
 OTA_State_t OTA_AgentInit_internal( void * pvClient,
                                     const uint8_t * pucThingName,
-                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    OTA_PAL_Callbacks_t * pxCallbacks,
                                     TickType_t xTicksToWait );
-
-
 
 /**
  * @brief Signal to the OTA Agent to shut down.
