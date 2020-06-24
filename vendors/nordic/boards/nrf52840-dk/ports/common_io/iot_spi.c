@@ -42,7 +42,7 @@
 
 typedef struct SpiContext
 {
-    nrf_drv_spi_t instance;
+    const nrf_drv_spi_t instance;
     nrf_drv_spi_config_t config;
     volatile bool bTransferDone;
 } SpiContext_t;
@@ -53,7 +53,7 @@ typedef struct IotSPIDescriptor
     IotSPIMasterConfig_t xConfig;      /* Master Configuration */
     IotSPICallback_t xSpiCallback;     /* Callback function */
     void * pvUserContext;              /* User context passed in callback */
-    uint8_t sOpened;                   /* Bit flags to track different states. */
+    uint8_t ucState;                   /* Bit flags to track different states. */
 } IotSPIDescriptor_t;
 /*-----------------------------------------------------------*/
 
@@ -117,6 +117,13 @@ static SpiContext_t xSpiContexts[] =
     }
 };
 
+/*-----------------------------------------------------------*/
+
+/*
+ * Resets a Spi Context back to default configuration
+ */
+static void prvSetDefaultContext( SpiContext_t * const pxSpiContext );
+
 /*
  * Forward declare event handler passed to NRF SPI controller.
  * Invokes user callbacks for async modes.
@@ -124,6 +131,11 @@ static SpiContext_t xSpiContexts[] =
  */
 static void prvSpiEventHandler( nrf_drv_spi_evt_t const * pxEvent,
                                 void * pvContext );
+
+/* Transfer logic, with less parameter checking.
+ * Maintains internal atomics and applies appropriate CommonIO error codes
+ * Called by other CommonIO that check input parameters before calling.
+ */
 static int32_t prvSpiTransfer( IotSPIHandle_t const xSpiHandle,
                                uint8_t const * const pucTxBuffer,
                                size_t xTxSize,
@@ -139,7 +151,7 @@ static IotSPIDescriptor_t xSpi1 =
     .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .ucState       = IOT_SPI_CLOSED,
 };
 
 static IotSPIDescriptor_t xSpi2 =
@@ -148,7 +160,7 @@ static IotSPIDescriptor_t xSpi2 =
     .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .ucState       = IOT_SPI_CLOSED,
 };
 
 static IotSPIDescriptor_t xSpi3 =
@@ -157,7 +169,7 @@ static IotSPIDescriptor_t xSpi3 =
     .xConfig       = xDefaultConfig,
     .xSpiCallback  = NULL,
     .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .ucState       = IOT_SPI_CLOSED,
 };
 /*-----------------------------------------------------------*/
 
@@ -173,7 +185,7 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
     {
         xHandle = pxSpis[ lSpiInstance ];
 
-        if( xHandle->sOpened == IOT_SPI_CLOSED )
+        if( xHandle->ucState == IOT_SPI_CLOSED )
         {
             const SpiContext_t * pxSpi = xHandle->pxSpiContext;
 
@@ -183,7 +195,7 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
             }
             else
             {
-                xHandle->sOpened = IOT_SPI_OPENED;
+                xHandle->ucState = IOT_SPI_OPENED;
             }
         }
         else
@@ -297,7 +309,7 @@ int32_t iot_spi_read_sync( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: How to find a way to tell if slave is not selected */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -323,7 +335,7 @@ int32_t iot_spi_read_async( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: Add case for slave not selected? */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -349,7 +361,7 @@ int32_t iot_spi_write_sync( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: Add case for slave not selected? */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -375,7 +387,7 @@ int32_t iot_spi_write_async( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: Add case for slave not selected? */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -402,7 +414,7 @@ int32_t iot_spi_transfer_sync( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: Add case for slave not selected? */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -429,7 +441,7 @@ int32_t iot_spi_transfer_async( IotSPIHandle_t const pxSPIPeripheral,
     int32_t lError = IOT_SPI_SUCCESS;
 
     /* TODO: Add case for slave not selected? */
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
@@ -452,19 +464,20 @@ int32_t iot_spi_close( IotSPIHandle_t const pxSPIPeripheral )
 {
     int32_t lError = IOT_SPI_SUCCESS;
 
-    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->sOpened == IOT_SPI_CLOSED ) )
+    if( ( pxSPIPeripheral == NULL ) || ( pxSPIPeripheral->ucState == IOT_SPI_CLOSED ) )
     {
         lError = IOT_SPI_INVALID_VALUE;
     }
     else
     {
-        const SpiContext_t * pxSpi = pxSPIPeripheral->pxSpiContext;
+        SpiContext_t * const pxSpi = pxSPIPeripheral->pxSpiContext;
         int32_t lCancelStatus = iot_spi_cancel( pxSPIPeripheral );
 
         if( ( lCancelStatus == IOT_SPI_NOTHING_TO_CANCEL ) || ( lCancelStatus == IOT_SPI_SUCCESS ) )
         {
             nrf_drv_spi_uninit( &pxSpi->instance );
-            pxSPIPeripheral->sOpened = IOT_SPI_CLOSED;
+            prvSetDefaultContext( pxSpi );
+            pxSPIPeripheral->ucState = IOT_SPI_CLOSED;
         }
         else
         {
@@ -480,7 +493,7 @@ int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral )
 {
     int32_t lError = IOT_SPI_INVALID_VALUE;
 
-    if( ( pxSPIPeripheral != NULL ) && ( pxSPIPeripheral->sOpened == IOT_SPI_OPENED ) )
+    if( ( pxSPIPeripheral != NULL ) && ( pxSPIPeripheral->ucState == IOT_SPI_OPENED ) )
     {
         SpiContext_t * const pxSpi = pxSPIPeripheral->pxSpiContext;
 
@@ -598,4 +611,43 @@ static int32_t prvSpiTransfer( IotSPIHandle_t const pxSPIPeripheral,
     }
 
     return lError;
+}
+
+static void prvSetDefaultContext( SpiContext_t * const pxSpiContext )
+{
+    /* Requires index remapping, since CommonIO uses 1-indexing */
+    switch( pxSpiContext->instance.inst_idx )
+    {
+        case 0:
+            pxSpiContext->config.sck_pin = IOT_COMMON_IO_SPI_1_SCLK_PIN;
+            pxSpiContext->config.mosi_pin = IOT_COMMON_IO_SPI_1_MOSI_PIN;
+            pxSpiContext->config.miso_pin = IOT_COMMON_IO_SPI_1_MISO_PIN;
+            break;
+
+        case 1:
+            pxSpiContext->config.sck_pin = IOT_COMMON_IO_SPI_2_SCLK_PIN;
+            pxSpiContext->config.mosi_pin = IOT_COMMON_IO_SPI_2_MOSI_PIN;
+            pxSpiContext->config.miso_pin = IOT_COMMON_IO_SPI_2_MISO_PIN;
+            break;
+
+        case 2:
+            pxSpiContext->config.sck_pin = IOT_COMMON_IO_SPI_3_SCLK_PIN;
+            pxSpiContext->config.mosi_pin = IOT_COMMON_IO_SPI_3_MOSI_PIN;
+            pxSpiContext->config.miso_pin = IOT_COMMON_IO_SPI_3_MISO_PIN;
+            break;
+
+        default:
+            pxSpiContext->config.sck_pin = NRF_DRV_SPI_PIN_NOT_USED;
+            pxSpiContext->config.mosi_pin = NRF_DRV_SPI_PIN_NOT_USED;
+            pxSpiContext->config.miso_pin = NRF_DRV_SPI_PIN_NOT_USED;
+            break;
+    }
+
+    pxSpiContext->config.ss_pin = NRF_DRV_SPI_PIN_NOT_USED;
+    pxSpiContext->config.irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY;
+    pxSpiContext->config.orc = xDefaultConfig.ucDummyValue;
+    pxSpiContext->config.frequency = xDefaultConfig.ulFreq;
+    pxSpiContext->config.mode = xDefaultConfig.eMode;
+    pxSpiContext->config.bit_order = xDefaultConfig.eSetBitOrder == eSPIMSBFirst ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST;
+    pxSpiContext->bTransferDone = true;
 }
