@@ -354,23 +354,10 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)
 
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/*c)\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)/*.c)
-endif
-
 # Test code
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/test/iot_test_tls.c
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c
-endif
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto\
@@ -383,15 +370,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/test\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
-
-endif
 
 ################################################################################
 # Additional Source files and includes needed for BLE support

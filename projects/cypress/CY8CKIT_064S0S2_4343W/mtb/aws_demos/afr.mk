@@ -321,15 +321,6 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src/*.c)
 
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/*c)\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)/*.c)
-	
-endif
-
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
@@ -344,14 +335,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src
 
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
-
-endif
 
 ################################################################################
 # Additional Source files and includes needed for BLE support 

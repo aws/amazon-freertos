@@ -71,9 +71,6 @@ VERBOSE=
 # OTA_SUPPORT needed for some AWS Demos
 OTA_SUPPORT=0
 
-# FreeRTOS plus TCP
-CY_USE_FREERTOS_PLUS_TCP=0
-
 ################################################################################
 # Advanced Configuration
 ################################################################################
