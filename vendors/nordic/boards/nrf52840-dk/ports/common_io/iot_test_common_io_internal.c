@@ -55,12 +55,11 @@
 /* SPI */
     void SET_TEST_IOT_SPI_CONFIG( int testSet )
     {
-        ultestIotSpiInstance             = spiTestPort[ testSet ];
-        xtestIotSPIDefaultConfigMode     = spiIotMode[ testSet ];
+        ultestIotSpiInstance = spiTestPort[ testSet ];
+        xtestIotSPIDefaultConfigMode = spiIotMode[ testSet ];
         xtestIotSPIDefaultconfigBitOrder = spiIotSpitBitOrder[ testSet ];
-        ultestIotSPIFrequency            = spiIotFrequency[ testSet ];
-        ultestIotSPIDummyValue           = spiIotDummyValue[ testSet ];
+        ultestIotSPIFrequency = spiIotFrequency[ testSet ];
+        ultestIotSPIDummyValue = spiIotDummyValue[ testSet ];
     }
 
 #endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
-

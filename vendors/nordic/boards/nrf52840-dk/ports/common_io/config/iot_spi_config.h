@@ -1,5 +1,5 @@
 /*
-* FreeRTOS
+ * FreeRTOS
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,9 +34,9 @@
 #include "nrf_drv_spi.h"
 #include "nrf_gpio.h"
 
-#define IOT_COMMON_IO_SPI_1_MOSI_PIN    NRF_GPIO_PIN_MAP(1, 13)
-#define IOT_COMMON_IO_SPI_1_MISO_PIN    NRF_GPIO_PIN_MAP(1, 14) 
-#define IOT_COMMON_IO_SPI_1_SCLK_PIN    NRF_GPIO_PIN_MAP(1, 15)
+#define IOT_COMMON_IO_SPI_1_MOSI_PIN    NRF_GPIO_PIN_MAP( 1, 13 )
+#define IOT_COMMON_IO_SPI_1_MISO_PIN    NRF_GPIO_PIN_MAP( 1, 14 )
+#define IOT_COMMON_IO_SPI_1_SCLK_PIN    NRF_GPIO_PIN_MAP( 1, 15 )
 
 #define IOT_COMMON_IO_SPI_2_MOSI_PIN    NRF_DRV_SPI_PIN_NOT_USED
 #define IOT_COMMON_IO_SPI_2_MISO_PIN    NRF_DRV_SPI_PIN_NOT_USED
@@ -46,4 +46,4 @@
 #define IOT_COMMON_IO_SPI_3_MISO_PIN    NRF_DRV_SPI_PIN_NOT_USED
 #define IOT_COMMON_IO_SPI_3_SCLK_PIN    NRF_DRV_SPI_PIN_NOT_USED
 
-#endif  /* ifndef _AWS_COMMON_IO_SPI_CONFIG_H_ */
+#endif /* ifndef _AWS_COMMON_IO_SPI_CONFIG_H_ */

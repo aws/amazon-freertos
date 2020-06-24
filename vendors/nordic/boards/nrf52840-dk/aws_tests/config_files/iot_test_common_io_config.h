@@ -35,28 +35,27 @@
 /*------------------------UART-------------------------------*/
 
 /* UART is supported. */
-//#define IOT_TEST_COMMON_IO_UART_SUPPORTED                    1
+/*#define IOT_TEST_COMMON_IO_UART_SUPPORTED                    1 */
 
 /*------------------------I2C-------------------------------*/
 
 /* I2C is supported. */
-//#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1
+/*#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1 */
 
 /*------------------------SPI-------------------------------*/
-#define IOT_TEST_COMMON_IO_SPI_SUPPORTED                     1
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    1
 
-//#define IOT_TEST_COMMON_IO_SPI_LOOPBACK                      1
-#ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK 
-    #define IOT_TEST_COMMON_IO_SPI_LOOPBACK                  0
+/* #define IOT_TEST_COMMON_IO_SPI_LOOPBACK        1 */
+#ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK
+    #define IOT_TEST_COMMON_IO_SPI_LOOPBACK    0
 #endif
 
-#define SPI_TEST_SET                                         1
+#define SPI_TEST_SET                           1
 
-static const uint8_t  spiTestPort[ SPI_TEST_SET ] = { 0 };
+static const uint8_t spiTestPort[ SPI_TEST_SET ] = { 0 };
 static const uint32_t spiIotMode[ SPI_TEST_SET ] = { eSPIMode0 };
 static const uint32_t spiIotSpitBitOrder[ SPI_TEST_SET ] = { eSPIMSBFirst };
 static const uint32_t spiIotFrequency[ SPI_TEST_SET ] = { NRF_DRV_SPI_FREQ_125K };
-static const uint32_t spiIotDummyValue[ SPI_TEST_SET ] = {0 };
+static const uint32_t spiIotDummyValue[ SPI_TEST_SET ] = { 0 };
 
 #endif /* ifndef _TEST_IOT_CONFIG_H_ */
-
