@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V1.1.1
+ * FreeRTOS Common IO V0.1.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,30 +23,39 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef AWS_TEST_RUNNER_CONFIG_H
-#define AWS_TEST_RUNNER_CONFIG_H
+#ifndef _TEST_IOT_CONFIG_H_
+#define _TEST_IOT_CONFIG_H_
 
-/* Uncomment this line if you want to run DQP_FR tests only. */
-/* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                          0
+/* SPI includes */
+#include "iot_spi.h"
+#include "nrf_drv_spi.h"
 
-/* Unsupported tests */
-#define testrunnerFULL_OTA_CBOR_ENABLED                testrunnerUNSUPPORTED
 
-/* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_PAL_ENABLED                 0
-#define testrunnerFULL_SHADOWv4_ENABLED                0
-#define testrunnerFULL_MQTTv4_ENABLED                  0
-#define testrunnerFULL_MEMORYLEAK_ENABLED              0
-#define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED     0
-#define testrunnerFULL_BLE_STRESS_TEST_ENABLED         0
-#define testrunnerFULL_BLE_KPI_TEST_ENABLED            0
-#define testrunnerFULL_BLE_INTEGRATION_TEST_ENABLED    0
-#define testrunnerFULL_POSIX_ENABLED                   0
-#define testrunnerFULL_BLE_ENABLED                     0
-#define testrunnerFULL_SERIALIZER_ENABLED              0
-#define testrunnerFULL_LINEAR_CONTAINERS_ENABLED       0
-#define testrunnerFULL_COMMON_IO_ENABLED               0
+/*------------------------UART-------------------------------*/
 
-#endif /* AWS_TEST_RUNNER_CONFIG_H */
+/* UART is supported. */
+/*#define IOT_TEST_COMMON_IO_UART_SUPPORTED                    1 */
+
+/*------------------------I2C-------------------------------*/
+
+/* I2C is supported. */
+/*#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1 */
+
+/*------------------------SPI-------------------------------*/
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    1
+
+/* #define IOT_TEST_COMMON_IO_SPI_LOOPBACK        1 */
+#ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK
+    #define IOT_TEST_COMMON_IO_SPI_LOOPBACK    0
+#endif
+
+#define SPI_TEST_SET                           1
+
+static const uint8_t spiTestPort[ SPI_TEST_SET ] = { 0 };
+static const uint32_t spiIotMode[ SPI_TEST_SET ] = { eSPIMode0 };
+static const uint32_t spiIotSpitBitOrder[ SPI_TEST_SET ] = { eSPIMSBFirst };
+static const uint32_t spiIotFrequency[ SPI_TEST_SET ] = { NRF_DRV_SPI_FREQ_125K };
+static const uint32_t spiIotDummyValue[ SPI_TEST_SET ] = { 0 };
+
+#endif /* ifndef _TEST_IOT_CONFIG_H_ */
