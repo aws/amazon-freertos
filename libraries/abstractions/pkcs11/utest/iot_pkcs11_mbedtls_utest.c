@@ -3168,6 +3168,7 @@ void test_pkcs11_C_GenerateKeyPairECDSALockFail( void )
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )                           },
+        { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                              },
         { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
         { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
         { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
@@ -3303,7 +3304,8 @@ void test_pkcs11_C_GenerateKeyPairBadArgs( void )
         { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )                           },
         { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
         { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
-        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) },
+        { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                              }
     };
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
@@ -3373,6 +3375,14 @@ void test_pkcs11_C_GenerateKeyPairBadArgs( void )
                                  &xPubKeyHandle, &xPrivKeyHandle );
     TEST_ASSERT_EQUAL( CKR_TEMPLATE_INCONSISTENT, xResult );
     xPublicKeyTemplate[ 0 ].pValue = &xKeyType;
+
+    xPublicKeyTemplate[ 4 ].pValue = &xFalse;
+    xResult = C_GenerateKeyPair( xSession, &xMechanism, xPublicKeyTemplate,
+                                 sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                 xPrivateKeyTemplate, sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                 &xPubKeyHandle, &xPrivKeyHandle );
+    TEST_ASSERT_EQUAL( CKR_TEMPLATE_INCONSISTENT, xResult );
+    xPublicKeyTemplate[ 4 ].pValue = &xTrue;
 
     prvCommonDeinitStubs();
 }
