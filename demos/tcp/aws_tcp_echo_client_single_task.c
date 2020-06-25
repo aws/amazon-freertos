@@ -46,6 +46,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /* TCP/IP abstraction includes. */
 #include "iot_secure_sockets.h"
@@ -153,7 +154,9 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 /*-----------------------------------------------------------*/
 
-BaseType_t SyncCounter;
+/* Create a semaphore to sync all Echo task(s). */
+static SemaphoreHandle_t EchoSingleSemaphore;
+
 
 int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const char * pIdentifier,
@@ -162,7 +165,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xX;
-    const BaseType_t CheckingDelay = 100;
+    BaseType_t SyncCounter;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
     TaskHandle_t EchoTaskHandles[ echoNUM_ECHO_CLIENTS ];
     /* Unused parameters */
@@ -173,6 +176,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     SyncCounter = 0;
+    EchoSingleSemaphore = xSemaphoreCreateCounting( echoNUM_ECHO_CLIENTS, 0 );
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
@@ -190,7 +194,8 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     while( SyncCounter < echoNUM_ECHO_CLIENTS )
     {
         /* Check every 100ms whether all child tasks have finished. */
-        vTaskDelay( CheckingDelay / portTICK_PERIOD_MS );
+        xSemaphoreTake( EchoSingleSemaphore, portMAX_DELAY );
+        SyncCounter++;
     }
 
     /* Clean up */
@@ -424,15 +429,9 @@ static void prvEchoClientTask( void * pvParameters )
         vTaskDelay( echoLOOP_DELAY );
     }
     
-    /* Safely increment the global synchronisation variable to show
-     * that this task has finished. */
-    taskENTER_CRITICAL();
-    {
-        SyncCounter++;
-    }
-    taskEXIT_CRITICAL();
+    /* Notify the parent task about completion. */
+    xSemaphoreGive( EchoSingleSemaphore );
     
-
     /* Wait to be Deleted by the parent task. */
     while ( pdTRUE )
     {
