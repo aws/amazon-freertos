@@ -153,6 +153,8 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 /*-----------------------------------------------------------*/
 
+BaseType_t SyncCounter;
+
 int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const char * pIdentifier,
                                           void * pNetworkServerInfo,
@@ -160,14 +162,17 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xX;
+    const BaseType_t CheckingDelay = 100;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
-
+    TaskHandle_t EchoTaskHandles[ echoNUM_ECHO_CLIENTS ];
     /* Unused parameters */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
+
+    SyncCounter = 0;
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
@@ -178,7 +183,20 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                      democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
                      ( void * ) xX,            /* The task parameter, not used in this case. */
                      democonfigDEMO_PRIORITY,  /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     NULL );                   /* The task handle is not used. */
+                     &EchoTaskHandles[ xX ] );                   /* The task handle is not used. */
+    }
+
+    /* Wait for all tasks to finish */
+    while( SyncCounter < echoNUM_ECHO_CLIENTS )
+    {
+        /* Check every 100ms whether all child tasks have finished. */
+        vTaskDelay( CheckingDelay / portTICK_PERIOD_MS );
+    }
+
+    /* Clean up */
+    for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
+    {
+        vTaskDelete( EchoTaskHandles[ xX ] );
     }
 
     return 0;
@@ -197,6 +215,8 @@ static void prvEchoClientTask( void * pvParameters )
     char * pcTransmittedString;
     char * pcReceivedString;
     TickType_t xTimeOnEntering;
+    BaseType_t lConnectionCount;
+    const BaseType_t lMaxConnectionCount = 10;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
         WinProperties_t xWinProps;
@@ -230,7 +250,8 @@ static void prvEchoClientTask( void * pvParameters )
                                                             configECHO_SERVER_ADDR2,
                                                             configECHO_SERVER_ADDR3 );
 
-    for( ; ; )
+    /* Create lMaxConnectionCount distinct connections to the echo server. */
+    for( lConnectionCount = 0; lConnectionCount < lMaxConnectionCount ; lConnectionCount++ )
     {
         /* Create a TCP socket. */
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
@@ -401,6 +422,16 @@ static void prvEchoClientTask( void * pvParameters )
         /* Pause for a short while to ensure the network is not too
          * congested. */
         vTaskDelay( echoLOOP_DELAY );
+    }
+    
+    /* Increment the global synchronisation variable to show
+     * that this task has finished. */
+    SyncCounter++;
+
+    /* Wait to be Deleted by the parent task. */
+    while ( pdTRUE )
+    {
+        vTaskDelay( portMAX_DELAY );
     }
 }
 /*-----------------------------------------------------------*/
