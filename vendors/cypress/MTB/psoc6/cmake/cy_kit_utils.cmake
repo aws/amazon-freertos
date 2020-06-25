@@ -929,6 +929,6 @@ function(cy_kit_generate)
             )
         endif(OTA_SUPPORT)
 
-    endif(CY_TFM_PSA)
+    endif(CY_TFM_PSA AND (NOT AFR_METADATA_MODE))
 
 endfunction(cy_kit_generate)
