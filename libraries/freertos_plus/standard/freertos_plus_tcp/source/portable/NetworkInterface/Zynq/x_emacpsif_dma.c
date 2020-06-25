@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202006.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -427,7 +427,7 @@ int emacps_check_rx( xemacpsif_s * xemacpsif )
 
                     pxLastDescriptor = pxBuffer;
                 }
-            #else  /* if ( ipconfigUSE_LINKED_RX_MESSAGES != 0 ) */
+            #else /* if ( ipconfigUSE_LINKED_RX_MESSAGES != 0 ) */
                 {
                     prvPassEthMessages( pxBuffer );
                 }
