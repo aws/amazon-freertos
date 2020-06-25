@@ -25,17 +25,17 @@
 ### Usage
 1. Run the presigned_url_gen.py with your s3 **bucket-name** and s3 object key **object-key**.  
    ```
-   python presigned_urls_gen.py --bucket my-bucket --key object-key
+    python presigned_urls_gen.py --bucket <YOUR BUCKET NAME> --key <YOUR OBJECT KEY> 
    ```  
    An example expected output:  
    ```
-   #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
-   #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW%3D
+   #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+   #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW%3D
    ```
 1. Copy and paste the output to **iot_config.h** for macro **IOT_DEMO_HTTPS_PRESIGNED_GET_URL** and **IOT_DEMO_HTTPS_PRESIGNED_PUT_URL**.  
    ```
-   #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL     https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
-   #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL     https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL     https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL     https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
    ```
 
 ### Parameter Info

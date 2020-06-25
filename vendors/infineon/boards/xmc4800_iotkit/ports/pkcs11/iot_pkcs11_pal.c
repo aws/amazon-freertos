@@ -105,8 +105,8 @@ static E_EEPROM_XMC4_t e_eeprom;
  * eInvalidHandle = 0 if unsuccessful.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize )
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     CK_ULONG ulFlashMark = pkcs11OBJECT_FLASH_OBJECT_PRESENT;
@@ -195,13 +195,13 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
+                                        CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Translate from the PKCS#11 label to local storage file name. */
-    if( 0 == memcmp( pLabel,
+    if( 0 == memcmp( pxLabel,
                      &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                      sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
     {
@@ -210,7 +210,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
             xHandle = eAwsDeviceCertificate;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
     {
@@ -219,7 +219,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
             xHandle = eAwsDevicePrivateKey;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
     {
@@ -228,7 +228,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
             xHandle = eAwsDevicePublicKey;
         }
     }
-    else if( 0 == memcmp( pLabel,
+    else if( 0 == memcmp( pxLabel,
                           &pkcs11configLABEL_CODE_VERIFICATION_KEY,
                           sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
     {
@@ -267,9 +267,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                 uint8_t ** ppucData,
-                                 uint32_t * pulDataSize,
-                                 CK_BBOOL * pIsPrivate )
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
 
@@ -344,8 +344,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
  * @param[in] ulDataSize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
-                                       uint32_t ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize )
 {
     /* Unused parameters. */
     ( void ) pucData;
@@ -356,23 +356,8 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 }
 /*-----------------------------------------------------------*/
 
-extern CK_RV prvMbedTLS_Initialize( void );
-
-/**
- * @brief Initialize the Cryptoki module for use.
- *
- * Overrides the implementation of C_Initialize in
- * iot_pkcs11_mbedtls.c when pkcs11configC_INITIALIZE_ALT
- * is defined.
- */
-#ifndef pkcs11configC_INITIALIZE_ALT
-    #error XMC4800 requires alternate C_Initialization
-#endif
-
-CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( pvInitArgs );
-
+CK_RV PKCS11_PAL_Initialize( void )
+{   
     CK_RV xResult = CKR_OK;
 
     E_EEPROM_XMC4_Init( &e_eeprom, sizeof( P11KeyConfig_t ) );
@@ -380,11 +365,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
     if( E_EEPROM_XMC4_IsFlashEmpty() == false )
     {
         E_EEPROM_XMC4_ReadArray( 0, ( uint8_t * const ) &P11KeyConfig, sizeof( P11KeyConfig_t ) );
-    }
-
-    if( xResult == CKR_OK )
-    {
-        xResult = prvMbedTLS_Initialize();
     }
 
     return xResult;

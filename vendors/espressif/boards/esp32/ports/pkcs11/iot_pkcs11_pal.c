@@ -161,6 +161,11 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
     }
 }
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Writes a file to local storage.
  *
@@ -173,8 +178,8 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
  * @return The file handle of the object that was stored.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize )
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize )
 {
     initialize_nvs_partition();
 
@@ -186,7 +191,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                               &pcFileName,
                               &xHandle );
 
-    ESP_LOGD(TAG, "Writing file %s, %d bytes", pcFileName, ulDataSize);
+    ESP_LOGD(TAG, "Writing file %s, %d bytes", ( char * ) pcFileName, ( uint32_t ) ulDataSize);
     nvs_handle handle;
     esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READWRITE, &handle);
     if (err != ESP_OK) {
@@ -194,7 +199,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         return eInvalidHandle;
     }
 
-    err = nvs_set_blob(handle, pcFileName, pucData, ulDataSize);
+    err = nvs_set_blob(handle, pcFileName, ( char * ) pucData, ( uint32_t ) ulDataSize);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "failed nvs set blob %d", err);
         nvs_close(handle);
@@ -218,8 +223,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * @return The object handle if operation was successful.
  * Returns eInvalidHandle if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
-                                        uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
+                                        CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
@@ -227,7 +232,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
     initialize_nvs_partition();
 
     /* Translate from the PKCS#11 label to local storage file name. */
-    prvLabelToFilenameHandle( pcLabel,
+    prvLabelToFilenameHandle( pxLabel,
                               &pcFileName,
                               &xHandle );
 
@@ -280,9 +285,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                 uint8_t ** ppucData,
-                                 uint32_t * pulDataSize,
-                                 CK_BBOOL * pIsPrivate )
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
     initialize_nvs_partition();
 
@@ -371,8 +376,8 @@ done:
  * @param[in] ulDataSize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
-                                       uint32_t ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize )
 {
     /* Unused parameters. */
     ( void ) ulDataSize;

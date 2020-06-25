@@ -186,13 +186,13 @@ endif()
 # tinycbor - CBOR implementation
 if(EXISTS "${AFR_3RDPARTY_DIR}/tinycbor")
     set(tinycbor_src
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty_stdio.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborerrorstrings.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborparser.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborparser_dup_string.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborpretty.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborpretty_stdio.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborencoder.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborencoder_close_container_checked.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborerrorstrings.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborparser.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborparser_dup_string.c"
     )
     add_library(
         afr_3rdparty_tinycbor STATIC EXCLUDE_FROM_ALL
@@ -206,7 +206,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/tinycbor")
     target_include_directories(
         afr_3rdparty_tinycbor
         PUBLIC
-            "${AFR_3RDPARTY_DIR}/tinycbor"
+            "${AFR_3RDPARTY_DIR}/tinycbor/src"
     )
     target_link_libraries(
         afr_3rdparty_tinycbor

@@ -59,7 +59,7 @@
 /**
  * @brief The OTA agent task priority. Normally it runs at a low priority.
  */
-#define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY+5
+#define otaconfigAGENT_PRIORITY                 tskIDLE_PRIORITY + 5U
 
 /**
  * @brief The maximum allowed length of the thing name used by the OTA agent.
@@ -100,6 +100,16 @@
  * the OTA agent for job and file data blocks received.
  */
 #define otaconfigMAX_NUM_OTA_DATA_BUFFERS       2U
+
+/**
+ * @brief Allow update to same or lower version.
+ *
+ * Set this to 1 to allow downgrade or same version update.This configurations parameter
+ * disables version check and allows update to a same or lower version.This is provided for
+ * testing purpose and it is recommended to always update to higher version and keep this
+ * configuration disabled.
+ */
+#define otaconfigAllowDowngrade              0U
 
 /**
  * @brief The protocol selected for OTA control operations.

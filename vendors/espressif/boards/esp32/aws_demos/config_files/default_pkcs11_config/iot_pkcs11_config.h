@@ -33,9 +33,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-/* #define pkcs11configC_INITIALIZE_ALT */
-
 /**
  * @brief ESP32 NVS Partition where PKCS #11 data is stored
  */
@@ -64,13 +61,19 @@
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
  * attribute.
  */
-#define pkcs11configMAX_LABEL_LENGTH                       32
+#define pkcs11configMAX_LABEL_LENGTH                       32UL
 
 /**
  * @brief Maximum number of token objects that can be stored
  * by the PKCS #11 module.
  */
-#define pkcs11configMAX_NUM_OBJECTS                        6
+#define pkcs11configMAX_NUM_OBJECTS                        6UL
+
+/**
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
+ */
+#define pkcs11configMAX_SESSIONS                           10UL
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.

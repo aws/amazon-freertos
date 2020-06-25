@@ -4,9 +4,9 @@
 libs-y += libawstinycbor
 
 libawstinycbor-objs-y := \
-		../../../../../../../libraries/3rdparty/tinycbor/cborencoder.c \
-		../../../../../../../libraries/3rdparty/tinycbor/cborparser.c \
-		../../../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c
+		../../../../../../../libraries/3rdparty/tinycbor/src/cborencoder.c \
+		../../../../../../../libraries/3rdparty/tinycbor/src/cborparser.c \
+		../../../../../../../libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c
 
 libawsjsmn-supported-toolchain-y := arm_gcc iar
 

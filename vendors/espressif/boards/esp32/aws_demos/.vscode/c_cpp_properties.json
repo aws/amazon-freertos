@@ -13,7 +13,7 @@
                 "${workspaceFolder}/../../../lib/include/bluetooth_low_energy",
                 "${workspaceFolder}/../../../lib/bluetooth_low_energy/portable/espressif",
                 "${workspaceFolder}/../../../lib/third_party/jsmn",
-                "${workspaceFolder}/../../../lib/third_party/tinycbor",
+                "${workspaceFolder}/../../../lib/third_party/tinycbor/src",
                 "${workspaceFolder}/../../../lib/third_party/mcu_vendor/espressif/esp-idf/components/**"
             ],
             "defines": [],
