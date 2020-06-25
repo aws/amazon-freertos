@@ -429,7 +429,7 @@ static void prvEchoClientTask( void * pvParameters )
     /* Notify the parent task about completion. */
     xSemaphoreGive( EchoSingleSemaphore );
 
-    /* Allow the task to delete itself. */
+    /* Delete self. */
     vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
