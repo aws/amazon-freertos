@@ -2052,8 +2052,18 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 /* C->pucJobName is guaranteed to be zero terminated. */
                 if( strcmp( ( char * ) xOTA_Agent.pcOTA_Singleton_ActiveJobName, ( char * ) C->pucJobName ) != 0 )
                 {
-                    OTA_LOG_L1( "[%s] Busy with existing job. Ignoring.\r\n", OTA_METHOD_NAME );
-                    eErr = eOTA_JobParseErr_BusyWithExistingJob;
+                    OTA_LOG_L1( "[%s] New job document received,aborting current job.\r\n", OTA_METHOD_NAME );
+
+                    /* Abort the current job. */
+                    ( void ) xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eOTA_ImageState_Aborted );
+                    ( void ) prvOTA_Close( &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] );
+
+                    /* Set new active job name. */
+                    vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+                    xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
+                    C->pucJobName = NULL;
+
+                    eErr = eOTA_JobParseErr_None;
                 }
                 else
                 { /* The same job is being reported so update the url. */

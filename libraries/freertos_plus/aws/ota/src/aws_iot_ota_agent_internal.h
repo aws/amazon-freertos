@@ -245,7 +245,7 @@ typedef struct ota_agent_context
     uint8_t pcThingName[ otaconfigMAX_THINGNAME_LEN + 1U ]; /* Thing name + zero terminator. */
     void * pvConnectionContext;                             /* Connection context for control and data plane. */
     OTA_FileContext_t pxOTA_Files[ OTA_MAX_FILES ];         /* Static array of OTA file structures. */
-    uint32_t ulFileIndex;                                   /* Static array of OTA file structures. */
+    uint32_t ulFileIndex;                                   /* Index of current file in the array. */
     uint32_t ulServerFileID;                                /* Variable to store current file ID passed down */
     uint8_t * pcOTA_Singleton_ActiveJobName;                /* The currently active job name. We only allow one at a time. */
     uint8_t * pcClientTokenFromJob;                         /* The clientToken field from the latest update job. */
