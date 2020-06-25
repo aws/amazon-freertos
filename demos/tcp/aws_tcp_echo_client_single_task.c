@@ -165,10 +165,10 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xX;
-    BaseType_t SyncCounter;
+    BaseType_t TaskCompleteCounter;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
     TaskHandle_t EchoTaskHandles[ echoNUM_ECHO_CLIENTS ];
-    
+
     /* Unused parameters */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -176,36 +176,33 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
 
-    SyncCounter = 0;
+    TaskCompleteCounter = 0;
     EchoSingleSemaphore = xSemaphoreCreateCounting( echoNUM_ECHO_CLIENTS, 0 );
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {
         snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", ( long int ) xX );
-        xTaskCreate( prvEchoClientTask,        /* The function that implements the task. */
-                     cNameBuffer,              /* Just a text name for the task to aid debugging. */
-                     democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
-                     ( void * ) xX,            /* The task parameter, not used in this case. */
-                     democonfigDEMO_PRIORITY,  /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     &EchoTaskHandles[ xX ] );                   /* The task handle is not used. */
+        xTaskCreate( prvEchoClientTask,             /* The function that implements the task. */
+                     cNameBuffer,                   /* Just a text name for the task to aid debugging. */
+                     democonfigDEMO_STACKSIZE,      /* The stack size is defined in FreeRTOSIPConfig.h. */
+                     ( void * ) xX,                 /* The task parameter, not used in this case. */
+                     democonfigDEMO_PRIORITY,       /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+                     &EchoTaskHandles[ xX ] );      /* The task handle is not used. */
     }
 
-    /* Wait for all tasks to finish */
-    while( SyncCounter < echoNUM_ECHO_CLIENTS )
+    /* Wait for all tasks to finish. */
+    while( TaskCompleteCounter < echoNUM_ECHO_CLIENTS )
     {
-        /* Check every 100ms whether all child tasks have finished. */
+        /* Wait for the semaphore to be 'given' by a child task. */
         xSemaphoreTake( EchoSingleSemaphore, portMAX_DELAY );
-        SyncCounter++;
-    }
 
-    /* Clean up */
-    for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
-    {
-        vTaskDelete( EchoTaskHandles[ xX ] );
-    }
+        /* Increment the task completion counter variable. */
+        TaskCompleteCounter++;
+    }  
 
-    return 0;
+    /* Return Success. */
+    return EXIT_SUCCESS;
 }
 /*-----------------------------------------------------------*/
 
@@ -433,11 +430,8 @@ static void prvEchoClientTask( void * pvParameters )
     /* Notify the parent task about completion. */
     xSemaphoreGive( EchoSingleSemaphore );
     
-    /* Wait to be Deleted by the parent task. */
-    while ( pdTRUE )
-    {
-        vTaskDelay( portMAX_DELAY );
-    }
+    /* Allow the task to delete itself. */
+    vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
 
