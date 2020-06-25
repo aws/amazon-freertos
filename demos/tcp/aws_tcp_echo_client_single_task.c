@@ -167,8 +167,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     BaseType_t xX;
     BaseType_t TaskCompleteCounter;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
-    TaskHandle_t EchoTaskHandles[ echoNUM_ECHO_CLIENTS ];
-
+    
     /* Unused parameters */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -188,7 +187,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                      democonfigDEMO_STACKSIZE,      /* The stack size is defined in FreeRTOSIPConfig.h. */
                      ( void * ) xX,                 /* The task parameter, not used in this case. */
                      democonfigDEMO_PRIORITY,       /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     &EchoTaskHandles[ xX ] );      /* The task handle is not used. */
+                     NULL );                        /* The task handle is not used. */
     }
 
     /* Wait for all tasks to finish. */
