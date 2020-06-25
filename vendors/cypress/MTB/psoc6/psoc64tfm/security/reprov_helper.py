@@ -179,10 +179,9 @@ def re_provision_device(device, policy):
 
 def erase_flash(addr, size):
     tool = ProgrammingTool.create(cytools.PROGRAMMING_TOOL)
-    tool.connect(cytools.target_name)
+    tool.connect(target_name=cytools.target_name, ap='cm0')
+    tool.set_ap(AP.CM0)
     print('Erasing address {hex(addr)}, size {hex(size)} ...')
-    ap = tool.get_ap()
-    tool.set_ap(AP.CMx)
     tool.erase(addr, size)
     print('Erasing complete\n')
     tool.reset(ResetType.HW)
