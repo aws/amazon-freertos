@@ -168,6 +168,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     BaseType_t SyncCounter;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
     TaskHandle_t EchoTaskHandles[ echoNUM_ECHO_CLIENTS ];
+    
     /* Unused parameters */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
