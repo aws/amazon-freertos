@@ -167,7 +167,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     BaseType_t xX;
     BaseType_t TaskCompleteCounter;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
-    
+
     /* Unused parameters */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -182,12 +182,12 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {
         snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", ( long int ) xX );
-        xTaskCreate( prvEchoClientTask,             /* The function that implements the task. */
-                     cNameBuffer,                   /* Just a text name for the task to aid debugging. */
-                     democonfigDEMO_STACKSIZE,      /* The stack size is defined in FreeRTOSIPConfig.h. */
-                     ( void * ) xX,                 /* The task parameter, not used in this case. */
-                     democonfigDEMO_PRIORITY,       /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     NULL );                        /* The task handle is not used. */
+        xTaskCreate( prvEchoClientTask,        /* The function that implements the task. */
+                     cNameBuffer,              /* Just a text name for the task to aid debugging. */
+                     democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
+                     ( void * ) xX,            /* The task parameter, not used in this case. */
+                     democonfigDEMO_PRIORITY,  /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+                     NULL );                   /* The task handle is not used. */
     }
 
     /* Wait for all tasks to finish. */
@@ -198,7 +198,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
 
         /* Increment the task completion counter variable. */
         TaskCompleteCounter++;
-    }  
+    }
 
     /* Return Success. */
     return EXIT_SUCCESS;
@@ -253,7 +253,7 @@ static void prvEchoClientTask( void * pvParameters )
                                                             configECHO_SERVER_ADDR3 );
 
     /* Create lMaxConnectionCount distinct connections to the echo server. */
-    for( lConnectionCount = 0; lConnectionCount < lMaxConnectionCount ; lConnectionCount++ )
+    for( lConnectionCount = 0; lConnectionCount < lMaxConnectionCount; lConnectionCount++ )
     {
         /* Create a TCP socket. */
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
@@ -425,10 +425,10 @@ static void prvEchoClientTask( void * pvParameters )
          * congested. */
         vTaskDelay( echoLOOP_DELAY );
     }
-    
+
     /* Notify the parent task about completion. */
     xSemaphoreGive( EchoSingleSemaphore );
-    
+
     /* Allow the task to delete itself. */
     vTaskDelete( NULL );
 }
