@@ -424,9 +424,14 @@ static void prvEchoClientTask( void * pvParameters )
         vTaskDelay( echoLOOP_DELAY );
     }
     
-    /* Increment the global synchronisation variable to show
+    /* Safely increment the global synchronisation variable to show
      * that this task has finished. */
-    SyncCounter++;
+    taskENTER_CRITICAL();
+    {
+        SyncCounter++;
+    }
+    taskEXIT_CRITICAL();
+    
 
     /* Wait to be Deleted by the parent task. */
     while ( pdTRUE )
