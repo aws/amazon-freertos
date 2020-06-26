@@ -34,7 +34,7 @@ extern const AppVersion32_t xAppFirmwareVersion;
 #endif
 
 #ifndef APP_VERSION_MINOR
-#define APP_VERSION_MINOR    9
+#define APP_VERSION_MINOR    6
 #endif
 
 #ifndef APP_VERSION_BUILD
