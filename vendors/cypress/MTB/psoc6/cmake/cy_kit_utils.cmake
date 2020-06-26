@@ -138,6 +138,10 @@ function(cy_kit_generate)
     # is BLE supported?
     string(FIND "${ARG_DEFINES}" "CY_BLE_SUPPORTED" check_ble_supported)
     if (NOT ("${check_ble_supported}" STREQUAL "-1"))
+       # Add BLE when generating metadata for Build Combination and OCW.
+       if ("${AFR_METADATA_MODE}" STREQUAL "1")
+          set(CY_BLE_SUPPORTED 1)           
+       endif()
        # BLE is only supported for arm-gcc
        if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
           set(CY_BLE_SUPPORTED 1)
