@@ -114,22 +114,74 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @brief Indicates that no PKCS #11 operation is underway for given session.
  *
  */
-#define pkcs11NO_OPERATION     ( ( CK_MECHANISM_TYPE ) -1 )
+#define pkcs11NO_OPERATION                  ( ( CK_MECHANISM_TYPE ) -1 )
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief size of a prime256v1 EC private key in bytes, when encoded in DER.
+ *
+ *
+ */
+#define pkcs11_PRIVATE_EC_PRIME_256_SIZE    160
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief size of a prime256v1 EC public key in bytes, when encoded in DER.
+ *
+ */
+#define pkcs11_PUBLIC_EC_PRIME_256_SIZE     100
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief size of a 2048 bit RSA public key in bytes, when encoded in DER.
+ *
+ *
+ */
+#define pkcs11_PUBLIC_RSA_2048_SIZE         300
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief size of a 2048 bit RSA private key in bytes, in DER encoding.
+ *
+ */
+#define pkcs11_PRIVATE_RSA_2048_SIZE        1200
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief Max size of an EC public key in bytes, in DER encoding.
+ */
+#define EC_MAX_PUBLIC_KEY_SIZE              pkcs11_PUBLIC_EC_PRIME_256_SIZE
+
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief Max size of an EC private key in bytes, in DER encoding.
+ *
+ */
+#define EC_MAX_LENGTH_KEY      pkcs11_PRIVATE_EC_PRIME_256_SIZE
 
 /**
  * @ingroup pkcs11_macros
  * @brief Max size of a public key.
- * TODO: How long is a typical RSA key anyhow?
+ * This macro defines the size of a key in bytes, in DER encoding.
+ *
+ * @note The largest RSA public key is used because EC keys are smaller.
  */
-#define MAX_PUBLIC_KEY_SIZE    3000
+#define MAX_PUBLIC_KEY_SIZE    pkcs11_PUBLIC_RSA_2048_SIZE
 
 
 /**
  * @ingroup pkcs11_macros
  * @brief Max key length of a key.
- * TODO: How long is a typical RSA key anyhow?
+ * This macro defines the size of a key in bytes, in DER format.
+ *
+ * Currently the largest key type supported by this port is a 2048 bit
+ * RSA private key.
+ *
+ * @note The largest RSA private key is used because EC keys are smaller and
+ * the RSA public key is smaller.
  */
-#define MAX_LENGTH_KEY                3000
+#define MAX_LENGTH_KEY                pkcs11_PRIVATE_RSA_2048_SIZE
 
 /**
  * @ingroup pkcs11_macros
@@ -1108,8 +1160,30 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     uint32_t ulActualKeyLength = 0;
     int32_t lCompare = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
+    uint32_t ulDerBufSize = 0;
 
-    pxDerKey = pvPortMalloc( MAX_PUBLIC_KEY_SIZE );
+    if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
+    {
+        ulDerBufSize = EC_MAX_LENGTH_KEY;
+    }
+    else if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
+    {
+        ulDerBufSize = EC_MAX_PUBLIC_KEY_SIZE;
+    }
+    else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
+    {
+        ulDerBufSize = MAX_LENGTH_KEY;
+    }
+    else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
+    {
+        ulDerBufSize = MAX_PUBLIC_KEY_SIZE;
+    }
+    else
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    pxDerKey = pvPortMalloc( ulDerBufSize );
 
     if( pxDerKey == NULL )
     {
@@ -1120,13 +1194,13 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
-        lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
+        lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, ulDerBufSize );
     }
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
-        lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
+        lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, ulDerBufSize );
     }
     else
     {
@@ -1168,12 +1242,12 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
          * It must be removed so that we can read the private
          * key back at a later time. */
         uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
-        lCompare = memcmp( &pxDerKey[ MAX_LENGTH_KEY - 6 ], emptyPubKey, 6 );
+        lCompare = memcmp( &pxDerKey[ ulDerBufSize - 6 ], emptyPubKey, 6 );
 
         if( ( lCompare == 0 ) && ( ulActualKeyLength >= 6UL ) )
         {
             /* Do not write the last 6 bytes to key storage. */
-            pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= ( uint8_t ) 6;
+            pxDerKey[ ulDerBufSize - lDerKeyLength + 1 ] -= ( uint8_t ) 6;
             ulActualKeyLength -= 6UL;
         }
     }
@@ -1181,7 +1255,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     if( xResult == CKR_OK )
     {
         xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
-                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
+                                            pxDerKey + ( ulDerBufSize - lDerKeyLength ),
                                             ulActualKeyLength );
 
         if( xPalHandle == CK_INVALID_HANDLE )
