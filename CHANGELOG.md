@@ -1,6 +1,9 @@
-# Change Log for FreeRTOS
+# Change Log for FreeRTOS AWS Reference Integrations
 
 ## 202007.00 7/14/2020
+
+#### Product Name Change
+- The repository brand name has been changed from `FreeRTOS` to `FreeRTOS AWS Reference Integrations`.
 
 ### New Features
 
