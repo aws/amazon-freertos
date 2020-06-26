@@ -10,6 +10,9 @@
 - OTA Demo is updated to check for MQTT disconnect, suspend OTA operations and try reconnecting with exponential delay and jitter. After successful connection the demo resumes OTA Agent operations.
 - Added new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
 
+#### Cypress
+- New Board: The <b>CY8CKIT_064S0S2_4343W<b> board is now qualified with FreeRTOS.
+
 #### Espressif
 
 - New Board: <b>ESP32-WROOM-32SE</b> is now qualified with FreeRTOS. It was previously supported in Preview mode.
