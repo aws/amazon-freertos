@@ -2351,6 +2351,87 @@ EthernetHeader_t *pxEthernetHeader;
 }
 /*-----------------------------------------------------------*/
 
+
+#if ( ipconfigHAS_PRINTF != 0 )
+	
+	#ifndef ipMONITOR_MAX_HEAP
+		/* As long as the heap has more space than e.g. 1 MB, there
+		will be no messages. */
+		#define	ipMONITOR_MAX_HEAP			( 1024U * 1024U )
+	#endif	/* ipMONITOR_MAX_HEAP */
+
+	#ifndef ipMONITOR_PERCENTAGE_90
+		/* Make this number lower to get less logging messages. */
+		#define ipMONITOR_PERCENTAGE_90		( 90U )
+	#endif
+
+	#define ipMONITOR_PERCENTAGE_100		( 100U )
+
+	void vPrintResourceStats( void )
+	{
+	static UBaseType_t uxLastMinBufferCount = ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS;
+	static size_t uxMinLastSize = 0u;
+	UBaseType_t uxCurrentBufferCount;
+	size_t uxMinSize;
+
+		/* When setting up and testing a project with FreeRTOS+TCP, it is
+		can be helpful to monitor a few resources: the number of network
+		buffers and the amount of available heap.
+		This function will issue some logging when a minimum value has
+		changed. */
+		uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
+
+		if( uxLastMinBufferCount > uxCurrentBufferCount )
+		{
+			/* The logging produced below may be helpful
+			 * while tuning +TCP: see how many buffers are in use. */
+			uxLastMinBufferCount = uxCurrentBufferCount;
+			FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
+							   uxGetNumberOfFreeNetworkBuffers(),
+							   uxCurrentBufferCount ) );
+		}
+
+		uxMinSize = xPortGetMinimumEverFreeHeapSize();
+		if( uxMinLastSize == 0U )
+		{
+			/* Probably the first time this function is called. */
+			uxMinLastSize = uxMinSize;
+		}
+		else if( uxMinSize >= ipMONITOR_MAX_HEAP )
+		{
+			/* There is more than enough heap space. No need for logging. */
+		}
+		/* Write logging if there is a 10% decrease since the last time logging was written. */
+		else if( ( uxMinLastSize * ipMONITOR_PERCENTAGE_90 ) > ( uxMinSize * ipMONITOR_PERCENTAGE_100 ) )
+		{
+			uxMinLastSize = uxMinSize;
+			FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", xPortGetFreeHeapSize(), uxMinSize ) );
+		}
+		else
+		{
+			/* Nothing to log. */
+		}
+
+		#if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+		{
+			static UBaseType_t uxLastMinQueueSpace = 0;
+			UBaseType_t uxCurrentCount = 0u;
+
+			uxCurrentCount = uxGetMinimumIPQueueSpace();
+
+			if( uxLastMinQueueSpace != uxCurrentCount )
+			{
+				/* The logging produced below may be helpful
+				 * while tuning +TCP: see how many buffers are in use. */
+				uxLastMinQueueSpace = uxCurrentCount;
+				FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
+			}
+		}
+		#endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+	}
+#endif /* ( ipconfigHAS_PRINTF != 0 ) */
+/*-----------------------------------------------------------*/
+
 uint32_t FreeRTOS_GetIPAddress( void )
 {
 	/* Returns the IP address of the NIC. */
