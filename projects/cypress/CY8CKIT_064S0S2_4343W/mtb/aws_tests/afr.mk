@@ -132,7 +132,6 @@ INCLUDES+=\
 	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
 
-
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
 SOURCES+=\
@@ -266,8 +265,6 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 
 endif
-
-
 
 ################################################################################
 # libraries (c_sdk)

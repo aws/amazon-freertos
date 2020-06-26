@@ -136,10 +136,6 @@ POSTBUILD=
 #
 # Set BLINK_FREQ_UPDATE_OTA as 0/1 to change LED blink frequency.
 DEFINES+= BLINK_FREQ_UPDATE_OTA=0
-# Check for default Version values
-APP_VERSION_MAJOR?=1
-APP_VERSION_MINOR?=0
-APP_VERSION_BUILD?=0
 
 ################################################################################
 # Paths
