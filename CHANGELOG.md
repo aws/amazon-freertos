@@ -11,7 +11,7 @@
 - Added new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
 
 #### Cypress
-- New Board: The <b>CY8CKIT_064S0S2_4343W<b> board is now qualified with FreeRTOS.
+- New Board: The <b>CY8CKIT_064S0S2_4343W</b> board is now qualified with FreeRTOS.
 
 #### Espressif
 
