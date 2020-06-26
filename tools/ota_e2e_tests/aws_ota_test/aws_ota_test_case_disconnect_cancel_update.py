@@ -76,6 +76,9 @@ class OtaTestDisconnectCancelUpdate(OtaTestCase):
         self._otaProject.buildProject()
         # Start an OTA Update.
         otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
+        # Prepare another image to be updated later
+        self._otaProject.setApplicationVersion(0, 9, 2)
+        self._otaProject.buildProject()
 
         # Wait until the job is in progress.
         thing_name = self._otaAwsAgent._iotThing.thing_name
@@ -112,8 +115,6 @@ class OtaTestDisconnectCancelUpdate(OtaTestCase):
             iot_client.cancel_job_execution(jobId=f'AFR_OTA-{otaUpdateId}', thingName=thing_name, force=True)
 
             # Do another OTA update, this should succeed.
-            self._otaProject.setApplicationVersion(0, 9, 2)
-            self._otaProject.buildProject()
             otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
             return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
         else:
