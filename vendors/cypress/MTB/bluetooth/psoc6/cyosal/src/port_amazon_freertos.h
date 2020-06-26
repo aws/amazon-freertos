@@ -13,6 +13,10 @@ extern "C" {
 /* for backward compatibility */
 #define WICED_NETWORK_WORKER_PRIORITY  (WICED_THREAD_PRIORITY_WORKER)
 
+#if defined INCLUDE_xTaskIsTaskFinished && (INCLUDE_xTaskIsTaskFinished == 1)
+signed portBASE_TYPE xTaskIsTaskFinished( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+#endif
+
 #ifdef __cplusplus
 } /*extern "C" */
 #endif
