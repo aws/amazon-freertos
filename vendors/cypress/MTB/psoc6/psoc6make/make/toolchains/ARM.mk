@@ -116,7 +116,8 @@ CY_TOOLCHAIN_LDFLAGS=\
 	$(CY_TOOLCHAIN_FLAGS_CORE)\
 	$(CY_TOOLCHAIN_VFP_FLAGS)\
 	--info=totals\
-	--stdlib=libc++
+	--stdlib=libc++\
+	--diag_suppress=6329,6314,6304
 
 #
 # Command line flags for archiving
