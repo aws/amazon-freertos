@@ -59,6 +59,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::common
+                AFR::mqtt_v2
         ${extra_mqtt_dependencies}
 )
 
