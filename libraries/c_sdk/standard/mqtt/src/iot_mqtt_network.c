@@ -45,6 +45,8 @@
 
 /* MQTT v4_beta2 include*/
 #include "mqtt_lightweight.h"
+
+/*Size of Puback packet */
 #define MQTT_PACKET_PUBACK_SIZE    ( 4 )
 /*-----------------------------------------------------------*/
 
@@ -107,6 +109,82 @@ static void _sendPuback(_mqttConnection_t* pMqttConnection,
 static void _flushPacket(void* pNetworkConnection,
     const _mqttConnection_t* pMqttConnection,
     size_t length);
+
+/**
+ * @brief Deserialize a connack packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pConnack The connack packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack);
+
+
+/**
+ * @brief Deserialize a suback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pSuback The suback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback);
+
+
+/**
+ * @brief Deserialize a unsuback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pUnsuback The unsuback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback);
+
+/**
+ * @brief Deserialize a puback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPuback The puback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback);
+
+/**
+ * @brief Deserialize a pingresp packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPingresp The pingresponse packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp);
+
+/**
+ * @brief Deserialize a publish packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPublish The publish packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish);
+
+/**
+ * @brief Serialize a puback packet to send  on the network by using MQTT v4 beta 2 serializer.
+ *
+ * @param[in] packetIdentifier The packet id of the packet to be sent on the network.
+ * @param[out] pPubackPacket The puback packet serialized to be sent on the network.
+ * @param[out] pPacketSize The size of the puback packet.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+static IotMqttError_t _pubackSerializeWrapper(uint16_t packetIdentifier,
+    uint8_t** pPubackPacket,
+    size_t* pPacketSize);
 
 /*-----------------------------------------------------------*/
 
@@ -277,7 +355,7 @@ static IotMqttError_t _getIncomingPacket(void* pNetworkConnection,
 /*-----------------------------------------------------------*/
 
 /*Deserialize Connack Wrapper .*/
-IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack)
+static IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -287,6 +365,7 @@ IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack)
     pIncomingPacket.type = pConnack->type;
     pIncomingPacket.pRemainingData = pConnack->pRemainingData;
     pIncomingPacket.remainingLength = pConnack->remainingLength;
+    /*Deserializing Connack packet received from the netwok*/
     mqttStatus = MQTT_DeserializeAck(&pIncomingPacket, &(pConnack->packetIdentifier), &sessionPresent);
     status = convertReturnCode(mqttStatus);
     return status;
@@ -294,7 +373,7 @@ IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack)
 /*-----------------------------------------------------------*/
 
 /* Deserializer Suback wrapper .*/
-IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback)
+static IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -303,6 +382,7 @@ IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback)
     pIncomingPacket.type = pSuback->type;
     pIncomingPacket.pRemainingData = pSuback->pRemainingData;
     pIncomingPacket.remainingLength = pSuback->remainingLength;
+    /*Deserializing SUBACK packet received from the netwok*/
     mqttStatus = MQTT_DeserializeAck(&pIncomingPacket, &(pSuback->packetIdentifier), NULL);
     status = convertReturnCode(mqttStatus);
     return status;
@@ -310,7 +390,7 @@ IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback)
 /*-----------------------------------------------------------*/
 
 /* Deserializer Unsuback wrapper .*/
-IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback)
+static IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -319,6 +399,7 @@ IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback)
     pIncomingPacket.type = pUnsuback->type;
     pIncomingPacket.pRemainingData = pUnsuback->pRemainingData;
     pIncomingPacket.remainingLength = pUnsuback->remainingLength;
+    /*Deserializing UNSUBACK packet received from the netwok*/
     mqttStatus = MQTT_DeserializeAck(&pIncomingPacket, &(pUnsuback->packetIdentifier), NULL);
     status = convertReturnCode(mqttStatus);
 
@@ -328,7 +409,7 @@ IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback)
 /*-----------------------------------------------------------*/
 
 /* Deserializer Puback wrapper .*/
-IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback)
+static IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -337,6 +418,7 @@ IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback)
     pIncomingPacket.type = pPuback->type;
     pIncomingPacket.pRemainingData = pPuback->pRemainingData;
     pIncomingPacket.remainingLength = pPuback->remainingLength;
+    /*Deserializing PUBACK packet received from the netwok*/
     mqttStatus = MQTT_DeserializeAck(&pIncomingPacket, &(pPuback->packetIdentifier), NULL);
     status = convertReturnCode(mqttStatus);
     return status;
@@ -344,7 +426,7 @@ IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback)
 /*-----------------------------------------------------------*/
 
 /* Deserializer Ping Response wrapper .*/
-IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp)
+static IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -353,6 +435,7 @@ IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp)
     pIncomingPacket.type = pPingresp->type;
     pIncomingPacket.pRemainingData = pPingresp->pRemainingData;
     pIncomingPacket.remainingLength = pPingresp->remainingLength;
+    /*Deserializing PINGRESP packet received from the netwok*/
     mqttStatus = MQTT_DeserializeAck(&pIncomingPacket, &(pPingresp->packetIdentifier), NULL);
     status = convertReturnCode(mqttStatus);
     return status;
@@ -360,7 +443,7 @@ IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp)
 /*-----------------------------------------------------------*/
 
 /* Deserializer Publish wrapper .*/
-IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish)
+static IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish)
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
@@ -373,9 +456,10 @@ IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish)
     pIncomingPacket.remainingLength = pPublish->remainingLength;
 
     
-
+    /*DeSerializing publish packet received from the netwok*/
     mqttStatus = MQTT_DeserializePublish(&pIncomingPacket, &(pPublish->packetIdentifier), &publishInfo);
 
+    
     if (publishInfo.qos == MQTTQoS0)
     {
         pPublish->u.pIncomingPublish->u.publish.publishInfo.qos = IOT_MQTT_QOS_0;
@@ -401,7 +485,7 @@ IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish)
 
 
 /* Suback Serializer Wrapper .*/
-IotMqttError_t _pubackSerializeWrapper(uint16_t packetIdentifier,
+static IotMqttError_t _pubackSerializeWrapper(uint16_t packetIdentifier,
     uint8_t** pPubackPacket,
     size_t* pPacketSize)
 {
@@ -410,11 +494,12 @@ IotMqttError_t _pubackSerializeWrapper(uint16_t packetIdentifier,
     MQTTFixedBuffer_t networkBuffer;
     uint8_t packetTypeByte = MQTT_PACKET_TYPE_PUBACK;
 
+    /* Initializing network buffer*/
     networkBuffer.pBuffer = IotMqtt_MallocMessage(MQTT_PACKET_PUBACK_SIZE);
     networkBuffer.size = MQTT_PACKET_PUBACK_SIZE;
     *pPacketSize = MQTT_PACKET_PUBACK_SIZE;
     
-
+    /*Serializing puback packet to be sent on the netwok*/
     status = MQTT_SerializeAck(&(networkBuffer),
         packetTypeByte,
         packetIdentifier);
