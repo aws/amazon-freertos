@@ -138,6 +138,10 @@ function(cy_kit_generate)
     # is BLE supported?
     string(FIND "${ARG_DEFINES}" "CY_BLE_SUPPORTED" check_ble_supported)
     if (NOT ("${check_ble_supported}" STREQUAL "-1"))
+       # Add BLE when generating metadata for Build Combination and OCW.
+       if ("${AFR_METADATA_MODE}" STREQUAL "1")
+          set(CY_BLE_SUPPORTED 1)           
+       endif()
        # BLE is only supported for arm-gcc
        if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
           set(CY_BLE_SUPPORTED 1)
@@ -639,7 +643,7 @@ function(cy_kit_generate)
         )
         # common ota sources
         target_sources(AFR::ota::mcu_port INTERFACE
-            "${afr_ports_dir}/ota/aws_ota_pal.c"
+            "${cy_ota_dir}/ports/${AFR_BOARD_NAME}/aws_ota_pal.c"
             "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_map.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_flash_psoc6.c"
@@ -929,6 +933,6 @@ function(cy_kit_generate)
             )
         endif(OTA_SUPPORT)
 
-    endif(CY_TFM_PSA)
+    endif(CY_TFM_PSA AND (NOT AFR_METADATA_MODE))
 
 endfunction(cy_kit_generate)
