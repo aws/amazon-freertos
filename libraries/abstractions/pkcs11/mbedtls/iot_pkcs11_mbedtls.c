@@ -152,6 +152,25 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 
 /**
  * @ingroup pkcs11_macros
+ * @brief Length of bytes to contain an EC point.
+ *
+ * This port currently only uses prime256v1, in which the fields are 32 bytes in
+ * length. The public EC point is as long as the curve's fields * 2 + 1.
+ * so the EC point for this port is (32 * 2) + 1 bytes in length.
+ *
+ * mbed TLS encodes the length of the point in the first byte of the buffer it
+ * receives, so an additional 1 byte in length is added to account for this.
+ *
+ * In addition to this, an additional 1 byte is added to store information
+ * indicating that the point is uncompressed.
+ *
+ * @note This length needs to be updated if using a different curve.
+ *
+ */
+#define pkcs11EC_POINT_LENGTH    67
+
+/**
+ * @ingroup pkcs11_macros
  * @brief Max size of a public key.
  * This macro defines the size of a key in bytes, in DER encoding.
  *
@@ -2606,6 +2625,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_ULONG iAttrib;
     mbedtls_pk_context xKeyContext = { 0 };
+    mbedtls_x509_crt xMbedX509Context = { 0 };
     mbedtls_pk_type_t xKeyType;
     const mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0UL;
@@ -2653,8 +2673,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     /* Determine what kind of object we are dealing with. */
     if( xResult == CKR_OK )
     {
-        /* Is it a key? */
+        /* Initialize mbed TLS key context. */
         mbedtls_pk_init( &xKeyContext );
+
+        /* Initialize mbed TLS x509 context. */
+        mbedtls_x509_crt_init( &xMbedX509Context );
 
         if( 0 == mbedtls_pk_parse_key( &xKeyContext, pxObjectValue, ulLength, NULL, 0 ) )
         {
@@ -2673,11 +2696,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         {
             xClass = CKO_PUBLIC_KEY;
         }
+        else if( 0 == mbedtls_x509_crt_parse( &xMbedX509Context, pxObjectValue, ulLength ) )
+        {
+            xClass = CKO_CERTIFICATE;
+        }
         else
         {
-            /* TODO: Do we want to safety parse the cert?
-             * Assume certificate. */
-            xClass = CKO_CERTIFICATE;
+            /* Could not determine the object class." */
         }
     }
 
@@ -2788,8 +2813,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                 case CKA_EC_PARAMS:
 
-                    /* TODO: Add check that is key, is ec key. */
-
                     pTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
 
                     if( pTemplate[ iAttrib ].pValue != NULL )
@@ -2810,7 +2833,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                     if( pTemplate[ iAttrib ].pValue == NULL )
                     {
-                        pTemplate[ iAttrib ].ulValueLen = 67; /* TODO: Is this large enough?*/
+                        pTemplate[ iAttrib ].ulValueLen = pkcs11EC_POINT_LENGTH;
                     }
                     else
                     {
@@ -3580,7 +3603,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xSignatureGenerated = ( CK_BBOOL ) CK_FALSE;
-    uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
+
+    /* 8 bytes added to hold ASN.1 encoding information. */
+    uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 8 ];
     int32_t lMbedTLSResult;
 
 
@@ -3667,11 +3692,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( ( pxSessionObj->xOperationSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == ( CK_BBOOL ) CK_TRUE ) )
         {
+            /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
             lMbedTLSResult = PKI_mbedTLSSignatureToPkcs11Signature( pSignature, ecSignature );
 
             if( lMbedTLSResult != 0 )
