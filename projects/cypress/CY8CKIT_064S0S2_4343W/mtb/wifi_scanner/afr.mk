@@ -304,7 +304,6 @@ SOURCES+=\
 endif
 
 
-
 ################################################################################
 # libraries (c_sdk)
 ################################################################################
@@ -417,21 +416,21 @@ SOURCES+=\
 	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 	
 INCLUDES+=\
-    $(MCUBOOT_DIR)\
-    $(MCUBOOT_DIR)/mcuboot_header\
-    $(MCUBOOT_DIR)/bootutil/include\
-    $(MCUBOOT_DIR)/sysflash\
-    $(MCUBOOT_CYFLASH_PAL_DIR)\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
-    $(CY_EXTAPP_PATH)/common/utilities/untar\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(MCUBOOT_DIR)\
+	$(MCUBOOT_DIR)/mcuboot_header\
+	$(MCUBOOT_DIR)/bootutil/include\
+	$(MCUBOOT_DIR)/sysflash\
+	$(MCUBOOT_CYFLASH_PAL_DIR)\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+	$(CY_EXTAPP_PATH)/common/utilities/untar\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
-    $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
+	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif

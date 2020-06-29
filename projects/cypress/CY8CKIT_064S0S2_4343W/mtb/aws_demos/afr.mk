@@ -38,7 +38,7 @@ CY_AFR_APPLOC=$(notdir $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LI
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
 CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).hex
 
-# Resolve toolchain name 
+# Resolve toolchain name
 ifeq ($(TOOLCHAIN),GCC_ARM)
 CY_AFR_TOOLCHAIN=GCC
 CY_AFR_TOOLCHAIN_LS_EXT=ld
@@ -67,6 +67,9 @@ CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
 CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/cy_code
 MCUBOOT_DIR=$(CY_EXTAPP_PATH)/ota/mcuboot
 
+# project directory
+CY_PROJECT_DIR:=.
+
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
 CXXFLAGS+=--dlib_config=full --guard_calls
@@ -88,14 +91,14 @@ endif
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-    $(CY_EXTAPP_PATH)/ota\
-    $(CY_EXTAPP_PATH)/common\
+	$(CY_EXTAPP_PATH)/ota\
+	$(CY_EXTAPP_PATH)/common\
 	$(CY_EXTAPP_PATH)/bluetooth\
 	$(CY_AFR_VENDOR_PATH)/boards\
 	$(CY_AFR_VENDOR_PATH)/lwip\
 	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
 	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
-    
+
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
 SOURCES+=\
@@ -109,6 +112,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)\
 
 INCLUDES+=\
+	$(CY_PROJECT_DIR)/\
+	$(CY_PROJECT_DIR)/include\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code\
 	$(CY_AFR_BOARD_APP_PATH)\
 	$(CY_AFR_BOARD_APP_PATH)/GeneratedSource\
@@ -118,20 +123,19 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
 
 INCLUDES+=\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11
+	$(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
+	$(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
-    $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+	$(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
+	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
-
 
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
@@ -257,11 +261,9 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 
 endif
-
-
 
 ################################################################################
 # libraries (c_sdk)
@@ -337,7 +339,7 @@ INCLUDES+=\
 
 
 ################################################################################
-# Additional Source files and includes needed for BLE support 
+# Additional Source files and includes needed for BLE support
 ################################################################################
 
 ifneq ($(BLE_SUPPORT),)
@@ -357,11 +359,11 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src\
-	
+
 endif
 
 ################################################################################
-# Additional Source files and includes needed for OTA support 
+# Additional Source files and includes needed for OTA support
 ################################################################################
 
 ifeq ($(OTA_SUPPORT),1)
