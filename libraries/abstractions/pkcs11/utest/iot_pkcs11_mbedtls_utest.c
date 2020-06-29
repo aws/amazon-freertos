@@ -39,6 +39,7 @@
 #include "mock_entropy.h"
 #include "mock_sha256.h"
 #include "mock_pk.h"
+#include "mock_x509_crt.h"
 #include "mock_ecp.h"
 #include "mock_ecdsa.h"
 #include "mock_rsa.h"
@@ -1617,8 +1618,10 @@ void test_pkcs11_C_GetAttributeValueCert( void )
     /* Get Certificate value. */
     PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
     mbedtls_pk_init_CMockIgnore();
+    mbedtls_x509_crt_init_CMockIgnore();
     mbedtls_pk_parse_key_IgnoreAndReturn( 1 );
     mbedtls_pk_parse_public_key_IgnoreAndReturn( 1 );
+    mbedtls_x509_crt_parse_IgnoreAndReturn( 0 );
     PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
     mbedtls_pk_free_CMockIgnore();
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate, ulCount );
@@ -1660,8 +1663,10 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     /* EC Params Case */
     PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     mbedtls_pk_init_CMockIgnore();
+    mbedtls_x509_crt_init_CMockIgnore();
     mbedtls_pk_parse_key_IgnoreAndReturn( 1 );
     mbedtls_pk_parse_public_key_IgnoreAndReturn( 1 );
+    mbedtls_x509_crt_parse_IgnoreAndReturn( 1 );
     PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
     mbedtls_pk_free_CMockIgnore();
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
@@ -1796,6 +1801,7 @@ void test_pkcs11_C_GetAttributeValuePrivKey( void )
 
     PKCS11_PAL_GetObjectValue_IgnoreAndReturn( CKR_OK );
     mbedtls_pk_init_CMockIgnore();
+    mbedtls_x509_crt_init_CMockIgnore();
     mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
     PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
     mbedtls_pk_free_CMockIgnore();
