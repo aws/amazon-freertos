@@ -371,6 +371,8 @@ endif
 ################################################################################
 
 ifeq ($(OTA_SUPPORT),1)
+DEFINES+=CY_BOOT_USE_EXTERNAL_FLASH
+
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
 	$(wildcard $(CY_EXTAPP_PATH)/ota/ports/$(CY_AFR_TARGET)/*.c)\
@@ -387,7 +389,9 @@ SOURCES+=\
 	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi/flash_qspi.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_smif_psoc6.c\
 	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 
 INCLUDES+=\
