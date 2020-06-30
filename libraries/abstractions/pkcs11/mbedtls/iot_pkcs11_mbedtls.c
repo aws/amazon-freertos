@@ -166,8 +166,11 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  *
  * @note This length needs to be updated if using a different curve.
  *
+ * To summarize:
+ * 32 points of 2 bytes each + 1 point length byte, 1 length byte, and
+ * 1 type (uncompressed) byte
  */
-#define pkcs11EC_POINT_LENGTH                 67
+#define pkcs11EC_POINT_LENGTH                 ( ( 32 * 2 ) + 1 + 1 + 1 )
 
 /**
  * @ingroup pkcs11_macros
@@ -2629,7 +2632,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     mbedtls_pk_type_t xKeyType;
     const mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0UL;
-    CK_OBJECT_CLASS xClass;
+    CK_OBJECT_CLASS xClass = ~0UL;
     CK_BYTE_PTR pxObjectValue = NULL;
     CK_ULONG ulLength = 0;
     const CK_BYTE ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
@@ -2702,7 +2705,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            /* Could not determine the object class." */
+            xResult = CKR_OBJECT_HANDLE_INVALID;
         }
     }
 
