@@ -61,7 +61,6 @@
 
 /**
  * @brief Default EC operations to ON.
- *
  */
 #ifndef pkcs11configSUPPRESS_ECDSA_MECHANISM
     #define pkcs11configSUPPRESS_ECDSA_MECHANISM    0
@@ -105,60 +104,51 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 /**
  * @ingroup pkcs11_macros
  * @brief Macro for logging warnings in PKCS #11.
- *
  */
 #define PKCS11_WARNING_PRINT( X )    /* configPRINTF( X ) */
 
 /**
  * @ingroup pkcs11_macros
  * @brief Indicates that no PKCS #11 operation is underway for given session.
- *
  */
-#define pkcs11NO_OPERATION                  ( ( CK_MECHANISM_TYPE ) -1 )
+#define pkcs11NO_OPERATION                      ( ( CK_MECHANISM_TYPE ) -1 )
 
 /**
  * @ingroup pkcs11_macros
  * @brief size of a prime256v1 EC private key in bytes, when encoded in DER.
- *
- *
  */
-#define pkcs11_PRIVATE_EC_PRIME_256_SIZE    160
+#define pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE    160
 
 /**
  * @ingroup pkcs11_macros
  * @brief size of a prime256v1 EC public key in bytes, when encoded in DER.
- *
  */
-#define pkcs11_PUBLIC_EC_PRIME_256_SIZE     100
+#define pkcs11_PUBLIC_EC_PRIME_256_DER_SIZE     100
 
 /**
  * @ingroup pkcs11_macros
  * @brief size of a 2048 bit RSA public key in bytes, when encoded in DER.
- *
- *
  */
-#define pkcs11_PUBLIC_RSA_2048_SIZE         300
+#define pkcs11_PUBLIC_RSA_2048_DER_SIZE         300
 
 /**
  * @ingroup pkcs11_macros
  * @brief size of a 2048 bit RSA private key in bytes, in DER encoding.
- *
  */
-#define pkcs11_PRIVATE_RSA_2048_SIZE        1200
+#define pkcs11_PRIVATE_RSA_2048_DER_SIZE        1200
 
 /**
  * @ingroup pkcs11_macros
  * @brief Max size of an EC public key in bytes, in DER encoding.
  */
-#define EC_MAX_PUBLIC_KEY_SIZE              pkcs11_PUBLIC_EC_PRIME_256_SIZE
+#define EC_MAX_PUBLIC_KEY_DER_SIZE              pkcs11_PUBLIC_EC_PRIME_256_DER_SIZE
 
 
 /**
  * @ingroup pkcs11_macros
  * @brief Max size of an EC private key in bytes, in DER encoding.
- *
  */
-#define EC_MAX_LENGTH_KEY      pkcs11_PRIVATE_EC_PRIME_256_SIZE
+#define EC_KEY_MAX_DER_SIZE        pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE
 
 /**
  * @ingroup pkcs11_macros
@@ -167,7 +157,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  *
  * @note The largest RSA public key is used because EC keys are smaller.
  */
-#define MAX_PUBLIC_KEY_SIZE    pkcs11_PUBLIC_RSA_2048_SIZE
+#define MAX_PUBLIC_KEY_DER_SIZE    pkcs11_PUBLIC_RSA_2048_DER_SIZE
 
 
 /**
@@ -181,12 +171,11 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @note The largest RSA private key is used because EC keys are smaller and
  * the RSA public key is smaller.
  */
-#define MAX_LENGTH_KEY                pkcs11_PRIVATE_RSA_2048_SIZE
+#define MAX_PRIVATE_KEY_DER_SIZE      pkcs11_PRIVATE_RSA_2048_SIZE
 
 /**
  * @ingroup pkcs11_macros
  * @brief The size of the buffer malloc'ed for the exported public key in C_GenerateKeyPair.
- *
  */
 #define pkcs11KEY_GEN_MAX_DER_SIZE    200
 
@@ -219,7 +208,6 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @brief PKCS #11 object container.
  *
  * Maps a PKCS #11 object handle to it's label.
- *
  */
 typedef struct P11Object_t
 {
@@ -247,7 +235,6 @@ typedef struct P11ObjectList_t
 /**
  * @ingroup pkcs11_datatypes
  * @brief PKCS #11 Module Object
- *
  */
 typedef struct P11Struct_t
 {
@@ -373,9 +360,7 @@ static CK_BBOOL prvOperationActive( const P11Session_t * pxSession )
 
 /*
  * PKCS#11 module implementation.
- */
-
-/**
+ *
  * @functions_page{pkcs11_mbedtls,PKCS #11 mbedTLS, PKCS #11 mbedTLS}
  * @functions_brief{PKCS #11 mbedTLS implementation}
  * - @function_name{pkcs11_mbedtls_function_c_initialize}
@@ -566,7 +551,6 @@ static CK_RV prvMbedTLS_Initialize( void )
 
 /**
  * @brief Searches a template for the CKA_CLASS attribute.
- *
  */
 static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
                                 CK_ULONG ulCount,
@@ -593,7 +577,6 @@ static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
 
 /**
  * @brief Parses attribute values for a certificate.
- *
  */
 static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
                               CK_CERTIFICATE_TYPE * pxCertificateType,
@@ -665,7 +648,6 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
 
 /**
  * @brief Parses attribute values for a RSA Key.
- *
  */
 static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                 const mbedtls_pk_context * pxMbedContext )
@@ -774,7 +756,6 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 
 /**
  * @brief Parses attribute values for a private EC Key.
- *
  */
 static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                    const mbedtls_pk_context * pxMbedContext )
@@ -819,7 +800,6 @@ static CK_RV prvEcPrivKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 
 /**
  * @brief Parses attribute values for a public EC Key.
- *
  */
 static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                   const mbedtls_pk_context * pxMbedContext )
@@ -865,7 +845,6 @@ static CK_RV prvEcPubKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 
 /**
  * @brief Parses attribute values for an EC Key.
- *
  */
 static CK_RV prvEcKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                                const mbedtls_pk_context * pxMbedContext,
@@ -1027,7 +1006,6 @@ static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
  * @warning This does not delete the object from NVM.
  *
  * @param[in] xAppHandle     Application handle of the object to be deleted.
- *
  */
 static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
@@ -1146,7 +1124,6 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 /**
  * @brief Save a DER formatted key in the PKCS #11 PAL.
- *
  */
 static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
                                  CK_OBJECT_HANDLE_PTR pxObject,
@@ -1164,26 +1141,29 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
     if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
-        ulDerBufSize = EC_MAX_LENGTH_KEY;
+        ulDerBufSize = EC_KEY_MAX_DER_SIZE;
     }
     else if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
-        ulDerBufSize = EC_MAX_PUBLIC_KEY_SIZE;
+        ulDerBufSize = EC_MAX_PUBLIC_KEY_DER_SIZE;
     }
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
-        ulDerBufSize = MAX_LENGTH_KEY;
+        ulDerBufSize = MAX_PRIVATE_KEY_DER_SIZE;
     }
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
-        ulDerBufSize = MAX_PUBLIC_KEY_SIZE;
+        ulDerBufSize = MAX_PUBLIC_KEY_DER_SIZE;
     }
     else
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    pxDerKey = pvPortMalloc( ulDerBufSize );
+    if( xResult == CKR_OK )
+    {
+        pxDerKey = pvPortMalloc( ulDerBufSize );
+    }
 
     if( pxDerKey == NULL )
     {
@@ -2060,7 +2040,6 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
  * @param[out] pxKeyType pointer to key type.
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
- *
  */
 static void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
                            const CK_ATTRIBUTE * pxTemplate,
@@ -2089,7 +2068,6 @@ static void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
  * @param[out] ppxLabel pointer to label.
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
- *
  */
 static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
                          CK_ATTRIBUTE * pxTemplate,
@@ -2197,7 +2175,6 @@ static CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
  * @param[in] ulCount length of templates array.
  * @param[in] pxObject PKCS #11 object handle.
  * @param[in] xIsPrivate boolean indicating whether the key is private or public.
- *
  */
 static CK_RV prvCreateECKey( CK_ATTRIBUTE * pxTemplate,
                              CK_ULONG ulCount,
@@ -2303,7 +2280,6 @@ static CK_RV prvCreateECKey( CK_ATTRIBUTE * pxTemplate,
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
  * @param[in] pxObject PKCS #11 object handle.
- *
  */
 static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
                                      CK_ULONG ulCount,
@@ -2373,7 +2349,6 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
  * @param[in] pxObject PKCS #11 object handle.
- *
  */
 static CK_RV prvCreatePrivateKey( CK_ATTRIBUTE * pxTemplate,
                                   CK_ULONG ulCount,
@@ -2418,7 +2393,6 @@ static CK_RV prvCreatePrivateKey( CK_ATTRIBUTE * pxTemplate,
  * @param[in] pxTemplate templates to search for a key in.
  * @param[in] ulCount length of templates array.
  * @param[in] pxObject PKCS #11 object handle.
- *
  */
 static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
                                  CK_ULONG ulCount,
