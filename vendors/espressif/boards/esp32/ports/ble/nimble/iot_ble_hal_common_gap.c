@@ -35,6 +35,7 @@
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/util/util.h"
+#include "host/ble_hs_pvcy.h"
 #include "services/gap/ble_svc_gap.h"
 
 #include "esp_log.h"
@@ -521,6 +522,19 @@ static void bleprph_on_sync( void )
     if( rc != 0 )
     {
         xStatus = eBTStatusFail;
+    }
+
+    /**
+     * Configure Resolvable Private Address (RPA).
+     */
+    if( xStatus == eBTStatusSuccess )
+    {
+        rc = ble_hs_pvcy_rpa_config( 1 );
+        if( rc != 0 )
+        {
+            ESP_LOGE( TAG, "Failed to enable RPA config, reason = %d\n", rc );
+            xStatus = eBTStatusFail;
+        }
     }
 
     /** If status is ok and callback is set, trigger the callback.
