@@ -29,11 +29,13 @@
 # Global settings
 ################################################################################
 
-CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6pdl
+CY_DEVICESUPPORT_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6pdl
 
 # Use auto-discovery for cypress files and set the paths
-CY_EXTAPP_PATH=$(CY_AFR_ROOT)/vendors/cypress
-CY_AFR_BOARD_PATH=$(CY_EXTAPP_PATH)/boards/$(CY_AFR_TARGET)
+CY_AFR_VENDOR_PATH=$(CY_AFR_ROOT)/vendors/cypress
+CY_EXTAPP_PATH=$(CY_AFR_VENDOR_PATH)/MTB
+CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
+
 
 # NOTE this is still aws_demos for cy_code inclusion
 # This will change when cy_code is made to be board-level specific (rahter than app-level specific)
@@ -132,14 +134,13 @@ endif
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-	$(CY_EXTAPP_PATH)/apps\
 	$(CY_EXTAPP_PATH)/bluetooth\
-	$(CY_EXTAPP_PATH)/boards\
 	$(CY_EXTAPP_PATH)/common\
-	$(CY_EXTAPP_PATH)/libraries\
-	$(CY_EXTAPP_PATH)/lwip\
-	$(CY_EXTAPP_PATH)/WICED_SDK\
-	$(CY_EXTAPP_PATH)/freertos_thirdparty_port
+	$(CY_EXTAPP_PATH)/ota\
+	$(CY_AFR_VENDOR_PATH)/boards\
+	$(CY_AFR_VENDOR_PATH)/lwip\
+	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
+	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
     
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
@@ -271,7 +272,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
-	$(CY_EXTAPP_PATH)/lwip
 
 
 ################################################################################
@@ -302,7 +302,6 @@ SOURCES+=\
     $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 
 endif
-
 
 
 ################################################################################
@@ -358,16 +357,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)\
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/*c)\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)/*.c)
-	
-endif
+	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto\
@@ -380,14 +370,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
-
-endif
 
 ################################################################################
 # Additional Source files and includes needed for BLE support 
@@ -420,37 +402,35 @@ endif
 ifeq ($(OTA_SUPPORT),1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ota/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/ota/ports/$(CY_AFR_TARGET)/*.c)\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
- 	$(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser/JSON.c\
-	$(CY_EXTAPP_PATH)/libraries/internal/utilities/untar/untar.c\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
+	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-    $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
-	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 	
 INCLUDES+=\
-    $(MCUBOOT_DIR)\
-    $(MCUBOOT_DIR)/mcuboot_header\
-    $(MCUBOOT_DIR)/bootutil/include\
-    $(MCUBOOT_DIR)/sysflash\
-    $(MCUBOOT_CYFLASH_PAL_DIR)\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/libraries/internal/utilities/JSON_parser\
-    $(CY_EXTAPP_PATH)/libraries/internal/utilities/untar\
-	$(CY_AFR_BOARD_PATH)/ports/ota\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(MCUBOOT_DIR)\
+	$(MCUBOOT_DIR)/mcuboot_header\
+	$(MCUBOOT_DIR)/bootutil/include\
+	$(MCUBOOT_DIR)/sysflash\
+	$(MCUBOOT_CYFLASH_PAL_DIR)\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+	$(CY_EXTAPP_PATH)/common/utilities/untar\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
-    $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
+	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
     
 endif

@@ -48,14 +48,14 @@ CY_LINKERSCRIPT_SUFFIX=cm4
 CY_SECURE_POLICY_NAME=policy_single_stage_CM4
 else ifeq ($(SECURE_CORE_MODE),dual)
 CY_LINKERSCRIPT_SUFFIX=cm4_dual
-CY_SECURE_POLICY_NAME=policy_dual_stage_CM0p_CM4
+CY_SECURE_POLICY_NAME=policy_dual_stage_CM0_CM4
 else
 CY_LINKERSCRIPT_SUFFIX=cm4_dual
-CY_SECURE_POLICY_NAME=policy_multi_img_CM0p_CM4
+CY_SECURE_POLICY_NAME=policy_multi_CM0_CM4
 endif
 
 else
-CY_SECURE_POLICY_NAME=policy_dual_stage_CM0p_CM4
+CY_SECURE_POLICY_NAME=policy_dual_stage_CM0_CM4
 endif
 
 # Python path definition
@@ -74,7 +74,7 @@ else
 # TFM enabled
 TFM_PSOC64_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm
 TFM_PSOC64_SECURE_POLICY_PATH=$(TFM_PSOC64_PATH)/security/policy
-TFM_POLICY_FILE=$(TFM_PSOC64_SECURE_POLICY_PATH)/$(CY_SECURE_POLICY_NAME)_debug_2M.json
+TFM_POLICY_FILE=$(TFM_PSOC64_SECURE_POLICY_PATH)/$(CY_SECURE_POLICY_NAME)_jitp.json
 TFM_SIGN_SCRIPT=cysecuretools
 TFM_DEVICE_NAME=cy8ckit-064s0s2-4343w
 TFM_CM0_HEX= $(TFM_PSOC64_PATH)/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex
@@ -132,11 +132,11 @@ ifeq ($(OTA_SUPPORT),1)
     # Change to non-zero if stored in external FLASH
     CY_FLASH_ERASE_VALUE=0
 
-    # MCUBoot location
-    CY_COMMON_DIR=$(CY_EXTAPP_PATH)/common
+    # OTA location
+    CY_OTA_DIR=$(CY_EXTAPP_PATH)/ota
 
     ifeq ($(MCUBOOT_DIR),)
-    MCUBOOT_DIR=$(CY_COMMON_DIR)/mcuboot
+    MCUBOOT_DIR=$(CY_OTA_DIR)/mcuboot
     endif
     MCUBOOT_DIR_ABSOLUTE=$(abspath $(MCUBOOT_DIR))
 
@@ -157,7 +157,7 @@ ifeq ($(OTA_SUPPORT),1)
     IMGTOOL_SCRIPT_NAME=./imgtool.py
     MCUBOOT_SCRIPT_FILE_DIR=$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/security
     MCUBOOT_KEY_DIR=$(MCUBOOT_SCRIPT_FILE_DIR)/keys
-    MCUBOOT_CYFLASH_PAL_DIR=$(CY_COMMON_DIR)/mcuboot/cy_flash_pal
+    MCUBOOT_CYFLASH_PAL_DIR=$(CY_OTA_DIR)/mcuboot/cy_flash_pal
 
     DEFINES+=OTA_SUPPORT=1 \
         MCUBOOT_HEADER_SIZE=$(MCUBOOT_HEADER_SIZE) \
@@ -168,10 +168,7 @@ ifeq ($(OTA_SUPPORT),1)
         CY_BOOT_PRIMARY_1_START=$(CY_BOOT_PRIMARY_1_START) \
         CY_BOOT_PRIMARY_1_SIZE=$(CY_BOOT_PRIMARY_1_SIZE) \
         CY_BOOT_SECONDARY_1_SIZE=$(CY_BOOT_SECONDARY_1_SIZE) \
-        CY_FLASH_ERASE_VALUE=$(CY_FLASH_ERASE_VALUE)\
-        APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)\
-        APP_VERSION_MINOR=$(APP_VERSION_MINOR)\
-        APP_VERSION_BUILD=$(APP_VERSION_BUILD)
+        CY_FLASH_ERASE_VALUE=$(CY_FLASH_ERASE_VALUE)
 
     #define an utility to convert signed hex files to binary format
     #CLANG and IAR do not provide a tool, use generic objcopy
@@ -190,7 +187,7 @@ ifeq ($(OTA_SUPPORT),1)
     # For signing, use "sign", and key path
     IMGTOOL_COMMAND_ARG=sign
     CY_SIGNING_KEY_ARG="-k $(MCUBOOT_KEY_FILE)"
-    SIGN_SCRIPT_FILE_PATH=$(CY_AFR_ROOT)/vendors/cypress/psoc6/psoc6make/make/scripts/sign_tar.bash
+    SIGN_SCRIPT_FILE_PATH=$(CY_EXTAPP_PATH)/psoc6/psoc6make/make/scripts/sign_tar.bash
 
     CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
 
@@ -199,6 +196,16 @@ ifeq ($(OTA_SUPPORT),1)
         $(MCUBOOT_MAX_IMG_SECTORS) $(CY_BUILD_VERSION) $(CY_BOOT_PRIMARY_1_START) $(CY_BOOT_PRIMARY_1_SIZE)\
         $(MCUBOOT_KEY_DIR) $(CY_SIGNING_KEY_ARG)
 endif # OTA Support
+
+ifneq ($(APP_VERSION_MAJOR),)
+    DEFINES+=APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)
+endif
+ifneq ($(APP_VERSION_MINOR),)
+    DEFINES+=APP_VERSION_MINOR=$(APP_VERSION_MINOR)
+endif
+ifneq ($(APP_VERSION_BUILD),)
+    DEFINES+=APP_VERSION_BUILD=$(APP_VERSION_BUILD)
+endif
 
 # BSP programming flow
 CY_BSP_PROGRAM=true

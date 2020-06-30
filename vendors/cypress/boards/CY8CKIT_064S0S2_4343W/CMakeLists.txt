@@ -30,7 +30,7 @@
 #--------------------------------------------------------------------
 # Cypress Defines
 #
-include("${AFR_VENDORS_DIR}/cypress/psoc6/cmake/cy_defines.cmake")
+include("${AFR_VENDORS_DIR}/cypress/MTB/psoc6/cmake/cy_defines.cmake")
 
 #--------------------------------------------------------------------
 # Default linker script for this board
@@ -43,7 +43,7 @@ set(LINKER_SCRIPT_NAME "cyb06xxa_cm4_dual")
 #
 
 set(CY_TFM_HEX "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned.hex")
-set(CY_TFM_POLICY_FILE "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_img_CM0p_CM4_debug_2M.json")
+set(CY_TFM_POLICY_FILE "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
 set(CY_DEVICE_NAME "cy8ckit-064s0s2-4343w")
 
 # Python path definition
@@ -76,22 +76,23 @@ target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
 # 0x10100000 - 0x101C0000 Nonsecure Secondary
 # 0x101C0000 - 0x10200000 Reserved
 #
-set(OTA_SUPPORT                 "0")
-set(MCUBOOT_HEADER_SIZE         "0x400"      )       # Must be a multiple of 1024
-set(MCUBOOT_MAX_IMG_SECTORS     "2000"       )
-set(CY_BOOT_SCRATCH_SIZE        "0x00001000" )
-set(MCUBOOT_BOOTLOADER_SIZE     "0x00040000" )
-set(CY_BOOT_PRIMARY_1_START     "0x10040000" )
-set(CY_BOOT_PRIMARY_1_SIZE      "0x00120000" )
+if(OTA_SUPPORT)
+    set(OTA_SUPPORT "1")
+    set(MCUBOOT_HEADER_SIZE         "0x400"      )       # Must be a multiple of 1024
+    set(MCUBOOT_MAX_IMG_SECTORS     "2000"       )
+    set(CY_BOOT_SCRATCH_SIZE        "0x00001000" )
+    set(MCUBOOT_BOOTLOADER_SIZE     "0x00040000" )
+    set(CY_BOOT_PRIMARY_1_START     "0x10040000" )
+    set(CY_BOOT_PRIMARY_1_SIZE      "0x00120000" )
 
-set(CY_BOOT_PRIMARY_2_SIZE      "0x50000" )
-set(CY_BOOT_SECONDARY_2_START   "0x00170000" )
+    set(CY_BOOT_PRIMARY_2_SIZE      "0x50000" )
+    set(CY_BOOT_SECONDARY_2_START   "0x00170000" )
 
-# Default to internal FLASH value for MCUBoot header signing
-# Note that after cy_bootloader changes to support 0xFF erase values
-# for external FLASH, this will need to change
-set(CY_FLASH_ERASE_VALUE        "0x00" )
-
+    # Default to internal FLASH value for MCUBoot header signing
+    # Note that after cy_bootloader changes to support 0xFF erase values
+    # for external FLASH, this will need to change
+    set(CY_FLASH_ERASE_VALUE        "0x00" )
+endif()
 
 # -------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
@@ -136,9 +137,19 @@ afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR
 #
 include("${cy_psoc6_dir}/cmake/cy_kit_utils.cmake")
 
+set(KIT_FEATURES "CY_BLE_SUPPORTED")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_USE_LWIP")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_TFM_PSA_SUPPORTED")
+set(KIT_FEATURES "${KIT_FEATURES}; TFM_MULTI_CORE_MULTI_CLIENT_CALL")
+
+if(OTA_SUPPORT)
+    set(KIT_FEATURES "${KIT_FEATURES}; OTA_SUPPORT")
+    set(KIT_FEATURES "${KIT_FEATURES}; CY_BOOT_USE_EXTERNAL_FLASH")
+endif()
+
 cy_kit_generate(
     DEVICE "CYB0644ABZI-S2D44"
     LINKER_SCRIPT "${LINKER_SCRIPT_NAME}"
     COMPONENTS "4343W;CAPSENSE;TFM_NS_FREERTOS_WRAPPER;TFM_NS_INTERFACE"
-    DEFINES "CY_BLE_SUPPORTED;CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
+    DEFINES "${KIT_FEATURES}"
 )

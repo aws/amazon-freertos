@@ -76,6 +76,9 @@
 /**
  * @brief Initializes the PKCS #11 PAL.
  *
+ * This is always called first in C_Initialize if the module is not already
+ * initialized.
+ *
  * @return CKR_OK on success.
  * CKR_FUNCTION_FAILED on failure.
  */
@@ -97,8 +100,8 @@ CK_RV PKCS11_PAL_Initialize( void );
  */
 /* @[declare_pkcs11_pal_saveobject] */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize );
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize );
 /* @[declare_pkcs11_pal_saveobject] */
 
 /**
@@ -116,7 +119,7 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pLabel         Pointer to the label of the object
+ * @param[in] pxLabel         Pointer to the label of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -124,8 +127,8 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
  * Returns eInvalidHandle if unsuccessful.
  */
 /* @[declare_pkcs11_pal_findobject] */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength );
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
+                                        CK_ULONG usLength );
 /* @[declare_pkcs11_pal_findobject] */
 
 
@@ -153,23 +156,23 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * error.
  */
 /* @[declare_pkcs11_pal_getobjectvalue] */
-BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      uint8_t ** ppucData,
-                                      uint32_t * pulDataSize,
-                                      CK_BBOOL * pIsPrivate );
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                 CK_BYTE_PTR * ppucData,
+                                 CK_ULONG_PTR pulDataSize,
+                                 CK_BBOOL * pIsPrivate );
 /* @[declare_pkcs11_pal_getobjectvalue] */
 
 /**
  * @brief Cleanup after PKCS11_GetObjectValue().
  *
- * @param[in] pucBuffer      The buffer to free.
+ * @param[in] pucData       The buffer to free.
  *                          (*ppucData from PKCS11_PAL_GetObjectValue())
- * @param[in] ulBufferSize   The length of the buffer to free.
+ * @param[in] ulDatasize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
-                                       uint32_t ulBufferSize );
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize );
 /* @[declare_pkcs11_pal_getobjectvaluecleanup] */
 
 #endif /* IOT_PKCS11_PAL include guard. */

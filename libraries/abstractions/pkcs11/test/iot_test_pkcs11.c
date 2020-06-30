@@ -1487,6 +1487,13 @@ static const char cValidECDSAPrivateKey[] =
     "Kk9GzFk9ChthHFsx+T7UFithbYWtRf0Zww==\n"
     "-----END EC PRIVATE KEY-----";
 
+/* Valid ECDSA public key. */
+static const char cValidECDSAPublicKey[] =
+    "-----BEGIN PUBLIC KEY-----\n"
+    "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzghp+QstUhOmzKBGEL7uBjsaBbya\n"
+    "NTMLXKLSW78+bdoP9bKTOrqiKk9GzFk9ChthHFsx+T7UFithbYWtRf0Zww==\n"
+    "-----END PUBLIC KEY-----";
+
 /* Valid ECDSA certificate. */
 static const char cValidECDSACertificate[] =
     "-----BEGIN CERTIFICATE-----\n"
@@ -1522,8 +1529,8 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
         xCurrentCredentials = eNone;
 
         xResult = xProvisionPublicKey( xGlobalSession,
-                                       ( uint8_t * ) cValidECDSAPrivateKey,
-                                       sizeof( cValidECDSAPrivateKey ),
+                                       ( uint8_t * ) cValidECDSAPublicKey,
+                                       sizeof( cValidECDSAPublicKey ),
                                        CKK_EC,
                                        ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                        pxPublicKeyHandle );
@@ -1659,8 +1666,8 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC private key." );
 
     xResult = xProvisionPublicKey( xGlobalSession,
-                                   ( uint8_t * ) cValidECDSAPrivateKey,
-                                   sizeof( cValidECDSAPrivateKey ),
+                                   ( uint8_t * ) cValidECDSAPublicKey,
+                                   sizeof( cValidECDSAPublicKey ),
                                    CKK_EC,
                                    ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                    &xPublicKeyHandle );
@@ -1699,7 +1706,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
 
         xResult = xProvisionPublicKey( xGlobalSession,
-                                       ( uint8_t * ) cValidECDSAPrivateKey,
+                                       ( uint8_t * ) cValidECDSAPublicKey,
                                        sizeof( cValidECDSAPrivateKey ),
                                        CKK_EC,
                                        pkcs11configLABEL_CODE_VERIFICATION_KEY,

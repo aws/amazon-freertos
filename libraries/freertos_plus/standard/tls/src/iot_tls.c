@@ -137,7 +137,7 @@ typedef struct TLSContext
 #define TLS_HANDSHAKE_STARTED        ( 1 )
 #define TLS_HANDSHAKE_SUCCESSFUL     ( 2 )
 
-#define TLS_PRINT( X )    vLoggingPrintf X
+#define TLS_PRINT( X )    configPRINTF( X )
 
 /*-----------------------------------------------------------*/
 

@@ -25,6 +25,7 @@ cmake_minimum_required (VERSION 3.13)
                 "${3rdparty_dir}/mbedtls/include/mbedtls/ecdsa.h"
                 "${3rdparty_dir}/mbedtls_utils/mbedtls_error.h"
                 "${3rdparty_dir}/mbedtls/include/mbedtls/pk.h"
+                "${3rdparty_dir}/mbedtls/include/mbedtls/x509_crt.h"
                 "${standard_dir}/utils/include/iot_pki_utils.h"
         )
 

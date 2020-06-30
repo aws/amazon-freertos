@@ -82,7 +82,7 @@ CK_OBJECT_HANDLE PKCS11_PSA_SaveObject( CK_ATTRIBUTE_PTR pxClass,
     size_t xPublicKeySizeUncompressed = 0;
     uint8_t * pucKeyData = NULL;
     uint32_t ulKeyDataSize = 0;
-    mbedtls_pk_type_t uxPrivateKeyTypePKCS11 = 0;
+    mbedtls_pk_type_t uxPrivateKeyTypePKCS11 = MBEDTLS_PK_NONE;
 
     if( ulDataSize <= pkcs11OBJECT_MAX_SIZE )
     {
