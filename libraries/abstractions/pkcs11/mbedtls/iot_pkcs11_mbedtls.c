@@ -167,7 +167,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @note This length needs to be updated if using a different curve.
  *
  */
-#define pkcs11EC_POINT_LENGTH    67
+#define pkcs11EC_POINT_LENGTH                 67
 
 /**
  * @ingroup pkcs11_macros
