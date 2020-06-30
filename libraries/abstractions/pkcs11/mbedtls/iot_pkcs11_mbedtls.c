@@ -141,14 +141,14 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @ingroup pkcs11_macros
  * @brief Max size of an EC public key in bytes, in DER encoding.
  */
-#define EC_MAX_PUBLIC_KEY_DER_SIZE              pkcs11_PUBLIC_EC_PRIME_256_DER_SIZE
+#define pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE       pkcs11_PUBLIC_EC_PRIME_256_DER_SIZE
 
 
 /**
  * @ingroup pkcs11_macros
  * @brief Max size of an EC private key in bytes, in DER encoding.
  */
-#define EC_KEY_MAX_DER_SIZE        pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE
+#define pkcs11_MAX_EC_PRIVATE_KEY_DER_SIZE    pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE
 
 /**
  * @ingroup pkcs11_macros
@@ -157,7 +157,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  *
  * @note The largest RSA public key is used because EC keys are smaller.
  */
-#define MAX_PUBLIC_KEY_DER_SIZE    pkcs11_PUBLIC_RSA_2048_DER_SIZE
+#define pkcs11_MAX_PUBLIC_KEY_DER_SIZE        pkcs11_PUBLIC_RSA_2048_DER_SIZE
 
 
 /**
@@ -171,13 +171,13 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @note The largest RSA private key is used because EC keys are smaller and
  * the RSA public key is smaller.
  */
-#define MAX_PRIVATE_KEY_DER_SIZE      pkcs11_PRIVATE_RSA_2048_SIZE
+#define pkcs11_MAX_PRIVATE_KEY_DER_SIZE    pkcs11_PRIVATE_RSA_2048_SIZE
 
 /**
  * @ingroup pkcs11_macros
  * @brief The size of the buffer malloc'ed for the exported public key in C_GenerateKeyPair.
  */
-#define pkcs11KEY_GEN_MAX_DER_SIZE    200
+#define pkcs11KEY_GEN_MAX_DER_SIZE         200
 
 /**
  * @ingroup pkcs11_macros
@@ -185,23 +185,23 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  *
  * @note that this implementation does not have a concept of "slots" so this number is arbitrary.
  */
-#define pkcs11SLOT_ID                 1
+#define pkcs11SLOT_ID                      1
 
 /**
  * @ingroup pkcs11_macros
  * @brief Private defines for checking that attribute templates are complete.
  */
-#define LABEL_IN_TEMPLATE             ( 1U )           /**< Bit set for label in template. */
-#define PRIVATE_IN_TEMPLATE           ( 1U << 1 )      /**< Bit set for private key in in template. */
-#define SIGN_IN_TEMPLATE              ( 1U << 2 )      /**< Bit set for sign in template. */
-#define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )      /**< Bit set for EC params in template. */
-#define VERIFY_IN_TEMPLATE            ( 1U << 4 )      /**< Bit set for verify in template. */
+#define LABEL_IN_TEMPLATE                  ( 1U )      /**< Bit set for label in template. */
+#define PRIVATE_IN_TEMPLATE                ( 1U << 1 ) /**< Bit set for private key in in template. */
+#define SIGN_IN_TEMPLATE                   ( 1U << 2 ) /**< Bit set for sign in template. */
+#define EC_PARAMS_IN_TEMPLATE              ( 1U << 3 ) /**< Bit set for EC params in template. */
+#define VERIFY_IN_TEMPLATE                 ( 1U << 4 ) /**< Bit set for verify in template. */
 
 /**
  * @ingroup pkcs11_macros
  * @brief Macro to signify an invalid PKCS #11 key type.
  */
-#define PKCS11_INVALID_KEY_TYPE       ( ( CK_KEY_TYPE ) 0xFFFFFFFFUL )
+#define PKCS11_INVALID_KEY_TYPE            ( ( CK_KEY_TYPE ) 0xFFFFFFFFUL )
 
 /**
  * @ingroup pkcs11_datatypes
@@ -1132,7 +1132,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
                                  CK_BBOOL xIsPrivate )
 {
     CK_RV xResult = CKR_OK;
-    CK_BYTE_PTR pxDerKey;
+    CK_BYTE_PTR pxDerKey = NULL;
     int32_t lDerKeyLength = 0;
     uint32_t ulActualKeyLength = 0;
     int32_t lCompare = 0;
@@ -1141,19 +1141,19 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
     if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
-        ulDerBufSize = EC_KEY_MAX_DER_SIZE;
+        ulDerBufSize = pkcs11_MAX_EC_PRIVATE_KEY_DER_SIZE;
     }
     else if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
-        ulDerBufSize = EC_MAX_PUBLIC_KEY_DER_SIZE;
+        ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
     }
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
-        ulDerBufSize = MAX_PRIVATE_KEY_DER_SIZE;
+        ulDerBufSize = pkcs11_MAX_PRIVATE_KEY_DER_SIZE;
     }
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
-        ulDerBufSize = MAX_PUBLIC_KEY_DER_SIZE;
+        ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
     }
     else
     {
