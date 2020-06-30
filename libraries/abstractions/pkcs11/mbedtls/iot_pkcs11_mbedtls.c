@@ -171,7 +171,7 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @note The largest RSA private key is used because EC keys are smaller and
  * the RSA public key is smaller.
  */
-#define pkcs11_MAX_PRIVATE_KEY_DER_SIZE    pkcs11_PRIVATE_RSA_2048_SIZE
+#define pkcs11_MAX_PRIVATE_KEY_DER_SIZE    pkcs11_PRIVATE_RSA_2048_DER_SIZE
 
 /**
  * @ingroup pkcs11_macros
