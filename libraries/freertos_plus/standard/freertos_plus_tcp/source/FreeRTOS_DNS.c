@@ -532,8 +532,33 @@ TickType_t uxReadTimeOut_ticks = ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS;
  as gethostbyname() may be called from different threads */
 BaseType_t xHasRandom = pdFALSE;
 TickType_t uxIdentifier = 0U;
+#if( ipconfigUSE_DNS_CACHE != 0 )
+	BaseType_t xLengthOk = pdFALSE;
+#endif
 
+	#if( ipconfigUSE_DNS_CACHE != 0 )
+	{
 	if( pcHostName != NULL )
+	{
+		size_t xLength = strlen( pcHostName ) + 1;
+
+			if( xLength <= ipconfigDNS_CACHE_NAME_LENGTH )
+			{
+				/* The name is not too long. */
+				xLengthOk = pdTRUE;
+			}
+			else
+			{
+				FreeRTOS_printf( ( "prvPrepareLookup: name is too long ( %lu > %lu )\n",
+								   ( unsigned long ) xLength,
+								   ( unsigned long ) ipconfigDNS_CACHE_NAME_LENGTH ) );
+			}
+		}
+	}
+	if( ( pcHostName != NULL ) && ( xLengthOk != pdFALSE ) )
+	#else
+	if( pcHostName != NULL )
+	#endif	/* ( ipconfigUSE_DNS_CACHE != 0 ) */
 	{
 		/* If the supplied hostname is IP address, convert it to uint32_t
 		and return. */
@@ -647,7 +672,7 @@ TickType_t uxWriteTimeOut_ticks = ipconfigDNS_SEND_BLOCK_TIME_TICKS;
 	if( xDNSSocket != NULL )
 	{
 		/* Ideally we should check for the return value. But since we are passing
-		correect parameters, and xDNSSocket is != NULL, the return value is 
+		correct parameters, and xDNSSocket is != NULL, the return value is 
 		going to be '0' i.e. success. Thus, return value is discarded */
 		( void ) FreeRTOS_setsockopt( xDNSSocket, 0, FREERTOS_SO_SNDTIMEO, &( uxWriteTimeOut_ticks ), sizeof( TickType_t ) );
 		( void ) FreeRTOS_setsockopt( xDNSSocket, 0, FREERTOS_SO_RCVTIMEO, &( uxReadTimeOut_ticks ),  sizeof( TickType_t ) );
@@ -1254,6 +1279,8 @@ uint16_t usType = 0U;
 						#endif	/* ipconfigDNS_USE_CALLBACKS == 1 */
 						#if( ipconfigUSE_DNS_CACHE == 1 )
 						{
+						char cBuffer[ 16 ];
+
 							/* The reply will only be stored in the DNS cache when the
 							request was issued by this device. */
 							if( xDoStore != pdFALSE )
@@ -1261,11 +1288,12 @@ uint16_t usType = 0U;
 								( void ) prvProcessDNSCache( pcName, &ulIPAddress, pxDNSAnswerRecord->ulTTL, pdFALSE );
 							}
 
+							FreeRTOS_inet_ntop( FREERTOS_AF_INET, ( const void * ) &( ulIPAddress ), cBuffer, sizeof( cBuffer ) );
 							/* Show what has happened. */
-							FreeRTOS_printf( ( "DNS[0x%04lX]: The answer to '%s' (%lxip) will%s be stored\n",
+							FreeRTOS_printf( ( "DNS[0x%04lX]: The answer to '%s' (%s) will%s be stored\n",
 											   ( UBaseType_t ) pxDNSMessageHeader->usIdentifier,
 											   pcName,
-											   ( UBaseType_t ) FreeRTOS_ntohl( ulIPAddress ),
+											   cBuffer,
 											   ( xDoStore != 0 ) ? "" : " NOT" ) );
 						}
 						#endif /* ipconfigUSE_DNS_CACHE */
