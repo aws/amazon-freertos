@@ -914,3 +914,146 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
                                       _mqttConnection_t * pMqttConnection );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
+
+/*----------------- MQTT Serailization /Deserialization Wrapper functions for Shim------------------*/
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializeConnect
+ *
+ * See @ref _IotMqtt_SerializeConnect for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _connectSerializeWrapper(const IotMqttConnectInfo_t* pConnectInfo,
+    uint8_t** pConnectPacket,
+    size_t* pPacketSize);
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializeDisconnect
+ *
+ * See @ref _IotMqtt_SerializeDisconnect for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _disconnectSerializeWrapper(uint8_t** pDisconnectPacket,
+    size_t* pPacketSize);
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializeSubscribe
+ *
+ * See @ref _IotMqtt_SerializeSubscribe for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _subscribeSerializeWrapper(const IotMqttSubscription_t* pSubscriptionList,
+    size_t subscriptionCount,
+    uint8_t** pSubscribePacket,
+    size_t* pPacketSize,
+    uint16_t* pPacketIdentifier);
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializeUnsubscribe
+ *
+ * See @ref _IotMqtt_SerializeUnsubscribe for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _unsubscribeSerializeWrapper(const IotMqttSubscription_t* pSubscriptionList,
+    size_t subscriptionCount,
+    uint8_t** pUnsubscribePacket,
+    size_t* pPacketSize,
+    uint16_t* pPacketIdentifier);
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializePublish
+ *
+ * See @ref _IotMqtt_SerializePublish for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _publishSerializeWrapper(const IotMqttPublishInfo_t* pPublishInfo,
+    uint8_t** pPublishPacket,
+    size_t* pPacketSize,
+    uint16_t* pPacketIdentifier,
+    uint8_t** pPacketIdentifierHigh);
+
+/**
+ * @brief The wrapper for  @ref _IotMqtt_SerializePingresp
+ *
+ * See @ref  _IotMqtt_SerializePingresp for a
+ * description of the parameters and return values.
+ */
+IotMqttError_t _pingreqSerializeWrapper(uint8_t** pPingreqPacket,
+    size_t* pPacketSize);
+
+/**
+ * @brief Deserialize a connack packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pConnack The connack packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializeConnackWrapper(_mqttPacket_t* pConnack);
+
+
+/**
+ * @brief Deserialize a suback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pSuback The suback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializeSubackWrapper(_mqttPacket_t* pSuback);
+
+
+/**
+ * @brief Deserialize a unsuback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pUnsuback The unsuback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializeUnsubackWrapper(_mqttPacket_t* pUnsuback);
+
+/**
+ * @brief Deserialize a puback packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPuback The puback packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializePubackWrapper(_mqttPacket_t* pPuback);
+
+/**
+ * @brief Deserialize a pingresp packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPingresp The pingresponse packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializePingrespWrapper(_mqttPacket_t* pPingresp);
+
+/**
+ * @brief Deserialize a publish packet received from the network by using MQTT v4 beta 2 deserializer.
+ *
+ * @param[in] pPublish The publish packet received from the network.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _deserializePublishWrapper(_mqttPacket_t* pPublish);
+
+/**
+ * @brief Serialize a puback packet to send  on the network by using MQTT v4 beta 2 serializer.
+ *
+ * @param[in] packetIdentifier The packet id of the packet to be sent on the network.
+ * @param[out] pPubackPacket The puback packet serialized to be sent on the network.
+ * @param[out] pPacketSize The size of the puback packet.
+ *
+ * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
+ * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
+ */
+IotMqttError_t _pubackSerializeWrapper(uint16_t packetIdentifier,
+    uint8_t** pPubackPacket,
+    size_t* pPacketSize);
+
