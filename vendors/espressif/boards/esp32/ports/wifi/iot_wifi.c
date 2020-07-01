@@ -1087,6 +1087,12 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 #if !AFR_ESP_LWIP
         *( ( uint32_t * ) pucIPAddr ) = FreeRTOS_GetIPAddress();
         xRetVal = eWiFiSuccess;
+        configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                     __FUNCTION__,
+                     pucIPAddr[0],
+                     pucIPAddr[1],
+                     pucIPAddr[2],
+                     pucIPAddr[3]));
 #else /* running lwip */
         tcpip_adapter_ip_info_t ipInfo;
         int ret;
