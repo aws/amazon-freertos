@@ -17,6 +17,14 @@ If you have downloaded the repo without using the `--recurse-submodules` argumen
 git submodule update --init --recursive
 ```
 
+Apply patches to the TinyCBOR library. From the root directory, run:
+```
+cd libraries/3rdparty/tinycbor
+```
+```
+git apply ../patches/tinycbor/*
+```
+
 ## Important branches to know
 master            --> Development is done continuously on this branch  
 release           --> Fully tested released source code  
