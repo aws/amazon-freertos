@@ -26,6 +26,9 @@
 # Choose between "aws_demos" and "aws_tests"
 CY_AFR_BUILD=aws_demos
 
+# BLE support
+BLE_SUPPORT=1
+
 # Root location of AFR directory
 CY_AFR_ROOT=../../../../..
 
@@ -96,6 +99,9 @@ INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
 DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED CONFIG_MEDTLS_USE_AFR_MEMORY MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\" TFM_MULTI_CORE_MULTI_CLIENT_CALL
+
+# Add BLE defines
+DEFINES+=CY_BLE_SUPPORTED
 
 # Select softfp or hardfp floating point. Default is softfp. 
 VFP_SELECT=
