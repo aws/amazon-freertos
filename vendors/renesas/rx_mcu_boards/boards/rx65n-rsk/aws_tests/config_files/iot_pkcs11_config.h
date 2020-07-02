@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.1.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V1.1.4
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,8 +32,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-#define pkcs11configC_INITIALIZE_ALT
 
 /**
  * @brief PKCS #11 default user PIN.
@@ -60,6 +58,12 @@
  * by the PKCS #11 module.
  */
 #define pkcs11configMAX_NUM_OBJECTS      6
+
+/**
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
+ */
+#define pkcs11configMAX_SESSIONS                           10
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.

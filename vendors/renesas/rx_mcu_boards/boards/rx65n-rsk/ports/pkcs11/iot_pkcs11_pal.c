@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
+ * Amazon FreeRTOS PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -171,8 +171,6 @@ static void update_dataflash_data_from_image(void);
 static void update_dataflash_data_mirror_from_image(void);
 static void check_dataflash_area(uint32_t retry_counter);
 
-extern CK_RV prvMbedTLS_Initialize( void );
-
 void data_flash_update_status_initialize(void);
 static void update_data_flash_callback_function(void *event);
 
@@ -185,7 +183,7 @@ typedef struct _update_data_flash_control_block {
  ******************************************************************************/
 static UPDATA_DATA_FLASH_CONTROL_BLOCK update_data_flash_control_block;
 
-CK_RV C_Initialize( CK_VOID_PTR pvInitArgs )
+CK_RV PKCS11_PAL_Initialize( CK_VOID_PTR pvInitArgs )
 {
     CK_RV xResult = CKR_OK;
 
@@ -205,8 +203,6 @@ CK_RV C_Initialize( CK_VOID_PTR pvInitArgs )
     memcpy(&pkcs_control_block_data_image, (void *)&pkcs_control_block_data, sizeof(pkcs_control_block_data_image));
 
     R_FLASH_Close();
-
-    xResult = prvMbedTLS_Initialize();
 
     return xResult;
 }
