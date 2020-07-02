@@ -3799,7 +3799,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     {
         if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
         {
-            if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
+            if( ( pxSession->xVerifyKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xVerifyKeyHandle != hKey ) )
             {
                 mbedtls_pk_free( &pxSession->xVerifyKey );
 
