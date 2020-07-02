@@ -261,9 +261,11 @@ typedef struct P11Session
     CK_ULONG xFindObjectLabelLen;                /**< @brief Size of current search label. */
     CK_MECHANISM_TYPE xOperationVerifyMechanism; /**< @brief The mechanism of verify operation in progress. Set during C_VerifyInit. */
     SemaphoreHandle_t xVerifyMutex;              /**< @brief Protects the verification key from being modified while in use. */
+    CK_OBJECT_HANDLE xVerifyKeyHandle;           /**< @brief Object handle to the verification key. */
     mbedtls_pk_context xVerifyKey;               /**< @brief Verification key.  Set during C_VerifyInit. */
     CK_MECHANISM_TYPE xOperationSignMechanism;   /**< @brief Mechanism of the sign operation in progress. Set during C_SignInit. */
     SemaphoreHandle_t xSignMutex;                /**< @brief Protects the signing key from being modified while in use. */
+    CK_OBJECT_HANDLE xSignKeyHandle;             /**< @brief Object handle to the signing key. */
     mbedtls_pk_context xSignKey;                 /**< @brief Signing key.  Set during C_SignInit. */
     mbedtls_sha256_context xSHA256Context;       /**< @brief Context for in progress digest operation. */
 } P11Session_t;
@@ -1915,6 +1917,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
          * Tear down the session.
          */
         mbedtls_pk_free( &pxSession->xSignKey );
+        pxSession->xSignKeyHandle = CK_INVALID_HANDLE;
 
         if( NULL != pxSession->xSignMutex )
         {
@@ -1923,6 +1926,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
 
         /* Free the public key context if it exists. */
         mbedtls_pk_free( &pxSession->xVerifyKey );
+        pxSession->xVerifyKeyHandle = CK_INVALID_HANDLE;
 
         if( NULL != pxSession->xVerifyMutex )
         {
@@ -2946,7 +2950,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     {
         xResult = CKR_TEMPLATE_INCOMPLETE;
 
-        for( ulIndex = 0; ulIndex < ulCount; ulIndex++ ) /* TODO: Re-evaluate the need for this for loop... we are making bad assumptions if 2 objects have the same label anyhow! */
+        for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
         {
             xAttribute = pTemplate[ ulIndex ];
 
@@ -3415,7 +3419,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     CK_ULONG ulKeyDataLength = 0;
     int32_t lMbedTLSResult = 0;
 
-
     if( NULL == pMechanism )
     {
         PKCS11_PRINT( ( "ERROR: Null signing mechanism provided. \r\n" ) );
@@ -3468,20 +3471,26 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
          * is underway on another thread where modification of key would lead to hard fault.*/
         if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
         {
-            /* Free the private key context if it exists.
-             * TODO: Check if the key is the same as was used previously. */
-            mbedtls_pk_free( &pxSession->xSignKey );
-
-            mbedtls_pk_init( &pxSession->xSignKey );
-            lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xSignKey, pulKeyData, ulKeyDataLength, NULL, 0 );
-
-            if( lMbedTLSResult != 0 )
+            if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
             {
-                PKCS11_PRINT( ( "mbedTLS unable to parse private key for signing. %s : ",
-                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-                PKCS11_PRINT( ( "%s \r\n",
-                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
-                xResult = CKR_KEY_HANDLE_INVALID;
+                mbedtls_pk_free( &pxSession->xSignKey );
+
+                mbedtls_pk_init( &pxSession->xSignKey );
+                lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xSignKey, pulKeyData, ulKeyDataLength, NULL, 0 );
+
+                if( lMbedTLSResult != 0 )
+                {
+                    PKCS11_PRINT( ( "mbedTLS unable to parse private key for signing. %s : ",
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                    PKCS11_PRINT( ( "%s \r\n",
+                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                    xResult = CKR_KEY_HANDLE_INVALID;
+                    pxSession->xSignKeyHandle = CK_INVALID_HANDLE;
+                }
+                else
+                {
+                    pxSession->xSignKeyHandle = hKey;
+                }
             }
 
             ( void ) xSemaphoreGive( pxSession->xSignMutex );
@@ -3790,18 +3799,24 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     {
         if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
         {
-            /* Free the public key context if it exists.
-             * TODO: Check if the key is the same as used by last verify operation. */
-            mbedtls_pk_free( &pxSession->xVerifyKey );
-
-            mbedtls_pk_init( &pxSession->xVerifyKey );
-
-            if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength ) )
+            if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
             {
-                if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength, NULL, 0 ) )
+                mbedtls_pk_free( &pxSession->xVerifyKey );
+
+                mbedtls_pk_init( &pxSession->xVerifyKey );
+
+                if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength ) )
                 {
-                    PKCS11_PRINT( ( "ERROR: Unable to parse public key for verification. \r\n" ) );
-                    xResult = CKR_KEY_HANDLE_INVALID;
+                    if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength, NULL, 0 ) )
+                    {
+                        PKCS11_PRINT( ( "ERROR: Unable to parse public key for verification. \r\n" ) );
+                        xResult = CKR_KEY_HANDLE_INVALID;
+                        pxSession->xVerifyKeyHandle = CK_INVALID_HANDLE;
+                    }
+                    else
+                    {
+                        pxSession->xVerifyKeyHandle = hKey;
+                    }
                 }
             }
 
@@ -3959,8 +3974,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         /* Perform an ECDSA verification. */
         else if( pxSessionObj->xOperationVerifyMechanism == CKM_ECDSA )
         {
-            /* TODO: Refactor w/ test code
-             * An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
+            /* An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
             mbedtls_ecdsa_context * pxEcdsaContext;
             mbedtls_mpi xR;
             mbedtls_mpi xS;
