@@ -3473,9 +3473,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         {
             if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
             {
+                pxSession->xSignKeyHandle = CK_INVALID_HANDLE;
                 mbedtls_pk_free( &pxSession->xSignKey );
-
                 mbedtls_pk_init( &pxSession->xSignKey );
+
                 lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xSignKey, pulKeyData, ulKeyDataLength, NULL, 0 );
 
                 if( lMbedTLSResult != 0 )
@@ -3485,7 +3486,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
                     PKCS11_PRINT( ( "%s \r\n",
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_KEY_HANDLE_INVALID;
-                    pxSession->xSignKeyHandle = CK_INVALID_HANDLE;
                 }
                 else
                 {
@@ -3801,8 +3801,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         {
             if( ( pxSession->xVerifyKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xVerifyKeyHandle != hKey ) )
             {
+                pxSession->xVerifyKeyHandle = CK_INVALID_HANDLE;
                 mbedtls_pk_free( &pxSession->xVerifyKey );
-
                 mbedtls_pk_init( &pxSession->xVerifyKey );
 
                 if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength ) )
@@ -3811,7 +3811,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                     {
                         PKCS11_PRINT( ( "ERROR: Unable to parse public key for verification. \r\n" ) );
                         xResult = CKR_KEY_HANDLE_INVALID;
-                        pxSession->xVerifyKeyHandle = CK_INVALID_HANDLE;
                     }
                     else
                     {
