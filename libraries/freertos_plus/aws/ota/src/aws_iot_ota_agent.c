@@ -256,6 +256,7 @@ static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvSuspendHandler( OTA_EventData_t * pxEventData );
 static OTA_Err_t prvResumeHandler( OTA_EventData_t * pxEventData );
+static OTA_Err_t prvJobNotificationHandler( OTA_EventData_t * pxEventData );
 
 /* OTA default callback initializer. */
 
@@ -284,6 +285,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .ulServerFileID                = 0,
     .pcOTA_Singleton_ActiveJobName = NULL,
     .pcClientTokenFromJob          = NULL,
+    .ulTimestampFromJob            = 0,
     .pvSelfTestTimer               = NULL,
     .xRequestTimer                 = NULL,
     .xOTA_EventQueue               = NULL,
@@ -298,24 +300,25 @@ static OTA_AgentContext_t xOTA_Agent =
 static OTAStateTableEntry_t OTATransitionTable[] =
 {
     /*STATE ,                              EVENT ,                               ACTION ,               NEXT STATE                         */
-    { eOTA_AgentState_Ready,               eOTA_AgentEvent_Start,               prvStartHandler,       eOTA_AgentState_RequestingJob       },
-    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestTimer,        prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_ReceivedJobDocument, prvProcessJobHandler,  eOTA_AgentState_CreatingFile        },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_StartSelfTest,       prvInSelfTestHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CreateFile,          prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
-    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_RequestTimer,        prvInitFileHandler,    eOTA_AgentState_RequestingFileBlock },
-    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedFileBlock,   prvProcessDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler, eOTA_AgentState_WaitingForFileBlock },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,  eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,   eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_Suspended,           eOTA_AgentEvent_Resume,              prvResumeHandler,      eOTA_AgentState_RequestingJob       },
-    { eOTA_AgentState_All,                 eOTA_AgentEvent_Suspend,             prvSuspendHandler,     eOTA_AgentState_Suspended           },
-    { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,   eOTA_AgentState_WaitingForJob       },
-    { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,    eOTA_AgentState_ShuttingDown        },
+    { eOTA_AgentState_Ready,               eOTA_AgentEvent_Start,               prvStartHandler,           eOTA_AgentState_RequestingJob       },
+    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,      eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_RequestingJob,       eOTA_AgentEvent_RequestTimer,        prvRequestJobHandler,      eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_WaitingForJob,       eOTA_AgentEvent_ReceivedJobDocument, prvProcessJobHandler,      eOTA_AgentState_CreatingFile        },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_StartSelfTest,       prvInSelfTestHandler,      eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_CreateFile,          prvInitFileHandler,        eOTA_AgentState_RequestingFileBlock },
+    { eOTA_AgentState_CreatingFile,        eOTA_AgentEvent_RequestTimer,        prvInitFileHandler,        eOTA_AgentState_RequestingFileBlock },
+    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler,     eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_RequestingFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler,     eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedFileBlock,   prvProcessDataHandler,     eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestTimer,        prvRequestDataHandler,     eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestFileBlock,    prvRequestDataHandler,     eOTA_AgentState_WaitingForFileBlock },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_RequestJobDocument,  prvRequestJobHandler,      eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_ReceivedJobDocument, prvJobNotificationHandler, eOTA_AgentState_RequestingJob       },
+    { eOTA_AgentState_WaitingForFileBlock, eOTA_AgentEvent_CloseFile,           prvCloseFileHandler,       eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_Suspended,           eOTA_AgentEvent_Resume,              prvResumeHandler,          eOTA_AgentState_RequestingJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_Suspend,             prvSuspendHandler,         eOTA_AgentState_Suspended           },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_UserAbort,           prvUserAbortHandler,       eOTA_AgentState_WaitingForJob       },
+    { eOTA_AgentState_All,                 eOTA_AgentEvent_Shutdown,            prvShutdownHandler,        eOTA_AgentState_ShuttingDown        },
 };
 
 static const char * pcOTA_AgentState_Strings[ eOTA_AgentState_All ] =
@@ -685,7 +688,7 @@ static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
      * custom OTA job. No applciation callback for handling custom job document is registered so just
      * return error code for non conforming job document from this default handler.
      */
-    OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent which is not supported.\r\n", OTA_METHOD_NAME );
+    OTA_LOG_L2( "[%s] Received Custom Job inside OTA Agent which is not supported.\r\n", OTA_METHOD_NAME );
 
     return eOTA_JobParseErr_NonConformingJobDoc;
 }
@@ -1277,6 +1280,34 @@ static OTA_Err_t prvResumeHandler( OTA_EventData_t * pxEventData )
 
     /*
      * Send signal to request job document.
+     */
+    xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
+
+    return OTA_SignalEvent( &xEventMsg ) ? kOTA_Err_None : kOTA_Err_EventQueueSendFailed;
+}
+
+static OTA_Err_t prvJobNotificationHandler( OTA_EventData_t * pxEventData )
+{
+    ( void ) pxEventData;
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
+    OTA_EventMsg_t xEventMsg = { 0 };
+
+    /*  We receieved job notification so stop the data request timer. */
+    prvStopRequestTimer();
+
+    /* Abort the current job. */
+    ( void ) xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eOTA_ImageState_Aborted );
+    ( void ) prvOTA_Close( &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ] );
+
+    /* Free the active job name as its no longer required. */
+    if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
+    {
+        vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+        xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
+    }
+
+    /*
+     * Send signal to request next OTA job document from service.
      */
     xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
 
@@ -1997,6 +2028,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     static const JSON_DocParam_t xOTA_JobDocModelParamStructure[ OTA_NUM_JOB_PARAMS ] =
     {
         { OTA_JSON_CLIENT_TOKEN_KEY,    OTA_JOB_PARAM_OPTIONAL, { ( uint32_t ) &xOTA_Agent.pcClientTokenFromJob }, eModelParamType_StringInDoc, JSMN_STRING    }, /*lint !e9078 !e923 Get address of token as value. */
+        { OTA_JSON_TIMESTAMP_KEY,       OTA_JOB_PARAM_OPTIONAL, { ( uint32_t ) &xOTA_Agent.ulTimestampFromJob   }, eModelParamType_UInt32,      JSMN_PRIMITIVE },
         { OTA_JSON_EXECUTION_KEY,       OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
         { OTA_JSON_JOB_ID_KEY,          OTA_JOB_PARAM_REQUIRED, { offsetof( OTA_FileContext_t, pucJobName )     }, eModelParamType_StringCopy,  JSMN_STRING    },
         { OTA_JSON_STATUS_DETAILS_KEY,  OTA_JOB_PARAM_OPTIONAL, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
@@ -2193,6 +2225,21 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             {
                 /* Job is malformed - return an error */
                 OTA_LOG_L1( "[%s] Job does not have context or has no ID but has been processed\r\n", OTA_METHOD_NAME );
+                eErr = eOTA_JobParseErr_NonConformingJobDoc;
+            }
+        }
+        else
+        {
+            /*Check if we received a timestamp and client token but no job ID.*/
+            if( ( xOTA_Agent.pcClientTokenFromJob != NULL ) && ( xOTA_Agent.ulTimestampFromJob != 0 ) && ( C->pucJobName == NULL ) )
+            {
+                /* Received job docuement with no execution so no active job is available.*/
+                OTA_LOG_L1( "[%s] No active jobs available in the service for execution.\r\n", OTA_METHOD_NAME );
+                eErr = eOTA_JobParseErr_NoActiveJobs;
+            }
+            else
+            {
+                /* Job is malformed - return an error */
                 eErr = eOTA_JobParseErr_NonConformingJobDoc;
             }
         }
