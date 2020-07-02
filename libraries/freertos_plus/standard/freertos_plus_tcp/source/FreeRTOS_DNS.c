@@ -1182,7 +1182,7 @@ uint16_t usType = 0U;
 		{
 			const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
 
-			for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( x < usCount ); x++ )
+			for( x = 0U; x < pxDNSMessageHeader->usAnswers; x++ )
 			{
 			BaseType_t xDoAccept;
 
