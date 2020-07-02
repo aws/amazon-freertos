@@ -87,7 +87,6 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
-
 # PKCS11
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(

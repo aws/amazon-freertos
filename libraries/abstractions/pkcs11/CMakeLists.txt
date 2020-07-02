@@ -136,7 +136,6 @@ afr_module_sources(
         "${test_dir}/iot_test_pkcs11.c"
         "${mbt_tests}"
 )
-
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
