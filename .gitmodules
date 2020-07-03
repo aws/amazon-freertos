@@ -26,7 +26,7 @@
 [submodule "mbedtls"]
 	path = libraries/3rdparty/mbedtls
 	url = https://github.com/ARMmbed/mbedtls.git
-	branch = mbedtls-2.16.6
+	branch = mbedtls-2.16.7
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
