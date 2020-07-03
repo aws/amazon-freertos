@@ -538,8 +538,8 @@ TickType_t uxIdentifier = 0U;
 
 	#if( ipconfigUSE_DNS_CACHE != 0 )
 	{
-	if( pcHostName != NULL )
-	{
+		if( pcHostName != NULL )
+		{
 		size_t xLength = strlen( pcHostName ) + 1;
 
 			if( xLength <= ipconfigDNS_CACHE_NAME_LENGTH )
