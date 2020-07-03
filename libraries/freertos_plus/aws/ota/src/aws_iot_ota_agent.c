@@ -1454,7 +1454,13 @@ static bool prvOTA_Close( OTA_FileContext_t * const C )
 
     bool bResult = false;
 
-    OTA_LOG_L1( "[%s] Context->0x%p\r\n", OTA_METHOD_NAME, C );
+    OTA_LOG_L2( "[%s] Context->0x%p\r\n", OTA_METHOD_NAME, C );
+
+    /* Cleanup related to selected protocol. */
+    if( xOTA_DataInterface.prvCleanup != NULL )
+    {
+        ( void ) xOTA_DataInterface.prvCleanup( &xOTA_Agent );
+    }
 
     if( C != NULL )
     {
