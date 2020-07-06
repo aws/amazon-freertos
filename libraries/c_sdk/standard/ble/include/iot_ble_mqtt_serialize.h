@@ -113,7 +113,7 @@ void IotBleMqtt_CleanupSerialize( void );
  * @param[out] pConnectPacket The buffer containing the serialized data.
  * @param[in] pPacketSize The Size of the serialized data.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  */
 MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConnectInfo,
                                           uint8_t ** const pConnectPacket,
@@ -128,12 +128,10 @@ MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConne
  * @param[in] dataLength Length of buffer containing the CONNACK message.
  * @param[out] pBytesProcessed Length of the CONNACK message parsed.
  *
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
+ * @return  #MQTTSuccess or #MQTTBackResponse.
  *
  */
 MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack );
-
-
 
 /**
  * @brief Serialize MQTT PUBLISH message sent over BLE connection.
@@ -145,7 +143,7 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack );
  * @param[out] pPacketSize Length of the serialized PUBLISH message.
  * @param[out] pPacketIdentifier Unique Identifier for the PUBLISH message.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  *
  */
 MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
@@ -166,7 +164,6 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
                                uint8_t * pPacketIdentifierHigh,
                                uint16_t * const pNewPacketIdentifier );
 
-
 /**
  * @brief Deserialize MQTT PUBLISH message received over BLE connection.
  *
@@ -178,12 +175,12 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
  * @param[out] pPacketIdentifier Unique identifier for the PUBLISH message.
  * @param[out] pBytesProcessed Length of the PUBLISH message parsed.
  *
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
+ * @return  #MQTTSuccess or #MQTTBadResponse.
  *
- */MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
+ */
+MQTTStatus_t IotBleMqtt_DeserializePublish( MQTTPacketInfo_t * pPublish,
                                             MQTTPublishInfo_t * publishInfo,
                                             uint16_t * packetIdentifier );
-
 
 /**
  * @brief Serialize MQTT PUBACK message sent over BLE connection.
@@ -194,7 +191,7 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
  * @param[out] pPubackPacket Pointer to the start of the PUBACK message.
  * @param[out] pPacketSize Length of the PUBACK message.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  *
  */
 MQTTStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
@@ -211,7 +208,7 @@ MQTTStatus_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
  * @param[out] pPacketIdentifier Unique identifier for the PUBACK message.
  * @param[out] pBytesProcessed Length of the PUBACK message parsed.
  *
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
+ * @return  #MQTTSuccess or #MQTTBadResponse.
  *
  */
 MQTTStatus_t IotBleMqtt_DeserializePuback( MQTTPacketInfo_t * pPuback,
@@ -228,7 +225,7 @@ MQTTStatus_t IotBleMqtt_DeserializePuback( MQTTPacketInfo_t * pPuback,
  * @param[out] pPacketSize Length of the SUBSCRIBE message.
  * @param[out] pPacketIdentifier Unique identifier for the SUBSCRIBE message.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  *
  */
 MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
@@ -249,7 +246,7 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
  * @param[out] pPacketIdentifier Unique identifier for the SUBACK message.
  * @param[out] pBytesProcessed Length of the SUBACK message parsed.
  *
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
+ * @return  #MQTTSuccess or #MQTTBadResponse.
  *
  */
 MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
@@ -266,7 +263,7 @@ MQTTStatus_t IotBleMqtt_DeserializeSuback( MQTTPacketInfo_t * pSuback,
  * @param[out] pPacketSize Length of the UNSUBSCRIBE message.
  * @param[out] pPacketIdentifier Unique identifier for the UNSUBSCRIBE message.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  *
  */
 MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const pSubscriptionList,
@@ -274,7 +271,6 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
                                               uint8_t ** const pUnsubscribePacket,
                                               size_t * const pPacketSize,
                                               uint16_t * const pPacketIdentifier );
-
 
 /**
  * @brief Deserialize MQTT UNSUBACK message received over BLE connection.
@@ -286,7 +282,7 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
  * @param[out] pPacketIdentifier Unique identifier for the UNSUBACK message.
  * @param[out] pBytesProcessed Length of the SUBACK message parsed.
  *
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
+ * @return  #MQTTSuccess or #MQTTBadResponse.
  *
  */
 MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
@@ -300,7 +296,7 @@ MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
  * @param[out] pDisconnectPacket Pointer to the DISCONNECT message
  * @param[out] pPacketSize Length of the DISCONNECT message.
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return #MQTTSuccess or #MQTTNoMemory.
  *
  */
 MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
@@ -314,7 +310,7 @@ MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
  * @param[out]  pPingreqPacket Pointer to the PING request packet
  * @param[out]  pPacketSize Size of the PING request packet
  *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY
+ * @return #MQTTSuccess or #MQTTNoMemory.
  */
 MQTTStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
                                           size_t * const pPacketSize );
@@ -328,7 +324,7 @@ MQTTStatus_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
  * @param[in] pPingrespStart Pointer to start of buffer containing PING response
  * @param[in] dataLength Length of the buffer containing PING response
  * @param[out] pBytesProcessed Number of bytes parsed
- * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE
+ * @return  #MQTTSuccess or #MQTTBadResponse.
  */
 MQTTStatus_t IotBleMqtt_DeserializePingresp( MQTTPacketInfo_t * pPingresp );
 
