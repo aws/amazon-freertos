@@ -67,6 +67,11 @@ a constant. */
 #define	ipFIRST_MULTI_CAST_IPv4		0xE0000000UL
 #define	ipLAST_MULTI_CAST_IPv4		0xF0000000UL
 
+/* The first byte in the IPv4 header combines the IP version (4) with
+with the length of the IP header. */
+#define	ipIPV4_VERSION_HEADER_LENGTH_MIN	0x45U
+#define	ipIPV4_VERSION_HEADER_LENGTH_MAX	0x4FU
+	
 /* Time delay between repeated attempts to initialise the network hardware. */
 #ifndef ipINITIALISATION_RETRY_DELAY
 	#define ipINITIALISATION_RETRY_DELAY	( pdMS_TO_TICKS( 3000U ) )
@@ -1543,9 +1548,10 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 				/* Can not handle, fragmented packet. */
 				eReturn = eReleaseBuffer;
 			}
-			/* 0x45 means: IPv4 with an IP header of 5 x 4 = 20 bytes
-			 * 0x47 means: IPv4 with an IP header of 7 x 4 = 28 bytes */
-			else if( ( pxIPHeader->ucVersionHeaderLength < 0x45U ) || ( pxIPHeader->ucVersionHeaderLength > 0x4FU ) )
+			/* Test if the length of the IP-header is between 20 and 60 bytes,
+			and if the IP-version is 4. */
+			else if( ( pxIPHeader->ucVersionHeaderLength < ipIPV4_VERSION_HEADER_LENGTH_MIN ) ||
+					 ( pxIPHeader->ucVersionHeaderLength > ipIPV4_VERSION_HEADER_LENGTH_MAX ) )
 			{
 				/* Can not handle, unknown or invalid header version. */
 				eReturn = eReleaseBuffer;
@@ -1635,29 +1641,30 @@ uint8_t ucProtocol;
 	{
 		if( uxHeaderLength > ipSIZE_OF_IPv4_HEADER )
 		{
+			/* The size of the IP-header is larger than 20 bytes.
+			The extra space is used for IP-options. */
 			#if( ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS != 0 )
 			{
 				/* All structs of headers expect a IP header size of 20 bytes
-				 * IP header options were included, we'll ignore them and cut them out
-				 * Note: IP options are mostly use in Multi-cast protocols */
+				 * IP header options were included, we'll ignore them and cut them out. */
 				const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
-				/* From: the previous start of UDP/ICMP/TCP data */
+				/* From: the previous start of UDP/ICMP/TCP data. */
 				const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
-				/* To: the usual start of UDP/ICMP/TCP data at offset 20 from IP header */
+				/* To: the usual start of UDP/ICMP/TCP data at offset 20 (decimal ) from IP header. */
 				uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
-				/* How many: total length minus the options and the lower headers */
+				/* How many: total length minus the options and the lower headers. */
 				const size_t  xMoveLen = pxNetworkBuffer->xDataLength - ( optlen + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_ETH_HEADER );
 
 				( void ) memmove( pucTarget, pucSource, xMoveLen );
 				pxNetworkBuffer->xDataLength -= optlen;
 
-				/* Fix-up new version/header length field in IP packet. */
+				/* Rewrite the Version/IHL byte to indicate that this packet has no IP options. */
 				pxIPHeader->ucVersionHeaderLength = ( pxIPHeader->ucVersionHeaderLength & 0xF0U ) | /* High nibble is the version. */
 													( ( ipSIZE_OF_IPv4_HEADER >> 2 ) & 0x0FU );
 			}
 			#else
 			{
-				/* 'ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS' is set, so packets carrying
+				/* 'ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS' is not set, so packets carrying
 				IP-options will be dropped. */
 				return eReleaseBuffer;
 			}
