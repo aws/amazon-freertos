@@ -50,7 +50,7 @@
  *
  *  **********
  *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+ *  This repository uses Mbed TLS under Apache 2.0
  */
 
 #ifndef MBEDTLS_CONFIG_H
