@@ -130,9 +130,11 @@ events are posted to the network event queue. */
 handled.  The value is chosen simply to be easy to spot when debugging. */
 #define ipUNHANDLED_PROTOCOL		0x4321U
 
-/* Returned to indicate a valid checksum when the checksum does not need to be
-calculated. */
+/* Returned to indicate a valid checksum. */
 #define ipCORRECT_CRC				0xffffU
+
+/* Returned to indicate incorrect checksum. */
+#define ipWRONG_CRC					0x0000U
 
 /* Returned as the (invalid) checksum when the length of the data being checked
 had an invalid length. */
@@ -1612,6 +1614,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 	}
 	#else
 	{
+
 		if (eReturn == eProcessBuffer )
 		{
 			if( xCheckSizeFields( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength ) != pdPASS )
@@ -1620,6 +1623,48 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 				eReturn = eReleaseBuffer;
 			}
 		}
+
+		#if( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 )
+		{
+			/* Check if this is a UDP packet without a checksum. */
+			if (eReturn == eProcessBuffer )
+			{
+				/* ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS is defined as 0,
+				and so UDP packets carrying a protocol checksum of 0, will
+				be dropped. */
+
+				/* Identify the next protocol. */
+				if( pxIPPacket->xIPHeader.ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
+				{
+				ProtocolPacket_t *pxProtPack;
+				uint16_t *pusChecksum;
+
+					/* pxProtPack will point to the offset were the protocols begin. */
+					pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pxNetworkBuffer->pucEthernetBuffer[ uxHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+					pusChecksum = ( uint16_t * ) ( &( pxProtPack->xUDPPacket.xUDPHeader.usChecksum ) );
+					if( *pusChecksum == ( uint16_t ) 0U )
+					{
+						#if( ipconfigHAS_PRINTF != 0 )
+						{
+						static BaseType_t xCount = 0;
+
+							if( xCount < 5 )
+							{
+								FreeRTOS_printf( ( "prvAllowIPPacket: UDP packet from %xip without CRC dropped\n",
+									FreeRTOS_ntohl( pxIPPacket->xIPHeader.ulSourceIPAddress ) ) );
+								xCount++;
+							}
+						}
+						#endif	/* ( ipconfigHAS_PRINTF != 0 ) */
+
+						/* Protocol checksum not accepted. */
+						eReturn = eReleaseBuffer;
+					}
+				}
+			}
+		}
+		#endif	/* ( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 ) */
+
 		/* to avoid warning unused parameters */
 		( void ) uxHeaderLength;
 	}
@@ -1652,26 +1697,37 @@ uint8_t ucProtocol;
 
 	if( eReturn == eProcessBuffer )
 	{
+		/* Are there IP-options. */
 		if( uxHeaderLength > ipSIZE_OF_IPv4_HEADER )
 		{
 			/* The size of the IP-header is larger than 20 bytes.
 			The extra space is used for IP-options. */
-			/* All structs of headers expect a IP header size of 20 bytes
-			 * IP header options were included, we'll ignore them and cut them out. */
-			const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
-			/* From: the previous start of UDP/ICMP/TCP data. */
-			const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
-			/* To: the usual start of UDP/ICMP/TCP data at offset 20 (decimal ) from IP header. */
-			uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
-			/* How many: total length minus the options and the lower headers. */
-			const size_t  xMoveLen = pxNetworkBuffer->xDataLength - ( optlen + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_ETH_HEADER );
+			#if( ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS != 0 )
+			{
+				/* All structs of headers expect a IP header size of 20 bytes
+				 * IP header options were included, we'll ignore them and cut them out. */
+				const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
+				/* From: the previous start of UDP/ICMP/TCP data. */
+				const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
+				/* To: the usual start of UDP/ICMP/TCP data at offset 20 (decimal ) from IP header. */
+				uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
+				/* How many: total length minus the options and the lower headers. */
+				const size_t  xMoveLen = pxNetworkBuffer->xDataLength - ( optlen + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_ETH_HEADER );
 
-			( void ) memmove( pucTarget, pucSource, xMoveLen );
-			pxNetworkBuffer->xDataLength -= optlen;
+				( void ) memmove( pucTarget, pucSource, xMoveLen );
+				pxNetworkBuffer->xDataLength -= optlen;
 
-			/* Fix-up new version/header length field in IP packet. */
-			pxIPHeader->ucVersionHeaderLength = ( pxIPHeader->ucVersionHeaderLength & 0xF0U ) | /* High nibble is the version. */
-												( ( ipSIZE_OF_IPv4_HEADER >> 2 ) & 0x0FU );
+				/* Rewrite the Version/IHL byte to indicate that this packet has no IP options. */
+				pxIPHeader->ucVersionHeaderLength = ( pxIPHeader->ucVersionHeaderLength & 0xF0U ) | /* High nibble is the version. */
+													( ( ipSIZE_OF_IPv4_HEADER >> 2 ) & 0x0FU );
+			}
+			#else
+			{
+				/* 'ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS' is not set, so packets carrying
+				IP-options will be dropped. */
+				return eReleaseBuffer;
+			}
+			#endif
 		}
 
 		/* Add the IP and MAC addresses to the ARP table if they are not
@@ -2167,8 +2223,30 @@ BaseType_t location = 0;
 	}
 	else if( ( *pusChecksum == 0U ) && ( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP ) )
 	{
-		/* Sender hasn't set the checksum, no use to calculate it. */
-		usChecksum = ipCORRECT_CRC;
+		#if( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 )
+		{
+			/* Sender hasn't set the checksum, drop the packet because
+			ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS is not set. */
+			usChecksum = ipWRONG_CRC;
+			#if( ipconfigHAS_PRINTF != 0 )
+			{
+			static BaseType_t xCount = 0;
+
+				if( xCount < 5 )
+				{
+					FreeRTOS_printf( ( "usGenerateProtocolChecksum: UDP packet from %xip without CRC dropped\n",
+						FreeRTOS_ntohl( pxIPPacket->xIPHeader.ulSourceIPAddress ) ) );
+					xCount++;
+				}
+			}
+			#endif	/* ( ipconfigHAS_PRINTF != 0 ) */
+		}
+		#else
+		{
+			/* Sender hasn't set the checksum, no use to calculate it. */
+			usChecksum = ipCORRECT_CRC;
+		}
+		#endif
 		location = 8;
 		goto error_exit;
 	}
