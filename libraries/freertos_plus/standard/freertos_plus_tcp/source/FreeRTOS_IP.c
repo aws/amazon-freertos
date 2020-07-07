@@ -1685,8 +1685,6 @@ uint8_t ucProtocol;
 		{
 			/* The size of the IP-header is larger than 20 bytes.
 			The extra space is used for IP-options. */
-			#if( ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS != 0 )
-			{
 			/* All structs of headers expect a IP header size of 20 bytes
 			 * IP header options were included, we'll ignore them and cut them out. */
 			const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
