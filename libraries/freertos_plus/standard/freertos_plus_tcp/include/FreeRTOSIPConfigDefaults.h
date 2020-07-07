@@ -317,6 +317,11 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND	1
 #endif
 
+
+#ifndef ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS
+	#define ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS	1
+#endif
+
 #ifndef ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS
 	#define ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS	0
 #endif
