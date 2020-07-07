@@ -743,9 +743,9 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
  * See @ref _IotMqtt_SerializeConnect for a
  * description of the parameters and return values.
  */
-IotMqttError_t _connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectInfo,
-                                         uint8_t ** pConnectPacket,
-                                         size_t * pPacketSize );
+IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectInfo,
+                                                 uint8_t ** pConnectPacket,
+                                                 size_t * pPacketSize );
 
 /**
  * @brief The wrapper for  @ref _IotMqtt_SerializeDisconnect
@@ -753,8 +753,8 @@ IotMqttError_t _connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectIn
  * See @ref _IotMqtt_SerializeDisconnect for a
  * description of the parameters and return values.
  */
-IotMqttError_t _disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
-                                            size_t * pPacketSize );
+IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
+                                                    size_t * pPacketSize );
 
 /**
  * @brief The wrapper for  @ref _IotMqtt_SerializeSubscribe
@@ -762,11 +762,11 @@ IotMqttError_t _disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
  * See @ref _IotMqtt_SerializeSubscribe for a
  * description of the parameters and return values.
  */
-IotMqttError_t _subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
-                                           size_t subscriptionCount,
-                                           uint8_t ** pSubscribePacket,
-                                           size_t * pPacketSize,
-                                           uint16_t * pPacketIdentifier );
+IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
+                                                   size_t subscriptionCount,
+                                                   uint8_t ** pSubscribePacket,
+                                                   size_t * pPacketSize,
+                                                   uint16_t * pPacketIdentifier );
 
 /**
  * @brief The wrapper for  @ref _IotMqtt_SerializeUnsubscribe
@@ -774,11 +774,11 @@ IotMqttError_t _subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscr
  * See @ref _IotMqtt_SerializeUnsubscribe for a
  * description of the parameters and return values.
  */
-IotMqttError_t _unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
-                                             size_t subscriptionCount,
-                                             uint8_t ** pUnsubscribePacket,
-                                             size_t * pPacketSize,
-                                             uint16_t * pPacketIdentifier );
+IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
+                                                     size_t subscriptionCount,
+                                                     uint8_t ** pUnsubscribePacket,
+                                                     size_t * pPacketSize,
+                                                     uint16_t * pPacketIdentifier );
 
 /**
  * @brief The wrapper for  @ref _IotMqtt_SerializePublish
@@ -786,11 +786,11 @@ IotMqttError_t _unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubs
  * See @ref _IotMqtt_SerializePublish for a
  * description of the parameters and return values.
  */
-IotMqttError_t _publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishInfo,
-                                         uint8_t ** pPublishPacket,
-                                         size_t * pPacketSize,
-                                         uint16_t * pPacketIdentifier,
-                                         uint8_t ** pPacketIdentifierHigh );
+IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishInfo,
+                                                 uint8_t ** pPublishPacket,
+                                                 size_t * pPacketSize,
+                                                 uint16_t * pPacketIdentifier,
+                                                 uint8_t ** pPacketIdentifierHigh );
 
 /**
  * @brief The wrapper for  @ref _IotMqtt_SerializePingresp
@@ -798,8 +798,8 @@ IotMqttError_t _publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishIn
  * See @ref  _IotMqtt_SerializePingresp for a
  * description of the parameters and return values.
  */
-IotMqttError_t _pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
-                                         size_t * pPacketSize );
+IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
+                                                 size_t * pPacketSize );
 
 /**
  * @brief Deserialize a connack packet received from the network by using MQTT v4 beta 2 deserializer.
@@ -809,7 +809,7 @@ IotMqttError_t _pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializeConnackWrapper( _mqttPacket_t * pConnack );
+IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack );
 
 
 /**
@@ -820,7 +820,7 @@ IotMqttError_t _deserializeConnackWrapper( _mqttPacket_t * pConnack );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializeSubackWrapper( _mqttPacket_t * pSuback );
+IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback );
 
 
 /**
@@ -831,7 +831,7 @@ IotMqttError_t _deserializeSubackWrapper( _mqttPacket_t * pSuback );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback );
+IotMqttError_t _IotMqtt_deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback );
 
 /**
  * @brief Deserialize a puback packet received from the network by using MQTT v4 beta 2 deserializer.
@@ -841,7 +841,7 @@ IotMqttError_t _deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializePubackWrapper( _mqttPacket_t * pPuback );
+IotMqttError_t _IotMqtt_deserializePubackWrapper( _mqttPacket_t * pPuback );
 
 /**
  * @brief Deserialize a pingresp packet received from the network by using MQTT v4 beta 2 deserializer.
@@ -851,7 +851,7 @@ IotMqttError_t _deserializePubackWrapper( _mqttPacket_t * pPuback );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializePingrespWrapper( _mqttPacket_t * pPingresp );
+IotMqttError_t _IotMqtt_deserializePingrespWrapper( _mqttPacket_t * pPingresp );
 
 /**
  * @brief Deserialize a publish packet received from the network by using MQTT v4 beta 2 deserializer.
@@ -861,7 +861,7 @@ IotMqttError_t _deserializePingrespWrapper( _mqttPacket_t * pPingresp );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _deserializePublishWrapper( _mqttPacket_t * pPublish );
+IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish );
 
 /**
  * @brief Serialize a puback packet to send  on the network by using MQTT v4 beta 2 serializer.
@@ -873,8 +873,8 @@ IotMqttError_t _deserializePublishWrapper( _mqttPacket_t * pPublish );
  * @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_NETWORK_ERROR,
  * #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, or #IOT_MQTT_SERVER_REFUSED.
  */
-IotMqttError_t _pubackSerializeWrapper( uint16_t packetIdentifier,
-                                        uint8_t ** pPubackPacket,
-                                        size_t * pPacketSize );
+IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
+                                                uint8_t ** pPubackPacket,
+                                                size_t * pPacketSize );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

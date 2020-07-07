@@ -256,8 +256,8 @@ static bool _createKeepAliveJob( const IotMqttNetworkInfo_t * pNetworkInfo,
     ( void ) pNetworkInfo;
 
     /* Default PINGREQ serializer function. */
-    IotMqttError_t (* serializePingreq)( uint8_t **,
-                                         size_t * ) = _pingreqSerializeWrapper;
+    IotMqttError_t ( * serializePingreq )( uint8_t **,
+                                           size_t * ) = _IotMqtt_pingreqSerializeWrapper;
 
     /* Convert the keep-alive interval to milliseconds. */
     pMqttConnection->keepAliveMs = keepAliveSeconds * 1000;
@@ -605,7 +605,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     /* Choose a subscription serialize function. */
     if( operation == IOT_MQTT_SUBSCRIBE )
     {
-        serializeSubscription = _subscribeSerializeWrapper;
+        serializeSubscription = _IotMqtt_subscribeSerializeWrapper;
 
         #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
             if( mqttConnection->pSerializer != NULL )
@@ -627,7 +627,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     }
     else
     {
-        serializeSubscription = _unsubscribeSerializeWrapper;
+        serializeSubscription = _IotMqtt_unsubscribeSerializeWrapper;
 
         #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
             if( mqttConnection->pSerializer != NULL )
@@ -906,7 +906,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     /* Default CONNECT serializer function. */
     IotMqttError_t (* serializeConnect)( const IotMqttConnectInfo_t *,
                                          uint8_t **,
-                                         size_t * ) = _connectSerializeWrapper;
+                                         size_t * ) = _IotMqtt_connectSerializeWrapper;
 
     /* Network info must not be NULL. */
     if( pNetworkInfo == NULL )
@@ -1283,7 +1283,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
                 /* Choose a disconnect serializer. */
                 IotMqttError_t (* serializeDisconnect)( uint8_t **,
-                                                        size_t * ) = _disconnectSerializeWrapper;
+                                                        size_t * ) = _IotMqtt_disconnectSerializeWrapper;
 
 
                 #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
@@ -1521,7 +1521,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
                                          uint8_t **,
                                          size_t *,
                                          uint16_t *,
-                                         uint8_t ** ) = _publishSerializeWrapper;
+                                         uint8_t ** ) = _IotMqtt_publishSerializeWrapper;
 
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,

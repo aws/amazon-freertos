@@ -347,7 +347,7 @@ static size_t _dupChecker( void * pSendContext,
     {
         #if AWS_IOT_MQTT_SERVER == true
             /* Deserialize the PUBLISH to read the packet identifier. */
-            if(_deserializePublishWrapper( &publishPacket ) != IOT_MQTT_SUCCESS )
+            if( _IotMqtt_deserializePublishWrapper( &publishPacket ) != IOT_MQTT_SUCCESS )
             {
                 status = false;
             }
@@ -370,7 +370,7 @@ static size_t _dupChecker( void * pSendContext,
         {
             #if AWS_IOT_MQTT_SERVER == true
                 /* Deserialize the PUBLISH to read the packet identifier. */
-                if(_deserializePublishWrapper( &publishPacket ) != IOT_MQTT_SUCCESS )
+                if( _IotMqtt_deserializePublishWrapper( &publishPacket ) != IOT_MQTT_SUCCESS )
                 {
                     status = false;
                 }

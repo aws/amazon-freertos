@@ -199,9 +199,9 @@ size_t _IotMqtt_GetRemainingLength( void * pNetworkConnection,
 /*-----------------------------------------------------------*/
 
 /* Connect Serialize Wrapper*/
-IotMqttError_t _connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectInfo,
-                                         uint8_t ** pConnectPacket,
-                                         size_t * pPacketSize )
+IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectInfo,
+                                                 uint8_t ** pConnectPacket,
+                                                 size_t * pPacketSize )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     size_t remainingLength = 0UL;
@@ -270,8 +270,8 @@ IotMqttError_t _connectSerializeWrapper( const IotMqttConnectInfo_t * pConnectIn
 /*-----------------------------------------------------------*/
 
 /* Disconnect Serialize Wrapper*/
-IotMqttError_t _disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
-                                            size_t * pPacketSize )
+IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
+                                                    size_t * pPacketSize )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTFixedBuffer_t networkBuffer;
@@ -308,11 +308,11 @@ IotMqttError_t _disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
 /*-----------------------------------------------------------*/
 
 /* Subscribe Serialize Wrapper*/
-IotMqttError_t _subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
-                                           size_t subscriptionCount,
-                                           uint8_t ** pSubscribePacket,
-                                           size_t * pPacketSize,
-                                           uint16_t * pPacketIdentifier )
+IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
+                                                   size_t subscriptionCount,
+                                                   uint8_t ** pSubscribePacket,
+                                                   size_t * pPacketSize,
+                                                   uint16_t * pPacketIdentifier )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -371,11 +371,11 @@ IotMqttError_t _subscribeSerializeWrapper( const IotMqttSubscription_t * pSubscr
 /*-----------------------------------------------------------*/
 
 /* Unsubscribe Serialize Wrapper*/
-IotMqttError_t _unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
-                                             size_t subscriptionCount,
-                                             uint8_t ** pUnsubscribePacket,
-                                             size_t * pPacketSize,
-                                             uint16_t * pPacketIdentifier )
+IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
+                                                     size_t subscriptionCount,
+                                                     uint8_t ** pUnsubscribePacket,
+                                                     size_t * pPacketSize,
+                                                     uint16_t * pPacketIdentifier )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -435,11 +435,11 @@ IotMqttError_t _unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubs
 /*-----------------------------------------------------------*/
 
 /* Publish Serialize Wrapper*/
-IotMqttError_t _publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishInfo,
-                                         uint8_t ** pPublishPacket,
-                                         size_t * pPacketSize,
-                                         uint16_t * pPacketIdentifier,
-                                         uint8_t ** pPacketIdentifierHigh )
+IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishInfo,
+                                                 uint8_t ** pPublishPacket,
+                                                 size_t * pPacketSize,
+                                                 uint16_t * pPacketIdentifier,
+                                                 uint8_t ** pPacketIdentifierHigh )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     size_t remainingLength = 0UL;
@@ -509,8 +509,8 @@ IotMqttError_t _publishSerializeWrapper( const IotMqttPublishInfo_t * pPublishIn
 /*-----------------------------------------------------------*/
 
 /* Pingreq Serialize Wrapper*/
-IotMqttError_t _pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
-                                         size_t * pPacketSize )
+IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
+                                                 size_t * pPacketSize )
 {
     IotMqttError_t serializeStatus = IOT_MQTT_SUCCESS;
 
@@ -548,7 +548,7 @@ IotMqttError_t _pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
 /*-----------------------------------------------------------*/
 
 /*Deserialize Connack Wrapper .*/
-IotMqttError_t _deserializeConnackWrapper( _mqttPacket_t * pConnack )
+IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -570,7 +570,7 @@ IotMqttError_t _deserializeConnackWrapper( _mqttPacket_t * pConnack )
 /*-----------------------------------------------------------*/
 
 /* Deserializer Suback wrapper .*/
-IotMqttError_t _deserializeSubackWrapper( _mqttPacket_t * pSuback )
+IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -591,7 +591,7 @@ IotMqttError_t _deserializeSubackWrapper( _mqttPacket_t * pSuback )
 /*-----------------------------------------------------------*/
 
 /* Deserializer Unsuback wrapper .*/
-IotMqttError_t _deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
+IotMqttError_t _IotMqtt_deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -613,7 +613,7 @@ IotMqttError_t _deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
 /*-----------------------------------------------------------*/
 
 /* Deserializer Puback wrapper .*/
-IotMqttError_t _deserializePubackWrapper( _mqttPacket_t * pPuback )
+IotMqttError_t _IotMqtt_deserializePubackWrapper( _mqttPacket_t * pPuback )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -634,7 +634,7 @@ IotMqttError_t _deserializePubackWrapper( _mqttPacket_t * pPuback )
 /*-----------------------------------------------------------*/
 
 /* Deserializer Ping Response wrapper .*/
-IotMqttError_t _deserializePingrespWrapper( _mqttPacket_t * pPingresp )
+IotMqttError_t _IotMqtt_deserializePingrespWrapper( _mqttPacket_t * pPingresp )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -655,7 +655,7 @@ IotMqttError_t _deserializePingrespWrapper( _mqttPacket_t * pPingresp )
 /*-----------------------------------------------------------*/
 
 /* Deserializer Publish wrapper .*/
-IotMqttError_t _deserializePublishWrapper( _mqttPacket_t * pPublish )
+IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
@@ -691,9 +691,9 @@ IotMqttError_t _deserializePublishWrapper( _mqttPacket_t * pPublish )
 /*-----------------------------------------------------------*/
 
 /* Suback Serializer Wrapper .*/
-IotMqttError_t _pubackSerializeWrapper( uint16_t packetIdentifier,
-                                        uint8_t ** pPubackPacket,
-                                        size_t * pPacketSize )
+IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
+                                                uint8_t ** pPubackPacket,
+                                                size_t * pPacketSize )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
