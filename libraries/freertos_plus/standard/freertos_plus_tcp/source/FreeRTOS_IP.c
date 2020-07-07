@@ -1681,6 +1681,7 @@ uint8_t ucProtocol;
 
 	if( eReturn == eProcessBuffer )
 	{
+		/* Are there IP-options. */
 		if( uxHeaderLength > ipSIZE_OF_IPv4_HEADER )
 		{
 			/* The size of the IP-header is larger than 20 bytes.
