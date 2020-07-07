@@ -89,6 +89,9 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
 /*------------------------------------------ firmware update configuration (start) --------------------------------------------*/
 /* R_FLASH_Write() arguments: specify "low address" and process to "high address" */
+#if defined (BSP_MCU_RX65N) || (BSP_MCU_RX651) && (FLASH_CFG_CODE_FLASH_BGO == 1) && (BSP_CFG_MCU_PART_MEMORY_SIZE == 0xe)            /* OTA supported device */
+/*------------------------------------------ firmware update configuration (start) --------------------------------------------*/
+/* R_FLASH_Write() arguments: specify "low address" and process to "high address" */
 #define BOOT_LOADER_LOW_ADDRESS FLASH_CF_BLOCK_13
 #define BOOT_LOADER_MIRROR_LOW_ADDRESS FLASH_CF_BLOCK_51
 
@@ -99,14 +102,26 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 #define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_SMALL 8
 #define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_MEDIUM 6
 
-#define FLASH_INTERRUPT_PRIORITY configMAX_SYSCALL_INTERRUPT_PRIORITY	/* 0(low) - 15(high) */
+#define FLASH_INTERRUPT_PRIORITY configMAX_SYSCALL_INTERRUPT_PRIORITY        /* 0(low) - 15(high) */
 /*------------------------------------------ firmware update configuration (end) --------------------------------------------*/
 
 #define BOOT_LOADER_UPDATE_TEMPORARY_AREA_LOW_ADDRESS (uint32_t)FLASH_CF_LO_BANK_LO_ADDR
 #define BOOT_LOADER_UPDATE_EXECUTE_AREA_LOW_ADDRESS (uint32_t)FLASH_CF_HI_BANK_LO_ADDR
 #define BOOT_LOADER_UPDATE_TARGET_BLOCK_NUMBER (uint32_t)(FLASH_NUM_BLOCKS_CF - BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_SMALL - BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_MEDIUM)
 
-//#define otaconfigMAX_NUM_BLOCKS_REQUEST        	128U	/* this value will be appeared after 201908.00 in aws_ota_agent_config.h */
+#else     /* Not OTA supported device */
+#define DUMMY 0
+#define BOOT_LOADER_LOW_ADDRESS DUMMY
+#define BOOT_LOADER_MIRROR_LOW_ADDRESS DUMMY
+#define BOOT_LOADER_MIRROR_HIGH_ADDRESS DUMMY
+#define BOOT_LOADER_UPDATE_TEMPORARY_AREA_HIGH_ADDRESS DUMMY
+#define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_SMALL DUMMY
+#define BOOT_LOADER_MIRROR_BLOCK_NUM_FOR_MEDIUM DUMMY
+#define FLASH_INTERRUPT_PRIORITY DUMMY /* 0(low) - 15(high) */
+#define BOOT_LOADER_UPDATE_TEMPORARY_AREA_LOW_ADDRESS DUMMY
+#define BOOT_LOADER_UPDATE_EXECUTE_AREA_LOW_ADDRESS DUMMY
+#define BOOT_LOADER_UPDATE_TARGET_BLOCK_NUMBER DUMMY
+#endif
 
 #define BOOT_LOADER_USER_FIRMWARE_HEADER_LENGTH 0x200
 #define BOOT_LOADER_USER_FIRMWARE_DESCRIPTOR_LENGTH 0x100
