@@ -37,39 +37,14 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-
 #include "iot_ble_config.h"
-
 #include "mqtt_lightweight.h"
-
 
 /* MQTT internal includes. */
 #include "platform/iot_threads.h"
 #include "iot_serializer.h"
-#include "platform/iot_network_ble.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_serialize.h"
-
-/* Configure logs for MQTT functions. */
-
-#undef LIBRARY_LOG_LEVEL
-#ifdef IOT_LOG_LEVEL_MQTT
-    #define LIBRARY_LOG_LEVEL            IOT_LOG_LEVEL_MQTT
-#else
-    #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_GLOBAL
-    #else
-        #ifndef LIBRARY_LOG_LEVEL
-            #define LIBRARY_LOG_LEVEL    IOT_LOG_ERROR
-        #endif
-    #endif
-#endif
-
-#ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    ( "MQTT" )
-#endif
-
-#include "iot_logging_setup.h"
 
 #define _INVALID_MQTT_PACKET_TYPE    ( 0xF0 )
 
@@ -189,7 +164,7 @@ static uint16_t _nextPacketIdentifier( void )
     return newPacketIdentifier;
 }
 
-static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * connectInfo,
+static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * pConnectInfo,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize )
 {
@@ -218,8 +193,8 @@ static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * connect
     if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         data.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        data.value.u.string.pString = ( uint8_t * ) connectInfo->pClientIdentifier;
-        data.value.u.string.length = connectInfo->clientIdentifierLength;
+        data.value.u.string.pString = ( uint8_t * ) pConnectInfo->pClientIdentifier;
+        data.value.u.string.length = pConnectInfo->clientIdentifierLength;
         error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLIENT_ID, data );
     }
 
@@ -234,7 +209,7 @@ static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * connect
     if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         data.type = IOT_SERIALIZER_SCALAR_BOOL;
-        data.value.u.booleanValue = connectInfo->cleanSession;
+        data.value.u.booleanValue = pConnectInfo->cleanSession;
         error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLEAN_SESSION, data );
     }
 
@@ -1369,20 +1344,18 @@ MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
     return ret;
 }
 
-size_t IotBleMqtt_GetRemainingLength( void * pNetworkConnection,
-                                      const IotNetworkInterface_t * pNetworkInterface )
+size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection)
 {
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer( *( IotBleDataTransferChannel_t ** ) ( pNetworkConnection ), &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer(pNetworkConnection, &pBuffer, &length );
 
     return length;
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
-                                  const IotNetworkInterface_t * pNetworkInterface )
+uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection)
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
@@ -1390,7 +1363,7 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer( *( IotBleDataTransferChannel_t ** ) ( pNetworkConnection ), &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection , &pBuffer, &length );
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 

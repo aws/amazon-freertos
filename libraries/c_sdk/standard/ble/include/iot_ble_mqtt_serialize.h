@@ -33,7 +33,8 @@
 #define IOT_BLE_MQTT_SERIALIZE_H
 
 #include "aws_clientcredential.h"
-#include "platform/iot_network.h"
+#include "iot_ble_data_transfer.h"
+#include "mqtt_lightweight.h"
 
 /**
  *  @defgroup
@@ -337,8 +338,7 @@ MQTTStatus_t IotBleMqtt_DeserializePingresp( MQTTPacketInfo_t * pPingresp );
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
  */
-uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
-                                  const IotNetworkInterface_t * pNetworkInterface );
+uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection );
 
 /**
  * @brief Gets the payload length for the MQTT message.
@@ -349,8 +349,7 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
  */
-size_t IotBleMqtt_GetRemainingLength( void * pNetworkConnection,
-                                      const IotNetworkInterface_t * pNetworkInterface );
+size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection );
 
 /**
  * @brief Frees an MQTT message.
