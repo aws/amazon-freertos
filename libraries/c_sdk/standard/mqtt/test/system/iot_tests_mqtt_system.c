@@ -634,12 +634,12 @@ TEST_SETUP( MQTT_System )
 {
     /* Clear the serializer override flags. */
     _freePacketOverride = false;
-    _connectSerializerOverride = true;
-    _publishSerializerOverride = true;
-    _pubackSerializerOverride = true;
-    _subscribeSerializerOverride = true;
-    _unsubscribeSerializerOverride = true;
-    _disconnectSerializerOverride = true;
+    _connectSerializerOverride = false;
+    _publishSerializerOverride = false;
+    _pubackSerializerOverride = false;
+    _subscribeSerializerOverride = false;
+    _unsubscribeSerializerOverride = false;
+    _disconnectSerializerOverride = false;
 
     /* Initialize SDK. */
     if( IotSdk_Init() == false )
