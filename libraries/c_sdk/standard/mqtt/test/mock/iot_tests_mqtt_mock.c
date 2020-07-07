@@ -256,7 +256,7 @@ static size_t _sendSuccess( void * pNetworkConnection,
             mqttPacket.u.pIncomingPublish = &deserializedPublish;
             mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
 
-            status = _IotMqtt_DeserializePublish( &mqttPacket );
+            status = _deserializePublishWrapper( &mqttPacket );
             _lastPacketIdentifier = mqttPacket.packetIdentifier;
         }
 

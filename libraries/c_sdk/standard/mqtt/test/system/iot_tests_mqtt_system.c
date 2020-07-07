@@ -150,23 +150,23 @@ static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
         .freePacket         = _IotMqtt_FreePacket,
         .serialize          =
         {
-            .connect        = _IotMqtt_SerializeConnect,
-            .publish        = _IotMqtt_SerializePublish,
+            .connect        = _connectSerializeWrapper,
+            .publish        = _publishSerializeWrapper,
             .publishSetDup  = _IotMqtt_PublishSetDup,
-            .puback         = _IotMqtt_SerializePuback,
-            .subscribe      = _IotMqtt_SerializeSubscribe,
-            .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
-            .pingreq        = _IotMqtt_SerializePingreq,
-            .disconnect     = _IotMqtt_SerializeDisconnect
+            .puback         = _pubackSerializeWrapper,
+            .subscribe      = _subscribeSerializeWrapper,
+            .unsubscribe    = _unsubscribeSerializeWrapper,
+            .pingreq        = _pingreqSerializeWrapper,
+            .disconnect     = _disconnectSerializeWrapper
         },
         .deserialize        =
         {
-            .connack        = _IotMqtt_DeserializeConnack,
-            .publish        = _IotMqtt_DeserializePublish,
-            .puback         = _IotMqtt_DeserializePuback,
-            .suback         = _IotMqtt_DeserializeSuback,
-            .unsuback       = _IotMqtt_DeserializeUnsuback,
-            .pingresp       = _IotMqtt_DeserializePingresp
+            .connack        = _deserializeConnackWrapper,
+            .publish        = _deserializePublishWrapper,
+            .puback         = _deserializePubackWrapper,
+            .suback         = _deserializeSubackWrapper,
+            .unsuback       = _deserializeUnsubackWrapper,
+            .pingresp       = _deserializePingrespWrapper
         }
     };
 
@@ -634,12 +634,12 @@ TEST_SETUP( MQTT_System )
 {
     /* Clear the serializer override flags. */
     _freePacketOverride = false;
-    _connectSerializerOverride = false;
-    _publishSerializerOverride = false;
-    _pubackSerializerOverride = false;
-    _subscribeSerializerOverride = false;
-    _unsubscribeSerializerOverride = false;
-    _disconnectSerializerOverride = false;
+    _connectSerializerOverride = true;
+    _publishSerializerOverride = true;
+    _pubackSerializerOverride = true;
+    _subscribeSerializerOverride = true;
+    _unsubscribeSerializerOverride = true;
+    _disconnectSerializerOverride = true;
 
     /* Initialize SDK. */
     if( IotSdk_Init() == false )

@@ -50,6 +50,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}

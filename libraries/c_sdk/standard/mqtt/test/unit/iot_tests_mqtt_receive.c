@@ -219,7 +219,7 @@ static IotMqttError_t _deserializeConnack( _mqttPacket_t * pConnack )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializeConnack( pConnack );
+    return _deserializeConnackWrapper( pConnack );
 }
 
 /*-----------------------------------------------------------*/
@@ -231,7 +231,7 @@ static IotMqttError_t _deserializePublish( _mqttPacket_t * pPublish )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializePublish( pPublish );
+    return _deserializePublishWrapper( pPublish );
 }
 
 /*-----------------------------------------------------------*/
@@ -243,7 +243,7 @@ static IotMqttError_t _deserializePuback( _mqttPacket_t * pPuback )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializePuback( pPuback );
+    return _deserializePubackWrapper( pPuback );
 }
 
 /*-----------------------------------------------------------*/
@@ -255,7 +255,7 @@ static IotMqttError_t _deserializeSuback( _mqttPacket_t * pSuback )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializeSuback( pSuback );
+    return _deserializeSubackWrapper( pSuback );
 }
 
 /*-----------------------------------------------------------*/
@@ -267,7 +267,7 @@ static IotMqttError_t _deserializeUnsuback( _mqttPacket_t * pUnsuback )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializeUnsuback( pUnsuback );
+    return _deserializeUnsubackWrapper( pUnsuback );
 }
 
 /*-----------------------------------------------------------*/
@@ -279,7 +279,7 @@ static IotMqttError_t _deserializePingresp( _mqttPacket_t * pPingresp )
 {
     _deserializeOverrideCalled = true;
 
-    return _IotMqtt_DeserializePingresp( pPingresp );
+    return _deserializePingrespWrapper( pPingresp );
 }
 
 /*-----------------------------------------------------------*/

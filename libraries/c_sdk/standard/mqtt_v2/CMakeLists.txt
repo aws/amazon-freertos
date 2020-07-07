@@ -25,8 +25,6 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
-        "${inc_dir}/mqtt_config.h"
-        "${inc_dir}/logging_levels.h"
 )
 
 
