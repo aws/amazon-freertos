@@ -88,7 +88,7 @@
  *  Please note that this must be set larger than zero.
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST  2U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST  1U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -106,6 +106,16 @@
  * the OTA agent for job and file data blocks received.
  */
 #define otaconfigMAX_NUM_OTA_DATA_BUFFERS       4U
+
+/**
+ * @brief Allow update to same or lower version.
+ *
+ * Set this to 1 to allow downgrade or same version update.This configurations parameter
+ * disables version check and allows update to a same or lower version.This is provided for
+ * testing purpose and it is recommended to always update to higher version and keep this
+ * configuration disabled.
+ */
+#define otaconfigAllowDowngrade              0U
 
 /**
  * @brief The protocol selected for OTA control operations.
