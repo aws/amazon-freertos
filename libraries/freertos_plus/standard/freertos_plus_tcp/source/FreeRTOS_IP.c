@@ -1686,22 +1686,32 @@ uint8_t ucProtocol;
 		{
 			/* The size of the IP-header is larger than 20 bytes.
 			The extra space is used for IP-options. */
-			/* All structs of headers expect a IP header size of 20 bytes
-			 * IP header options were included, we'll ignore them and cut them out. */
-			const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
-			/* From: the previous start of UDP/ICMP/TCP data. */
-			const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
-			/* To: the usual start of UDP/ICMP/TCP data at offset 20 (decimal ) from IP header. */
-			uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
-			/* How many: total length minus the options and the lower headers. */
-			const size_t  xMoveLen = pxNetworkBuffer->xDataLength - ( optlen + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_ETH_HEADER );
+			#if( ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS != 0 )
+			{
+				/* All structs of headers expect a IP header size of 20 bytes
+				 * IP header options were included, we'll ignore them and cut them out. */
+				const size_t optlen = ( ( size_t ) uxHeaderLength ) - ipSIZE_OF_IPv4_HEADER;
+				/* From: the previous start of UDP/ICMP/TCP data. */
+				const uint8_t *pucSource = ( const uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + uxHeaderLength ] );
+				/* To: the usual start of UDP/ICMP/TCP data at offset 20 (decimal ) from IP header. */
+				uint8_t *pucTarget = ( uint8_t * ) &( pxNetworkBuffer->pucEthernetBuffer[ sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER ] );
+				/* How many: total length minus the options and the lower headers. */
+				const size_t  xMoveLen = pxNetworkBuffer->xDataLength - ( optlen + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_ETH_HEADER );
 
-			( void ) memmove( pucTarget, pucSource, xMoveLen );
-			pxNetworkBuffer->xDataLength -= optlen;
+				( void ) memmove( pucTarget, pucSource, xMoveLen );
+				pxNetworkBuffer->xDataLength -= optlen;
 
-			/* Fix-up new version/header length field in IP packet. */
-			pxIPHeader->ucVersionHeaderLength = ( pxIPHeader->ucVersionHeaderLength & 0xF0U ) | /* High nibble is the version. */
-												( ( ipSIZE_OF_IPv4_HEADER >> 2 ) & 0x0FU );
+				/* Rewrite the Version/IHL byte to indicate that this packet has no IP options. */
+				pxIPHeader->ucVersionHeaderLength = ( pxIPHeader->ucVersionHeaderLength & 0xF0U ) | /* High nibble is the version. */
+													( ( ipSIZE_OF_IPv4_HEADER >> 2 ) & 0x0FU );
+			}
+			#else
+			{
+				/* 'ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS' is not set, so packets carrying
+				IP-options will be dropped. */
+				return eReleaseBuffer;
+			}
+			#endif
 		}
 
 		/* Add the IP and MAC addresses to the ARP table if they are not
