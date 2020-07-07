@@ -130,9 +130,11 @@ events are posted to the network event queue. */
 handled.  The value is chosen simply to be easy to spot when debugging. */
 #define ipUNHANDLED_PROTOCOL		0x4321U
 
-/* Returned to indicate a valid checksum when the checksum does not need to be
-calculated. */
+/* Returned to indicate a valid checksum. */
 #define ipCORRECT_CRC				0xffffU
+
+/* Returned to indicate incorrect checksum. */
+#define ipWRONG_CRC					0x0000U
 
 /* Returned as the (invalid) checksum when the length of the data being checked
 had an invalid length. */
@@ -1606,6 +1608,46 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 	}
 	#else
 	{
+		#if( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 )
+		{
+			/* Check if this is a UDP packet without a checksum. */
+			if (eReturn == eProcessBuffer )
+			{
+				/* ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS is defined as 0,
+				and so UDP packets carrying a protocol checksum of 0, will
+				be dropped. */
+
+				/* Identify the next protocol. */
+				if( pxIPPacket->xIPHeader.ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
+				{
+				ProtocolPacket_t *pxProtPack;
+				uint16_t *pusChecksum;
+
+					/* pxProtPack will point to the offset were the protocols begin. */
+					pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pxNetworkBuffer->pucEthernetBuffer[ uxHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+					pusChecksum = ( uint16_t * ) ( &( pxProtPack->xUDPPacket.xUDPHeader.usChecksum ) );
+					if( *pusChecksum == ( uint16_t ) 0U )
+					{
+						#if( ipconfigHAS_PRINTF != 0 )
+						{
+						static BaseType_t xCount = 0;
+
+							if( xCount < 5 )
+							{
+								FreeRTOS_printf( ( "prvAllowIPPacket: UDP packet from %xip without CRC dropped\n",
+									FreeRTOS_ntohl( pxIPPacket->xIPHeader.ulSourceIPAddress ) ) );
+								xCount++;
+							}
+						}
+						#endif	/* ( ipconfigHAS_PRINTF != 0 ) */
+
+						/* Protocol checksum not accepted. */
+						eReturn = eReleaseBuffer;
+					}
+				}
+			}
+		}
+		#endif	/* ( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 ) */
 		/* to avoid warning unused parameters */
 		( void ) pxNetworkBuffer;
 		( void ) uxHeaderLength;
@@ -1639,6 +1681,7 @@ uint8_t ucProtocol;
 
 	if( eReturn == eProcessBuffer )
 	{
+		/* Are there IP-options. */
 		if( uxHeaderLength > ipSIZE_OF_IPv4_HEADER )
 		{
 			/* The size of the IP-header is larger than 20 bytes.
@@ -2046,8 +2089,30 @@ BaseType_t location = 0;
 	}
 	else if( ( *pusChecksum == 0U ) && ( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP ) )
 	{
-		/* Sender hasn't set the checksum, no use to calculate it. */
-		usChecksum = ipCORRECT_CRC;
+		#if( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 )
+		{
+			/* Sender hasn't set the checksum, drop the packet because
+			ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS is not set. */
+			usChecksum = ipWRONG_CRC;
+			#if( ipconfigHAS_PRINTF != 0 )
+			{
+			static BaseType_t xCount = 0;
+
+				if( xCount < 5 )
+				{
+					FreeRTOS_printf( ( "usGenerateProtocolChecksum: UDP packet from %xip without CRC dropped\n",
+						FreeRTOS_ntohl( pxIPPacket->xIPHeader.ulSourceIPAddress ) ) );
+					xCount++;
+				}
+			}
+			#endif	/* ( ipconfigHAS_PRINTF != 0 ) */
+		}
+		#else
+		{
+			/* Sender hasn't set the checksum, no use to calculate it. */
+			usChecksum = ipCORRECT_CRC;
+		}
+		#endif
 		location = 8;
 		goto error_exit;
 	}
