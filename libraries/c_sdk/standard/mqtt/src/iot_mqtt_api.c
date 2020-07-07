@@ -559,11 +559,11 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     _mqttOperation_t * pSubscriptionOperation = NULL;
 
     /* Subscription serializer function. */
-    IotMqttError_t (* serializeSubscription)( const IotMqttSubscription_t *,
-                                              size_t,
-                                              uint8_t **,
-                                              size_t *,
-                                              uint16_t * ) = NULL;
+    IotMqttError_t ( * serializeSubscription )( const IotMqttSubscription_t *,
+                                                size_t,
+                                                uint8_t **,
+                                                size_t *,
+                                                uint16_t * ) = NULL;
 
     /* This function should only be called for subscribe or unsubscribe. */
     IotMqtt_Assert( ( operation == IOT_MQTT_SUBSCRIBE ) ||
@@ -904,9 +904,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     _mqttConnection_t * pNewMqttConnection = NULL;
 
     /* Default CONNECT serializer function. */
-    IotMqttError_t (* serializeConnect)( const IotMqttConnectInfo_t *,
-                                         uint8_t **,
-                                         size_t * ) = _IotMqtt_connectSerializeWrapper;
+    IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
+                                           uint8_t **,
+                                           size_t * ) = _IotMqtt_connectSerializeWrapper;
 
     /* Network info must not be NULL. */
     if( pNetworkInfo == NULL )
@@ -1282,8 +1282,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 pOperation->u.operation.type = IOT_MQTT_DISCONNECT;
 
                 /* Choose a disconnect serializer. */
-                IotMqttError_t (* serializeDisconnect)( uint8_t **,
-                                                        size_t * ) = _IotMqtt_disconnectSerializeWrapper;
+                IotMqttError_t ( * serializeDisconnect )( uint8_t **,
+                                                          size_t * ) = _IotMqtt_disconnectSerializeWrapper;
 
 
                 #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
@@ -1517,11 +1517,11 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     uint8_t ** pPacketIdentifierHigh = NULL;
 
     /* Default PUBLISH serializer function. */
-    IotMqttError_t (* serializePublish)( const IotMqttPublishInfo_t *,
-                                         uint8_t **,
-                                         size_t *,
-                                         uint16_t *,
-                                         uint8_t ** ) = _IotMqtt_publishSerializeWrapper;
+    IotMqttError_t ( * serializePublish )( const IotMqttPublishInfo_t *,
+                                           uint8_t **,
+                                           size_t *,
+                                           uint16_t *,
+                                           uint8_t ** ) = _IotMqtt_publishSerializeWrapper;
 
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,

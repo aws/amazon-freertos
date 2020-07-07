@@ -146,10 +146,10 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
     size_t dataBytesRead = 0;
 
     /* Default functions for retrieving packet type and length. */
-    uint8_t (* getPacketType)( void *,
-                               const IotNetworkInterface_t * ) = _IotMqtt_GetPacketType;
-    size_t (* getRemainingLength)( void *,
-                                   const IotNetworkInterface_t * ) = _IotMqtt_GetRemainingLength;
+    uint8_t ( * getPacketType )( void *,
+                                 const IotNetworkInterface_t * ) = _IotMqtt_GetPacketType;
+    size_t ( * getRemainingLength )( void *,
+                                     const IotNetworkInterface_t * ) = _IotMqtt_GetRemainingLength;
 
     /* No buffer for remaining data should be allocated. */
     IotMqtt_Assert( pIncomingPacket->pRemainingData == NULL );
@@ -285,7 +285,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
     _mqttOperation_t * pOperation = NULL;
 
     /* Deserializer function. */
-    IotMqttError_t (* deserialize)( _mqttPacket_t * ) = NULL;
+    IotMqttError_t ( * deserialize )( _mqttPacket_t * ) = NULL;
 
     /* A buffer for remaining data must be allocated if remaining length is not 0. */
     IotMqtt_Assert( ( pIncomingPacket->remainingLength > 0 ) ==
@@ -670,10 +670,10 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
     size_t pubackSize = 0, bytesSent = 0;
 
     /* Default PUBACK serializer and free packet functions. */
-    IotMqttError_t (* serializePuback)( uint16_t,
-                                        uint8_t **,
-                                        size_t * ) = _IotMqtt_pubackSerializeWrapper;
-    void (* freePacket)( uint8_t * ) = _IotMqtt_FreePacket;
+    IotMqttError_t ( * serializePuback )( uint16_t,
+                                          uint8_t **,
+                                          size_t * ) = _IotMqtt_pubackSerializeWrapper;
+    void ( * freePacket )( uint8_t * ) = _IotMqtt_FreePacket;
 
     IotLogDebug( "(MQTT connection %p) Sending PUBACK for received PUBLISH %hu.",
                  pMqttConnection,
