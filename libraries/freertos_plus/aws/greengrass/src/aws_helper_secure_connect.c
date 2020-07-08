@@ -106,6 +106,13 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
             xServerAddress.usPort = SOCKETS_htons( pxHostAddressData->usPort );
             xServerAddress.ulAddress =
                 SOCKETS_GetHostByName( pxHostAddressData->pcHostAddress );
+
+            if( xServerAddress.ulAddress == 0u )
+            {
+                ggdconfigPRINT( "ERROR! Failed to resolve host address: Address=%.*s",
+                                xURLLength, pxHostAddressData->pcHostAddress );
+            }
+
             xServerAddress.ucSocketDomain = SOCKETS_AF_INET;
 
             /* Set send timeout for the socket. */
@@ -140,7 +147,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
                 if( returnCode != SOCKETS_ERROR_NONE )
                 {
-                    ggdconfigPRINT( "Failure in SOCKET_SetSockOpt call for overriding TLS trust store: "
+                    ggdconfigPRINT( "ERROR! Failure in SOCKET_SetSockOpt call for overriding TLS trust store: "
                                     "ReturnCode=%d\r\n", returnCode );
                     xStatus = pdFAIL;
                 }
@@ -157,7 +164,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
                 if( returnCode != SOCKETS_ERROR_NONE )
                 {
-                    ggdconfigPRINT( "Failure in SOCKET_SetSockOpt call for enabling TLS SNI: "
+                    ggdconfigPRINT( "ERROR! Failure in SOCKET_SetSockOpt call for enabling TLS SNI: "
                                     "ServerHost=%.*s, ReturnCode=%d\r\n",
                                     xURLLength, pxHostAddressData->pcHostAddress, returnCode );
                     xStatus = pdFAIL;
@@ -173,7 +180,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
                 if( returnCode != SOCKETS_ERROR_NONE )
                 {
-                    ggdconfigPRINT( "SOCKETS_Connect call failed: ServerAddress=%lu, Port=%u, ReturnCode=%d\r\n",
+                    ggdconfigPRINT( "ERROR! SOCKETS_Connect call failed: ServerAddress=%lu, Port=%u, ReturnCode=%d\r\n",
                                     xServerAddress.ulAddress, xServerAddress.usPort, returnCode );
                     GGD_SecureConnect_Disconnect( pxSocket );
                     xStatus = pdFAIL;
