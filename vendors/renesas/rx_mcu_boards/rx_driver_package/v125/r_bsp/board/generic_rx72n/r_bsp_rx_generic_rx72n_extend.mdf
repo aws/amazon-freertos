@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+/***********************************************************************************************************************
+* DISCLAIMER
+* This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products.
+* No other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
+* applicable laws, including copyright laws.
+* THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIESREGARDING THIS SOFTWARE, WHETHER EXPRESS, IMPLIED
+* OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NON-INFRINGEMENT.  ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED.TO THE MAXIMUM EXTENT PERMITTED NOT PROHIBITED BY
+* LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES SHALL BE LIABLE FOR ANY DIRECT,
+* INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO THIS SOFTWARE, EVEN IF RENESAS OR
+* ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+* Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability
+* of this software. By using this software, you agree to the additional terms and conditions found by accessing the
+* following link:
+* http://www.renesas.com/disclaimer
+*
+* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+***********************************************************************************************************************/
+/***********************************************************************************************************************
+  Purpose: Module Description File (MDF) Example (Schema Version 2.0)
+           This is a description of a sample FIT module configuration file
+***********************************************************************************************************************/
+-->
+<module xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.0" xs:noNamespaceSchemaLocation="schema_mdf_2.11.xsd">
+    <fileVersion>1.00</fileVersion>
+    <formatVersion>2.11</formatVersion>
+    <fileTemplate></fileTemplate>
+    <configuration>
+        <property id="BSP_CFG_STARTUP_DISABLE" display="Startup select" default="0" type="combobox">
+            <option id="BSP_CFG_STARTUP_DISABLE.0" display="Enable (use BSP startup)" value="0"/>
+            <option id="BSP_CFG_STARTUP_DISABLE.1" display="Disable" value="1"/>
+            <description>0 = Enable BSP startup program.
+1 = Disable BSP startup program. (e.g. Using user startup program.)
+NOTE: This setting is available only when using CCRX.</description>
+        </property>
+        <property id="BSP_CFG_USER_STACK_ENABLE" display="User stack setting" default="1" type="combobox">
+            <option id="BSP_CFG_USER_STACK_ENABLE.0" display="1 stack" value="0"/>
+            <option id="BSP_CFG_USER_STACK_ENABLE.1" display="2 stacks" value="1"/>
+            <description>0 = Use 1 stack. Disable user stack. User stack size set below will be ignored. If 1 stack is chosen, please remove the 'SU' section from the linker sections to remove any linker warnings.
+1 = Use 2 stacks. User stack and interrupt stack will both be used.
+NOTE: This setting is available only when using CCRX and GNUC.</description>
+        </property>
+        <property id="BSP_CFG_USTACK_BYTES" display="User stack size" default="0x1000" type="textbox">
+            <constraint display="when User stack setting is 2 stacks only" actionOnFail="disable">${BSP_CFG_USER_STACK_ENABLE} == ${BSP_CFG_USER_STACK_ENABLE.1}</constraint>
+            <constraint display="Value must be an hexadecimal value" actionOnFail="error">testHexInteger("${BSP_CFG_USTACK_BYTES}")</constraint>
+            <constraint display="Value must be in the range (0x1~RAM capacity)" actionOnFail="error">("${BSP_CFG_USTACK_BYTES}" &gt;= 1) &amp;&amp; ("${BSP_CFG_USTACK_BYTES}" &lt;= (${Device.ramSize} * 1024))</constraint>
+            <description>User stack size
+NOTE: This setting is available only when using CCRX and GNUC.</description>
+        </property>
+        <property id="BSP_CFG_ISTACK_BYTES" display="Interrupt stack size" default="0x400" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ISTACK_BYTES}")</constraint>
+            <constraint display="Value must be in the range (0x1~RAM capacity)">("${BSP_CFG_ISTACK_BYTES}" &gt;= 1) &amp;&amp; ("${BSP_CFG_ISTACK_BYTES}" &lt;= (${Device.ramSize} * 1024))</constraint>
+            <description>Interrupt stack  size
+NOTE: This setting is available only when using CCRX and GNUC.</description>
+        </property>
+        <property id="BSP_CFG_HEAP_BYTES" display="Heap size" default="0x400" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_HEAP_BYTES}")</constraint>
+            <constraint display="Value must be in the range (0x0~RAM capacity)">("${BSP_CFG_HEAP_BYTES}" &gt;= 0) &amp;&amp; ("${BSP_CFG_HEAP_BYTES}" &lt;= (${Device.ramSize} * 1024))</constraint>
+            <description>Heap size
+NOTE: This setting is available only when using CCRX and GNUC.</description>
+        </property>
+        <property id="BSP_CFG_IO_LIB_ENABLE" display="Initializes C input and output library functions" default="1" conditionalDefault= "if ('${Toolchain.name}' === 'RXC') {'1';} else {'0';}" type="combobox">
+            <option id="BSP_CFG_IO_LIB_ENABLE.0" display="Disable" value="0"/>
+            <option id="BSP_CFG_IO_LIB_ENABLE.1" display="Enable" value="1"/>
+            <description>0 = Disable I/O library initialization in resetprg.c.
+       If you are not using stdio then use this value.
+1 = Enable I/O library initialization in resetprg.c.
+      This is default and needed if you are using stdio.
+NOTE: This setting is available only when using CCRX.</description>
+        </property>
+        <property id="BSP_CFG_USER_CHARGET_ENABLED" display="Enable user stdio charget function" default="0" type="combobox">
+            <option id="BSP_CFG_USER_CHARGET_ENABLED.0" display="Use BSP charget() function" value="0"/>
+            <option id="BSP_CFG_USER_CHARGET_ENABLED.1" display="Use user charget() function" value="1"/>
+            <description>0 = Use BSP charget() function.
+1 = Use user charget() function.</description>
+        </property>
+        <property id="BSP_CFG_USER_CHARGET_FUNCTION" display="User stdio charget function name" default="my_sw_charget_function" type="textbox">
+            <constraint display="when Enable user stdio charget function is Use user charget() function only" actionOnFail="disable">${BSP_CFG_USER_CHARGET_ENABLED} == ${BSP_CFG_USER_CHARGET_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_CHARGET_FUNCTION}")</constraint>
+            <description>User charget() function name.</description>
+        </property>
+        <property id="BSP_CFG_USER_CHARPUT_ENABLED" display="Enable user stdio charput function" default="0" type="combobox">
+            <option id="BSP_CFG_USER_CHARPUT_ENABLED.0" display="Use BSP charput() function" value="0"/>
+            <option id="BSP_CFG_USER_CHARPUT_ENABLED.1" display="Use user charput() function" value="1"/>
+            <description>0 = Use BSP charput() function.
+1 = Use user charput() function.</description>
+        </property>
+        <property id="BSP_CFG_USER_CHARPUT_FUNCTION" display="User stdio charput function name" default="my_sw_charput_function" type="textbox">
+            <constraint display="when Enable user stdio charput function is Use user charput() function only" actionOnFail="disable">${BSP_CFG_USER_CHARPUT_ENABLED} == ${BSP_CFG_USER_CHARPUT_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_CHARPUT_FUNCTION}")</constraint>
+            <description>User charput() function name.</description>
+        </property>
+        <property id="BSP_CFG_RUN_IN_USER_MODE" display="Processor Mode" default="0" type="combobox">
+            <option id="BSP_CFG_RUN_IN_USER_MODE.0" display="Stay in Supervisor mode" value="0"/>
+            <option id="BSP_CFG_RUN_IN_USER_MODE.1" display="Switch to User mode" value="1"/>
+            <description>0 = Stay in Supervisor mode.
+1 = Switch to User mode.</description>
+        </property>
+        <property id="BSP_CFG_ID_CODE_LONG_1" display="ID code 1" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ID_CODE_LONG_1}")</constraint>
+            <constraint display="Value must be in the range (0x00000000~0xFFFFFFFF)">("${BSP_CFG_ID_CODE_LONG_1}" &gt;= 0) &amp;&amp; ("${BSP_CFG_ID_CODE_LONG_1}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>Set your desired ID code. NOTE, leave at the default (all 0xFF's) if you do not wish to use an ID code. If you set this value and program it into the MCU then you will need to remember the ID code because the debugger will ask for it when trying to connect. Note that the E1/E20 will ignore the ID code when programming the MCU during debugging.
+If you set this value and then forget it then you can clear the ID code by connecting up in serial boot mode using FDT. The ID Code is 16 bytes long. The macro below define the ID Code in 4-byte sections.</description>
+        </property>
+        <property id="BSP_CFG_ID_CODE_LONG_2" display="ID code 2" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ID_CODE_LONG_2}")</constraint>
+            <constraint display="Value must be in the range (0x00000000~0xFFFFFFFF)">("${BSP_CFG_ID_CODE_LONG_2}" &gt;= 0) &amp;&amp; ("${BSP_CFG_ID_CODE_LONG_2}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>Set your desired ID code. NOTE, leave at the default (all 0xFF's) if you do not wish to use an ID code. If you set this value and program it into the MCU then you will need to remember the ID code because the debugger will ask for it when trying to connect. Note that the E1/E20 will ignore the ID code when programming the MCU during debugging.
+If you set this value and then forget it then you can clear the ID code by connecting up in serial boot mode using FDT. The ID Code is 16 bytes long. The macro below define the ID Code in 4-byte sections.</description>
+        </property>
+        <property id="BSP_CFG_ID_CODE_LONG_3" display="ID code 3" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ID_CODE_LONG_3}")</constraint>
+            <constraint display="Value must be in the range (0x00000000~0xFFFFFFFF)">("${BSP_CFG_ID_CODE_LONG_3}" &gt;= 0) &amp;&amp; ("${BSP_CFG_ID_CODE_LONG_3}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>Set your desired ID code. NOTE, leave at the default (all 0xFF's) if you do not wish to use an ID code. If you set this value and program it into the MCU then you will need to remember the ID code because the debugger will ask for it when trying to connect. Note that the E1/E20 will ignore the ID code when programming the MCU during debugging.
+If you set this value and then forget it then you can clear the ID code by connecting up in serial boot mode using FDT. The ID Code is 16 bytes long. The macro below define the ID Code in 4-byte sections.</description>
+        </property>
+        <property id="BSP_CFG_ID_CODE_LONG_4" display="ID code 4" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ID_CODE_LONG_4}")</constraint>
+            <constraint display="Value must be in the range (0x00000000~0xFFFFFFFF)">("${BSP_CFG_ID_CODE_LONG_4}" &gt;= 0) &amp;&amp; ("${BSP_CFG_ID_CODE_LONG_4}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>Set your desired ID code. NOTE, leave at the default (all 0xFF's) if you do not wish to use an ID code. If you set this value and program it into the MCU then you will need to remember the ID code because the debugger will ask for it when trying to connect. Note that the E1/E20 will ignore the ID code when programming the MCU during debugging.
+If you set this value and then forget it then you can clear the ID code by connecting up in serial boot mode using FDT. The ID Code is 16 bytes long. The macro below define the ID Code in 4-byte sections.</description>
+        </property>
+        <property id="BSP_CFG_ROM_CACHE_ENABLE" display="ROM Cache Enable Register" default="1" type="combobox">
+            <option id="BSP_CFG_ROM_CACHE_ENABLE.0" display="Disabled" value="0"/>
+            <option id="BSP_CFG_ROM_CACHE_ENABLE.1" display="Enabled" value="1"/>
+            <description>0 = ROM cache operation disabled.
+1 = ROM cache operation enabled.</description>
+        </property>
+        <property id="BSP_CFG_TRUSTED_MODE_FUNCTION" display="TMEF - TM Enable Flag Register" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_TRUSTED_MODE_FUNCTION}")</constraint>
+            <constraint display="Value must be in the range 0x00000000~0xFFFFFFFF">("${BSP_CFG_TRUSTED_MODE_FUNCTION}" &gt;= 0) &amp;&amp; ("${BSP_CFG_TRUSTED_MODE_FUNCTION}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>TMEF register value.</description>
+        </property>
+        <property id="BSP_CFG_FAW_REG_VALUE" display="FAW - Flash Access Window Setting Register" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_FAW_REG_VALUE}")</constraint>
+            <constraint display="Value must be in the range 0x00000000~0xFFFFFFFF">("${BSP_CFG_FAW_REG_VALUE}" &gt;= 0) &amp;&amp; ("${BSP_CFG_FAW_REG_VALUE}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>FAW register value.</description>
+        </property>
+        <property id="BSP_CFG_ROMCODE_REG_VALUE" display="ROMCODE - ROM Code Protection Register" default="0xFFFFFFFF" type="textbox">
+            <constraint display="Value must be an hexadecimal value">testHexInteger("${BSP_CFG_ROMCODE_REG_VALUE}")</constraint>
+            <constraint display="Value must be in the range 0x00000000~0xFFFFFFFF">("${BSP_CFG_ROMCODE_REG_VALUE}" &gt;= 0) &amp;&amp; ("${BSP_CFG_ROMCODE_REG_VALUE}" &lt;= 0xFFFFFFFF)</constraint>
+            <description>ROMCODE register value.</description>
+        </property>
+        <property id="BSP_CFG_CODE_FLASH_BANK_MODE" display="Select the bank mode" default="1" type="combobox">
+            <option id="BSP_CFG_CODE_FLASH_BANK_MODE.0" display="Dual mode" value="0"/>
+            <option id="BSP_CFG_CODE_FLASH_BANK_MODE.1" display="Linear mode" value="1"/>
+            <description>0 = Dual mode.
+1 = Linear mode.</description>
+        </property>
+        <property id="BSP_CFG_CODE_FLASH_START_BANK" display="Select the startup bank" default="0" type="combobox">
+            <option id="BSP_CFG_CODE_FLASH_START_BANK.0" display="Bank 1: FFC00000h~FFDFFFFFh; Bank 0:  FFE00000h~FFFFFFFFh." value="0"/>
+            <option id="BSP_CFG_CODE_FLASH_START_BANK.1" display="Bank 1: FFE00000h~FFFFFFFFh; Bank 0: FFC00000h~FFDFFFFFh." value="1"/>
+            <description>0 = The address range of bank 1 from FFC00000h to FFDFFFFFh and bank 0 from FFE00000h to FFFFFFFFh.
+1 = The address range of bank 1 from FFE00000h to FFFFFFFFh and bank 0 from FFC00000h to FFDFFFFFh.</description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_ENABLED" display="Lock function select" default="0" type="combobox">
+            <option id="BSP_CFG_USER_LOCKING_ENABLED.0" display="Use default locking (non-RTOS)" value="0"/>
+            <option id="BSP_CFG_USER_LOCKING_ENABLED.1" display="Use user defined locking mechanism " value="1"/>
+            <description>0 = Use default locking (non-RTOS)
+1 = Use user defined locking mechanism. </description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_TYPE" display="Lock function type" default="bsp_lock_t" type="textbox">
+            <constraint display="when Lock function select is Use user defined locking mechanism only" actionOnFail="disable">${BSP_CFG_USER_LOCKING_ENABLED} == ${BSP_CFG_USER_LOCKING_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid type name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_LOCKING_TYPE}")</constraint>
+            <description>Data type to be used for locks.</description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_HW_LOCK_FUNCTION" display="HW lock function name" default="my_hw_locking_function" type="textbox">
+            <constraint display="when Lock function select is Use user defined locking mechanism only" actionOnFail="disable">${BSP_CFG_USER_LOCKING_ENABLED} == ${BSP_CFG_USER_LOCKING_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_LOCKING_HW_LOCK_FUNCTION}")</constraint>
+            <description>User defined functions to be called when r_bsp lock functions are overridden by user.</description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_HW_UNLOCK_FUNCTION" display="HW unlock function name" default="my_hw_unlocking_function" type="textbox">
+            <constraint display="when Lock function select is Use user defined locking mechanism only" actionOnFail="disable">${BSP_CFG_USER_LOCKING_ENABLED} == ${BSP_CFG_USER_LOCKING_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_LOCKING_HW_UNLOCK_FUNCTION}")</constraint>
+            <description>User defined functions to be called when r_bsp lock functions are overridden by user.</description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_SW_LOCK_FUNCTION" display="SW lock function name" default="my_sw_locking_function" type="textbox">
+            <constraint display="when Lock function select is Use user defined locking mechanism only" actionOnFail="disable">${BSP_CFG_USER_LOCKING_ENABLED} == ${BSP_CFG_USER_LOCKING_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_LOCKING_SW_LOCK_FUNCTION}")</constraint>
+            <description>User defined functions to be called when r_bsp lock functions are overridden by user.</description>
+        </property>
+        <property id="BSP_CFG_USER_LOCKING_SW_UNLOCK_FUNCTION" display="SW unlock function name" default="my_sw_unlocking_function" type="textbox">
+            <constraint display="when Lock function select is Use user defined locking mechanism only" actionOnFail="disable">${BSP_CFG_USER_LOCKING_ENABLED} == ${BSP_CFG_USER_LOCKING_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_LOCKING_SW_UNLOCK_FUNCTION}")</constraint>
+            <description>User defined functions to be called when r_bsp lock functions are overridden by user.</description>
+        </property>
+        <property id="BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED" display="Enable user warm start callback (PRE)" default="0" type="combobox">
+            <option id="BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED.0" display="Unused" value="0"/>
+            <option id="BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED.1" display="Used" value="1"/>
+            <description>0 = Warm start callback pre function is not to be used.
+1 = Warm start callback pre function is to be used.</description>
+        </property>
+        <property id="BSP_CFG_USER_WARM_START_PRE_C_FUNCTION" display="User warm start callback  function name (PRE)" default="my_sw_warmstart_prec_function" type="textbox">
+            <constraint display="when User warm start callback  function name (PRE) is Used only" actionOnFail="disable">${BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED} == ${BSP_CFG_USER_WARM_START_CALLBACK_PRE_INITC_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_WARM_START_PRE_C_FUNCTION}")</constraint>
+            <description>User warm start callback pre function name.</description>
+        </property>
+        <property id="BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED" display="Enable user warm start callback (POST)" default="0" type="combobox">
+            <option id="BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED.0" display="Unused" value="0"/>
+            <option id="BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED.1" display="Used" value="1"/>
+            <description>0 = Warm start callback post function is not to be used.
+1 = Warm start callback post function is to be used.</description>
+        </property>
+        <property id="BSP_CFG_USER_WARM_START_POST_C_FUNCTION" display="User warm start callback  function name (POST)" default="my_sw_warmstart_postc_function" type="textbox">
+            <constraint display="when User warm start callback  function name (POST) is Used only" actionOnFail="disable">${BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED} == ${BSP_CFG_USER_WARM_START_CALLBACK_POST_INITC_ENABLED.1}</constraint>
+            <constraint display="Please enter a valid function name without spaces or funny characters" actionOnFail="error">testSymbol("${BSP_CFG_USER_WARM_START_POST_C_FUNCTION}")</constraint>
+            <description>User warm start callback post function name.</description>
+        </property>
+        <property id="BSP_CFG_PARAM_CHECKING_ENABLE" display="Parameter checking" default="1" type="combobox">
+            <option id="BSP_CFG_PARAM_CHECKING_ENABLE.0" display="Disabled" value="0"/>
+            <option id="BSP_CFG_PARAM_CHECKING_ENABLE.1" display="Enabled" value="1"/>
+            <description>0 = Global setting for parameter checking is disabled. 
+1 = Global setting for parameter checking is enabled.</description>
+        </property>
+        <property id="BSP_CFG_EBMAPCR_1ST_PRIORITY" display="Extended Bus Master 1st Priority Selection" default="0" type="combobox">
+            <option id="BSP_CFG_EBMAPCR_1ST_PRIORITY.0" display="GLCDC graphics 1 data read" value="0"/>
+            <option id="BSP_CFG_EBMAPCR_1ST_PRIORITY.1" display="DRW2D texture data read" value="1"/>
+            <option id="BSP_CFG_EBMAPCR_1ST_PRIORITY.2" display="DRW2D frame buffer data read write and display list data read" value="2"/>
+            <option id="BSP_CFG_EBMAPCR_1ST_PRIORITY.3" display="GLCDC graphics 2 data read" value="3"/>
+            <option id="BSP_CFG_EBMAPCR_1ST_PRIORITY.4" display="EDMAC" value="4"/>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_1ST_PRIORITY}" != "${BSP_CFG_EBMAPCR_2ND_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_1ST_PRIORITY}" != "${BSP_CFG_EBMAPCR_3RD_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_1ST_PRIORITY}" != "${BSP_CFG_EBMAPCR_4TH_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_1ST_PRIORITY}" != "${BSP_CFG_EBMAPCR_5TH_PRIORITY}")</constraint>
+            <description>The extended bus master has five transfer sources: EDMAC, GLCDC-GRA1 (GLCDC graphics 1 data read), GLCDCGRA2 (GLCDC graphics 2 data read), DRW2D-TX (DRW2D texture data read), and DRW2D-FB (DRW2D frame buffer data read write and display list data read).
+The default priority order in bsp is below
+   GLCDC-GRA1 > GLCDC-GRA2 > DRW2D-TX > DRW2D-FB > EDMAC.
+   Priority can be changed with this macro.
+   
+Extended Bus Master Priority setting
+   0 = GLCDC graphics 1 data read
+   1 = DRW2D texture data read
+   2 = DRW2D frame buffer data read write and display list data read
+   3 = GLCDC graphics 2 data read
+   4 = EDMAC</description>
+        </property>
+        <property id="BSP_CFG_EBMAPCR_2ND_PRIORITY" display="Extended Bus Master 2nd Priority Selection" default="3" type="combobox">
+            <option id="BSP_CFG_EBMAPCR_2ND_PRIORITY.0" display="GLCDC graphics 1 data read" value="0"/>
+            <option id="BSP_CFG_EBMAPCR_2ND_PRIORITY.1" display="DRW2D texture data read" value="1"/>
+            <option id="BSP_CFG_EBMAPCR_2ND_PRIORITY.2" display="DRW2D frame buffer data read write and display list data read" value="2"/>
+            <option id="BSP_CFG_EBMAPCR_2ND_PRIORITY.3" display="GLCDC graphics 2 data read" value="3"/>
+            <option id="BSP_CFG_EBMAPCR_2ND_PRIORITY.4" display="EDMAC" value="4"/>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_2ND_PRIORITY}" != "${BSP_CFG_EBMAPCR_1ST_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_2ND_PRIORITY}" != "${BSP_CFG_EBMAPCR_3RD_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_2ND_PRIORITY}" != "${BSP_CFG_EBMAPCR_4TH_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_2ND_PRIORITY}" != "${BSP_CFG_EBMAPCR_5TH_PRIORITY}")</constraint>
+            <description>The extended bus master has five transfer sources: EDMAC, GLCDC-GRA1 (GLCDC graphics 1 data read), GLCDCGRA2 (GLCDC graphics 2 data read), DRW2D-TX (DRW2D texture data read), and DRW2D-FB (DRW2D frame buffer data read write and display list data read).
+The default priority order in bsp is below
+   GLCDC-GRA1 > GLCDC-GRA2 > DRW2D-TX > DRW2D-FB > EDMAC.
+   Priority can be changed with this macro.
+   
+Extended Bus Master Priority setting
+   0 = GLCDC graphics 1 data read
+   1 = DRW2D texture data read
+   2 = DRW2D frame buffer data read write and display list data read
+   3 = GLCDC graphics 2 data read
+   4 = EDMAC</description>
+        </property>
+        <property id="BSP_CFG_EBMAPCR_3RD_PRIORITY" display="Extended Bus Master 3rd Priority Selection" default="1" type="combobox">
+            <option id="BSP_CFG_EBMAPCR_3RD_PRIORITY.0" display="GLCDC graphics 1 data read" value="0"/>
+            <option id="BSP_CFG_EBMAPCR_3RD_PRIORITY.1" display="DRW2D texture data read" value="1"/>
+            <option id="BSP_CFG_EBMAPCR_3RD_PRIORITY.2" display="DRW2D frame buffer data read write and display list data read" value="2"/>
+            <option id="BSP_CFG_EBMAPCR_3RD_PRIORITY.3" display="GLCDC graphics 2 data read" value="3"/>
+            <option id="BSP_CFG_EBMAPCR_3RD_PRIORITY.4" display="EDMAC" value="4"/>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_3RD_PRIORITY}" != "${BSP_CFG_EBMAPCR_1ST_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_3RD_PRIORITY}" != "${BSP_CFG_EBMAPCR_2ND_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_3RD_PRIORITY}" != "${BSP_CFG_EBMAPCR_4TH_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_3RD_PRIORITY}" != "${BSP_CFG_EBMAPCR_5TH_PRIORITY}")</constraint>
+            <description>The extended bus master has five transfer sources: EDMAC, GLCDC-GRA1 (GLCDC graphics 1 data read), GLCDCGRA2 (GLCDC graphics 2 data read), DRW2D-TX (DRW2D texture data read), and DRW2D-FB (DRW2D frame buffer data read write and display list data read).
+The default priority order in bsp is below
+   GLCDC-GRA1 > GLCDC-GRA2 > DRW2D-TX > DRW2D-FB > EDMAC.
+   Priority can be changed with this macro.
+   
+Extended Bus Master Priority setting
+   0 = GLCDC graphics 1 data read
+   1 = DRW2D texture data read
+   2 = DRW2D frame buffer data read write and display list data read
+   3 = GLCDC graphics 2 data read
+   4 = EDMAC</description>
+        </property>
+        <property id="BSP_CFG_EBMAPCR_4TH_PRIORITY" display="Extended Bus Master 4th Priority Selection" default="2" type="combobox">
+            <option id="BSP_CFG_EBMAPCR_4TH_PRIORITY.0" display="GLCDC graphics 1 data read" value="0"/>
+            <option id="BSP_CFG_EBMAPCR_4TH_PRIORITY.1" display="DRW2D texture data read" value="1"/>
+            <option id="BSP_CFG_EBMAPCR_4TH_PRIORITY.2" display="DRW2D frame buffer data read write and display list data read" value="2"/>
+            <option id="BSP_CFG_EBMAPCR_4TH_PRIORITY.3" display="GLCDC graphics 2 data read" value="3"/>
+            <option id="BSP_CFG_EBMAPCR_4TH_PRIORITY.4" display="EDMAC" value="4"/>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_4TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_1ST_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_4TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_2ND_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_4TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_3RD_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_4TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_5TH_PRIORITY}")</constraint>
+            <description>The extended bus master has five transfer sources: EDMAC, GLCDC-GRA1 (GLCDC graphics 1 data read), GLCDCGRA2 (GLCDC graphics 2 data read), DRW2D-TX (DRW2D texture data read), and DRW2D-FB (DRW2D frame buffer data read write and display list data read).
+The default priority order in bsp is below
+   GLCDC-GRA1 > GLCDC-GRA2 > DRW2D-TX > DRW2D-FB > EDMAC.
+   Priority can be changed with this macro.
+   
+Extended Bus Master Priority setting
+   0 = GLCDC graphics 1 data read
+   1 = DRW2D texture data read
+   2 = DRW2D frame buffer data read write and display list data read
+   3 = GLCDC graphics 2 data read
+   4 = EDMAC</description>
+        </property>
+        <property id="BSP_CFG_EBMAPCR_5TH_PRIORITY" display="Extended Bus Master 5th Priority Selection" default="4" type="combobox">
+            <option id="BSP_CFG_EBMAPCR_5TH_PRIORITY.0" display="GLCDC graphics 1 data read" value="0"/>
+            <option id="BSP_CFG_EBMAPCR_5TH_PRIORITY.1" display="DRW2D texture data read" value="1"/>
+            <option id="BSP_CFG_EBMAPCR_5TH_PRIORITY.2" display="DRW2D frame buffer data read write and display list data read" value="2"/>
+            <option id="BSP_CFG_EBMAPCR_5TH_PRIORITY.3" display="GLCDC graphics 2 data read" value="3"/>
+            <option id="BSP_CFG_EBMAPCR_5TH_PRIORITY.4" display="EDMAC" value="4"/>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_5TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_1ST_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_5TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_2ND_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_5TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_3RD_PRIORITY}")</constraint>
+            <constraint display="Selected priority value must not be used multiple times">("${BSP_CFG_EBMAPCR_5TH_PRIORITY}" != "${BSP_CFG_EBMAPCR_4TH_PRIORITY}")</constraint>
+            <description>The extended bus master has five transfer sources: EDMAC, GLCDC-GRA1 (GLCDC graphics 1 data read), GLCDCGRA2 (GLCDC graphics 2 data read), DRW2D-TX (DRW2D texture data read), and DRW2D-FB (DRW2D frame buffer data read write and display list data read).
+The default priority order in bsp is below
+   GLCDC-GRA1 > GLCDC-GRA2 > DRW2D-TX > DRW2D-FB > EDMAC.
+   Priority can be changed with this macro.
+   
+Extended Bus Master Priority setting
+   0 = GLCDC graphics 1 data read
+   1 = DRW2D texture data read
+   2 = DRW2D frame buffer data read write and display list data read
+   3 = GLCDC graphics 2 data read
+   4 = EDMAC</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_ENABLE" display="Non-cacheable area 0 select" default="0" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_ENABLE.0" display="Disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1" display="Enabled" value="1"/>
+            <description>0 = Non-cacheable area 0 settings disabled.
+1 = Non-cacheable area 0 settings enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_ADDR" display="Non-cacheable area 0 start address" default="0xFFE00000" type="textbox">
+            <constraint display="when Non-cacheable area 0 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA0_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1}</constraint>
+            <constraint display="Value must be an hexadecimal value" actionOnFail="error">testHexInteger("${BSP_CFG_NONCACHEABLE_AREA0_ADDR}")</constraint>
+            <constraint display="Value must be in the upper 10 bits are fixed at 1 and the lower 4 bits of value must be 0 and not select an area other than the code flash memory area." actionOnFail="error">(("${BSP_CFG_NONCACHEABLE_AREA0_ADDR}" &gt;= 0xFFC00000) &amp;&amp; ("${BSP_CFG_NONCACHEABLE_AREA0_ADDR}" &lt;= 0xFFFFFFF0)) &amp;&amp; ("${BSP_CFG_NONCACHEABLE_AREA0_ADDR}" % 16 == 0)</constraint>
+            <description>Selects the start address of non-cacheable area 0.
+The upper 10 bits are fixed at 1. The lower 4 bits are fixed at 0.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_SIZE" display="Non-cacheable area 0 size" default="0x0" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x0" display="16 bytes" value="0x0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x1" display="32 bytes" value="0x1"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x2" display="64 bytes" value="0x2"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x3" display="128 bytes" value="0x3"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x4" display="256 bytes" value="0x4"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x5" display="512 bytes" value="0x5"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x6" display="1K bytes" value="0x6"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x7" display="2K bytes" value="0x7"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x8" display="4K bytes" value="0x8"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x9" display="8K bytes" value="0x9"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xA" display="16K bytes" value="0xA"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xB" display="32K bytes" value="0xB"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xC" display="64K bytes" value="0xC"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xD" display="128K bytes" value="0xD"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xE" display="256K bytes" value="0xE"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0xF" display="512K bytes" value="0xF"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x10" display="1M bytes" value="0x10"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_SIZE.0x11" display="2M bytes" value="0x11"/>
+            <constraint display="when Non-cacheable area 0 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA0_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1}</constraint>
+            <description>0x0 =  16 bytes, 0xA =  16K bytes,
+0x1 =  32 bytes, 0xB =  32K bytes,
+0x2 =  64 bytes, 0xC =  64K bytes,
+0x3 = 128 bytes, 0xD = 128K bytes,
+0x4 = 256 bytes, 0xE = 256K bytes,
+0x5 = 512 bytes, 0xF = 512K bytes,
+0x6 =  1K bytes, 0x10=   1M bytes,
+0x7 =  2K bytes, 0x11=   2M bytes,
+0x8 =  4K bytes,
+0x9 =  8K bytes</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_IF_ENABLE" display="IF non-cacheable area select (non-cacheable area 0)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_IF_ENABLE.0" display="IF cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_IF_ENABLE.1" display="IF cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 0 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA0_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 0 setting of IF cache disabled.
+1 = Non-cacheable area 0 setting of IF cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_OA_ENABLE" display="OA non-cacheable area select (non-cacheable area 0)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_OA_ENABLE.0" display="OA cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_OA_ENABLE.1" display="OA cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 0 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA0_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 0 setting of OA cache disabled.
+1 = Non-cacheable area 0 setting of OA cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA0_DM_ENABLE" display="DM non-cacheable area select (non-cacheable area 0)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_DM_ENABLE.0" display="DM cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA0_DM_ENABLE.1" display="DM cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 0 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA0_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA0_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 0 setting of DM cache disabled.
+1 = Non-cacheable area 0 setting of DM cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_ENABLE" display="Non-cacheable area 1 select" default="0" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_ENABLE.0" display="Disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1" display="Enabled" value="1"/>
+            <description>0 = Non-cacheable area 1 settings disabled.
+1 = Non-cacheable area 1 settings enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_ADDR" display="Non-cacheable area 1 start address" default="0xFFE00000" type="textbox">
+            <constraint display="when Non-cacheable area 1 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA1_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1}</constraint>
+            <constraint display="Value must be an hexadecimal value" actionOnFail="error">testHexInteger("${BSP_CFG_NONCACHEABLE_AREA1_ADDR}")</constraint>
+            <constraint display="Value must be in the upper 10 bits are fixed at 1 and the lower 4 bits of value must be 0 and not select an area other than the code flash memory area." actionOnFail="error">(("${BSP_CFG_NONCACHEABLE_AREA1_ADDR}" &gt;= 0xFFC00000) &amp;&amp; ("${BSP_CFG_NONCACHEABLE_AREA1_ADDR}" &lt;= 0xFFFFFFF0)) &amp;&amp; ("${BSP_CFG_NONCACHEABLE_AREA1_ADDR}" % 16 == 0)</constraint>
+            <description>Selects the start address of non-cacheable area 1.
+The upper 10 bits are fixed at 1. The lower 4 bits are fixed at 0.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_SIZE" display="Non-cacheable area 1 size" default="0x0" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x0" display="16 bytes" value="0x0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x1" display="32 bytes" value="0x1"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x2" display="64 bytes" value="0x2"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x3" display="128 bytes" value="0x3"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x4" display="256 bytes" value="0x4"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x5" display="512 bytes" value="0x5"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x6" display="1K bytes" value="0x6"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x7" display="2K bytes" value="0x7"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x8" display="4K bytes" value="0x8"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x9" display="8K bytes" value="0x9"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xA" display="16K bytes" value="0xA"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xB" display="32K bytes" value="0xB"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xC" display="64K bytes" value="0xC"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xD" display="128K bytes" value="0xD"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xE" display="256K bytes" value="0xE"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0xF" display="512K bytes" value="0xF"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x10" display="1M bytes" value="0x10"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_SIZE.0x11" display="2M bytes" value="0x11"/>
+            <constraint display="when Non-cacheable area 1 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA1_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1}</constraint>
+            <description>0x0 =  16 bytes, 0xA =  16K bytes,
+0x1 =  32 bytes, 0xB =  32K bytes,
+0x2 =  64 bytes, 0xC =  64K bytes,
+0x3 = 128 bytes, 0xD = 128K bytes,
+0x4 = 256 bytes, 0xE = 256K bytes,
+0x5 = 512 bytes, 0xF = 512K bytes,
+0x6 =  1K bytes, 0x10=   1M bytes,
+0x7 =  2K bytes, 0x11=   2M bytes,
+0x8 =  4K bytes,
+0x9 =  8K bytes</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_IF_ENABLE" display="IF non-cacheable area select (non-cacheable area 1)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_IF_ENABLE.0" display="IF cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_IF_ENABLE.1" display="IF cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 1 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA1_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 1 setting of IF cache disabled.
+1 = Non-cacheable area 1 setting of IF cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_OA_ENABLE" display="OA non-cacheable area select (non-cacheable area 1)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_OA_ENABLE.0" display="OA cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_OA_ENABLE.1" display="OA cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 1 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA1_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 1 setting of OA cache disabled.
+1 = Non-cacheable area 1 setting of OA cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_NONCACHEABLE_AREA1_DM_ENABLE" display="DM non-cacheable area select (non-cacheable area 1)" default="1" type="combobox">
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_DM_ENABLE.0" display="DM cache disabled" value="0"/>
+            <option id="BSP_CFG_NONCACHEABLE_AREA1_DM_ENABLE.1" display="DM cache enabled" value="1"/>
+            <constraint display="when Non-cacheable area 1 select is Enabled only" actionOnFail="disable">${BSP_CFG_NONCACHEABLE_AREA1_ENABLE} == ${BSP_CFG_NONCACHEABLE_AREA1_ENABLE.1}</constraint>
+            <description>0 = Non-cacheable area 1 setting of DM cache disabled.
+1 = Non-cacheable area 1 setting of DM cache enabled.</description>
+        </property>
+        <property id="BSP_CFG_FIT_IPL_MAX" display="Interrupt Priority Level When FIT Module Interrupts Are Disabled" default="0xF" type="combobox">
+            <option id="BSP_CFG_FIT_IPL_MAX.0x0" display="Priority level 0 (lowest)" value="0x0"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x1" display="Priority level 1" value="0x1"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x2" display="Priority level 2" value="0x2"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x3" display="Priority level 3" value="0x3"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x4" display="Priority level 4" value="0x4"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x5" display="Priority level 5" value="0x5"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x6" display="Priority level 6" value="0x6"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x7" display="Priority level 7" value="0x7"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x8" display="Priority level 8" value="0x8"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0x9" display="Priority level 9" value="0x9"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xA" display="Priority level 10" value="0xA"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xB" display="Priority level 11" value="0xB"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xC" display="Priority level 12" value="0xC"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xD" display="Priority level 13" value="0xD"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xE" display="Priority level 14" value="0xE"/>
+            <option id="BSP_CFG_FIT_IPL_MAX.0xF" display="Priority level 15 (highest)" value="0xF"/>
+            <description>For some BSP functions, it is necessary to ensure that, while these functions are executing, interrupts from other FIT modules do not occur. By controlling the IPL, these functions disable interrupts that are at or below the specified interrupt priority level.
+Please set this value more than IPR for other FIT module interrupts. Don't change if there is no special processing with higher priority than all fit modules.</description>
+        </property>
+        <property id="BSP_CFG_CLKOUT_OUTPUT" display="Configure clock output(CLKOUT) pin" default="0" type="combobox">
+            <option id="BSP_CFG_CLKOUT_OUTPUT.0" display="Disabled" value="0"/>
+            <option id="BSP_CFG_CLKOUT_OUTPUT.1" display="Enabled" value="1"/>
+            <description>0 = CLKOUT pin output stopped. (Fixed to the low level)
+1 = CLKOUT pin output enabled.</description>
+        </property>
+        <property id="BSP_CFG_SWINT_UNIT1_ENABLE" display="Software Interrupt Unit1 (SWINT1)" default="1" type="combobox">
+            <option id="BSP_CFG_SWINT_UNIT1_ENABLE.0" display="Unused" value="0"/>
+            <option id="BSP_CFG_SWINT_UNIT1_ENABLE.1" display="Used" value="1"/>
+            <description>0 = Software interrupt is not used.
+1 = Software interrupt is used.
+NOTE: When this macro is set to 1, the software interrupt is initialized in bsp startup routine. </description>
+        </property>
+        <property id="BSP_CFG_SWINT_UNIT2_ENABLE" display="Software Interrupt Unit2 (SWINT2)" default="1" type="combobox">
+            <option id="BSP_CFG_SWINT_UNIT2_ENABLE.0" display="Unused" value="0"/>
+            <option id="BSP_CFG_SWINT_UNIT2_ENABLE.1" display="Used" value="1"/>
+            <description>0 = Software interrupt is not used.
+1 = Software interrupt is used.
+NOTE: When this macro is set to 1, the software interrupt is initialized in bsp startup routine. </description>
+        </property>
+        <property id="BSP_CFG_SWINT_TASK_BUFFER_NUMBER" display="Software Interrupt Task Buffer Number" default="8" type="textbox">
+            <constraint display="when Software Interrupts is Used only" actionOnFail="disable">((${BSP_CFG_SWINT_UNIT1_ENABLE} == ${BSP_CFG_SWINT_UNIT1_ENABLE.1}) || (${BSP_CFG_SWINT_UNIT2_ENABLE} == ${BSP_CFG_SWINT_UNIT2_ENABLE.1}))</constraint>
+            <constraint display="Value must be an decimal value" actionOnFail="error">testInteger("${BSP_CFG_SWINT_TASK_BUFFER_NUMBER}")</constraint>
+            <constraint display="Value must be in the range 1~254" actionOnFail="error">(("${BSP_CFG_SWINT_TASK_BUFFER_NUMBER}" &gt;= 1) &amp;&amp; ("${BSP_CFG_SWINT_TASK_BUFFER_NUMBER}" &lt;= 254))</constraint>
+            <description>For software interrupt, this value is number of buffering user tasks.
+So user can increase this value if user system would have many software interrupt tasks and user system has enough buffer. This value requires 9 byte per task.
+NOTE: This setting is common to all units. It can not be set individually. The maximum value is 254.</description>
+        </property>
+        <property id="BSP_CFG_SWINT_IPR_INITIAL_VALUE" display="Initial value of the software interrupt priority." default="0x1" type="combobox">
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x0" display="Priority level 0 (lowest)" value="0x0"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x1" display="Priority level 1" value="0x1"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x2" display="Priority level 2" value="0x2"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x3" display="Priority level 3" value="0x3"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x4" display="Priority level 4" value="0x4"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x5" display="Priority level 5" value="0x5"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x6" display="Priority level 6" value="0x6"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x7" display="Priority level 7" value="0x7"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x8" display="Priority level 8" value="0x8"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0x9" display="Priority level 9" value="0x9"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xA" display="Priority level 10" value="0xA"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xB" display="Priority level 11" value="0xB"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xC" display="Priority level 12" value="0xC"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xD" display="Priority level 13" value="0xD"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xE" display="Priority level 14" value="0xE"/>
+            <option id="BSP_CFG_SWINT_IPR_INITIAL_VALUE.0xF" display="Priority level 15 (highest)" value="0xF"/>
+            <constraint display="when Software Interrupts is Used only" actionOnFail="disable">((${BSP_CFG_SWINT_UNIT1_ENABLE} == ${BSP_CFG_SWINT_UNIT1_ENABLE.1}) || (${BSP_CFG_SWINT_UNIT2_ENABLE} == ${BSP_CFG_SWINT_UNIT2_ENABLE.1}))</constraint>
+            <description>For software interrupt, this value is interrupt priority. Range is 0x0 - 0xF.
+NOTE: This setting is common to all units. It can not be set individually. Please be careful that this setting is the initial value of the interrupt priority register(IPR).It is possible to dynamically change the IPR.</description>
+        </property>
+    </configuration>
+</module>
