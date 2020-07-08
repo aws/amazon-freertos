@@ -173,7 +173,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
                 if( returnCode != SOCKETS_ERROR_NONE )
                 {
-                    ggdconfigPRINT( "SOCKETS_Connect call failed: ServerAddress=%d, Port=%d, ReturnCode=%d\r\n",
+                    ggdconfigPRINT( "SOCKETS_Connect call failed: ServerAddress=%lu, Port=%u, ReturnCode=%d\r\n",
                                     xServerAddress.ulAddress, xServerAddress.usPort, returnCode );
                     GGD_SecureConnect_Disconnect( pxSocket );
                     xStatus = pdFAIL;
