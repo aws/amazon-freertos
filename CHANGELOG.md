@@ -2,7 +2,7 @@
 
 ## 202007.00 July 2020
 
-#### Contents
+### Content
 - This repository contains the `FreeRTOS AWS Reference Integrations' based on FreeRTOS.  
 
 ### New Features
