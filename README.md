@@ -71,15 +71,18 @@ The following MCU boards are supported for FreeRTOS:
 11. **Cypress CYW43907** - [Cypress CYW943907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_43.html)
     * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
-12. **Marvell MW320** - [Marvell MW320 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
+12. **Cypress PSoC64** - [PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit](https://www.cypress.com/cy8ckit-064S0S2-4343W)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_psoc64.html)
+    * IDE: [ModusToolbox](https://www.cypress.com/products/modustoolbox-software-environment)
+13. **Marvell MW320** - [Marvell MW320 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell320.html)
-13. **Marvell MW322** - [Marvell MW322 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
+14. **Marvell MW322** - [Marvell MW322 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell322.html)
-14. **Nordic nRF52840 DK** - [nRF52840 DK Development kit](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK/)
+15. **Nordic nRF52840 DK** - [nRF52840 DK Development kit](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK/)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nordic.html)  
-15. **Nuvoton** - [NuMaker-IoT-M487](https://direct.nuvoton.com/en/numaker-iot-m487)
+16. **Nuvoton** - [NuMaker-IoT-M487](https://direct.nuvoton.com/en/numaker-iot-m487)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-nuvoton-m487.html)
-16. **Windows Simulator** - To evaluate FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
+17. **Windows Simulator** - To evaluate FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
     * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
     * IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)
