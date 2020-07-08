@@ -235,6 +235,12 @@ static eFrameProcessingResult_t prvAllowIPPacket( const IPPacket_t * const pxIPP
 												  const NetworkBufferDescriptor_t * const pxNetworkBuffer,
 												  UBaseType_t uxHeaderLength );
 
+#if( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 1 )
+	/* Even when the driver takes care of checksum calculations,
+	the IP-task will still check if the length fields are OK. */
+	static BaseType_t xCheckSizeFields( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength );
+#endif	/* ( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 1 ) */
+
 /*-----------------------------------------------------------*/
 
 /* The queue used to pass events into the IP-task for processing. */
@@ -1608,6 +1614,16 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 	}
 	#else
 	{
+
+		if (eReturn == eProcessBuffer )
+		{
+			if( xCheckSizeFields( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength ) != pdPASS )
+			{
+				/* Some of the length checks were not successful. */
+				eReturn = eReleaseBuffer;
+			}
+		}
+
 		#if( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 )
 		{
 			/* Check if this is a UDP packet without a checksum. */
@@ -1648,8 +1664,8 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 			}
 		}
 		#endif	/* ( ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS == 0 ) */
+
 		/* to avoid warning unused parameters */
-		( void ) pxNetworkBuffer;
 		( void ) uxHeaderLength;
 	}
 	#endif /* ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 0 */
@@ -1952,6 +1968,123 @@ uint8_t ucProtocol;
 	}
 
 #endif /* ( ipconfigREPLY_TO_INCOMING_PINGS == 1 ) || ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */
+/*-----------------------------------------------------------*/
+
+#if( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 1 )
+	/* Although the driver will take care of checksum calculations,
+	the IP-task will still check if the length fields are OK. */
+	static BaseType_t xCheckSizeFields( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength )
+	{
+	size_t uxLength;
+	const IPPacket_t * pxIPPacket;
+	UBaseType_t uxIPHeaderLength;
+	ProtocolPacket_t *pxProtPack;
+	uint8_t ucProtocol;
+	uint16_t usLength;
+	uint16_t ucVersionHeaderLength;
+	BaseType_t xLocation = 0;
+	size_t uxMinimumLength;
+	BaseType_t xResult = pdFAIL;
+
+		do
+		{
+			/* Check for minimum packet size: Ethernet header and an IP-header, 34 bytes */
+			if( uxBufferLength < sizeof( IPPacket_t ) )
+			{
+				xLocation = 1;
+				break;
+			}
+
+			/* Parse the packet length. */
+			pxIPPacket = ipPOINTER_CAST( const IPPacket_t *, pucEthernetBuffer );
+
+			ucVersionHeaderLength = pxIPPacket->xIPHeader.ucVersionHeaderLength;
+			/* Test if the length of the IP-header is between 20 and 60 bytes,
+			and if the IP-version is 4. */
+			if( ( ucVersionHeaderLength < ipIPV4_VERSION_HEADER_LENGTH_MIN ) ||
+				( ucVersionHeaderLength > ipIPV4_VERSION_HEADER_LENGTH_MAX ) )
+			{
+				xLocation = 2;
+				break;
+			}
+			ucVersionHeaderLength = ( ucVersionHeaderLength & ( uint8_t ) 0x0FU ) << 2;
+			uxIPHeaderLength = ( UBaseType_t ) ucVersionHeaderLength;
+
+			/* Check if the complete IP-header is transferred. */
+			if( uxBufferLength < ( ipSIZE_OF_ETH_HEADER + uxIPHeaderLength ) )
+			{
+				xLocation = 3;
+				break;
+			}
+			/* Check if the complete IP-header plus protocol data have been transferred: */
+			usLength = pxIPPacket->xIPHeader.usLength;
+			usLength = FreeRTOS_ntohs( usLength );
+			if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + ( size_t ) usLength ) )
+			{
+				xLocation = 4;
+				break;
+			}
+
+			/* Identify the next protocol. */
+			ucProtocol = pxIPPacket->xIPHeader.ucProtocol;
+
+			/* N.B., if this IP packet header includes Options, then the following
+			assignment results in a pointer into the protocol packet with the Ethernet
+			and IP headers incorrectly aligned. However, either way, the "third"
+			protocol (Layer 3 or 4) header will be aligned, which is the convenience
+			of this calculation. */
+			pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+
+			/* Switch on the Layer 3/4 protocol. */
+			if( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
+			{
+				/* Expect at least a complete UDP header. */
+				uxMinimumLength = uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_UDP_HEADER;
+			}
+			else if( ucProtocol == ( uint8_t ) ipPROTOCOL_TCP )
+			{
+				uxMinimumLength = uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_TCP_HEADER;
+			}
+			else if( ( ucProtocol == ( uint8_t ) ipPROTOCOL_ICMP ) ||
+					 ( ucProtocol == ( uint8_t ) ipPROTOCOL_IGMP ) )
+			{
+				uxMinimumLength = uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_ICMP_HEADER;
+			}
+			else
+			{
+				/* Unhandled protocol, other than ICMP, IGMP, UDP, or TCP. */
+				xLocation = 5;
+				break;
+			}
+			if( uxBufferLength < uxMinimumLength )
+			{
+				xLocation = 6;
+				break;
+			}
+
+			uxLength = ( size_t ) usLength;
+			uxLength -= ( ( uint16_t ) uxIPHeaderLength ); /* normally, minus 20. */
+
+			if( ( uxLength < ( ( size_t ) sizeof( pxProtPack->xUDPPacket.xUDPHeader ) ) ) ||
+				( uxLength > ( ( size_t ) ipconfigNETWORK_MTU - ( size_t ) uxIPHeaderLength ) ) )
+			{
+				/* For incoming packets, the length is out of bound: either
+				too short or too long. For outgoing packets, there is a 
+				serious problem with the format/length. */
+				xLocation = 7;
+				break;
+			}
+			xResult = pdPASS;
+		} while( ipFALSE_BOOL );
+
+		if( xResult != pdPASS )
+		{
+			FreeRTOS_printf( ( "xCheckSizeFields: location %ld\n", xLocation ) );
+		}
+
+		return xResult;
+	}
+#endif /* ( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 1 ) */
 /*-----------------------------------------------------------*/
 
 uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket )
