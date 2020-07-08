@@ -59,9 +59,9 @@
 
 - Added ability to cache multiple IP addresses per DNS entry.
 - Defensive security improvements: 
-    - Added configuration parameter, ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS,  to allow dropping UDP packets containing checksum value as 0.
-    - Added configuration parameter, ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS,  to dropping packets that contain IP options
-    - Added additional length check of IP packets in software when IP checksum and length field checking is offloaded to networking hardware.
+    - Added configuration parameter, ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS, to allow dropping UDP packets that contain checksum value as 0.
+    - Added configuration parameter, ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS, to allow dropping packets that contain IP options.
+    - Added additional length check of IP packets in software when IP checksum and length field validation are offloaded to networking hardware.
 
 
 
