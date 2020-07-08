@@ -59,11 +59,9 @@
 
 - Added ability to cache multiple IP addresses per DNS entry.
 - Defensive security improvements: 
-    - Added configuration parameter, ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS, to allow dropping UDP packets that contain checksum value as 0.
-    - Added configuration parameter, ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS, to allow dropping packets that contain IP options.
-    - Added additional length check of IP packets in software when IP checksum and length field validation are offloaded to networking hardware.
-
-
+    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS, that enables users to opt to drop packets UDP packets that have their checksum set to 0. Note this new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
+    - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS, that enables users to opt to drop IP packets that contain IP options.
+    - Setting ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
 
 #### Mbed TLS v2.16.6
 
