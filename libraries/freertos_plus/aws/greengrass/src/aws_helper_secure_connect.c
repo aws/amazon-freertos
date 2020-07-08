@@ -65,6 +65,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
     size_t xURLLength;
     BaseType_t xIsIPAddress;
     BaseType_t xStatus;
+    int32_t returnCode;
 
     configASSERT( pxHostAddressData != NULL );
     configASSERT( pxSocket != NULL );
@@ -130,26 +131,35 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
             if( pxHostAddressData->pcCertificate != NULL )
             {
-                if( SOCKETS_SetSockOpt( *pxSocket,
-                                        0,
-                                        SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
-                                        pxHostAddressData->pcCertificate,
-                                        ( size_t ) pxHostAddressData->ulCertificateSize )
-                    != SOCKETS_ERROR_NONE )
+                /* Override TLS trust store with server certificate. */
+                returnCode = SOCKETS_SetSockOpt( *pxSocket,
+                                                 0,
+                                                 SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                                 pxHostAddressData->pcCertificate,
+                                                 ( size_t ) pxHostAddressData->ulCertificateSize );
+
+                if( returnCode != SOCKETS_ERROR_NONE )
                 {
+                    ggdconfigPRINT( "Failure in SOCKET_SetSockOpt call for overriding TLS trust store: "
+                                    "ReturnCode=%d\r\n", returnCode );
                     xStatus = pdFAIL;
                 }
             }
 
             if( xIsIPAddress == pdFALSE )
             {
-                if( SOCKETS_SetSockOpt( *pxSocket,
-                                        0,
-                                        SOCKETS_SO_SERVER_NAME_INDICATION,
-                                        pxHostAddressData->pcHostAddress,
-                                        ( size_t ) 1 + xURLLength )
-                    != SOCKETS_ERROR_NONE )
+                /* Enable use of SNI in TLS. */
+                returnCode = SOCKETS_SetSockOpt( *pxSocket,
+                                                 0,
+                                                 SOCKETS_SO_SERVER_NAME_INDICATION,
+                                                 pxHostAddressData->pcHostAddress,
+                                                 ( size_t ) 1 + xURLLength );
+
+                if( returnCode != SOCKETS_ERROR_NONE )
                 {
+                    ggdconfigPRINT( "Failure in SOCKET_SetSockOpt call for enabling TLS SNI: "
+                                    "ServerHost=%.*s, ReturnCode=%d\r\n",
+                                    xURLLength, pxHostAddressData->pcHostAddress, returnCode );
                     xStatus = pdFAIL;
                 }
             }
@@ -157,11 +167,14 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
             /* Establish the TCP connection. */
             if( pdPASS == xStatus )
             {
-                if( ( SOCKETS_Connect( *pxSocket,
-                                       &xServerAddress,
-                                       ( uint32_t ) sizeof( xServerAddress ) )
-                      != SOCKETS_ERROR_NONE ) )
+                returnCode = SOCKETS_Connect( *pxSocket,
+                                              &xServerAddress,
+                                              ( uint32_t ) sizeof( xServerAddress ) );
+
+                if( returnCode != SOCKETS_ERROR_NONE )
                 {
+                    ggdconfigPRINT( "SOCKETS_Connect call failed: ServerAddress=%d, Port=%d, ReturnCode=%d\r\n",
+                                    xServerAddress.ulAddress, xServerAddress.usPort, returnCode );
                     GGD_SecureConnect_Disconnect( pxSocket );
                     xStatus = pdFAIL;
                 }
