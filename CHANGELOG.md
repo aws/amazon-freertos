@@ -1,6 +1,6 @@
 # Change Log for FreeRTOS AWS Reference Integrations
 
-## 202007.00 
+## 202007.00 July 2020
 
 #### Contents
 - This repository contains the `FreeRTOS AWS Reference Integrations' based on FreeRTOS.  
