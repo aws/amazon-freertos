@@ -109,7 +109,7 @@ BaseType_t GGD_SecureConnect_Connect( const GGD_HostAddressData_t * pxHostAddres
 
             if( xServerAddress.ulAddress == 0u )
             {
-                ggdconfigPRINT( "ERROR! Failed to resolve host address: Address=%.*s",
+                ggdconfigPRINT( "ERROR! Failed to resolve host address: ServerHost=%.*s",
                                 xURLLength, pxHostAddressData->pcHostAddress );
             }
 
