@@ -55,9 +55,15 @@
 - Made fixes to IotBle_On() and IotBle_Off() APIs.
 - Accommodate larger-than-expected writes to RXLargeMesg Gatt Characteristic.
 
-#### FreeRTOS+TCP V2.2.0
+#### FreeRTOS+TCP V2.3.0
 
 - Added ability to cache multiple IP addresses per DNS entry.
+- Defensive security improvements: 
+    - Added configuration parameter, ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS,  to allow dropping UDP packets containing checksum value as 0.
+    - Added configuration parameter, ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS,  to dropping packets that contain IP options
+    - Added additional length check of IP packets in software when IP checksum and length field checking is offloaded to networking hardware.
+
+
 
 #### Mbed TLS v2.16.6
 
