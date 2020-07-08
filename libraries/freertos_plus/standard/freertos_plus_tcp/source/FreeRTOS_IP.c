@@ -1619,7 +1619,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 		{
 			if( xCheckSizeFields( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength ) != pdPASS )
 			{
-				/* Some of the lengths checks was not successful. */
+				/* Some of the length checks were not successful. */
 				eReturn = eReleaseBuffer;
 			}
 		}
@@ -2063,15 +2063,14 @@ uint8_t ucProtocol;
 			}
 
 			uxLength = ( size_t ) usLength;
-			uxLength -= ( ( uint16_t ) uxIPHeaderLength ); /* normally minus 20 */
+			uxLength -= ( ( uint16_t ) uxIPHeaderLength ); /* normally, minus 20. */
 
 			if( ( uxLength < ( ( size_t ) sizeof( pxProtPack->xUDPPacket.xUDPHeader ) ) ) ||
 				( uxLength > ( ( size_t ) ipconfigNETWORK_MTU - ( size_t ) uxIPHeaderLength ) ) )
 			{
-				/* Again, in a 16-bit return value there is no space to indicate an
-				error.  For incoming packets, 0x1234 will cause dropping of the packet.
-				For outgoing packets, there is a serious problem with the
-				format/length */
+				/* For incoming packets, the length is out of bound: either
+				too short or too long. For outgoing packets, there is a 
+				serious problem with the format/length. */
 				xLocation = 7;
 				break;
 			}
