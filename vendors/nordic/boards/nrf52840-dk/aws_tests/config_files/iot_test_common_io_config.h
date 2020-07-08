@@ -31,6 +31,13 @@
 #include "iot_spi.h"
 #include "nrf_drv_spi.h"
 
+/*------------------------GPIO-------------------------------*/
+#define IOT_TEST_COMMON_IO_GPIO_SUPPORTED       1
+
+#define IOT_TEST_COMMON_IO_GPIO_LOOPBACK        1 
+#ifndef IOT_TEST_COMMON_IO_GPIO_LOOPBACK
+    #define IOT_TEST_COMMON_IO_GPIO_LOOPBACK    0
+#endif
 
 /*------------------------UART-------------------------------*/
 

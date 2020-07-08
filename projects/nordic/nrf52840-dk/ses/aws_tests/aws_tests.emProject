@@ -475,6 +475,7 @@
           <file file_name="../../../../../libraries/abstractions/common_io/CMakeLists.txt" />
           <folder Name="include">
             <file file_name="../../../../../libraries/abstractions/common_io/include/iot_spi.h" />
+            <file file_name="../../../../../libraries/abstractions/common_io/include/iot_gpio.h" />
           </folder>
           <folder Name="test">
             <file file_name="../../../../../libraries/abstractions/common_io/test/iot_test_common_io.c" />
@@ -508,7 +509,9 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_test_common_io_internal.c" />
         <folder Name="config">
           <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/config/iot_spi_config.h" />
+          <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/config/iot_gpio_config.h" />
         </folder>
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_gpio.c" />
       </folder>
     </folder>
     <folder Name="nRF5_SDK_15.2.0">
@@ -963,4 +966,3 @@
     project_directory=""
     project_type="Executable" />
 </solution>
-
