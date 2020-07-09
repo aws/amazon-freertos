@@ -1214,13 +1214,14 @@ BaseType_t xReturn = pdTRUE;
 			if( ( pxDNSMessageHeader->usFlags & dnsRX_FLAGS_MASK ) == dnsEXPECTED_RX_FLAGS )
 			{
 				const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
+			  uint16_t usNumARecordsStored = 0;
 
-				for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( x < usCount ); x++ )
-				{
-				BaseType_t xDoAccept;
+        for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
+        {
+          BaseType_t xDoAccept;
 
-					uxResult = prvSkipNameField( pucByte,
-												 uxSourceBytesRemaining );
+          uxResult = prvSkipNameField( pucByte,
+                         uxSourceBytesRemaining );
 
 					/* Check for a malformed response. */
 					if( uxResult == 0U )
@@ -1295,6 +1296,7 @@ BaseType_t xReturn = pdTRUE;
 								if( xDoStore != pdFALSE )
 								{
 									( void ) prvProcessDNSCache( pcName, &ulIPAddress, pxDNSAnswerRecord->ulTTL, pdFALSE );
+                  usNumARecordsStored++;    /* Track # of A records stored */
 								}
 
 								FreeRTOS_inet_ntop( FREERTOS_AF_INET, ( const void * ) &( ulIPAddress ), cBuffer, sizeof( cBuffer ) );
@@ -1304,8 +1306,8 @@ BaseType_t xReturn = pdTRUE;
 												   pcName,
 												   cBuffer,
 												   ( xDoStore != 0 ) ? "" : " NOT" ) );
-							}
-							#endif /* ipconfigUSE_DNS_CACHE */
+							 }
+							 #endif /* ipconfigUSE_DNS_CACHE */
 						}
 
 						pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );
