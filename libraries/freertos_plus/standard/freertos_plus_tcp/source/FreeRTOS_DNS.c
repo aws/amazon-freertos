@@ -1185,7 +1185,7 @@ uint16_t usType = 0U;
 
 			for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
 			{
-			BaseType_t xDoAccept;
+				BaseType_t xDoAccept;
 
 				uxResult = prvSkipNameField( pucByte,
 											 uxSourceBytesRemaining );
