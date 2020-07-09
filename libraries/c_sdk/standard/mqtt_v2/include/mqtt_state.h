@@ -26,9 +26,9 @@
 
 #define MQTT_STATE_CURSOR_INITIALIZER    ( size_t ) 0
 
- /**
-  * @brief Value indicating either send or receive.
-  */
+/**
+ * @brief Value indicating either send or receive.
+ */
 typedef enum MQTTStateOperation
 {
     MQTT_SEND,
@@ -49,9 +49,9 @@ typedef size_t MQTTStateCursor_t;
  *
  * @return MQTTSuccess, MQTTNoMemory, or MQTTStateCollision.
  */
-MQTTStatus_t MQTT_ReserveState(MQTTContext_t* pMqttContext,
-    uint16_t packetId,
-    MQTTQoS_t qos);
+MQTTStatus_t MQTT_ReserveState( MQTTContext_t * pMqttContext,
+                                uint16_t packetId,
+                                MQTTQoS_t qos );
 
 /**
  * @brief Calculate the new state for a publish from its qos and operation type.
@@ -61,8 +61,8 @@ MQTTStatus_t MQTT_ReserveState(MQTTContext_t* pMqttContext,
  *
  * @return The calculated state.
  */
-MQTTPublishState_t MQTT_CalculateStatePublish(MQTTStateOperation_t opType,
-    MQTTQoS_t qos);
+MQTTPublishState_t MQTT_CalculateStatePublish( MQTTStateOperation_t opType,
+                                               MQTTQoS_t qos );
 
 /**
  * @brief Update the state record for a PUBLISH packet.
@@ -76,11 +76,11 @@ MQTTPublishState_t MQTT_CalculateStatePublish(MQTTStateOperation_t opType,
  * @return #MQTTBadParameter, #MQTTIllegalState, #MQTTStateCollision or
  * #MQTTSuccess.
  */
-MQTTStatus_t MQTT_UpdateStatePublish(MQTTContext_t* pMqttContext,
-    uint16_t packetId,
-    MQTTStateOperation_t opType,
-    MQTTQoS_t qos,
-    MQTTPublishState_t* pNewState);
+MQTTStatus_t MQTT_UpdateStatePublish( MQTTContext_t * pMqttContext,
+                                      uint16_t packetId,
+                                      MQTTStateOperation_t opType,
+                                      MQTTQoS_t qos,
+                                      MQTTPublishState_t * pNewState );
 
 /**
  * @brief Calculate the state from a PUBACK, PUBREC, PUBREL, or PUBCOMP.
@@ -91,9 +91,9 @@ MQTTStatus_t MQTT_UpdateStatePublish(MQTTContext_t* pMqttContext,
  *
  * @return The calculated state.
  */
-MQTTPublishState_t MQTT_CalculateStateAck(MQTTPubAckType_t packetType,
-    MQTTStateOperation_t opType,
-    MQTTQoS_t qos);
+MQTTPublishState_t MQTT_CalculateStateAck( MQTTPubAckType_t packetType,
+                                           MQTTStateOperation_t opType,
+                                           MQTTQoS_t qos );
 
 /**
  * @brief Update the state record for an ACKed publish.
@@ -106,11 +106,11 @@ MQTTPublishState_t MQTT_CalculateStateAck(MQTTPubAckType_t packetType,
  *
  * @return #MQTTBadParameter, #MQTTIllegalState, or #MQTTSuccess.
  */
-MQTTStatus_t MQTT_UpdateStateAck(MQTTContext_t* pMqttContext,
-    uint16_t packetId,
-    MQTTPubAckType_t packetType,
-    MQTTStateOperation_t opType,
-    MQTTPublishState_t* pNewState);
+MQTTStatus_t MQTT_UpdateStateAck( MQTTContext_t * pMqttContext,
+                                  uint16_t packetId,
+                                  MQTTPubAckType_t packetType,
+                                  MQTTStateOperation_t opType,
+                                  MQTTPublishState_t * pNewState );
 
 /**
  * @brief Get the packet ID of next pending PUBREL ack to be resent.
@@ -124,9 +124,9 @@ MQTTStatus_t MQTT_UpdateStateAck(MQTTContext_t* pMqttContext,
  * @param[in,out] pCursor Index at which to start searching.
  * @param[out] pState State indicating that PUBREL packet need to be sent.
  */
-uint16_t MQTT_PubrelToResend(const MQTTContext_t* pMqttContext,
-    MQTTStateCursor_t* pCursor,
-    MQTTPublishState_t* pState);
+uint16_t MQTT_PubrelToResend( const MQTTContext_t * pMqttContext,
+                              MQTTStateCursor_t * pCursor,
+                              MQTTPublishState_t * pState );
 
 /**
  * @brief Get the packet ID of next pending publish to be resent.
@@ -139,8 +139,8 @@ uint16_t MQTT_PubrelToResend(const MQTTContext_t* pMqttContext,
  * @param[in] pMqttContext Initialized MQTT context.
  * @param[in,out] pCursor Index at which to start searching.
  */
-uint16_t MQTT_PublishToResend(const MQTTContext_t* pMqttContext,
-    MQTTStateCursor_t* pCursor);
+uint16_t MQTT_PublishToResend( const MQTTContext_t * pMqttContext,
+                               MQTTStateCursor_t * pCursor );
 
 /**
  * @brief State to string conversion for state engine.
@@ -149,6 +149,6 @@ uint16_t MQTT_PublishToResend(const MQTTContext_t* pMqttContext,
  *
  * @return The string representation of the state.
  */
-const char* MQTT_State_strerror(MQTTPublishState_t state);
+const char * MQTT_State_strerror( MQTTPublishState_t state );
 
 #endif /* ifndef MQTT_STATE_H */

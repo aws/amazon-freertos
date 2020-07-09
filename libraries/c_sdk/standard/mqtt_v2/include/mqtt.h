@@ -22,7 +22,7 @@
 #ifndef MQTT_H
 #define MQTT_H
 
- /* Include config file before other headers. */
+/* Include config file before other headers. */
 #include "mqtt_config.h"
 #include "mqtt_lightweight.h"
 
@@ -45,16 +45,16 @@ typedef struct MQTTContext                MQTTContext_t;
 struct MQTTTransportInterface;
 typedef struct MQTTTransportInterface     MQTTTransportInterface_t;
 
-typedef int32_t(*MQTTTransportSendFunc_t)(NetworkContext_t context,
-    const void* pMessage,
-    size_t bytesToSend);
+typedef int32_t ( * MQTTTransportSendFunc_t )( NetworkContext_t context,
+                                               const void * pMessage,
+                                               size_t bytesToSend );
 
-typedef uint32_t(*MQTTGetCurrentTimeFunc_t)(void);
+typedef uint32_t ( * MQTTGetCurrentTimeFunc_t )( void );
 
-typedef void (*MQTTEventCallback_t)(MQTTContext_t* pContext,
-    MQTTPacketInfo_t* pPacketInfo,
-    uint16_t packetIdentifier,
-    MQTTPublishInfo_t* pPublishInfo);
+typedef void ( * MQTTEventCallback_t )( MQTTContext_t * pContext,
+                                        MQTTPacketInfo_t * pPacketInfo,
+                                        uint16_t packetIdentifier,
+                                        MQTTPublishInfo_t * pPublishInfo );
 
 typedef enum MQTTConnectionStatus
 {
@@ -107,9 +107,9 @@ struct MQTTPubAckInfo
 
 struct MQTTContext
 {
-    MQTTPubAckInfo_t outgoingPublishRecords[MQTT_STATE_ARRAY_MAX_COUNT];
+    MQTTPubAckInfo_t outgoingPublishRecords[ MQTT_STATE_ARRAY_MAX_COUNT ];
     size_t outgoingPublishCount;
-    MQTTPubAckInfo_t incomingPublishRecords[MQTT_STATE_ARRAY_MAX_COUNT];
+    MQTTPubAckInfo_t incomingPublishRecords[ MQTT_STATE_ARRAY_MAX_COUNT ];
     size_t incomingPublishCount;
 
     MQTTTransportInterface_t transportInterface;
@@ -146,10 +146,10 @@ struct MQTTContext
  * @return #MQTTBadParameter if invalid parameters are passed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Init(MQTTContext_t* pContext,
-    const MQTTTransportInterface_t* pTransportInterface,
-    const MQTTApplicationCallbacks_t* pCallbacks,
-    const MQTTFixedBuffer_t* pNetworkBuffer);
+MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
+                        const MQTTTransportInterface_t * pTransportInterface,
+                        const MQTTApplicationCallbacks_t * pCallbacks,
+                        const MQTTFixedBuffer_t * pNetworkBuffer );
 
 /**
  * @brief Establish an MQTT session.
@@ -203,11 +203,11 @@ MQTTStatus_t MQTT_Init(MQTTContext_t* pContext,
  *    2 bytes. In the worst case, it can happen that the remaining 2 bytes are never
  *    received and this API will end up spending timeoutMs + transport receive timeout.
  */
-MQTTStatus_t MQTT_Connect(MQTTContext_t* pContext,
-    const MQTTConnectInfo_t* pConnectInfo,
-    const MQTTPublishInfo_t* pWillInfo,
-    uint32_t timeoutMs,
-    bool* pSessionPresent);
+MQTTStatus_t MQTT_Connect( MQTTContext_t * pContext,
+                           const MQTTConnectInfo_t * pConnectInfo,
+                           const MQTTPublishInfo_t * pWillInfo,
+                           uint32_t timeoutMs,
+                           bool * pSessionPresent );
 
 /**
  * @brief Sends MQTT SUBSCRIBE for the given list of topic filters to
@@ -224,10 +224,10 @@ MQTTStatus_t MQTT_Connect(MQTTContext_t* pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Subscribe(MQTTContext_t* pContext,
-    const MQTTSubscribeInfo_t* pSubscriptionList,
-    size_t subscriptionCount,
-    uint16_t packetId);
+MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
+                             const MQTTSubscribeInfo_t * pSubscriptionList,
+                             size_t subscriptionCount,
+                             uint16_t packetId );
 
 /**
  * @brief Publishes a message to the given topic name.
@@ -241,9 +241,9 @@ MQTTStatus_t MQTT_Subscribe(MQTTContext_t* pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Publish(MQTTContext_t* pContext,
-    const MQTTPublishInfo_t* pPublishInfo,
-    uint16_t packetId);
+MQTTStatus_t MQTT_Publish( MQTTContext_t * pContext,
+                           const MQTTPublishInfo_t * pPublishInfo,
+                           uint16_t packetId );
 
 /**
  * @brief Sends an MQTT PINGREQ to broker.
@@ -255,7 +255,7 @@ MQTTStatus_t MQTT_Publish(MQTTContext_t* pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Ping(MQTTContext_t* pContext);
+MQTTStatus_t MQTT_Ping( MQTTContext_t * pContext );
 
 /**
  * @brief Sends MQTT UNSUBSCRIBE for the given list of topic filters to
@@ -272,10 +272,10 @@ MQTTStatus_t MQTT_Ping(MQTTContext_t* pContext);
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Unsubscribe(MQTTContext_t* pContext,
-    const MQTTSubscribeInfo_t* pSubscriptionList,
-    size_t subscriptionCount,
-    uint16_t packetId);
+MQTTStatus_t MQTT_Unsubscribe( MQTTContext_t * pContext,
+                               const MQTTSubscribeInfo_t * pSubscriptionList,
+                               size_t subscriptionCount,
+                               uint16_t packetId );
 
 /**
  * @brief Disconnect an MQTT session.
@@ -288,7 +288,7 @@ MQTTStatus_t MQTT_Unsubscribe(MQTTContext_t* pContext,
  * #MQTTSendFailed if transport send failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Disconnect(MQTTContext_t* pContext);
+MQTTStatus_t MQTT_Disconnect( MQTTContext_t * pContext );
 
 /**
  * @brief Loop to receive packets from the transport interface. Handles keep
@@ -308,8 +308,8 @@ MQTTStatus_t MQTT_Disconnect(MQTTContext_t* pContext);
  * invalid transition for the internal state machine;
  * #MQTTSuccess on success.
  */
-MQTTStatus_t MQTT_ProcessLoop(MQTTContext_t* pContext,
-    uint32_t timeoutMs);
+MQTTStatus_t MQTT_ProcessLoop( MQTTContext_t * pContext,
+                               uint32_t timeoutMs );
 
 /**
  * @brief Loop to receive packets from the transport interface. Does not handle
@@ -329,8 +329,8 @@ MQTTStatus_t MQTT_ProcessLoop(MQTTContext_t* pContext,
  * invalid transition for the internal state machine;
  * #MQTTSuccess on success.
  */
-MQTTStatus_t MQTT_ReceiveLoop(MQTTContext_t* pContext,
-    uint32_t timeoutMs);
+MQTTStatus_t MQTT_ReceiveLoop( MQTTContext_t * pContext,
+                               uint32_t timeoutMs );
 
 /**
  * @brief Get a packet ID that is valid according to the MQTT 3.1.1 spec.
@@ -339,7 +339,7 @@ MQTTStatus_t MQTT_ReceiveLoop(MQTTContext_t* pContext,
  *
  * @return A non-zero number.
  */
-uint16_t MQTT_GetPacketId(MQTTContext_t* pContext);
+uint16_t MQTT_GetPacketId( MQTTContext_t * pContext );
 
 /**
  * @brief Error code to string conversion for MQTT statuses.
@@ -348,6 +348,6 @@ uint16_t MQTT_GetPacketId(MQTTContext_t* pContext);
  *
  * @return The string representation of the status.
  */
-const char* MQTT_Status_strerror(MQTTStatus_t status);
+const char * MQTT_Status_strerror( MQTTStatus_t status );
 
 #endif /* ifndef MQTT_H */
