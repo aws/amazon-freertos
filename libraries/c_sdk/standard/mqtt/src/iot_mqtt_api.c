@@ -44,9 +44,6 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
-/*MQTT v4_beta_2 library includes.*/
-#include "mqtt_config.h"
-
 /* Atomic operations. */
 #include "iot_atomic.h"
 

@@ -212,6 +212,8 @@ IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pC
 
     /* Null Check for connectInfo  */
     IotMqtt_Assert( pConnectInfo != NULL );
+    IotMqtt_Assert( pConnectPacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
 
     connectInfo.cleanSession = pConnectInfo->cleanSession;
     connectInfo.keepAliveSeconds = pConnectInfo->keepAliveSeconds;
@@ -278,6 +280,9 @@ IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket
 
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
 
+    IotMqtt_Assert( pDisconnectPacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
+
     /* Getting Disconnect packet size using MQTT V4_beta2 API*/
     managedMqttStatus = MQTT_GetDisconnectPacketSize( pPacketSize );
 
@@ -321,6 +326,11 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
     size_t i = 0;
     MQTTFixedBuffer_t networkBuffer;
     uint16_t packetId = 0;
+
+    IotMqtt_Assert( pSubscriptionList != NULL );
+    IotMqtt_Assert( pSubscribePacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
+    IotMqtt_Assert( pPacketIdentifier != NULL );
 
     for( i = 0; i < subscriptionCount; i++ )
     {
@@ -371,8 +381,8 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
 /*-----------------------------------------------------------*/
 
 /* Unsubscribe Serialize Wrapper*/
-IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t * pSubscriptionList,
-                                                     size_t subscriptionCount,
+IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t * pUnsubscriptionList,
+                                                     size_t unsubscriptionCount,
                                                      uint8_t ** pUnsubscribePacket,
                                                      size_t * pPacketSize,
                                                      uint16_t * pPacketIdentifier )
@@ -381,21 +391,26 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
 
     size_t remainingLength = 0UL;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
     size_t i = 0;
     uint16_t packetId = 0;
     MQTTFixedBuffer_t networkBuffer;
 
-    for( i = 0; i < subscriptionCount; i++ )
+    IotMqtt_Assert( pUnsubscriptionList != NULL );
+    IotMqtt_Assert( pUnsubscribePacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
+    IotMqtt_Assert( pPacketIdentifier != NULL );
+
+    for( i = 0; i < unsubscriptionCount; i++ )
     {
-        subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
-        subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
-        subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+        subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
+        subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
+        subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
     }
 
     /* Getting Unsubscribe packet size  using MQTT V4_beta2 API*/
     managedMqttStatus = MQTT_GetUnsubscribePacketSize( subscriptionList,
-                                                       subscriptionCount,
+                                                       unsubscriptionCount,
                                                        &remainingLength,
                                                        pPacketSize );
 
@@ -414,7 +429,7 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
 
         /*Serializing the Unsubscribe packet using MQTT V4_beta2 API*/
         managedMqttStatus = MQTT_SerializeUnsubscribe( subscriptionList,
-                                                       subscriptionCount,
+                                                       unsubscriptionCount,
                                                        packetId,
                                                        remainingLength,
                                                        &( networkBuffer ) );
@@ -451,6 +466,9 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
 
     /* Null Check for publishInfo  */
     IotMqtt_Assert( pPublishInfo != NULL );
+    IotMqtt_Assert( pPublishPacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
+    IotMqtt_Assert( pPacketIdentifier != NULL );
 
     publishInfo.retain = pPublishInfo->retain;
     publishInfo.pTopicName = pPublishInfo->pTopicName;
@@ -458,15 +476,7 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
     publishInfo.pPayload = pPublishInfo->pPayload;
     publishInfo.payloadLength = pPublishInfo->payloadLength;
     publishInfo.qos = ( MQTTQoS_t ) pPublishInfo->qos;
-
-    if( pPublishInfo->qos == IOT_MQTT_QOS_1 )
-    {
-        publishInfo.dup = true;
-    }
-    else
-    {
-        publishInfo.dup = false;
-    }
+    publishInfo.dup = false;
 
     /* Getting publish packet size  using MQTT V4_beta2 API*/
     managedMqttStatus = MQTT_GetPublishPacketSize( &publishInfo,
@@ -518,6 +528,9 @@ IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
 
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
 
+    IotMqtt_Assert( pPingreqPacket != NULL );
+    IotMqtt_Assert( pPacketSize != NULL );
+
     /* Getting pingrequest packet size  using MQTT V4_beta2 API*/
     managedMqttStatus = MQTT_GetPingreqPacketSize( pPacketSize );
 
@@ -561,7 +574,7 @@ IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack )
     pIncomingPacket.type = pConnack->type;
     pIncomingPacket.pRemainingData = pConnack->pRemainingData;
     pIncomingPacket.remainingLength = pConnack->remainingLength;
-    /*Deserializing Connack packet received from the netwok*/
+    /*Deserializing Connack packet received from the network*/
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pConnack->packetIdentifier ), &sessionPresent );
     status = convertReturnCode( managedMqttStatus );
     return status;
@@ -582,7 +595,7 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
     pIncomingPacket.type = pSuback->type;
     pIncomingPacket.pRemainingData = pSuback->pRemainingData;
     pIncomingPacket.remainingLength = pSuback->remainingLength;
-    /*Deserializing SUBACK packet received from the netwok*/
+    /*Deserializing SUBACK packet received from the network*/
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pSuback->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
     return status;
@@ -603,7 +616,7 @@ IotMqttError_t _IotMqtt_deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
     pIncomingPacket.type = pUnsuback->type;
     pIncomingPacket.pRemainingData = pUnsuback->pRemainingData;
     pIncomingPacket.remainingLength = pUnsuback->remainingLength;
-    /*Deserializing UNSUBACK packet received from the netwok*/
+    /*Deserializing UNSUBACK packet received from the network*/
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pUnsuback->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
 
@@ -625,7 +638,7 @@ IotMqttError_t _IotMqtt_deserializePubackWrapper( _mqttPacket_t * pPuback )
     pIncomingPacket.type = pPuback->type;
     pIncomingPacket.pRemainingData = pPuback->pRemainingData;
     pIncomingPacket.remainingLength = pPuback->remainingLength;
-    /*Deserializing PUBACK packet received from the netwok*/
+    /*Deserializing PUBACK packet received from the network*/
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pPuback->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
     return status;
@@ -646,7 +659,7 @@ IotMqttError_t _IotMqtt_deserializePingrespWrapper( _mqttPacket_t * pPingresp )
     pIncomingPacket.type = pPingresp->type;
     pIncomingPacket.pRemainingData = pPingresp->pRemainingData;
     pIncomingPacket.remainingLength = pPingresp->remainingLength;
-    /*Deserializing PINGRESP packet received from the netwok*/
+    /*Deserializing PINGRESP packet received from the network*/
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pPingresp->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
     return status;
@@ -670,7 +683,7 @@ IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish )
     pIncomingPacket.remainingLength = pPublish->remainingLength;
 
 
-    /*DeSerializing publish packet received from the netwok*/
+    /*DeSerializing publish packet received from the network*/
     managedMqttStatus = MQTT_DeserializePublish( &pIncomingPacket, &( pPublish->packetIdentifier ), &publishInfo );
 
     status = convertReturnCode( managedMqttStatus );
@@ -700,12 +713,15 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
     MQTTFixedBuffer_t networkBuffer;
     uint8_t packetTypeByte = MQTT_PACKET_TYPE_PUBACK;
 
+    IotMqtt_Assert( pPacketSize != NULL );
+    IotMqtt_Assert( pPubackPacket != NULL );
+
     /* Initializing network buffer*/
     networkBuffer.pBuffer = IotMqtt_MallocMessage( MQTT_PACKET_PUBACK_SIZE );
     networkBuffer.size = MQTT_PACKET_PUBACK_SIZE;
     *pPacketSize = MQTT_PACKET_PUBACK_SIZE;
 
-    /*Serializing puback packet to be sent on the netwok*/
+    /*Serializing puback packet to be sent on the network*/
     status = MQTT_SerializeAck( &( networkBuffer ),
                                 packetTypeByte,
                                 packetIdentifier );
