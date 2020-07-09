@@ -47,6 +47,6 @@
 #define testrunnerFULL_BLE_ENABLED                     0
 #define testrunnerFULL_SERIALIZER_ENABLED              0
 #define testrunnerFULL_LINEAR_CONTAINERS_ENABLED       0
-#define testrunnerFULL_COMMON_IO_ENABLED               0
+#define testrunnerFULL_COMMON_IO_ENABLED               1
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

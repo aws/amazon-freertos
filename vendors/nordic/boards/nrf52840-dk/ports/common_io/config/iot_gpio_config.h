@@ -37,8 +37,8 @@
 
 #define IOT_COMMON_IO_GPIO_PIN_MAP \
 {                                  \
-    NRF_GPIO_PIN_MAP(1, 8),        \
-    NRF_GPIO_PIN_MAP(1, 9)         \
+    NRF_GPIO_PIN_MAP(1, 7),        \
+    NRF_GPIO_PIN_MAP(1, 8)         \
 }
 
 

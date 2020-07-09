@@ -481,6 +481,7 @@
             <file file_name="../../../../../libraries/abstractions/common_io/test/iot_test_common_io.c" />
             <file file_name="../../../../../libraries/abstractions/common_io/test/test_iot_spi.c" />
             <file file_name="../../../../../libraries/abstractions/common_io/test/iot_test_common_io_internal.h" />
+            <file file_name="../../../../../libraries/abstractions/common_io/test/test_iot_gpio.c" />
           </folder>
         </folder>
       </folder>
