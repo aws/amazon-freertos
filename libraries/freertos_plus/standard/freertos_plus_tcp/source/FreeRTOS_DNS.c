@@ -1030,40 +1030,38 @@ size_t uxIndex = 0U;
 }
 /*-----------------------------------------------------------*/
 
-#if( ( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 ) )
-	/* The function below will only be called :
-	when ipconfigDNS_USE_CALLBACKS == 1
-	when ipconfigUSE_LLMNR == 1
-	for testing purposes, by the module iot_test_freertos_tcp.c
-	*/
-	uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer )
+/* The function below will only be called :
+when ipconfigDNS_USE_CALLBACKS == 1
+when ipconfigUSE_LLMNR == 1
+for testing purposes, by the module iot_test_freertos_tcp.c
+*/
+uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer )
+{
+DNSMessage_t *pxDNSMessageHeader;
+size_t uxPayloadSize;
+
+	/* Only proceed if the payload length indicated in the header
+	appears to be valid. */
+	if( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
 	{
-	DNSMessage_t *pxDNSMessageHeader;
-	size_t uxPayloadSize;
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
-		/* Only proceed if the payload length indicated in the header
-		appears to be valid. */
-		if( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
+		if( uxPayloadSize >= sizeof( DNSMessage_t ) )
 		{
-			uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+			pxDNSMessageHeader =
+				ipPOINTER_CAST( DNSMessage_t *, &( pxNetworkBuffer->pucEthernetBuffer [ sizeof( UDPPacket_t ) ] ) );
 
-			if( uxPayloadSize >= sizeof( DNSMessage_t ) )
-			{
-				pxDNSMessageHeader =
-					ipPOINTER_CAST( DNSMessage_t *, &( pxNetworkBuffer->pucEthernetBuffer [ sizeof( UDPPacket_t ) ] ) );
-
-				/* The parameter pdFALSE indicates that the reply was not expected. */
-				( void ) prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
-					uxPayloadSize,
-					pdFALSE );
-			}
+			/* The parameter pdFALSE indicates that the reply was not expected. */
+			( void ) prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
+				uxPayloadSize,
+				pdFALSE );
 		}
-
-		/* The packet was not consumed. */
-		return pdFAIL;
 	}
+
+	/* The packet was not consumed. */
+	return pdFAIL;
+}
 /*-----------------------------------------------------------*/
-#endif
 
 #if( ipconfigUSE_NBNS == 1 )
 
