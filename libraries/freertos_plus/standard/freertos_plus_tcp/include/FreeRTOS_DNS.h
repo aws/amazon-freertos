@@ -63,10 +63,12 @@ extern "C" {
 	extern BaseType_t xApplicationDNSQueryHook( const char *pcName );
 #endif	/* ( ipconfigUSE_LLMNR == 1 ) || ( ipconfigUSE_NBNS == 1 ) */
 
-/*
- * LLMNR is very similar to DNS, so is handled by the DNS routines.
- */
-uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer );
+#if( ( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 ) )
+	/*
+	 * LLMNR is very similar to DNS, so is handled by the DNS routines.
+	 */
+	uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer );
+#endif
 
 #if( ipconfigUSE_LLMNR == 1 )
 	/* The LLMNR MAC address is 01:00:5e:00:00:fc */
