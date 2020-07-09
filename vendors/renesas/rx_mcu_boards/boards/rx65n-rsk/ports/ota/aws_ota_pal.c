@@ -89,6 +89,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
 /*------------------------------------------ firmware update configuration (start) --------------------------------------------*/
 /* R_FLASH_Write() arguments: specify "low address" and process to "high address" */
+
 #if defined (BSP_MCU_RX65N) || (BSP_MCU_RX651) && (FLASH_CFG_CODE_FLASH_BGO == 1) && (BSP_CFG_MCU_PART_MEMORY_SIZE == 0xe)            /* OTA supported device */
 /*------------------------------------------ firmware update configuration (start) --------------------------------------------*/
 /* R_FLASH_Write() arguments: specify "low address" and process to "high address" */
