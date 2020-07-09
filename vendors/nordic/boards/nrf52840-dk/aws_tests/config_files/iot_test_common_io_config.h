@@ -34,7 +34,7 @@
 #include "nrf_drv_spi.h"
 
 /*------------------------GPIO-------------------------------*/
-#define IOT_TEST_COMMON_IO_GPIO_SUPPORTED       IOT_COMMON_IO_GPIO_NUMBER_OF_PINS
+#define IOT_TEST_COMMON_IO_GPIO_SUPPORTED    0
 
 /*------------------------UART-------------------------------*/
 

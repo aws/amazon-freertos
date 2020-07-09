@@ -127,7 +127,7 @@ TEST_GROUP_RUNNER( TEST_IOT_GPIO )
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioMode );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioPull );
     /* We don't have a CommonIO perfcounter to use....yet!*/
-    //RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioSpeed );
+    /*RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioSpeed ); */
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOperation );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseFuzz );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioReadWriteSyncFuzz );

@@ -37,7 +37,7 @@
         ltestIotGpioPortA = testSet - 1;
         ltestIotGpioPortB = testSet;
 
-        ustestIotGpioConfig = 1u << 8; // TEST_DIR_MASK
+        ustestIotGpioConfig = 1u << 8; /* TEST_DIR_MASK */
     }
 
 #endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */

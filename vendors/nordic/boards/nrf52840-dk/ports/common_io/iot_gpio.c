@@ -25,10 +25,10 @@
 
 /**
  * @file iot_gpio.c
- * @brief HAL GPIO implementation on NRF52840 Development Kit. Note, CommonIO GPIO pin-index-space 
+ * @brief HAL GPIO implementation on NRF52840 Development Kit. Note, CommonIO GPIO pin-index-space
  *        is separate from board-specific pin index space. User is expected to provide a 1-to-1 mapping
  *        between these spaces.
- *        
+ *
  */
 
 #include "FreeRTOS.h"
@@ -45,43 +45,42 @@
 #include "iot_logging_task.h"
 
 /* Note, this depends on logging task being created and running */
-#define IOT_GPIO_LOGGING_ENABLED 0
-#define IOT_GPIO_MODULE_NAME    "[CommonIO][GPIO]"
-#if (IOT_GPIO_LOGGING_ENABLED == 1)
-    #define IOT_GPIO_LOGF(format, ...) vLoggingPrintf(IOT_GPIO_MODULE_NAME format, __VA_ARGS__)
-    #define IOT_GPIO_LOG(msg)          vLoggingPrintf(IOT_GPIO_MODULE_NAME msg)
+#if ( IOT_GPIO_LOGGING_ENABLED == 1 )
+    #define IOT_GPIO_MODULE_NAME    "[CommonIO][GPIO]"
+    #define IOT_GPIO_LOGF( format, ... )    vLoggingPrintf( IOT_GPIO_MODULE_NAME format, __VA_ARGS__ )
+    #define IOT_GPIO_LOG( msg )             vLoggingPrintf( IOT_GPIO_MODULE_NAME msg )
 #else
-    #define IOT_GPIO_LOGF(format, ...) 
-    #define IOT_GPIO_LOG(msg) 
+    #define IOT_GPIO_LOGF( format, ... )
+    #define IOT_GPIO_LOG( msg )
 #endif
 
 
-#define IOT_GPIO_CLOSED              ( ( uint8_t ) 0 )
-#define IOT_GPIO_OPENED              ( ( uint8_t ) 1 )
+#define IOT_GPIO_CLOSED    ( ( uint8_t ) 0 )
+#define IOT_GPIO_OPENED    ( ( uint8_t ) 1 )
 
-#define DEFAULT_GPIO_DESCRIPTOR                   \
-{                                                 \
-      .lGpioNumber = -1,                          \
-      .xConfig =                                  \
-      {                                           \
-          .xDirection     = eGpioDirectionInput,  \
-          .xOutMode       = eGpioPushPull,        \
-          .lDriveStrength = NRF_GPIO_PIN_S0S1,    \
-          .xPull          = eGpioPullNone,        \
-          .xInterruptMode = eGpioInterruptNone    \
-      },                                          \
-      .xUserCallback = NULL,                      \
-      .pvUserContext = NULL,                      \
-      .ucState       = IOT_GPIO_CLOSED            \
-}
+#define DEFAULT_GPIO_DESCRIPTOR                    \
+    {                                              \
+        .lGpioNumber = -1,                         \
+        .xConfig =                                 \
+        {                                          \
+            .xDirection     = eGpioDirectionInput, \
+            .xOutMode       = eGpioPushPull,       \
+            .lDriveStrength = NRF_GPIO_PIN_S0S1,   \
+            .xPull          = eGpioPullNone,       \
+            .xInterruptMode = eGpioInterruptNone   \
+        },                                         \
+        .xUserCallback = NULL,                     \
+        .pvUserContext = NULL,                     \
+        .ucState = IOT_GPIO_CLOSED                 \
+    }
 
-typedef struct 
+typedef struct
 {
-    IotGpioDirection_t  xDirection;
+    IotGpioDirection_t xDirection;
     IotGpioOutputMode_t xOutMode;
-    int32_t             lDriveStrength;
-    IotGpioPull_t       xPull;
-    IotGpioInterrupt_t  xInterruptMode;
+    int32_t lDriveStrength;
+    IotGpioPull_t xPull;
+    IotGpioInterrupt_t xInterruptMode;
 } IotGpioConfig_t;
 
 /**
@@ -89,11 +88,11 @@ typedef struct
  */
 typedef struct IotGpioDescriptor
 {
-    int32_t             lGpioNumber;
-    IotGpioConfig_t     xConfig;
-    IotGpioCallback_t   xUserCallback;
-    void *              pvUserContext;
-    uint8_t             ucState;
+    int32_t lGpioNumber;
+    IotGpioConfig_t xConfig;
+    IotGpioCallback_t xUserCallback;
+    void * pvUserContext;
+    uint8_t ucState;
 } IotGpioDescriptor_t;
 
 /*
@@ -106,52 +105,53 @@ static IotGpioDescriptor_t pxGpioDesc[ IOT_COMMON_IO_GPIO_NUMBER_OF_PINS ];
 
 
 /*---------------------------------------------------------------------------------*
- *                                Private Helpers                                  *
- *---------------------------------------------------------------------------------*/
- 
- /*
+*                                Private Helpers                                  *
+*---------------------------------------------------------------------------------*/
+
+/*
  * @brief   Used to validate whether a CommonIO pin index is a valid argument for iot_gpio_open.
  *          This lGpioNumber will be used to index xGpioDesc and plGpioMap.
- * 
+ *
  * @param[in] lGpioNumber CommonIO pin index to validate
  *
  * @return    true if pin is okay to use with iot_gpio_open, else false
  */
 bool prvIsValidPinIndex( int32_t lGpioNumber )
 {
-    int32_t ulNumberOfMappings = sizeof(plGpioMap) == 0 ? 0 : sizeof(plGpioMap) / sizeof(plGpioMap[0]);
-           
-    return  ( ulNumberOfMappings  > 0 ) &&
-            ( ulNumberOfMappings == IOT_COMMON_IO_GPIO_NUMBER_OF_PINS ) &&
-            ( 0 <= lGpioNumber && lGpioNumber < ulNumberOfMappings);
+    int32_t ulNumberOfMappings = sizeof( plGpioMap ) == 0 ? 0 : sizeof( plGpioMap ) / sizeof( plGpioMap[ 0 ] );
+
+    return ( ulNumberOfMappings > 0 ) &&
+           ( ulNumberOfMappings == IOT_COMMON_IO_GPIO_NUMBER_OF_PINS ) &&
+           ( 0 <= lGpioNumber && lGpioNumber < ulNumberOfMappings );
 }
 
 
- /*
+/*
  * @brief   Used as a first-order check by all API functions that take a IotGpioHandle_t
- * 
+ *
  * @param[in] pxGpio  IotGpioHandle_t to validate
  *
  * @return    true if handle is available for API interface
- * 
+ *
  */
 bool prvIsValidHandle( IotGpioHandle_t const pxGpio )
 {
     return pxGpio != NULL && pxGpio->ucState == IOT_GPIO_OPENED;
 }
 
- /*
+/*
  * @brief   Maps CommonIO Drive mode settin to correspnding HAL setting.
- * 
+ *
  * @param[in] xOutMode      CommonIO setting to map to HAL setting
  * @param{in] xOutMode_NRF  Address to store board HAL specific value hat corresponds with xOutMode
  *
  * @return    true if the xOutMode is within range of valid HAL settings and could map
- * 
+ *
  */
-bool prvGetOutModeForHAL( IotGpioOutputMode_t xOutMode, nrf_gpio_pin_drive_t *xOutMode_NRF)
+bool prvGetOutModeForHAL( IotGpioOutputMode_t xOutMode,
+                          nrf_gpio_pin_drive_t * xOutMode_NRF )
 {
-    switch(xOutMode)
+    switch( xOutMode )
     {
         case eGpioOpenDrain:
             *xOutMode_NRF = NRF_GPIO_PIN_S0D1;
@@ -167,10 +167,11 @@ bool prvGetOutModeForHAL( IotGpioOutputMode_t xOutMode, nrf_gpio_pin_drive_t *xO
 
     return true;
 }
- 
-bool prvGetDriveStrengthForHAL( int32_t lDriveStrength, nrf_gpio_pin_drive_t *lDriveStrength_NRF)
+
+bool prvGetDriveStrengthForHAL( int32_t lDriveStrength,
+                                nrf_gpio_pin_drive_t * lDriveStrength_NRF )
 {
-    switch(lDriveStrength)
+    switch( lDriveStrength )
     {
         case NRF_GPIO_PIN_S0S1:
         case NRF_GPIO_PIN_H0S1:
@@ -190,9 +191,10 @@ bool prvGetDriveStrengthForHAL( int32_t lDriveStrength, nrf_gpio_pin_drive_t *lD
     return true;
 }
 
-bool prvGetPullForHAL( IotGpioPull_t xPull, nrf_gpio_pin_pull_t *xPull_NRF)
+bool prvGetPullForHAL( IotGpioPull_t xPull,
+                       nrf_gpio_pin_pull_t * xPull_NRF )
 {
-    switch(xPull)
+    switch( xPull )
     {
         case eGpioPullNone:
             *xPull_NRF = NRF_GPIO_PIN_NOPULL;
@@ -213,35 +215,37 @@ bool prvGetPullForHAL( IotGpioPull_t xPull, nrf_gpio_pin_pull_t *xPull_NRF)
     return true;
 }
 
-int32_t prvGetInterruptModeForHAL( IotGpioInterrupt_t xInterrupt, nrf_drv_gpiote_in_config_t *xInterruptConfig_NRF )
+int32_t prvGetInterruptModeForHAL( IotGpioInterrupt_t xInterrupt,
+                                   nrf_drv_gpiote_in_config_t * xInterruptConfig_NRF )
 {
     int32_t lReturnCode = IOT_GPIO_SUCCESS;
-    switch(xInterrupt)
+
+    switch( xInterrupt )
     {
         case eGpioInterruptNone:
             break;
 
         case eGpioInterruptRising:
-            *xInterruptConfig_NRF = (nrf_drv_gpiote_in_config_t)GPIOTE_CONFIG_IN_SENSE_LOTOHI(true);
+            *xInterruptConfig_NRF = ( nrf_drv_gpiote_in_config_t ) GPIOTE_CONFIG_IN_SENSE_LOTOHI( true );
             break;
 
         case eGpioInterruptFalling:
-            *xInterruptConfig_NRF = (nrf_drv_gpiote_in_config_t)GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+            *xInterruptConfig_NRF = ( nrf_drv_gpiote_in_config_t ) GPIOTE_CONFIG_IN_SENSE_HITOLO( true );
             break;
 
         case eGpioInterruptEdge:
-            *xInterruptConfig_NRF = (nrf_drv_gpiote_in_config_t)GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
+            *xInterruptConfig_NRF = ( nrf_drv_gpiote_in_config_t ) GPIOTE_CONFIG_IN_SENSE_TOGGLE( true );
             break;
-      
-        /* GPIOTE lib doesn't provide a way to do this it's edge based. We, or the user, could implement 
+
+        /* GPIOTE lib doesn't provide a way to do this it's edge based. We, or the user, could implement
          * similar behaviour by using eGpioInterruptEdge, entering a loop once desired hi/low value achieved,
          * and reamining in loop until another toggle.
          */
         case eGpioInterruptLow:
         case eGpioInterruptHigh:
             lReturnCode = IOT_GPIO_FUNCTION_NOT_SUPPORTED;
-            IOT_GPIO_LOG("Warning: This board does not support level-based interrupts.\r\n"
-                         "        Similar behaviour can be implemented only using edge-based interrupts\r\n");
+            IOT_GPIO_LOG( " Warning: This board does not support level-based interrupts.\r\n"
+                          "        Similar behaviour can be implemented only using edge-based interrupts\r\n" );
             break;
 
         default:
@@ -252,154 +256,154 @@ int32_t prvGetInterruptModeForHAL( IotGpioInterrupt_t xInterrupt, nrf_drv_gpiote
     return lReturnCode;
 }
 
- /*
+/*
  * @brief   This event handler gets installed for all gpiote
- *          then calls appropriate user callback. Pin mapping is one-directional O(1). 
- *          Order of pins is typically small, so we just 
+ *          then calls appropriate user callback. Pin mapping is one-directional O(1).
+ *          Order of pins is typically small, so we just
  *          to a linear search to match nrf-pin --> common-io pin
- * 
+ *
  * @param[in] xPin  nrf pin index that had a event triggered.
  * @param[in] xPolarity  edge type that triggered the event
- * 
+ *
  */
-void prvPinEventHandler( nrfx_gpiote_pin_t xPin, nrf_gpiote_polarity_t xPolarity )
+void prvPinEventHandler( nrfx_gpiote_pin_t xPin,
+                         nrf_gpiote_polarity_t xPolarity )
 {
     IotGpioHandle_t pxGpio = NULL;
-    for (int i=0; i<IOT_COMMON_IO_GPIO_NUMBER_OF_PINS; i++)
+
+    for( int i = 0; i < IOT_COMMON_IO_GPIO_NUMBER_OF_PINS; i++ )
     {
-        if (plGpioMap[pxGpioDesc[i].lGpioNumber] == xPin)
+        if( plGpioMap[ pxGpioDesc[ i ].lGpioNumber ] == xPin )
         {
-            pxGpio = &pxGpioDesc[i];
+            pxGpio = &pxGpioDesc[ i ];
             break;
         }
     }
 
-    /* If we are to ever add warnings, it would make sense to log a warnign if we reach this code while
-     * while pxGpio->xInterruptMode == eGpioInterruptNone
-     */
-    if (pxGpio == NULL || pxGpio->xUserCallback == NULL || pxGpio->xConfig.xInterruptMode == eGpioInterruptNone)
+    if( ( pxGpio != NULL ) && ( pxGpio->xUserCallback != NULL ) && ( pxGpio->xConfig.xInterruptMode != eGpioInterruptNone ) )
     {
-        return;
+        pxGpio->xUserCallback( nrf_gpio_pin_read( xPin ), pxGpio->pvUserContext );
     }
-    else
-    {
-        pxGpio->xUserCallback(nrf_gpio_pin_read(xPin), pxGpio->pvUserContext);
-    }
-
 }
 
- /*
+/*
  * @brief   Configures a board pin as input, mapping CommonIO settings to board HAL settings.
- *          Assumes higher-level API verify parameters before making this call. This should only be called by 
+ *          Assumes higher-level API verify parameters before making this call. This should only be called by
  *          prvConfigurePin, which takes care of updating pxGpio with new settings after success
- * 
+ *
  * @param[in] pxGpio  Handle with settings to apply to input pin
  * @param[in] pxNewConfig  Tentative new settings for pxGpio
- * 
+ *
  */
-int32_t prvConfigureInputPin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *pxNewConfig)
+int32_t prvConfigureInputPin( IotGpioHandle_t const pxGpio,
+                              IotGpioConfig_t * pxNewConfig )
 {
     /* Validate and map all CommonIO settings to NRF HAL settings */
-    nrf_gpio_pin_pull_t  xPull_NRF;
+    nrf_gpio_pin_pull_t xPull_NRF;
     nrf_gpio_pin_drive_t xDrive_NRF;
-    if (!prvGetPullForHAL(pxNewConfig->xPull, &xPull_NRF) ||
-        !prvGetDriveStrengthForHAL(pxNewConfig->lDriveStrength, &xDrive_NRF))
+
+    if( !prvGetPullForHAL( pxNewConfig->xPull, &xPull_NRF ) ||
+        !prvGetDriveStrengthForHAL( pxNewConfig->lDriveStrength, &xDrive_NRF ) )
     {
         return IOT_GPIO_INVALID_VALUE;
     }
 
     nrf_drv_gpiote_in_config_t xGpioteConfig_NRF;
-    int32_t lInterruptConfigStatus = prvGetInterruptModeForHAL(pxNewConfig->xInterruptMode, &xGpioteConfig_NRF);
-    if (lInterruptConfigStatus != IOT_GPIO_SUCCESS)
+    int32_t lInterruptConfigStatus = prvGetInterruptModeForHAL( pxNewConfig->xInterruptMode, &xGpioteConfig_NRF );
+
+    if( lInterruptConfigStatus != IOT_GPIO_SUCCESS )
     {
         /* There are some interrupt settings that we don't currently support */
         return lInterruptConfigStatus;
     }
 
     /* Apply pin settings first. GPIOTE is set to skip alteration of drive and pull settings */
-    nrf_gpio_cfg_input(plGpioMap[pxGpio->lGpioNumber], xPull_NRF);
-  
+    nrf_gpio_cfg_input( plGpioMap[ pxGpio->lGpioNumber ], xPull_NRF );
+
     /* Apply new gpiote settings, or leave it unset if new setting has interrupts disabled */
-    if (pxGpio->xConfig.xInterruptMode != eGpioInterruptNone)
+    if( pxGpio->xConfig.xInterruptMode != eGpioInterruptNone )
     {
-        nrf_drv_gpiote_in_uninit(plGpioMap[pxGpio->lGpioNumber]);
+        nrf_drv_gpiote_in_uninit( plGpioMap[ pxGpio->lGpioNumber ] );
     }
 
-    if (pxNewConfig->xInterruptMode != eGpioInterruptNone )
+    if( pxNewConfig->xInterruptMode != eGpioInterruptNone )
     {
-        /* Initialize gpiote modules if necessary */
-        if (!nrf_drv_gpiote_is_init())
+        if( !nrf_drv_gpiote_is_init() )
         {
             nrf_drv_gpiote_init();
         }
-        
-        ret_code_t xReturnCode_NRF = nrf_drv_gpiote_in_init(plGpioMap[pxGpio->lGpioNumber],
-                                                            &xGpioteConfig_NRF,
-                                                            prvPinEventHandler);
 
-        switch (xReturnCode_NRF)
+        ret_code_t xReturnCode_NRF = nrf_drv_gpiote_in_init( plGpioMap[ pxGpio->lGpioNumber ],
+                                                             &xGpioteConfig_NRF,
+                                                             prvPinEventHandler );
+
+        /* Additional checks for logging */
+        switch( xReturnCode_NRF )
         {
             case NRF_SUCCESS:
-                nrf_drv_gpiote_in_event_enable(plGpioMap[pxGpio->lGpioNumber], true);
+                nrf_drv_gpiote_in_event_enable( plGpioMap[ pxGpio->lGpioNumber ], true );
                 return IOT_GPIO_SUCCESS;
-            
+
             case NRFX_ERROR_INVALID_STATE:
-                IOT_GPIO_LOG("Board Error: GPIOTE modules is either already initialized or in a corrupt state\r\n");
+                IOT_GPIO_LOG( " Board Error: GPIOTE modules is either already initialized or in a corrupt state\r\n" );
                 break;
 
             case NRFX_ERROR_NO_MEM:
-                IOT_GPIO_LOGF("Board Error: No memory left to setup interrupt channel for nrf pin[%d]\r\n", 
-                              plGpioMap[pxGpio->lGpioNumber]);
+                IOT_GPIO_LOGF( " Board Error: No memory left to setup interrupt channel for nrf pin[%d]\r\n",
+                               plGpioMap[ pxGpio->lGpioNumber ] );
                 break;
+
             default:
-                IOT_GPIO_LOGF("Board Error: Unknown internal failure. nrf_drv_gpiote_in_init(...) returned %d\r\n", 
-                             xReturnCode_NRF);
+                IOT_GPIO_LOGF( " Board Error: Unknown internal failure. nrf_drv_gpiote_in_init(...) returned %d\r\n",
+                               xReturnCode_NRF );
                 break;
         }
 
         return IOT_GPIO_INVALID_VALUE;
     }
-    
+
     return IOT_GPIO_SUCCESS;
 }
 
- /*
+/*
  * @brief   Configures a board pin as output, mapping CommonIO settings to board HAL settings.
  *          Assumes higher-level API verify parameters before making this call.
- * 
- * @note    Output pins have no regard of interrupt mode and will not trigger a callback 
- * 
+ *
+ * @note    Output pins have no regard of interrupt mode and will not trigger a callback
+ *
  * @param[in] pxGpio  Handle with settings to apply to output pin
  * @param[in] pxNewConfig  Tentative new settings for pxGpio
- * 
+ *
  */
-int32_t prvConfigureOutputPin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *pxNewConfig)
+int32_t prvConfigureOutputPin( IotGpioHandle_t const pxGpio,
+                               IotGpioConfig_t * pxNewConfig )
 {
     int32_t lReturnCode = IOT_GPIO_INVALID_VALUE;
 
     /* Validate CommonIO settings and map to corresponding HAL settings */
-    nrf_gpio_pin_pull_t  xPull_NRF;
-    bool bValid = prvGetPullForHAL(pxNewConfig->xPull, &xPull_NRF);
-    
+    nrf_gpio_pin_pull_t xPull_NRF;
+    bool bValid = prvGetPullForHAL( pxNewConfig->xPull, &xPull_NRF );
+
     nrf_gpio_pin_drive_t xDrive_NRF;
-    if (pxNewConfig->xOutMode == eGpioOpenDrain)
+
+    if( pxNewConfig->xOutMode == eGpioOpenDrain )
     {
         xDrive_NRF = NRF_GPIO_PIN_S0D1;
     }
     else
     {
-        bValid &= prvGetDriveStrengthForHAL( pxNewConfig->lDriveStrength, &xDrive_NRF);
+        bValid &= prvGetDriveStrengthForHAL( pxNewConfig->lDriveStrength, &xDrive_NRF );
     }
 
     /* Only if inputs are valid and were mapped do we then configure the pin */
-    if (bValid)
+    if( bValid )
     {
-        nrf_gpio_cfg(plGpioMap[pxGpio->lGpioNumber],
-                     NRF_GPIO_PIN_DIR_OUTPUT,
-                     NRF_GPIO_PIN_INPUT_DISCONNECT,
-                     xPull_NRF,
-                     xDrive_NRF,
-                     NRF_GPIO_PIN_NOSENSE);
+        nrf_gpio_cfg( plGpioMap[ pxGpio->lGpioNumber ],
+                      NRF_GPIO_PIN_DIR_OUTPUT,
+                      NRF_GPIO_PIN_INPUT_DISCONNECT,
+                      xPull_NRF,
+                      xDrive_NRF,
+                      NRF_GPIO_PIN_NOSENSE );
 
         lReturnCode = IOT_GPIO_SUCCESS;
     }
@@ -407,26 +411,27 @@ int32_t prvConfigureOutputPin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *px
     return lReturnCode;
 }
 
- /*
+/*
  * @brief   Configures board HAL parameters according to settings of pxGpio, then configures
  *          via board HAL.
- * 
+ *
  * @param[in] pxGpio  Handle which will have settings applied to board pin
  * @param[in] pxNewConfig  Tentative new settings for pxGpio
- * 
+ *
  */
-int32_t prvConfigurePin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *pxNewConfig)
+int32_t prvConfigurePin( IotGpioHandle_t const pxGpio,
+                         IotGpioConfig_t * pxNewConfig )
 {
     int32_t lReturnCode = IOT_GPIO_INVALID_VALUE;
 
-    switch(pxNewConfig->xDirection)
+    switch( pxNewConfig->xDirection )
     {
         case eGpioDirectionInput:
-            lReturnCode = prvConfigureInputPin(pxGpio, pxNewConfig);
+            lReturnCode = prvConfigureInputPin( pxGpio, pxNewConfig );
             break;
 
         case eGpioDirectionOutput:
-            lReturnCode = prvConfigureOutputPin(pxGpio, pxNewConfig);
+            lReturnCode = prvConfigureOutputPin( pxGpio, pxNewConfig );
             break;
 
         default:
@@ -434,7 +439,7 @@ int32_t prvConfigurePin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *pxNewCon
             break;
     }
 
-    if (lReturnCode == IOT_GPIO_SUCCESS)
+    if( lReturnCode == IOT_GPIO_SUCCESS )
     {
         /* Update was successful, update descriptor to reflect new settings */
         pxGpio->xConfig = *pxNewConfig;
@@ -444,45 +449,44 @@ int32_t prvConfigurePin( IotGpioHandle_t const pxGpio, IotGpioConfig_t *pxNewCon
 }
 
 /*---------------------------------------------------------------------------------*
- *                               API Implementation                                *
- *---------------------------------------------------------------------------------*/
+*                               API Implementation                                *
+*---------------------------------------------------------------------------------*/
 
 IotGpioHandle_t iot_gpio_open( int32_t lGpioNumber )
 {
-    if ( !prvIsValidPinIndex(lGpioNumber) ) 
+    if( !prvIsValidPinIndex( lGpioNumber ) )
     {
-        IOT_GPIO_LOGF("Incorrect pin index[%d]. Please verify IOT_COMMON_IO_GPIO_PIN_MAP\r\n",
-                      lGpioNumber);
+        IOT_GPIO_LOGF( " Incorrect pin index[%d]. Please verify IOT_COMMON_IO_GPIO_PIN_MAP\r\n",
+                       lGpioNumber );
         return NULL;
     }
 
-    if ( pxGpioDesc[lGpioNumber].ucState != IOT_GPIO_CLOSED )
+    if( pxGpioDesc[ lGpioNumber ].ucState != IOT_GPIO_CLOSED )
     {
         return NULL;
     }
 
     /* Configure pin to default settings. */
-    IotGpioHandle_t pxGpio = &pxGpioDesc[lGpioNumber];
-    *pxGpio = (IotGpioDescriptor_t)DEFAULT_GPIO_DESCRIPTOR;
-    
-    if (IOT_GPIO_SUCCESS == prvConfigurePin(pxGpio, &pxGpio->xConfig))
+    IotGpioHandle_t pxGpio = &pxGpioDesc[ lGpioNumber ];
+    *pxGpio = ( IotGpioDescriptor_t ) DEFAULT_GPIO_DESCRIPTOR;
+
+    if( IOT_GPIO_SUCCESS == prvConfigurePin( pxGpio, &pxGpio->xConfig ) )
     {
         /* Claim descriptor */
         pxGpio->lGpioNumber = lGpioNumber;
         pxGpio->ucState = IOT_GPIO_OPENED;
 
         return pxGpio;
-    } 
+    }
 
     return NULL;
-
 }
 
 void iot_gpio_set_callback( IotGpioHandle_t const pxGpio,
                             IotGpioCallback_t xGpioCallback,
                             void * pvUserContext )
 {
-    if ( !prvIsValidHandle(pxGpio) || xGpioCallback == NULL )
+    if( !prvIsValidHandle( pxGpio ) || ( xGpioCallback == NULL ) )
     {
         return;
     }
@@ -495,13 +499,13 @@ void iot_gpio_set_callback( IotGpioHandle_t const pxGpio,
 int32_t iot_gpio_read_sync( IotGpioHandle_t const pxGpio,
                             uint8_t * pucPinState )
 {
-    if ( !prvIsValidHandle(pxGpio) || pxGpio->xConfig.xDirection != eGpioDirectionInput )
+    if( !prvIsValidHandle( pxGpio ) || ( pxGpio->xConfig.xDirection != eGpioDirectionInput ) )
     {
         return IOT_GPIO_INVALID_VALUE;
     }
 
-    *pucPinState = nrf_gpio_pin_read(plGpioMap[pxGpio->lGpioNumber]);
-   
+    *pucPinState = nrf_gpio_pin_read( plGpioMap[ pxGpio->lGpioNumber ] );
+
     return IOT_GPIO_SUCCESS;
 }
 
@@ -509,33 +513,34 @@ int32_t iot_gpio_read_sync( IotGpioHandle_t const pxGpio,
 int32_t iot_gpio_write_sync( IotGpioHandle_t const pxGpio,
                              uint8_t ucPinState )
 {
-    if ( !prvIsValidHandle(pxGpio) || pxGpio->xConfig.xDirection != eGpioDirectionOutput )
+    if( !prvIsValidHandle( pxGpio ) || ( pxGpio->xConfig.xDirection != eGpioDirectionOutput ) )
     {
         return IOT_GPIO_INVALID_VALUE;
     }
 
-    nrf_gpio_pin_write( plGpioMap[pxGpio->lGpioNumber], ucPinState );
+    nrf_gpio_pin_write( plGpioMap[ pxGpio->lGpioNumber ], ucPinState );
 
     return IOT_GPIO_SUCCESS;
 }
 
 int32_t iot_gpio_close( IotGpioHandle_t const pxGpio )
 {
-    if (!prvIsValidHandle(pxGpio))
+    if( !prvIsValidHandle( pxGpio ) )
     {
         return IOT_GPIO_INVALID_VALUE;
     }
 
     /* De-init, setting pin to board's default settings for unused pins, then unclaim*/
-    uint32_t ulPin_NRF = plGpioMap[pxGpio->lGpioNumber];
-    if (pxGpio->xConfig.xDirection == eGpioDirectionInput && 
-        pxGpio->xConfig.xInterruptMode != eGpioInterruptNone)
+    uint32_t ulPin_NRF = plGpioMap[ pxGpio->lGpioNumber ];
+
+    if( ( pxGpio->xConfig.xDirection == eGpioDirectionInput ) &&
+        ( pxGpio->xConfig.xInterruptMode != eGpioInterruptNone ) )
     {
         /* GPIOTE require separate deinit */
-        nrf_drv_gpiote_in_uninit(ulPin_NRF);
+        nrf_drv_gpiote_in_uninit( ulPin_NRF );
     }
-   
-    nrf_gpio_cfg_default(ulPin_NRF);
+
+    nrf_gpio_cfg_default( ulPin_NRF );
     pxGpio->ucState = IOT_GPIO_CLOSED;
 
     return IOT_GPIO_SUCCESS;
@@ -547,60 +552,61 @@ int32_t iot_gpio_ioctl( IotGpioHandle_t const pxGpio,
                         IotGpioIoctlRequest_t xRequest,
                         void * const pvBuffer )
 {
-    if (!prvIsValidHandle(pxGpio))
+    if( !prvIsValidHandle( pxGpio ) )
     {
         return IOT_GPIO_INVALID_VALUE;
     }
-    
+
     IotGpioConfig_t xNewConfig = pxGpio->xConfig;
     int32_t lReturnCode = IOT_GPIO_SUCCESS;
-    switch(xRequest)
+
+    switch( xRequest )
     {
         case eSetGpioDirection:
-            memcpy(&xNewConfig.xDirection, pvBuffer, sizeof(xNewConfig.xDirection));
-            lReturnCode = prvConfigurePin(pxGpio, &xNewConfig);
+            memcpy( &xNewConfig.xDirection, pvBuffer, sizeof( xNewConfig.xDirection ) );
+            lReturnCode = prvConfigurePin( pxGpio, &xNewConfig );
             break;
 
         case eGetGpioDirection:
-            memcpy(pvBuffer, &pxGpio->xConfig.xDirection, sizeof(pxGpio->xConfig.xDirection));
+            memcpy( pvBuffer, &pxGpio->xConfig.xDirection, sizeof( pxGpio->xConfig.xDirection ) );
             break;
 
         case eSetGpioPull:
-            memcpy(&xNewConfig.xPull, pvBuffer, sizeof(xNewConfig.xPull));
-            lReturnCode = prvConfigurePin(pxGpio, &xNewConfig);
+            memcpy( &xNewConfig.xPull, pvBuffer, sizeof( xNewConfig.xPull ) );
+            lReturnCode = prvConfigurePin( pxGpio, &xNewConfig );
             break;
 
         case eGetGpioPull:
-            memcpy(pvBuffer, &pxGpio->xConfig.xPull, sizeof(pxGpio->xConfig.xPull));
+            memcpy( pvBuffer, &pxGpio->xConfig.xPull, sizeof( pxGpio->xConfig.xPull ) );
             break;
 
         case eSetGpioOutputMode:
-            memcpy(&xNewConfig.xOutMode, pvBuffer, sizeof(xNewConfig.xOutMode));
-            lReturnCode = prvConfigurePin(pxGpio, &xNewConfig);
+            memcpy( &xNewConfig.xOutMode, pvBuffer, sizeof( xNewConfig.xOutMode ) );
+            lReturnCode = prvConfigurePin( pxGpio, &xNewConfig );
             break;
 
         case eGetGpioOutputType:
-            memcpy(pvBuffer, &pxGpio->xConfig.xOutMode, sizeof(pxGpio->xConfig.xOutMode));
+            memcpy( pvBuffer, &pxGpio->xConfig.xOutMode, sizeof( pxGpio->xConfig.xOutMode ) );
             break;
-          
+
         case eSetGpioInterrupt:
-            memcpy(&xNewConfig.xInterruptMode, pvBuffer, sizeof(xNewConfig.xInterruptMode));
-             lReturnCode = prvConfigurePin(pxGpio, &xNewConfig);
+            memcpy( &xNewConfig.xInterruptMode, pvBuffer, sizeof( xNewConfig.xInterruptMode ) );
+            lReturnCode = prvConfigurePin( pxGpio, &xNewConfig );
             break;
 
         case eGetGpioInterrupt:
-            memcpy(pvBuffer, &pxGpio->xConfig.xInterruptMode, sizeof(pxGpio->xConfig.xInterruptMode));
+            memcpy( pvBuffer, &pxGpio->xConfig.xInterruptMode, sizeof( pxGpio->xConfig.xInterruptMode ) );
             break;
 
         case eSetGpioDriveStrength:
-            memcpy(&xNewConfig.lDriveStrength, pvBuffer, sizeof(xNewConfig.lDriveStrength));
-            lReturnCode = prvConfigurePin(pxGpio, &xNewConfig);
+            memcpy( &xNewConfig.lDriveStrength, pvBuffer, sizeof( xNewConfig.lDriveStrength ) );
+            lReturnCode = prvConfigurePin( pxGpio, &xNewConfig );
             break;
 
         case eGetGpioDriveStrength:
-            memcpy(pvBuffer, &pxGpio->xConfig.lDriveStrength, sizeof(pxGpio->xConfig.lDriveStrength));
+            memcpy( pvBuffer, &pxGpio->xConfig.lDriveStrength, sizeof( pxGpio->xConfig.lDriveStrength ) );
             break;
-        
+
         /* Unsupported functions */
         case eSetGpioFunction:
         case eGetGpioFunction:
@@ -608,7 +614,7 @@ int32_t iot_gpio_ioctl( IotGpioHandle_t const pxGpio,
         case eGetGpioSpeed:
         default:
             lReturnCode = IOT_GPIO_FUNCTION_NOT_SUPPORTED;
-            IOT_GPIO_LOGF("Warning: ioctl[%d] is unsupported and was ignored\r\n", xRequest);
+            IOT_GPIO_LOGF( " Warning: ioctl[%d] is unsupported and was ignored\r\n", xRequest );
             break;
     }
 
