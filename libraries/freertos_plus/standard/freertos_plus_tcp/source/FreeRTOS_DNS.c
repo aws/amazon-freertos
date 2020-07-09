@@ -1214,14 +1214,14 @@ BaseType_t xReturn = pdTRUE;
 			if( ( pxDNSMessageHeader->usFlags & dnsRX_FLAGS_MASK ) == dnsEXPECTED_RX_FLAGS )
 			{
 				const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
-			  uint16_t usNumARecordsStored = 0;
+			  	uint16_t usNumARecordsStored = 0;
 
-        for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
-        {
-          BaseType_t xDoAccept;
+        			for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
+        			{
+          				BaseType_t xDoAccept;
 
-          uxResult = prvSkipNameField( pucByte,
-                         uxSourceBytesRemaining );
+          				uxResult = prvSkipNameField( pucByte,
+                         				uxSourceBytesRemaining );
 
 					/* Check for a malformed response. */
 					if( uxResult == 0U )
