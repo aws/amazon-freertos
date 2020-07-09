@@ -1244,12 +1244,12 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
          * It must be removed so that we can read the private
          * key back at a later time. */
         uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
-        lCompare = memcmp( &pxDerKey[ ulDerBufSize - 6 ], emptyPubKey, 6 );
+        lCompare = memcmp( &pxDerKey[ ulDerBufSize - 6UL ], emptyPubKey, 6 );
 
         if( ( lCompare == 0 ) && ( ulActualKeyLength >= 6UL ) )
         {
             /* Do not write the last 6 bytes to key storage. */
-            pxDerKey[ ulDerBufSize - lDerKeyLength + 1 ] -= ( uint8_t ) 6;
+            pxDerKey[ ulDerBufSize - ( uint32_t ) lDerKeyLength + 1UL ] -= ( uint8_t ) 6;
             ulActualKeyLength -= 6UL;
         }
     }
@@ -1257,7 +1257,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     if( xResult == CKR_OK )
     {
         xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
-                                            pxDerKey + ( ulDerBufSize - lDerKeyLength ),
+                                            pxDerKey + ( ulDerBufSize - ( uint32_t ) lDerKeyLength ),
                                             ulActualKeyLength );
 
         if( xPalHandle == CK_INVALID_HANDLE )
