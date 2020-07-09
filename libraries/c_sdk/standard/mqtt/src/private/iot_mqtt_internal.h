@@ -839,7 +839,7 @@ IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack );
 
 /**
  * @brief Deserialize a suback packet received from the network by using MQTT v4 beta 2 deserializer.
-* Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
+ * Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
  * the packet identifier.
  *
  * @param[in,out] pSuback Pointer to an MQTT packet struct representing a SUBACK.
@@ -853,7 +853,7 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback );
 /**
  * @brief Deserialize a unsuback packet received from the network by using MQTT v4 beta 2 deserializer.
  * Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
- * the packet identifier. 
+ * the packet identifier.
  *
  * @param[in,out] pUnsuback Pointer to an MQTT packet struct representing an UNSUBACK.
  *
