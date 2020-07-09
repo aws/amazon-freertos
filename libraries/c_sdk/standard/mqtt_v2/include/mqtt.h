@@ -22,9 +22,16 @@
 #ifndef MQTT_H
 #define MQTT_H
 
-/* Include config file before other headers. */
+ /* Include config file before other headers. */
 #include "mqtt_config.h"
 #include "mqtt_lightweight.h"
+
+/**
+ * @brief Invalid packet identifier.
+ *
+ * Zero is an invalid packet identifier as per MQTT v3.1.1 spec.
+ */
+#define MQTT_PACKET_ID_INVALID    ( ( uint16_t ) 0U )
 
 struct MQTTApplicationCallbacks;
 typedef struct MQTTApplicationCallbacks   MQTTApplicationCallbacks_t;
@@ -38,16 +45,16 @@ typedef struct MQTTContext                MQTTContext_t;
 struct MQTTTransportInterface;
 typedef struct MQTTTransportInterface     MQTTTransportInterface_t;
 
-typedef int32_t (* MQTTTransportSendFunc_t )( NetworkContext_t context,
-                                              const void * pMessage,
-                                              size_t bytesToSend );
+typedef int32_t(*MQTTTransportSendFunc_t)(NetworkContext_t context,
+    const void* pMessage,
+    size_t bytesToSend);
 
-typedef uint32_t (* MQTTGetCurrentTimeFunc_t )( void );
+typedef uint32_t(*MQTTGetCurrentTimeFunc_t)(void);
 
-typedef void (* MQTTEventCallback_t )( MQTTContext_t * pContext,
-                                       MQTTPacketInfo_t * pPacketInfo,
-                                       uint16_t packetIdentifier,
-                                       MQTTPublishInfo_t * pPublishInfo );
+typedef void (*MQTTEventCallback_t)(MQTTContext_t* pContext,
+    MQTTPacketInfo_t* pPacketInfo,
+    uint16_t packetIdentifier,
+    MQTTPublishInfo_t* pPublishInfo);
 
 typedef enum MQTTConnectionStatus
 {
@@ -100,9 +107,9 @@ struct MQTTPubAckInfo
 
 struct MQTTContext
 {
-    MQTTPubAckInfo_t outgoingPublishRecords[ MQTT_STATE_ARRAY_MAX_COUNT ];
+    MQTTPubAckInfo_t outgoingPublishRecords[MQTT_STATE_ARRAY_MAX_COUNT];
     size_t outgoingPublishCount;
-    MQTTPubAckInfo_t incomingPublishRecords[ MQTT_STATE_ARRAY_MAX_COUNT ];
+    MQTTPubAckInfo_t incomingPublishRecords[MQTT_STATE_ARRAY_MAX_COUNT];
     size_t incomingPublishCount;
 
     MQTTTransportInterface_t transportInterface;
@@ -126,6 +133,11 @@ struct MQTTContext
  *
  * This function must be called on an MQTT context before any other function.
  *
+ * @note The getTime callback function must be defined. If there is no time
+ * implementation, it is the responsibility of the application to provide a
+ * dummy function to always return 0, and provide 0 timeouts for functions. This
+ * will ensure all time based functions will run for a single iteration.
+ *
  * @brief param[in] pContext The context to initialize.
  * @brief param[in] pTransportInterface The transport interface to use with the context.
  * @brief param[in] pCallbacks Callbacks to use with the context.
@@ -134,20 +146,34 @@ struct MQTTContext
  * @return #MQTTBadParameter if invalid parameters are passed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
-                        const MQTTTransportInterface_t * pTransportInterface,
-                        const MQTTApplicationCallbacks_t * pCallbacks,
-                        const MQTTFixedBuffer_t * pNetworkBuffer );
+MQTTStatus_t MQTT_Init(MQTTContext_t* pContext,
+    const MQTTTransportInterface_t* pTransportInterface,
+    const MQTTApplicationCallbacks_t* pCallbacks,
+    const MQTTFixedBuffer_t* pNetworkBuffer);
 
 /**
- * @brief Establish a MQTT session.
+ * @brief Establish an MQTT session.
  *
- * @brief param[in] pContext Initialized MQTT context.
- * @brief param[in] pConnectInfo MQTT CONNECT packet parameters.
- * @brief param[in] pWillInfo Last Will and Testament. Pass NULL if not used.
- * @brief param[in] timeoutMs Timeout in milliseconds for receiving
- * CONNACK packet.
- * @brief param[out] pSessionPresent Whether a previous session was present.
+ * This function will send MQTT CONNECT packet and receive a CONNACK packet. The
+ * send and receive from the network is done through the transport interface.
+ *
+ * The maximum time this function waits for a CONNACK is decided in one of the
+ * following ways:
+ * 1. If #timeoutMs is greater than 0:
+ *    #getTime is used to ensure that the function does not wait more than #timeoutMs
+ *    for CONNACK.
+ * 2. If #timeoutMs is 0:
+ *    The network receive for CONNACK is retried up to the number of times configured
+ *    by #MQTT_MAX_CONNACK_RECEIVE_RETRY_COUNT.
+ *
+ * @param[in] pContext Initialized MQTT context.
+ * @param[in] pConnectInfo MQTT CONNECT packet information.
+ * @param[in] pWillInfo Last Will and Testament. Pass NULL if Last Will and
+ * Testament is not used.
+ * @param[in] timeoutMs Maximum time in milliseconds to wait for a CONNACK packet.
+ * A zero timeout makes use of the retries for receiving CONNACK as configured with
+ * #MQTT_MAX_CONNACK_RECEIVE_RETRY_COUNT .
+ * @param[out] pSessionPresent Whether a previous session was present.
  * Only relevant if not establishing a clean session.
  *
  * @return #MQTTNoMemory if the #MQTTContext_t.networkBuffer is too small to
@@ -158,12 +184,30 @@ MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
  * #MQTTNoDataAvailable if no data available to receive in transport until
  * the #timeoutMs for CONNACK;
  * #MQTTSuccess otherwise.
+ *
+ * @note This API may spend more time than provided in the timeoutMS parameters in
+ * certain conditions as listed below:
+ *
+ * 1. Timeouts are incorrectly configured - If the timeoutMS is less than the
+ *    transport receive timeout and if a CONNACK packet is not received within
+ *    the transport receive timeout, the API will spend the transport receive
+ *    timeout (which is more time than the timeoutMs). It is the case of incorrect
+ *    timeout configuration as the timeoutMs parameter passed to this API must be
+ *    greater than the transport receive timeout. Please refer to the transport
+ *    interface documentation for more details about timeout configurations.
+ *
+ * 2. Partial CONNACK packet is received right before the expiry of the timeout - It
+ *    is possible that first two bytes of CONNACK packet (packet type and remaining
+ *    length) are received right before the expiry of the timeoutMS. In that case,
+ *    the API makes one more network receive call in an attempt to receive the remaining
+ *    2 bytes. In the worst case, it can happen that the remaining 2 bytes are never
+ *    received and this API will end up spending timeoutMs + transport receive timeout.
  */
-MQTTStatus_t MQTT_Connect( MQTTContext_t * pContext,
-                           const MQTTConnectInfo_t * pConnectInfo,
-                           const MQTTPublishInfo_t * pWillInfo,
-                           uint32_t timeoutMs,
-                           bool * pSessionPresent );
+MQTTStatus_t MQTT_Connect(MQTTContext_t* pContext,
+    const MQTTConnectInfo_t* pConnectInfo,
+    const MQTTPublishInfo_t* pWillInfo,
+    uint32_t timeoutMs,
+    bool* pSessionPresent);
 
 /**
  * @brief Sends MQTT SUBSCRIBE for the given list of topic filters to
@@ -180,10 +224,10 @@ MQTTStatus_t MQTT_Connect( MQTTContext_t * pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
-                             const MQTTSubscribeInfo_t * pSubscriptionList,
-                             size_t subscriptionCount,
-                             uint16_t packetId );
+MQTTStatus_t MQTT_Subscribe(MQTTContext_t* pContext,
+    const MQTTSubscribeInfo_t* pSubscriptionList,
+    size_t subscriptionCount,
+    uint16_t packetId);
 
 /**
  * @brief Publishes a message to the given topic name.
@@ -197,9 +241,9 @@ MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Publish( MQTTContext_t * pContext,
-                           const MQTTPublishInfo_t * pPublishInfo,
-                           uint16_t packetId );
+MQTTStatus_t MQTT_Publish(MQTTContext_t* pContext,
+    const MQTTPublishInfo_t* pPublishInfo,
+    uint16_t packetId);
 
 /**
  * @brief Sends an MQTT PINGREQ to broker.
@@ -211,7 +255,7 @@ MQTTStatus_t MQTT_Publish( MQTTContext_t * pContext,
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Ping( MQTTContext_t * pContext );
+MQTTStatus_t MQTT_Ping(MQTTContext_t* pContext);
 
 /**
  * @brief Sends MQTT UNSUBSCRIBE for the given list of topic filters to
@@ -228,10 +272,10 @@ MQTTStatus_t MQTT_Ping( MQTTContext_t * pContext );
  * #MQTTSendFailed if transport write failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Unsubscribe( MQTTContext_t * pContext,
-                               const MQTTSubscribeInfo_t * pSubscriptionList,
-                               size_t subscriptionCount,
-                               uint16_t packetId );
+MQTTStatus_t MQTT_Unsubscribe(MQTTContext_t* pContext,
+    const MQTTSubscribeInfo_t* pSubscriptionList,
+    size_t subscriptionCount,
+    uint16_t packetId);
 
 /**
  * @brief Disconnect an MQTT session.
@@ -244,10 +288,11 @@ MQTTStatus_t MQTT_Unsubscribe( MQTTContext_t * pContext,
  * #MQTTSendFailed if transport send failed;
  * #MQTTSuccess otherwise.
  */
-MQTTStatus_t MQTT_Disconnect( MQTTContext_t * pContext );
+MQTTStatus_t MQTT_Disconnect(MQTTContext_t* pContext);
 
 /**
- * @brief Loop to receive packets from the transport interface.
+ * @brief Loop to receive packets from the transport interface. Handles keep
+ * alive.
  *
  * @param[in] pContext Initialized and connected MQTT context.
  * @param[in] timeoutMs Minimum time in milliseconds that the receive loop will
@@ -263,8 +308,29 @@ MQTTStatus_t MQTT_Disconnect( MQTTContext_t * pContext );
  * invalid transition for the internal state machine;
  * #MQTTSuccess on success.
  */
-MQTTStatus_t MQTT_ProcessLoop( MQTTContext_t * pContext,
-                               uint32_t timeoutMs );
+MQTTStatus_t MQTT_ProcessLoop(MQTTContext_t* pContext,
+    uint32_t timeoutMs);
+
+/**
+ * @brief Loop to receive packets from the transport interface. Does not handle
+ * keep alive.
+ *
+ * @note Passing a timeout value of 0 will run the loop for a single iteration.
+ *
+ * @param[in] pContext Initialized and connected MQTT context.
+ * @param[in] timeoutMs Minimum time in milliseconds that the receive loop will
+ * run, unless an error occurs.
+ *
+ * @return #MQTTBadParameter if context is NULL;
+ * #MQTTRecvFailed if a network error occurs during reception;
+ * #MQTTSendFailed if a network error occurs while sending an ACK or PINGREQ;
+ * #MQTTBadResponse if an invalid packet is received;
+ * #MQTTIllegalState if an incoming QoS 1/2 publish or ack causes an
+ * invalid transition for the internal state machine;
+ * #MQTTSuccess on success.
+ */
+MQTTStatus_t MQTT_ReceiveLoop(MQTTContext_t* pContext,
+    uint32_t timeoutMs);
 
 /**
  * @brief Get a packet ID that is valid according to the MQTT 3.1.1 spec.
@@ -273,7 +339,7 @@ MQTTStatus_t MQTT_ProcessLoop( MQTTContext_t * pContext,
  *
  * @return A non-zero number.
  */
-uint16_t MQTT_GetPacketId( MQTTContext_t * pContext );
+uint16_t MQTT_GetPacketId(MQTTContext_t* pContext);
 
 /**
  * @brief Error code to string conversion for MQTT statuses.
@@ -282,6 +348,6 @@ uint16_t MQTT_GetPacketId( MQTTContext_t * pContext );
  *
  * @return The string representation of the status.
  */
-const char * MQTT_Status_strerror( MQTTStatus_t status );
+const char* MQTT_Status_strerror(MQTTStatus_t status);
 
 #endif /* ifndef MQTT_H */
