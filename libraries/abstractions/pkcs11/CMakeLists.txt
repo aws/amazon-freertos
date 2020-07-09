@@ -101,10 +101,40 @@ endif()
 
 # PKCS11 test
 afr_test_module()
+if(${AFR_BOARD} STREQUAL "pc.windows")
+    set(mbt_tests 
+        "${test_dir}/iot_test_pkcs11_globals.h"
+        "${test_dir}/MBT_C_CloseSession.c"
+        "${test_dir}/MBT_C_DigestFinal.c"
+        "${test_dir}/MBT_C_DigestInit.c"
+        "${test_dir}/MBT_C_DigestUpdate.c"
+        "${test_dir}/MBT_C_Finalize.c"
+        "${test_dir}/MBT_C_FindObjects.c"
+        "${test_dir}/MBT_C_FindObjectsFinal.c"
+        "${test_dir}/MBT_C_FindObjectsInit.c"
+        "${test_dir}/MBT_C_GenerateKeyPair.c"
+        "${test_dir}/MBT_C_GenerateRandom.c"
+        "${test_dir}/MBT_C_GetAttributeValue.c"
+        "${test_dir}/MBT_C_Initialize.c"
+        "${test_dir}/MBT_C_OpenSession.c"
+        "${test_dir}/MBT_C_Sign.c"
+        "${test_dir}/MBT_C_SignInit.c"
+        "${test_dir}/MBT_C_Verify.c"
+        "${test_dir}/MBT_C_VerifyInit.c"
+        "${test_dir}/MBT_DigestMachine.c"
+        "${test_dir}/MBT_GenerationMachine.c"
+        "${test_dir}/MBT_ObjectMachine.c"
+        "${test_dir}/MBT_SessionMachine.c"
+        "${test_dir}/MBT_SignMachine.c"
+        "${test_dir}/MBT_VerifyMachine.c"
+    )
+endif()
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/iot_test_pkcs11.c"
+        "${mbt_tests}"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
