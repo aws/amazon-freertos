@@ -1,4 +1,4 @@
-# PSoC64 OTA Updates
+# PSoC 64 OTA Updates
 
 PSoC® 64 devices have passed all of the required FreeRTOS qualification tests. However, the optional OTA feature implemented in the PSoC 64 Standard Secure AWS firmware library is still pending evaluation. The OTA feature as-implemented currently passes all of the OTA qualification tests except [“aws_ota_test_case_rollback_if_unable_to_connect_after_update.py”](https://github.com/aws/amazon-freertos/tree/202007.00/tools/ota_e2e_tests/aws_ota_test/aws_ota_test_case_rollback_if_unable_to_connect_after_update.py). 
 
