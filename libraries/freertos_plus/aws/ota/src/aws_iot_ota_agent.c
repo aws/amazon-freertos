@@ -948,29 +948,44 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
     }
     else
     {
-        /* Init data interface routines */
-        xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].pucProtocols );
-
-        if( xReturn == kOTA_Err_None )
+        /*
+         * If the platform is not in the self_test state, initiate file download.
+         */
+        if( prvInSelftest() == false )
         {
-            OTA_LOG_L1( "[%s] Setting OTA data inerface.\r\n", OTA_METHOD_NAME );
+            /* Init data interface routines */
+            xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].pucProtocols );
 
-            /* Received a valid context so send event to request file blocks. */
-            xEventMsg.xEventId = eOTA_AgentEvent_CreateFile;
-
-            /*Send the event to OTA Agent task. */
-            if( !OTA_SignalEvent( &xEventMsg ) )
+            if( xReturn == kOTA_Err_None )
             {
-                xReturn = kOTA_Err_EventQueueSendFailed;
+                OTA_LOG_L1( "[%s] Setting OTA data inerface.\r\n", OTA_METHOD_NAME );
+
+                /* Received a valid context so send event to request file blocks. */
+                xEventMsg.xEventId = eOTA_AgentEvent_CreateFile;
+
+                /*Send the event to OTA Agent task. */
+                if( !OTA_SignalEvent( &xEventMsg ) )
+                {
+                    xReturn = kOTA_Err_EventQueueSendFailed;
+                }
+            }
+            else
+            {
+                /*
+                 * Failed to set the data interface so abort the OTA.If there is a valid job id,
+                 * then a job status update will be sent.
+                 */
+                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn );
             }
         }
         else
         {
             /*
-             * Failed to set the data interface so abort the OTA.If there is a valid job id,
-             * then a job status update will be sent.
+             * Received a job that is not in self-test but platform is, so reboot the device to allow
+             * roll back to previous image.
              */
-            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, xReturn );
+            OTA_LOG_L1( "[%s] Platform is in self-test but job is not, rebooting !  \r\n", OTA_METHOD_NAME );
+            ( void ) xOTA_Agent.xPALCallbacks.xResetDevice( xOTA_Agent.ulServerFileID );
         }
     }
 
