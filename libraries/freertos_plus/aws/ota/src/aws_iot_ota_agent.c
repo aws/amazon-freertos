@@ -951,7 +951,7 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
         /*
          * If the platform is not in the self_test state, initiate file download.
          */
-        if( OTA_GetImageState() != eOTA_ImageState_Testing )
+        if( prvInSelftest() == false )
         {
             /* Init data interface routines */
             xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulFileIndex ].pucProtocols );
