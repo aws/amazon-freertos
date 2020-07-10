@@ -113,7 +113,7 @@ type. */
 #endif
 
 /* Define the ASCII value of '.' (Period/Full-stop). */
-#define ASCII_BASELINE_DOT						46UL
+#define ASCII_BASELINE_DOT						46U
 
 /*
  * Create a socket and bind it to the standard DNS port number.  Return the
@@ -1111,15 +1111,13 @@ BaseType_t xReturn = pdTRUE;
 	{
 		xReturn = pdFALSE;
 	}
+	else{
+		uxSourceBytesRemaining = uxBufferLength;
 
-	uxSourceBytesRemaining = uxBufferLength;
+		/* Parse the DNS message header. Map the byte stream onto a structure 
+		 * for easier access. */
+		pxDNSMessageHeader = ipPOINTER_CAST( DNSMessage_t *, pucUDPPayloadBuffer );
 
-	/* Parse the DNS message header. Map the byte stream onto a structure 
-	 * for easier access. */
-	pxDNSMessageHeader = ipPOINTER_CAST( DNSMessage_t *, pucUDPPayloadBuffer );
-
-	if( xReturn != pdFALSE )
-	{
 		/* Introduce a do {} while (0) to allow the use of breaks. */
 		do
 		{
@@ -1263,7 +1261,7 @@ BaseType_t xReturn = pdTRUE;
 					{
 						/* This is the required record type and is of sufficient size. */
 						/* Mapping pucByte to a DNSAnswerRecord allows easy access of the
-						 * feilds of the structure. */
+						 * fields of the structure. */
 						pxDNSAnswerRecord = ipPOINTER_CAST( DNSAnswerRecord_t *, pucByte );
 
 						/* Sanity check the data length of an IPv4 answer. */
@@ -1441,7 +1439,7 @@ BaseType_t xReturn = pdTRUE;
 	}
 	else
 	{
-		/* Do nothing. */
+		/* The IP-address found will be returned. */
 	}
 
 	#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
@@ -1607,17 +1605,17 @@ static Socket_t prvCreateDNSSocket( void )
 {
 Socket_t xSocket;
 struct freertos_sockaddr xAddress;
-BaseType_t xReturn, xResult = pdPASS;
+BaseType_t xReturn;
 
 	/* This must be the first time this function has been called.  Create
 	the socket. */
 	xSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
 	if( ( xSocket == FREERTOS_INVALID_SOCKET ) || ( xSocket == NULL ) )
 	{
-		xResult = pdFAIL;
+		/* There was an error, return NULL. */
+		xSocket = NULL;
 	}
-
-	if( xResult != pdFAIL )
+	else
 	{
 		/* Auto bind the port. */
 		xAddress.sin_port = 0U;
@@ -1633,11 +1631,6 @@ BaseType_t xReturn, xResult = pdPASS;
 		{
 			/* The send and receive timeouts will be set later on. */
 		}
-	}
-	else
-	{
-		/* There was an error, return NULL. */
-		xSocket = NULL;
 	}
 
 	return xSocket;
