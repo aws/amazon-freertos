@@ -1411,24 +1411,29 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 
 void _IotMqtt_FreePacket( uint8_t * pPacket )
 {
-    uint8_t packetType = *pPacket;
+    uint8_t packetType;
 
-    /* Don't call free on DISCONNECT and PINGREQ; those are allocated from static
-     * memory. */
-    if( packetType != MQTT_PACKET_TYPE_DISCONNECT )
+    if( pPacket != NULL )
     {
-        if( packetType != MQTT_PACKET_TYPE_PINGREQ )
+        packetType = *pPacket;
+
+        /* Don't call free on DISCONNECT and PINGREQ; those are allocated from static
+         * memory. */
+        if( packetType != MQTT_PACKET_TYPE_DISCONNECT )
         {
-            IotMqtt_FreeMessage( pPacket );
+            if( packetType != MQTT_PACKET_TYPE_PINGREQ )
+            {
+                IotMqtt_FreeMessage( pPacket );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
         else
         {
             EMPTY_ELSE_MARKER;
         }
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
     }
 }
 

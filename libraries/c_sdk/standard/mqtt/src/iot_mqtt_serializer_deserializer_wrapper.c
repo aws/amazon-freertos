@@ -203,11 +203,11 @@ IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pC
                                                  uint8_t ** pConnectPacket,
                                                  size_t * pPacketSize )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     size_t remainingLength = 0UL;
     MQTTConnectInfo_t connectInfo;
     MQTTFixedBuffer_t networkBuffer;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPublishInfo_t willInfo;
 
     /* Null Check for connectInfo. */
@@ -251,7 +251,7 @@ IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pC
         networkBuffer.pBuffer = IotMqtt_MallocMessage( *pPacketSize );
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the connect packet using MQTT V4_beta2 API. */
+        /* Serializing the connect packet and validating the serialize parameters using MQTT V4_beta2 API. */
         managedMqttStatus = MQTT_SerializeConnect( &connectInfo,
                                                    pWillInfo,
                                                    remainingLength,
@@ -275,9 +275,9 @@ IotMqttError_t _IotMqtt_connectSerializeWrapper( const IotMqttConnectInfo_t * pC
 IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket,
                                                     size_t * pPacketSize )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     MQTTFixedBuffer_t networkBuffer;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     IotMqtt_Assert( pDisconnectPacket != NULL );
     IotMqtt_Assert( pPacketSize != NULL );
@@ -294,7 +294,7 @@ IotMqttError_t _IotMqtt_disconnectSerializeWrapper( uint8_t ** pDisconnectPacket
         networkBuffer.pBuffer = IotMqtt_MallocMessage( *pPacketSize );
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the Disconnect packet using MQTT V4_beta2 API. */
+        /* Serializing the Disconnect packet and validating the serialize parameters using MQTT V4_beta2 API. */
         managedMqttStatus = MQTT_SerializeDisconnect( &( networkBuffer ) );
 
         /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
@@ -318,10 +318,10 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
                                                    size_t * pPacketSize,
                                                    uint16_t * pPacketIdentifier )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     size_t remainingLength = 0UL;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+    MQTTSubscribeInfo_t * subscriptionList = NULL;
     size_t i = 0;
     MQTTFixedBuffer_t networkBuffer;
     uint16_t packetId = 0;
@@ -331,21 +331,37 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
     IotMqtt_Assert( pPacketSize != NULL );
     IotMqtt_Assert( pPacketIdentifier != NULL );
 
-    for( i = 0; i < subscriptionCount; i++ )
+    /* Allocating Memory for subscription List. */
+    subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+
+    if( subscriptionList == NULL )
     {
-        subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
-        subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
-        subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+        IotLogError( "Failed to allocate memory for subscription list." );
+        status = IOT_MQTT_NO_MEMORY;
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
     }
 
-    /* Getting Subscribe packet size  using MQTT V4_beta2 API. */
-    managedMqttStatus = MQTT_GetSubscribePacketSize( subscriptionList,
-                                                     subscriptionCount,
-                                                     &remainingLength,
-                                                     pPacketSize );
+    if( subscriptionList != NULL )
+    {
+        for( i = 0; i < subscriptionCount; i++ )
+        {
+            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
+            subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
+            subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+        }
 
-    /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
-    status = convertReturnCode( managedMqttStatus );
+        /* Getting Subscribe packet size  using MQTT V4_beta2 API. */
+        managedMqttStatus = MQTT_GetSubscribePacketSize( subscriptionList,
+                                                         subscriptionCount,
+                                                         &remainingLength,
+                                                         pPacketSize );
+
+        /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
+        status = convertReturnCode( managedMqttStatus );
+    }
 
     if( status == IOT_MQTT_SUCCESS )
     {
@@ -357,7 +373,7 @@ IotMqttError_t _IotMqtt_subscribeSerializeWrapper( const IotMqttSubscription_t *
         networkBuffer.pBuffer = IotMqtt_MallocMessage( *pPacketSize );
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the Subscribe packet using MQTT V4_beta2 API. */
+        /* Serializing the Subscribe packet and validating the serialize parameters using MQTT V4_beta2 API. */
         managedMqttStatus = MQTT_SerializeSubscribe( subscriptionList,
                                                      subscriptionCount,
                                                      packetId,
@@ -386,10 +402,10 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
                                                      size_t * pPacketSize,
                                                      uint16_t * pPacketIdentifier )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     size_t remainingLength = 0UL;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
+    MQTTSubscribeInfo_t * unsubscriptionList = NULL;
     size_t i = 0;
     uint16_t packetId = 0;
     MQTTFixedBuffer_t networkBuffer;
@@ -399,21 +415,37 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
     IotMqtt_Assert( pPacketSize != NULL );
     IotMqtt_Assert( pPacketIdentifier != NULL );
 
-    for( i = 0; i < unsubscriptionCount; i++ )
+    /* Allocating Memory for unsubscription List. */
+    unsubscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
+
+    if( unsubscriptionList == NULL )
     {
-        subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
-        subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
-        subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
+        IotLogError( "Failed to allocate memory for unsubscription list." );
+        status = IOT_MQTT_NO_MEMORY;
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
     }
 
-    /* Getting Unsubscribe packet size  using MQTT V4_beta2 API. */
-    managedMqttStatus = MQTT_GetUnsubscribePacketSize( subscriptionList,
-                                                       unsubscriptionCount,
-                                                       &remainingLength,
-                                                       pPacketSize );
+    if( unsubscriptionList != NULL )
+    {
+        for( i = 0; i < unsubscriptionCount; i++ )
+        {
+            unsubscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
+            unsubscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
+            unsubscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
+        }
 
-    /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
-    status = convertReturnCode( managedMqttStatus );
+        /* Getting Unsubscribe packet size  using MQTT V4_beta2 API. */
+        managedMqttStatus = MQTT_GetUnsubscribePacketSize( unsubscriptionList,
+                                                           unsubscriptionCount,
+                                                           &remainingLength,
+                                                           pPacketSize );
+
+        /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
+        status = convertReturnCode( managedMqttStatus );
+    }
 
     if( status == IOT_MQTT_SUCCESS )
     {
@@ -424,8 +456,8 @@ IotMqttError_t _IotMqtt_unsubscribeSerializeWrapper( const IotMqttSubscription_t
         networkBuffer.pBuffer = IotMqtt_MallocMessage( *pPacketSize );
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the Unsubscribe packet using MQTT V4_beta2 API. */
-        managedMqttStatus = MQTT_SerializeUnsubscribe( subscriptionList,
+        /* Serializing the Unsubscribe packet and validate the serialize parameters using MQTT V4_beta2 API. */
+        managedMqttStatus = MQTT_SerializeUnsubscribe( unsubscriptionList,
                                                        unsubscriptionCount,
                                                        packetId,
                                                        remainingLength,
@@ -453,10 +485,10 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
                                                  uint16_t * pPacketIdentifier,
                                                  uint8_t ** pPacketIdentifierHigh )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     size_t remainingLength = 0UL;
     uint8_t * pBuffer = NULL;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPublishInfo_t publishInfo;
     uint16_t packetId = 0;
     MQTTFixedBuffer_t networkBuffer;
@@ -485,7 +517,7 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
 
     if( status == IOT_MQTT_SUCCESS )
     {
-        /* Generating the packet id for publish packe. */
+        /* Generating the packet id for publish packet. */
         packetId = _nextPacketIdentifier();
 
         /* Allocating memory to hold publish packet. */
@@ -493,7 +525,7 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
         networkBuffer.pBuffer = pBuffer;
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the publish packet using MQTT V4_beta2 API. */
+        /* Serializing the publish packet and validating the serialize parameters using MQTT V4_beta2 API. */
         managedMqttStatus = MQTT_SerializePublish( &publishInfo,
                                                    packetId,
                                                    remainingLength,
@@ -518,9 +550,9 @@ IotMqttError_t _IotMqtt_publishSerializeWrapper( const IotMqttPublishInfo_t * pP
 IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
                                                  size_t * pPacketSize )
 {
-    IotMqttError_t serializeStatus = IOT_MQTT_SUCCESS;
+    IotMqttError_t serializeStatus = IOT_MQTT_BAD_PARAMETER;
     MQTTFixedBuffer_t networkBuffer;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     IotMqtt_Assert( pPingreqPacket != NULL );
     IotMqtt_Assert( pPacketSize != NULL );
@@ -537,7 +569,7 @@ IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
         networkBuffer.pBuffer = IotMqtt_MallocMessage( *pPacketSize );
         networkBuffer.size = *pPacketSize;
 
-        /* Serializing the pingrequest packet using MQTT V4_beta2 API. */
+        /* Serializing the pingrequest packet and validating the serialize parameters using MQTT V4_beta2 API. */
         managedMqttStatus = MQTT_SerializePingreq( &( networkBuffer ) );
 
         /* Converting status code from MQTT v4_beta2 status to MQTT v4_beta 1 status. */
@@ -557,8 +589,8 @@ IotMqttError_t _IotMqtt_pingreqSerializeWrapper( uint8_t ** pPingreqPacket,
 /* Deserialize Connack Wrapper. */
 IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
     bool sessionPresent = false;
 
@@ -580,8 +612,8 @@ IotMqttError_t _IotMqtt_deserializeConnackWrapper( _mqttPacket_t * pConnack )
 /* Deserializer Suback wrapper. */
 IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
 
     /* Null Check for suback packet. */
@@ -602,8 +634,8 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
 /* Deserializer Unsuback wrapper. */
 IotMqttError_t _IotMqtt_deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
 
     /* Null Check for unsuback packet  */
@@ -624,8 +656,8 @@ IotMqttError_t _IotMqtt_deserializeUnsubackWrapper( _mqttPacket_t * pUnsuback )
 /* Deserializer Puback wrapper. */
 IotMqttError_t _IotMqtt_deserializePubackWrapper( _mqttPacket_t * pPuback )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
 
     /* Null Check for puback packet. */
@@ -645,8 +677,8 @@ IotMqttError_t _IotMqtt_deserializePubackWrapper( _mqttPacket_t * pPuback )
 /* Deserializer Ping Response wrapper. */
 IotMqttError_t _IotMqtt_deserializePingrespWrapper( _mqttPacket_t * pPingresp )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
 
     /* Null Check for Pingresponse packet. */
@@ -666,8 +698,8 @@ IotMqttError_t _IotMqtt_deserializePingrespWrapper( _mqttPacket_t * pPingresp )
 /* Deserializer Publish wrapper. */
 IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
     MQTTPublishInfo_t publishInfo;
 
@@ -704,8 +736,8 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
                                                 uint8_t ** pPubackPacket,
                                                 size_t * pPacketSize )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-    MQTTStatus_t managedMqttStatus = MQTTSuccess;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTFixedBuffer_t networkBuffer;
     uint8_t packetTypeByte = MQTT_PACKET_TYPE_PUBACK;
 
@@ -717,7 +749,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
     networkBuffer.size = MQTT_PACKET_PUBACK_SIZE;
     *pPacketSize = MQTT_PACKET_PUBACK_SIZE;
 
-    /* Serializing puback packet to be sent on the network. */
+    /* Serializing puback packet and validating the serialize parameters to be sent on the network. */
     status = MQTT_SerializeAck( &( networkBuffer ),
                                 packetTypeByte,
                                 packetIdentifier );
