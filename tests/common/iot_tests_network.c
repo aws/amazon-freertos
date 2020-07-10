@@ -50,23 +50,23 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
         .freePacket         = _IotMqtt_FreePacket,
         .serialize          =
         {
-            .connect        = _IotMqtt_SerializeConnect,
-            .publish        = _IotMqtt_SerializePublish,
+            .connect        = _IotMqtt_connectSerializeWrapper,
+            .publish        = _IotMqtt_publishSerializeWrapper,
             .publishSetDup  = _IotMqtt_PublishSetDup,
-            .puback         = _IotMqtt_SerializePuback,
-            .subscribe      = _IotMqtt_SerializeSubscribe,
-            .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
-            .pingreq        = _IotMqtt_SerializePingreq,
-            .disconnect     = _IotMqtt_SerializeDisconnect
+            .puback         = _IotMqtt_pubackSerializeWrapper,
+            .subscribe      = _IotMqtt_subscribeSerializeWrapper,
+            .unsubscribe    = _IotMqtt_unsubscribeSerializeWrapper,
+            .pingreq        = _IotMqtt_pingreqSerializeWrapper,
+            .disconnect     = _IotMqtt_disconnectSerializeWrapper
         },
         .deserialize        =
         {
-            .connack        = _IotMqtt_DeserializeConnack,
-            .publish        = _IotMqtt_DeserializePublish,
-            .puback         = _IotMqtt_DeserializePuback,
-            .suback         = _IotMqtt_DeserializeSuback,
-            .unsuback       = _IotMqtt_DeserializeUnsuback,
-            .pingresp       = _IotMqtt_DeserializePingresp
+            .connack        = _IotMqtt_deserializeConnackWrapper,
+            .publish        = _IotMqtt_deserializePublishWrapper,
+            .puback         = _IotMqtt_deserializePubackWrapper,
+            .suback         = _IotMqtt_deserializeSubackWrapper,
+            .unsuback       = _IotMqtt_deserializeUnsubackWrapper,
+            .pingresp       = _IotMqtt_deserializePingrespWrapper
         }
     };
 #endif /* if ( WIFI_SUPPORTED == 1 ) */

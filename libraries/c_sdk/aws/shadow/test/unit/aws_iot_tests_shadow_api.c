@@ -303,7 +303,7 @@ static size_t _sendSuccess( void * pSendContext,
             mqttPacket.u.pIncomingPublish = &deserializedPublish;
             mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
 
-            status = _IotMqtt_DeserializePublish( &mqttPacket );
+            status = _IotMqtt_deserializePublishWrapper( &mqttPacket );
             _lastPacketIdentifier = mqttPacket.packetIdentifier;
         }
 

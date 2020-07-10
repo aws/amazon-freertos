@@ -30,10 +30,11 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_api.c"
         "${src_dir}/iot_mqtt_network.c"
         "${src_dir}/iot_mqtt_operation.c"
-        "${src_dir}/iot_mqtt_serialize.c"
+        "${src_dir}/iot_mqtt_publish_duplicates.c"
         "${src_dir}/iot_mqtt_static_memory.c"
         "${src_dir}/iot_mqtt_subscription.c"
         "${src_dir}/iot_mqtt_validate.c"
+        "${src_dir}/iot_mqtt_serializer_deserializer_wrapper.c"
         ${extra_mqtt_sources}
 )
 
@@ -49,6 +50,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}
@@ -60,6 +62,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::common
         ${extra_mqtt_dependencies}
+        AFR::mqtt_v2
 )
 
 # MQTT test

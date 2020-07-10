@@ -1,6 +1,6 @@
-afr_module()
+afr_module(NAME "mqtt_v2" INTERFACE)
 
-afr_set_lib_metadata(ID "mqttv2")
+afr_set_lib_metadata(ID "mqtt_v2")
 afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT v2 protocol that enables \
 communication with AWS IoT. MQTT is an ISO standard publish-subscribe-based messaging protocol.")
 afr_set_lib_metadata(DISPLAY_NAME "MQTTv2")
@@ -14,7 +14,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/utest")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PRIVATE
+    INTERFACE
          "${src_dir}/mqtt.c"
          "${src_dir}/mqtt_lightweight.c"
          "${src_dir}/mqtt_state.c"
@@ -23,10 +23,8 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         "${inc_dir}"
-        "${inc_dir}/mqtt_config.h"
-        "${inc_dir}/logging_levels.h"
 )
 
 
