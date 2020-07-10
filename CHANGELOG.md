@@ -1,5 +1,5 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations' based on FreeRTOS.  
+This repository contains the `FreeRTOS AWS Reference Integrations' based on FreeRTOS.  These reference integrations are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT.
 
 ## 202007.00 July 2020
 
@@ -7,19 +7,17 @@ This repository contains the `FreeRTOS AWS Reference Integrations' based on Free
 
 #### Over the Air Update V1.2.0
 
-- Added feature to suspend and resume OTA Agent using new APIs provided. This allows OTA Agent to resume download after suspending it for any tasks like re-establishing MQTT connection. 
-- OTA Demo is updated to check for MQTT disconnect, suspend OTA operations and try reconnecting with exponential delay and jitter. After successful connection the demo resumes OTA Agent operations.
-- Added new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
+- Added feature to suspend and resume over-the-air updates (OTA) Agent using new APIs. This allows OTA Agent to resume download after suspending it for any tasks like re-establishing MQTT connection. 
+- Updated OTA demo to suspend OTA operations when the MQTT connection disconnects and try to reconnect with exponential delay and jitter.  After successful connection the demo resumes OTA operations.
+- Added a new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
 
-#### Cypress
-- New Board: The <b>CY8CKIT_064S0S2_4343W</b> board is now qualified with FreeRTOS.
+#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+- New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
 
-#### Espressif
+#### New Board: ESP32-WROOM-32SE
 
-- New Board: <b>ESP32-WROOM-32SE</b> is now qualified with FreeRTOS. It was previously supported in Preview mode.
-- Support OTA data over HTTP together with BLE on ESP32 when SPIRAM is enabled.
-- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows WiFi provisioning of devices through a web-server running on the device and a provisioning mobile application to enter WiFi credentials onto the device for provisioning. This requires use of lwIP as the networking stack.
-
+- New Board: <b>ESP32-WROOM-32SE</b> is now available in the FreeRTOS Console.  
+- 
 ### Updates
 
 #### FreeRTOS+POSIX Utils V1.2.0
@@ -28,13 +26,13 @@ This repository contains the `FreeRTOS AWS Reference Integrations' based on Free
 
 #### MQTT Client Library V2.2.0
 
-- Improvements in Keep-Alive mechanism : MQTT protocol requires PING requests to be sent  when the connection is idle. This update will  stop sending PING requests when connection is not idle. Earlier, the client library would sometimes disconnect the connection during OTA, when traffic is heavy, due to timeout for server PING response. This update fixes the disconnect issue during OTA.
+- Improved the Keep-Alive mechanism: The MQTT library will not send PING requests when connection is not idle, which fixes a disconnect issue during OTA. In prior versions, MQTT would sometimes disconnect during OTA due to timeouts for server PING response.
 - Bug fix for Keep-Alive interval: The MQTT library was incorrectly sending PING requests at intervals greater than the keep alive period sent in the CONNECT request. This change fixes the problem.
 
 #### Secure Sockets LwIP V1.2.0
 
 - Fix invalid memory access - ss_ctx_t context is shared and sent to a user callback. If the socket is closed and subsequently freed during callback execution, the callback can potentially access the invalid context.
-- Add fixes for potential invalid memory accesses, at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
+- Fix two separate issues for potential invalid memory access., at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
 
 #### PKCS#11 V2.1.0
 
@@ -50,8 +48,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations' based on Free
 #### Bluetooth Low Energy Management Library V2.1.0
 
 - Added new API IotBle_SetDeviceName() to set the BLE device name at runtime.
-- Made fixes to IotBle_On() and IotBle_Off() APIs.
-- Accommodate larger-than-expected writes to RXLargeMesg Gatt Characteristic.
+- Fixed IotBle_On() and IotBle_Off() APIs.
+- Accommodate larger-than-expected writes to RXLargeMesg Gatt characteristic.
 
 #### FreeRTOS+TCP V2.2.0
 
@@ -64,10 +62,12 @@ This repository contains the `FreeRTOS AWS Reference Integrations' based on Free
 
 #### Over the Air Update V1.2.0
 
-- Fixed an issue for when an OTA job is force cancelled when its related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix makes the self-start timer start when the OTA agent on the device starts, before receiving the OTA job.
+- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.  
 
 #### Espressif
 
+- Support OTA via HTTP over the BLE channel for ESP32 (when SPIRAM is enabled).
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack. 
 - Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
 - Updated LwIP as the default networking stack. 
 
