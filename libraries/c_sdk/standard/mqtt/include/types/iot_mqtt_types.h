@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.1.1 SHIM
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -986,7 +986,6 @@ typedef struct IotMqttNetworkInfo
     IotMqttCallbackInfo_t disconnectCallback;
 
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-
         /**
          * @brief MQTT packet serializer overrides used by the new MQTT connection.
          *
