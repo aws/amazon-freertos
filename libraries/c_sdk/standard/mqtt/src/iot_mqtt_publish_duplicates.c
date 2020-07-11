@@ -85,23 +85,6 @@
  */
 #define MQTT_PUBLISH_FLAG_DUP    ( 3 )                     /**< @brief Duplicate message. */
 
-
-/* Username for metrics with AWS IoT. */
-#if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
-    #ifndef AWS_IOT_METRICS_USERNAME
-
-/**
- * @brief Specify C SDK and version.
- */
-        #define AWS_IOT_METRICS_USERNAME           "?SDK=C&Version=4.0.0"
-
-        /**
-         * @brief The length of #AWS_IOT_METRICS_USERNAME.
-         */
-        #define AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( AWS_IOT_METRICS_USERNAME ) - 1 )
-    #endif /* ifndef AWS_IOT_METRICS_USERNAME */
-#endif /* if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1 */
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -112,7 +95,6 @@
  * @return The packet identifier.
  */
 static uint16_t _nextPacketIdentifier( void );
-
 
 /*-----------------------------------------------------------*/
 

@@ -168,7 +168,7 @@ static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLin
     return true;
 }
 
-/*------------------------------------------------------------------------------*/
+/*-----------------------------------------------------------*/
 
 static void _mqttSubscription_tryDestroy( void * pData )
 {
