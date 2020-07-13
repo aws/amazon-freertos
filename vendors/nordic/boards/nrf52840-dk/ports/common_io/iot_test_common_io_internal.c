@@ -29,8 +29,8 @@
 
 #include "iot_test_common_io_internal.h"
 
-#if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 1 )
-/* SPI */
+#if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 2 )
+/* GPIO */
     void SET_TEST_IOT_GPIO_CONFIG( int testSet )
     {
         /* Test loop calls this for pin i=1 to i=N-1, as the loopback tests need two pins! */

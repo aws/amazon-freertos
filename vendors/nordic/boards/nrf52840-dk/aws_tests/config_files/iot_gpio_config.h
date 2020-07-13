@@ -33,23 +33,15 @@
 
 #include "nrf_gpio.h"
 
-/*
- * The pin map is an int array with IOT_COMMON_IO_GPIO_NUMBER_OF_PINS of entries,
- * where the ith entry will be the ith Common IO pin and will map board-specific pin
- * stored at map[i]
- *
- * Example for nrf52840-dk:
- *
- * #define IOT_COMMON_IO_GPIO_NUMBER_OF_PINS  2
- * #define IOT_COMMON_IO_GPIO_PIN_MAP \
- * {                                  \
- *    NRF_GPIO_PIN_MAP(1, 7),         \
- *    NRF_GPIO_PIN_MAP(1, 8)          \
- * }
- *
- */
+#define IOT_GPIO_LOGGING_ENABLED             0
+#define IOT_COMMON_IO_GPIO_NUMBER_OF_PINS    2
+#define IOT_COMMON_IO_GPIO_PIN_MAP \
+    {                              \
+        NRF_GPIO_PIN_MAP( 1, 7 ),  \
+        NRF_GPIO_PIN_MAP( 1, 8 )   \
+    }
 
-#define IOT_COMMON_IO_GPIO_NUMBER_OF_PINS    0
-#define IOT_COMMON_IO_GPIO_PIN_MAP           {}
+/* Set defaults which are not overridden */
+#include "iot_gpio_config_defaults.h"
 
 #endif /* ifndef _AWS_COMMON_IO_GPIO_CONFIG_H_ */
