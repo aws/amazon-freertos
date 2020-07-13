@@ -44,6 +44,10 @@
 /* Task pool include. */
 #include "iot_taskpool.h"
 
+/* MQTT v4_beta 2 library includes. */
+#include "mqtt_lightweight.h"
+#include "mqtt.h"
+#include "mqtt_config.h"
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -245,6 +249,8 @@
  */
 #define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
+#define MAX_NO_OF_MQTT_CONNECTIONS       (2)
+
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
@@ -280,6 +286,15 @@ typedef struct _mqttConnection
     uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
+
+/**
+ * @brief Represents a mapping of MQTT Connection to the corresponding context.
+ */
+typedef struct connContextMapping {
+    IotMqttConnection_t mqttConnection;
+    MQTTContext_t context;
+    IotSemaphore_t contextSemaphore;
+}_connContext_t;
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.
@@ -908,5 +923,22 @@ IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish );
 IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
                                                 uint8_t ** pPubackPacket,
                                                 size_t * pPacketSize );
+
+/**
+ * @brief Process the operation after sending it on the network using managed MQTT v4_beta2 API functions.
+ *
+ * @param[in] pOperation The operation which needs to be processed after sending it on the network.
+ *
+ */
+void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation);
+
+/**
+ * @brief Get the MQTT Context from the given MQTT Connection.
+ *
+ * @param[in] mqttConnection The MQTT connection for which the context is needed.
+ *
+ * @return Index of the context from the mapping Data Structure used to store mapping of context and connection.
+ */
+size_t _getContextFromConnection(IotMqttConnection_t mqttConnection);
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
