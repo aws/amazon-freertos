@@ -36,7 +36,7 @@
   # (plus 1).
   "FAILURE_BOUND": 2,
 
-  "CBMCFLAGS": "--unwind 4 --unwindset strlen.0:11,memcmp.0:7,prvProcessDHCPReplies.0:8,prvCreatePartDHCPMessage.0:{FAILURE_BOUND} --nondet-static --flush",
+  "CBMCFLAGS": "--unwind 4 --unwindset strlen.0:11,memcmp.0:7,__CPROVER_file_local_FreeRTOS_DHCP_c_prvProcessDHCPReplies.0:8,__CPROVER_file_local_FreeRTOS_DHCP_c_prvCreatePartDHCPMessage.0:{FAILURE_BOUND} --nondet-static --flush",
   "OBJS":
   [
     "$(ENTRY)_harness.goto",

@@ -3,7 +3,7 @@
   "CBMCFLAGS":
   [
       "--unwind 1",
-      "--unwindset prvCacheLookup.0:7",
+      "--unwindset __CPROVER_file_local_FreeRTOS_ARP_c_prvCacheLookup.0:7",
       "--nondet-static"
   ],
   "OBJS":

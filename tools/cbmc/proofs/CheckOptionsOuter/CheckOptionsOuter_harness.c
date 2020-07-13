@@ -24,7 +24,7 @@
  * Signature of the function under test
  ****************************************************************/
 
-size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
+size_t __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
                                       size_t uxTotalLength,
                                       FreeRTOS_Socket_t * const pxSocket,
                                       BaseType_t xHasSYNFlag );
@@ -41,7 +41,7 @@ size_t buffer_size;
  * Function contract proved correct by CheckOptionsInner
  ****************************************************************/
 
-void prvReadSackOption( const uint8_t * const pucPtr,
+void __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvReadSackOption( const uint8_t * const pucPtr,
                         size_t uxIndex,
                         FreeRTOS_Socket_t * const pxSocket )
 {
@@ -89,7 +89,7 @@ void harness()
     __CPROVER_assume( uxTotalLength <= buffer_size );
     __CPROVER_assume( pxSocket != NULL );
 
-    size_t index = prvSingleStepTCPHeaderOptions( pucPtr,
+    size_t index = __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvSingleStepTCPHeaderOptions( pucPtr,
                                                   uxTotalLength,
                                                   pxSocket,
                                                   xHasSYNFlag );
