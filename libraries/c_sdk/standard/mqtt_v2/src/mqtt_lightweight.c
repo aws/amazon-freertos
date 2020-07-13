@@ -2145,7 +2145,6 @@ MQTTStatus_t MQTT_DeserializeAck( const MQTTPacketInfo_t * pIncomingPacket,
         LogError( ( "pSessionPresent cannot be NULL for CONNACK packet." ) );
         status = MQTTBadParameter;
     }
-
     /* Pointer for remaining data cannot be NULL for packets other
      * than PINGRESP. */
     else if( ( pIncomingPacket->pRemainingData == NULL ) &&
