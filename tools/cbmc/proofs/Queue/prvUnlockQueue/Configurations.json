@@ -34,7 +34,8 @@
     "--signed-overflow-check",
     "--pointer-overflow-check",
     "--unsigned-overflow-check",
-    "--unwindset prvUnlockQueue.0:{LOCK_BOUND},prvUnlockQueue.1:{LOCK_BOUND}"
+    "--unwindset prvUnlockQueue.0:{LOCK_BOUND}",
+    "--unwindset prvUnlockQueue.1:{LOCK_BOUND}"
   ],
   "OBJS": [
     "$(ENTRY)_harness.goto",
@@ -71,4 +72,3 @@
     "queue_datastructure.h"
   ]
 }
-

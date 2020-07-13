@@ -2,7 +2,8 @@
   "ENTRY": "CheckOptionsInner",
   "CBMCFLAGS": [
       "--unwind 1",
-      "--unwindset prvTCPWindowTxCheckAck.1:2,prvTCPWindowFastRetransmit.2:2"
+      "--unwindset prvTCPWindowTxCheckAck.1:2",
+      "--unwindset prvTCPWindowFastRetransmit.2:2"
   ],
   "OBJS":
   [

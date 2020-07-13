@@ -38,7 +38,9 @@
     "--pointer-overflow-check",
     "--unsigned-overflow-check",
     "--nondet-static",
-    "--unwindset prvUnlockQueue.0:{QUEUE_BOUND},prvUnlockQueue.1:{QUEUE_BOUND},xQueueSemaphoreTake.0:3"
+    "--unwindset prvUnlockQueue.0:{QUEUE_BOUND}",
+    "--unwindset prvUnlockQueue.1:{QUEUE_BOUND}",
+    "--unwindset xQueueSemaphoreTake.0:3"
   ],
   "OBJS": [
     "$(ENTRY)_harness.goto",

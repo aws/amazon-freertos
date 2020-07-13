@@ -50,7 +50,9 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset {PARSELOOP0}:{PARSELOOP0_UNWIND},{PARSELOOP1}:{PARSELOOP1_UNWIND},prvProcessDNSCache.0:5"
+    "--unwindset {PARSELOOP0}:{PARSELOOP0_UNWIND}",
+    "--unwindset {PARSELOOP1}:{PARSELOOP1_UNWIND}",
+    "--unwindset prvProcessDNSCache.0:5"
   ],
 
   "OBJS":

@@ -9,7 +9,9 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset strlen.0:25,_flushHttpsNetworkData.0:5,_receiveHttpsMessage.0:2",
+    "--unwindset strlen.0:25",
+    "--unwindset _flushHttpsNetworkData.0:5",
+    "--unwindset _receiveHttpsMessage.0:2",
 
     # uninitialized global variables have arbitrary values
     "--nondet-static",

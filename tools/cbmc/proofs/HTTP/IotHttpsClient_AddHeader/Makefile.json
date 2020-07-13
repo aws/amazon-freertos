@@ -9,7 +9,8 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset strlen.0:5,strncmp.0:20",
+    "--unwindset strlen.0:5",
+    "--unwindset strncmp.0:20",
 
     # uninitialized global variables have arbitrary values
     "--nondet-static",

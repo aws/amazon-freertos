@@ -9,7 +9,11 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset prvProcessDNSCache.0:5,strlen.0:{HOSTNAME_UNWIND},__builtin___strcpy_chk.0:{HOSTNAME_UNWIND},vDNSCheckCallBack.0:2,strcpy.0:{HOSTNAME_UNWIND}",
+    "--unwindset prvProcessDNSCache.0:5",
+    "--unwindset strlen.0:{HOSTNAME_UNWIND}",
+    "--unwindset __builtin___strcpy_chk.0:{HOSTNAME_UNWIND}",
+    "--unwindset vDNSCheckCallBack.0:2",
+    "--unwindset strcpy.0:{HOSTNAME_UNWIND}",
     "--nondet-static"
   ],
   "OBJS":

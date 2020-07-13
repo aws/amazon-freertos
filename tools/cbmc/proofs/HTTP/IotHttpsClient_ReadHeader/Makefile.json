@@ -14,7 +14,8 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND},strncpy.0:{STRNCPY_UNWIND}",
+    "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND}",
+    "--unwindset strncpy.0:{STRNCPY_UNWIND}",
 
     # uninitialized global variables have arbitrary values
     "--nondet-static",
@@ -50,4 +51,3 @@
     "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
   ]
 }
-
