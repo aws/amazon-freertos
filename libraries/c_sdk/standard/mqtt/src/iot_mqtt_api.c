@@ -65,11 +65,8 @@
 #endif
 
 #define NETWORK_BUFFER_SIZE    ( 1024U )
-/*-----------------------------------------------------------*/
 
-/* Fixed Size Array to hold Mapping of MQTT Connection to Context. */
-_connContext_t connToContext[MAX_NO_OF_MQTT_CONNECTIONS];
-
+extern _connContext_t connToContext[MAX_NO_OF_MQTT_CONNECTIONS];
 /*-----------------------------------------------------------*/
 
 /**
@@ -152,6 +149,13 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
                                            const IotMqttCallbackInfo_t * pCallbackInfo,
                                            IotMqttOperation_t * pOperationReference );
 
+/**
+ * @brief The timer query function provided to the MQTT context.
+ *
+ * This function returns the elapsed time.
+ *
+ * @return Time in milliseconds.
+ */
 static uint32_t getTimeMs(void);
 
 /*-----------------------------------------------------------*/
@@ -544,13 +548,15 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
     IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
 
-    size_t contextIndex = 0;
+    int8_t contextIndex = -1;
 
     /* Get the MQTT Context from the MQTT Connection. */
-    contextIndex = _getContextFromConnection(pMqttConnection);
-
+    contextIndex = _IotMqtt_getContextFromConnection(pMqttConnection);
+    
     /* Destroy the Semaphore used for MQTT Context*/
-    IotSemaphore_Destroy(&(connToContext[contextIndex].contextSemaphore));
+    if (contextIndex >= 0) {
+        IotSemaphore_Destroy(&(connToContext[contextIndex].contextSemaphore));
+    }
 
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
 
@@ -773,23 +779,6 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     }
 
     IOT_FUNCTION_CLEANUP_END();
-}
-
-/*-----------------------------------------------------------*/
-
-size_t _getContextFromConnection(IotMqttConnection_t mqttConnection) {
-    size_t contextIndex = 0;
-
-    /* Getting the index of context from the mapping Data Structure for the given MQTT Connection. */
-    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
-    {
-        if (connToContext[i].mqttConnection == mqttConnection && IotSemaphore_TimedWait(&(connToContext[i].contextSemaphore), 500) == true)
-        {
-            contextIndex = i;
-            break;
-        }
-    }
-    return contextIndex;
 }
 
 /*-----------------------------------------------------------*/
@@ -1321,24 +1310,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         MQTT_Init(&context, &transport, &callbacks, &networkBuffer);
 
-        /* Assigning the newly created MQTT Connection to a MQTT Context. */
-        for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
-        {
-            if (connToContext[i].mqttConnection != NULL)
-            {
-                continue;
-            }
-            else {
-                /* Creating a semaphore for the MQTT Context. */
-                if (IotSemaphore_Create(&(connToContext[i].contextSemaphore), 0, 1) == true) {
-                    connToContext[i].mqttConnection = pNewMqttConnection;
-                    connToContext[i].context = context;
-                }
-                else {
-                    IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_NO_MEMORY);
-                }
-                break;
-            }
+        /* Setting the context for the established MQTT connection*/
+        status=_IotMqtt_setContext(pNewMqttConnection,context);
+
+        if (status == IOT_MQTT_NO_MEMORY) {
+            IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_NO_MEMORY);
         }
 
     }
@@ -1412,20 +1388,20 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
       
 
-                    size_t contextIndex = 0;
+                    int8_t contextIndex = -1;
                     /* Getting MQTT Context for the specifies MQTT Connection. */
-                    contextIndex = _getContextFromConnection(mqttConnection);
+                    
+                        contextIndex = _IotMqtt_getContextFromConnection(mqttConnection);
+                    
+                        if (contextIndex >= 0) {
+                            /* Initializing MQTT Status. */
+                            MQTTStatus_t mqttStatus = MQTTSuccess;
 
-                    /* Initializing MQTT Status. */
-                    MQTTStatus_t mqttStatus = MQTTSuccess;
+                            /* Sending Disconnect Packet using MQTT v4_beta2 library. */
+                            mqttStatus = MQTT_Disconnect(&(connToContext[contextIndex].context));
 
-                    /* Sending Disconnect Packet using MQTT v4_beta2 library. */
-                    mqttStatus = MQTT_Disconnect(&(connToContext[contextIndex].context));
-
-                    /* Posting the MQTT Semaphore. */
-                    IotSemaphore_Post(&(connToContext[contextIndex].contextSemaphore));
-
-                    status = convertReturnCode(mqttStatus);
+                            status = convertReturnCode(mqttStatus);
+                        }
             }
             else
             {
@@ -1478,15 +1454,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
     /* Decrement the connection reference count and destroy it if possible. */
     _IotMqtt_DecrementConnectionReferences( mqttConnection );
 
-    /* Free the Array for the destroyed connection. */
-    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
-    {
-        if (connToContext[i].mqttConnection == mqttConnection)
-        {
-            connToContext[i].mqttConnection = NULL;
-            break;
-        }
-    }
+    /* Free the MQTT Context for the destroyed connection. */
+    _IotMqtt_removeContext(mqttConnection);
 }
 
 /*-----------------------------------------------------------*/

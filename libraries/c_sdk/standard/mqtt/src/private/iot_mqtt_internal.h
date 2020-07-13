@@ -249,6 +249,7 @@
  */
 #define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
+ /* Maximum Number of MQTT CONNECTION. */
 #define MAX_NO_OF_MQTT_CONNECTIONS       (2)
 
 /*---------------------- MQTT internal data structures ----------------------*/
@@ -414,6 +415,9 @@ typedef struct _mqttPacket
     uint16_t packetIdentifier; /**< @brief (Output) MQTT packet identifier. */
     uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
 } _mqttPacket_t;
+
+/* Fixed Size Array to hold Mapping of MQTT Connection to Context. */
+_connContext_t connToContext[MAX_NO_OF_MQTT_CONNECTIONS];
 
 /*-------------------- MQTT struct validation functions ---------------------*/
 
@@ -939,6 +943,23 @@ void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation);
  *
  * @return Index of the context from the mapping Data Structure used to store mapping of context and connection.
  */
-size_t _getContextFromConnection(IotMqttConnection_t mqttConnection);
+uint8_t _IotMqtt_getContextFromConnection(IotMqttConnection_t mqttConnection);
+
+/**
+ * @brief Set the MQTT Context for the given MQTT Connection.
+ *
+ * @param[in] pNewMqttConnection The MQTT connection for which the context needs to be set.
+ * @param[in] context The MQTT context for the MQTT Connection.
+ *
+ */
+IotMqttError_t _IotMqtt_setContext(IotMqttConnection_t pNewMqttConnection, MQTTContext_t context);
+
+/**
+ * @brief Remove the MQTT Context from the given MQTT Connection.
+ *
+ * @param[in] mqttConnection The MQTT connection for which the context needs to be removed.
+ *
+ */
+void _IotMqtt_removeContext(IotMqttConnection_t mqttConnection);
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
