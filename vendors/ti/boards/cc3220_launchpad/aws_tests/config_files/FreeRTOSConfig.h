@@ -41,14 +41,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 
-/* Unity includes. */
-//#include "unity_internals.h"
-
-//#ifndef UART_PRINT
-//    #include "uart_term.h"
-//    #define UART_PRINT    Report
-//#endif
-
 /*-----------------------------------------------------------
 * Application specific definitions.
 *
@@ -108,12 +100,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
-//extern void vLoggingPrintf( const char * pcFormat,
-//                            ... );
 #define configPRINTF( X )    vLoggingPrintf X
 
 /* Non-format version thread-safe print */
-//extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
