@@ -24,7 +24,7 @@
  * Signature of function under test
  ****************************************************************/
 
-void prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
+void __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
                       const NetworkBufferDescriptor_t * pxNetworkBuffer );
 
 /****************************************************************
@@ -38,7 +38,7 @@ size_t buffer_size;
  * Function contract proved correct by CheckOptionsOuter
  ****************************************************************/
 
-size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
+size_t __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
                                       size_t uxTotalLength,
                                       FreeRTOS_Socket_t * const pxSocket,
                                       BaseType_t xHasSYNFlag )
@@ -96,5 +96,5 @@ void harness()
     /* Buffer must be big enough to hold pxTCPPacket and pxTCPHeader */
     __CPROVER_assume( buffer_size > 47 );
 
-    prvCheckOptions( &pxSocket, &pxNetworkBuffer );
+    __CPROVER_file_local_FreeRTOS_TCP_IP_c_prvCheckOptions( &pxSocket, &pxNetworkBuffer );
 }
