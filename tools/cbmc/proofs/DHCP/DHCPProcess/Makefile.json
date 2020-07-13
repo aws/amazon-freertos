@@ -36,14 +36,16 @@
   # (plus 1).
   "FAILURE_BOUND": 2,
 
-  "CBMCFLAGS":
+  "CBMCFLAGS": [
     "--unwind 4",
     "--unwindset strlen.0:11",
     "--unwindset memcmp.0:7",
     "--unwindset prvProcessDHCPReplies.0:8",
     "--unwindset prvCreatePartDHCPMessage.0:{FAILURE_BOUND}",
     "--nondet-static",
-    "--flush",
+    "--flush"
+  ],
+
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
