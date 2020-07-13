@@ -18,6 +18,10 @@
         "'configPRECONDITION(X)=__CPROVER_assume(X)'"
     ],
 
+    "OPT": [
+        "--export-file-local-symbols"
+    ],
+
   "INC ": [
         "$(FREERTOS)/freertos_kernel/include",
         "$(FREERTOS)/freertos_kernel/portable/MSVC-MingW",
