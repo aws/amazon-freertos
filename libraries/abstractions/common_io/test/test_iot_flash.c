@@ -488,8 +488,8 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) ) || 
-            ( 0 == ( ultestIotFlashStartOffset % pxFlashInfo->ulBlockSize ) ) )
+        if ( ( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 ) &&
+            ( pxFlashInfo->ulBlockSize != 0 ) && ( ( pxFlashInfo->ulBlockSize & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0) )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
@@ -572,8 +572,8 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) ) || 
-            ( 0 == ( ultestIotFlashStartOffset % pxFlashInfo->ulBlockSize ) ) )
+        if ( ( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 ) &&
+            ( pxFlashInfo->ulBlockSize != 0 ) && ( ( pxFlashInfo->ulBlockSize & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0) )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
@@ -662,8 +662,8 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) ) || 
-            ( 0 == ( ultestIotFlashStartOffset % pxFlashInfo->ulBlockSize ) ) )
+        if ( ( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 ) &&
+            ( pxFlashInfo->ulBlockSize != 0 ) && ( ( pxFlashInfo->ulBlockSize & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0) )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
