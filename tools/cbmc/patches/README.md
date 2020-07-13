@@ -1,6 +1,10 @@
 This directory includes patches to FreeRTOS required to run the CBMC proofs.
 
-The patches fall into three classes:
-* First is a refactoring of prvCheckOptions
-* Second is the removal of static attributes from some functions
-* Third is two patches dealing with shortcomings of CBMC that should be removed soon.
+* One patch may no longer be required:
+    * 0002-Change-FreeRTOS_IP_Private.h-union-to-struct.patch
+
+* One patch is needed to avoid false positives:
+    * 0005-Remove-volatile-qualifier-from-tasks-variables.patch
+
+* One patch is needed to expose an encapsulated data structure:
+    * remove-static-in-freertos-tcp-win.patch
