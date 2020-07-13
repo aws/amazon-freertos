@@ -37,7 +37,7 @@
 /* Include config file before other headers. */
 #include "mqtt_config.h"
 
-#include "platform/transport_interface.h"
+#include "transport_interface.h"
 
 /* MQTT packet types. */
 #define MQTT_PACKET_TYPE_CONNECT        ( ( uint8_t ) 0x10U )  /**< @brief CONNECT (client-to-server). */
