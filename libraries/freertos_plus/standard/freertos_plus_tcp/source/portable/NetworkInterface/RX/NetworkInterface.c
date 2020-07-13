@@ -233,10 +233,10 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
 
     for( ; ; )
     {
-		/* Call a function that monitors resources: the amount of free network
-		buffers and the amount of free space on the heap.  See FreeRTOS_IP.c
-		for more detailed comments. */
-		vPrintResourceStats();
+        /* Call a function that monitors resources: the amount of free network
+         * buffers and the amount of free space on the heap.  See FreeRTOS_IP.c
+         * for more detailed comments. */
+        vPrintResourceStats();
 
         /* Wait for the Ethernet MAC interrupt to indicate that another packet
          * has been received.  */
@@ -251,15 +251,15 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
         if( xBytesReceived < 0 )
         {
             /* This is an error. Logged. */
-        	if( xBytesReceived == ETHER_ERR_LINK )
-        	{
-				/* Auto-negotiation is not completed, and transmission/
-				reception is not enabled. Will be logged elsewhere. */
-        	}
-        	else
-         	{
-        		FreeRTOS_printf( ( "R_ETHER_Read_ZC2: rc = %d not %d\n", xBytesReceived, ETHER_ERR_LINK ) );
-        	}
+            if( xBytesReceived == ETHER_ERR_LINK )
+            {
+                /* Auto-negotiation is not completed, and transmission/
+                 * reception is not enabled. Will be logged elsewhere. */
+            }
+            else
+            {
+                FreeRTOS_printf( ( "R_ETHER_Read_ZC2: rc = %d not %d\n", xBytesReceived, ETHER_ERR_LINK ) );
+            }
         }
         else if( xBytesReceived > 0 )
         {
