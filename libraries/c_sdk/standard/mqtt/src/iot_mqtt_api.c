@@ -64,6 +64,12 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
+#define NETWORK_BUFFER_SIZE    ( 1024U )
+/*-----------------------------------------------------------*/
+
+/* Fixed Size Array to hold Mapping of MQTT Connection to Context. */
+_connContext_t connToContext[MAX_NO_OF_MQTT_CONNECTIONS];
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -145,6 +151,8 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
                                            uint32_t flags,
                                            const IotMqttCallbackInfo_t * pCallbackInfo,
                                            IotMqttOperation_t * pOperationReference );
+
+static uint32_t getTimeMs(void);
 
 /*-----------------------------------------------------------*/
 
@@ -536,6 +544,14 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
     IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
 
+    size_t contextIndex = 0;
+
+    /* Get the MQTT Context from the MQTT Connection. */
+    contextIndex = _getContextFromConnection(pMqttConnection);
+
+    /* Destroy the Semaphore used for MQTT Context*/
+    IotSemaphore_Destroy(&(connToContext[contextIndex].contextSemaphore));
+
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
 
     /* Free connection. */
@@ -761,6 +777,23 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
 /*-----------------------------------------------------------*/
 
+size_t _getContextFromConnection(IotMqttConnection_t mqttConnection) {
+    size_t contextIndex = 0;
+
+    /* Getting the index of context from the mapping Data Structure for the given MQTT Connection. */
+    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    {
+        if (connToContext[i].mqttConnection == mqttConnection && IotSemaphore_TimedWait(&(connToContext[i].contextSemaphore), 500) == true)
+        {
+            contextIndex = i;
+            break;
+        }
+    }
+    return contextIndex;
+}
+
+/*-----------------------------------------------------------*/
+
 bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection )
 {
     bool disconnected = false;
@@ -834,6 +867,45 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
     {
         EMPTY_ELSE_MARKER;
     }
+}
+
+/*-----------------------------------------------------------*/
+
+static uint32_t getTimeMs(void)
+{
+    uint32_t timeMs;
+
+    return (uint32_t)IotClock_GetTimeMs();
+}
+
+/*-----------------------------------------------------------*/
+
+static int32_t transportSend(NetworkContext_t networkContext,
+    const void* pMessage,
+    size_t bytesToSend)
+{
+    int32_t bytesSend = 0;
+
+    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    {
+        if (connToContext[i].mqttConnection->pNetworkConnection == networkContext)
+        {
+            /* Sending the bytes on the network usng Network Interface of MQTT v4_beta1 library. */
+            bytesSend = connToContext[i].mqttConnection->pNetworkInterface->send(connToContext[i].mqttConnection->pNetworkConnection, (uint8_t*)pMessage, bytesToSend);
+
+            if (bytesSend < 0)
+            {
+                /*need to include iot_network_freertos.h */
+                return -1;
+            }
+            else
+            {
+                return bytesSend;
+            }
+        }
+    }
+
+    return bytesSend;
 }
 
 /*-----------------------------------------------------------*/
@@ -1231,6 +1303,44 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         IotLogInfo( "New MQTT connection %p established.", pMqttConnection );
         /* Set the output parameter. */
         *pMqttConnection = pNewMqttConnection;
+
+        MQTTTransportInterface_t transport;
+        MQTTFixedBuffer_t networkBuffer;
+        MQTTApplicationCallbacks_t callbacks;
+        MQTTContext_t context;
+        static uint8_t buffer[NETWORK_BUFFER_SIZE];
+
+        /* Fill in TransportInterface send and send function pointers.*/
+        transport.networkContext = pNetworkConnection;
+        transport.send = transportSend;
+
+        callbacks.getTime = getTimeMs;
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = buffer;
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+
+        MQTT_Init(&context, &transport, &callbacks, &networkBuffer);
+
+        /* Assigning the newly created MQTT Connection to a MQTT Context. */
+        for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+        {
+            if (connToContext[i].mqttConnection != NULL)
+            {
+                continue;
+            }
+            else {
+                /* Creating a semaphore for the MQTT Context. */
+                if (IotSemaphore_Create(&(connToContext[i].contextSemaphore), 0, 1) == true) {
+                    connToContext[i].mqttConnection = pNewMqttConnection;
+                    connToContext[i].context = context;
+                }
+                else {
+                    IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_NO_MEMORY);
+                }
+                break;
+            }
+        }
+
     }
 
     IOT_FUNCTION_CLEANUP_END();
@@ -1300,11 +1410,22 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                         EMPTY_ELSE_MARKER;
                     }
                 #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
+      
 
-                /* Generate a DISCONNECT packet. */
+                    size_t contextIndex = 0;
+                    /* Getting MQTT Context for the specifies MQTT Connection. */
+                    contextIndex = _getContextFromConnection(mqttConnection);
 
-                status = serializeDisconnect( &( pOperation->u.operation.pMqttPacket ),
-                                              &( pOperation->u.operation.packetSize ) );
+                    /* Initializing MQTT Status. */
+                    MQTTStatus_t mqttStatus = MQTTSuccess;
+
+                    /* Sending Disconnect Packet using MQTT v4_beta2 library. */
+                    mqttStatus = MQTT_Disconnect(&(connToContext[contextIndex].context));
+
+                    /* Posting the MQTT Semaphore. */
+                    IotSemaphore_Post(&(connToContext[contextIndex].contextSemaphore));
+
+                    status = convertReturnCode(mqttStatus);
             }
             else
             {
@@ -1313,45 +1434,14 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                /* Check the serialized MQTT packet. */
-                IotMqtt_Assert( pOperation->u.operation.pMqttPacket != NULL );
-                IotMqtt_Assert( pOperation->u.operation.packetSize > 0 );
-
-                /* Schedule the DISCONNECT operation for network transmission. */
-                if( _IotMqtt_ScheduleOperation( pOperation,
-                                                _IotMqtt_ProcessSend,
-                                                0 ) != IOT_MQTT_SUCCESS )
-                {
-                    IotLogWarn( "(MQTT connection %p) Failed to schedule DISCONNECT for sending.",
-                                mqttConnection );
-                    _IotMqtt_DestroyOperation( pOperation );
-                }
-                else
-                {
-                    /* Wait a short time for the DISCONNECT packet to be transmitted. */
-                    status = IotMqtt_Wait( pOperation,
-                                           IOT_MQTT_RESPONSE_WAIT_MS );
-
-                    /* A wait on DISCONNECT should only ever return SUCCESS, TIMEOUT,
-                     * or NETWORK ERROR. */
-                    if( status == IOT_MQTT_SUCCESS )
-                    {
-                        IotLogInfo( "(MQTT connection %p) Connection disconnected.", mqttConnection );
-                    }
-                    else
-                    {
-                        IotMqtt_Assert( ( status == IOT_MQTT_TIMEOUT ) ||
-                                        ( status == IOT_MQTT_NETWORK_ERROR ) );
-
-                        IotLogWarn( "(MQTT connection %p) DISCONNECT not sent, error %s.",
-                                    mqttConnection,
-                                    IotMqtt_strerror( status ) );
-                    }
-                }
+                /* Processing the operation after sending it on the network. */
+                _IotMqtt_ManagedMqttSend(pOperation);
             }
             else
             {
-                EMPTY_ELSE_MARKER;
+                IotLogWarn("(MQTT connection %p) Failed to schedule DISCONNECT for sending.",
+                    mqttConnection);
+                _IotMqtt_DestroyOperation(pOperation);
             }
         }
         else
@@ -1387,6 +1477,16 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
     /* Decrement the connection reference count and destroy it if possible. */
     _IotMqtt_DecrementConnectionReferences( mqttConnection );
+
+    /* Free the Array for the destroyed connection. */
+    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    {
+        if (connToContext[i].mqttConnection == mqttConnection)
+        {
+            connToContext[i].mqttConnection = NULL;
+            break;
+        }
+    }
 }
 
 /*-----------------------------------------------------------*/
