@@ -53,7 +53,7 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
                                     MQTTContext_t context )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_NO_MEMORY;
 
     /* Assigning the newly created MQTT Connection to a MQTT Context. */
     for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
@@ -64,17 +64,9 @@ IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
         }
         else
         {
-            /* Creating a semaphore for the MQTT Context. */
-            if( IotSemaphore_Create( &( connToContext[ i ].contextSemaphore ), 0, 1 ) == true )
-            {
-                connToContext[ i ].mqttConnection = pNewMqttConnection;
-                connToContext[ i ].context = context;
-                status = IOT_MQTT_SUCCESS;
-            }
-            else
-            {
-                status = IOT_MQTT_NO_MEMORY;
-            }
+            connToContext[ i ].mqttConnection = pNewMqttConnection;
+            connToContext[ i ].context = context;
+            status = IOT_MQTT_SUCCESS;
 
             break;
         }
