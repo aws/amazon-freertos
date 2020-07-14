@@ -470,7 +470,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
     /* Attempt to cancel the operation's job. */
-    if(pOperation->u.operation.type == IOT_MQTT_CONNECT && cancelJob == true )
+    if( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( cancelJob == true ) )
     {
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
                                                 pOperation->job,
@@ -499,7 +499,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     }
 
     /* Decrement job reference count. */
-    if( taskPoolStatus == IOT_TASKPOOL_SUCCESS && (pOperation->u.operation.type == IOT_MQTT_CONNECT || cancelJob == false))
+    if( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) && ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) || ( cancelJob == false ) ) )
     {
         IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
         pOperation->u.operation.jobReference--;
@@ -1087,40 +1087,38 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation)
+void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
-    _mqttConnection_t* pMqttConnection = pOperation->pMqttConnection;
+    _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
     /* The given operation must have an allocated packet and be waiting for a status. */
-    IotMqtt_Assert(pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING);
+    IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
 
     /* Check if this operation is waitable. */
-    waitable = (pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE) == IOT_MQTT_FLAG_WAITABLE;
-
+    waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
     /* Send an operation that is waiting for a response. */
-    if (pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING)
+    if( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
     {
-
         /* Update the timestamp of the last message on successful transmission. */
-        IotMutex_Lock(&(pMqttConnection->referencesMutex));
+        IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
         pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-        IotMutex_Unlock(&(pMqttConnection->referencesMutex));
+        IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
         /* DISCONNECT operations are considered successful upon successful
          * transmission. In addition, non-waitable operations with no callback
          * may also be considered successful. */
-        if (pOperation->u.operation.type == IOT_MQTT_DISCONNECT)
+        if( pOperation->u.operation.type == IOT_MQTT_DISCONNECT )
         {
             /* DISCONNECT operations are always waitable. */
-            IotMqtt_Assert(waitable == true);
+            IotMqtt_Assert( waitable == true );
 
             pOperation->u.operation.status = IOT_MQTT_SUCCESS;
         }
-        else if (waitable == false)
+        else if( waitable == false )
         {
-            if (pOperation->u.operation.notify.callback.function == NULL)
+            if( pOperation->u.operation.notify.callback.function == NULL )
             {
                 pOperation->u.operation.status = IOT_MQTT_SUCCESS;
             }
@@ -1133,7 +1131,6 @@ void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation)
         {
             EMPTY_ELSE_MARKER;
         }
-
     }
     else
     {
@@ -1141,14 +1138,13 @@ void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation)
     }
 
     /* Check if this operation requires further processing. */
-    if (pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING)
+    if( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
     {
-
         /* Decrement reference count to signal completion of send job. Check
          * if the operation should be destroyed. */
-        if (waitable == true)
+        if( waitable == true )
         {
-            destroyOperation = _IotMqtt_DecrementOperationReferences(pOperation, false);
+            destroyOperation = _IotMqtt_DecrementOperationReferences( pOperation, false );
         }
         else
         {
@@ -1157,19 +1153,19 @@ void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation)
 
         /* If the operation should not be destroyed, transfer it from the
          * pending processing to the pending response list. */
-        if (destroyOperation == false)
+        if( destroyOperation == false )
         {
-            IotMutex_Lock(&(pMqttConnection->referencesMutex));
+            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
 
             /* Operation must be linked. */
-            IotMqtt_Assert(IotLink_IsLinked(&(pOperation->link)));
+            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
 
             /* Transfer to pending response list. */
-            IotListDouble_Remove(&(pOperation->link));
-            IotListDouble_InsertHead(&(pMqttConnection->pendingResponse),
-                &(pOperation->link));
+            IotListDouble_Remove( &( pOperation->link ) );
+            IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
+                                      &( pOperation->link ) );
 
-            IotMutex_Unlock(&(pMqttConnection->referencesMutex));
+            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
             /* This operation is now awaiting a response from the network. */
             networkPending = true;
@@ -1185,20 +1181,20 @@ void _IotMqtt_ManagedMqttSend(_mqttOperation_t* pOperation)
     }
 
     /* Destroy the operation or notify of completion if necessary. */
-    if (destroyOperation == true)
+    if( destroyOperation == true )
     {
-        _IotMqtt_DestroyOperation(pOperation);
+        _IotMqtt_DestroyOperation( pOperation );
     }
     else
     {
         /* Do not check the operation status if a network response is pending,
          * since a network response could modify the status. */
-        if (networkPending == false)
+        if( networkPending == false )
         {
             /* Notify of operation completion if this job set a status. */
-            if (pOperation->u.operation.status != IOT_MQTT_STATUS_PENDING)
+            if( pOperation->u.operation.status != IOT_MQTT_STATUS_PENDING )
             {
-                _IotMqtt_Notify(pOperation);
+                _IotMqtt_Notify( pOperation );
             }
             else
             {
