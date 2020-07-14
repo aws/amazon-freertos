@@ -33,14 +33,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-/* FreeRTOS+POSIX includes. */
-#include "FreeRTOS_POSIX.h"
-#include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/pthread.h"
-#include "FreeRTOS_POSIX/signal.h"
-#include "FreeRTOS_POSIX/time.h"
-#include "FreeRTOS_POSIX/utils.h"
-
 /* OTA agent includes. */
 #include "aws_iot_ota_agent.h"
 #include "aws_ota_agent_config.h"
@@ -297,7 +289,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .xPALCallbacks                 = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER,
     .ulNumOfBlocksToReceive        = 1,
     .xStatistics                   = { 0 },
-    .xOTA_ThreadSafetyMutex        = NULL,
+    .otaBufferSem                  = { 0 },
     .ulRequestMomentum             = 0
 };
 
@@ -1364,10 +1356,10 @@ void prvOTAEventBufferFree( OTA_EventData_t * const pxBuffer )
 {
     DEFINE_OTA_METHOD_NAME( "prvOTAEventBufferFree" );
 
-    if( xSemaphoreTake( xOTA_Agent.xOTA_ThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
+    if(sem_wait( &xOTA_Agent.otaBufferSem ) == pdPASS )
     {
         pxBuffer->bBufferUsed = false;
-        ( void ) xSemaphoreGive( xOTA_Agent.xOTA_ThreadSafetyMutex );
+        ( void ) sem_post(&xOTA_Agent.otaBufferSem);
     }
     else
     {
@@ -1383,7 +1375,7 @@ OTA_EventData_t * prvOTAEventBufferGet( void )
     OTA_EventData_t * pxOTAFreeMsg = NULL;
 
     /* Wait at most 1 task switch for a buffer so as not to block the callback. */
-    if( xSemaphoreTake( xOTA_Agent.xOTA_ThreadSafetyMutex, 1 ) == pdPASS )
+    if(sem_wait( &xOTA_Agent.otaBufferSem, 1 ) == pdPASS )
     {
         for( ulIndex = 0; ulIndex < otaconfigMAX_NUM_OTA_DATA_BUFFERS; ulIndex++ )
         {
@@ -1395,7 +1387,7 @@ OTA_EventData_t * prvOTAEventBufferGet( void )
             }
         }
 
-        ( void ) xSemaphoreGive( xOTA_Agent.xOTA_ThreadSafetyMutex );
+        ( void )sem_post( &xOTA_Agent.otaBufferSem );
     }
     else
     {
@@ -2693,10 +2685,7 @@ static void prvAgentShutdownCleanup( void )
     }
 
     /* Delete the semaphore.*/
-    if( xOTA_Agent.xOTA_ThreadSafetyMutex != NULL )
-    {
-        vSemaphoreDelete( xOTA_Agent.xOTA_ThreadSafetyMutex );
-    }
+	sem_destroy(&xOTA_Agent.otaBufferSem);
 }
 
 /*
@@ -2863,8 +2852,8 @@ static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
     /*
      * Create the queue used to pass event messages to the OTA task.
      */
-    xOTA_Agent.xOTA_ThreadSafetyMutex = xSemaphoreCreateMutex();
-    configASSERT( xOTA_Agent.xOTA_ThreadSafetyMutex != NULL );
+	ret = sem_init( &xOTA_Agent.otaBufferSem, 0, 1 );
+	configASSERT(ret != -1 );
 
     /*
      * Initialize all file paths to NULL.

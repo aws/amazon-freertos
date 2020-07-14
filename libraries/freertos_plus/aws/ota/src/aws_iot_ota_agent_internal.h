@@ -32,6 +32,15 @@
 #ifndef _AWS_IOT_OTA_AGENT_INTERNAL_H_
 #define _AWS_IOT_OTA_AGENT_INTERNAL_H_
 
+ /* FreeRTOS+POSIX includes. */
+#include "FreeRTOS_POSIX.h"
+#include "FreeRTOS_POSIX/errno.h"
+#include "FreeRTOS_POSIX/pthread.h"
+#include "FreeRTOS_POSIX/signal.h"
+#include "FreeRTOS_POSIX/time.h"
+#include "FreeRTOS_POSIX/utils.h"
+#include "FreeRTOS_POSIX/semaphore.h"
+
 #include "aws_ota_agent_config.h"
 #include "jsmn.h"
 
@@ -258,7 +267,7 @@ typedef struct ota_agent_context
     OTA_PAL_Callbacks_t xPALCallbacks;                      /* Variable to store PAL callbacks */
     uint32_t ulNumOfBlocksToReceive;                        /* Number of data blocks to receive per data request. */
     OTA_AgentStatistics_t xStatistics;                      /* The OTA agent statistics block. */
-    SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety while managing data buffers. */
+	sem_t otaBufferSem;                                     /* Mutex used to ensure thread safety while managing data buffers. */
     uint32_t ulRequestMomentum;                             /* The number of requests sent before a response was received. */
 } OTA_AgentContext_t;
 
