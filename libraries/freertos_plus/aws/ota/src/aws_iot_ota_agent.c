@@ -23,6 +23,9 @@
  * http://www.FreeRTOS.org
  */
 
+ /* The config header is always included first. */
+#include "iot_config.h"
+
 /* Standard library includes. */
 #include <stddef.h>
 #include <string.h>
@@ -30,12 +33,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "timers.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
+/* FreeRTOS+POSIX includes. */
+#include "FreeRTOS_POSIX.h"
+#include "FreeRTOS_POSIX/errno.h"
+#include "FreeRTOS_POSIX/pthread.h"
+#include "FreeRTOS_POSIX/signal.h"
+#include "FreeRTOS_POSIX/time.h"
+#include "FreeRTOS_POSIX/utils.h"
 
 /* OTA agent includes. */
 #include "aws_iot_ota_agent.h"
@@ -1258,8 +1262,8 @@ static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 
     xOTA_Agent.eState = eOTA_AgentState_Stopped;
 
-    /* Delete the OTA agent task. */
-    vTaskDelete( NULL );
+    /* Terminate the OTA Agent Thread. */
+	pthread_exit( NULL );
 
     return kOTA_Err_None;
 }
@@ -2831,14 +2835,14 @@ static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
 {
     BaseType_t xReturn = 0;
     uint32_t ulIndex = 0;
+	int ret = 0;
 
     /*
      * The actual OTA Task and queue control structure. Only created once.
      */
-    static TaskHandle_t pxOTA_TaskHandle;
-    static StaticQueue_t xStaticQueue;
+	pthread_t xOTAThreadHandle;
 
-    portENTER_CRITICAL();
+    static StaticQueue_t xStaticQueue;
 
     /*
      * The current OTA image state as set by the OTA agent.
@@ -2878,15 +2882,16 @@ static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
         xEventBuffer[ ulIndex ].bBufferUsed = false;
     }
 
-    xReturn = xTaskCreate( prvOTAAgentTask, "OTA Agent Task", otaconfigSTACK_SIZE, NULL, otaconfigAGENT_PRIORITY, &pxOTA_TaskHandle );
-
-    portEXIT_CRITICAL(); /* Protected elements are initialized. It's now safe to context switch. */
+	/*
+     * Create the OTA Agent thread.
+     */
+	ret = pthread_create( &xOTAThreadHandle, NULL, prvOTAAgentTask, NULL);
 
     /*
-     * If task creation succeed, wait for the OTA agent to be ready before proceeding. Otherwise,
+     * If thread creation succeed, wait for the OTA agent to be ready before proceeding. Otherwise,
      * let it fall through to exit.
      */
-    if( xReturn == pdPASS )
+    if(ret == 0 )
     {
         while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState != eOTA_AgentState_Ready ) )
         {
