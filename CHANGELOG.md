@@ -1,5 +1,5 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations', which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
 
 ## 202007.00 July 2020
 
@@ -32,7 +32,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations', which are pr
 #### Secure Sockets LwIP V1.2.0
 
 - Fix invalid memory access - ss_ctx_t context is shared and sent to a user callback. If the socket is closed and subsequently freed during callback execution, the callback can potentially access the invalid context.
-- Fix two separate issues for potential invalid memory access., at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
+- Fix two separate issues for potential invalid memory access; at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
 
 #### PKCS#11 V2.1.0
 
