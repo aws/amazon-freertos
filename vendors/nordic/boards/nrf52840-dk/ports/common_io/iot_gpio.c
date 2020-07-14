@@ -55,8 +55,11 @@
 #endif
 
 
-#define IOT_GPIO_CLOSED    ( ( uint8_t ) 0 )
-#define IOT_GPIO_OPENED    ( ( uint8_t ) 1 )
+typedef enum
+{
+    IOT_GPIO_CLOSED = 0u,
+    IOT_GPIO_OPENED = 1u
+} IotGpioState_t;
 
 typedef struct
 {
@@ -486,7 +489,7 @@ IotGpioHandle_t iot_gpio_open( int32_t lGpioNumber )
         }
         else
         {
-            IOT_GPIO_LOG( " Cannot open. GPIO[%d] is already opened\r\n" );
+            IOT_GPIO_LOGF( " Cannot open. GPIO[%d] is already opened\r\n", lGpioNumber );
         }
     }
     else
