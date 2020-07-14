@@ -44,6 +44,10 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
+/* FreeRTOS network include. */
+#include "platform/iot_network_freertos.h"
+
+
 /* Atomic operations. */
 #include "iot_atomic.h"
 
