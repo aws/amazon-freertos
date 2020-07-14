@@ -1354,27 +1354,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 /* Set the operation type. */
                 pOperation->u.operation.type = IOT_MQTT_DISCONNECT;
 
-                int8_t contextIndex = -1;
-                /* Getting MQTT Context for the specifies MQTT Connection. */
-
-                contextIndex = _IotMqtt_getContextFromConnection( mqttConnection );
-
-                if( contextIndex >= 0 )
-                {
-                    /* Initializing MQTT Status. */
-                    MQTTStatus_t mqttStatus = MQTTSuccess;
-
-                    if( IotSemaphore_Create( &( connToContext[ contextIndex ].contextSemaphore ), 0, 1 ) == true )
-                    {
-                        /* Sending Disconnect Packet using MQTT v4_beta2 library. */
-                        mqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
-
-                        /* Destroying the Context Semaphore*/
-                        IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
-                    }
-
-                    status = convertReturnCode( mqttStatus );
-                }
+                /* Calling Managed API Disconnect. */
+                status = _IotMqtt_managedDisconnect( mqttConnection );
             }
             else
             {
