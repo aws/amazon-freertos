@@ -387,6 +387,7 @@ static void prvEchoClientTask( void * pvParameters )
                         ulTxRxCycles[ xInstance ]++;
                         configPRINTF( ( "Received correct string from echo server.\r\n" ) );
 
+                        /* Increment success count. */
                         xSuccess[ xInstance ]++;
                     }
                     else
@@ -394,13 +395,12 @@ static void prvEchoClientTask( void * pvParameters )
                         /* The received string did not match the transmitted
                          * string. */
                         ulTxRxFailures[ xInstance ]++;
-
                         configPRINTF( ( "ERROR - Received incorrect string from echo server.\r\n" ) );
                         break;
                     }
                 }
                 else if( xReceivedBytes == -pdFREERTOS_ERRNO_ENOTCONN )
-                {                        
+                {
                     /* The connection got closed. */
                     break;
                 }
