@@ -23,13 +23,13 @@
  * http://www.FreeRTOS.org
  */
 
- /**
-  * @file iot_mqtt_context_connection.c
-  * @brief Implements data structure for storing the mapping of the MQTT Context 
-  * MQTT Connection.
-  */
+/**
+ * @file iot_mqtt_context_connection.c
+ * @brief Implements data structure for storing the mapping of the MQTT Context
+ * MQTT Connection.
+ */
 
-  /* The config header is always included first. */
+/* The config header is always included first. */
 #include "iot_config.h"
 
 /* Standard includes. */
@@ -45,64 +45,74 @@
 #include "platform/iot_threads.h"
 /*-----------------------------------------------------------*/
 
-extern _connContext_t connToContext[MAX_NO_OF_MQTT_CONNECTIONS];
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-----------------------------------------------------------*/
 
 
-IotMqttError_t _IotMqtt_setContext(IotMqttConnection_t pNewMqttConnection, MQTTContext_t context) {
+IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
+                                    MQTTContext_t context )
+{
     IotMqttError_t status = IOT_MQTT_SUCCESS;
+
     /* Assigning the newly created MQTT Connection to a MQTT Context. */
-    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
-        if (connToContext[i].mqttConnection != NULL)
+        if( connToContext[ i ].mqttConnection != NULL )
         {
             continue;
         }
-        else {
+        else
+        {
             /* Creating a semaphore for the MQTT Context. */
-            if (IotSemaphore_Create(&(connToContext[i].contextSemaphore), 0, 1) == true) {
-                connToContext[i].mqttConnection = pNewMqttConnection;
-                connToContext[i].context = context;
+            if( IotSemaphore_Create( &( connToContext[ i ].contextSemaphore ), 0, 1 ) == true )
+            {
+                connToContext[ i ].mqttConnection = pNewMqttConnection;
+                connToContext[ i ].context = context;
                 status = IOT_MQTT_SUCCESS;
             }
-            else {
+            else
+            {
                 status = IOT_MQTT_NO_MEMORY;
             }
+
             break;
         }
     }
+
     return status;
 }
 
 /*-----------------------------------------------------------*/
 
-int8_t _IotMqtt_getContextFromConnection(IotMqttConnection_t mqttConnection) {
+int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection )
+{
     int8_t contextIndex = -1;
 
     /* Getting the index of context from the mapping Data Structure for the given MQTT Connection. */
-    for (int8_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    for( int8_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
-        if (connToContext[i].mqttConnection == mqttConnection)
+        if( connToContext[ i ].mqttConnection == mqttConnection )
         {
             contextIndex = i;
             break;
         }
     }
+
     return contextIndex;
 }
 
 /*-----------------------------------------------------------*/
 
 
-void _IotMqtt_removeContext(IotMqttConnection_t mqttConnection) {
-
+void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
+{
     /* Finding the index corresponding to given the MQTT Connection*/
-    for (size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++)
+    for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
-        if (connToContext[i].mqttConnection == mqttConnection)
+        if( connToContext[ i ].mqttConnection == mqttConnection )
         {
-            connToContext[i].mqttConnection = NULL;
+            connToContext[ i ].mqttConnection = NULL;
             break;
         }
     }
