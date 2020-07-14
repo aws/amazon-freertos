@@ -56,7 +56,7 @@
 #include "aws_demo_config.h"
 
 /* Dimensions the buffer used to generate the task name. */
-#define echoMAX_TASK_NAME_LENGTH    8
+#define echoMAX_TASK_NAME_LENGTH        8
 
 /* Maximum connection count. */
 #define echoMAXIMUM_CONNECTION_COUNT    10
@@ -211,6 +211,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     }
 
     xX = 0;
+
     /* Count the number of successes. */
     while( xX < echoNUM_ECHO_CLIENTS )
     {
@@ -218,8 +219,8 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     }
 
     /* Calculate the percentage of successful connections across all connections. */
-    SuccessPercent = ( (float)SuccessfulConnections / ( echoNUM_ECHO_CLIENTS * echoMAX_LOOP_COUNT * echoMAXIMUM_CONNECTION_COUNT ) );
-    
+    SuccessPercent = ( ( float ) SuccessfulConnections / ( echoNUM_ECHO_CLIENTS * echoMAX_LOOP_COUNT * echoMAXIMUM_CONNECTION_COUNT ) );
+
     if( SuccessPercent > echoSUCCESS_THRESHOLD )
     {
         /* Number of successful connections more than threshold. Return Success. */
