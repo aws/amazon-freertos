@@ -945,7 +945,7 @@ void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation );
  *
  * @return Index of the context from the mapping Data Structure used to store mapping of context and connection.
  */
-uint8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection );
+int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection );
 
 /**
  * @brief Set the MQTT Context for the given MQTT Connection.
