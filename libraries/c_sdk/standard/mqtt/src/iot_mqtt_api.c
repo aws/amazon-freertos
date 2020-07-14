@@ -548,17 +548,6 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
     IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
 
-    int8_t contextIndex = -1;
-
-    /* Get the MQTT Context from the MQTT Connection. */
-    contextIndex = _IotMqtt_getContextFromConnection( pMqttConnection );
-
-    /* Destroy the Semaphore used for MQTT Context*/
-    if( contextIndex >= 0 )
-    {
-        IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
-    }
-
     IotLogDebug( "(MQTT connection %p) Connection destroyed.", pMqttConnection );
 
     /* Free connection. */
@@ -1365,30 +1354,6 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 /* Set the operation type. */
                 pOperation->u.operation.type = IOT_MQTT_DISCONNECT;
 
-                /* Choose a disconnect serializer. */
-                IotMqttError_t ( * serializeDisconnect )( uint8_t **,
-                                                          size_t * ) = _IotMqtt_disconnectSerializeWrapper;
-
-
-                #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-                    if( mqttConnection->pSerializer != NULL )
-                    {
-                        if( mqttConnection->pSerializer->serialize.disconnect != NULL )
-                        {
-                            serializeDisconnect = mqttConnection->pSerializer->serialize.disconnect;
-                        }
-                        else
-                        {
-                            EMPTY_ELSE_MARKER;
-                        }
-                    }
-                    else
-                    {
-                        EMPTY_ELSE_MARKER;
-                    }
-                #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
-
                 int8_t contextIndex = -1;
                 /* Getting MQTT Context for the specifies MQTT Connection. */
 
@@ -1399,8 +1364,13 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                     /* Initializing MQTT Status. */
                     MQTTStatus_t mqttStatus = MQTTSuccess;
 
-                    /* Sending Disconnect Packet using MQTT v4_beta2 library. */
-                    mqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+                    if( IotSemaphore_Create( &( connToContext[ contextIndex ].contextSemaphore ), 0, 1 ) == true )
+                    {
+                        /* Sending Disconnect Packet using MQTT v4_beta2 library. */
+                        mqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+                        /* Destroying the Context Semaphore*/
+                        IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
+                    }
 
                     status = convertReturnCode( mqttStatus );
                 }
