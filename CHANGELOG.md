@@ -8,8 +8,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations', which are pr
 #### Over the Air Update V1.2.0
 
 - Updated the over-the-air (OTA) agent with the ability to pause and resume an in-progress update.
-- Updated the OTA demo to demonstrate how to suspent an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects.  In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get dicsonnected and then attmpt to reconnect at the same time.
-- For testing purposes only, it is now posible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
+- Updated the OTA demo to demonstrate how to suspend an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects. In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get disconnected and then attempt to reconnect at the same time.
+- For testing purposes only, it is now possible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
 
 #### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
 - New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
