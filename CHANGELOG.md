@@ -1,5 +1,5 @@
 # Change Log
-This repository contains the `FreeRTOS AWS Reference Integrations' based on FreeRTOS.  These reference integrations are pre-integrated FreeRTOS projects ported to microcontroller-based evaluation boards that demonstrate end-to-end connectivity to AWS IoT.
+This repository contains the `FreeRTOS AWS Reference Integrations', which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
 
 ## 202007.00 July 2020
 
@@ -7,9 +7,9 @@ This repository contains the `FreeRTOS AWS Reference Integrations' based on Free
 
 #### Over the Air Update V1.2.0
 
-- Added feature to suspend and resume over-the-air updates (OTA) Agent using new APIs. This allows OTA Agent to resume download after suspending it for any tasks like re-establishing MQTT connection. 
-- Updated OTA demo to suspend OTA operations when the MQTT connection disconnects and try to reconnect with exponential delay and jitter.  After successful connection the demo resumes OTA operations.
-- Added a new OTA config for allowing downgrade and version update. This is provided for testing purpose and configuration is disabled by default.
+- Updated the over-the-air (OTA) agent with the ability to pause and resume an in-progress update.
+- Updated the OTA demo to demonstrate how to suspent an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects.  In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get dicsonnected and then attmpt to reconnect at the same time.
+- For testing purposes only, it is now posible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
 
 #### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
 - New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
