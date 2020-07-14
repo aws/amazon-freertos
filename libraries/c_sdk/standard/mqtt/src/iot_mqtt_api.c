@@ -1368,6 +1368,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                     {
                         /* Sending Disconnect Packet using MQTT v4_beta2 library. */
                         mqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+
                         /* Destroying the Context Semaphore*/
                         IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
                     }

@@ -25,7 +25,7 @@
 
 /**
  * @file iot_mqtt_context_connection.c
- * @brief Implements data structure for storing the mapping of the MQTT Context
+ * @brief Implements data structure for storing the mapping of the MQTT Context and
  * MQTT Connection.
  */
 
@@ -96,10 +96,9 @@ int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection )
 
 /*-----------------------------------------------------------*/
 
-
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
 {
-    /* Finding the index corresponding to given the MQTT Connection*/
+    /* Finding the index corresponding to given the MQTT Connection. */
     for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
         if( connToContext[ i ].mqttConnection == mqttConnection )
