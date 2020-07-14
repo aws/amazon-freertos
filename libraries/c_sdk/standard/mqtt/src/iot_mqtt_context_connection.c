@@ -41,8 +41,6 @@
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
-/* Platform layer includes. */
-#include "platform/iot_threads.h"
 /*-----------------------------------------------------------*/
 
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];

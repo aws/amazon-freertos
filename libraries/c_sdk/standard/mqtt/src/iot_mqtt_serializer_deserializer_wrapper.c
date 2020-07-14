@@ -45,6 +45,9 @@
 /* Atomic operations. */
 #include "iot_atomic.h"
 
+/* Platform layer includes. */
+#include "platform/iot_threads.h"
+
 /*-----------------------------------------------------------*/
 
 /* Size of Puback packet. */
@@ -764,6 +767,37 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 }
 
 /*-----------------------------------------------------------*/
+
+IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
+{
+    int8_t contextIndex = -1;
+    IotMqttError_t status = IOT_MQTT_SUCCESS;
+
+    /* Getting MQTT Context for the specifies MQTT Connection. */
+    contextIndex = _IotMqtt_getContextFromConnection( mqttConnection );
+
+    if( contextIndex >= 0 )
+    {
+        /* Initializing MQTT Status. */
+        MQTTStatus_t managedMqttStatus = MQTTSuccess;
+
+        if( IotSemaphore_Create( &( connToContext[ contextIndex ].contextSemaphore ), 0, 1 ) == true )
+        {
+            /* Sending Disconnect Packet using MQTT v4_beta2 library. */
+            managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+
+            /* Destroying the Context Semaphore*/
+            IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
+        }
+
+        status = convertReturnCode( managedMqttStatus );
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
 
 /* Convert the MQTT Status to IOT MQTT Status Code. */
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )

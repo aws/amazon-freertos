@@ -756,7 +756,7 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
 void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason,
                                       _mqttConnection_t * pMqttConnection );
 
-/*----------------- MQTT Serailization /Deserialization Wrapper functions for Shim------------------*/
+/*----------------- MQTT Serialization /Deserialization Wrapper functions for Shim------------------*/
 
 /**
  * @brief Generate a CONNECT packet from the given parameters by using MQTT v4 beta 2 serializer.
@@ -930,6 +930,8 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
                                                 uint8_t ** pPubackPacket,
                                                 size_t * pPacketSize );
 
+/*----------- Processing Operation after Sending the Packet Using Managed MQTT API for Shim-------*/
+
 /**
  * @brief Process the operation after sending it on the network using managed MQTT v4_beta2 API functions.
  *
@@ -937,6 +939,8 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
  *
  */
 void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation );
+
+/*----------------- MQTT Context and MQTT Connection Mapping Functions for Shim------------------*/
 
 /**
  * @brief Get the MQTT Context from the given MQTT Connection.
@@ -953,6 +957,7 @@ int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection );
  * @param[in] pNewMqttConnection The MQTT connection for which the context needs to be set.
  * @param[in] context The MQTT context for the MQTT Connection.
  *
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
 IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
                                     MQTTContext_t context );
@@ -964,5 +969,20 @@ IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
  *
  */
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
+
+/*----------------- User - Facing API Functions Using Managed MQTT API for Shim------------------*/
+
+/**
+ * @brief Disconnect the MQTT connection using Manged MQTT Disconnect API.
+ *
+ * @param[in] mqttConnection The MQTT connection which needs to be disconnected.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
