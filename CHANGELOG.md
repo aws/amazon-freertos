@@ -62,7 +62,7 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 #### Mbed TLS v2.16.7
 
 - Upgraded the version of Mbed TLS to v2.16.7.
-- Submoduled the Mbed TLS library.
+- Replaced copy of Mbed TLS with a submodule reference to the official [Mbed TLS GitHub repository](https://github.com/ARMmbed/mbedtls/tree/mbedtls-2.16.7).
 
 #### Over the Air Update V1.2.0
 
