@@ -329,12 +329,18 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashReadInfo )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /*
-         * Check the flash size, block size, sector size and flash size
+         * Check the flash size, block size, sector size and page size
          */
         TEST_ASSERT_NOT_EQUAL( 0, pxFlashInfo->ulPageSize );
         TEST_ASSERT_GREATER_OR_EQUAL( pxFlashInfo->ulPageSize, pxFlashInfo->ulSectorSize );
         TEST_ASSERT_GREATER_OR_EQUAL( pxFlashInfo->ulSectorSize, pxFlashInfo->ulBlockSize );
         TEST_ASSERT_GREATER_OR_EQUAL( pxFlashInfo->ulBlockSize, pxFlashInfo->ulFlashSize );
+
+        /* Make sure the flash size, block size, sector size and page size are the power of 2 */
+        TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulPageSize & ( pxFlashInfo->ulPageSize - 1 ) );
+        TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulSectorSize & ( pxFlashInfo->ulSectorSize - 1 ) );
+        TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulBlockSize & ( pxFlashInfo->ulBlockSize - 1 ) );
+        TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulFlashSize & ( pxFlashInfo->ulFlashSize - 1 ) );
     }
 
     /* Close flash handle */
@@ -488,7 +494,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) )
+        if( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
@@ -571,7 +577,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) )
+        if( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
@@ -660,7 +666,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
         TEST_ASSERT_NOT_EQUAL( NULL, pxFlashInfo );
 
         /* Make sure the offset is aligned to BlockSize */
-        if( ultestIotFlashStartOffset == ( ultestIotFlashStartOffset & pxFlashInfo->ulBlockSize ) )
+        if( ( ultestIotFlashStartOffset & ( pxFlashInfo->ulBlockSize - 1 ) ) == 0 )
         {
             /* If Erase asyc is supported, register a callback */
             if( pxFlashInfo->ucAsyncSupported )
