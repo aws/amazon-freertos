@@ -2,6 +2,15 @@ set(AMAZON_FREERTOS_KERNEL_DIR "${AFR_KERNEL_DIR}")
 set(AMAZON_FREERTOS_FREERTOS_PLUS_DIR "${AFR_MODULES_FREERTOS_PLUS_DIR}")
 set(AMAZON_FREERTOS_3RDPARTY_DIR "${AFR_3RDPARTY_DIR}")
 
+string(FIND "${AFR_BOARD_NAME}" "esp32s2" SOC_NAME_ESP32S2)
+string(FIND "${AFR_BOARD_NAME}" "esp32" SOC_NAME_ESP32)
+
+if (NOT(${SOC_NAME_ESP32S2} EQUAL -1))
+    set(SOC_NAME "esp32s2")
+elseif(NOT($SOC_NAME_ESP32) EQUAL -1)
+    set(SOC_NAME "esp32")
+endif()
+
 set(
     include_dirs
     include
@@ -11,13 +20,29 @@ set(
 
 if(AFR_ENABLE_TESTS)
     list(APPEND include_dirs
-        "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_tests/config_files"
         "${AMAZON_FREERTOS_FREERTOS_PLUS_DIR}/standard/freertos_plus_posix/include"
         "${AMAZON_FREERTOS_3RDPARTY_DIR}/unity/src"
         )
+    if(SOC_NAME STREQUAL "esp32s2")
+        list(APPEND include_dirs
+            "${CMAKE_CURRENT_LIST_DIR}/../../esp32s2/aws_tests/config_files"
+            )
+    else()
+        list(APPEND include_dirs
+            "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_tests/config_files"
+            )
+    endif()
+
 else()
-    list(APPEND include_dirs
-        "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_demos/config_files")
+    if(SOC_NAME STREQUAL "esp32s2")
+        list(APPEND include_dirs
+            "${CMAKE_CURRENT_LIST_DIR}/../../esp32s2/aws_demos/config_files"
+            )
+    else()
+        list(APPEND include_dirs
+            "${CMAKE_CURRENT_LIST_DIR}/../../esp32/aws_demos/config_files"
+            )
+    endif()
 endif()
 
 # Edit following two lines to set component requirements (see docs)
