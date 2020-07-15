@@ -660,23 +660,25 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
  * @brief Helper to seed the entropy module used by the DRBG. Periodically this
  * this function will be called to get more random data from the TRNG.
  *
- * @param Caller context.
- * @param Request data buffer.
- * @param size of data buffer.
+ * @param[in] tlsContext The TLS context.
+ * @param[out] outputBuffer The output buffer to return the generated random data.
+ * @param[in] outputBufferLength Length of the output buffer.
  *
- * @return Zero on success.
+ * @return Zero on success, otherwise a negative error code telling the cause of the error.
  */
-static int prvEntropyCallback( void * data,
-                               unsigned char * output,
-                               size_t len )
+static int prvEntropyCallback( void * tlsContext,
+                               unsigned char * outputBuffer,
+                               size_t outputBufferLength )
 {
     int ret = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
     CK_RV xResult = CKR_OK;
-    TLSContext_t * pxCtx = ( TLSContext_t * ) data; /*lint !e9087 !e9079 Allow casting void* to other types. */
+    TLSContext_t * pxCtx = ( TLSContext_t * ) tlsContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
     if( pxCtx->xP11Session != CK_INVALID_HANDLE )
     {
-        xResult = C_GenerateRandom( pxCtx->xP11Session, output, len );
+        xResult = C_GenerateRandom( pxCtx->xP11Session,
+                                    outputBuffer,
+                                    outputBufferLength );
     }
     else
     {
