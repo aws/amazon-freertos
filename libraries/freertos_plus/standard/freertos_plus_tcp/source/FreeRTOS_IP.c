@@ -798,7 +798,7 @@ const TickType_t xDontBlock = ( TickType_t ) 0;
 	iptraceNETWORK_DOWN();
 }
 /*-----------------------------------------------------------*/
-
+/* Utility function. Process Network Down event from ISR. */
 BaseType_t FreeRTOS_NetworkDownFromISR( void )
 {
 static const IPStackEvent_t xNetworkDownEvent = { eNetworkDownEvent, NULL };
@@ -2537,6 +2537,8 @@ size_t uxDataLengthBytes = uxByteCount;
 }
 /*-----------------------------------------------------------*/
 
+/* This function is used in other files, has external linkage e.g. in
+ * FreeRTOS_DNS.c. Not to be made static. */
 void vReturnEthernetFrame( NetworkBufferDescriptor_t * pxNetworkBuffer, BaseType_t xReleaseAfterSend )
 {
 EthernetHeader_t *pxEthernetHeader;
@@ -2791,7 +2793,8 @@ BaseType_t FreeRTOS_IsNetworkUp( void )
 	}
 #endif
 /*-----------------------------------------------------------*/
-
+/* Utility function: Convert error number to a human readable
+ * string. Decalartion in FreeRTOS_errno_TCP.h. */
 const char *FreeRTOS_strerror_r( BaseType_t xErrnum, char *pcBuffer, size_t uxLength )
 {
 const char *pcName;
