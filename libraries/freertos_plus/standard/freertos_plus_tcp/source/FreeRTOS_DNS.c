@@ -1111,7 +1111,8 @@ BaseType_t xReturn = pdTRUE;
 	{
 		xReturn = pdFALSE;
 	}
-	else{
+	else
+	{
 		uxSourceBytesRemaining = uxBufferLength;
 
 		/* Parse the DNS message header. Map the byte stream onto a structure 
@@ -1200,7 +1201,7 @@ BaseType_t xReturn = pdTRUE;
 				}
 			}
 
-			if( xReturn == pdFAIL )
+			if( xReturn == pdFALSE )
 			{
 				/* No need to proceed. Break out of the do-while loop. */
 				break;
