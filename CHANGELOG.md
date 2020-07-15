@@ -16,8 +16,8 @@ This repository contains the `FreeRTOS AWS Reference Integrations`, which are pr
 
 #### New Board: ESP32-WROOM-32SE
 
-- New Board: <b>ESP32-WROOM-32SE</b> is now available in the FreeRTOS Console.  
-- 
+- New Board: <b>ESP32-WROOM-32SE</b> is now available in the FreeRTOS Console.
+
 ### Updates
 
 #### FreeRTOS+POSIX Utils V1.2.0
