@@ -131,7 +131,7 @@
 #endif
 
 /* GPIO */
-#if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 1 )
+#if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 2 )
     extern int32_t ltestIotGpioPortA;       /* The 1st GPIO port used in the loop back test */
     extern int32_t ltestIotGpioPortB;       /* The 2nd GPIO port used in the loop back test */
     extern uint16_t ustestIotGpioConfig;    /* The configuration of GPIO in the test (port, direction, irq, write value)

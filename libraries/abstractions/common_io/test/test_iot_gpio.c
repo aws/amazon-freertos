@@ -36,7 +36,6 @@
 
 /* GPIO driver include */
 #include "iot_gpio.h"
-#include "iot_board_gpio.h"
 #include "iot_perfcounter.h"
 
 /* FreeRTOS includes */
@@ -78,7 +77,7 @@ int32_t ltestIotGpioPortInvalid = INT_MAX;
  * bit 10 for write value 0 or 1
  */
 uint16_t ustestIotGpioConfig = 0;
-uint32_t ultestIotGpioWaitTime = 2000; /* 2s */
+uint32_t ultestIotGpioWaitTime = 500; /* 0.5s */
 
 uint32_t ultestIotGpioSlowSpeed = 0;
 uint32_t ultestIotGpioFastSpeed = 1;
@@ -127,7 +126,8 @@ TEST_GROUP_RUNNER( TEST_IOT_GPIO )
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioIoctlSetGet );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioMode );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioPull );
-    RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioSpeed );
+    /* We don't have a CommonIO perfcounter to use....yet!*/
+    /*RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioSpeed ); */
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOperation );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseFuzz );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioReadWriteSyncFuzz );

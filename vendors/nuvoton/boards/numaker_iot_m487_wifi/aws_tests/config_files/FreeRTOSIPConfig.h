@@ -45,9 +45,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /* Set to 1 to print out debug messages.  If ipconfigHAS_DEBUG_PRINTF is set to
  * 1 then FreeRTOS_debug_printf should be defined to the function used to print
  * out the debugging messages. */
-#define ipconfigHAS_DEBUG_PRINTF   0 //1
+#define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    #define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )//configPRINTF( X )
+    #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
 /* Set to 1 to print out non debugging messages, for example the output of the
@@ -118,7 +118,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * number generation is performed via this macro to allow applications to use their
  * own random number generation method.  For example, it might be possible to
  * generate a random number by sampling noise on an analogue input. */
-extern uint32_t numaker_ulRand(void);
+extern uint32_t numaker_ulRand( void );
 #define ipconfigRAND32()    numaker_ulRand()
 
 /* If ipconfigUSE_NETWORK_EVENT_HOOK is set to 1 then FreeRTOS+TCP will call the

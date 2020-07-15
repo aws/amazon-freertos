@@ -47,7 +47,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * out the debugging messages. */
 #define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    #define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )
+    #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
 /* Set to 1 to print out non debugging messages, for example the output of the
@@ -200,7 +200,7 @@ extern uint32_t numaker_ulRand(void);
  * ipconfigINCLUDE_FULL_INET_ADDR is set to 1 then both FreeRTOS_inet_addr() and
  * FreeRTOS_indet_addr_quick() are available.  If ipconfigINCLUDE_FULL_INET_ADDR is
  * not set to 1 then only FreeRTOS_indet_addr_quick() is available. */
-#define ipconfigINCLUDE_FULL_INET_ADDR                 0
+#define ipconfigINCLUDE_FULL_INET_ADDR                 1
 
 /* ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS defines the total number of network buffer that
  * are available to the IP stack.  The total number of network buffers is limited

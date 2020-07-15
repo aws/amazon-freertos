@@ -56,6 +56,15 @@ TEST_GROUP_RUNNER( Common_IO )
 {
     size_t i = 0;
 
+    /* These already used loop back tests which require minimum of two pins */
+    #ifdef IOT_TEST_COMMON_IO_GPIO_SUPPORTED
+        for( i = 1; i < IOT_TEST_COMMON_IO_GPIO_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_GPIO_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_GPIO )
+        }
+    #endif
+
     #ifdef IOT_TEST_COMMON_IO_UART_SUPPORTED
         for( i = 0; i < IOT_TEST_COMMON_IO_UART_SUPPORTED; i++ )
         {
