@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1 SHIM
+ * FreeRTOS MQTT V2.1.1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -289,7 +289,6 @@ static void prvPublishCallbackWrapper( void * pvParameter,
                 }
             }
         #else /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
-
             /* When subscription management is disabled, invoke the global callback
              * if one exists. */
 
