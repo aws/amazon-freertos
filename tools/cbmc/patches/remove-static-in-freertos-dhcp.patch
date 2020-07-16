@@ -1,64 +1,64 @@
 diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
-index 04b0487..d6e74a9 100644
+index d41c6e73b..199cd05f1 100644
 --- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
 +++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
-@@ -156,7 +156,11 @@ struct xDHCPMessage_IPv4
- typedef struct xDHCPMessage_IPv4 DHCPMessage_IPv4_t;
+@@ -154,7 +154,11 @@
+     typedef struct xDHCPMessage_IPv4 DHCPMessage_IPv4_t;
  
  /* The UDP socket used for all incoming and outgoing DHCP traffic. */
-+#ifdef CBMC
-+Socket_t xDHCPSocket;
-+#else
- static Socket_t xDHCPSocket;
-+#endif
++    #ifdef CBMC
++    Socket_t xDHCPSocket;
++    #else
+     static Socket_t xDHCPSocket;
++    #endif
  
- #if( ipconfigDHCP_FALL_BACK_AUTO_IP != 0 )
- 	/* Define the Link Layer IP address: 169.254.x.x */
-@@ -179,7 +183,11 @@ static void prvSendDHCPDiscover( void );
+     #if ( ipconfigDHCP_FALL_BACK_AUTO_IP != 0 )
+         /* Define the Link Layer IP address: 169.254.x.x */
+@@ -177,7 +181,11 @@
  /*
   * Interpret message received on the DHCP socket.
   */
-+#ifdef CBMC
-+BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
-+#else
- static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
-+#endif
++    #ifdef CBMC
++    BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
++    #else
+     static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
++    #endif
  
  /*
   * Generate a DHCP request packet, and send it on the DHCP socket.
-@@ -204,7 +212,11 @@ static uint8_t *prvCreatePartDHCPMessage( struct freertos_sockaddr *pxAddress,
+@@ -202,7 +210,11 @@
  /*
   * Create the DHCP socket, if it has not been created already.
   */
-+#ifdef CBMC
-+void prvCreateDHCPSocket( void );
-+#else
- static void prvCreateDHCPSocket( void );
-+#endif
++    #ifdef CBMC
++    void prvCreateDHCPSocket( void );
++    #else
+     static void prvCreateDHCPSocket( void );
++    #endif
  
  /*
   * Close the DHCP socket.
-@@ -223,7 +235,11 @@ static void prvCloseDHCPSocket( void );
+@@ -221,7 +233,11 @@
  /*-----------------------------------------------------------*/
  
  /* Hold information in between steps in the DHCP state machine. */
-+#ifdef CBMC
-+DHCPData_t xDHCPData;
-+#else
- static DHCPData_t xDHCPData;
-+#endif
++    #ifdef CBMC
++    DHCPData_t xDHCPData;
++    #else
+     static DHCPData_t xDHCPData;
++    #endif
  
  /*-----------------------------------------------------------*/
  
-@@ -623,7 +639,11 @@ static void prvInitialiseDHCP( void )
- }
+@@ -630,7 +646,11 @@
+     }
  /*-----------------------------------------------------------*/
  
-+#ifdef CBMC
-+BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
-+#else
- static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
-+#endif
- {
- uint8_t *pucUDPPayload;
- int32_t lBytes;
++    #ifdef CBMC
++    BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
++    #else
+     static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
++    #endif
+     {
+         uint8_t * pucUDPPayload;
+         int32_t lBytes;
