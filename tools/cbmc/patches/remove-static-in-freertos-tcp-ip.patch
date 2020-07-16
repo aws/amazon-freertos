@@ -1,75 +1,76 @@
 diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-index 7a2c00c68..cb537b347 100644
+index 6c37da5e2..bb366bc92 100644
 --- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
 +++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-@@ -198,14 +198,22 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
+@@ -202,7 +202,11 @@
  /*
   * Parse the TCP option(s) received, if present.
   */
-+#ifdef CBMC
-+void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer );
-+#else
- static void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer );
-+#endif
++    #ifdef CBMC
++    void prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
++    #else
+     static void prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
++    #endif
+                                  const NetworkBufferDescriptor_t * pxNetworkBuffer );
  
  /*
-  * Identify and deal with a single TCP header option, advancing the pointer to
+@@ -210,7 +214,11 @@
   * the header. This function returns pdTRUE or pdFALSE depending on whether the
   * caller should continue to parse more header options or break the loop.
   */
-+#ifdef CBMC
-+size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
-+#else
- static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
-+#endif
- 											 size_t uxTotalLength,
- 											 FreeRTOS_Socket_t * const pxSocket,
- 											 BaseType_t xHasSYNFlag );
-@@ -215,7 +223,11 @@ static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
- 	 * Skip past TCP header options when doing Selective ACK, until there are no
- 	 * more options left.
- 	 */
-+	#ifdef CBMC
-+	void prvReadSackOption( const uint8_t * const pucPtr,
-+	#else
- 	static void prvReadSackOption( const uint8_t * const pucPtr,
-+	#endif
- 								   size_t uxIndex,
- 								   FreeRTOS_Socket_t * const pxSocket );
- #endif/* ( ipconfigUSE_TCP_WIN == 1 ) */
-@@ -1137,7 +1149,11 @@ uint32_t ulInitialSequenceNumber = 0;
++    #ifdef CBMC
++    size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
++    #else
+     static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
++    #endif
+                                                  size_t uxTotalLength,
+                                                  FreeRTOS_Socket_t * const pxSocket,
+                                                  BaseType_t xHasSYNFlag );
+@@ -221,7 +229,11 @@
+          * Skip past TCP header options when doing Selective ACK, until there are no
+          * more options left.
+          */
++        #ifdef CBMC
++        void prvReadSackOption( const uint8_t * const pucPtr,
++        #else
+         static void prvReadSackOption( const uint8_t * const pucPtr,
++        #endif
+                                        size_t uxIndex,
+                                        FreeRTOS_Socket_t * const pxSocket );
+     #endif /* ( ipconfigUSE_TCP_WIN == 1 ) */
+@@ -1188,7 +1200,11 @@
   * that: ((pxTCPHeader->ucTCPOffset & 0xf0) > 0x50), meaning that the TP header
   * is longer than the usual 20 (5 x 4) bytes.
   */
-+#ifdef CBMC
-+void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer )
-+#else
- static void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer )
-+#endif
- {
- size_t uxTCPHeaderOffset = ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer );
- const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
-@@ -1199,7 +1215,11 @@ uint8_t ucLength;
- }
++    #ifdef CBMC
++    void prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
++    #else
+     static void prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
++    #endif
+                                  const NetworkBufferDescriptor_t * pxNetworkBuffer )
+     {
+         size_t uxTCPHeaderOffset = ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer );
+@@ -1258,7 +1274,11 @@
+     }
  /*-----------------------------------------------------------*/
  
-+#ifdef CBMC
-+size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
-+#else
- static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
-+#endif
- 											 size_t uxTotalLength,
- 											 FreeRTOS_Socket_t * const pxSocket,
- 											 BaseType_t xHasSYNFlag )
-@@ -1331,7 +1351,11 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
++    #ifdef CBMC
++    size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
++    #else
+     static size_t prvSingleStepTCPHeaderOptions( const uint8_t * const pucPtr,
++    #endif
+                                                  size_t uxTotalLength,
+                                                  FreeRTOS_Socket_t * const pxSocket,
+                                                  BaseType_t xHasSYNFlag )
+@@ -1398,7 +1418,11 @@
  /*-----------------------------------------------------------*/
  
- #if( ipconfigUSE_TCP_WIN == 1 )
-+	#ifdef CBMC
-+	void prvReadSackOption( const uint8_t * const pucPtr,
-+	#else
- 	static void prvReadSackOption( const uint8_t * const pucPtr,
-+	#endif
- 								   size_t uxIndex,
- 								   FreeRTOS_Socket_t * const pxSocket )
- 	{
+     #if ( ipconfigUSE_TCP_WIN == 1 )
++        #ifdef CBMC
++        void prvReadSackOption( const uint8_t * const pucPtr,
++        #else
+         static void prvReadSackOption( const uint8_t * const pucPtr,
++        #endif
+                                        size_t uxIndex,
+                                        FreeRTOS_Socket_t * const pxSocket )
+         {
