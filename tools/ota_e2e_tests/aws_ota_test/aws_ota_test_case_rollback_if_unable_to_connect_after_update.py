@@ -26,7 +26,7 @@ http://www.FreeRTOS.org
 from .aws_ota_test_case import OtaTestCase
 
 
-class OtaTestIncorrectWifiPassword(OtaTestCase):
+class OtaTestRollbackIfUnableToConnectAfterUpdate(OtaTestCase):
     """
     This test verifies that device will rollback to the previous firmware if it cannot connect to
     network with the new firmware.
