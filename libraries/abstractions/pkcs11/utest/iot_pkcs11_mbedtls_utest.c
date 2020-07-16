@@ -438,6 +438,21 @@ void test_pkcs11_C_Initialize( void )
 }
 
 /*!
+ * @brief C_Initialize session mutex fail.
+ *
+ */
+void test_pkcs11_C_InitializeSessionMutexFail( void )
+{
+    CK_RV xResult = CKR_OK;
+
+    PKCS11_PAL_Initialize_IgnoreAndReturn( CKR_OK );
+    xQueueCreateMutexStatic_ExpectAnyArgsAndReturn( ( SemaphoreHandle_t ) 1 );
+    xQueueCreateMutexStatic_ExpectAnyArgsAndReturn( 0 );
+    xResult = C_Initialize( NULL );
+    TEST_ASSERT_EQUAL( CKR_HOST_MEMORY, xResult );
+}
+
+/*!
  * @brief C_Initialize memory failure when creating a mutex.
  *
  */
@@ -484,7 +499,6 @@ void test_pkcs11_C_InitializeInitTwice( void )
     CK_RV xResult = CKR_OK;
 
     xResult = prvInitializePkcs11();
-
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     xResult = C_Initialize( NULL );
@@ -1008,6 +1022,35 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     prvCommonDeinitStubs();
+}
+
+/*!
+ * @brief C_CreateObject Creating an EC private module not initialized.
+ *
+ */
+void test_pkcs11_C_CreateObjectECPrivKeyNoInit( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xSession = 0;
+    CK_KEY_TYPE xPrivateKeyType = CKK_EC;
+    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+    CK_BBOOL xTrue = CK_TRUE;
+    char * pucPrivLabel = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    /* DER-encoding of an ANSI X9.62 Parameters value */
+    CK_BYTE * pxEcPrivParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
+    CK_OBJECT_HANDLE xObject = 0;
+
+    /* Private value D. */
+    CK_BYTE pxD[ EC_D_LENGTH ] = { 0 };
+
+    CK_ATTRIBUTE xPrivateKeyTemplate[] = EC_PRIV_KEY_INITIALIZER;
+
+    xResult = C_CreateObject( xSession,
+                              ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                              sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                              &xObject );
+
+    TEST_ASSERT_EQUAL( CKR_CRYPTOKI_NOT_INITIALIZED, xResult );
 }
 
 /*
@@ -2196,6 +2239,25 @@ void test_pkcs11_C_DigestUpdate( void )
 }
 
 /*!
+ * @brief C_DigestUpdate no C_DigestInit.
+ *
+ */
+void test_pkcs11_C_DigestUpdateNoInit( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xSession = 0;
+    CK_BYTE pxDummyData[] = "Dummy data";
+
+    prvCommonInitStubs();
+
+    mbedtls_sha256_update_ret_IgnoreAndReturn( 0 );
+    xResult = C_DigestUpdate( xSession, pxDummyData, sizeof( pxDummyData ) );
+    TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
+
+    prvCommonDeinitStubs();
+}
+
+/*!
  * @brief C_DigestUpdate bad args.
  *
  */
@@ -2265,6 +2327,28 @@ void test_pkcs11_C_DigestFinal( void )
     xResult = C_DigestFinal( xSession, pxDummyData, &ulDigestLen );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( pkcs11SHA256_DIGEST_LENGTH, ulDigestLen );
+
+    prvCommonDeinitStubs();
+}
+
+/*!
+ * @brief C_DigestFinal no C_DigestInit.
+ *
+ */
+void test_pkcs11_C_DigestFinalNoInit( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xSession = 0;
+
+    CK_BYTE pxDummyData[] = "Dummy data";
+    CK_ULONG ulDigestLen = pkcs11SHA256_DIGEST_LENGTH;
+
+
+    prvCommonInitStubs();
+
+    mbedtls_sha256_finish_ret_IgnoreAndReturn( 0 );
+    xResult = C_DigestFinal( xSession, pxDummyData, &ulDigestLen );
+    TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
 
     prvCommonDeinitStubs();
 }
@@ -3400,6 +3484,28 @@ void test_pkcs11_C_GenerateRandom( void )
     mbedtls_ctr_drbg_random_IgnoreAndReturn( 0 );
     xResult = C_GenerateRandom( xSession, ucRandData, ulRandLen );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
+
+    prvCommonDeinitStubs();
+}
+
+/*!
+ * @brief C_GenerateRandom bad args.
+ *
+ */
+void test_pkcs11_C_GenerateRandomBadArgs( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xSession = 0;
+    CK_BYTE ucRandData[ 3 ] = { 0 };
+    CK_ULONG ulRandLen = sizeof( ucRandData );
+
+    prvCommonInitStubs();
+
+    xResult = C_GenerateRandom( xSession, NULL, ulRandLen );
+    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
+
+    xResult = C_GenerateRandom( xSession, ucRandData, 0 );
+    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, xResult );
 
     prvCommonDeinitStubs();
 }
