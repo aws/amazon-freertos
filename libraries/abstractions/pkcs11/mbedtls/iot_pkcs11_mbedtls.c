@@ -528,23 +528,17 @@ static CK_RV prvMbedTLS_Initialize( void )
 
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
-    if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_TRUE )
-    {
-        xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
-    }
-    else
-    {
-        ( void ) memset( &xP11Context, 0, sizeof( xP11Context ) );
-        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutexStatic(
-            &xP11Context.xObjectList.xMutexBuffer );
+    ( void ) memset( &xP11Context, 0, sizeof( xP11Context ) );
+    xP11Context.xObjectList.xMutex = xSemaphoreCreateMutexStatic(
+        &xP11Context.xObjectList.xMutexBuffer );
 
-        xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
-            &xP11Context.xSessionMutexBuffer );
+    xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
+        &xP11Context.xSessionMutexBuffer );
 
-        if( ( xP11Context.xObjectList.xMutex == NULL ) || ( xP11Context.xSessionMutex == NULL ) )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
+    if( ( xP11Context.xObjectList.xMutex == NULL ) ||
+        ( xP11Context.xSessionMutex == NULL ) )
+    {
+        xResult = CKR_HOST_MEMORY;
     }
 
     if( xResult == CKR_OK )
@@ -3305,7 +3299,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
         }
     }
 
-    if( ( xResult != CKR_OK ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
+    if( ( xResult != CKR_OK ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) &&
+        ( xResult != CKR_OPERATION_NOT_INITIALIZED ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
@@ -3391,7 +3386,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
         }
     }
 
-    if( ( xResult != CKR_OK ) && ( xResult != CKR_BUFFER_TOO_SMALL ) && ( xResult != CKR_SESSION_HANDLE_INVALID ) )
+    if( ( xResult != CKR_OK ) && ( xResult != CKR_BUFFER_TOO_SMALL ) &&
+        ( xResult != CKR_SESSION_HANDLE_INVALID ) &&
+        ( xResult != CKR_OPERATION_NOT_INITIALIZED ) )
     {
         pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         mbedtls_sha256_free( &pxSession->xSHA256Context );
