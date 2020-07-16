@@ -152,6 +152,28 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 
 /**
  * @ingroup pkcs11_macros
+ * @brief Length of bytes to contain an EC point.
+ *
+ * This port currently only uses prime256v1, in which the fields are 32 bytes in
+ * length. The public EC point is as long as the curve's fields * 2 + 1.
+ * so the EC point for this port is (32 * 2) + 1 bytes in length.
+ *
+ * mbed TLS encodes the length of the point in the first byte of the buffer it
+ * receives, so an additional 1 byte in length is added to account for this.
+ *
+ * In addition to this, an additional 1 byte is added to store information
+ * indicating that the point is uncompressed.
+ *
+ * @note This length needs to be updated if using a different curve.
+ *
+ * To summarize:
+ * 32 points of 2 bytes each + 1 point length byte, 1 length byte, and
+ * 1 type (uncompressed) byte
+ */
+#define pkcs11EC_POINT_LENGTH                 ( ( 32 * 2 ) + 1 + 1 + 1 )
+
+/**
+ * @ingroup pkcs11_macros
  * @brief Max size of a public key.
  * This macro defines the size of a key in bytes, in DER encoding.
  *
@@ -1224,12 +1246,12 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
          * It must be removed so that we can read the private
          * key back at a later time. */
         uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
-        lCompare = memcmp( &pxDerKey[ ulDerBufSize - 6 ], emptyPubKey, 6 );
+        lCompare = memcmp( &pxDerKey[ ulDerBufSize - 6UL ], emptyPubKey, 6 );
 
         if( ( lCompare == 0 ) && ( ulActualKeyLength >= 6UL ) )
         {
             /* Do not write the last 6 bytes to key storage. */
-            pxDerKey[ ulDerBufSize - lDerKeyLength + 1 ] -= ( uint8_t ) 6;
+            pxDerKey[ ulDerBufSize - ( uint32_t ) lDerKeyLength + 1UL ] -= ( uint8_t ) 6;
             ulActualKeyLength -= 6UL;
         }
     }
@@ -1237,7 +1259,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     if( xResult == CKR_OK )
     {
         xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
-                                            pxDerKey + ( ulDerBufSize - lDerKeyLength ),
+                                            pxDerKey + ( ulDerBufSize - ( uint32_t ) lDerKeyLength ),
                                             ulActualKeyLength );
 
         if( xPalHandle == CK_INVALID_HANDLE )
@@ -2610,10 +2632,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     CK_BBOOL xIsPrivate = ( CK_BBOOL ) CK_TRUE;
     CK_ULONG iAttrib;
     mbedtls_pk_context xKeyContext = { 0 };
+    mbedtls_x509_crt xMbedX509Context = { 0 };
     mbedtls_pk_type_t xKeyType;
     const mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0UL;
-    CK_OBJECT_CLASS xClass;
+    CK_OBJECT_CLASS xClass = ~0UL;
     CK_BYTE_PTR pxObjectValue = NULL;
     CK_ULONG ulLength = 0;
     const CK_BYTE ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
@@ -2657,8 +2680,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
     /* Determine what kind of object we are dealing with. */
     if( xResult == CKR_OK )
     {
-        /* Is it a key? */
+        /* Initialize mbed TLS key context. */
         mbedtls_pk_init( &xKeyContext );
+
+        /* Initialize mbed TLS x509 context. */
+        mbedtls_x509_crt_init( &xMbedX509Context );
 
         if( 0 == mbedtls_pk_parse_key( &xKeyContext, pxObjectValue, ulLength, NULL, 0 ) )
         {
@@ -2677,11 +2703,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         {
             xClass = CKO_PUBLIC_KEY;
         }
+        else if( 0 == mbedtls_x509_crt_parse( &xMbedX509Context, pxObjectValue, ulLength ) )
+        {
+            xClass = CKO_CERTIFICATE;
+        }
         else
         {
-            /* TODO: Do we want to safety parse the cert?
-             * Assume certificate. */
-            xClass = CKO_CERTIFICATE;
+            xResult = CKR_OBJECT_HANDLE_INVALID;
         }
     }
 
@@ -2792,8 +2820,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                 case CKA_EC_PARAMS:
 
-                    /* TODO: Add check that is key, is ec key. */
-
                     pTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
 
                     if( pTemplate[ iAttrib ].pValue != NULL )
@@ -2814,7 +2840,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                     if( pTemplate[ iAttrib ].pValue == NULL )
                     {
-                        pTemplate[ iAttrib ].ulValueLen = 67; /* TODO: Is this large enough?*/
+                        pTemplate[ iAttrib ].ulValueLen = pkcs11EC_POINT_LENGTH;
                     }
                     else
                     {
@@ -3589,7 +3615,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     CK_BBOOL xSignatureGenerated = ( CK_BBOOL ) CK_FALSE;
-    uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
+
+    /* 8 bytes added to hold ASN.1 encoding information. */
+    uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 8 ];
     int32_t lMbedTLSResult;
 
 
@@ -3676,11 +3704,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( ( pxSessionObj->xOperationSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == ( CK_BBOOL ) CK_TRUE ) )
         {
+            /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
             lMbedTLSResult = PKI_mbedTLSSignatureToPkcs11Signature( pSignature, ecSignature );
 
             if( lMbedTLSResult != 0 )
