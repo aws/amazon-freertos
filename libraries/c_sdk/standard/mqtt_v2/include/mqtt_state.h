@@ -113,15 +113,34 @@ MQTTStatus_t MQTT_UpdateStateAck( MQTTContext_t * pMqttContext,
                                   MQTTPublishState_t * pNewState );
 
 /**
- * @brief Get the packet ID and index of a publish in a specified state.
+ * @brief Get the packet ID of next pending PUBREL ack to be resent.
+ *
+ * This function will need to be called to get the packet for which a PUBREL
+ * need to be sent when a session is reestablished. Calling this function
+ * repeatedly until packet id is 0 will give all the packets for which
+ * a PUBREL need to be resent in the correct order.
  *
  * @param[in] pMqttContext Initialized MQTT context.
- * @param[in] searchState The state to search for.
+ * @param[in,out] pCursor Index at which to start searching.
+ * @param[out] pState State indicating that PUBREL packet need to be sent.
+ */
+uint16_t MQTT_PubrelToResend( const MQTTContext_t * pMqttContext,
+                              MQTTStateCursor_t * pCursor,
+                              MQTTPublishState_t * pState );
+
+/**
+ * @brief Get the packet ID of next pending publish to be resent.
+ *
+ * This function will need to be called to get the packet for which a publish
+ * need to be sent when a session is reestablished. Calling this function
+ * repeatedly until packet id is 0 will give all the packets for which
+ * a publish need to be resent in the correct order.
+ *
+ * @param[in] pMqttContext Initialized MQTT context.
  * @param[in,out] pCursor Index at which to start searching.
  */
-uint16_t MQTT_StateSelect( const MQTTContext_t * pMqttContext,
-                           MQTTPublishState_t searchState,
-                           MQTTStateCursor_t * pCursor );
+uint16_t MQTT_PublishToResend( const MQTTContext_t * pMqttContext,
+                               MQTTStateCursor_t * pCursor );
 
 /**
  * @brief State to string conversion for state engine.
