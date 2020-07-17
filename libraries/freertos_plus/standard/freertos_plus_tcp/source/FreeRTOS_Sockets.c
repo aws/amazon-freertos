@@ -635,7 +635,7 @@ Socket_t xReturn;
  * In this library, the function can only be used with connectionsless sockets
  * (UDP)
  */
-int32_t FreeRTOS_recvfrom( Socket_t xSocket, void *pvBuffer, size_t uxBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, socklen_t *pxSourceAddressLength )
+int32_t FreeRTOS_recvfrom( const Socket_t xSocket, void *pvBuffer, size_t uxBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, const socklen_t *pxSourceAddressLength )
 {
 BaseType_t lPacketCount;
 NetworkBufferDescriptor_t *pxNetworkBuffer;
@@ -1548,7 +1548,7 @@ FreeRTOS_Socket_t *pxSocket;
 
 			case FREERTOS_SO_SET_LOW_HIGH_WATER:
 				{
-				const LowHighWater_t *pxLowHighWater = ipPOINTER_CAST( LowHighWater_t *, pvOptionValue );
+				const LowHighWater_t *pxLowHighWater = ipPOINTER_CAST( const LowHighWater_t *, pvOptionValue );
 
 					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
 					{
@@ -1657,7 +1657,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
-					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
+					if( *( ipPOINTER_CAST( const BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bCloseAfterSend = pdTRUE;
 					}
@@ -2072,7 +2072,7 @@ uint32_t ulReturn = 0UL;
 
 
 /* Function to get the local address and IP port */
-size_t FreeRTOS_GetLocalAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress )
+size_t FreeRTOS_GetLocalAddress( const Socket_t xSocket, struct freertos_sockaddr *pxAddress )
 {
 const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 
@@ -2270,7 +2270,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	/*
 	 * FreeRTOS_connect: socket wants to connect to a remote port
 	 */
-	BaseType_t FreeRTOS_connect( Socket_t xClientSocket, struct freertos_sockaddr *pxAddress, socklen_t xAddressLength )
+	BaseType_t FreeRTOS_connect( Socket_t xClientSocket, const struct freertos_sockaddr *pxAddress, socklen_t xAddressLength )
 	{
 	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t* ) xClientSocket;
 	TickType_t xRemainingTime;
@@ -2714,7 +2714,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 	/* Get a direct pointer to the circular transmit buffer.
 	'*pxLength' will contain the number of bytes that may be written. */
-	uint8_t *FreeRTOS_get_tx_head( Socket_t xSocket, BaseType_t *pxLength )
+	uint8_t *FreeRTOS_get_tx_head( const Socket_t xSocket, BaseType_t *pxLength )
 	{
     uint8_t *pucReturn = NULL;
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
@@ -3172,10 +3172,11 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_TCP == 1 )
-
-	const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
+	/* For the web server: borrow the circular Rx buffer for inspection
+	 * HTML driver wants to see if a sequence of 13/10/13/10 is available. */
+	const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( const Socket_t xSocket )
 	{
-	FreeRTOS_Socket_t const * pxSocket = ( FreeRTOS_Socket_t const * )xSocket;
+	const FreeRTOS_Socket_t * pxSocket = ( const FreeRTOS_Socket_t * )xSocket;
     const struct xSTREAM_BUFFER *pxReturn = NULL;
 
         /* Confirm that this is a TCP socket before dereferencing structure
@@ -3274,7 +3275,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	int32_t lTCPAddRxdata( FreeRTOS_Socket_t *pxSocket, size_t uxOffset, const uint8_t *pcData, uint32_t ulByteCount )
 	{
 	StreamBuffer_t *pxStream = pxSocket->u.xTCP.rxStream;
-	int32_t xResult;
+	int32_t xResult = 0;
 	#if( ipconfigUSE_CALLBACKS == 1 )
 		BaseType_t bHasHandler = ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleReceive )  ? pdTRUE : pdFALSE;
 		const uint8_t *pucBuffer = NULL;
@@ -3290,101 +3291,104 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 			pxStream = prvTCPCreateStream( pxSocket, pdTRUE );
 			if( pxStream == NULL )
 			{
-				return -1;
+				xResult = -1;
 			}
 		}
 
-		#if( ipconfigUSE_CALLBACKS == 1 )
+		if( xResult >= 0 )
 		{
-			if( ( bHasHandler != pdFALSE ) && ( uxStreamBufferGetSize( pxStream ) == 0U ) && ( uxOffset == 0UL ) && ( pcData != NULL ) )
-			{
-				/* Data can be passed directly to the user */
-				pucBuffer = pcData;
-
-				pcData = NULL;
-			}
-		}
-		#endif /* ipconfigUSE_CALLBACKS */
-
-		xResult = ( int32_t ) uxStreamBufferAdd( pxStream, uxOffset, pcData, ( size_t ) ulByteCount );
-
-		#if( ipconfigHAS_DEBUG_PRINTF != 0 )
-		{
-			if( xResult != ( int32_t ) ulByteCount )
-			{
-				FreeRTOS_debug_printf( ( "lTCPAddRxdata: at %u: %d/%u bytes (tail %u head %u space %u front %u)\n",
-					( UBaseType_t ) uxOffset,
-					( BaseType_t ) xResult,
-					( UBaseType_t ) ulByteCount,
-					( UBaseType_t ) pxStream->uxTail,
-					( UBaseType_t ) pxStream->uxHead,
-					( UBaseType_t ) uxStreamBufferFrontSpace( pxStream ),
-					( UBaseType_t ) pxStream->uxFront ) );
-			}
-		}
-		#endif /* ipconfigHAS_DEBUG_PRINTF */
-
-		if( uxOffset == 0U )
-		{
-			/* Data is being added to rxStream at the head (offs = 0) */
 			#if( ipconfigUSE_CALLBACKS == 1 )
-			if( bHasHandler != pdFALSE )
 			{
-				/* The socket owner has installed an OnReceive handler. Pass the
-				Rx data, without copying from the rxStream, to the user. */
-				for (;;)
+				if( ( bHasHandler != pdFALSE ) && ( uxStreamBufferGetSize( pxStream ) == 0U ) && ( uxOffset == 0UL ) && ( pcData != NULL ) )
 				{
-					uint8_t *ucReadPtr = NULL;
-					uint32_t ulCount;
-					if( pucBuffer != NULL )
-					{
-						ucReadPtr = ipPOINTER_CAST( uint8_t *, pucBuffer );
-						ulCount = ulByteCount;
-						pucBuffer = NULL;
-					}
-					else
-					{
-						ulCount = ( uint32_t ) uxStreamBufferGetPtr( pxStream, &( ucReadPtr ) );
-					}
+					/* Data can be passed directly to the user */
+					pucBuffer = pcData;
 
-					if( ulCount == 0UL )
-					{
-						break;
-					}
-
-					( void ) pxSocket->u.xTCP.pxHandleReceive( pxSocket, ucReadPtr, ( size_t ) ulCount );
-					( void ) uxStreamBufferGet( pxStream, 0UL, NULL, ( size_t ) ulCount, pdFALSE );
+					pcData = NULL;
 				}
-			} else
+			}
 			#endif /* ipconfigUSE_CALLBACKS */
+
+			xResult = ( int32_t ) uxStreamBufferAdd( pxStream, uxOffset, pcData, ( size_t ) ulByteCount );
+
+			#if( ipconfigHAS_DEBUG_PRINTF != 0 )
 			{
-				/* See if running out of space. */
-				if( pxSocket->u.xTCP.bits.bLowWater == pdFALSE_UNSIGNED )
+				if( xResult != ( int32_t ) ulByteCount )
 				{
-					size_t uxFrontSpace = uxStreamBufferFrontSpace( pxSocket->u.xTCP.rxStream );
-					if( uxFrontSpace <= pxSocket->u.xTCP.uxLittleSpace  )
-					{
-						pxSocket->u.xTCP.bits.bLowWater = pdTRUE;
-						pxSocket->u.xTCP.bits.bWinChange = pdTRUE;
-
-						/* bLowWater was reached, send the changed window size. */
-						pxSocket->u.xTCP.usTimeout = 1U;
-						( void ) xSendEventToIPTask( eTCPTimerEvent );
-					}
+					FreeRTOS_debug_printf( ( "lTCPAddRxdata: at %u: %d/%u bytes (tail %u head %u space %u front %u)\n",
+						( UBaseType_t ) uxOffset,
+						( BaseType_t ) xResult,
+						( UBaseType_t ) ulByteCount,
+						( UBaseType_t ) pxStream->uxTail,
+						( UBaseType_t ) pxStream->uxHead,
+						( UBaseType_t ) uxStreamBufferFrontSpace( pxStream ),
+						( UBaseType_t ) pxStream->uxFront ) );
 				}
+			}
+			#endif /* ipconfigHAS_DEBUG_PRINTF */
 
-				/* New incoming data is available, wake up the user.   User's
-				semaphores will be set just before the IP-task goes asleep. */
-				pxSocket->xEventBits |= ( EventBits_t ) eSOCKET_RECEIVE;
-
-				#if ipconfigSUPPORT_SELECT_FUNCTION == 1
+			if( uxOffset == 0U )
+			{
+				/* Data is being added to rxStream at the head (offs = 0) */
+				#if( ipconfigUSE_CALLBACKS == 1 )
+				if( bHasHandler != pdFALSE )
 				{
-					if( ( pxSocket->xSelectBits & ( EventBits_t ) eSELECT_READ ) != 0U )
+					/* The socket owner has installed an OnReceive handler. Pass the
+					Rx data, without copying from the rxStream, to the user. */
+					for (;;)
 					{
-						pxSocket->xEventBits |= ( ( ( EventBits_t ) eSELECT_READ ) << SOCKET_EVENT_BIT_COUNT );
+						uint8_t *ucReadPtr = NULL;
+						uint32_t ulCount;
+						if( pucBuffer != NULL )
+						{
+							ucReadPtr = ipPOINTER_CAST( uint8_t *, pucBuffer );
+							ulCount = ulByteCount;
+							pucBuffer = NULL;
+						}
+						else
+						{
+							ulCount = ( uint32_t ) uxStreamBufferGetPtr( pxStream, &( ucReadPtr ) );
+						}
+
+						if( ulCount == 0UL )
+						{
+							break;
+						}
+
+						( void ) pxSocket->u.xTCP.pxHandleReceive( pxSocket, ucReadPtr, ( size_t ) ulCount );
+						( void ) uxStreamBufferGet( pxStream, 0UL, NULL, ( size_t ) ulCount, pdFALSE );
 					}
+				} else
+				#endif /* ipconfigUSE_CALLBACKS */
+				{
+					/* See if running out of space. */
+					if( pxSocket->u.xTCP.bits.bLowWater == pdFALSE_UNSIGNED )
+					{
+						size_t uxFrontSpace = uxStreamBufferFrontSpace( pxSocket->u.xTCP.rxStream );
+						if( uxFrontSpace <= pxSocket->u.xTCP.uxLittleSpace  )
+						{
+							pxSocket->u.xTCP.bits.bLowWater = pdTRUE;
+							pxSocket->u.xTCP.bits.bWinChange = pdTRUE;
+
+							/* bLowWater was reached, send the changed window size. */
+							pxSocket->u.xTCP.usTimeout = 1U;
+							( void ) xSendEventToIPTask( eTCPTimerEvent );
+						}
+					}
+
+					/* New incoming data is available, wake up the user.   User's
+					semaphores will be set just before the IP-task goes asleep. */
+					pxSocket->xEventBits |= ( EventBits_t ) eSOCKET_RECEIVE;
+
+					#if ipconfigSUPPORT_SELECT_FUNCTION == 1
+					{
+						if( ( pxSocket->xSelectBits & ( EventBits_t ) eSELECT_READ ) != 0U )
+						{
+							pxSocket->xEventBits |= ( ( ( EventBits_t ) eSELECT_READ ) << SOCKET_EVENT_BIT_COUNT );
+						}
+					}
+					#endif
 				}
-				#endif
 			}
 		}
 
@@ -3397,7 +3401,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 #if( ipconfigUSE_TCP == 1 )
 
 	/* Function to get the remote address and IP port */
-	BaseType_t FreeRTOS_GetRemoteAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress )
+	BaseType_t FreeRTOS_GetRemoteAddress( const Socket_t xSocket, struct freertos_sockaddr *pxAddress )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xResult;
@@ -3429,7 +3433,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 #if( ipconfigUSE_TCP == 1 )
 
 	/* Returns the number of bytes that may be added to txStream */
-	BaseType_t FreeRTOS_maywrite( Socket_t xSocket )
+	BaseType_t FreeRTOS_maywrite( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xResult;
@@ -3466,7 +3470,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	BaseType_t FreeRTOS_tx_space( Socket_t xSocket )
+	BaseType_t FreeRTOS_tx_space( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn;
@@ -3495,7 +3499,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	BaseType_t FreeRTOS_tx_size( Socket_t xSocket )
+	BaseType_t FreeRTOS_tx_size( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn;
@@ -3525,7 +3529,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 #if( ipconfigUSE_TCP == 1 )
 
 	/* Returns pdTRUE if TCP socket is connected. */
-	BaseType_t FreeRTOS_issocketconnected( Socket_t xSocket )
+	BaseType_t FreeRTOS_issocketconnected( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn = pdFALSE;
@@ -3553,8 +3557,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	/* returns the actual size of MSS being used */
-	BaseType_t FreeRTOS_mss( Socket_t xSocket )
+	/* returns the actual size of MSS being used. */
+	BaseType_t FreeRTOS_mss( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn;
@@ -3579,8 +3583,8 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	/* HT: for internal use only: return the connection status */
-	BaseType_t FreeRTOS_connstatus( Socket_t xSocket )
+	/* For internal use only: return the connection status. */
+	BaseType_t FreeRTOS_connstatus( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn;
@@ -3591,7 +3595,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		}
 		else
 		{
-			/* Cast it to BaseType_t */
+			/* Cast it to BaseType_t. */
 			xReturn = ( BaseType_t ) ( pxSocket->u.xTCP.ucTCPState );
 		}
 
@@ -3606,7 +3610,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	/*
 	 * Returns the number of bytes which can be read.
 	 */
-	BaseType_t FreeRTOS_rx_size( Socket_t xSocket )
+	BaseType_t FreeRTOS_rx_size( const Socket_t xSocket )
 	{
 	const FreeRTOS_Socket_t *pxSocket = ( const FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xReturn;
