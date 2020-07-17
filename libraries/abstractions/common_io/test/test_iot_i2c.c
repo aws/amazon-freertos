@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -678,6 +678,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
 
         /* Set i2c slave address */
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+
+        /* read from i2c device */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* read from i2c device */

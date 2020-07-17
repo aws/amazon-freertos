@@ -128,7 +128,6 @@ COMPONENT_SRCDIRS += ../.. \
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/unity/src \
-        $(AMAZON_FREERTOS_DEMOS_DIR)/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/ble/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/ota/test \
