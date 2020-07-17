@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -96,6 +96,8 @@ TEST_GROUP( TEST_IOT_GPIO );
  */
 TEST_SETUP( TEST_IOT_GPIO )
 {
+    xtestIotGpioSemaphore = xSemaphoreCreateBinary();
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -108,6 +110,9 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
     /* Make sure resources are freed up */
     iot_gpio_close( xtestIotGpioHandleA );
     iot_gpio_close( xtestIotGpioHandleB );
+
+    vSemaphoreDelete( xtestIotGpioSemaphore );
+    xtestIotGpioSemaphore = NULL;
 }
 
 /*-----------------------------------------------------------*/
@@ -117,9 +122,6 @@ TEST_TEAR_DOWN( TEST_IOT_GPIO )
  */
 TEST_GROUP_RUNNER( TEST_IOT_GPIO )
 {
-    xtestIotGpioSemaphore = xSemaphoreCreateBinary();
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotGpioSemaphore );
-
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenClose );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenOpenClose );
     RUN_TEST_CASE( TEST_IOT_GPIO, AFQP_IotGpioOpenCloseClose );
@@ -414,7 +416,7 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
                 ulPerfCountFastDelta = 0xFFFFFFFF - ulPerfCount0 + ulPerfCount1 + 1;
             }
 
-            TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
+            TEST_ASSERT_GREATER_THAN( ulPerfCountSlowDelta, ulPerfCountFastDelta );
         }
     }
 
@@ -670,27 +672,28 @@ static void testIotGpioInterrupt( IotGpioInterrupt_t eGpioInterrupt )
             switch( eGpioInterrupt )
             {
                 case eGpioInterruptRising:
-                    TEST_MESSAGE( "Rising edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Rising edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptFalling:
-                    TEST_MESSAGE( "Falling edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Falling edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptEdge:
-                    TEST_MESSAGE( "Both edge interrupts not supported." );
+                    /* TEST_MESSAGE( "Both edge interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptLow:
-                    TEST_MESSAGE( "low-level interrupts not supported." );
+                    /* TEST_MESSAGE( "low-level interrupts not supported." ); */
                     break;
 
                 case eGpioInterruptHigh:
-                    TEST_MESSAGE( "high-level interrupts not supported." );
+                    /* TEST_MESSAGE( "high-level interrupts not supported." ); */
                     break;
 
                 default:
-                    TEST_MESSAGE( "Interrupt feature not supported." );
+                    /* TEST_MESSAGE( "Interrupt feature not supported." ); */
+                    break;
             }
         }
     }
