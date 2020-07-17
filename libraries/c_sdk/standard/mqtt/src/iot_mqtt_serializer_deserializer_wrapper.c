@@ -852,9 +852,9 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
     }
 
     /* Serializing puback packet and validating the serialize parameters to be sent on the network. */
-    status = MQTT_SerializeAck( &( networkBuffer ),
-                                packetTypeByte,
-                                packetIdentifier );
+    managedMqttStatus = MQTT_SerializeAck( &( networkBuffer ),
+                                           packetTypeByte,
+                                           packetIdentifier );
     status = convertReturnCode( managedMqttStatus );
 
     if( status == IOT_MQTT_SUCCESS )
