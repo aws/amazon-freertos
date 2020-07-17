@@ -19,6 +19,10 @@
 [submodule "libraries/3rdparty/CMock"]
 	path = libraries/3rdparty/CMock
 	url = https://github.com/ThrowTheSwitch/CMock.git
+[submodule "vendors/espressif/esp-idf"]
+	path = vendors/espressif/esp-idf
+	url = https://github.com/espressif/esp-afr-sdk.git
+	branch = release/v3.3
 [submodule "mbedtls"]
 	path = libraries/3rdparty/mbedtls
 	url = https://github.com/ARMmbed/mbedtls.git
