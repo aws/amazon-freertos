@@ -39,6 +39,8 @@
 									<listOptionValue builtIn="false" value="LWIP_UDP=1"/>
 									<listOptionValue builtIn="false" value="LWIP_TCP=1"/>
 									<listOptionValue builtIn="false" value="LWIP_SOCKET=1"/>
+									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
+									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1613270830" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>

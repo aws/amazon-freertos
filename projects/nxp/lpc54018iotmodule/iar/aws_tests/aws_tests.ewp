@@ -211,6 +211,8 @@
 				<debug>1</debug>
 				<option>
 					<name>CCDefines</name>
+					<state>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;</state>
+					<state>CONFIG_MEDTLS_USE_AFR_MEMORY</state>
 					<state>DEBUG</state>
 					<state>XIP_IMAGE</state>
 					<state>CPU_LPC54018</state>
@@ -351,7 +353,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\cmsis_drivers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca\common_src\hcd</state>
@@ -388,12 +389,15 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -408,14 +412,15 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\src\private</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
@@ -1223,12 +1228,6 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\system_LPC54018.h</name>
 				</file>
 				<group>
-					<name>bootloader</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader\spifi_boot.c</name>
-					</file>
-				</group>
-				<group>
 					<name>drivers</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers\fsl_clock.c</name>
@@ -1856,10 +1855,16 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_mqtt_config.h</name>
 							</file>
 							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_ota_agent_config.h</name>
+							</file>
+							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_shadow_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_ota_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_runner_config.h</name>
@@ -2061,6 +2066,12 @@
 					<group>
 						<name>test</name>
 						<group>
+							<name>mock</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock\iot_tests_mqtt_mock.c</name>
+							</file>
+						</group>
+						<group>
 							<name>unit</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c</name>
@@ -2213,9 +2224,18 @@
 					</group>
 					<group>
 						<name>test</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c</name>
-						</file>
+						<group>
+							<name>unit</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c</name>
+							</file>
+						</group>
+						<group>
+							<name>system</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\test\system\aws_iot_tests_defender_system.c</name>
+							</file>
+						</group>
 					</group>
 				</group>
 				<group>
@@ -2640,7 +2660,10 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c</name>
@@ -2665,6 +2688,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\aria.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c</name>
 					</file>
 					<file>
@@ -2687,6 +2713,12 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\chacha20.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\chachapoly.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c</name>
@@ -2740,6 +2772,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\hkdf.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c</name>
 					</file>
 					<file>
@@ -2764,6 +2799,9 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c</name>
 					</file>
 					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\nist_kw.c</name>
+					</file>
+					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c</name>
 					</file>
 					<file>
@@ -2777,6 +2815,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs11.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c</name>
@@ -2795,6 +2836,9 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\poly1305.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c</name>
@@ -2873,12 +2917,6 @@
 					</file>
 				</group>
 				<group>
-					<name>utils</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c</name>
-					</file>
-				</group>
-				<group>
 					<name>include</name>
 					<group>
 						<name>mbedtls</name>
@@ -2890,6 +2928,9 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aria.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h</name>
@@ -2917,6 +2958,12 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chacha20.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\chachapoly.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h</name>
@@ -2979,6 +3026,9 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h</name>
 						</file>
 						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hkdf.h</name>
+						</file>
+						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h</name>
 						</file>
 						<file>
@@ -3006,6 +3056,9 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h</name>
 						</file>
 						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\nist_kw.h</name>
+						</file>
+						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h</name>
 						</file>
 						<file>
@@ -3021,6 +3074,9 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h</name>
 						</file>
 						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs11.h</name>
+						</file>
+						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h</name>
 						</file>
 						<file>
@@ -3034,6 +3090,9 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\poly1305.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h</name>
@@ -3099,6 +3158,18 @@
 				</group>
 			</group>
 			<group>
+				<name>mbedtls_utils</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c</name>
+				</file>
+			</group>
+			<group>
 				<name>pkcs11</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h</name>
@@ -3148,24 +3219,30 @@
 			</group>
 			<group>
 				<name>tinycbor</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c</name>
-				</file>
+				<group>
+					<name>src</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborpretty_stdio.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborencoder_close_container_checked.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborerrorstrings.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\src\cborparser_dup_string.c</name>
+					</file>
+				</group>
 			</group>
 			<group>
 				<name>http_parser</name>

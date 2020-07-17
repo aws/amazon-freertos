@@ -1,0 +1,47 @@
+{
+  "ENTRY": "prvRequestJob_MQTT",
+
+  "CBMCFLAGS":
+  [
+    "--unwind 1"
+  ],
+
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.goto",
+    "$(FREERTOS)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.goto",
+    "$(FREERTOS)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.goto",
+    "$(FREERTOS)/libraries/3rdparty/mbedtls/library/base64.goto"
+  ],
+  "DEF":
+  [
+      "_CONSOLE",
+      "_CRT_SECURE_NO_WARNINGS",
+      "__free_rtos__"
+  ],
+
+  "INC":
+  [
+    "$(FREERTOS)/libraries/freertos_plus/aws/ota/src",
+    "$(FREERTOS)/libraries/3rdparty/mbedtls/include",
+    "$(FREERTOS)/libraries/freertos_plus/aws/ota/include",
+    "$(FREERTOS)/libraries/freertos_plus/standard/crypto/include",
+    "$(FREERTOS)/freertos_kernel/include",
+    "$(FREERTOS)/freertos_kernel/portable/MSVC-MingW",
+    "$(FREERTOS)/vendors/pc/boards/windows/aws_demos/config_files",
+    "$(FREERTOS)/vendors/pc/boards/windows/aws_demos/application_code",
+    "$(FREERTOS)/demos/include",
+    "$(FREERTOS)/libraries/3rdparty/tracealyzer_recorder/Include",
+    "$(FREERTOS)/libraries/c_sdk/standard/mqtt/include",
+    "$(FREERTOS)/libraries/c_sdk/standard/common/include",
+    "$(FREERTOS)/libraries/abstractions/platform/include",
+    "$(FREERTOS)/libraries/abstractions/platform/freertos/include",
+    "$(FREERTOS)/libraries/abstractions/secure_sockets/include",
+    "$(FREERTOS)/libraries/c_sdk/standard/common/include/private",
+    "$(FREERTOS)/libraries/3rdparty/tinycbor",
+    "$(FREERTOS)/libraries/c_sdk/standard/https/include",
+    "$(FREERTOS)/libraries/3rdparty/jsmn",
+    "$(FREERTOS)/libraries/c_sdk/standard/mqtt/include/types"
+  ]
+}

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS HTTPS Client V1.1.2
+ * FreeRTOS HTTPS Client V1.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,7 +78,7 @@ typedef struct _asyncVerificationParams
      * verify the correct body of 'a'-'z' repeating starting from where verification left off last. When it is a new
      * request verification starts at 0 or 'a'.
      */
-    bool readReadyCallbackCountPerResponse[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
+    uint8_t readReadyCallbackCountPerResponse[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
 } _asyncVerificationParams_t;
 
 /*-----------------------------------------------------------*/
@@ -508,6 +508,10 @@ static void _readReadyCallback( void * pPrivData,
                                 IotHttpsReturnCode_t rc,
                                 uint16_t status )
 {
+    /* Disable unused parameter warning. */
+    ( void ) rc;
+    ( void ) status;
+
     IotHttpsReturnCode_t returnCode;
     uint32_t bodyLen = HTTPS_TEST_RESP_BODY_BUFFER_SIZE;
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
@@ -541,6 +545,9 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
+    /* Disable unused parameter warning. */
+    ( void ) status;
+
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
     verifParams->responseCompleteCallbackCount++;
@@ -575,6 +582,10 @@ static void _connectionClosedCallback( void * pPrivData,
 {
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
+    /* Disable unused parameter warnings. */
+    ( void ) rc;
+    ( void ) connHandle;
+
     verifParams->connectionClosedCallbackCount++;
 }
 
@@ -589,6 +600,11 @@ static void _errorCallback( void * pPrivData,
                             IotHttpsReturnCode_t rc )
 {
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
+
+    /* Disable unused parameter warnings. */
+    ( void ) reqHandle;
+    ( void ) respHandle;
+    ( void ) rc;
 
     verifParams->errorCallbackCount++;
 }
@@ -615,6 +631,7 @@ static void _writeCallbackThatCancels( void * pPrivData,
 {
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
+
     IotHttpsClient_CancelRequestAsync( reqHandle );
     verifParams->writeCallbackCount++;
 }
@@ -630,6 +647,10 @@ static void _readReadyCallbackThatCancels( void * pPrivData,
                                            uint16_t status )
 {
     _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
+
+    /* Disable unused parameter warnings. */
+    ( void ) rc;
+    ( void ) status;
 
     IotHttpsClient_CancelResponseAsync( respHandle );
     verifParams->readReadyCallbackCount++;

@@ -119,6 +119,8 @@ int app_main( void )
 
         #if BLE_ENABLED
             /* Initialize BLE. */
+            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+
             if( prvBLEStackInit() != ESP_OK )
             {
                 configPRINTF( ( "Failed to initialize the bluetooth stack\n " ) );

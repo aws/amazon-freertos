@@ -1,5 +1,5 @@
 /*
- * FreeRTOS POSIX V1.1.3
+ * FreeRTOS POSIX V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -284,7 +284,7 @@ int pthread_attr_setstacksize( pthread_attr_t * attr,
 
 int pthread_create( pthread_t * thread,
                     const pthread_attr_t * attr,
-                    void *( *startroutine )( void * ),
+                    void * ( *startroutine )( void * ),
                     void * arg )
 {
     int iStatus = 0;

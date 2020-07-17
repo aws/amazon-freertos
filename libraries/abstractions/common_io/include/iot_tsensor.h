@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -73,14 +73,14 @@ typedef enum
 /**
  * @brief   tsensor descriptor type defined in the source file.
  */
-struct IotTsensorDescriptor_t;
+struct IotTsensorDescriptor;
 
 /**
  * @brief   IotTsensorHandle_t type is the tsensor handle returned by calling iot_tsensor_open()
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotTsensorDescriptor_t * IotTsensorHandle_t;
+typedef struct IotTsensorDescriptor * IotTsensorHandle_t;
 
 /**
  * @brief The callback function for completion of Tsensor operation.

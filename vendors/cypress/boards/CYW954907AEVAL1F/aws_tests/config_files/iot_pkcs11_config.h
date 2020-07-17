@@ -32,8 +32,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-
 /**
  * @brief PKCS #11 default user PIN.
  *
@@ -42,6 +40,9 @@
  * protections. However, since typical microcontroller applications lack one or
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
+ *
+ * Note: Do not cast this to a pointer! The library calls sizeof to get the length
+ * of this string.
  */
 #define configPKCS11_DEFAULT_USER_PIN    "0000"
 
@@ -56,6 +57,12 @@
  * by the PKCS #11 module.
  */
 #define pkcs11configMAX_NUM_OBJECTS      6
+
+/**
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
+ */
+#define pkcs11configMAX_SESSIONS                           10
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.
@@ -125,7 +132,7 @@
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"/* #define pkcs11configC_INITIALIZE_ALT */
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

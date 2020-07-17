@@ -59,8 +59,10 @@
  * then set ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM to 1 to prevent the software
  * stack repeating the checksum calculations. */
 #define ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM		( 1 )
-#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM     1
+#define ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM		( 1 )
 
+#define ipconfigZERO_COPY_RX_DRIVER					( 1 )
+#define ipconfigZERO_COPY_TX_DRIVER					( 1 )
 
 /* Several API's will block until the result is known, or the action has been
  * performed, for example FreeRTOS_send() and FreeRTOS_recv().  The timeouts can be
@@ -81,8 +83,10 @@
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket. */
+ * a socket.
+ */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
+#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
 #define ipconfigDNS_CACHE_NAME_LENGTH              ( 254 )
 #define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )

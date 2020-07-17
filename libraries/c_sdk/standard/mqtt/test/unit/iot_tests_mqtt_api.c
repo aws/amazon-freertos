@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,6 +50,9 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* MQTT mock include. */
+#include "iot_tests_mqtt_mock.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -71,7 +74,7 @@
  * @brief A short keep-alive interval to use for the keep-alive tests. It may be
  * shorter than the minimum 1 second specified by the MQTT spec.
  */
-#define SHORT_KEEP_ALIVE_MS         ( 100 )
+#define SHORT_KEEP_ALIVE_MS         ( IOT_MQTT_RESPONSE_WAIT_MS + 100 )
 
 /**
  * @brief The number of times the periodic keep-alive should run.
@@ -169,11 +172,6 @@ static void _incomingPingresp( void * pArgument )
     /* Silence warnings about unused parameters. */
     ( void ) pArgument;
 
-    /* This test will not work if the response wait time is too small. */
-    #if IOT_MQTT_RESPONSE_WAIT_MS < ( 2 * SHORT_KEEP_ALIVE_MS + 100 )
-    #error "IOT_MQTT_RESPONSE_WAIT_MS too small for keep-alive tests."
-    #endif
-
     static int32_t invokeCount = 0;
     static uint64_t lastInvokeTime = 0;
     uint64_t currentTime = IotClock_GetTimeMs();
@@ -181,8 +179,9 @@ static void _incomingPingresp( void * pArgument )
     /* Increment invoke count for this function. */
     invokeCount++;
 
-    /* Sleep to simulate the network round-trip time. */
-    IotClock_SleepMs( 2 * SHORT_KEEP_ALIVE_MS );
+    /* Sleep to simulate the network round-trip time. Should be less than
+     * the response wait time. */
+    IotClock_SleepMs( IOT_MQTT_RESPONSE_WAIT_MS / 2 );
 
     /* Respond with a PINGRESP. */
     if( invokeCount <= KEEP_ALIVE_COUNT )
@@ -570,6 +569,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_API )
     RUN_TEST_CASE( MQTT_Unit_API, UnsubscribeMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, KeepAlivePeriodic );
     RUN_TEST_CASE( MQTT_Unit_API, KeepAliveJobCleanup );
+    RUN_TEST_CASE( MQTT_Unit_API, WaitAfterDisconnect );
 }
 
 /*-----------------------------------------------------------*/
@@ -1364,8 +1364,7 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     IotMqttDisconnectReason_t expectedReason = IOT_MQTT_KEEP_ALIVE_TIMEOUT;
 
     /* An estimate for the amount of time this test requires. */
-    const uint32_t sleepTimeMs = ( KEEP_ALIVE_COUNT * SHORT_KEEP_ALIVE_MS ) +
-                                 ( IOT_MQTT_RESPONSE_WAIT_MS * KEEP_ALIVE_COUNT ) + 1500;
+    const uint32_t sleepTimeMs = ( ( 2 + KEEP_ALIVE_COUNT ) * SHORT_KEEP_ALIVE_MS ) + 1500;
 
     /* Print a newline so this test may log its status. */
     UNITY_PRINT_EOL();
@@ -1452,6 +1451,59 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
     }
 
     IotSemaphore_Destroy( &waitSem );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that Wait can be safely invoked after Disconnect.
+ */
+TEST( MQTT_Unit_API, WaitAfterDisconnect )
+{
+    int32_t i = 0;
+    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttOperation_t pPublishOperation[ 3 ] = { IOT_MQTT_OPERATION_INITIALIZER };
+
+    /* Set the members of the publish info. */
+    publishInfo.qos = IOT_MQTT_QOS_1;
+    publishInfo.pTopicName = TEST_TOPIC_NAME;
+    publishInfo.topicNameLength = TEST_TOPIC_NAME_LENGTH;
+    publishInfo.pPayload = "";
+    publishInfo.payloadLength = 0;
+    publishInfo.retryLimit = 3;
+    publishInfo.retryMs = 5000;
+
+    /* Establish the MQTT connection. */
+    TEST_ASSERT_EQUAL_INT( true, IotTest_MqttMockInit( &_pMqttConnection ) );
+
+    if( TEST_PROTECT() )
+    {
+        /* Publish a sequence of messages. */
+        for( i = 0; i < 3; i++ )
+        {
+            status = IotMqtt_Publish( _pMqttConnection,
+                                      &publishInfo,
+                                      IOT_MQTT_FLAG_WAITABLE,
+                                      NULL,
+                                      &( pPublishOperation[ i ] ) );
+            TEST_ASSERT_EQUAL( IOT_MQTT_STATUS_PENDING, status );
+        }
+    }
+
+    /* Disconnect the MQTT connection. */
+    IotTest_MqttMockCleanup();
+
+    if( TEST_PROTECT() )
+    {
+        /* Waiting on operations after a connection is disconnected should not crash.
+         * The actual statuses of the PUBLISH operations may vary depending on the
+         * timing of publish versus disconnect, so the statuses are not checked. */
+        for( i = 0; i < 3; i++ )
+        {
+            status = IotMqtt_Wait( pPublishOperation[ i ], 100 );
+        }
+    }
 }
 
 /*-----------------------------------------------------------*/

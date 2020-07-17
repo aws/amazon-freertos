@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,24 +27,37 @@
  * @file iot_test_ble_end_to_end.c
  * @brief Tests for ble.
  */
+
+#include <string.h>
+
 /* The config header is always included first. */
 #include "iot_config.h"
 
 /* C standard library includes. */
 #include <stdbool.h>
 
+#include "iot_ble.h"
 /* Network interface includes. */
 #include "platform/iot_network_ble.h"
 #include "iot_mqtt.h"
+#include "platform/iot_threads.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
 
+
+#define BLE_TEST_CONNECTION_TIMEOUT_MS    ( 15000 )
+
 /*-----------------------------------------------------------*/
 
 extern bool IotTestNetwork_SelectNetworkType( uint16_t networkType );
 static bool bBLEInitialized = pdFALSE;
+static bool bBLEEnabled = false;
+static bool bBLEConnected = false;
+
+static IotSemaphore_t bleConnectionSem;
+
 
 /**
  * @brief Declares and runs an MQTT system test.
@@ -62,6 +75,132 @@ static bool bBLEInitialized = pdFALSE;
     TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" ); \
     TEST_Shadow_System_ ## name ## _();
 /*-----------------------------------------------------------*/
+
+BTStatus_t bleStackInit( void );
+
+static BTStatus_t _BLEInit( void )
+{
+    BTStatus_t status = eBTStatusSuccess;
+
+    /** Only do one time initialization of stack and Middleware **/
+    if( !bBLEInitialized )
+    {
+        status = bleStackInit();
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        status = IotBle_Init();
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        bBLEInitialized = true;
+    }
+
+    return status;
+}
+
+static void _BLEConnectionCallback( BTStatus_t status,
+                                    uint16_t connId,
+                                    bool connected,
+                                    BTBdaddr_t * pBa )
+{
+    if( connected == true )
+    {
+        IotBle_StopAdv( NULL );
+    }
+    else
+    {
+        ( void ) IotBle_StartAdv( NULL );
+    }
+
+    bBLEConnected = connected;
+    IotSemaphore_Post( &bleConnectionSem );
+}
+
+
+static BTStatus_t _BLEEnable( void )
+{
+    IotBleEventsCallbacks_t eventCb;
+    BTStatus_t status = eBTStatusSuccess;
+
+    if( !bBLEEnabled )
+    {
+        TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &bleConnectionSem, 0, 1 ) );
+
+        eventCb.pConnectionCb = _BLEConnectionCallback;
+
+        status = IotBle_RegisterEventCb( eBLEConnection, eventCb );
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        status = IotBle_On();
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ) );
+
+        TEST_ASSERT_TRUE( bBLEConnected );
+
+        bBLEEnabled = true;
+    }
+
+    return status;
+}
+
+
+static BTStatus_t _BLEDisable( void )
+{
+    BTStatus_t status;
+    IotBleEventsCallbacks_t eventCb;
+
+    if( bBLEEnabled )
+    {
+        status = IotBle_Off();
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &bleConnectionSem, BLE_TEST_CONNECTION_TIMEOUT_MS ) );
+
+        TEST_ASSERT_FALSE( bBLEConnected );
+
+
+        eventCb.pConnectionCb = _BLEConnectionCallback;
+        status = IotBle_UnRegisterEventCb( eBLEConnection, eventCb );
+
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, status );
+
+        IotSemaphore_Destroy( &bleConnectionSem );
+
+        bBLEEnabled = false;
+    }
+
+    return status;
+}
+
+TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
+
+/*-----------------------------------------------------------*/
+
+TEST_SETUP( Full_BLE_END_TO_END_CONNECTIVITY )
+{
+}
+
+/*-----------------------------------------------------------*/
+
+TEST_TEAR_DOWN( Full_BLE_END_TO_END_CONNECTIVITY )
+{
+}
+
+/*-----------------------------------------------------------*/
+
+TEST_GROUP_RUNNER( Full_BLE_END_TO_END_CONNECTIVITY )
+{
+    RUN_TEST_CASE( Full_BLE_END_TO_END_CONNECTIVITY, InitializeBLE );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_CONNECTIVITY, SetDeviceName );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_CONNECTIVITY, EnableBLE );
+}
+
+
 
 TEST_GROUP( Full_BLE_END_TO_END_MQTT );
 
@@ -90,6 +229,10 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_MQTT )
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
 {
     /* For these tests, use the BLE network interface. */
+
+    _BLEInit();
+    _BLEEnable();
+
     bBLEInitialized = IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
@@ -102,10 +245,9 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );*/
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );*/
 
-    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );
-
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy );
+
 
     /* Revert to sockets network interface after this test is finished. */
     IotTestNetwork_SelectNetworkType( DEFAULT_NETWORK );
@@ -114,6 +256,21 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
 
 /*-----------------------------------------------------------*/
 
+TEST( Full_BLE_END_TO_END_CONNECTIVITY, InitializeBLE )
+{
+    _BLEInit();
+}
+
+TEST( Full_BLE_END_TO_END_CONNECTIVITY, EnableBLE )
+{
+    _BLEEnable();
+}
+
+TEST( Full_BLE_END_TO_END_CONNECTIVITY, SetDeviceName )
+{
+    TEST_ASSERT_EQUAL( eBTStatusSuccess,
+                       IotBle_SetDeviceName( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, strlen( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) ) );
+}
 
 TEST( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 )
 {
@@ -140,10 +297,6 @@ TEST( Full_BLE_END_TO_END_MQTT, RestorePreviousSession )
     RUN_MQTT_SYSTEM_TEST( RestorePreviousSession );
 }
 
-TEST( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect )
-{
-    RUN_MQTT_SYSTEM_TEST( WaitAfterDisconnect );
-}
 
 TEST( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy )
 {
@@ -180,6 +333,9 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_SHADOW )
 
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
 {
+    _BLEInit();
+    _BLEEnable();
+
     /* For these tests, use the BLE network interface. */
     bBLEInitialized = IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 

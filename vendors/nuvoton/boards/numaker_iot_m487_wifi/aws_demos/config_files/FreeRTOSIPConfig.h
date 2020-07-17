@@ -47,7 +47,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * out the debugging messages. */
 #define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    #define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )
+    #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
 /* Set to 1 to print out non debugging messages, for example the output of the
@@ -87,8 +87,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket. */
+ * a socket.
+ */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
+#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
 #define ipconfigDNS_CACHE_NAME_LENGTH              ( 254 )
 #define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
@@ -198,7 +200,7 @@ extern uint32_t numaker_ulRand(void);
  * ipconfigINCLUDE_FULL_INET_ADDR is set to 1 then both FreeRTOS_inet_addr() and
  * FreeRTOS_indet_addr_quick() are available.  If ipconfigINCLUDE_FULL_INET_ADDR is
  * not set to 1 then only FreeRTOS_indet_addr_quick() is available. */
-#define ipconfigINCLUDE_FULL_INET_ADDR                 0
+#define ipconfigINCLUDE_FULL_INET_ADDR                 1
 
 /* ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS defines the total number of network buffer that
  * are available to the IP stack.  The total number of network buffers is limited

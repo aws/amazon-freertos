@@ -44,7 +44,8 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_greengrass_discovery.c"
+        "${test_dir}/aws_test_ggd_system.c"
+        "${test_dir}/aws_test_ggd_unit.c"
         "${test_dir}/aws_test_helper_secure_connect.c"
 )
 afr_module_dependencies(

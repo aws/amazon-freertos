@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS V202007.00
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -275,7 +276,7 @@ int RunDefenderDemo( bool awsIotMqttMode,
 
         if( mqttStatus != IOT_MQTT_SUCCESS )
         {
-            IotLogError( "Failed to Create MQTT Connection:%d", IotMqtt_strerror( mqttStatus ) );
+            IotLogError( "Failed to Create MQTT Connection, error: %s", IotMqtt_strerror( mqttStatus ) );
             IotMqtt_Cleanup();
             defenderResult = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
         }

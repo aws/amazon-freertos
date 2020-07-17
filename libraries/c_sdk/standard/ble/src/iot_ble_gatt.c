@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -751,7 +751,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
     /* Create all attributes. */
     if( pService != NULL )
     {
-        memset( pService->pusHandlesBuffer, 0, pService->xNumberOfAttributes );
+        memset( pService->pusHandlesBuffer, 0, pService->xNumberOfAttributes * sizeof( pService->pusHandlesBuffer[ 0 ] ) );
         status = _addServiceToList( pService, pEventsCallbacks );
     }
 
@@ -779,7 +779,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
             }
         }
     }
-    else
+    else if( status == eBTStatusSuccess )
     {
         pServiceElem = _getLastAddedServiceElem();
 

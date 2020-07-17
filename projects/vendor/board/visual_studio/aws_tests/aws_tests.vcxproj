@@ -282,6 +282,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\entropy.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\entropy_poll.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\error.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls_utils\mbedtls_error.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\gcm.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\havege.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\hmac_drbg.c" />
@@ -339,7 +340,7 @@
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\iot_wifi.c" />
     <ClCompile Include="..\..\..\common\crypto\iot_test_crypto.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
-    <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />
+    <ClCompile Include="..\..\..\common\greengrass\aws_test_ggd_system.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\common\memory_leak\iot_memory_leak.c" />
     <ClCompile Include="..\..\..\common\mqtt\iot_test_mqtt_agent.c" />

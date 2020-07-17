@@ -56,7 +56,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_config \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
+                    $(AFR_THIRDPARTY_PATH)mbedtls_utils \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
@@ -80,7 +82,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_AWS_PATH)defender/src \
                     $(AFR_C_SDK_AWS_PATH)defender/src/private \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
-                    $(AFR_THIRDPARTY_PATH)tinycbor \
+                    $(AFR_THIRDPARTY_PATH)tinycbor/src \
                     $(AFR_C_SDK_STANDARD_PATH)https/include \
                     $(AFR_C_SDK_STANDARD_PATH)https/include/types \
                     $(AFR_THIRDPARTY_PATH)http_parser \
@@ -119,12 +121,13 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder.c\
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder_close_container_checked.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborerrorstrings.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
-                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborencoder_close_container_checked.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborerrorstrings.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborparser.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborparser_dup_string.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/src/cborpretty_stdio.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@
 /* Standard library include. */
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Error handling from C-SDK. */
 #include "private/iot_error.h"
@@ -188,6 +189,7 @@ typedef enum
 /* Struct for OTA HTTP downloader. */
 typedef struct _httpDownloader
 {
+    OTA_AgentContext_t * pAgentCtx;       /* OTA agent context. */
     _httpState state;                     /* HTTP downloader state. */
     _httpErr err;                         /* HTTP downloader error status. */
     _httpUrlInfo_t httpUrlInfo;           /* HTTP url of the file to download. */
@@ -197,7 +199,6 @@ typedef struct _httpDownloader
     _httpCallbackData_t httpCallbackData; /* Data used in the HTTP callback. */
     uint32_t currBlock;                   /* Current requesting block in bitmap. */
     uint32_t currBlockSize;               /* Size of current requesting block. */
-    OTA_AgentContext_t * pAgentCtx;       /* OTA agent context. */
 } _httpDownloader_t;
 
 /* Global HTTP downloader instance. */
@@ -209,6 +210,9 @@ uint8_t * pRequestUserBuffer = NULL;    /* Buffer to store the HTTP request cont
 uint8_t * pResponseUserBuffer = NULL;   /* Buffer to store the HTTP response context and header. */
 uint8_t * pResponseBodyBuffer = NULL;   /* Buffer to store the HTTP response body. */
 
+/* We need to use this function defined in iot_logging_task_dynamic_buffers.c to print HTTP message
+ * without appending the task name and tick count. */
+void vLoggingPrint( const char * pcMessage );
 
 /*-----------------------------------------------------------*/
 
@@ -283,7 +287,7 @@ static void _httpFreeBuffers()
 /* Process the HTTP response body, copy to another buffer and signal OTA agent the file block
  * download is complete. */
 static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx,
-                                      uint8_t * pResponseBodyBuffer,
+                                      uint8_t * pHTTPResponseBody,
                                       uint32_t bufferSize )
 {
     IotLogDebug( "Invoking _httpProcessResponseBody" );
@@ -305,7 +309,7 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx,
     {
         pMessage->ulDataLength = bufferSize;
 
-        memcpy( pMessage->ucData, pResponseBodyBuffer, pMessage->ulDataLength );
+        memcpy( pMessage->ucData, pHTTPResponseBody, pMessage->ulDataLength );
         eventMsg.xEventId = eOTA_AgentEvent_ReceivedFileBlock;
         eventMsg.pxEventData = pMessage;
         /* Send job document received event. */
@@ -332,8 +336,8 @@ static void _httpErrorHandler( uint16_t responseCode )
     }
 
     IotLogInfo( "HTTP message body:" );
-    vLoggingPrint( pResponseBody );
-    vLoggingPrint( "\n" );
+    vLoggingPrintf( pResponseBody );
+    vLoggingPrintf( "\n" );
 
     if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
@@ -648,7 +652,7 @@ static IotHttpsReturnCode_t _httpInitUrl( const char * pURL )
 }
 
 static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetworkInterface,
-                                          IotNetworkCredentials_t * pNetworkCredentials )
+                                          struct IotNetworkCredentials * pNetworkCredentials )
 {
     /* HTTP API return status. */
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
@@ -718,7 +722,7 @@ static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetwork
 static _httpErr _httpGetFileSize( uint32_t * pFileSize )
 {
     /* Return status. */
-    int status = OTA_HTTP_ERR_NONE;
+    _httpErr status = OTA_HTTP_ERR_NONE;
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
 
     /* HTTP response code. */
@@ -922,7 +926,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Network interface and credentials from OTA agent. */
     OTA_ConnectionContext_t * connContext = pAgentCtx->pvConnectionContext;
     const IotNetworkInterface_t * pNetworkInterface = connContext->pxNetworkInterface;
-    IotNetworkCredentials_t * pNetworkCredentials = connContext->pvNetworkCredentials;
+    struct IotNetworkCredentials * pNetworkCredentials = connContext->pvNetworkCredentials;
 
     /* Pre-signed URL. */
     const char * pURL = NULL;

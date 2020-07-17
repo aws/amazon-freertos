@@ -59,7 +59,7 @@
 #define configISR_STACK_SIZE                       ( 512 )
 #define configSUPPORT_DYNAMIC_ALLOCATION           1
 #define configSUPPORT_STATIC_ALLOCATION            1
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) 256000 )
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) 416000 )
 #define configMAX_TASK_NAME_LEN                    ( 16 )
 #define configUSE_16_BIT_TICKS                     0
 #define configIDLE_SHOULD_YIELD                    1
@@ -71,7 +71,7 @@
 #define configUSE_QUEUE_SETS                       0
 #define configUSE_TIME_SLICING                     0
 #define configUSE_NEWLIB_REENTRANT                 0
-#define configENABLE_BACKWARD_COMPATIBILITY        1
+#define configENABLE_BACKWARD_COMPATIBILITY        0
 #define configUSE_TASK_FPU_SUPPORT                 0
 #define configUSE_POSIX_ERRNO                      1
 

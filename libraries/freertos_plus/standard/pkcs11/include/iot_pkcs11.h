@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V1.0.3
+ * FreeRTOS PKCS #11 V1.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_PKCS11_H_
-#define _AWS_PKCS11_H_
+#ifndef _IOT_PKCS11_H_
+#define _IOT_PKCS11_H_
 
 #include <stdint.h>
 
@@ -33,40 +33,66 @@
 #endif
 
 /**
+ * @file iot_pkcs11.h
+ * @brief Wrapper functions for PKCS #11
+ */
+
+/**
  * @brief FreeRTOS PKCS#11 Interface.
  * The following definitions are required by the PKCS#11 standard public
  * headers.
  */
 
-#define CK_PTR          *
+#define CK_PTR    *
 
 #ifndef NULL_PTR
+
+/**
+ * @brief Null in case null is not already defined.
+ */
     #define NULL_PTR    0
 #endif
 
-/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
- * instead when possible. */
+/**
+ * @brief CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible.
+ */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
+
+/**
+ * @brief Macro for defining a PKCS #11 functions.
+ *
+ */
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
+
+/**
+ * @brief Macro for defining a PKCS #11 function pointers.
+ *
+ */
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
+
+/**
+ * @brief Macro for defining a PKCS #11 callback functions.
+ *
+ */
 #define CK_CALLBACK_FUNCTION( returnType, name )           returnType( CK_PTR name )
 
 /**
  *   @brief Length of a SHA256 digest, in bytes.
  */
-#define pkcs11SHA256_DIGEST_LENGTH           32
+#define pkcs11SHA256_DIGEST_LENGTH           32UL
 
 /**
  * @brief Length of a curve P-256 ECDSA signature, in bytes.
  * PKCS #11 EC signatures are represented as a 32-bit R followed
  * by a 32-bit S value, and not ASN.1 encoded.
  */
-#define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
+#define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64UL
 
 /**
  * @brief Key strength for elliptic-curve P-256.
  */
-#define pkcs11ECDSA_P256_KEY_BITS            256
+#define pkcs11ECDSA_P256_KEY_BITS            256UL
 
 /**
  * @brief Public exponent for RSA.
@@ -77,12 +103,12 @@
  * @brief The number of bits in the RSA-2048 modulus.
  *
  */
-#define pkcs11RSA_2048_MODULUS_BITS          2048
+#define pkcs11RSA_2048_MODULUS_BITS          2048UL
 
 /**
  * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
  */
-#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( pkcs11RSA_2048_MODULUS_BITS / 8 )
+#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( pkcs11RSA_2048_MODULUS_BITS / 8UL )
 
 /**
  * @brief Length of RSA signature data before padding.
@@ -90,7 +116,7 @@
  * This is calculated by adding the SHA-256 hash len (32) to the 19 bytes in
  * pkcs11STUFF_APPENDED_TO_RSA_SIG = 51 bytes total.
  */
-#define pkcs11RSA_SIGNATURE_INPUT_LENGTH     51
+#define pkcs11RSA_SIGNATURE_INPUT_LENGTH     51UL
 
 /**
  * @brief Elliptic-curve object identifiers.
@@ -101,7 +127,7 @@
 /**
  * @brief Maximum length of storage for PKCS #11 label, in bytes.
  */
-#define pkcs11MAX_LABEL_LENGTH               32 /* 31 characters + 1 null terminator. */
+#define pkcs11MAX_LABEL_LENGTH               32UL /* 31 characters + 1 null terminator. */
 
 /**
  * @brief OID for curve P-256.
@@ -149,17 +175,58 @@
 
 #include "pkcs11.h"
 
-/* Certificate Template */
-/* The object class must be the first attribute in the array. */
+/** @brief Certificate Template
+ * The object class must be the first attribute in the array.
+ */
 typedef struct PKCS11_CertificateTemplate
 {
-    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_CERTIFICATE. */
-    CK_ATTRIBUTE xSubject;         /* CKA_SUBJECT, this parameter is required by the PKCS #11 standard. */
-    CK_ATTRIBUTE xCertificateType; /* CKA_CERTIFICATE_TYPE, set to CKC_X_509. */
-    CK_ATTRIBUTE xValue;           /* CKA_VALUE, the DER byte array of the certificate contents. */
-    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
-    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
-} PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
+    CK_ATTRIBUTE xObjectClass;     /**< @brief CKA_CLASS, set to CKO_CERTIFICATE. */
+    CK_ATTRIBUTE xSubject;         /**< @brief CKA_SUBJECT, this parameter is required by the PKCS #11 standard. */
+    CK_ATTRIBUTE xCertificateType; /**< @brief CKA_CERTIFICATE_TYPE, set to CKC_X_509. */
+    CK_ATTRIBUTE xValue;           /**< @brief CKA_VALUE, the DER byte array of the certificate contents. */
+    CK_ATTRIBUTE xLabel;           /**< @brief CKA_LABEL. */
+    CK_ATTRIBUTE xTokenObject;     /**< @brief CKA_TOKEN. */
+} PKCS11_CertificateTemplate_t;
+
+/*------------------------ PKCS #11 wrapper functions -------------------------*/
+
+/**
+ * @functions_page{pkcs11_iot,PKCS #11 Wrapper, PKCS #11 Wrapper}
+ * @functions_brief{PKCS #11 Wrapper}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11}
+ * - @function_name{pkcs11_iot_function_xgetslotlist}
+ * @function_brief{pkcs11_iot_function_xgetslotlist}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11token}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11token}
+ * - @function_name{pkcs11_iot_function_xinitializepkcs11session}
+ * @function_brief{pkcs11_iot_function_xinitializepkcs11session}
+ * - @function_name{pkcs11_iot_function_xfindobjectwithlabelandclass}
+ * @function_brief{pkcs11_iot_function_xfindobjectwithlabelandclass}
+ * - @function_name{pkcs11_iot_function_vappendsha256algorithmidentifiersequence}
+ * @function_brief{pkcs11_iot_function_vappendsha256algorithmidentifiersequence}
+ */
+
+/**
+ * @function_page{xInitializePKCS11,pkcs11_iot,xinitializepkcs11}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11,this}
+ * @copydoc xInitializePKCS11
+ * @function_page{xGetSlotList,pkcs11_iot,xgetslotlist}
+ * @function_snippet{pkcs11_iot,xgetslotlist,this}
+ * @copydoc xGetSlotList
+ * @function_page{xInitializePkcs11Token,pkcs11_iot,xinitializepkcs11token}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11token,this}
+ * @copydoc xInitializePkcs11Token
+ * @function_page{xInitializePkcs11Session,pkcs11_iot,xinitializepkcs11session}
+ * @function_snippet{pkcs11_iot,xinitializepkcs11session,this}
+ * @copydoc xInitializePkcs11Session
+ * @function_page{xFindObjectWithLabelAndClass,pkcs11_iot,xfindobjectwithlabelandclass}
+ * @function_snippet{pkcs11_iot,xfindobjectwithlabelandclass,this}
+ * @copydoc xFindObjectWithLabelAndClass
+ * @function_page{vAppendSHA256AlgorithmIdentifierSequence,pkcs11_iot,vappendsha256algorithmidentifiersequence}
+ * @function_snippet{pkcs11_iot,vappendsha256algorithmidentifiersequence,this}
+ * @copydoc vAppendSHA256AlgorithmIdentifierSequence
+ */
 
 /**
  * @brief Initializes a PKCS #11 session.
@@ -168,8 +235,9 @@ typedef struct PKCS11_CertificateTemplate
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11] */
 CK_RV xInitializePKCS11( void );
-
+/* @[declare_pkcs11_iot_xinitializepkcs11] */
 
 /**
  * @brief Get a list of available PKCS #11 slots.
@@ -185,8 +253,10 @@ CK_RV xInitializePKCS11( void );
  *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
  *
  */
+/* @[declare_pkcs11_iot_xgetslotlist] */
 CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
                     CK_ULONG * pxSlotCount );
+/* @[declare_pkcs11_iot_xgetslotlist] */
 
 /**
  * \brief Initializes the PKCS #11 module and opens a session.
@@ -197,7 +267,9 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
  * \return  CKR_OK upon success.  PKCS #11 error code on failure.
  *          Note that PKCS #11 error codes are positive.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11session] */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
+/* @[declare_pkcs11_iot_xinitializepkcs11session] */
 
 /**
  *  \brief Initializes a PKCS #11 module and token.
@@ -205,7 +277,9 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
  *  \return CKR_OK upon success.  PKCS #11 error code on failure.
  *          Note that PKCS #11 error codes are positive.
  */
+/* @[declare_pkcs11_iot_xinitializepkcs11token] */
 CK_RV xInitializePkcs11Token( void );
+/* @[declare_pkcs11_iot_xinitializepkcs11token] */
 
 /**
  * \brief Searches for an object with a matching label and class provided.
@@ -223,10 +297,12 @@ CK_RV xInitializePkcs11Token( void );
  * \note This function assumes that there is only one
  * object that meets the CLASS/LABEL criteria.
  */
+/* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    const char * pcLabelName,
+                                    char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
+/* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 
 /**
  * \brief Appends digest algorithm sequence to SHA-256 hash for RSA signatures
@@ -238,20 +314,22 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *      digestAlgorithm DigestAlgorithmIdentifier,
  *      digest Digest }
  *
- * \param[in] pc32ByteHashedMessage     A 32-byte buffer containing the SHA-256
+ * \param[in] puc32ByteHashedMessage     A 32-byte buffer containing the SHA-256
  *                                      hash of the data to be signed.
- * \param[out] pc51ByteHashOidBuffer    A 51-byte output buffer containing the
+ * \param[out] puc51ByteHashOidBuffer    A 51-byte output buffer containing the
  *                                      DigestInfo structure.  This memory
  *                                      must be allocated by the caller.
  *
  * \return CKR_OK if successful, CKR_ARGUMENTS_BAD if NULL pointer passed in.
  *
  */
-CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                                uint8_t * x51ByteHashOidBuffer );
+/* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( const uint8_t * puc32ByteHashedMessage,
+                                                uint8_t * puc51ByteHashOidBuffer );
+/* @[declare_pkcs11_iot_vappendsha256algorithmidentifiersequence] */
 
 #ifdef _WIN32
     #pragma pack(pop, cryptoki)
 #endif
 
-#endif /* ifndef _AWS_PKCS11_H_ */
+#endif /* ifndef _IOT_PKCS11_H_ */

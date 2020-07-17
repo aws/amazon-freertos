@@ -109,6 +109,11 @@ static uint64_t PIC32MZ_HW_TRNG_Get( void );
 
 /*-----------------------------------------------------------*/
 
+CK_RV PKCS11_PAL_Initialize( void )
+{
+    return CKR_OK;
+}
+
 /**
  * @brief Saves an object in non-volatile storage.
  *
@@ -122,8 +127,8 @@ static uint64_t PIC32MZ_HW_TRNG_Get( void );
  * eInvalidHandle = 0 if unsuccessful.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                        uint8_t * pucData,
-                                        uint32_t ulDataSize )
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataSize )
 {
     uint32_t * pFlashDest, * pDataSrc;
     int rowIx, nRows;
@@ -217,7 +222,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pLabel         Pointer to the label of the object
+ * @param[in] pxLabel         Pointer to the label of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -225,8 +230,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
+                                        CK_ULONG usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     const P11CertData_t * pCertFlash = 0;
@@ -234,26 +239,26 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     const P11KeyConfig_t * P11ConfigFlashPtr = ( const P11KeyConfig_t * ) KVA0_TO_KVA1( PKCS11_CERTIFICATE_SECTION_START_ADDRESS );
 
     /* TODO: Check if object actually exists/has been created before returning. */
-    if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, usLength )  )
+    if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, usLength )  )
     {
         xHandle = eAwsDeviceCertificate;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceCertificate;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, usLength ) )
     {
         xHandle = eAwsDevicePrivateKey;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, usLength ) )
     {
         /* Public and private key are stored together in same file. */
         xHandle = eAwsDevicePublicKey;
                 pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
 
     }
-    else if( 0 == memcmp( pLabel, pkcs11configFILE_CODE_SIGN_PUBLIC_KEY, usLength ) )
+    else if( 0 == memcmp( pxLabel, pkcs11configFILE_CODE_SIGN_PUBLIC_KEY, usLength ) )
     {
         xHandle = eAwsCodeSigningKey;
                 pCertFlash = &P11ConfigFlashPtr->xCodeVerificationKey;
@@ -296,9 +301,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                 uint8_t ** ppucData,
-                                 uint32_t * pulDataSize,
-                                 CK_BBOOL * pIsPrivate )
+                                      CK_BYTE_PTR * ppucData,
+                                      CK_ULONG_PTR pulDataSize,
+                                      CK_BBOOL * pIsPrivate )
 {
     CK_RV xResult = CKR_OK;
     uint32_t certSize = 0;
@@ -358,8 +363,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
  * @param[in] ulDataSize    The length of the buffer to free.
  *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
-void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
-                                       uint32_t ulDataSize )
+void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
+                                       CK_ULONG ulDataSize )
 {
     /* Unused parameters. */
     ( void ) pucData;

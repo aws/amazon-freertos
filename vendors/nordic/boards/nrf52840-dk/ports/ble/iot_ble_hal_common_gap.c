@@ -361,6 +361,11 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                 xGattServerCb.pxConnectionCb( p_ble_evt->evt.gap_evt.conn_handle, ulGattServerIFhandle, false, &xConnectionRemoteAddress );
             }
 
+            if( usGattConnHandle == p_ble_evt->evt.gap_evt.conn_handle )
+            {
+                usGattConnHandle = BLE_CONN_HANDLE_INVALID;
+            }
+
             break;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
@@ -735,6 +740,19 @@ BTStatus_t prvBtManagerCleanup()
 BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = NRF_SUCCESS;
+
+    xErrCode = nrf_sdh_enable_request();
+
+    if( xErrCode == NRF_SUCCESS )
+    {
+        if( !nrf_sdh_is_enabled() )
+        {
+            xErrCode = NRF_ERROR_SOFTDEVICE_NOT_ENABLED;
+        }
+    }
+
+    xStatus = BTNRFError( xErrCode );
 
     /** If status is ok and callback is set, trigger the callback.
      *  If status is fail, not need to trig a callback as original call failed.

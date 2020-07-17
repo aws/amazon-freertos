@@ -3,6 +3,9 @@ if(CMAKE_CROSSCOMPILING)
     enable_language(ASM)
 endif()
 
+# Export the json compile commands databse.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
 # Set some global path variables.
 get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "FreeRTOS source root.")
@@ -67,6 +70,14 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     option(AFR_ENABLE_DEMOS "Build demos for FreeRTOS." ON)
 else()
     option(AFR_ENABLE_DEMOS "Build demos for FreeRTOS." OFF)
+endif()
+
+# Provide an option to enable unit tests with mocking
+option(AFR_ENABLE_UNIT_TESTS "Build tests for FreeRTOS. Requires recompiling whole library." OFF)
+if (AFR_ENABLE_UNIT_TESTS)
+     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+     add_compile_definitions(IOT_BUILD_TESTS=1)
+     add_compile_definitions(AMAZON_FREERTOS_ENABLE_MOCKING)
 endif()
 
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.

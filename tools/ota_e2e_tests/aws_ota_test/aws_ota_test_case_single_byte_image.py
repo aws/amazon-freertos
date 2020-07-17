@@ -27,6 +27,10 @@ from .aws_ota_test_case import OtaTestCase
 
 
 class OtaTestSingleByteImage(OtaTestCase):
+    """
+    This test checks that the device is able to receive and handle a minimum size update (1 byte).
+    """
+
     is_positive = False
 
     def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):

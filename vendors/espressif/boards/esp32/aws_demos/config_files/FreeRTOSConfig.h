@@ -121,14 +121,14 @@
     #define configASSERT(a) /* assertions disabled */
 #elif defined(CONFIG_FREERTOS_ASSERT_FAIL_PRINT_CONTINUE)
     #define configASSERT(a) if (!(a)) {                                     \
-            ets_printf("%s:%d (%s)- assert failed!\n", __FILE__, __LINE__,  \
-                    __FUNCTION__);                                       \
+                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
+                                    __FILE__, __LINE__, __FUNCTION__);      \
             }
 #else /* CONFIG_FREERTOS_ASSERT_FAIL_ABORT */
-    #define configASSERT(a) if (!(a)) {                                         \
-                ets_printf("%s:%d (%s)- assert failed!\n", __FILE__, __LINE__,  \
-                        __FUNCTION__);                                          \
-                abort();                                                        \
+    #define configASSERT(a) if (!(a)) {                                     \
+                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
+                                    __FILE__, __LINE__, __FUNCTION__);      \
+                abort();                                                    \
             }
 #endif
 

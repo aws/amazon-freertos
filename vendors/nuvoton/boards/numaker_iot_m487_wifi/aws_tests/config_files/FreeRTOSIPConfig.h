@@ -45,9 +45,9 @@ extern void vLoggingPrintf( const char * pcFormatString,
 /* Set to 1 to print out debug messages.  If ipconfigHAS_DEBUG_PRINTF is set to
  * 1 then FreeRTOS_debug_printf should be defined to the function used to print
  * out the debugging messages. */
-#define ipconfigHAS_DEBUG_PRINTF   0 //1
+#define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    #define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )//configPRINTF( X )
+    #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
 /* Set to 1 to print out non debugging messages, for example the output of the
@@ -87,8 +87,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
  * socket has been destroyed, the result will be stored into the cache.  The next
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
- * a socket. */
+ * a socket.
+ */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
+#define ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY      ( 6 )
 #define ipconfigDNS_CACHE_NAME_LENGTH              ( 16 )
 #define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
@@ -116,7 +118,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * number generation is performed via this macro to allow applications to use their
  * own random number generation method.  For example, it might be possible to
  * generate a random number by sampling noise on an analogue input. */
-extern uint32_t numaker_ulRand(void);
+extern uint32_t numaker_ulRand( void );
 #define ipconfigRAND32()    numaker_ulRand()
 
 /* If ipconfigUSE_NETWORK_EVENT_HOOK is set to 1 then FreeRTOS+TCP will call the
@@ -204,7 +206,7 @@ extern uint32_t numaker_ulRand(void);
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS         5//16
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS         5
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can

@@ -708,14 +708,20 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     uint8_t ucFlags;
     uint8_t ucTxPower;
     esp_err_t xESPErr = ESP_OK;
+    char *pDeviceName;
+    size_t deviceNameLength;
 
-    if( ( pxParams->ucName.xType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 ) )
+
+    pDeviceName = prxESPGetBLEDeviceName();
+    deviceNameLength = strlen( pDeviceName );
+
+    if( ( pxParams->ucName.xType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= deviceNameLength ) )
     {
-        prvAddToAdvertisementMessage( ucMessageRaw, &ucMessageIndex, ESP_BLE_AD_TYPE_NAME_CMPL, ( uint8_t * ) IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 );
+        prvAddToAdvertisementMessage( ucMessageRaw, &ucMessageIndex, ESP_BLE_AD_TYPE_NAME_CMPL, ( uint8_t * ) pDeviceName, deviceNameLength );
     }
     else if( pxParams->ucName.xType == BTGattAdvNameShort )
     {
-        prvAddToAdvertisementMessage( ucMessageRaw, &ucMessageIndex, ESP_BLE_AD_TYPE_NAME_SHORT, ( uint8_t * ) IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, pxParams->ucName.ucShortNameLen );
+        prvAddToAdvertisementMessage( ucMessageRaw, &ucMessageIndex, ESP_BLE_AD_TYPE_NAME_SHORT, ( uint8_t * ) pDeviceName, IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE );
     }
 
     if( ( pxParams->bIncludeTxPower == true ) && ( xStatus == eBTStatusSuccess ) )
@@ -784,8 +790,24 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xAdv_params.channel_map = ADV_CHNL_ALL;
         xAdv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
-        xAdv_params.adv_int_max = IOT_BLE_ADVERTISING_INTERVAL * 2;
-        xAdv_params.adv_int_min = IOT_BLE_ADVERTISING_INTERVAL;
+
+        if( pxParams->usMinAdvInterval != 0 )
+        {
+            xAdv_params.adv_int_min = pxParams->usMinAdvInterval;
+        }
+        else
+        {
+            xAdv_params.adv_int_min = IOT_BLE_ADVERTISING_INTERVAL;
+        }
+
+        if( pxParams->usMaxAdvInterval != 0 )
+        {
+            xAdv_params.adv_int_max = pxParams->usMaxAdvInterval;
+        }
+        else
+        {
+            xAdv_params.adv_int_max = ( 2 * IOT_BLE_ADVERTISING_INTERVAL );
+        }
 
         if( pxParams->usAdvertisingEventProperties == BTAdvInd )
         {

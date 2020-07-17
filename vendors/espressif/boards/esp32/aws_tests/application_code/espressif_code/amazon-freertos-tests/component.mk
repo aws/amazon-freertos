@@ -52,7 +52,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
-        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor/src \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
@@ -65,10 +65,11 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
-                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor/src \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/mbedtls_utils \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
                              $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/include \
@@ -102,8 +103,11 @@ COMPONENT_SRCDIRS += ../.. \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/system \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/unit \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/mock \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/serializer/test \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test \
+        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test/unit \
+        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/test/system \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/unit \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/system \
@@ -124,7 +128,6 @@ COMPONENT_SRCDIRS += ../.. \
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/unity/src \
-        $(AMAZON_FREERTOS_DEMOS_DIR)/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/ble/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/ota/test \
@@ -132,7 +135,8 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
 	${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/ble_hal/test/include \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/https/src \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/src \
-        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src/private \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/mock \
+        ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/src \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/greengrass/src
 

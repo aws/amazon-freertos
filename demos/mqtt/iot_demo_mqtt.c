@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -294,7 +294,7 @@ static void _mqttSubscriptionCallback( void * param1,
         /* Check for errors from snprintf. */
         if( acknowledgementLength < 0 )
         {
-            IotLogWarn( "Failed to generate acknowledgement message for PUBLISH *.*s.",
+            IotLogWarn( "Failed to generate acknowledgement message for PUBLISH %.*s.",
                         ( int ) messageNumberLength,
                         pPayload + messageNumberIndex );
         }

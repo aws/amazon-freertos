@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyCLIENT_CERTIFICATE_PEM                   ""
+#define keyCLIENT_CERTIFICATE_PEM                   NULL
 
 /*
  * @brief PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
@@ -58,7 +58,7 @@
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM    ""
+#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM    NULL
 
 /*
  * @brief PEM-encoded client private key.
@@ -71,6 +71,6 @@
  * "...base64 data...\n"\
  * "-----END RSA PRIVATE KEY-----\n"
  */
-#define keyCLIENT_PRIVATE_KEY_PEM                   ""
+#define keyCLIENT_PRIVATE_KEY_PEM                   NULL
 
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */

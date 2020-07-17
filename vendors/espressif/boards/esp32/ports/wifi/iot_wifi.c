@@ -34,6 +34,7 @@
 #if AFR_ESP_LWIP
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
+#include "tcpip_adapter.h"
 #else
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -42,6 +43,7 @@
 #include "esp_smartconfig.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+
 
 static const char *TAG = "WIFI";
 static EventGroupHandle_t wifi_event_group;
@@ -59,6 +61,7 @@ static bool wifi_auth_failure;
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
 #define MAX_SECURITY_MODE_LEN      ( 1 )
+#define MAX_AP_CONNECTIONS         ( 4 )
 
 typedef struct StorageRegistry
 {
@@ -262,24 +265,64 @@ BaseType_t WIFI_IsConnected( void )
 
 WIFIReturnCode_t WIFI_Off( void )
 {
-    return eWiFiSuccess;
+    esp_err_t ret;
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if (wifi_conn_state == true) {
+            ret = esp_wifi_disconnect();
+            if (ret == ESP_OK) {
+                // Wait for wifi disconnected event
+                xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+            } else {
+                ESP_LOGE(TAG, "%s:Failed to disconnect wifi %d", __func__, ret);
+                goto err;
+            }
+        }
+
+        if ((ret = esp_wifi_deinit()) != ESP_OK) {
+            if (ret == ESP_ERR_WIFI_NOT_STOPPED) {
+                ret = esp_wifi_stop();
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "%s:Failed to stop wifi %d", __func__, ret);
+                    goto err;
+                }
+                if (esp_wifi_deinit() != ESP_OK) {
+                    ESP_LOGE(TAG, "%s:Failed to deinit %d", __func__, ret);
+                    goto err;
+                }
+            } else {
+                ESP_LOGE(TAG, "%s:Failed to deinit %d", __func__, ret);
+                goto err;
+            }
+        }
+        if (wifi_event_group) {
+            vEventGroupDelete(wifi_event_group);
+            wifi_event_group = NULL;
+        }
+        xSemaphoreGive( xWiFiSem );
+        return eWiFiSuccess;
+err:
+        xSemaphoreGive( xWiFiSem );
+        return eWiFiFailure;
+    }
+    return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_On( void )
 {
-    static bool wifi_inited;
-
-    // Check if WiFi is already initialized
-    if (wifi_inited == true) {
-        return eWiFiSuccess;
+    static bool event_loop_inited;
+    esp_err_t ret;
+    // Check if Event Loop is already initialized
+    if (event_loop_inited == false) {
+        ret = esp_event_loop_init(event_handler, NULL);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
+            goto err;
+        }
+        event_loop_inited = true;
     }
 
-    esp_err_t ret = esp_event_loop_init(event_handler, NULL);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "%s: Failed to init event loop %d", __func__, ret);
-        goto err;
-    }
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ret = esp_wifi_init(&cfg);
@@ -302,9 +345,10 @@ WIFIReturnCode_t WIFI_On( void )
 
     /* Create sync mutex */
     static StaticSemaphore_t xSemaphoreBuffer;
-    xWiFiSem = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
+    if (xWiFiSem == NULL) {
+        xWiFiSem = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
+    }
 
-    wifi_inited = true;
     return eWiFiSuccess;
 err:
     return eWiFiFailure;
@@ -520,7 +564,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 uint16_t num_aps = ucNumNetworks;
                 esp_wifi_scan_get_ap_records(&num_aps, ap_info);
                 for (int i = 0; i < num_aps; i++) {
-                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN);
+                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN + 1);
                     memcpy(pxBuffer[i].ucBSSID, ap_info[i].bssid, wificonfigMAX_BSSID_LEN);
                     pxBuffer[i].cRSSI = ap_info[i].rssi;
                     pxBuffer[i].cChannel = ap_info[i].primary;
@@ -1030,7 +1074,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
-
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
@@ -1038,12 +1081,41 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     if (pucIPAddr == NULL) {
         return xRetVal;
     }
-#if !AFR_ESP_LWIP
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+#if !AFR_ESP_LWIP
         *( ( uint32_t * ) pucIPAddr ) = FreeRTOS_GetIPAddress();
         xRetVal = eWiFiSuccess;
+        configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                     __FUNCTION__,
+                     pucIPAddr[0],
+                     pucIPAddr[1],
+                     pucIPAddr[2],
+                     pucIPAddr[3]));
+#else /* running lwip */
+        tcpip_adapter_ip_info_t ipInfo;
+        int ret;
+
+        ret = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+        if (ret == ESP_OK)
+        {
+            xRetVal = eWiFiSuccess;
+            memcpy( pucIPAddr, &ipInfo.ip.addr, sizeof( ipInfo.ip.addr ) );
+            configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                          __FUNCTION__,
+                          pucIPAddr[0],
+                          pucIPAddr[1],
+                          pucIPAddr[2],
+                          pucIPAddr[3]));
+        }
+        else
+        {
+            configPRINTF(("%s: tcpip_adapter_get_ip_info_error:  %d",
+                        __FUNCTION__,
+                        ret));
+        }
+#endif
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
     }
@@ -1051,8 +1123,6 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     {
         xRetVal = eWiFiTimeout;
     }
-#endif
-
     return xRetVal;
 }
 /*-----------------------------------------------------------*/
@@ -1218,7 +1288,11 @@ static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t
 
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-    wifi_config_t wifi_config = { 0 };
+    wifi_config_t wifi_config = {
+        .ap = {
+            .max_connection = MAX_AP_CONNECTIONS,
+        },
+    };
     esp_err_t ret;
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
 
@@ -1245,9 +1319,13 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         /* ssid/password is required */
-        strlcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        /* SSID can be a non NULL terminated string if ssid_len is specified.
+         * Hence, memcpy is used to support 32 character long SSID name.
+         */
+        memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        wifi_config.ap.ssid_len = pxNetworkParams->ucSSIDLength;
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
         ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);

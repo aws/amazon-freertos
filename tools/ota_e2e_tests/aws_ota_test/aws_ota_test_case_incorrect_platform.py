@@ -28,6 +28,11 @@ import os
 
 
 class OtaTestIncorrectPlatform(OtaTestCase):
+    """
+    Different hardware supports different signing and hashing algorithm. This test verifies that
+    device will fail the OTA update is it's created with non-supported algorithm.
+    """
+
     is_positive = False
 
     def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):

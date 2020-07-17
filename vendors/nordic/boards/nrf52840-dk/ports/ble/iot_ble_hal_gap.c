@@ -61,7 +61,7 @@
 #define iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE    2
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
-uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
+extern uint16_t usGattConnHandle; /**< Handle of the current connection. */
 
 #define BLE_ADVERTISING_DEF_NO_STATIC( _name )                  \
     ble_advertising_t _name;                                    \
@@ -76,7 +76,6 @@ bool prvAdvRestart = false;
 
 NRF_SDH_BLE_OBSERVER( m_ble_observer, aws_ble_gap_configAPP_BLE_OBSERVER_PRIO, prvGAPeventHandler, NULL );
 
-static bool prvAdvertisingInitialized = false;
 uint8_t ucBaseUUIDindex = 0;
 BTUuid_t xAppUuid =
 {
@@ -230,6 +229,10 @@ static void prvOnAdvErr( uint32_t nrf_error );
 /** @brief Initialization of the Peer Manager module. */
 static ret_code_t prvPeerManagerInit( void );
 
+/** @brief Initialization of the advertisement parameters. */
+static void prvAdvertisementDataInit( void );
+
+
 /** @breef Frees all memory occupied with ble_advdata_t structure */
 static void prvBTFreeAdvData( ble_advdata_t * xAdvData );
 
@@ -285,6 +288,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 {
     ret_code_t xErrCode = NRF_SUCCESS;
     BTStatus_t xStatus = eBTStatusSuccess;
+    const char * error;
 
 
     memset( &prvAdvData, 0, sizeof( prvAdvData ) );
@@ -316,7 +320,14 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
         BT_NRF_PRINT_ERROR( prvConnectionParamsInit, xErrCode );
     }
 
+    if( xErrCode == NRF_SUCCESS )
+    {
+        prvAdvertisementDataInit();
+    }
+
     xStatus = BTNRFError( xErrCode );
+
+    error = nrf_strerror_get( xErrCode );
 
     /* TODO: Add initial security */
     if( pxCallbacks != NULL )
@@ -363,6 +374,22 @@ ret_code_t prvPeerManagerInit( void )
     }
 
     return xErrCode;
+}
+
+static void prvAdvertisementDataInit( void )
+{
+    /* Clear the advertisement handle with the stack. */
+    memset( &xAdvertisingHandle, 0x00, sizeof( xAdvertisingHandle ) );
+
+    /* Clear the global variables used by the porting layer. */
+    prvAdvRestart = false;
+    memset( &prvAdvData, 0x00, sizeof( ble_advdata_t ) );
+    memset( &prvScanResponseData, 0x00, sizeof( ble_advdata_t ) );
+
+    /* Clear the advertisment and scan response cache. Reset the index to 0. */
+    memset( prvAdvBinData, 0x00, sizeof( prvAdvBinData ) );
+    memset( prvSrBinData, 0x00, sizeof( prvSrBinData ) );
+    prvCurrentAdvBuf = 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -508,10 +535,9 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             const BTBdaddr_t * pxBdAddr,
                             uint16_t usConnId )
 {
-    ret_code_t xErrCode = sd_ble_gap_disconnect( usConnHandle,
-                                                 BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION );
+    ret_code_t xErrCode;
 
-    xLatestDesiredConnectionParams.pxBdAddr = NULL;
+    xErrCode = sd_ble_gap_disconnect( usConnId, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
     BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
     return BTNRFError( xErrCode );
 }
@@ -824,8 +850,30 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     {
         /* The first two UUID go to the initial advertisement packet */
         xAdvData->uuids_complete = xCompleteUUIDS;
-        xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
-        xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
+
+        if( ( pxParams->ulMaxInterval != 0 ) && ( pxParams->ulMinInterval != 0 ) )
+        {
+            xAdvData->p_slave_conn_int = IotBle_Malloc( sizeof( ble_advdata_conn_int_t ) );
+
+            if( xAdvData->p_slave_conn_int != NULL )
+            {
+                xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
+                xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
+            }
+            else
+            {
+                xErrCode = NRF_ERROR_NO_MEM;
+            }
+        }
+        else if( ( pxParams->ulMinInterval != 0 ) || ( pxParams->ulMaxInterval != 0 ) )
+        {
+            IotLogError( "Invalid params in advertisement/scan response: either min connection interval or max connection interval is zero" );
+            xErrCode = NRF_ERROR_INVALID_PARAM;
+        }
+        else
+        {
+            /* Do nothing. User have set min interval and max interval to 0 to not include this in advertisment. */
+        }
 
         /* Set manufacturer specific data only when its length is atleast equal to iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE */
         if( ( pcManufacturerData != NULL ) && ( usManufacturerLen >= iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE ) )
@@ -840,10 +888,9 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             {
                 /* extract company_identifier from input manufacturer data
                  * because nordic sdk has separate field for company_identifier.
-                 *
-                 * company identifier is two bytes in size stored in little endian form.
-+                * Exctract the bytes and store into a 16bit variable.
-+                */
+                 * Company identifier is two bytes in size stored in little endian form.
+                 * Extract the bytes and store it into a 16bit variable.
+                 */
                 for( uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++ )
                 {
                     companyId = companyId | ( ( uint16_t ) pcManufacturerData[ i ] << ( i * 8 ) );
@@ -935,16 +982,36 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     if( xErrCode == NRF_SUCCESS )
     {
         xAdvConfig.ble_adv_fast_enabled = true;
-        xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
+        xAdvConfig.ble_adv_slow_enabled = true;
+
+        if( pxParams->usMinAdvInterval != 0 )
+        {
+            xAdvConfig.ble_adv_fast_interval = pxParams->usMinAdvInterval;
+        }
+        else
+        {
+            xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
+        }
+
+        if( pxParams->usMaxAdvInterval != 0 )
+        {
+            xAdvConfig.ble_adv_slow_interval = pxParams->usMaxAdvInterval;
+        }
+        else
+        {
+            xAdvConfig.ble_adv_slow_interval = ( IOT_BLE_ADVERTISING_INTERVAL * 2 );
+        }
 
         /* If it is an advertisement data and advertising timeout is provided, set the timeout. Else set the default timeout by vendor. */
-        if( ( pxParams->bSetScanRsp == false ) && ( pxParams->usTimeout != 0 ) )
+        if( pxParams->usTimeout != 0 )
         {
             xAdvConfig.ble_adv_fast_timeout = pxParams->usTimeout;
+            xAdvConfig.ble_adv_slow_timeout = pxParams->usTimeout;
         }
         else
         {
             xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
+            xAdvConfig.ble_adv_slow_timeout = aws_ble_gap_configADV_DURATION;
         }
 
         xAdvConfig.ble_adv_primary_phy = pxParams->ucPrimaryAdvertisingPhy; /* TODO: Check which values can these variable get */
@@ -1255,7 +1322,7 @@ static void prvOnConnParamsEvt( ble_conn_params_evt_t * pxEvt )
 
     if( pxEvt->evt_type == BLE_CONN_PARAMS_EVT_FAILED )
     {
-        xErrCode = sd_ble_gap_disconnect( usConnHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE );
+        xErrCode = sd_ble_gap_disconnect( usGattConnHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE );
         BT_NRF_PRINT_ERROR( sd_ble_gap_disconnect, xErrCode );
     }
 }

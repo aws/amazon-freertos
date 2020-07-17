@@ -1,0 +1,32 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "PKCS11"
+PROJECT_BRIEF = "PKCS11 Cryptoki Library"
+
+# Library documentation output directory.
+HTML_OUTPUT = pkcs11
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/output/pkcs11.tag
+ENABLE_PREPROCESSING = YES
+MACRO_EXPANSION = YES
+PREDEFINED="CK_DECLARE_FUNCTION(return, name)=return name"
+
+# Directories containing library source code.
+INPUT = doc \
+        doc/lib \
+        libraries/3rdparty/pkcs11 \
+        libraries/abstractions/pkcs11 \
+        libraries/freertos_plus/standard/pkcs11/include \
+        libraries/abstractions/pkcs11/mbedtls \
+        libraries/abstractions/pkcs11/include \
+        libraries/freertos_plus/standard/utils/include/ \
+
+# Library file names.
+FILE_PATTERNS = *pkcs*.c *pkcs*.h *pkcs*.txt *pki*.c *pki*.h
+
+TAGFILES = doc/output/main.tag=../main
+

@@ -31,19 +31,19 @@
 
 #ifndef _AWS_BLE_CONFIG_H_
 #define _AWS_BLE_CONFIG_H_
-#include "sdk_config.h"
 
 /* Device complete name for this peripheral device */
-#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "nRF52840"
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "nRF52840"
 
 
 /* Enable WIFI provisioning GATT service */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
 
 /* MTU size. */
-#define IOT_BLE_PREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
+#define IOT_BLE_PREFERRED_MTU_SIZE          ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 
+#include "sdk_config.h"
 #endif /* _AWS_BLE_CONFIG_H_ */

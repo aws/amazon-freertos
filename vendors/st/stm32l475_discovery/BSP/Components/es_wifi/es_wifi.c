@@ -1501,7 +1501,10 @@ ES_WIFI_Status_t ES_WIFI_GetSystemConfig(ES_WIFIObject_t *Obj, ES_WIFI_SystemCon
 ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms)
 {
   ES_WIFI_Status_t ret;
-  LOCK_WIFI();  
+  uint8_t responseIpAddress[4];
+  int rtt, valuesRead = 0, responseStart = 0;
+  uint16_t responsesParsed = 0;
+  LOCK_WIFI();
 
   sprintf((char*)Obj->CmdData,"T1=%d.%d.%d.%d\r", address[0],address[1],
           address[2],address[3]);
@@ -1522,6 +1525,71 @@ ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t c
       {
         sprintf((char*)Obj->CmdData,"T0=\r");
         ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+        if(ret == ES_WIFI_STATUS_OK)
+        {
+          /* If the T0 command is successfully executed, the Inventek module
+           * returns one of the following:
+           *
+           * Success - \r\nIP0.IP1.IP2.IP3,RTT\r\nOK\r\n>
+           * Timeout - \r\nIP0.IP1.IP2.IP3,Timeout\r\nOK\r\n>
+           *
+           * Where IP0..IP3 are the octacts of the IP address pinged and RTT is
+           * the round trip time.
+           *
+           * Example success response - \r\n8.8.8.8,48\r\nOK\r\n>
+           * Example timeout response - \r\n192.168.1.1,Timeout\r\nOK\r\n>
+           * 
+           * The "\r\nIP0.IP1.IP2.IP3,RTT" part is repeated in the response
+           * the number of ping count times (specified with the T2 command).
+           * 
+           * The following check tries to read the 4 IP octacts and the RTT
+           * value from the response - if we are able to successfully read all
+           * the 5 values (i.e. sscanf returns 5), it is a success response. We
+           * will not be able to read the RTT value in case of timeout as sscanf
+           * will not be able to parse "Timeout" as integer. As a result,
+           * valuesRead will not be 5 and it will be detected as timeout.
+           */
+          /* Assume timeout unless we find a successful response. */
+          ret = ES_WIFI_STATUS_TIMEOUT;
+          do
+          {
+            /* Parse the first response. */
+            valuesRead = sscanf((char*)&(Obj->CmdData[responseStart]),
+                                   "\r\n%hhu.%hhu.%hhu.%hhu,%d",
+                                   &responseIpAddress[0],
+                                   &responseIpAddress[1],
+                                   &responseIpAddress[2],
+                                   &responseIpAddress[3],
+                                   &rtt);
+
+            if(valuesRead == 5 &&
+              responseIpAddress[0] == address[0] &&
+              responseIpAddress[1] == address[1] &&
+              responseIpAddress[2] == address[2] &&
+              responseIpAddress[3] == address[3])
+            {
+              /* We found a successful ping response and so we can stop. */
+              ret = ES_WIFI_STATUS_OK;
+              break;
+            }
+            else
+            {
+              /* Move past the \r at the beginning of the current response so
+               * that the loop below gets to the next \r which marks the start
+               * of the next response. */
+              responseStart++;
+
+              /* Current ping response was not a successful ping - move to the
+               * beginning of the next response. */
+              while(Obj->CmdData[responseStart] != '\0' && Obj->CmdData[responseStart] != '\r')
+              {
+                responseStart++;
+              }
+            }
+
+            responsesParsed++;
+          } while(responsesParsed < count);
+        }
       }
     }
   }

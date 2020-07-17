@@ -92,6 +92,9 @@ BTStatus_t prvBTConfigClear();
 BTStatus_t prvBTReadRssi( const BTBdaddr_t * pxBdAddr );
 BTStatus_t prvBTGetTxpower( const BTBdaddr_t * pxBdAddr,
                             BTTransport_t xTransport );
+
+extern void vESPBTGATTServerCleanup( void );
+
 const void * prvGetClassicAdapter();
 const void * prvGetLeAdapter();
 
@@ -571,6 +574,8 @@ BTStatus_t prvBtManagerCleanup()
 {
     esp_err_t xRet;
     BTStatus_t xStatus = eBTStatusSuccess;
+
+    vESPBTGATTServerCleanup();
 
     xRet = esp_nimble_hci_and_controller_deinit();
 
