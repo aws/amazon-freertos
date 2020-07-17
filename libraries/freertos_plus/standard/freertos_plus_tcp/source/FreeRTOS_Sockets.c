@@ -648,155 +648,157 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_UDP, pdTRUE ) == pdFALSE )
 	{
-		return -pdFREERTOS_ERRNO_EINVAL;
+		lReturn = -pdFREERTOS_ERRNO_EINVAL;
 	}
-
-	lPacketCount = ( BaseType_t ) listCURRENT_LIST_LENGTH( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
-
-	/* The function prototype is designed to maintain the expected Berkeley
-	sockets standard, but this implementation does not use all the parameters. */
-	( void ) pxSourceAddressLength;
-
-	while( lPacketCount == 0 )
+	else
 	{
-		if( xTimed == pdFALSE )
-		{
-			/* Check to see if the socket is non blocking on the first
-			iteration.  */
-			xRemainingTime = pxSocket->xReceiveBlockTime;
-
-			if( xRemainingTime == ( TickType_t ) 0 )
-			{
-				#if( ipconfigSUPPORT_SIGNALS != 0 )
-				{
-					/* Just check for the interrupt flag. */
-					xEventBits = xEventGroupWaitBits( pxSocket->xEventGroup, ( EventBits_t ) eSOCKET_INTR,
-						pdTRUE /*xClearOnExit*/, pdFALSE /*xWaitAllBits*/, socketDONT_BLOCK );
-				}
-				#endif /* ipconfigSUPPORT_SIGNALS */
-				break;
-			}
-
-			if( ( ( ( UBaseType_t ) xFlags ) & ( ( UBaseType_t ) FREERTOS_MSG_DONTWAIT ) ) != 0U )
-			{
-				break;
-			}
-
-			/* To ensure this part only executes once. */
-			xTimed = pdTRUE;
-
-			/* Fetch the current time. */
-			vTaskSetTimeOutState( &xTimeOut );
-		}
-
-		/* Wait for arrival of data.  While waiting, the IP-task may set the
-		'eSOCKET_RECEIVE' bit in 'xEventGroup', if it receives data for this
-		socket, thus unblocking this API call. */
-		xEventBits = xEventGroupWaitBits( pxSocket->xEventGroup, ( ( EventBits_t ) eSOCKET_RECEIVE ) | ( ( EventBits_t ) eSOCKET_INTR ),
-			pdTRUE /*xClearOnExit*/, pdFALSE /*xWaitAllBits*/, xRemainingTime );
-
-		#if( ipconfigSUPPORT_SIGNALS != 0 )
-		{
-			if( ( xEventBits & ( EventBits_t ) eSOCKET_INTR ) != 0U )
-			{
-				if( ( xEventBits & ( EventBits_t ) eSOCKET_RECEIVE ) != 0U )
-				{
-					/* Shouldn't have cleared the eSOCKET_RECEIVE flag. */
-					( void ) xEventGroupSetBits( pxSocket->xEventGroup, ( EventBits_t ) eSOCKET_RECEIVE );
-				}
-				break;
-			}
-		}
-		#else
-		{
-			( void ) xEventBits;
-		}
-		#endif /* ipconfigSUPPORT_SIGNALS */
-
 		lPacketCount = ( BaseType_t ) listCURRENT_LIST_LENGTH( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
+
+		/* The function prototype is designed to maintain the expected Berkeley
+		sockets standard, but this implementation does not use all the parameters. */
+		( void ) pxSourceAddressLength;
+
+		while( lPacketCount == 0 )
+		{
+			if( xTimed == pdFALSE )
+			{
+				/* Check to see if the socket is non blocking on the first
+				iteration.  */
+				xRemainingTime = pxSocket->xReceiveBlockTime;
+
+				if( xRemainingTime == ( TickType_t ) 0 )
+				{
+					#if( ipconfigSUPPORT_SIGNALS != 0 )
+					{
+						/* Just check for the interrupt flag. */
+						xEventBits = xEventGroupWaitBits( pxSocket->xEventGroup, ( EventBits_t ) eSOCKET_INTR,
+							pdTRUE /*xClearOnExit*/, pdFALSE /*xWaitAllBits*/, socketDONT_BLOCK );
+					}
+					#endif /* ipconfigSUPPORT_SIGNALS */
+					break;
+				}
+
+				if( ( ( ( UBaseType_t ) xFlags ) & ( ( UBaseType_t ) FREERTOS_MSG_DONTWAIT ) ) != 0U )
+				{
+					break;
+				}
+
+				/* To ensure this part only executes once. */
+				xTimed = pdTRUE;
+
+				/* Fetch the current time. */
+				vTaskSetTimeOutState( &xTimeOut );
+			}
+
+			/* Wait for arrival of data.  While waiting, the IP-task may set the
+			'eSOCKET_RECEIVE' bit in 'xEventGroup', if it receives data for this
+			socket, thus unblocking this API call. */
+			xEventBits = xEventGroupWaitBits( pxSocket->xEventGroup, ( ( EventBits_t ) eSOCKET_RECEIVE ) | ( ( EventBits_t ) eSOCKET_INTR ),
+				pdTRUE /*xClearOnExit*/, pdFALSE /*xWaitAllBits*/, xRemainingTime );
+
+			#if( ipconfigSUPPORT_SIGNALS != 0 )
+			{
+				if( ( xEventBits & ( EventBits_t ) eSOCKET_INTR ) != 0U )
+				{
+					if( ( xEventBits & ( EventBits_t ) eSOCKET_RECEIVE ) != 0U )
+					{
+						/* Shouldn't have cleared the eSOCKET_RECEIVE flag. */
+						( void ) xEventGroupSetBits( pxSocket->xEventGroup, ( EventBits_t ) eSOCKET_RECEIVE );
+					}
+					break;
+				}
+			}
+			#else
+			{
+				( void ) xEventBits;
+			}
+			#endif /* ipconfigSUPPORT_SIGNALS */
+
+			lPacketCount = ( BaseType_t ) listCURRENT_LIST_LENGTH( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
+
+			if( lPacketCount != 0 )
+			{
+				break;
+			}
+
+			/* Has the timeout been reached ? */
+			if( xTaskCheckForTimeOut( &xTimeOut, &xRemainingTime ) != pdFALSE )
+			{
+				break;
+			}
+		} /* while( lPacketCount == 0 ) */
 
 		if( lPacketCount != 0 )
 		{
-			break;
-		}
-
-		/* Has the timeout been reached ? */
-		if( xTaskCheckForTimeOut( &xTimeOut, &xRemainingTime ) != pdFALSE )
-		{
-			break;
-		}
-	} /* while( lPacketCount == 0 ) */
-
-	if( lPacketCount != 0 )
-	{
-		taskENTER_CRITICAL();
-		{
-			/* The owner of the list item is the network buffer. */
-			pxNetworkBuffer = ipPOINTER_CAST( NetworkBufferDescriptor_t *, listGET_OWNER_OF_HEAD_ENTRY( &( pxSocket->u.xUDP.xWaitingPacketsList ) ) );
-
-			if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_MSG_PEEK ) == 0U )
+			taskENTER_CRITICAL();
 			{
-				/* Remove the network buffer from the list of buffers waiting to
-				be processed by the socket. */
-				( void ) uxListRemove( &( pxNetworkBuffer->xBufferListItem ) );
+				/* The owner of the list item is the network buffer. */
+				pxNetworkBuffer = ipPOINTER_CAST( NetworkBufferDescriptor_t *, listGET_OWNER_OF_HEAD_ENTRY( &( pxSocket->u.xUDP.xWaitingPacketsList ) ) );
+
+				if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_MSG_PEEK ) == 0U )
+				{
+					/* Remove the network buffer from the list of buffers waiting to
+					be processed by the socket. */
+					( void ) uxListRemove( &( pxNetworkBuffer->xBufferListItem ) );
+				}
 			}
-		}
-		taskEXIT_CRITICAL();
+			taskEXIT_CRITICAL();
 
-		/* The returned value is the length of the payload data, which is
-		calculated at the total packet size minus the headers.
-		The validity of `xDataLength` prvProcessIPPacket has been confirmed
-		in 'prvProcessIPPacket()'. */
-		lReturn = ( int32_t ) ( pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ) );
+			/* The returned value is the length of the payload data, which is
+			calculated at the total packet size minus the headers.
+			The validity of `xDataLength` prvProcessIPPacket has been confirmed
+			in 'prvProcessIPPacket()'. */
+			lReturn = ( int32_t ) ( pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ) );
 
-		if( pxSourceAddress != NULL )
-		{
-			pxSourceAddress->sin_port = pxNetworkBuffer->usPort;
-			pxSourceAddress->sin_addr = pxNetworkBuffer->ulIPAddress;
-		}
-
-		if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_ZERO_COPY ) == 0U )
-		{
-			/* The zero copy flag is not set.  Truncate the length if it won't
-			fit in the provided buffer. */
-			if( lReturn > ( int32_t ) uxBufferLength )
+			if( pxSourceAddress != NULL )
 			{
-				iptraceRECVFROM_DISCARDING_BYTES( ( uxBufferLength - lReturn ) );
-				lReturn = ( int32_t ) uxBufferLength;
+				pxSourceAddress->sin_port = pxNetworkBuffer->usPort;
+				pxSourceAddress->sin_addr = pxNetworkBuffer->ulIPAddress;
 			}
 
-			/* Copy the received data into the provided buffer, then release the
-			network buffer. */
-			( void ) memcpy( pvBuffer, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ), ( size_t )lReturn );
-
-			if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_MSG_PEEK ) == 0U )
+			if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_ZERO_COPY ) == 0U )
 			{
-				vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+				/* The zero copy flag is not set.  Truncate the length if it won't
+				fit in the provided buffer. */
+				if( lReturn > ( int32_t ) uxBufferLength )
+				{
+					iptraceRECVFROM_DISCARDING_BYTES( ( uxBufferLength - lReturn ) );
+					lReturn = ( int32_t ) uxBufferLength;
+				}
+
+				/* Copy the received data into the provided buffer, then release the
+				network buffer. */
+				( void ) memcpy( pvBuffer, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ), ( size_t )lReturn );
+
+				if( ( ( UBaseType_t ) xFlags & ( UBaseType_t ) FREERTOS_MSG_PEEK ) == 0U )
+				{
+					vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+				}
 			}
+			else
+			{
+				/* The zero copy flag was set.  pvBuffer is not a buffer into which
+				the received data can be copied, but a pointer that must be set to
+				point to the buffer in which the received data has already been
+				placed. */
+				/* 9079: (Note -- conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]) */
+				/* 9087: (Note -- cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]) */
+				*( ( void** ) pvBuffer ) = ipPOINTER_CAST( void *, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ) );
+			}
+
 		}
+	#if( ipconfigSUPPORT_SIGNALS != 0 )
+		else if( ( xEventBits & ( EventBits_t ) eSOCKET_INTR ) != 0U )
+		{
+			lReturn = -pdFREERTOS_ERRNO_EINTR;
+			iptraceRECVFROM_INTERRUPTED();
+		}
+	#endif /* ipconfigSUPPORT_SIGNALS */
 		else
 		{
-			/* The zero copy flag was set.  pvBuffer is not a buffer into which
-			the received data can be copied, but a pointer that must be set to
-			point to the buffer in which the received data has already been
-			placed. */
-			/* 9079: (Note -- conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]) */
-			/* 9087: (Note -- cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]) */
-			*( ( void** ) pvBuffer ) = ipPOINTER_CAST( void *, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ) );
+			lReturn = -pdFREERTOS_ERRNO_EWOULDBLOCK;
+			iptraceRECVFROM_TIMEOUT();
 		}
-
-	}
-#if( ipconfigSUPPORT_SIGNALS != 0 )
-	else if( ( xEventBits & ( EventBits_t ) eSOCKET_INTR ) != 0U )
-	{
-		lReturn = -pdFREERTOS_ERRNO_EINTR;
-		iptraceRECVFROM_INTERRUPTED();
-	}
-#endif /* ipconfigSUPPORT_SIGNALS */
-	else
-	{
-		lReturn = -pdFREERTOS_ERRNO_EWOULDBLOCK;
-		iptraceRECVFROM_TIMEOUT();
 	}
 
 	return lReturn;
@@ -1071,60 +1073,65 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;
 	if( pxAddress != NULL )
 	#endif
 	{
-		if( pxAddress->sin_port == 0U )
+		/* Add a do-while loop to facilitate use of 'break' statements. */
+		do
 		{
-			pxAddress->sin_port = prvGetPrivatePortNumber( ( BaseType_t ) pxSocket->ucProtocol );
-			if( pxAddress->sin_port == ( uint16_t ) 0U )
+			if( pxAddress->sin_port == 0U )
 			{
-				return -pdFREERTOS_ERRNO_EADDRNOTAVAIL;
+				pxAddress->sin_port = prvGetPrivatePortNumber( ( BaseType_t ) pxSocket->ucProtocol );
+				if( pxAddress->sin_port == ( uint16_t ) 0U )
+				{
+					xReturn = -pdFREERTOS_ERRNO_EADDRNOTAVAIL;
+					break;
+				}
 			}
-		}
 
-		/* If vSocketBind() is called from the API FreeRTOS_bind() it has been
-		confirmed that the socket was not yet bound to a port.  If it is called
-		from the IP-task, no such check is necessary. */
+			/* If vSocketBind() is called from the API FreeRTOS_bind() it has been
+			confirmed that the socket was not yet bound to a port.  If it is called
+			from the IP-task, no such check is necessary. */
 
-		/* Check to ensure the port is not already in use.  If the bind is
-		called internally, a port MAY be used by more than one socket. */
-		if( ( ( xInternal == pdFALSE ) || ( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP ) ) &&
-			( pxListFindListItemWithValue( pxSocketList, ( TickType_t ) pxAddress->sin_port ) != NULL ) )
-		{
-			FreeRTOS_debug_printf( ( "vSocketBind: %sP port %d in use\n",
-				( pxSocket->ucProtocol == ( uint8_t ) FREERTOS_IPPROTO_TCP ) ? "TC" : "UD",
-				FreeRTOS_ntohs( pxAddress->sin_port ) ) );
-			xReturn = -pdFREERTOS_ERRNO_EADDRINUSE;
-		}
-		else
-		{
-			/* Allocate the port number to the socket.
-			This macro will set 'xBoundSocketListItem->xItemValue' */
-			socketSET_SOCKET_PORT( pxSocket, pxAddress->sin_port );
-
-			/* And also store it in a socket field 'usLocalPort' in host-byte-order,
-			mostly used for logging and debugging purposes */
-			pxSocket->usLocalPort = FreeRTOS_ntohs( pxAddress->sin_port );
-
-			/* Add the socket to the list of bound ports. */
+			/* Check to ensure the port is not already in use.  If the bind is
+			called internally, a port MAY be used by more than one socket. */
+			if( ( ( xInternal == pdFALSE ) || ( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP ) ) &&
+				( pxListFindListItemWithValue( pxSocketList, ( TickType_t ) pxAddress->sin_port ) != NULL ) )
 			{
-				/* If the network driver can iterate through 'xBoundUDPSocketsList',
-				by calling xPortHasUDPSocket() then the IP-task must temporarily
-				suspend the scheduler to keep the list in a consistent state. */
-				#if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 1 )
-				{
-					vTaskSuspendAll();
-				}
-				#endif /* ipconfigETHERNET_DRIVER_FILTERS_PACKETS */
-
-				/* Add the socket to 'xBoundUDPSocketsList' or 'xBoundTCPSocketsList' */
-				vListInsertEnd( pxSocketList, &( pxSocket->xBoundSocketListItem ) );
-
-				#if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 1 )
-				{
-					( void ) xTaskResumeAll();
-				}
-				#endif /* ipconfigETHERNET_DRIVER_FILTERS_PACKETS */
+				FreeRTOS_debug_printf( ( "vSocketBind: %sP port %d in use\n",
+					( pxSocket->ucProtocol == ( uint8_t ) FREERTOS_IPPROTO_TCP ) ? "TC" : "UD",
+					FreeRTOS_ntohs( pxAddress->sin_port ) ) );
+				xReturn = -pdFREERTOS_ERRNO_EADDRINUSE;
 			}
-		}
+			else
+			{
+				/* Allocate the port number to the socket.
+				This macro will set 'xBoundSocketListItem->xItemValue' */
+				socketSET_SOCKET_PORT( pxSocket, pxAddress->sin_port );
+
+				/* And also store it in a socket field 'usLocalPort' in host-byte-order,
+				mostly used for logging and debugging purposes */
+				pxSocket->usLocalPort = FreeRTOS_ntohs( pxAddress->sin_port );
+
+				/* Add the socket to the list of bound ports. */
+				{
+					/* If the network driver can iterate through 'xBoundUDPSocketsList',
+					by calling xPortHasUDPSocket() then the IP-task must temporarily
+					suspend the scheduler to keep the list in a consistent state. */
+					#if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 1 )
+					{
+						vTaskSuspendAll();
+					}
+					#endif /* ipconfigETHERNET_DRIVER_FILTERS_PACKETS */
+
+					/* Add the socket to 'xBoundUDPSocketsList' or 'xBoundTCPSocketsList' */
+					vListInsertEnd( pxSocketList, &( pxSocket->xBoundSocketListItem ) );
+
+					#if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 1 )
+					{
+						( void ) xTaskResumeAll();
+					}
+					#endif /* ipconfigETHERNET_DRIVER_FILTERS_PACKETS */
+				}
+			}
+		} while( ipFALSE_BOOL );
 	}
 	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 0 )
 	else
@@ -1351,9 +1358,8 @@ BaseType_t xReturn;
 			( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
 		xReturn = -pdFREERTOS_ERRNO_EINVAL;
 	}
-	else
-	if( ( ( lOptionName == FREERTOS_SO_SNDBUF ) && ( pxSocket->u.xTCP.txStream != NULL ) ) ||
-		( ( lOptionName == FREERTOS_SO_RCVBUF ) && ( pxSocket->u.xTCP.rxStream != NULL ) ) )
+	else if( ( ( lOptionName == FREERTOS_SO_SNDBUF ) && ( pxSocket->u.xTCP.txStream != NULL ) ) ||
+			( ( lOptionName == FREERTOS_SO_RCVBUF ) && ( pxSocket->u.xTCP.rxStream != NULL ) ) )
 	{
 		FreeRTOS_debug_printf( ( "Set SO_%sBUF: buffer already created\n",
 			( lOptionName == FREERTOS_SO_SNDBUF ) ? "SND" : "RCV" ) );
@@ -1361,7 +1367,7 @@ BaseType_t xReturn;
 	}
 	else
 	{
-		ulNewValue = *( ipPOINTER_CAST( uint32_t *, pvOptionValue ) );
+		ulNewValue = *( ipPOINTER_CAST( const uint32_t *, pvOptionValue ) );
 
 		if( lOptionName == FREERTOS_SO_SNDBUF )
 		{
@@ -1386,7 +1392,6 @@ BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptio
 {
 /* The standard Berkeley function returns 0 for success. */
 BaseType_t xReturn = -pdFREERTOS_ERRNO_EINVAL;
-BaseType_t lOptionValue;
 FreeRTOS_Socket_t *pxSocket;
 
 	pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
@@ -1439,11 +1444,10 @@ FreeRTOS_Socket_t *pxSocket;
 		#endif /* ipconfigUDP_MAX_RX_PACKETS */
 
 		case FREERTOS_SO_UDPCKSUM_OUT :
-			/* Turn calculating of the UDP checksum on/off for this socket. */
-			/* The expression "pvOptionValue" of type "void const *" is cast to type "BaseType_t". */
-			lOptionValue = ipNUMERIC_CAST( BaseType_t, pvOptionValue );
+			/* Turn calculating of the UDP checksum on/off for this socket. If pvOptionValue
+			 * is anything else than NULL, the checksum generation will be turned on. */
 
-			if( lOptionValue == 0 )
+			if( pvOptionValue == NULL )
 			{
 				pxSocket->ucSocketOptions &= ~( ( uint8_t ) FREERTOS_SO_UDPCKSUM_OUT );
 			}
@@ -1536,7 +1540,7 @@ FreeRTOS_Socket_t *pxSocket;
 					when there is an event the socket's owner might want to
 					process. */
 					/* The type cast of the pointer expression "A" to type "B" removes const qualifier from the pointed to type. */
-					pxSocket->pxUserWakeCallback = ( SocketWakeupCallback_t ) pvOptionValue;
+					pxSocket->pxUserWakeCallback = ( const SocketWakeupCallback_t ) pvOptionValue;
 					xReturn = 0;
 				}
 				break;
@@ -1590,7 +1594,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
-					pxProps = ipPOINTER_CAST( WinProperties_t *, pvOptionValue );
+					pxProps = ipPOINTER_CAST( const WinProperties_t *, pvOptionValue );
 
 					xReturn = prvSockopt_so_buffer( pxSocket, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ) );
 					if ( xReturn != 0 )
@@ -1634,7 +1638,7 @@ FreeRTOS_Socket_t *pxSocket;
 					{
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
-					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
+					if( *( ipPOINTER_CAST( const BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bReuseSocket = pdTRUE;
 					}
@@ -1672,7 +1676,7 @@ FreeRTOS_Socket_t *pxSocket;
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
 
-					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
+					if( *( ipPOINTER_CAST( const BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.xTCPWindow.u.bits.bSendFullSize = pdTRUE;
 					}
@@ -1698,7 +1702,7 @@ FreeRTOS_Socket_t *pxSocket;
 					{
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
-					if( *( ipPOINTER_CAST( BaseType_t *, pvOptionValue ) ) != 0 )
+					if( *( ipPOINTER_CAST( const BaseType_t *, pvOptionValue ) ) != 0 )
 					{
 						pxSocket->u.xTCP.bits.bRxStopped = pdTRUE;
 					}
@@ -1846,7 +1850,7 @@ const char *pcResult = pcBuffer;
 const socklen_t uxSize = 16;
 
 /* Each nibble is expressed in at most 3 digits, like e.g. "192". */
-#define sockDIGIT_COUNT		3
+#define sockDIGIT_COUNT		( 3U )
 
 	for( uxNibble = 0; uxNibble < ipSIZE_OF_IPv4_ADDRESS; uxNibble++ )
 	{
