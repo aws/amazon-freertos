@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -680,12 +680,12 @@ static void _readReadyCallback( void * pPrivData,
             return;
         }
 
-        IotLogDebug( "Reading the content length for response %d.", respHandle );
+        IotLogDebug( "Reading the content length for response %p.", respHandle );
         returnStatus = IotHttpsClient_ReadContentLength( respHandle, &contentLength );
 
         if( ( returnStatus != IOT_HTTPS_OK ) || ( contentLength == 0 ) )
         {
-            IotLogError( "Failed to retrieve the Content-Length from the response. ",
+            IotLogError( "Failed to retrieve the Content-Length from the response. "
                          "Please try increasing the size of IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE." );
             IotHttpsClient_CancelResponseAsync( respHandle );
             return;
@@ -695,8 +695,8 @@ static void _readReadyCallback( void * pPrivData,
          * cancel the request. In this demo cancelling the request is an error condition that ends the demo. */
         if( contentLength != pRequestContext->numReqBytes )
         {
-            IotLogError( "The Content-Length found in this file does not equal the number of bytes requested. So we may ",
-                         "not have download the file completely. The content length is %d and the requested number of bytes for ",
+            IotLogError( "The Content-Length found in this file does not equal the number of bytes requested. So we may "
+                         "not have download the file completely. The content length is %d and the requested number of bytes for "
                          "this request is %d", contentLength, pRequestContext->numReqBytes );
             IotHttpsClient_CancelResponseAsync( respHandle );
             return;
@@ -759,7 +759,7 @@ static void _readReadyCallback( void * pPrivData,
          * at the same time a request is being sent, a reconnection needs to be made before the next request sends and
          * gets a network error ending the demo. Please see the design flow for more information:
          * https://docs.aws.amazon.com/freertos/latest/lib-ref/https/https_design.html#Asynchronous_Design */
-        IotLogDebug( "Looking for the \"Connection\" header in response %d.", respHandle );
+        IotLogDebug( "Looking for the \"Connection\" header in response %p.", respHandle );
         returnStatus = IotHttpsClient_ReadHeader( respHandle,
                                                   CONNECTION_HEADER_FIELD,
                                                   CONNECTION_HEADER_FILED_LENGTH,
@@ -839,7 +839,7 @@ static void _responseCompleteCallback( void * pPrivData,
      * end the demo. */
     if( rc != IOT_HTTPS_OK )
     {
-        IotLogError( "There was a problem with the current response %d. Error code: %d. ", respHandle, rc );
+        IotLogError( "There was a problem with the current response %p. Error code: %d. ", respHandle, rc );
         IotSemaphore_Post( &( _fileFinishedSem ) );
     }
     else if( pRequestContext->currDownloaded != pRequestContext->numReqBytes )
@@ -960,7 +960,7 @@ static int _scheduleAsyncRequest( int reqIndex,
                                ( unsigned int ) curByte,
                                ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ) ) )
+    if( ( numWritten < 0 ) || ( numWritten >= ( ( int ) sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ) ) ) )
     {
         IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                      curByte,
@@ -991,7 +991,7 @@ static int _scheduleAsyncRequest( int reqIndex,
 
     /* Send the request and receive the response asynchronously. This will schedule the async request. This function
      * will return immediately after scheduling. */
-    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr, _requestPool.pReqHandles[ reqIndex ] );
+    IotLogDebug( "Sending asynchronously %s, req num: %p", _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr, _requestPool.pReqHandles[ reqIndex ] );
     httpsClientStatus = IotHttpsClient_SendAsync( _connHandle,
                                                   _requestPool.pReqHandles[ reqIndex ],
                                                   &( _requestPool.pRespHandles[ reqIndex ] ),

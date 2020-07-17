@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -60,13 +60,16 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_TIMEOUT_MS
-    #define IOT_TEST_MQTT_TIMEOUT_MS             ( 5000 )
+    #define IOT_TEST_MQTT_TIMEOUT_MS                     ( 5000 )
 #endif
 #ifndef IOT_TEST_MQTT_TOPIC_PREFIX
-    #define IOT_TEST_MQTT_TOPIC_PREFIX           "iotmqtttest"
+    #define IOT_TEST_MQTT_TOPIC_PREFIX                   "iotmqtttest"
+#endif
+#ifndef IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS
+    #define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
 #endif
 #ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
-    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    ( 1 )
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 1 )
 #endif
 /** @endcond */
 
@@ -230,9 +233,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     int32_t retryCount = 0;
 
-    /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
-     * Wait until 1100 ms have elapsed since the last connection. */
-    uint32_t periodMs = 1100;
+    uint32_t periodMs = IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS;
 
     for( ; retryCount < IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
     {
@@ -720,7 +721,6 @@ TEST_GROUP_RUNNER( MQTT_System )
     RUN_TEST_CASE( MQTT_System, SubscribePublishAsync );
     RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
     RUN_TEST_CASE( MQTT_System, RestorePreviousSession );
-    RUN_TEST_CASE( MQTT_System, WaitAfterDisconnect );
     RUN_TEST_CASE( MQTT_System, SubscribeCompleteReentrancy );
     RUN_TEST_CASE( MQTT_System, IncomingPublishReentrancy )
 }
@@ -1076,69 +1076,6 @@ TEST( MQTT_System, RestorePreviousSession )
         if( status == IOT_MQTT_SUCCESS )
         {
             IotMqtt_Disconnect( _mqttConnection, 0 );
-        }
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test that Wait can be safely invoked after Disconnect.
- */
-TEST( MQTT_System, WaitAfterDisconnect )
-{
-    int32_t i = 0;
-    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    IotMqttOperation_t pPublishOperation[ 3 ] = { IOT_MQTT_OPERATION_INITIALIZER };
-
-    /* Set the client identifier and length. */
-    connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
-    connectInfo.pClientIdentifier = _pClientIdentifier;
-    connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
-
-    /* Set the members of the publish info. */
-    publishInfo.qos = IOT_MQTT_QOS_1;
-    publishInfo.pTopicName = IOT_TEST_MQTT_TOPIC_PREFIX "/WaitAfterDisconnect";
-    publishInfo.topicNameLength = ( uint16_t ) strlen( publishInfo.pTopicName );
-    publishInfo.pPayload = _pSamplePayload;
-    publishInfo.payloadLength = _samplePayloadLength;
-    publishInfo.retryLimit = 3;
-    publishInfo.retryMs = 5000;
-
-    /* Establish the MQTT connection. */
-    status = _mqttConnect( &_networkInfo,
-                           &connectInfo,
-                           IOT_TEST_MQTT_TIMEOUT_MS,
-                           &_mqttConnection );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
-
-    if( TEST_PROTECT() )
-    {
-        /* Publish a sequence of messages. */
-        for( i = 0; i < 3; i++ )
-        {
-            status = IotMqtt_Publish( _mqttConnection,
-                                      &publishInfo,
-                                      IOT_MQTT_FLAG_WAITABLE,
-                                      NULL,
-                                      &( pPublishOperation[ i ] ) );
-            TEST_ASSERT_EQUAL( IOT_MQTT_STATUS_PENDING, status );
-        }
-    }
-
-    /* Disconnect the MQTT connection. */
-    IotMqtt_Disconnect( _mqttConnection, 0 );
-
-    if( TEST_PROTECT() )
-    {
-        /* Waiting on operations after a connection is disconnected should not crash.
-         * The actual statuses of the PUBLISH operations may vary depending on the
-         * timing of publish versus disconnect, so the statuses are not checked. */
-        for( i = 0; i < 3; i++ )
-        {
-            status = IotMqtt_Wait( pPublishOperation[ i ], 100 );
         }
     }
 }

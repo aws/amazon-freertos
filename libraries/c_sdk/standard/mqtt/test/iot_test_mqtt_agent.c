@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -222,6 +222,9 @@ static MQTTBool_t prvMultiTaskTestMQTTCallback( void * pvUserData,
 static MQTTBool_t prvMQTTCallback( void * pvUserData,
                                    const MQTTPublishData_t * const pxPublishParameters )
 {
+    /* Disable unused parameter warning. */
+    ( void ) pxPublishParameters;
+
     /* Give the semaphore to signal message receipt. */
     xSemaphoreGive( ( SemaphoreHandle_t ) pvUserData );
 
@@ -713,7 +716,7 @@ static void prvMultiTaskTest_Rx_Task( void * pvParameters )
         if( xEventGroupSync( *pxSyncEventRx, /* The event group used for the rendezvous. */
                              ( 1 << usTaskTag ),
                              ( 1 << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK,
-                             mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( ( 1 << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK ) )
+                             mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( ( 1u << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK ) )
         {
             mqttagenttestFAILUREPRINTF( ( "%s: Timed out waiting for Transmit tasks.\r\n", __FUNCTION__ ) );
             xStatus = pdFAIL;
@@ -750,7 +753,7 @@ static void prvMultiTaskTest_Rx_Task( void * pvParameters )
         if( xEventGroupSync( *pxSyncEventRx, /* The event group used for the rendezvous. */
                              ( 1 << usTaskTag ),
                              ( 1 << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK,
-                             mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( ( 1 << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK ) )
+                             mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( ( 1u << usTaskTag ) | mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK ) )
         {
             mqttagenttestFAILUREPRINTF( ( "%s: Timed out waiting for Transmit tasks.\r\n", __FUNCTION__ ) );
             xStatus = pdFAIL;
@@ -840,10 +843,10 @@ static void prvMultiTaskTest_Tx_Task( void * pvParameters )
 
         for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; usIndex++ )
         {
-            if( xEventGroupSync( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx,             /* The event group used for the rendezvous. */
-                                 ( 1 << xTcptestEchoClientsTaskParams->usTaskTag ),                 /* The bit representing the Transmit task reaching the rendezvous. */
-                                 ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1 << usIndex ) ), /* Also wait for the Receive tasks. */
-                                 mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1 << usIndex ) ) )
+            if( xEventGroupSync( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx,              /* The event group used for the rendezvous. */
+                                 ( 1 << xTcptestEchoClientsTaskParams->usTaskTag ),                  /* The bit representing the Transmit task reaching the rendezvous. */
+                                 ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1u << usIndex ) ), /* Also wait for the Receive tasks. */
+                                 mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1u << usIndex ) ) )
             {
                 mqttagenttestFAILUREPRINTF( ( "%s: Failed synching with Transmit and Receive tasks.\r\n", __FUNCTION__ ) );
                 xStatus = pdFAIL;
@@ -894,10 +897,10 @@ static void prvMultiTaskTest_Tx_Task( void * pvParameters )
 
         for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; usIndex++ )
         {
-            if( xEventGroupSync( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx,             /* The event group used for the rendezvous. */
-                                 ( 1 << xTcptestEchoClientsTaskParams->usTaskTag ),                 /* The bit representing the Transmit task reaching the rendezvous. */
-                                 ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1 << usIndex ) ), /* Also wait for the Receive tasks. */
-                                 mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1 << usIndex ) ) )
+            if( xEventGroupSync( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx,              /* The event group used for the rendezvous. */
+                                 ( 1u << xTcptestEchoClientsTaskParams->usTaskTag ),                 /* The bit representing the Transmit task reaching the rendezvous. */
+                                 ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1u << usIndex ) ), /* Also wait for the Receive tasks. */
+                                 mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) != ( mqttagenttestMULTI_TASK_TEST_TX_EVENT_MASK | ( 1u << usIndex ) ) )
             {
                 mqttagenttestFAILUREPRINTF( ( "%s: Failed synching with Transmit and Receive tasks.\r\n", __FUNCTION__ ) );
                 xStatus = pdFAIL;

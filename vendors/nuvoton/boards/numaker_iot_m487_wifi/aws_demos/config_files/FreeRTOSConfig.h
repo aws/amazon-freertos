@@ -56,7 +56,7 @@
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 256 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 121 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 119 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -143,7 +143,7 @@ void vLoggingPrintf( const char * pcFormat,
                      ... );
 
 /* Map the FreeRTOS printf() to the logging task printf. */
-#define configPRINTF( x )          printf x //vLoggingPrintf x
+#define configPRINTF( x )          vLoggingPrintf x
 
 /* Non-format version thread-safe print */
 #define configPRINT( X )                  vLoggingPrint( X )
@@ -152,7 +152,7 @@ void vLoggingPrintf( const char * pcFormat,
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
-#define configLOGGING_MAX_MESSAGE_LENGTH            80
+#define configLOGGING_MAX_MESSAGE_LENGTH            128
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */

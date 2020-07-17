@@ -86,7 +86,6 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows
         afr_3rdparty_lwip
         PUBLIC
             "${AFR_3RDPARTY_DIR}/lwip/src/include"
-            "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
     )
     target_link_libraries(
         afr_3rdparty_lwip
@@ -129,19 +128,37 @@ endif()
 
 # mbedtls - TLS protocol implementation
 if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
-    afr_glob_src(mbedtls_src DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls" RECURSE)
+    afr_glob_src(mbedtls_library DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/library" RECURSE)
+    afr_glob_src(mbedtls_include DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls/include" RECURSE)
+
     # Build to static library to save some time.
     add_library(
         afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
-        ${mbedtls_src}
+        ${mbedtls_library}
+        ${mbedtls_include}
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
+    # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
+    # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
+    # contains a pkcs11.h header file that will be used over the pkcs11.h file defined
+    # in the pkcs11 directory. These pkcs11.h files are not interchangeable, the one in
+    # the pkcs11 directory should be used. Ideally everywhere the mbed tls header files
+    # are used, they would reference #include "mbedtls/xxx.h" to avoid a naming
+    # conflict. Some vendor/external code does not do this and for that reason we need
+    # to include the "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls" directory
     target_include_directories(
-        afr_3rdparty_mbedtls
-        PUBLIC
-            "${AFR_3RDPARTY_DIR}/mbedtls/include"
-            "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        afr_3rdparty_mbedtls PUBLIC 
+        "${AFR_3RDPARTY_DIR}/pkcs11"
+    )
+    target_include_directories(
+        afr_3rdparty_mbedtls PUBLIC
+        "${AFR_3RDPARTY_DIR}/mbedtls/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+        "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )
     target_link_libraries(
         afr_3rdparty_mbedtls
@@ -152,28 +169,30 @@ endif()
 
 # pkcs11 standard header
 if(EXISTS "${AFR_3RDPARTY_DIR}/pkcs11")
-    afr_3rdparty_module(pkcs11)
+    add_library(afr_3rdparty_pkcs11 INTERFACE)
     target_sources(
-        3rdparty::pkcs11 INTERFACE
+        afr_3rdparty_pkcs11 INTERFACE
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11.h"
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11f.h"
         "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11t.h"
     )
     target_include_directories(
-        3rdparty::pkcs11 INTERFACE
+        afr_3rdparty_pkcs11 INTERFACE
         "${AFR_3RDPARTY_DIR}/pkcs11"
     )
+    add_library(3rdparty::pkcs11 ALIAS afr_3rdparty_pkcs11)
 endif()
 
 # tinycbor - CBOR implementation
 if(EXISTS "${AFR_3RDPARTY_DIR}/tinycbor")
     set(tinycbor_src
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborerrorstrings.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborparser.c"
-        "${AFR_3RDPARTY_DIR}/tinycbor/cborparser_dup_string.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborpretty.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborpretty_stdio.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborencoder.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborencoder_close_container_checked.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborerrorstrings.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborparser.c"
+        "${AFR_3RDPARTY_DIR}/tinycbor/src/cborparser_dup_string.c"
     )
     add_library(
         afr_3rdparty_tinycbor STATIC EXCLUDE_FROM_ALL
@@ -187,7 +206,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/tinycbor")
     target_include_directories(
         afr_3rdparty_tinycbor
         PUBLIC
-            "${AFR_3RDPARTY_DIR}/tinycbor"
+            "${AFR_3RDPARTY_DIR}/tinycbor/src"
     )
     target_link_libraries(
         afr_3rdparty_tinycbor

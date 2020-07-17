@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common V1.1.1
+ * FreeRTOS Common V1.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -186,13 +186,14 @@
 #else
     /* Define IotLog if the log level is greater than "none". */
     #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
-        #define IotLog( messageLevel, pLogConfig, ... ) \
-    IotLog_Generic( LIBRARY_LOG_LEVEL,                  \
-                    LIBRARY_LOG_NAME,                   \
-                    messageLevel,                       \
-                    pLogConfig,                         \
+        #ifndef IotLog
+            #define IotLog( messageLevel, pLogConfig, ... ) \
+    IotLog_Generic( LIBRARY_LOG_LEVEL,                      \
+                    LIBRARY_LOG_NAME,                       \
+                    messageLevel,                           \
+                    pLogConfig,                             \
                     __VA_ARGS__ )
-
+        #endif
 /* Define the abbreviated logging macros. */
         #define IotLogError( ... )    IotLog( IOT_LOG_ERROR, NULL, __VA_ARGS__ )
         #define IotLogWarn( ... )     IotLog( IOT_LOG_WARN, NULL, __VA_ARGS__ )
@@ -201,16 +202,21 @@
 
 /* If log level is DEBUG, enable the function to print buffers. */
         #if LIBRARY_LOG_LEVEL >= IOT_LOG_DEBUG
-            #define IotLog_PrintBuffer( pHeader, pBuffer, bufferSize ) \
-    IotLog_GenericPrintBuffer( LIBRARY_LOG_NAME,                       \
-                               pHeader,                                \
-                               pBuffer,                                \
+            #ifndef IotLog_PrintBuffer
+                #define IotLog_PrintBuffer( pHeader, pBuffer, bufferSize ) \
+    IotLog_GenericPrintBuffer( LIBRARY_LOG_NAME,                           \
+                               pHeader,                                    \
+                               pBuffer,                                    \
                                bufferSize )
+            #endif
         #else
+            #undef IotLog_PrintBuffer
             #define IotLog_PrintBuffer( pHeader, pBuffer, bufferSize )
         #endif
         /* Remove references to IotLog from the source code if logging is disabled. */
     #else /* if LIBRARY_LOG_LEVEL > IOT_LOG_NONE */
+        #undef IotLog
+        #undef IotLog_PrintBuffer
         /* @[declare_logging_log] */
         #define IotLog( messageLevel, pLogConfig, ... )
         /* @[declare_logging_log] */

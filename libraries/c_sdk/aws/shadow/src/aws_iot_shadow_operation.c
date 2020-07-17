@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Shadow V2.1.1
+ * FreeRTOS Shadow V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -727,7 +727,7 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
             publishInfo.retryMs = pDocumentInfo->retryMs;
 
             IotLogDebug( "Shadow %s message will be published at QoS %d with "
-                         "retryLimit %d and retryMs %llu.",
+                         "retryLimit %d and retryMs %u.",
                          _pAwsIotShadowOperationNames[ pOperation->type ],
                          publishInfo.qos,
                          publishInfo.retryLimit,

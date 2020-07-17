@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,9 +78,6 @@ void TEST_SubmitResultBuffer()
 
 void TEST_NotifyTestStart()
 {
-    /* Wait for test script to open serial port before starting tests on the
-     * board.*/
-    vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
     TEST_SubmitResult( "---------STARTING TESTS---------\n" );
 }
 /*-----------------------------------------------------------*/

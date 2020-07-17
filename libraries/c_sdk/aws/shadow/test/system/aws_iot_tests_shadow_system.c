@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Shadow V2.1.1
+ * FreeRTOS Shadow V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -55,6 +55,7 @@
 
 /* Test framework includes. */
 #include "unity_fixture.h"
+#include "aws_test_utils.h"
 
 /* Require Shadow library asserts to be enabled for these tests. The Shadow
  * assert function is used to abort the tests on failure from the Shadow operation
@@ -72,10 +73,19 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S
-    #define IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S    ( 30 )
+    #define IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S     ( 30 )
+#endif
+#ifndef IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS
+    #define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
+#endif
+#ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 6 )
+#endif
+#if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
+    #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
 #endif
 #ifndef AWS_IOT_TEST_SHADOW_TIMEOUT
-    #define AWS_IOT_TEST_SHADOW_TIMEOUT                 ( 5000 )
+    #define AWS_IOT_TEST_SHADOW_TIMEOUT    ( 5000 )
 #endif
 /** @endcond */
 
@@ -423,6 +433,24 @@ static void _updateGetDeleteBlocking( IotMqttQos_t qos )
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Establish an MQTT connection. Retry if enabled.
+ */
+static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
+                                    const IotMqttConnectInfo_t * pConnectInfo,
+                                    uint32_t timeoutMs,
+                                    IotMqttConnection_t * const pMqttConnection )
+{
+    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+
+    RETRY_EXPONENTIAL( status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection ),
+                       IOT_MQTT_SUCCESS,
+                       IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS,
+                       IOT_TEST_MQTT_CONNECT_RETRY_COUNT );
+
+    return status;
+}
+
+/**
  * @brief Test group for Shadow system tests.
  */
 TEST_GROUP( Shadow_System );
@@ -483,10 +511,10 @@ TEST_SETUP( Shadow_System )
     connectInfo.keepAliveSeconds = IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S;
 
     /* Establish an MQTT connection. */
-    if( IotMqtt_Connect( &_networkInfo,
-                         &connectInfo,
-                         AWS_IOT_TEST_SHADOW_TIMEOUT,
-                         &_mqttConnection ) != IOT_MQTT_SUCCESS )
+    if( _mqttConnect( &_networkInfo,
+                      &connectInfo,
+                      AWS_IOT_TEST_SHADOW_TIMEOUT,
+                      &_mqttConnection ) != IOT_MQTT_SUCCESS )
     {
         TEST_FAIL_MESSAGE( "Failed to establish MQTT connection for Shadow tests." );
     }

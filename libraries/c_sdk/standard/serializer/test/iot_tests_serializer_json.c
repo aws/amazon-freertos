@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Serializer V1.1.1
+ * FreeRTOS Serializer V1.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,9 +41,9 @@ static uint8_t _buffer[ _BUFFER_SIZE ];
 
 static void _verifyExpectedString( const char * pExpectedResult );
 
-TEST_GROUP( Full_Serializer_JSON );
+TEST_GROUP( Serializer_Unit_JSON );
 
-TEST_SETUP( Full_Serializer_JSON )
+TEST_SETUP( Serializer_Unit_JSON )
 {
     /* Reset buffer to zero. */
     memset( _buffer, 0, _BUFFER_SIZE );
@@ -53,7 +53,7 @@ TEST_SETUP( Full_Serializer_JSON )
                        _encoder.init( &_encoderObject, _buffer, _BUFFER_SIZE ) );
 }
 
-TEST_TEAR_DOWN( Full_Serializer_JSON )
+TEST_TEAR_DOWN( Serializer_Unit_JSON )
 {
     /* Destroy encoder object. */
     _encoder.destroy( &_encoderObject );
@@ -65,22 +65,22 @@ TEST_TEAR_DOWN( Full_Serializer_JSON )
  * - append NULL
  * - append bool
  */
-TEST_GROUP_RUNNER( Full_Serializer_JSON )
+TEST_GROUP_RUNNER( Serializer_Unit_JSON )
 {
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_init_with_null_buffer );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_init_with_null_buffer );
 
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_append_integer );
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_append_text_string );
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_append_byte_string );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_append_integer );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_append_text_string );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_append_byte_string );
 
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_open_map );
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_open_array );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_open_map );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_open_array );
 
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_map_nest_map );
-    RUN_TEST_CASE( Full_Serializer_JSON, Encoder_map_nest_array );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_map_nest_map );
+    RUN_TEST_CASE( Serializer_Unit_JSON, Encoder_map_nest_array );
 }
 
-TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
+TEST( Serializer_Unit_JSON, Encoder_init_with_null_buffer )
 {
     IotSerializerEncoderObject_t encoderObject = { .type = ( IotSerializerDataType_t ) 0 };
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
@@ -112,7 +112,7 @@ TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
     TEST_ASSERT_NULL( encoderObject.pHandle );
 }
 
-TEST( Full_Serializer_JSON, Encoder_append_integer )
+TEST( Serializer_Unit_JSON, Encoder_append_integer )
 {
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     int64_t value = 6;
@@ -130,7 +130,7 @@ TEST( Full_Serializer_JSON, Encoder_append_integer )
     _verifyExpectedString( "[6]" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_append_text_string )
+TEST( Serializer_Unit_JSON, Encoder_append_text_string )
 {
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     char * str = "hello world";
@@ -148,7 +148,7 @@ TEST( Full_Serializer_JSON, Encoder_append_text_string )
     _verifyExpectedString( "[\"hello world\"]" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_append_byte_string )
+TEST( Serializer_Unit_JSON, Encoder_append_byte_string )
 {
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     uint8_t inputBytes[] = "hello world";
@@ -170,7 +170,7 @@ TEST( Full_Serializer_JSON, Encoder_append_byte_string )
     _verifyExpectedString( "[\"aGVsbG8gd29ybGQ=\"]" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_open_map )
+TEST( Serializer_Unit_JSON, Encoder_open_map )
 {
     IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
 
@@ -187,7 +187,7 @@ TEST( Full_Serializer_JSON, Encoder_open_map )
     _verifyExpectedString( "{\"key\":\"value\"}" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_open_array )
+TEST( Serializer_Unit_JSON, Encoder_open_array )
 {
     uint8_t i = 0;
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
@@ -210,7 +210,7 @@ TEST( Full_Serializer_JSON, Encoder_open_array )
     _verifyExpectedString( "[3,2,1]" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_map_nest_map )
+TEST( Serializer_Unit_JSON, Encoder_map_nest_map )
 {
     IotSerializerEncoderObject_t mapObject_1 = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
     IotSerializerEncoderObject_t mapObject_2 = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
@@ -234,7 +234,7 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_map )
     _verifyExpectedString( "{\"map1\":{\"key\":\"value\"}}" );
 }
 
-TEST( Full_Serializer_JSON, Encoder_map_nest_array )
+TEST( Serializer_Unit_JSON, Encoder_map_nest_array )
 {
     uint8_t i = 0;
     IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;

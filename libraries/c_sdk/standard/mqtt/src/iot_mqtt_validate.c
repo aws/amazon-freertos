@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,6 +42,7 @@
 bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
 {
     IOT_FUNCTION_ENTRY( bool, true );
+    uint16_t adjustedKeepAliveSec = 0;
 
     /* Check for NULL. */
     if( pConnectInfo == NULL )
@@ -128,6 +129,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
         EMPTY_ELSE_MARKER;
     }
 
+    adjustedKeepAliveSec = pConnectInfo->keepAliveSeconds;
+
     /* Check for compatibility with the AWS IoT MQTT service limits. */
     if( pConnectInfo->awsIotMqttMode == true )
     {
@@ -150,6 +153,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
             IotLogWarn( "AWS IoT does not support disabling keep-alive. Default keep-alive "
                         "of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
         }
         else if( pConnectInfo->keepAliveSeconds < AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE )
         {
@@ -157,6 +162,8 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
                         "An interval of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE,
                         AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE;
         }
         else if( pConnectInfo->keepAliveSeconds > AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE )
         {
@@ -164,6 +171,34 @@ bool _IotMqtt_ValidateConnect( const IotMqttConnectInfo_t * pConnectInfo )
                         "An interval of %d seconds will be used.",
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE,
                         AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE );
+
+            adjustedKeepAliveSec = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    /* Check that keep alive is not too short. */
+    if( adjustedKeepAliveSec != 0 )
+    {
+        /* After sending a PINGREQ, we wait for IOT_MQTT_RESPONSE_WAIT_MS to
+         * receive the corresponding PINGRESP. If the PINGRESP is received within
+         * IOT_MQTT_RESPONSE_WAIT_MS, we schedule another job to send PINGREQ.
+         * If the IOT_MQTT_RESPONSE_WAIT_MS is longer than keep alive interval,
+         * we will fail to send PINGRESP on time. */
+        if( ( adjustedKeepAliveSec * 1000 ) <= IOT_MQTT_RESPONSE_WAIT_MS )
+        {
+            IotLogError( "Keep alive interval %d ms must be longer than response wait time %d ms.",
+                         adjustedKeepAliveSec * 1000,
+                         IOT_MQTT_RESPONSE_WAIT_MS );
+
+            IOT_SET_AND_GOTO_CLEANUP( false );
         }
         else
         {

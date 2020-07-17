@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,9 +32,6 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-/* MQTT include. */
-#include "iot_mqtt_agent.h"
-
 /* CBOR and OTA includes. */
 #include "aws_iot_ota_agent.h"
 #include "mqtt/aws_iot_ota_cbor.h"
@@ -49,13 +46,6 @@
 /* Crypto includes. */
 #include "iot_crypto.h"
 #include "mbedTLS/sha1.h"
-
-/*-----------------------------------------------------------*/
-
-/* Global symbol required by OTA agent. */
-MQTTPublishData_t xMsgMetaData;
-
-/*-----------------------------------------------------------*/
 
 static void prvSaveCborTestFile( char * pcFileName,
                                  uint8_t * pucCborData,

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS POSIX V1.1.3
+ * FreeRTOS POSIX V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -216,7 +216,7 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
                             pthread_mutex_t * mutex,
                             const struct timespec * abstime )
 {
-    unsigned iLocalWaitingThreads;
+    unsigned iLocalWaitingThreads = 0;
     int iStatus = 0;
     pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
     TickType_t xDelay = portMAX_DELAY;

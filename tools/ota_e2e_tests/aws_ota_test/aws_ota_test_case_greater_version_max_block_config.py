@@ -28,6 +28,11 @@ from .aws_ota_aws_agent import *
 
 
 class OtaTestGreaterVersionMaxBlockConfig(OtaTestCase):
+    """
+    Same happy path test as OtaTestGreaterVersion but with the number of blocks requested each time
+    set to maximum value.
+    """
+
     is_positive = True
 
     @staticmethod

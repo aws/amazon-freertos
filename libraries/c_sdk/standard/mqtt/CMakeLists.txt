@@ -18,9 +18,10 @@ if(${BLE_SUPPORTED})
     set(extra_mqtt_dependencies AFR::serializer AFR::ble)
 endif()
 
-# Enable test access if building tests.
+# Enable test access and mocks if building tests.
 if(${AFR_IS_TESTING})
     list(APPEND extra_mqtt_test_includes "${test_dir}/access")
+    list(APPEND extra_mqtt_test_includes "${test_dir}/mock")
 endif()
 
 afr_module_sources(
@@ -72,7 +73,7 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-
+        "${test_dir}/mock/iot_tests_mqtt_mock.c"
         "${test_dir}/unit/iot_tests_mqtt_api.c"
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
@@ -94,6 +95,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/access"
+        "${test_dir}/mock"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

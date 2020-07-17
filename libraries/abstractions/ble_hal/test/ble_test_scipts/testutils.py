@@ -125,7 +125,7 @@ def createFlagArray(dbusFlagString):
     return flags
 
 
-def find_gatt_service_in_objects(services, characteristics, descriptors):
+def find_gatt_service_in_objects(services, characteristics, descriptors, bEnableIncludedService):
     bus = dbus.SystemBus()
     objects = get_managed_objects()
 
@@ -133,12 +133,11 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
         obj = bus.get_object(SERVICE_NAME, path)
         objInterface = dbus.Interface(
             obj, dbus_interface='org.freedesktop.DBus.Properties')
-        print(path)
-        sys.stdout.flush()
+
         if ifaces.get(SERVICE_INTERFACE) is not None:
             uuid = str(objInterface.Get(SERVICE_INTERFACE, "UUID"))
             primary = objInterface.Get(SERVICE_INTERFACE, "Primary")
-            if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE == 1:
+            if bEnableIncludedService == True and ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE == 1:
                 if uuid == "8a7f1168-48af-4efb-83b5-e679f9320001":
                     included_service = objInterface.Get(SERVICE_INTERFACE, "Includes")
                     services[uuid]["Includes"] = included_service
@@ -147,6 +146,7 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
             services[uuid] = {}
             services[uuid]["obj"] = obj
             services[uuid]["Primary"] = primary
+            print("Service: "+uuid)
 
         if ifaces.get(CHARACTERISTIC_INTERFACE) is not None:
             uuid = str(objInterface.Get(CHARACTERISTIC_INTERFACE, "UUID"))
@@ -158,6 +158,7 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
             characteristics[uuid] = {}
             characteristics[uuid]["obj"] = obj
             characteristics[uuid]["Flags"] = flags
+            print("Char: "+uuid)
 
         if ifaces.get(DESCRIPTOR_INTERFACE) is not None:
             uuid = str(objInterface.Get(DESCRIPTOR_INTERFACE, "UUID"))
@@ -166,6 +167,9 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
             descriptors[uuid] = {}
             descriptors[uuid]["obj"] = obj
             #descriptors[uuid]["Flags"] = flags
+            print("Dscr: "+uuid)
+
+        sys.stdout.flush()
 
     return services
 

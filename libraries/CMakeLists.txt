@@ -1,4 +1,14 @@
 # FreeRTOS module.
+
+if (AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(abstractions/secure_sockets)
+    add_subdirectory(freertos_plus/standard/pkcs11/)
+    add_subdirectory(freertos_plus/standard/utils/)
+    add_subdirectory(abstractions/pkcs11/)
+    add_subdirectory(c_sdk/standard/ble)
+    return()
+endif()
+
 afr_module(NAME freertos INTERFACE KERNEL)
 afr_glob_src(freertos_inc DIRECTORY "${AFR_KERNEL_DIR}/include" RECURSE)
 afr_module_sources(

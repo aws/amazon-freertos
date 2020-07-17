@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V2.0.3
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,6 +53,7 @@
 #endif
 
 
+#include "iot_test_pkcs11_globals.h"
 #include "iot_pkcs11_config.h"
 
 /* Test includes. */
@@ -65,7 +66,6 @@
 #include "mbedtls/oid.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
-
 
 typedef enum
 {
@@ -82,14 +82,21 @@ typedef enum
 /* PKCS #11 Globals.
  * These are used to reduce setup and tear down calls, and to
  * prevent memory leaks in the case of TEST_PROTECT() actions being triggered. */
-CK_SESSION_HANDLE xGlobalSession;
-CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
+CK_SESSION_HANDLE xGlobalSession = 0;
+CK_FUNCTION_LIST_PTR pxGlobalFunctionList = NULL_PTR;
+CK_SLOT_ID xGlobalSlotId = 0;
+CK_MECHANISM_TYPE xMechanismType = 0;
+CK_OBJECT_HANDLE xPublicKey = 0;
+CK_OBJECT_HANDLE xPrivateKey = 0;
+CK_OBJECT_HANDLE xKey = 0;
+CK_BBOOL xCkTrue = CK_TRUE;
+CK_BBOOL xCkFalse = CK_FALSE;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
-/* Function Prototypes. */
-CK_RV prvBeforeRunningTests( void );
-void prvAfterRunningTests_NoObject( void );
-void prvAfterRunningTests_Object( void );
+/* PKCS #11 Global Data Containers. */
+CK_BYTE rsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
+CK_BYTE ecdsaSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0x00 };
+CK_BYTE ecdsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
 
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
@@ -154,6 +161,12 @@ TEST_SETUP( Full_PKCS11_Capabilities )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
+
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
@@ -164,6 +177,13 @@ TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapAfter = xPortGetFreeHeapSize();
+        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
+    #endif
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_Capabilities )
@@ -182,6 +202,7 @@ TEST_SETUP( Full_PKCS11_NoObject )
         vTaskDelay( 500 );
         xHeapBefore = xPortGetFreeHeapSize();
     #endif
+
     CK_RV xResult;
 
     xResult = xInitializePKCS11();
@@ -422,26 +443,32 @@ void prvAfterRunningTests_Object( void )
 {
     /* Check if the test label is the same as the run-time label. */
 
-    /* If labels are the same, then we are assuming that this device does not
-     * have a secure element. */
-    if( ( 0 == strcmp( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
-        ( 0 == strcmp( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-    {
-        /* Delete the old device private key and certificate, if that
-         * operation is supported by this port. Replace
-         * them with known-good AWS IoT credentials. */
-        xDestroyDefaultCryptoObjects( xGlobalSession );
+    /* Only reprovision a device that supports importing private keys. */
+    #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
 
-        /* Re-provision the device with default certs
-         * so that subsequent tests are not changed. */
-        vDevModeKeyProvisioning();
-        xCurrentCredentials = eClientCredential;
-    }
+        /* If labels are the same, then we are assuming that this device does not
+         * have a secure element. */
+        if( ( 0 == strcmp( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
+            ( 0 == strcmp( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            /* Delete the old device private key and certificate, if that
+             * operation is supported by this port. Replace
+             * them with known-good AWS IoT credentials. */
+            xDestroyDefaultCryptoObjects( xGlobalSession );
 
-    /* If the labels are different, then test credentials
-     * and application credentials are stored in separate
-     * slots which were not modified, so nothing special
-     * needs to be done. */
+            /* Re-provision the device with default certs
+             * so that subsequent tests are not changed. */
+            vDevModeKeyProvisioning();
+            xCurrentCredentials = eClientCredential;
+        }
+        else
+        {
+            /* If the labels are different, then test credentials
+             * and application credentials are stored in separate
+             * slots which were not modified, so nothing special
+             * needs to be done. */
+        }
+    #endif /* if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 ) */
 }
 
 
@@ -534,7 +561,7 @@ void prvFindObjectTest( void )
 
     /* Try to find an object that has never been created. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            ( const char * ) "This label doesn't exist",
+                                            ( char * ) "This label doesn't exist",
                                             CKO_PUBLIC_KEY,
                                             &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
@@ -833,6 +860,8 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
+
+    vPortFree( pxSlotId );
 
     /* Check for consistency between static configuration and runtime key
      * generation settings. */
@@ -1144,6 +1173,11 @@ static const char cValidRSACertificate[] =
     "5GC4F+8LFLzRrZJWs18FMLaCE+zJChw/oeSt+RS0JZDFn+uX9Q==\n"
     "-----END CERTIFICATE-----\n";
 
+void resetCredentials()
+{
+    xCurrentCredentials = eStateUnknown;
+}
+
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                      CK_OBJECT_HANDLE_PTR pxCertificateHandle )
 {
@@ -1326,6 +1360,14 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     xSignatureLength = sizeof( xSignature );
     xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashPlusOid, sizeof( xHashPlusOid ), xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to RSA Sign." );
+    TEST_ASSERT_EQUAL_MESSAGE( pkcs11RSA_2048_SIGNATURE_LENGTH, xSignatureLength, "RSA Sign returned an unexpected signature length." );
+
+    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit RSA." );
+
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashPlusOid, sizeof( xHashPlusOid ), NULL, &xSignatureLength );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to RSA Sign." );
+    TEST_ASSERT_EQUAL_MESSAGE( pkcs11RSA_2048_SIGNATURE_LENGTH, xSignatureLength, "RSA Sign should return needed signature buffer length when pucSignature is NULL." );
 
     /* Verify the signature with mbedTLS */
     mbedtls_pk_context xMbedPkContext;
@@ -1699,6 +1741,15 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
     xSignatureLength = sizeof( xSignature );
     xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
+    TEST_ASSERT_EQUAL_MESSAGE( pkcs11ECDSA_P256_SIGNATURE_LENGTH, xSignatureLength, "ECDSA Sign returned an unexpected ECDSA Signature length." );
+
+    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit ECDSA." );
+
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, NULL, &xSignatureLength );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
+    TEST_ASSERT_EQUAL_MESSAGE( pkcs11ECDSA_P256_SIGNATURE_LENGTH, xSignatureLength, "ECDSA Sign should return needed signature buffer length when pucSignature is NULL." );
+
 
     /* Verify the signature with mbedTLS */
     int lMbedTLSResult;

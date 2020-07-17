@@ -888,6 +888,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</locationURI>
@@ -921,16 +931,6 @@
 			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/ota/aws_ota_pal.c</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
@@ -1138,6 +1138,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/aria.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/aria.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/asn1parse.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
@@ -1171,6 +1176,16 @@
 			<name>libraries/3rdparty/mbedtls/library/certs.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chacha20.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/chacha20.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/chachapoly.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/chachapoly.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
@@ -1258,6 +1273,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/hkdf.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/hkdf.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
@@ -1298,6 +1318,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/library/nist_kw.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/nist_kw.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
@@ -1321,6 +1346,11 @@
 			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/pkcs11.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
@@ -1351,6 +1381,11 @@
 			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/library/poly1305.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/poly1305.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
@@ -1478,11 +1513,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
@@ -1496,6 +1526,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aria.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aria.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
@@ -1541,6 +1576,16 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/chacha20.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/chachapoly.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
@@ -1643,6 +1688,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/hkdf.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
@@ -1688,6 +1738,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/nist_kw.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
@@ -1713,6 +1768,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs11.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
@@ -1736,6 +1796,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/poly1305.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
@@ -1838,34 +1903,54 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborpretty_stdio.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborencoder_close_container_checked.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborerrorstrings.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborparser.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/src/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/http_parser/http_parser.h</name>

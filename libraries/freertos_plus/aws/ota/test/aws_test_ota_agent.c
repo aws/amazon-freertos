@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,12 +46,17 @@
 /* Test network header include. */
 #include IOT_TEST_NETWORK_HEADER
 
+/* Test framework includes. */
+#include "aws_test_utils.h"
+
 /* Configuration for this test. */
 #include "aws_test_ota_config.h"
 
 /**
  * @brief Configuration for this test group.
  */
+#define otatestMQTT_RETRIES_START_MS      ( 250 )
+#define otatestMQTT_RETRIES_MAX           ( 7 )
 #define otatestMAX_LOOP_MEM_LEAK_CHECK    ( 1 )
 #define otatestSHUTDOWN_WAIT              pdMS_TO_TICKS( 10000 )
 #define otatestAGENT_INIT_WAIT            10000
@@ -166,8 +171,8 @@ TEST_GROUP( Full_OTA_AGENT );
 TEST_SETUP( Full_OTA_AGENT )
 {
     IotMqttError_t connectStatus = IOT_MQTT_STATUS_PENDING;
-    IotNetworkServerInfo_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
-    IotNetworkCredentials_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
+    struct IotNetworkServerInfo serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
+    struct IotNetworkCredentials credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
@@ -185,10 +190,13 @@ TEST_SETUP( Full_OTA_AGENT )
     connectInfo.clientIdentifierLength = sizeof( clientcredentialIOT_THING_NAME ) - 1;
 
     /* Connect to the broker. */
-    connectStatus = IotMqtt_Connect( &networkInfo,
-                                     &connectInfo,
-                                     otatestAGENT_INIT_WAIT,
-                                     &xMQTTClientHandle );
+    RETRY_EXPONENTIAL( connectStatus = IotMqtt_Connect( &networkInfo,
+                                                        &connectInfo,
+                                                        otatestAGENT_INIT_WAIT,
+                                                        &xMQTTClientHandle ),
+                       IOT_MQTT_SUCCESS,
+                       otatestMQTT_RETRIES_START_MS,
+                       otatestMQTT_RETRIES_MAX );
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(
         IOT_MQTT_SUCCESS, connectStatus,

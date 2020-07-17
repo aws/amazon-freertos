@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@
  * @file iot_ble_mqtt_serialize.c
  * @brief MQTT library for BLE.
  */
+
 /* The config header is always included first. */
 #include "iot_config.h"
 
@@ -1159,7 +1160,7 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( _mqttPacket_t * pSuback )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    int64_t subscriptionStatus;
+    uint8_t subscriptionStatus;
     IotMqttError_t ret = IOT_MQTT_SUCCESS;
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pSuback->pRemainingData, pSuback->remainingLength );
@@ -1199,7 +1200,7 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( _mqttPacket_t * pSuback )
         }
         else
         {
-            subscriptionStatus = ( uint16_t ) decoderValue.u.value.u.signedInt;
+            subscriptionStatus = ( uint8_t ) decoderValue.u.value.u.signedInt;
 
             switch( subscriptionStatus )
             {

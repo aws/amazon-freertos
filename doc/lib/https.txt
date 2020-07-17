@@ -134,8 +134,8 @@ See @subpage https_demo_config for configuration settings that change the behavi
 
         Example output:  
         \code
-        #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
-        #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
+        #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
         \endcode
 
         Paste this output to iot_config.h.
@@ -305,8 +305,8 @@ Notes:
 
         Example output:  
         \code
-        #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
-        #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
+        #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
         \endcode
 
         Paste this output to iot_config.h.
@@ -416,7 +416,7 @@ Notes:
 
 This is generated using the script demos/https/presigned_url_gen.py. demos/https/README.md explains how to use the script.
 
-@configpossible Presigned URL of the form: `https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D`. <br>
+@configpossible Presigned URL of the form: `https://aws-s3-endpoint/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D`. <br>
 @configdefault `"Please configure a presigned GET URL in iot_config.h."`
 
 @section IOT_DEMO_HTTPS_PORT

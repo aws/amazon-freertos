@@ -92,11 +92,7 @@ size_t IotNetworkInterfaceReceive( void * pConnection,
   __CPROVER_assert(pConnection, "IotNetworkInterfaceReceive pConnection");
   __CPROVER_assert(pBuffer, "IotNetworkInterfaceReceive pBuffer");
 
-  /* Fill the entire memory object pointed to by pBuffer with
-   * unconstrained data.  This use of __CPROVER_array_copy with a
-   * single byte is a common CBMC idiom. */
-  uint8_t byte;
-  __CPROVER_array_copy(pBuffer,&byte);
+  __CPROVER_havoc_object(pBuffer);
 
   size_t size;
   __CPROVER_assume(size <= bytesRequested);
@@ -272,45 +268,52 @@ initialize_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
 }
 
 int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
-  int required1 =
+  int valid_headers =
+    pResponseHandle->pHeaders != NULL;
+  int valid_body =
+    pResponseHandle->pBody != NULL;
+
+  int valid_parserdata =
+    pResponseHandle->httpParserInfo.readHeaderParser.data == pResponseHandle;
+
+  size_t header_size = __CPROVER_OBJECT_SIZE(pResponseHandle->pHeaders);
+  bool valid_header_pointers =
+    header_size < CBMC_MAX_OBJECT_SIZE &&
+
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pHeaders) <= header_size &&
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pHeadersCur) <= header_size &&
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pHeadersEnd) <= header_size &&
+
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersCur) &&
     __CPROVER_same_object(pResponseHandle->pHeaders,
-			  pResponseHandle->pHeadersEnd);
-  int required2 =
+			  pResponseHandle->pHeadersEnd) &&
+
+    pResponseHandle->pHeaders <= pResponseHandle->pHeadersCur &&
+    pResponseHandle->pHeadersCur <=  pResponseHandle->pHeadersEnd;
+
+  size_t body_size = __CPROVER_OBJECT_SIZE(pResponseHandle->pBody);
+  bool valid_body_pointers =
+    body_size < CBMC_MAX_OBJECT_SIZE &&
+
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pBody) <= body_size &&
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pBodyCur) <= body_size &&
+    __CPROVER_POINTER_OFFSET(pResponseHandle->pBodyEnd) <= body_size &&
+
     __CPROVER_same_object(pResponseHandle->pBody,
 			  pResponseHandle->pBodyCur) &&
     __CPROVER_same_object(pResponseHandle->pBody,
-			  pResponseHandle->pBodyEnd);
-  if (!required1 || !required2) return 0;
+			  pResponseHandle->pBodyEnd) &&
 
-  int valid_headers =
-    pResponseHandle->pHeaders != NULL;
-  int valid_header_order =
-    pResponseHandle->pHeaders <= pResponseHandle->pHeadersCur &&
-    pResponseHandle->pHeadersCur <=  pResponseHandle->pHeadersEnd;
-  int valid_body =
-    pResponseHandle->pBody != NULL;
-  int valid_body_order =
     pResponseHandle->pBody <= pResponseHandle->pBodyCur &&
     pResponseHandle->pBodyCur <=  pResponseHandle->pBodyEnd;
-  int valid_parserdata =
-    pResponseHandle->httpParserInfo.readHeaderParser.data == pResponseHandle;
+
   return
     valid_headers &&
-    valid_header_order &&
     valid_body &&
-    valid_body_order &&
     valid_parserdata &&
-    // valid_order and short circuit evaluation prevents integer overflow
-    __CPROVER_r_ok(pResponseHandle->pHeaders,
-		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
-    __CPROVER_w_ok(pResponseHandle->pHeaders,
-		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
-    __CPROVER_r_ok(pResponseHandle->pBody,
-		   pResponseHandle->pBodyEnd - pResponseHandle->pBody) &&
-    __CPROVER_w_ok(pResponseHandle->pBody,
-		   pResponseHandle->pBodyEnd - pResponseHandle->pBody);
+    valid_header_pointers &&
+    valid_body_pointers;
 }
 
 /****************************************************************
@@ -333,32 +336,30 @@ IotHttpsRequestHandle_t allocate_IotRequestHandle() {
 }
 
 int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
-  int required =
+  int valid_headers = pRequestHandle->pHeaders != NULL;
+  int valid_body = pRequestHandle->pBody != NULL;
+
+  size_t header_size = __CPROVER_OBJECT_SIZE(pRequestHandle->pHeaders);
+
+  bool valid_header_pointers =
+    header_size < CBMC_MAX_OBJECT_SIZE &&
+
+    __CPROVER_POINTER_OFFSET(pRequestHandle->pHeaders) <= header_size &&
+    __CPROVER_POINTER_OFFSET(pRequestHandle->pHeadersCur) <= header_size &&
+    __CPROVER_POINTER_OFFSET(pRequestHandle->pHeadersEnd) <= header_size &&
+
     __CPROVER_same_object(pRequestHandle->pHeaders,
 			  pRequestHandle->pHeadersCur) &&
     __CPROVER_same_object(pRequestHandle->pHeaders,
-			  pRequestHandle->pHeadersEnd);
-  if (!required) return 0;
+			  pRequestHandle->pHeadersEnd) &&
 
-  int valid_headers =
-    pRequestHandle->pHeaders != NULL;
-  int valid_order =
     pRequestHandle->pHeaders <= pRequestHandle->pHeadersCur &&
     pRequestHandle->pHeadersCur <=  pRequestHandle->pHeadersEnd;
-  int valid_body =
-    pRequestHandle->pBody != NULL;
-  int bounded_header_buffer =
-    __CPROVER_OBJECT_SIZE(pRequestHandle->pHeaders) < CBMC_MAX_OBJECT_SIZE;
+
   return
     valid_headers &&
-    valid_order &&
     valid_body &&
-    bounded_header_buffer &&
-    // valid_order and short circuit evaluation prevents integer overflow
-    __CPROVER_r_ok(pRequestHandle->pHeaders,
-		   pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders) &&
-    __CPROVER_w_ok(pRequestHandle->pHeaders,
-		   pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders);
+    valid_header_pointers;
 }
 
 /****************************************************************

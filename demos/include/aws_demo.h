@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,8 +52,6 @@ typedef void (* networkDisconnectedCallback_t)( const IotNetworkInterface_t * pN
 void runDemoTask( void * pArgument );
 
 void DEMO_RUNNER_RunDemos( void );
-
-void vApplicationInit( void );
 
 typedef struct demoContext
 {

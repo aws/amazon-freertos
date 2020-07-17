@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,14 +25,13 @@
 
 /**
  * @file aws_ble_numericComparison.c
- * @brief A simple OTA update example.
+ * @brief Tasks and callbacks for user confirmation for BLE passkey.
  *
- * This example initializes the OTA agent to enable OTA updates via the
- * MQTT broker. It simply connects to the MQTT broker with the users
- * credentials and spins in an indefinite loop to allow MQTT messages to be
- * forwarded to the OTA agent for possible processing. The OTA agent does all
- * of the real work; checking to see if the message topic is one destined for
- * the OTA agent. If not, it is simply ignored.
+ * This file contains the task for printing the BLE passkey and
+ * accepts the confirmation from user over UART. This file also
+ * contains implementations of callback when BLE numeric comparison
+ * passkey is available and a callback when there is a state change
+ * for BLE GAP Pairing.
  */
 
 /* The config header is always included first. */

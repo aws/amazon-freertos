@@ -78,6 +78,11 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         }
     }
 
+	/* Call a function that monitors resources: the amount of free network
+	buffers and the amount of free space on the heap.  See FreeRTOS_IP.c
+	for more detailed comments. */
+	vPrintResourceStats();
+    
     if (xReleaseAfterSend == pdTRUE) {
         vReleaseNetworkBufferAndDescriptor(pxNetworkBuffer);
     }
@@ -105,6 +110,8 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
     IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
     const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
 
+    vPrintResourceStats();
+
     if( eConsiderFrameForProcessing( buffer ) != eProcessBuffer ) {
         ESP_LOGD(TAG, "Dropping packet");
         esp_wifi_internal_free_rx_buffer(eb);
@@ -114,10 +121,10 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
     pxNetworkBuffer = pxGetNetworkBufferWithDescriptor(len, xDescriptorWaitTime);
     if (pxNetworkBuffer != NULL) {
 
-	/* Set the packet size, in case a larger buffer was returned. */
-	pxNetworkBuffer->xDataLength = len;
+        /* Set the packet size, in case a larger buffer was returned. */
+        pxNetworkBuffer->xDataLength = len;
 
-	/* Copy the packet data. */
+        /* Copy the packet data. */
         memcpy(pxNetworkBuffer->pucEthernetBuffer, buffer, len);
         xRxEvent.pvData = (void *) pxNetworkBuffer;
 

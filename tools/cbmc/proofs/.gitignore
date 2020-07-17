@@ -6,3 +6,5 @@ Makefile.common
 cbmc-batch.yaml
 **/*.txt
 **/*.goto
+
+!CMakeLists.txt

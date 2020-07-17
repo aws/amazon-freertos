@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ static bool _checkRetryLimit( _mqttOperation_t * pOperation )
          * accounts for the final check for a PUBACK. */
         IotMqtt_Assert( pOperation->u.operation.retry.count == pOperation->u.operation.retry.limit + 1 );
 
-        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) No response received after %lu retries.",
+        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) No response received after %u retries.",
                      pMqttConnection,
                      pOperation,
                      pOperation->u.operation.retry.limit );
@@ -505,7 +505,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         pOperation->u.operation.jobReference--;
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
-                     " from %ld to %ld.",
+                     " from %d to %d.",
                      pMqttConnection,
                      IotMqtt_OperationType( pOperation->u.operation.type ),
                      pOperation,
@@ -563,8 +563,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
         IotLogDebug( "(MQTT connection %p, %s operation %p) Removed operation from connection lists.",
                      pMqttConnection,
                      IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation,
-                     pMqttConnection );
+                     pOperation );
 
         IotListDouble_Remove( &( pOperation->link ) );
     }
@@ -651,6 +650,8 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     bool status = true;
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     size_t bytesSent = 0;
+    uint32_t scheduleDelay = 0;
+    uint64_t elapsedTime = 0;
 
     /* Retrieve the MQTT connection from the context. */
     _mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) pContext;
@@ -681,32 +682,53 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     /* Determine whether to send a PINGREQ or check for PINGRESP. */
     if( pMqttConnection->nextKeepAliveMs == pMqttConnection->keepAliveMs )
     {
-        IotLogDebug( "(MQTT connection %p) Sending PINGREQ.", pMqttConnection );
+        /* Only send the PINGREQ if the keep-alive period has elapsed since the connection
+         * was last used. */
+        elapsedTime = IotClock_GetTimeMs() - pMqttConnection->lastMessageTime;
 
-        /* Because PINGREQ may be used to keep the MQTT connection alive, it is
-         * more important than other operations. Bypass the queue of jobs for
-         * operations by directly sending the PINGREQ in this job. */
-        bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
-                                                              pMqttConnection->pPingreqPacket,
-                                                              pMqttConnection->pingreqPacketSize );
-
-        if( bytesSent != pMqttConnection->pingreqPacketSize )
+        if( elapsedTime < ( uint64_t ) pMqttConnection->keepAliveMs )
         {
-            IotLogError( "(MQTT connection %p) Failed to send PINGREQ.", pMqttConnection );
-            status = false;
+            IotLogDebug( "(MQTT connection %p) Connection was last used %llu ms ago, which "
+                         "is less than keep-alive period %lu ms. PINGREQ will not be sent.",
+                         pMqttConnection,
+                         ( unsigned long long ) elapsedTime,
+                         ( unsigned long ) pMqttConnection->keepAliveMs );
+
+            /* Schedule the next keep-alive job one keep-alive period after the last packet was sent. */
+            scheduleDelay = pMqttConnection->keepAliveMs - ( ( uint32_t ) elapsedTime );
         }
         else
         {
-            /* Assume the keep-alive will fail. The network receive callback will
-             * clear the failure flag upon receiving a PINGRESP. */
-            pMqttConnection->keepAliveFailure = true;
+            IotLogDebug( "(MQTT connection %p) Sending PINGREQ.", pMqttConnection );
 
-            /* Schedule a check for PINGRESP. */
-            pMqttConnection->nextKeepAliveMs = IOT_MQTT_RESPONSE_WAIT_MS;
+            /* Because PINGREQ may be used to keep the MQTT connection alive, it is
+             * more important than other operations. Bypass the queue of jobs for
+             * operations by directly sending the PINGREQ in this job. */
+            bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
+                                                                  pMqttConnection->pPingreqPacket,
+                                                                  pMqttConnection->pingreqPacketSize );
 
-            IotLogDebug( "(MQTT connection %p) PINGREQ sent. Scheduling check for PINGRESP in %d ms.",
-                         pMqttConnection,
-                         IOT_MQTT_RESPONSE_WAIT_MS );
+            if( bytesSent != pMqttConnection->pingreqPacketSize )
+            {
+                IotLogError( "(MQTT connection %p) Failed to send PINGREQ.", pMqttConnection );
+                status = false;
+            }
+            else
+            {
+                /* Update the timestamp of the last message on successful transmission. */
+                pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+
+                /* Assume the keep-alive will fail. The network receive callback will
+                 * clear the failure flag upon receiving a PINGRESP. */
+                pMqttConnection->keepAliveFailure = true;
+
+                /* Schedule a check for PINGRESP. */
+                pMqttConnection->nextKeepAliveMs = IOT_MQTT_RESPONSE_WAIT_MS;
+
+                IotLogDebug( "(MQTT connection %p) PINGREQ sent. Scheduling check for PINGRESP in %d ms.",
+                             pMqttConnection,
+                             IOT_MQTT_RESPONSE_WAIT_MS );
+            }
         }
     }
     else
@@ -717,8 +739,50 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
         {
             IotLogDebug( "(MQTT connection %p) PINGRESP was received.", pMqttConnection );
 
-            /* PINGRESP was received. Schedule the next PINGREQ transmission. */
+            /* This function is called for two purposes:
+             *
+             * 1. To send a PINGREQ.
+             * 2. To check that the corresponding PINGRESP is received within
+             * IOT_MQTT_RESPONSE_WAIT_MS.
+             *
+             * The way it differentiates between the two is by checking
+             * pMqttConnection->nextKeepAliveMs:
+             *
+             * If pMqttConnection->nextKeepAliveMs is set to pMqttConnection->keepAliveMs,
+             * the invocation is for sending PINGREQ.
+             * Otherwise, the invocation is for checking that PINGRESP is received
+             * within IOT_MQTT_RESPONSE_WAIT_MS.
+             *
+             * Therefore, it is necessary to set pMqttConnection->nextKeepAliveMs
+             * to pMqttConnection->keepAliveMs to ensure that PINGREQ is sent in
+             * the next invocation. But we must ensure that the next time to send
+             * PINGREQ is calculated from the moment last PINGREQ was sent and NOT
+             * when we checked for PINGRESP. As a result we need to schedule the next
+             * invocation at pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS.
+             * The following diagram also explains it:
+             *
+             *      WaitMS    KeepAliveMS - WaitMS
+             *    <-------->|<-------------------->
+             *    ---------------------------------
+             *    ^         ^                     ^
+             *    |         |                     |
+             * PINGREQ   PINGRESP              PINGREQ
+             * (Call 1)  (Call 2)             (Call 3)
+             *    <------------------------------->
+             *                 KeepAliveMS
+             * WaitMS = IOT_MQTT_RESPONSE_WAIT_MS.
+             * KeepAliveMS = pMqttConnection->keepAliveMs.
+             * Call 1 - First PINGREQ is sent.
+             * Call 2 - PINGRESP is checked after IOT_MQTT_RESPONSE_WAIT_MS.
+             * Call 3 - Next PINGREQ is sent. Time difference between Call 2 and
+             * Call 3 is KeepAliveMS - WaitMS, while time difference between Call 1
+             * and Call 3 is KeepAliveMS. */
             pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
+
+            IotMqtt_Assert( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS );
+
+            /* Subtract time taken for PINGRESP check. */
+            scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
         }
         else
         {
@@ -735,15 +799,24 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
      * response shortly. */
     if( status == true )
     {
+        if( scheduleDelay == 0U )
+        {
+            scheduleDelay = pMqttConnection->nextKeepAliveMs;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+
         taskPoolStatus = IotTaskPool_ScheduleDeferred( pTaskPool,
                                                        pKeepAliveJob,
-                                                       pMqttConnection->nextKeepAliveMs );
+                                                       scheduleDelay );
 
         if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
         {
             IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
                          pMqttConnection,
-                         ( unsigned long ) pMqttConnection->nextKeepAliveMs );
+                         ( unsigned long ) scheduleDelay );
         }
         else
         {
@@ -887,6 +960,11 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
         }
         else
         {
+            /* Update the timestamp of the last message on successful transmission. */
+            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+            pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
             /* DISCONNECT operations are considered successful upon successful
              * transmission. In addition, non-waitable operations with no callback
              * may also be considered successful. */

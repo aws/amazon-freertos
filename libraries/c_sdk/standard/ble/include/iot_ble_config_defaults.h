@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -141,6 +141,15 @@
  */
 #ifndef IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
     #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "BLE"
+#endif
+
+/**
+ * @brief Max length BLE local device name.
+ * As per BLE4.2 SPEC, device name length can be between 0 and 248 octet in length.
+ *
+ */
+#ifndef IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH
+    #define IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH    ( 248 )
 #endif
 
 /**
@@ -364,9 +373,8 @@
     #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
 #endif
 
-
-#define IOT_BLE_MESG_ENCODER    ( _IotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER    ( _IotSerializerCborDecoder )
+#define IOT_BLE_MESG_ENCODER                    ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER                    ( _IotSerializerCborDecoder )
 
 /**
  * @brief Default configuration for memory allocation of data transfer service buffers.

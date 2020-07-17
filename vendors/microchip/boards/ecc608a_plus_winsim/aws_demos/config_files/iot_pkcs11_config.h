@@ -34,9 +34,6 @@
 
 extern const char * pcPkcs11GetThingName(void);
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-/* #define pkcs11configC_INITIALIZE_ALT */
-
 /**
  * @brief PKCS #11 default user PIN.
  *
@@ -45,6 +42,9 @@ extern const char * pcPkcs11GetThingName(void);
  * protections. However, since typical microcontroller applications lack one or
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
+ *
+ * Note: Do not cast this to a pointer! The library calls sizeof to get the length
+ * of this string.
  */
 #define configPKCS11_DEFAULT_USER_PIN    "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
 

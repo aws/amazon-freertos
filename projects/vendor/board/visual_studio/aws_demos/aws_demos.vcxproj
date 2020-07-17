@@ -131,6 +131,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\entropy.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\entropy_poll.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\error.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls_utils\mbedtls_error.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\gcm.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\havege.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\hmac_drbg.c" />

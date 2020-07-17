@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,10 +35,6 @@
 #include "stdbool.h"
 
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-
-#if ( BLE_SUPPORTED == 1 )
-    static bool bleEnabled = false;
-#endif
 
 /*-----------------------------------------------------------*/
 
@@ -76,107 +72,10 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 #endif /* if ( WIFI_SUPPORTED == 1 ) */
 
 #if ( BLE_SUPPORTED == 1 )
-    #include "iot_ble.h"
     #include "platform/iot_network_ble.h"
     #include "iot_mqtt.h"
     extern const IotMqttSerializer_t IotBleMqttSerializer;
-    /*-----------------------------------------------------------*/
 
-    static void _BLEConnectionCallback( BTStatus_t status,
-                                        uint16_t connId,
-                                        bool connected,
-                                        BTBdaddr_t * pBa )
-    {
-        if( connected == true )
-        {
-            IotBle_StopAdv( NULL );
-        }
-        else
-        {
-            ( void ) IotBle_StartAdv( NULL );
-        }
-    }
-    /*-----------------------------------------------------------*/
-    extern BTStatus_t bleStackInit( void );
-
-    static BaseType_t _BLEEnable( void )
-    {
-        IotBleEventsCallbacks_t xEventCb;
-        BaseType_t xRet = pdTRUE;
-        static bool bInitBLE = false;
-        BTStatus_t xStatus;
-
-        if( bInitBLE == false )
-        {
-            /* Initialize low level drivers for BLE */
-            xStatus = bleStackInit();
-
-            if( xStatus == eBTStatusSuccess )
-            {
-                xStatus = IotBle_Init();
-
-                if( xStatus == eBTStatusSuccess )
-                {
-                    bInitBLE = true;
-                }
-            }
-        }
-        else
-        {
-            xStatus = IotBle_On();
-        }
-
-        /* Register BLE Connection callback */
-        if( xStatus == eBTStatusSuccess )
-        {
-            xEventCb.pConnectionCb = _BLEConnectionCallback;
-
-            if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-            {
-                xStatus = eBTStatusFail;
-            }
-        }
-
-        if( xStatus != eBTStatusSuccess )
-        {
-            xRet = pdFALSE;
-        }
-
-        return xRet;
-    }
-
-/*-----------------------------------------------------------*/
-
-    static BaseType_t _BLEDisable( void )
-    {
-        bool ret = true;
-        IotBleEventsCallbacks_t xEventCb;
-
-        xEventCb.pConnectionCb = _BLEConnectionCallback;
-
-        if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-        {
-            ret = false;
-        }
-
-        if( ret == true )
-        {
-            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
-            {
-                ret = false;
-            }
-        }
-
-        if( ret == true )
-        {
-            if( IotBle_Off() != eBTStatusSuccess )
-            {
-                ret = false;
-            }
-        }
-
-        return ret;
-    }
 #endif /* if ( BLE_SUPPORTED == 1 ) */
 
 
@@ -209,32 +108,8 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 
 bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
-    bool bInitializeSucceeded = pdFALSE;
-
-    switch( networkType )
-    {
-        #if ( BLE_SUPPORTED == 1 )
-            case AWSIOT_NETWORK_TYPE_BLE:
-
-                if( bleEnabled == false )
-                {
-                    bleEnabled = _BLEEnable();
-                }
-
-                bInitializeSucceeded = bleEnabled;
-                break;
-        #endif
-        #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-            case AWSIOT_NETWORK_TYPE_WIFI:
-                bInitializeSucceeded = pdTRUE;
-                break;
-        #endif
-        default:
-            break;
-    }
-
     _IotTestNetworkType = networkType;
-    return bInitializeSucceeded;
+    return true;
 }
 
 /*-----------------------------------------------------------*/

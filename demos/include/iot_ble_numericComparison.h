@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,8 +24,8 @@
  */
 
 /**
- * @file aws_iot_network.h
- * @brief Header file containing the network management APIs
+ * @file iot_ble_numericComparison.h
+ * @brief Header file for supporting user confirmation for BLE passkey.
  */
 #ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
 #define _AWS_BLE_NUMERIC_COMPARISON_H_
@@ -53,4 +53,4 @@ extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
                                   TickType_t xAuthTimeout );
 
 
-#endif /* _AWS_IOT_NETWORK_MANAGER_H_ */
+#endif /* _AWS_BLE_NUMERIC_COMPARISON_H_ */

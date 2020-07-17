@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -592,7 +592,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter ( %lld ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -719,7 +719,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter ( %lld ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -744,7 +744,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "New Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "New Network index parameter ( %lld ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -848,7 +848,7 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
+                IotLogError( "Network index parameter %lld is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }

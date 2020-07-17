@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE HAL V4.0.1
+ * FreeRTOS BLE HAL V5.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,7 +47,7 @@
 /**
  * @brief  Incompatible API changes without backward compatibility.
  */
-#define btMAJOR_VERSION    4
+#define btMAJOR_VERSION    5
 
 /**
  * @brief Add new functionality with backward compatibility.
@@ -57,18 +57,18 @@
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    0
+#define btPATCH_VERSION    1
 
 /**
  * @brief  Help functions to convert version to string.
  */
-#define STR_HELPER( x, y, z )    # x "." # y "." # z
-#define STR( x, y, z )           STR_HELPER( x, y, z )
+#define btSTR_HELPER( x, y, z )    # x "." # y "." # z
+#define btSTR( x, y, z )           btSTR_HELPER( x, y, z )
 
 /**
  * @brief  Stringified version number.
  */
-#define btSTRING_VERSION                        STR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
+#define btSTRING_VERSION                        btSTR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
 
 /**
  * Stack feature support bit mask
@@ -521,6 +521,7 @@ typedef struct
     BTPinRequestCallback_t pxPinRequestCb;
     BTSspRequestCallback_t pxSspRequestCb;
     BTPairingStateChangedCallback_t pxPairingStateChangedCb;
+    BTBondedCallback_t pxBondedCb; /** This is deprecated */
     BTDutModeRecvCallback_t pxDutModeRecvCb;
     BTLeTestModeCallback_t pxleTestModeCb;
     BTEnergyInfoCallback_t pxEnergyInfoCb;
@@ -866,7 +867,7 @@ typedef struct
     BTStatus_t ( * pxGetStackFeaturesSupport )( uint32_t * pulFeatureMask );
 } BTInterface_t;
 
-extern const BTInterface_t * BTGetBluetoothInterface();
+const BTInterface_t * BTGetBluetoothInterface();
 
 #endif /* _BT_HAL_MANAGER_H_ */
 /** @} */

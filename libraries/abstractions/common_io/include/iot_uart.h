@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -60,9 +60,10 @@
  */
 typedef enum
 {
-    eUartCompleted = IOT_UART_SUCCESS,            /*!< UART operation completed successfully. */
-    eUartLastWriteFailed = IOT_UART_WRITE_FAILED, /*!< UART driver returns error when performing write operation. */
-    eUartLastReadFailed = IOT_UART_READ_FAILED,   /*!< UART driver returns error when performing read operation. */
+    eUartWriteCompleted,  /*!< UART operation write completed successfully. */
+    eUartReadCompleted,   /*!< UART operation read completed successfully. */
+    eUartLastWriteFailed, /*!< UART driver returns error when performing write operation. */
+    eUartLastReadFailed,  /*!< UART driver returns error when performing read operation. */
 } IotUARTOperationStatus_t;
 
 /**
@@ -80,8 +81,8 @@ typedef enum
  */
 typedef enum
 {
-    eUartStopBitsOne, /*!< UART stop bits is 1. */
-    eUartStopBitsTwo, /*!< UART stop bits is 2. */
+    eUartStopBitsOne, /*!< UART character stop is one bit. */
+    eUartStopBitsTwo, /*!< UART character stop is two bits. */
 } IotUARTStopBits_t;
 
 /**
@@ -100,14 +101,14 @@ typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus,
 /**
  * @brief The UART descriptor type defined in the source file.
  */
-struct                       IotUARTDescriptor_t;
+struct                       IotUARTDescriptor;
 
 /**
  * @brief IotUARTHandle_t is the handle type returned by calling iot_uart_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotUARTDescriptor_t * IotUARTHandle_t;
+typedef struct IotUARTDescriptor * IotUARTHandle_t;
 
 /**
  * @brief Ioctl requests for UART HAL.
@@ -159,7 +160,7 @@ typedef struct
  *  IotUARTHandle_t xOpen;
  *  int32_t lRead, lWrite, lClose;
  *  BaseType_t xCallbackReturn;
- *  uint8_t ucPort = 1; /* Each UART peripheral will be assigned an integer.
+ *  uint8_t ucPort = 1; // Each UART peripheral will be assigned an integer.
  *
  *  xOpen = iot_uart_open( ucPort );
  *  if( xOpen != NULL )

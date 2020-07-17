@@ -139,6 +139,9 @@ void vLoggingPrintf( char const * pcFormat,
 extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )    vLoggingPrint( X )
 
+/* Non-format version thread-safe print. */
+#define configPRINT_STRING( X )    vLoggingPrint( X )
+
 /* Application specific definitions follow. **********************************/
 
 /* If configINCLUDE_DEMO_DEBUG_STATS is set to one, then a few basic IP trace
@@ -168,7 +171,7 @@ extern void vLoggingPrint( const char * pcMessage );
  * results in the wired network being used, while setting
  * configNETWORK_INTERFACE_TO_USE to 2 results in the wireless network being
  * used. */
-#define configNETWORK_INTERFACE_TO_USE       ( 3L )
+#define configNETWORK_INTERFACE_TO_USE       ( 0L )
 
 /* The address of an echo server that will be used by the two demo echo client
  * tasks:

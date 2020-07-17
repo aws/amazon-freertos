@@ -76,6 +76,7 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_tests/lib/third_party/esp-idf/components/nvs_flash/include}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_tests/lib/third_party/mbedtls/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_tests/lib/third_party/mbedtls_utils}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/aws_tests/lib/third_party/jsmn}&quot;"/>
                                     									

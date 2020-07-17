@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -111,14 +111,14 @@ typedef struct IotSPIMasterConfig
 /**
  * @brief The SPI descriptor type defined in the source file.
  */
-struct                      IotSPIDescriptor_t;
+struct                      IotSPIDescriptor;
 
 /**
  * @brief IotSPIHandle_t is the handle type returned by calling iot_spi_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotSPIDescriptor_t * IotSPIHandle_t;
+typedef struct IotSPIDescriptor * IotSPIHandle_t;
 
 /**
  * @brief The callback function for completion of SPI operation.

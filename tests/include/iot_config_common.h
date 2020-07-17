@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -170,6 +170,7 @@
 #define IOT_BT_HAL_GATT_TYPES             "bt_hal_gatt_types.h"
 #define IOT_UNITY_FIXTURE                 "unity_fixture.h"
 #define IOT_UNITY                         "unity.h"
+#define IOT_LOG                           "iot_logging_setup.h"
 
 /* Cloud endpoint to which the device connects to. */
 #define IOT_CLOUD_ENDPOINT                clientcredentialMQTT_BROKER_ENDPOINT
@@ -194,19 +195,20 @@ extern const char * getDeviceMetrics( void );
  * @brief Length of the metrics emitted by device.
  */
 extern uint16_t getDeviceMetricsLength( void );
-#define AWS_IOT_METRICS_USERNAME_LENGTH    getDeviceMetricsLength()
+#define AWS_IOT_METRICS_USERNAME_LENGTH     getDeviceMetricsLength()
 
 /* Set Thing Name. */
-#define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_SHADOW_THING_NAME      clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_DEFENDER_THING_NAME    clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT             AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG      ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG       ( 1 )
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t           void *
+#define IotMetricsConnectionId_t            void *
 
 /* For compatibility with the FreeRTOS test framework, UnityPrint and similar
  * must be redefined. */
@@ -251,13 +253,17 @@ extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( vo
 /* Allow the network serializer to be chosen by at runtime. */
 struct IotMqttSerializer;
 extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
-#define IOT_TEST_MQTT_SERIALIZER             IotTestNetwork_GetSerializer()
+#define IOT_TEST_MQTT_SERIALIZER                     IotTestNetwork_GetSerializer()
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
  * platforms supported in FreeRTOS.
  * Set this to the number of connection attempts for the MQTT tests.
  * If undefined, it should default to 1. */
-#define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    3
+#define IOT_TEST_MQTT_CONNECT_RETRY_COUNT            ( 3 )
+
+/* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+ * Wait until 1100 ms have elapsed since the last connection. */
+#define IOT_TEST_MQTT_CONNECT_INIT_RETRY_DELAY_MS    ( 1100 )
 
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnection    IotTestNetworkConnection_t;

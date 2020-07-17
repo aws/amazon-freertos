@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -83,14 +83,16 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_GGD_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_GGD );
+        RUN_TEST_GROUP( GGD_Unit );
+        RUN_TEST_GROUP( GGD_System );
     #endif
 
     #if ( testrunnerFULL_GGD_HELPER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_GGD_Helper );
+        RUN_TEST_GROUP( GGD_Helper_System );
     #endif
 
     #if ( testrunnerFULL_SHADOW_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_Shadow_Unit );
         RUN_TEST_GROUP( Full_Shadow );
     #endif
 
@@ -142,6 +144,15 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
+    #if ( testrunnerFULL_PKCS11_MODEL_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_DigestMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_GenerationMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_ObjectMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_VerifyMachine );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SignMachine );
+    #endif
+
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
         RUN_TEST_GROUP( Full_CRYPTO );
     #endif
@@ -151,7 +162,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_DEFENDER );
+        RUN_TEST_GROUP( Defender_Unit );
+        RUN_TEST_GROUP( Defender_System );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )
@@ -191,6 +203,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
         RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        RUN_TEST_GROUP( Full_BLE_END_TO_END_CONNECTIVITY );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
     #endif
@@ -200,9 +213,9 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_Serializer_CBOR );
-        RUN_TEST_GROUP( Full_Serializer_JSON );
-        RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
+        RUN_TEST_GROUP( Serializer_Unit_CBOR );
+        RUN_TEST_GROUP( Serializer_Unit_JSON );
+        RUN_TEST_GROUP( Serializer_Unit_JSON_deserialize );
     #endif
 
     #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1 )
@@ -212,11 +225,18 @@ static void RunTests( void )
         RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
         RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
+
+    #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
+        RUN_TEST_GROUP( Common_IO );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
 void TEST_RUNNER_RunTests_task( void * pvParameters )
 {
+    /* Disable unused parameter warning. */
+    ( void ) pvParameters;
+
     /* Initialize unity. */
     UnityFixture.Verbose = 1;
     UnityFixture.GroupFilter = 0;

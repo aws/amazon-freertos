@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -641,5 +641,23 @@ BTStatus_t IotBle_GetConnectionInfo( uint16_t connId,
 BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr,
                                                 bool keyAccepted );
 /* @[declare_iotble_confirmnumericcomparisonkeys] */
+
+
+/**
+ * @brief Set device name for BLE.
+ *
+ * API can be used to set the device name before turning on BLE by calling IotBle_On(),
+ * or when BLE is running. When BLE is advertising mode, setting device name should take into effect
+ * immediately for the current advertisement. The device name needs to be set only once and
+ * is available across BLE turn off-turn on cycles. API should be called only after IotBle_Init().
+ *
+ * @param[in] pName Pointer to the device name string.
+ * @param[in] length Length of the device name string without null terminator.
+ * @return Returns eBTStatusSuccess on successful call or error code otherwise.
+ */
+/* @[declare_iotble_setdevicename] */
+BTStatus_t IotBle_SetDeviceName( const char * pName,
+                                 size_t length );
+/* @[declare_iotble_setdevicename] */
 
 #endif /* _AWS_BLE_H_*/

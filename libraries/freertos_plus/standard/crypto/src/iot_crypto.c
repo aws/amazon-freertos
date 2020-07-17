@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Crypto V1.0.8
+ * FreeRTOS Crypto V1.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,6 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-#include "FreeRTOSIPConfig.h"
 #include "iot_crypto.h"
 
 /* mbedTLS includes. */
@@ -50,7 +49,7 @@
 
 
 
-#define CRYPTO_PRINT( X )    vLoggingPrintf X
+#define CRYPTO_PRINT( X )    configPRINTF( X )
 
 /**
  * @brief Internal signature verification context structure
@@ -67,22 +66,25 @@ typedef struct SignatureVerificationState
 /*------ Helper functions for FreeRTOS heap management ------*/
 /*-----------------------------------------------------------*/
 
+/* If mbedTLS is using AFR managed memory, it needs access to an implementation of calloc. */
+#ifdef CONFIG_MEDTLS_USE_AFR_MEMORY
+
 /**
  * @brief Implements libc calloc semantics using the FreeRTOS heap
  */
-static void * prvCalloc( size_t xNmemb,
-                         size_t xSize )
-{
-    void * pvNew = pvPortMalloc( xNmemb * xSize );
-
-    if( NULL != pvNew )
+    void * pvCalloc( size_t xNumElements,
+                     size_t xSize )
     {
-        memset( pvNew, 0, xNmemb * xSize );
+        void * pvNew = pvPortMalloc( xNumElements * xSize );
+
+        if( NULL != pvNew )
+        {
+            memset( pvNew, 0, xNumElements * xSize );
+        }
+
+        return pvNew;
     }
-
-    return pvNew;
-}
-
+#endif /* ifdef CONFIG_MEDTLS_USE_AFR_MEMORY */
 
 /*-----------------------------------------------------------*/
 /*--------- mbedTLS threading functions for FreeRTOS --------*/
@@ -244,21 +246,8 @@ static BaseType_t prvVerifySignature( char * pcSignerCertificate,
 
 void CRYPTO_Init( void )
 {
-    CRYPTO_ConfigureHeap();
     CRYPTO_ConfigureThreading();
 }
-
-/**
- * @brief Overrides CRT heap callouts to use FreeRTOS instead
- */
-void CRYPTO_ConfigureHeap( void )
-{
-    /*
-     * Ensure that the FreeRTOS heap is used.
-     */
-    mbedtls_platform_set_calloc_free( prvCalloc, vPortFree ); /*lint !e534 This function always return 0. */
-}
-
 
 void CRYPTO_ConfigureThreading( void )
 {

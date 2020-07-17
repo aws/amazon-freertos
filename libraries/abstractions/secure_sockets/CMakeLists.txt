@@ -1,3 +1,9 @@
+
+if(AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(utest)
+    return()
+endif()
+
 afr_module()
 
 afr_set_lib_metadata(ID "secure_sockets")

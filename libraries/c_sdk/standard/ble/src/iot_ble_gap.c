@@ -1,5 +1,5 @@
 /*
- * FreeRTOS BLE V2.0.1
+ * FreeRTOS BLE V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,39 +125,14 @@ static IotBleAdvertisementParams_t _advParams =
 };
 
 
-const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
-const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
-const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
-const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
+static const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
+static const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
+static const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
+static const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
 
-const BTProperty_t _deviceProperties[] =
-{
-    {
-        .xType = eBTpropertyBdname,
-        .xLen = sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1,
-        .pvVal = ( void * ) IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
-    },
-    {
-        .xType = eBTpropertyBondable,
-        .xLen = 1,
-        .pvVal = ( void * ) &bIsBondable
-    },
-    {
-        .xType = eBTpropertySecureConnectionOnly,
-        .xLen = 1,
-        .pvVal = ( void * ) &bSecureConnection
-    },
-    {
-        .xType = eBTpropertyIO,
-        .xLen = 1,
-        .pvVal = ( void * ) &xIO
-    },
-    {
-        .xType = eBTpropertyLocalMTUSize,
-        .xLen = 1,
-        .pvVal = ( void * ) &usMtu
-    }
-};
+static char bleDeviceName[ IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH + 1 ] = { 0 };
+
+static bool isBLEOn = false;
 
 /* 2 is the Maximum number of UUID that can be advertised in the same advertisement message */
 #define _BLE_MAX_UUID_PER_ADV_MESSAGE    2
@@ -186,6 +161,10 @@ static void _advStatusCb( BTStatus_t status,
                           uint8_t adapterIf,
                           bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
+
+static BTStatus_t _setDeviceProperty( BTPropertyType_t type,
+                                      const void * pValue,
+                                      size_t length );
 
 static const BTCallbacks_t _BTManagerCb =
 {
@@ -311,6 +290,7 @@ void _registerBleAdapterCb( BTStatus_t status,
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
+
 /*-----------------------------------------------------------*/
 
 void _advStatusCb( BTStatus_t status,
@@ -341,9 +321,19 @@ void _advStatusCb( BTStatus_t status,
 void _bleStartAdvCb( BTStatus_t status )
 {
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+    _BTInterface.cbStatus = status;
 }
 
 /*-----------------------------------------------------------*/
+
+
+void _bleStopAdvCb( BTStatus_t status )
+{
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+    _BTInterface.cbStatus = status;
+}
+
+/*------------------------------------------------------------*/
 
 void _setAdvDataCb( BTStatus_t status )
 {
@@ -353,7 +343,7 @@ void _setAdvDataCb( BTStatus_t status )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t _startAllServices()
+BTStatus_t _startGATTServices()
 {
     BTStatus_t ret = eBTStatusSuccess;
     bool status = true;
@@ -380,7 +370,34 @@ BTStatus_t _startAllServices()
 
     return ret;
 }
+
 /*-----------------------------------------------------------*/
+
+BTStatus_t _stopGATTServices()
+{
+    BTStatus_t ret = eBTStatusSuccess;
+    bool status = true;
+
+    #if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
+        status = IotBleDeviceInfo_Cleanup();
+    #endif
+
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        if( status == true )
+        {
+            status = IotBleDataTransfer_Cleanup();
+        }
+    #endif
+
+    if( status == false )
+    {
+        ret = eBTStatusFail;
+    }
+
+    return ret;
+}
+
+/*---------------------------------------------------------------*/
 
 BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
 {
@@ -396,6 +413,9 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
     pParams.ulAppearance = pAdvParams->appearance;
     pParams.ulMaxInterval = pAdvParams->maxInterval;
     pParams.ulMinInterval = pAdvParams->minInterval;
+
+    pParams.usMinAdvInterval = IOT_BLE_ADVERTISING_INTERVAL;
+    pParams.usMaxAdvInterval = ( IOT_BLE_ADVERTISING_INTERVAL * 2 );
     pParams.usAdvertisingEventProperties = BTAdvInd;
 
     pParams.xAddrType = BTAddrTypePublic;
@@ -424,6 +444,44 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
                                                                NULL,
                                                                pServiceUuide,
                                                                countService );
+
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.cbStatus;
+    }
+
+    return status;
+}
+
+static BTStatus_t _setDeviceProperty( BTPropertyType_t type,
+                                      const void * pValue,
+                                      size_t length )
+{
+    BTStatus_t status;
+    BTProperty_t property =
+    {
+        .xType = type,
+        .xLen  = length,
+        .pvVal = ( void * ) pValue
+    };
+
+    status = _BTInterface.pBTInterface->pxSetDeviceProperty( &property );
+
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.cbStatus;
+
+        if( status != eBTStatusSuccess )
+        {
+            IotLogError( "Callback error in stting property type %d , error returned %d.", type, status );
+        }
+    }
+    else
+    {
+        IotLogError( "Failed to set property type %d, error returned %d.", type, status );
+    }
 
     return status;
 }
@@ -470,141 +528,21 @@ BTStatus_t IotBle_On( void )
 {
     BTStatus_t status = eBTStatusSuccess;
 
-    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
-
-    status = _BTInterface.pBTInterface->pxEnable( 0 );
+    status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
 
     if( status == eBTStatusSuccess )
     {
-        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.pBTInterface->pxEnable( 0 );
+
+        if( status == eBTStatusSuccess )
+        {
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        }
     }
-    else
-    {
-        IotLogError( "Could not enable the stack." );
-    }
-
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-BTStatus_t IotBle_Off( void )
-{
-    BTStatus_t status = eBTStatusSuccess;
-    IotLink_t * pConnectionListHead, * pConnectionListElem;
-    IotBleConnectionInfoListElement_t * pConnInfo;
-    BTBdaddr_t bdAddr;
-    uint16_t connId;
-
-    status = IotBle_GetConnectionInfoList( &pConnectionListHead );
 
     if( status == eBTStatusSuccess )
     {
-        do
-        {
-            pConnInfo = NULL;
-            IotMutex_Lock( &_BTInterface.threadSafetyMutex );
-            /* Get the event associated to the callback */
-            IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
-            {
-                pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
-                memcpy( &bdAddr, &pConnInfo->remoteBdAddr, sizeof( BTBdaddr_t ) );
-                connId = pConnInfo->connId;
-                break;
-            }
-
-            IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
-
-            if( pConnInfo != NULL )
-            {
-                status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
-                                                                           &bdAddr,
-                                                                           connId );
-
-                if( status != eBTStatusSuccess )
-                {
-                    IotLogError( "Failed disconnect with Bluetooth status = %u", status );
-                    break;
-                }
-            }
-        } while( pConnInfo != NULL );
-    }
-
-    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
-
-    /* _BTInterface.p_BTInterface->pxDisable(); */
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-BTStatus_t IotBle_Init( void )
-{
-    BTStatus_t status = eBTStatusSuccess;
-    uint16_t index;
-    bool createdThreadSafetyMutex = false;
-    bool createdWaitCbMutex = false;
-    bool createdCallbackSemaphore = false;
-
-    uint32_t nbProperties = sizeof( _deviceProperties ) / sizeof( _deviceProperties[ 0 ] );
-
-    _BTInterface.pBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-
-    if( _BTInterface.pBTInterface != NULL )
-    {
-        if( IotMutex_Create( &_BTInterface.threadSafetyMutex, false ) == true )
-        {
-            createdThreadSafetyMutex = true;
-
-            if( IotMutex_Create( &_BTInterface.waitCbMutex, false ) == true )
-            {
-                createdWaitCbMutex = true;
-            }
-            else
-            {
-                status = eBTStatusNoMem;
-                IotLogError( "Cannot create mutex." );
-            }
-        }
-        else
-        {
-            status = eBTStatusNoMem;
-            IotLogError( "Cannot create mutex." );
-        }
-
-        if( status == eBTStatusSuccess )
-        {
-            if( IotSemaphore_Create( &_BTInterface.callbackSemaphore, 0, 1 ) == true )
-            {
-                createdCallbackSemaphore = true;
-            }
-            else
-            {
-                status = eBTStatusNoMem;
-                IotLogError( "Cannot create semaphore." );
-            }
-        }
-
-        status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
-        _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
-    }
-    else
-    {
-        status = eBTStatusParamInvalid;
-    }
-
-    if( ( _BTInterface.pBTLeAdapterInterface != NULL ) && ( status == eBTStatusSuccess ) )
-    {
-        status = IotBle_On();
-
-        if( status == eBTStatusSuccess )
-        {
-            status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
-        }
-    }
-    else
-    {
-        status = eBTStatusFail;
+        status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
     }
 
     /* Register application. */
@@ -619,78 +557,55 @@ BTStatus_t IotBle_Init( void )
         }
     }
 
-    /* Set GAP properties. */
     if( status == eBTStatusSuccess )
     {
-        for( index = 0; index < nbProperties; index++ )
-        {
-            status = _BTInterface.pBTInterface->pxSetDeviceProperty( &_deviceProperties[ index ] );
+        status = _setDeviceProperty( eBTpropertyBdname, &bleDeviceName, strlen( bleDeviceName ) );
+    }
 
-            if( status == eBTStatusSuccess )
-            {
-                IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-                status = _BTInterface.cbStatus;
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertySecureConnectionOnly, &bSecureConnection, sizeof( bool ) );
+    }
 
-                if( status != eBTStatusSuccess )
-                {
-                    IotLogError( "Callback error in property %d, error returned %d.", index, status );
-                }
-            }
-            else
-            {
-                IotLogError( "Unable to set device property %d, error returned %d.", index, status );
-                break;
-            }
-        }
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyBondable, &bIsBondable, sizeof( bool ) );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyIO, &xIO, sizeof( BTIOtypes_t ) );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _setDeviceProperty( eBTpropertyLocalMTUSize, &usMtu, sizeof( uint32_t ) );
     }
 
     /* Initialize the GATT server. */
     if( status == eBTStatusSuccess )
     {
-        _BTInterface.pGattServerInterface = ( BTGattServerInterface_t * ) _BTInterface.pBTLeAdapterInterface->ppvGetGattServerInterface();
-
-        if( _BTInterface.pGattServerInterface != NULL )
+        if( _BTInterface.pGattServerInterface->pxGattServerInit( &_BTGattServerCb ) == eBTStatusSuccess )
         {
-            if( _BTInterface.pGattServerInterface->pxGattServerInit( &_BTGattServerCb ) == eBTStatusSuccess )
-            {
-                status = _BTInterface.pGattServerInterface->pxRegisterServer( ( BTUuid_t * ) &_serverUUID );
+            status = _BTInterface.pGattServerInterface->pxRegisterServer( ( BTUuid_t * ) &_serverUUID );
 
-                if( status == eBTStatusSuccess )
-                {
-                    IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-                    status = _BTInterface.cbStatus;
-                }
-            }
-            else
+            if( status == eBTStatusSuccess )
             {
-                status = eBTStatusFail;
-                IotLogError( "Cannot initialize GATT interface." );
+                IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+                status = _BTInterface.cbStatus;
             }
         }
         else
         {
             status = eBTStatusFail;
-            IotLogError( "Cannot get GATT server interface." );
+            IotLogError( "Cannot initialize GATT interface." );
         }
     }
 
-    /* Initialize lists. */
+    /* Start GATT services. */
     if( status == eBTStatusSuccess )
     {
-        IotListDouble_Create( &_BTInterface.serviceListHead );
-        IotListDouble_Create( &_BTInterface.connectionListHead );
-
-        /* Initialize the event list. */
-        for( index = 0; index < eNbEvents; index++ )
-        {
-            IotListDouble_Create( &_BTInterface.subscrEventListHead[ index ] );
-        }
-    }
-
-    /* Start services. */
-    if( status == eBTStatusSuccess )
-    {
-        status = _startAllServices();
+        status = _startGATTServices();
     }
 
     /* Initialize advertisement and scan response. */
@@ -701,25 +616,212 @@ BTStatus_t IotBle_Init( void )
         #endif
 
         status = _setAdvData( &_advParams );
-        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
 
         if( status == eBTStatusSuccess )
         {
             status = _setAdvData( &_scanRespParams );
-            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         }
     }
 
     /* Start advertisement. */
     if( status == eBTStatusSuccess )
     {
-        IotBle_StartAdv( &_bleStartAdvCb );
-        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = IotBle_StartAdv( &_bleStartAdvCb );
+
+        if( status == eBTStatusSuccess )
+        {
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.cbStatus;
+        }
     }
 
-    /* Clean up memory. */
+    if( status == eBTStatusSuccess )
+    {
+        isBLEOn = true;
+    }
+
+    return status;
+}
+
+static void _disconnectCallback( BTStatus_t status,
+                                 uint16_t connectionID,
+                                 bool isConnected,
+                                 BTBdaddr_t * pRemoteAddress )
+{
+    if( !isConnected )
+    {
+        _BTInterface.cbStatus = status;
+        IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+BTStatus_t _disconnectAllConnections( void )
+{
+    IotBleConnectionInfoListElement_t * pConnInfo;
+    IotLink_t * pConnection;
+    BTBdaddr_t bdAddr;
+    uint16_t connId;
+    BTStatus_t status = eBTStatusSuccess;
+    IotBleEventsCallbacks_t eventCallback;
+    bool registered = false;
+
+    /* Register callback to wait for disconnect completion event from the stack. */
+    eventCallback.pConnectionCb = _disconnectCallback;
+    status = IotBle_RegisterEventCb( eBLEConnection, eventCallback );
+
+    if( status == eBTStatusSuccess )
+    {
+        registered = true;
+    }
+
+    /* Iterate the list of open connections and send a disconnect for each connections. Wait for the disconnect
+     * complete callback from the stack. The callback will ensure the connection is also removed from the list.
+     * If there is an error in disconnect, break the loop and return the error status.
+     */
+    while( ( status == eBTStatusSuccess ) && ( !IotListDouble_IsEmpty( &_BTInterface.connectionListHead ) ) )
+    {
+        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
+        pConnection = IotListDouble_PeekHead( &_BTInterface.connectionListHead );
+        pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnection, connectionList );
+        memcpy( &bdAddr, &pConnInfo->remoteBdAddr, sizeof( BTBdaddr_t ) );
+        connId = pConnInfo->connId;
+        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
+
+        status = _BTInterface.pBTLeAdapterInterface->pxDisconnect( _BTInterface.adapterIf,
+                                                                   &bdAddr,
+                                                                   connId );
+
+        if( status == eBTStatusSuccess )
+        {
+            /* Block for disconnect complete callback triggered from the stack. */
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.cbStatus;
+        }
+        else
+        {
+            IotLogError( "Failed to disconnect BLE connection, status = %d", status );
+        }
+    }
+
+    if( registered )
+    {
+        IotBle_UnRegisterEventCb( eBLEConnection, eventCallback );
+    }
+
+    return status;
+}
+
+BTStatus_t IotBle_Off( void )
+{
+    BTStatus_t status = eBTStatusSuccess;
+
+    /* Stop the advertisement to avoid new connections to the device. */
+    status = IotBle_StopAdv( &_bleStopAdvCb );
+
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        status = _BTInterface.cbStatus;
+    }
+
+    /* Disconnect open BLE connections. */
+    if( status == eBTStatusSuccess )
+    {
+        status = _disconnectAllConnections();
+    }
+
+    /* Stop all GATT services */
+    if( status == eBTStatusSuccess )
+    {
+        status = _stopGATTServices();
+    }
+
+    /* Disable BLE stack. */
+    if( status == eBTStatusSuccess )
+    {
+        status = _BTInterface.pGattServerInterface->pxUnregisterServer( _BTInterface.serverIf );
+
+        if( status == eBTStatusSuccess )
+        {
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.cbStatus;
+        }
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _BTInterface.pBTLeAdapterInterface->pxUnregisterBleApp( _BTInterface.adapterIf );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        status = _BTInterface.pBTInterface->pxDisable();
+
+        if( status == eBTStatusSuccess )
+        {
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+        }
+    }
+
+    /* Cleanup BLE stack. */
+    if( status == eBTStatusSuccess )
+    {
+        status = _BTInterface.pBTInterface->pxBtManagerCleanup();
+    }
+
+    isBLEOn = false;
+
+    return status;
+}
+
+BTStatus_t _createSyncrhonizationObjects( void )
+{
+    bool createdThreadSafetyMutex = false;
+    bool createdWaitCbMutex = false;
+    bool createdCallbackSemaphore = false;
+    BTStatus_t status = eBTStatusSuccess;
+
+    if( IotMutex_Create( &_BTInterface.threadSafetyMutex, false ) == true )
+    {
+        createdThreadSafetyMutex = true;
+    }
+    else
+    {
+        status = eBTStatusNoMem;
+        IotLogError( "Cannot create thread safety mutex." );
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        if( IotMutex_Create( &_BTInterface.waitCbMutex, false ) == true )
+        {
+            createdWaitCbMutex = true;
+        }
+        else
+        {
+            status = eBTStatusNoMem;
+            IotLogError( "Cannot create waitCbMutex mutex." );
+        }
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        if( IotSemaphore_Create( &_BTInterface.callbackSemaphore, 0, 1 ) == true )
+        {
+            createdCallbackSemaphore = true;
+        }
+        else
+        {
+            status = eBTStatusNoMem;
+            IotLogError( "Cannot create semaphore." );
+        }
+    }
+
     if( status != eBTStatusSuccess )
     {
+        /* Clean up memory. */
         if( createdThreadSafetyMutex == true )
         {
             IotMutex_Destroy( &_BTInterface.threadSafetyMutex );
@@ -738,6 +840,122 @@ BTStatus_t IotBle_Init( void )
 
     return status;
 }
+
+void _initializeLists( void )
+{
+    size_t index;
+
+    /* Initialize lists. */
+    IotListDouble_Create( &_BTInterface.serviceListHead );
+    IotListDouble_Create( &_BTInterface.connectionListHead );
+
+    /* Initialize the event list. */
+    for( index = 0; index < eNbEvents; index++ )
+    {
+        IotListDouble_Create( &_BTInterface.subscrEventListHead[ index ] );
+    }
+}
+
+
+
+/*-----------------------------------------------------------*/
+
+BTStatus_t IotBle_Init( void )
+{
+    BTStatus_t status = eBTStatusSuccess;
+    char * pDeviceName = IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME;
+
+
+    _initializeLists();
+
+    status = _createSyncrhonizationObjects();
+
+    if( status == eBTStatusSuccess )
+    {
+        _BTInterface.pBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+
+        if( _BTInterface.pBTInterface == NULL )
+        {
+            status = eBTStatusFail;
+        }
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
+
+        if( _BTInterface.pBTLeAdapterInterface == NULL )
+        {
+            status = eBTStatusFail;
+        }
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        _BTInterface.pGattServerInterface = ( BTGattServerInterface_t * ) _BTInterface.pBTLeAdapterInterface->ppvGetGattServerInterface();
+
+        if( _BTInterface.pGattServerInterface == NULL )
+        {
+            status = eBTStatusFail;
+        }
+    }
+
+    /*
+     * If a BLE device name is provided in the config, use it to set the local BLE device name.
+     */
+
+    if( ( pDeviceName != NULL ) && ( strcmp( pDeviceName, "" ) != 0 ) )
+    {
+        status = IotBle_SetDeviceName( pDeviceName, strlen( pDeviceName ) );
+    }
+
+    return status;
+}
+
+BTStatus_t IotBle_SetDeviceName( const char * pName,
+                                 size_t length )
+{
+    BTStatus_t status;
+
+    if( length <= IOT_BLE_DEVICE_LOCAL_NAME_MAX_LENGTH )
+    {
+        /* Copy the device name to a buffer, so that device name does not change between
+         * stack disable-enable cycles.
+         */
+        strncpy( bleDeviceName, pName, length );
+        bleDeviceName[ length ] = '\0';
+        status = eBTStatusSuccess;
+    }
+    else
+    {
+        status = eBTStatusNoMem;
+    }
+
+    if( status == eBTStatusSuccess )
+    {
+        if( isBLEOn )
+        {
+            /* If BLE is running, set the device property and advertisement data to propagate the
+             * name change immediately in the advertisement.
+             */
+
+            status = _setDeviceProperty( eBTpropertyBdname, bleDeviceName, strlen( bleDeviceName ) );
+
+            if( status == eBTStatusSuccess )
+            {
+                status = _setAdvData( &_advParams );
+            }
+
+            if( status == eBTStatusSuccess )
+            {
+                status = _setAdvData( &_scanRespParams );
+            }
+        }
+    }
+
+    return status;
+}
+
 
 /*-----------------------------------------------------------*/
 

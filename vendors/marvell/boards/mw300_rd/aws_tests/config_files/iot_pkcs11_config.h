@@ -41,6 +41,9 @@
  * protections. However, since typical microcontroller applications lack one or
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
+ *
+ * Note: Do not cast this to a pointer! The library calls sizeof to get the length
+ * of this string.
  */
 #define configPKCS11_DEFAULT_USER_PIN    "0000"
 
@@ -55,6 +58,12 @@
  * by the PKCS #11 module.
  */
 #define pkcs11configMAX_NUM_OBJECTS      6
+
+/**
+ * @brief Maximum number of sessions that can be stored
+ * by the PKCS #11 module.
+ */
+#define pkcs11configMAX_SESSIONS                           10
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.

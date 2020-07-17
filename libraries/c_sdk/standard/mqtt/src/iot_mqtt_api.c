@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -383,15 +383,15 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
      * Adjust the user-provided keep-alive interval based on these requirements. */
     if( awsIotMqttMode == true )
     {
-        if( keepAliveSeconds < AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE )
+        if( keepAliveSeconds == 0 )
+        {
+            keepAliveSeconds = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
+        }
+        else if( keepAliveSeconds < AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE )
         {
             keepAliveSeconds = AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE;
         }
         else if( keepAliveSeconds > AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE )
-        {
-            keepAliveSeconds = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
-        }
-        else if( keepAliveSeconds == 0 )
         {
             keepAliveSeconds = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE;
         }

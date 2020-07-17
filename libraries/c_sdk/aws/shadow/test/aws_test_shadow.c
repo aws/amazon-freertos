@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Shadow V2.1.1
+ * FreeRTOS Shadow V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -84,23 +84,37 @@ BaseType_t prvTestDeleteCallback( const char * const pcThingName,
                                   MQTTBufferHandle_t xBuffer );
 
 
+TEST_GROUP( Full_Shadow_Unit );
 TEST_GROUP( Full_Shadow );
 
+TEST_SETUP( Full_Shadow_Unit )
+{
+    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+}
 TEST_SETUP( Full_Shadow )
 {
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
+TEST_TEAR_DOWN( Full_Shadow_Unit )
+{
+    IotMqtt_Cleanup();
+    IotSdk_Cleanup();
+}
 TEST_TEAR_DOWN( Full_Shadow )
 {
     IotMqtt_Cleanup();
     IotSdk_Cleanup();
 }
 
+TEST_GROUP_RUNNER( Full_Shadow_Unit )
+{
+    RUN_TEST_CASE( Full_Shadow_Unit, ClientCreateDelete );
+}
 TEST_GROUP_RUNNER( Full_Shadow )
 {
-    RUN_TEST_CASE( Full_Shadow, ClientCreateDelete );
     RUN_TEST_CASE( Full_Shadow, ClientConnectDisconnect );
     RUN_TEST_CASE( Full_Shadow, CreateShadowDocument );
     RUN_TEST_CASE( Full_Shadow, DeleteShadowDocument );
@@ -196,7 +210,7 @@ void TEST_SHADOW_Connect_Helper( MQTTAgentConnectParams_t * xConnectParams,
 }
 
 /* Test for shadow client create and delete api */
-TEST( Full_Shadow, ClientCreateDelete )
+TEST( Full_Shadow_Unit, ClientCreateDelete )
 {
     /*Init required params and shadow library for test.*/
     ShadowClientHandle_t xShadowClientHandle;

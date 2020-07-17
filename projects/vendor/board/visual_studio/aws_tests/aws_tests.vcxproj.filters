@@ -659,6 +659,9 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\error.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls_utils\mbedtls_error.c">
+      <Filter>lib\third_party\mbedtls\library</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\gcm.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
     </ClCompile>
@@ -839,7 +842,7 @@
     <ClCompile Include="..\..\..\common\crypto\iot_test_crypto.c">
       <Filter>application_code\common_tests\crypto</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c">
+    <ClCompile Include="..\..\..\common\greengrass\aws_test_ggd_system.c">
       <Filter>application_code\common_tests\greengrass</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c">

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Shadow V2.1.1
+ * FreeRTOS Shadow V2.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -227,14 +227,14 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocumen
                                     &pMessage,
                                     &messageLength ) == true )
     {
-        IotLogWarn( "Code %lu: %.*s.",
+        IotLogWarn( "Code %u: %.*s.",
                     code,
                     messageLength,
                     pMessage );
     }
     else
     {
-        IotLogWarn( "Code %lu; failed to parse message from error document.\n%.*s",
+        IotLogWarn( "Code %u; failed to parse message from error document.\n%.*s",
                     code,
                     errorDocumentLength,
                     pErrorDocument );
