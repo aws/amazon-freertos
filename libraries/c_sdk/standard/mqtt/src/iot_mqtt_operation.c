@@ -44,6 +44,9 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
+/* MQTT v4_beta2 includes*/
+#include "mqtt_lightweight.h"
+
 /*-----------------------------------------------------------*/
 
 /**
