@@ -68,7 +68,9 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
-#define NETWORK_BUFFER_SIZE    ( 1024U )
+#ifndef NETWORK_BUFFER_SIZE
+    #define NETWORK_BUFFER_SIZE    ( 1024U )
+#endif
 
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 /*-----------------------------------------------------------*/
