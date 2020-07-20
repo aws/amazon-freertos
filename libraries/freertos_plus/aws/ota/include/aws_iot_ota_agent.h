@@ -405,7 +405,7 @@ typedef struct OTA_FileContext
     {
         int32_t lFileHandle;    /*!< Device internal file pointer or handle.
                                  * File type is handle after file is open for write. */
-        #if WIN32
+        #ifdef WIN32
             FILE * pxFile;      /*!< File type is stdio FILE structure after file is open for write. */
         #endif
         uint8_t * pucFile;      /*!< File type is RAM/Flash image pointer after file is open for write. */
