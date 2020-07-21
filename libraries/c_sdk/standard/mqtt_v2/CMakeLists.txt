@@ -1,3 +1,8 @@
+if(AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(utest)
+    return()
+endif()
+
 afr_module(NAME "mqtt_v2" INTERFACE)
 
 afr_set_lib_metadata(ID "mqtt_v2")
@@ -8,23 +13,20 @@ afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
-set(test_dir "${CMAKE_CURRENT_LIST_DIR}/utest")
+set(CSDK_ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
+set(MODULES_DIR "${CSDK_ROOT_DIR}/libraries")
+include(mqttFilePaths.cmake)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    INTERFACE
-         "${src_dir}/mqtt.c"
-         "${src_dir}/mqtt_lightweight.c"
-         "${src_dir}/mqtt_state.c"
-         "${src_dir}"
+    PUBLIC
+        ${MQTT_SOURCES}
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${inc_dir}"
+    PUBLIC
+        ${MQTT_INCLUDE_PUBLIC_DIRS}
+    PRIVATE
+        ${MQTT_INCLUDE_PRIVATE_DIRS}
 )
-
-
