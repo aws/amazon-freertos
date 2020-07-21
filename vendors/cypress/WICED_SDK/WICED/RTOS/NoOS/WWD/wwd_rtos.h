@@ -60,7 +60,7 @@ extern "C"
 /*
  * The number of system ticks per second
  */
-#define SYSTICK_FREQUENCY  (1000)
+#define SYSTICK_FREQUENCY  (1000U)
 
 /******************************************************
  *             Structures

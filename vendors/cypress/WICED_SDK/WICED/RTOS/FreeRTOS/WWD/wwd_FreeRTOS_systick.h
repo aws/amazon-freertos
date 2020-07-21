@@ -45,7 +45,7 @@ extern "C"
 {
 #endif
 
-#define SYSTICK_FREQUENCY  (1000)
+#define SYSTICK_FREQUENCY  (1000U)
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -68,7 +68,7 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configUSE_PREEMPTION                       1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    1
 #define configMAX_PRIORITIES                       ( 7 )
-#define configTICK_RATE_HZ                         ( 1000 )
+#define configTICK_RATE_HZ                         ( 1000U )
 #define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 130 )
 #define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 192U * 1024U ) )
 #define configMAX_TASK_NAME_LEN                    ( 10 )

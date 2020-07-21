@@ -58,7 +58,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    0
 
 #define configMAX_PRIORITIES                       ( 20 )
-#define configTICK_RATE_HZ                         ( ( TickType_t ) 1000 )
+#define configTICK_RATE_HZ                         ( ( TickType_t ) 1000U )
 #define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 256 )
 #if MTK_WIFI_OS_MM_OPTION == 2
 #define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 135U * 1024U ) )
