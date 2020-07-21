@@ -1,3 +1,7 @@
+set(CSDK_ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
+set(MODULES_DIR "${CSDK_ROOT_DIR}/libraries")
+include(mqttFilePaths.cmake)
+
 if(AFR_ENABLE_UNIT_TESTS)
     add_subdirectory(utest)
     return()
@@ -12,10 +16,6 @@ afr_set_lib_metadata(DISPLAY_NAME "MQTTv2")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
-
-set(CSDK_ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
-set(MODULES_DIR "${CSDK_ROOT_DIR}/libraries")
-include(mqttFilePaths.cmake)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
