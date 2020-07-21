@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.3.0
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1689,7 +1689,7 @@ BaseType_t xResize;
 	{
 		/* Network buffers are created with a fixed size and can hold the largest
 		MTU. */
-		lNeeded = ipTOTAL_ETHERNET_FRAME_SIZE;
+		lNeeded = ( uint32_t ) ipTOTAL_ETHERNET_FRAME_SIZE;
 		/* and therefore, the buffer won't be too small.
 		Only ask for a new network buffer in case none was supplied. */
 		if( pxNetworkBuffer == NULL )
