@@ -781,8 +781,6 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 				the received data can be copied, but a pointer that must be set to
 				point to the buffer in which the received data has already been
 				placed. */
-				/* 9079: (Note -- conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]) */
-				/* 9087: (Note -- cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]) */
 				*( ( void** ) pvBuffer ) = ipPOINTER_CAST( void *, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ) );
 			}
 
