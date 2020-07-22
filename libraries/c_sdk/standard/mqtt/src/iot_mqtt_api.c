@@ -1289,7 +1289,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         MQTTTransportInterface_t transport;
         MQTTFixedBuffer_t networkBuffer;
         MQTTApplicationCallbacks_t callbacks;
-        /*MQTTContext_t* context= (MQTTContext_t *)IotMqtt_MallocConnection(sizeof(MQTTContext_t)); */
         static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the

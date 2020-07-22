@@ -45,11 +45,6 @@
 
 /*-----------------------------------------------------------*/
 
-/*extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ]; */
-
-/*-----------------------------------------------------------*/
-
-
 int8_t _IotMqtt_setContext( IotMqttConnection_t mqttConnection )
 {
     /*IotMqttError_t status = IOT_MQTT_NO_MEMORY; */
