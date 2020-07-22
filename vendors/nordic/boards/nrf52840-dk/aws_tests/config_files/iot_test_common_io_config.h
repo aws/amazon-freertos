@@ -26,11 +26,15 @@
 #ifndef _TEST_IOT_CONFIG_H_
 #define _TEST_IOT_CONFIG_H_
 
+/* GPIO includes */
+#include "iot_gpio_config.h"
 
 /* SPI includes */
 #include "iot_spi.h"
 #include "nrf_drv_spi.h"
 
+/*------------------------GPIO-------------------------------*/
+#define IOT_TEST_COMMON_IO_GPIO_SUPPORTED    0
 
 /*------------------------UART-------------------------------*/
 
@@ -43,7 +47,7 @@
 /*#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1 */
 
 /*------------------------SPI-------------------------------*/
-#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    1
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    0
 
 /* #define IOT_TEST_COMMON_IO_SPI_LOOPBACK        1 */
 #ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK

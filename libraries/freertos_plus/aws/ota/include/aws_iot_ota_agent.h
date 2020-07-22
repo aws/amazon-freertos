@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -405,7 +405,7 @@ typedef struct OTA_FileContext
     {
         int32_t lFileHandle;    /*!< Device internal file pointer or handle.
                                  * File type is handle after file is open for write. */
-        #if WIN32
+        #ifdef WIN32
             FILE * pxFile;      /*!< File type is stdio FILE structure after file is open for write. */
         #endif
         uint8_t * pucFile;      /*!< File type is RAM/Flash image pointer after file is open for write. */
