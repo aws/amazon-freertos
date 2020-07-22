@@ -768,30 +768,6 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 
 /*-----------------------------------------------------------*/
 
-IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
-{
-    int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
-
-    /* Getting MQTT Context for the specifies MQTT Connection. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
-
-    if( contextIndex >= 0 )
-    {
-        /* Initializing MQTT Status. */
-        MQTTStatus_t managedMqttStatus = MQTTSuccess;
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
-        managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
-        status = convertReturnCode( managedMqttStatus );
-    }
-
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-
 /* Convert the MQTT Status to IOT MQTT Status Code. */
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 {
