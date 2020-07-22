@@ -1645,6 +1645,96 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/include/aws_iot_ota_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/aws_iot_ota_pal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_ota_agent_test_access_declare.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_ota_agent_test_access_declare.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_ota_agent_test_access_define.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_ota_agent_test_access_define.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_ota_codesigner_certificate.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_ota_codesigner_certificate.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_ota_pal_test_access_declare.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_ota_pal_test_access_declare.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_ota_pal_test_access_define.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_ota_pal_test_access_define.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_ecdsa_sha256_signature.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_ecdsa_sha256_signature.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_rsa_sha1_signature.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_rsa_sha1_signature.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_rsa_sha256_signature.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal_rsa_sha256_signature.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_signature_methods.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/test/aws_test_ota_signature_methods.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
@@ -1995,6 +2085,31 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</locationURI>
+		</link>
+		<link>
 			<name>vendors/renesas/rx_mcu_boards/amazon_freertos_common/compiler_support/ccrx/exit.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/amazon_freertos_common/compiler_support/ccrx/exit.c</locationURI>
@@ -2038,6 +2153,11 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/renesas/rx_mcu_boards/boards/rx65n-rsk/ports/ota/aws_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/renesas/rx_mcu_boards/boards/rx65n-rsk/ports/ota/aws_ota_pal.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/renesas/rx_mcu_boards/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</name>
