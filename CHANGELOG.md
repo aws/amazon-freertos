@@ -1,4 +1,79 @@
-# Change Log for FreeRTOS
+# Change Log
+This repository contains the `FreeRTOS AWS Reference Integrations`, which are pre-integrated FreeRTOS projects that demonstrate connectivity with AWS IoT.  The repository contains projects for many different microcontroller evaluation boards.
+
+## 202007.00 July 2020
+
+### New Features
+
+#### Over the Air Update V1.2.0
+
+- Updated the over-the-air (OTA) agent with the ability to pause and resume an in-progress update.
+- Updated the OTA demo to demonstrate how to suspend an in-progress OTA update should the MQTT connection disconnect, then resume the same update when the MQTT connection reconnects. In line with best practice, the reconnect logic uses an exponential backoff and jitter algorithm to prevent the MQTT server getting overwhelmed with connection requests if a fleet of devices get disconnected and then attempt to reconnect at the same time.
+- For testing purposes only, it is now possible to use the OTA agent to downgrade a version number or revert to an older version.  This new functionality is disabled by default.
+
+#### New Board: Cypress PSoC 64 Standard Secure AWS Wi-Fi Bluetooth Pioneer Kit 
+- New Board: The <b>Cypress PSoC 64</b> board is now qualified with FreeRTOS.
+
+#### New Board: ESP32-WROOM-32SE
+
+- New Board: <b>ESP32-WROOM-32SE</b> is now available in the FreeRTOS Console.
+
+### Updates
+
+#### FreeRTOS+POSIX Utils V1.2.0
+
+- Update the UTILS_TimespecAdd utility function to support both signed and unsigned definitions of `struct timespec.tv_sec`. (Some implementations use unsigned definition of `struct timespec.tv_sec` to address the *2038* problem on 32-bit systems. ) This change is backwards compatible.
+
+#### MQTT Client Library V2.2.0
+
+- Improved the Keep-Alive mechanism: The MQTT library will not send PING requests when connection is not idle, which fixes a disconnect issue during OTA. In prior versions, MQTT would sometimes disconnect during OTA due to timeouts for server PING response.
+- Bug fix for Keep-Alive interval: The MQTT library was incorrectly sending PING requests at intervals greater than the keep alive period sent in the CONNECT request. This change fixes the problem.
+
+#### Secure Sockets LwIP V1.2.0
+
+- Fix invalid memory access - ss_ctx_t context is shared and sent to a user callback. If the socket is closed and subsequently freed during callback execution, the callback can potentially access the invalid context.
+- Fix two separate issues for potential invalid memory access; at one place by validating socket handle before de-referencing, and at another place by freeing memory only if it had been previously allocated.
+
+#### PKCS#11 V2.1.0
+
+- Added doxygen to various PKCS #11 files.
+- Added improved logging for mbed TLS  return codes in iot_pkcs11_mbedtls.c. 
+
+#### Bluetooth Low Energy (BLE) Hardware Abstraction Library (HAL) V5.0.0
+
+- Change status parameter type for GATT Client callbacks to match Bluetooth 5.0.
+- Add pxMultiAdvSetInstRawData API to set raw advertisement data for multi-advertisement instances.
+- Mark pxBondedCb callback and ucTimeout variables as deprecated.
+
+#### Bluetooth Low Energy Management Library V2.1.0
+
+- Added new API IotBle_SetDeviceName() to set the BLE device name at runtime.
+- Fixed IotBle_On() and IotBle_Off() APIs.
+- Accommodate larger-than-expected writes to RXLargeMesg Gatt characteristic.
+
+#### FreeRTOS+TCP V2.3.0
+
+- Added ability to cache multiple IP addresses per DNS entry.
+- Defensive security improvements: 
+    - In compliance with the UDP protocol specification, prior versions of FreeRTOS+TCP accepted UDP packets that had their checksum set to 0. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigUDP_PASS_ZERO_CHECKSUM_PACKETS`, that enables users to opt to drop UDP packets that have their checksum set to 0. **Note:** This new setting defaults to 0, so it defaults to dropping UDP packets that have their checksum set to 0.
+    - Prior versions of FreeRTOS+TCP accept IP packets that contain IP options, although those options are not processed. FreeRTOS+TCP V2.3.0 adds a new configuration parameter, `ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS`, that enables users to opt to drop IP packets that contain IP options.
+    - Setting configuration parameter, `ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM`, to 1 offloads IP checksum and length checking to the hardware. From FreeRTOS+TCP V2.3.0, the length is checked in software even when it has already been checked in hardware.
+
+#### Mbed TLS v2.16.7
+
+- Upgraded the version of Mbed TLS to v2.16.7.
+- Replaced copy of Mbed TLS with a submodule reference to the official [Mbed TLS GitHub repository](https://github.com/ARMmbed/mbedtls/tree/mbedtls-2.16.7).
+
+#### Over the Air Update V1.2.0
+
+- Fixed an issue encountered when an OTA job is force cancelled while the related download is in progress. It was caused due to the self-start timer starting after the OTA job document is received. The fix starts the self-start timer when the OTA agent on the device starts.  
+
+#### Espressif
+
+- Support OTA via HTTP over the BLE channel for ESP32 (when SPIRAM is enabled).
+- Added ESP-IDF component for WiFi provisioning in SoftAP mode. This allows provisioning devices with Wi-Fi credentials via a web-server running on the device and a provisioning mobile application.  This mode requires the use of lwIP as the networking stack. 
+- Replaced ESP-IDF code to be a submodule pointer to the official ESP-IDF repository.
+- Updated LwIP as the default networking stack. 
 
 ## 202002.00 2/18/2020
 

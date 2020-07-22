@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.2.1
+ * FreeRTOS+TCP V2.3.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,6 +67,7 @@ extern "C" {
  * LLMNR is very similar to DNS, so is handled by the DNS routines.
  */
 uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer );
+
 
 #if( ipconfigUSE_LLMNR == 1 )
 	/* The LLMNR MAC address is 01:00:5e:00:00:fc */
