@@ -739,7 +739,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 	if( pxNetworkBuffer != NULL )
 	#endif
 	{
-		/* Map the buffer onto a TCPPacket_t struct for easy access to the fields. */
+		/* Map the ethernet buffer onto a TCPPacket_t struct for easy access to the fields. */
 		pxTCPPacket = ipPOINTER_CAST( TCPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 		pxIPHeader = &pxTCPPacket->xIPHeader;
 		pxEthernetHeader = &pxTCPPacket->xEthernetHeader;
@@ -1142,6 +1142,8 @@ uint32_t ulInitialSequenceNumber = 0;
 static void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
 size_t uxTCPHeaderOffset = ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer );
+
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ uxTCPHeaderOffset ] ) );
 const TCPHeader_t * pxTCPHeader;
@@ -1787,6 +1789,7 @@ int32_t lStreamPos;
 		pucEthernetBuffer = pxSocket->u.xTCP.xPacket.u.ucLastPacket;
 	}
 
+	/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 	pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *, &( pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + uxIPHeaderSizeSocket( pxSocket ) ] ) );
 	pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 	lDataLen = 0;
@@ -2062,6 +2065,7 @@ int32_t lCount, lLength;
  */
 static BaseType_t prvTCPHandleFin( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) ] ) );
 TCPHeader_t *pxTCPHeader = &( pxProtocolHeaders->xTCPHeader );
@@ -2158,6 +2162,7 @@ uint32_t ulAckNr = FreeRTOS_ntohl( pxTCPHeader->ulAckNr );
  */
 static BaseType_t prvCheckRxData( const NetworkBufferDescriptor_t *pxNetworkBuffer, uint8_t **ppucRecvData )
 {
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ ( size_t ) ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) ] ) );
 const TCPHeader_t *pxTCPHeader = &( pxProtocolHeaders->xTCPHeader );
@@ -2232,6 +2237,7 @@ uint16_t usLength;
 static BaseType_t prvStoreRxData( FreeRTOS_Socket_t *pxSocket, const uint8_t *pucRecvData,
 	NetworkBufferDescriptor_t *pxNetworkBuffer, uint32_t ulReceiveLength )
 {
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( const ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) ] ) );
 const TCPHeader_t *pxTCPHeader = &pxProtocolHeaders->xTCPHeader;
@@ -2309,6 +2315,7 @@ BaseType_t xResult = 0;
 /* Set the TCP options (if any) for the outgoing packet. */
 static UBaseType_t prvSetOptions( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) ] ) );
 TCPHeader_t *pxTCPHeader = &pxProtocolHeaders->xTCPHeader;
@@ -2371,6 +2378,7 @@ UBaseType_t uxOptionsLength = pxTCPWindow->ucOptionLength;
 static BaseType_t prvHandleSynReceived( FreeRTOS_Socket_t *pxSocket, const NetworkBufferDescriptor_t *pxNetworkBuffer,
 	uint32_t ulReceiveLength, UBaseType_t uxOptionsLength )
 {
+/* Map the ethernet buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + uxIPHeaderSizeSocket( pxSocket ) ] ) );
 TCPHeader_t *pxTCPHeader = &pxProtocolHeaders->xTCPHeader;
@@ -2386,7 +2394,9 @@ BaseType_t xSendLength = 0;
 		usExpect |= tcpTCP_FLAG_SYN;
 	}
 
-	if( ( ucTCPFlags & 0x17U ) != usExpect )
+	const uint8_t ucFlagsMask = tcpTCP_FLAG_ACK | tcpTCP_FLAG_RST | tcpTCP_FLAG_SYN | tcpTCP_FLAG_FIN;
+
+	if( ( ucTCPFlags & ucFlagsMask ) != usExpect )
 	{
 		/* eSYN_RECEIVED: flags 0010 expected, not 0002. */
 		/* eSYN_RECEIVED: flags ACK  expected, not SYN. */
@@ -2410,6 +2420,7 @@ BaseType_t xSendLength = 0;
 
 		if( pxSocket->u.xTCP.ucTCPState == ( uint8_t ) eCONNECT_SYN )
 		{
+		/* Map the Last packet onto the ProtocolHeader_t struct for easy access to the fields. */
 		ProtocolHeaders_t *pxLastHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 			&( pxSocket->u.xTCP.xPacket.u.ucLastPacket[ ipSIZE_OF_ETH_HEADER + uxIPHeaderSizeSocket( pxSocket ) ] ) );
 
@@ -2487,6 +2498,7 @@ BaseType_t xSendLength = 0;
 static BaseType_t prvHandleEstablished( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer,
 	uint32_t ulReceiveLength, UBaseType_t uxOptionsLength )
 {
+/* Map the buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( ( *ppxNetworkBuffer )->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + uxIPHeaderSizeSocket( pxSocket ) ] ) );
 TCPHeader_t *pxTCPHeader = &pxProtocolHeaders->xTCPHeader;
@@ -2650,6 +2662,7 @@ uint16_t usWindow;
 static BaseType_t prvSendData( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer,
 	uint32_t ulReceiveLength, BaseType_t xByteCount )
 {
+/* Map the buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 const ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( ( *ppxNetworkBuffer )->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + xIPHeaderSize( *ppxNetworkBuffer ) ] ) );
 const TCPHeader_t *pxTCPHeader = &pxProtocolHeaders->xTCPHeader;
@@ -2794,6 +2807,7 @@ BaseType_t xSendLength = xByteCount;
  */
 static BaseType_t prvTCPHandleState( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer )
 {
+/* Map the buffer onto the ProtocolHeader_t struct for easy access to the fields. */
 ProtocolHeaders_t *pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *,
 	&( ( *ppxNetworkBuffer )->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + xIPHeaderSize( *ppxNetworkBuffer ) ] ) );
 TCPHeader_t *pxTCPHeader = &( pxProtocolHeaders->xTCPHeader );
@@ -2978,6 +2992,7 @@ static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNe
 	( void ) ucTCPFlags;
 #else
 	{
+		/* Map the ethernet buffer onto the TCPPacket_t struct for easy access to the fields. */
 		TCPPacket_t *pxTCPPacket = ipPOINTER_CAST( TCPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 		const UBaseType_t xSendLength = ( UBaseType_t )
 			( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ); /* Plus 0 options. */
@@ -3064,6 +3079,7 @@ const IPHeader_t *pxIPHeader;
 	}
 	else
 	{
+		/* Map the ethernet buffer onto the IPHeader_t struct for easy access to the fields. */
 		pxIPHeader = ipPOINTER_CAST( const IPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER ] ) );
 		ulLocalIP = FreeRTOS_htonl( pxIPHeader->ulDestinationIPAddress );
 		ulRemoteIP = FreeRTOS_htonl( pxIPHeader->ulSourceIPAddress );
@@ -3271,7 +3287,7 @@ const IPHeader_t *pxIPHeader;
 
 static FreeRTOS_Socket_t *prvHandleListen( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
-/* Cast the byte stream onto a TCPPacket_t struct for easy access to the fields. */
+/* Map the ethernet buffer onto a TCPPacket_t struct for easy access to the fields. */
 const TCPPacket_t * pxTCPPacket = ipPOINTER_CAST( const TCPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 FreeRTOS_Socket_t *pxReturn = NULL;
 uint32_t ulInitialSequenceNumber;
