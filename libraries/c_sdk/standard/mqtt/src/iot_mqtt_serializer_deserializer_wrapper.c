@@ -753,9 +753,9 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
     *pPacketSize = MQTT_PACKET_PUBACK_SIZE;
 
     /* Serializing puback packet and validating the serialize parameters to be sent on the network. */
-    status = MQTT_SerializeAck( &( networkBuffer ),
-                                packetTypeByte,
-                                packetIdentifier );
+    managedMqttStatus = MQTT_SerializeAck( &( networkBuffer ),
+                                           packetTypeByte,
+                                           packetIdentifier );
     status = convertReturnCode( managedMqttStatus );
 
     if( status == IOT_MQTT_SUCCESS )
@@ -774,22 +774,15 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
     IotMqttError_t status = IOT_MQTT_SUCCESS;
 
     /* Getting MQTT Context for the specifies MQTT Connection. */
-    contextIndex = _IotMqtt_getContextFromConnection( mqttConnection );
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
     if( contextIndex >= 0 )
     {
         /* Initializing MQTT Status. */
         MQTTStatus_t managedMqttStatus = MQTTSuccess;
-
-        if( IotSemaphore_Create( &( connToContext[ contextIndex ].contextSemaphore ), 0, 1 ) == true )
-        {
-            /* Sending Disconnect Packet using MQTT v4_beta2 library. */
-            managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
-
-            /* Destroying the Context Semaphore*/
-            IotSemaphore_Destroy( &( connToContext[ contextIndex ].contextSemaphore ) );
-        }
-
+        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
         status = convertReturnCode( managedMqttStatus );
     }
 

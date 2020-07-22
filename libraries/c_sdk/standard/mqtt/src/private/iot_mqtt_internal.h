@@ -251,7 +251,9 @@
 #define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
 /* Maximum Number of MQTT CONNECTION. */
-#define MAX_NO_OF_MQTT_CONNECTIONS                             ( 2 )
+#ifndef MAX_NO_OF_MQTT_CONNECTIONS
+    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
+#endif
 
 /*---------------------- MQTT internal data structures ----------------------*/
 
@@ -290,13 +292,15 @@ typedef struct _mqttConnection
 } _mqttConnection_t;
 
 /**
- * @brief Represents a mapping of MQTT Connection to the corresponding context.
+ * @brief Represents a mapping of MQTT Connection to the corresponding MQTT context
+ * which used to call MQTT v4 beta_2 API that contains all the information on network
+ * buffer and send transport interface used for sending packets on the network.
  */
 typedef struct connContextMapping
 {
     IotMqttConnection_t mqttConnection;
     MQTTContext_t context;
-    IotSemaphore_t contextSemaphore;
+    IotMutex_t contextMutex;
 } _connContext_t;
 
 /**
@@ -938,7 +942,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
  * @param[in] pOperation The operation which needs to be processed after sending it on the network.
  *
  */
-void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation );
+void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation );
 
 /*----------------- MQTT Context and MQTT Connection Mapping Functions for Shim------------------*/
 
@@ -949,7 +953,7 @@ void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation );
  *
  * @return Index of the context from the mapping Data Structure used to store mapping of context and connection.
  */
-int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection );
+int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection );
 
 /**
  * @brief Set the MQTT Context for the given MQTT Connection.
@@ -959,8 +963,7 @@ int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection );
  *
  * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
-IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
-                                    MQTTContext_t context );
+int8_t _IotMqtt_setContext( IotMqttConnection_t mqttConnection );
 
 /**
  * @brief Remove the MQTT Context from the given MQTT Connection.

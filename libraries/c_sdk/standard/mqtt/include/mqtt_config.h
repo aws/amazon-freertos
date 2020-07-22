@@ -23,7 +23,12 @@
 /************ End of logging configuration ****************/
 
 /* Set network context to double pointer to buffer (uint8_t**). */
-typedef uint8_t ** NetworkContext_t;
+/*typedef uint8_t ** NetworkContext_t; */
+typedef struct NetworkContext
+{
+    uint8_t ** networkConnection;
+    uint8_t ** networkInterface;
+} NetworkContext_t;
 
 /**
  * @brief The maximum number of MQTT PUBLISH messages that may be pending

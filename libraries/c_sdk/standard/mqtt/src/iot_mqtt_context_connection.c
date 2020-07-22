@@ -1,5 +1,5 @@
 /*
- * FreeRTOS MQTT V2.1.1
+ * FreeRTOS MQTT SHIM V1.0.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,20 +41,23 @@
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
-/*-----------------------------------------------------------*/
-
-extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+#include "platform/iot_threads.h"
 
 /*-----------------------------------------------------------*/
 
+/*extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ]; */
 
-IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
-                                    MQTTContext_t context )
+/*-----------------------------------------------------------*/
+
+
+int8_t _IotMqtt_setContext( IotMqttConnection_t mqttConnection )
 {
-    IotMqttError_t status = IOT_MQTT_NO_MEMORY;
+    /*IotMqttError_t status = IOT_MQTT_NO_MEMORY; */
+    int8_t contextIndex = -1;
+    size_t i = 0;
 
     /* Assigning the newly created MQTT Connection to a MQTT Context. */
-    for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
         if( connToContext[ i ].mqttConnection != NULL )
         {
@@ -62,25 +65,23 @@ IotMqttError_t _IotMqtt_setContext( IotMqttConnection_t pNewMqttConnection,
         }
         else
         {
-            connToContext[ i ].mqttConnection = pNewMqttConnection;
-            connToContext[ i ].context = context;
-            status = IOT_MQTT_SUCCESS;
-
+            contextIndex = i;
             break;
         }
     }
 
-    return status;
+    return contextIndex;
 }
 
 /*-----------------------------------------------------------*/
 
-int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection )
+int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection )
 {
     int8_t contextIndex = -1;
+    size_t i = 0;
 
     /* Getting the index of context from the mapping Data Structure for the given MQTT Connection. */
-    for( int8_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
         if( connToContext[ i ].mqttConnection == mqttConnection )
         {
@@ -96,12 +97,15 @@ int8_t _IotMqtt_getContextFromConnection( IotMqttConnection_t mqttConnection )
 
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
 {
+    size_t i = 0;
+
     /* Finding the index corresponding to given the MQTT Connection. */
-    for( size_t i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_CONNECTIONS; i++ )
     {
         if( connToContext[ i ].mqttConnection == mqttConnection )
         {
             connToContext[ i ].mqttConnection = NULL;
+            IotMutex_Destroy( &( connToContext[ i ].contextMutex ) );
             break;
         }
     }

@@ -469,7 +469,8 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
-    /* Attempt to cancel the operation's job. */
+    /* Attempt to cancel the CONNECT operation's job as only the CONNECT API is using taskpool
+     *  to send the connect packet. */
     if( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( cancelJob == true ) )
     {
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
@@ -498,7 +499,8 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Decrement job reference count. */
+    /* Decrement job reference count only when either the connect operation has been completed in taskpool
+     *  or the job reference needs to be decreased after the waitable operation is completed i.e cancelJob parameter is false*/
     if( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) && ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) || ( cancelJob == false ) ) )
     {
         IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
@@ -1087,7 +1089,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_ManagedMqttSend( _mqttOperation_t * pOperation )
+void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
