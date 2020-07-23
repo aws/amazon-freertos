@@ -637,7 +637,7 @@ TEST_SETUP( MQTT_System )
     _connectSerializerOverride = false;
 
     /* Setting following variables to true as we do not need serializer as a part of shim implementation
-     *  using MQTT v4 beta_2 library. So to pass the assert in the test these changes are required.*/
+     * using MQTT v4 beta_2 library. So to pass the assert in the test these changes are required. */
     _publishSerializerOverride = true;
     _pubackSerializerOverride = true;
     _subscribeSerializerOverride = true;
