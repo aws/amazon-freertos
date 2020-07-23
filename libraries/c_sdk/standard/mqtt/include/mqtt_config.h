@@ -22,13 +22,6 @@
 
 /************ End of logging configuration ****************/
 
-/* Set network context used for sending the packets on the network. */
-typedef struct NetworkContext
-{
-    void * networkConnection;
-    void * networkInterface;
-} NetworkContext_t;
-
 /**
  * @brief The maximum number of MQTT PUBLISH messages that may be pending
  * acknowledgement at any time.

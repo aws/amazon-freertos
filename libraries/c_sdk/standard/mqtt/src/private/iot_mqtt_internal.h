@@ -256,9 +256,17 @@
  * connections needed.
  */
 #ifndef MAX_NO_OF_MQTT_CONNECTIONS
-    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 11 )
+    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
 #endif
 
+/**
+ * @brief Static buffer size provided to MQTT v4 beta_2 API.
+ * This buffer will be used to send the packets on the network.
+ *
+ */
+#ifndef NETWORK_BUFFER_SIZE
+    #define NETWORK_BUFFER_SIZE    ( 1024U )
+#endif
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
@@ -295,6 +303,13 @@ typedef struct _mqttConnection
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
+/* Set network context used for sending the packets on the network. */
+struct NetworkContext
+{
+    void * networkConnection;
+    IotNetworkInterface_t * networkInterface;
+};
+
 /**
  * @brief Represents a mapping of MQTT Connection in MQTT v4 beta_1 library to the corresponding MQTT context
  * used in MQTT v4 beta_2 library. MQTT Context is used to call the MQTT v4 beta_2 API from the shim to serialize
@@ -310,6 +325,10 @@ typedef struct connContextMapping
 
     /* Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     IotMutex_t contextMutex;
+
+    /* */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ];
+    NetworkContext_t networkContext;
 } _connContext_t;
 
 /**

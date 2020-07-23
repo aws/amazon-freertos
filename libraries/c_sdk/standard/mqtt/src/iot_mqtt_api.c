@@ -68,10 +68,6 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
-#ifndef NETWORK_BUFFER_SIZE
-    #define NETWORK_BUFFER_SIZE    ( 1024U )
-#endif
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -867,7 +863,7 @@ static uint32_t getTimeMs( void )
 
 /*-----------------------------------------------------------*/
 
-static int32_t transportSend( NetworkContext_t networkContext,
+static int32_t transportSend( NetworkContext_t * networkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
@@ -876,19 +872,15 @@ static int32_t transportSend( NetworkContext_t networkContext,
     IotMqtt_Assert( pMessage != NULL );
     IotMqtt_Assert( bytesToSend >= 0 );
 
-    IotNetworkInterface_t * networkInterface = ( IotNetworkInterface_t * ) networkContext.networkInterface;
+    IotNetworkInterface_t * networkInterface = networkContext->networkInterface;
 
     /* Sending the bytes on the network using Network Interface of MQTT v4 beta_1 library. */
-    bytesSend = networkInterface->send( networkContext.networkConnection, ( uint8_t * ) pMessage, bytesToSend );
+    bytesSend = networkInterface->send( networkContext->networkConnection, ( uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend < 0 )
     {
         /* Set return value to -1 to indicate that send was timed out. */
-        return -1;
-    }
-    else
-    {
-        return bytesSend;
+        bytesSend = -1;
     }
 
     return bytesSend;
@@ -957,11 +949,10 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     void * pNetworkConnection = NULL;
     _mqttOperation_t * pOperation = NULL;
     _mqttConnection_t * pNewMqttConnection = NULL;
-    MQTTTransportInterface_t transport;
+    TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
     MQTTApplicationCallbacks_t callbacks;
     int8_t contextIndex = -1;
-    static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1295,18 +1286,8 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* Set the output parameter. */
         *pMqttConnection = pNewMqttConnection;
 
-        /* Fill in TransportInterface send function pointer. We will not be implementing the
-         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
-         * receive task. Only using MQTT v4 beta_2 APIs for transmit path.*/
-        transport.networkContext.networkConnection = pNetworkConnection;
-        transport.networkContext.networkInterface = pNetworkInfo->pNetworkInterface;
-        transport.send = transportSend;
-
         /* Fill in Time Interface function pointer. */
         callbacks.getTime = getTimeMs;
-        /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = buffer;
-        networkBuffer.size = NETWORK_BUFFER_SIZE;
 
         /* Getting the free index from the mapping array to store the context for
          * the newly established MQTT connection. */
@@ -1321,7 +1302,24 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
          *  on the network using MQTT v4 beta_2 API. */
         if( IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true ) == true )
         {
+            /* Assigning the MQTT Connection. */
             connToContext[ contextIndex ].mqttConnection = pNewMqttConnection;
+
+            /* Assigning the Network Context to be used by this MQTT Context. */
+            connToContext[ contextIndex ].networkContext.networkConnection = pNetworkConnection;
+            connToContext[ contextIndex ].networkContext.networkInterface = pNetworkInfo->pNetworkInterface;
+
+            /* Fill in TransportInterface send function pointer. We will not be implementing the
+             * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+             * receive task. Only using MQTT v4 beta_2 APIs for transmit path.*/
+            transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+            transport.send = transportSend;
+
+            /* Fill the values for network buffer. */
+            networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+            networkBuffer.size = NETWORK_BUFFER_SIZE;
+
+            /* Initializing the MQTT context used in calling MQTT v4 beta_2 API. */
             MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
         }
         else
