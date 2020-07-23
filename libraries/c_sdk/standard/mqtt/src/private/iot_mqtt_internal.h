@@ -303,7 +303,9 @@ typedef struct _mqttConnection
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
-/* Set network context used for sending the packets on the network. */
+/* Defining the structure for network context used for sending the packets on the network.
+ *  The declaration of the structure is mentioned in the transport_interface.h file.
+ */
 struct NetworkContext
 {
     void * networkConnection;
@@ -326,8 +328,14 @@ typedef struct connContextMapping
     /* Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     IotMutex_t contextMutex;
 
-    /* */
+    /* Network Buffer used to send packets on the network.
+     *  This will be used by MQTT context defined above.
+     */
     uint8_t buffer[ NETWORK_BUFFER_SIZE ];
+
+    /* Network Context used to send packets on the network.
+     *  This will be used by MQTT context defined above.
+     */
     NetworkContext_t networkContext;
 } _connContext_t;
 
@@ -992,8 +1000,8 @@ int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnectio
 
 /**
  * @brief Get the free index from the mapping Data Structure used to store mapping of MQTT Connection
- *  used in the MQTT v4 beta_1 library and MQTT Context used to call MQTT v4 beta_2 API to send packets
- *  on the network.
+ * used in the MQTT v4 beta_1 library and MQTT Context used to call MQTT v4 beta_2 API to send packets
+ * on the network.
  *
  * @return Free Index from the mapping Data Structure used to store mapping of context and connection.
  */

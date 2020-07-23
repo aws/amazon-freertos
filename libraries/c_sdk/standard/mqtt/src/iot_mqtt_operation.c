@@ -470,7 +470,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
     /* Attempt to cancel the CONNECT operation's job as only the CONNECT API is using taskpool
-     *  to send the connect packet. */
+     * to send the connect packet. */
     if( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( cancelJob == true ) )
     {
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,

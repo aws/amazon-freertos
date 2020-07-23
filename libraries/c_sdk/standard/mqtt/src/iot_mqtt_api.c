@@ -44,10 +44,6 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
-/* FreeRTOS network include. */
-#include "platform/iot_network_freertos.h"
-
-
 /* Atomic operations. */
 #include "iot_atomic.h"
 
@@ -151,12 +147,14 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
                                            IotMqttOperation_t * pOperationReference );
 
 /**
- * @brief The timer query function provided to the MQTT context.
+ * @brief The time interface provided to the MQTT context used in calling v4 beta_2 APIs.
  *
- * This function returns the elapsed time.
+ * Void Implementation for time interface as we need to pass it in setting the MQTT Context used
+ * in calling the MQTT API using the MQTT v4_beta_2 library.
  *
  * @return Time in milliseconds.
  */
+
 static uint32_t getTimeMs( void );
 
 /*-----------------------------------------------------------*/
@@ -854,8 +852,6 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
 /*-----------------------------------------------------------*/
 
-/* Void Implementation for time interface as we need to pass it in setting the MQTT Context used
- *  in calling the MQTT API using the MQTT v4_beta_2 library. */
 static uint32_t getTimeMs( void )
 {
     return 0U;
@@ -869,13 +865,12 @@ static int32_t transportSend( NetworkContext_t * networkContext,
 {
     int32_t bytesSend = 0;
 
+    IotMqtt_Assert( networkContext != NULL );
     IotMqtt_Assert( pMessage != NULL );
     IotMqtt_Assert( bytesToSend >= 0 );
 
-    IotNetworkInterface_t * networkInterface = networkContext->networkInterface;
-
     /* Sending the bytes on the network using Network Interface of MQTT v4 beta_1 library. */
-    bytesSend = networkInterface->send( networkContext->networkConnection, ( uint8_t * ) pMessage, bytesToSend );
+    bytesSend = networkContext->networkInterface->send( networkContext->networkConnection, ( uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend < 0 )
     {
@@ -1289,8 +1284,8 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* Fill in Time Interface function pointer. */
         callbacks.getTime = getTimeMs;
 
-        /* Getting the free index from the mapping array to store the context for
-         * the newly established MQTT connection. */
+        /* Getting the free index from the MQTT connection to MQTT context mapping array
+         * to store the MQTT context for the newly established MQTT connection. */
         contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
         if( contextIndex < 0 )
@@ -1298,7 +1293,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
 
-        /* Creating Mutex for the synchronization of network buffer used for send the packets
+        /* Creating Mutex for the synchronization of network buffer used for sending the packets
          *  on the network using MQTT v4 beta_2 API. */
         if( IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true ) == true )
         {
@@ -1325,7 +1320,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         else
         {
             IotLogError( "(MQTT connection %p) Failed to create mutex for "
-                         "context.",
+                         "the MQTT context.",
                          pNewMqttConnection );
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
