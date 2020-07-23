@@ -59,14 +59,19 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
     IotMqtt_Assert( mqttConnection != NULL );
 
-    /* Getting MQTT Context for the specifies MQTT Connection. */
+    /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
     if( contextIndex >= 0 )
     {
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Calling MQTT v4 beta_2 API for sending the DISCONNECT packet on the network. */
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
+
         IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
     }
 

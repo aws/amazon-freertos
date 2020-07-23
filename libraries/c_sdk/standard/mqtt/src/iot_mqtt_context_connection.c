@@ -107,7 +107,7 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
 
     IotMqtt_Assert( mqttConnection != NULL );
 
-    /* Finding the index corresponding to given the MQTT Connection. */
+    /* Finding the index corresponding to the given MQTT Connection. */
     while( contextIndex < MAX_NO_OF_MQTT_CONNECTIONS )
     {
         contextIndex = contextIndex + 1;

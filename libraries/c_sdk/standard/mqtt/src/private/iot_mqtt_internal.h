@@ -329,12 +329,12 @@ typedef struct connContextMapping
     IotMutex_t contextMutex;
 
     /* Network Buffer used to send packets on the network.
-     *  This will be used by MQTT context defined above.
+     * This will be used by MQTT context defined above.
      */
     uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 
     /* Network Context used to send packets on the network.
-     *  This will be used by MQTT context defined above.
+     * This will be used by MQTT context defined above.
      */
     NetworkContext_t networkContext;
 } _connContext_t;
