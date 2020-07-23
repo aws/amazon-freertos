@@ -59,12 +59,20 @@ typedef struct _bleNetworkConnection
     void * pContext;
 } _bleNetworkConnection_t;
 
+typedef enum
+{
+    BLE_PEER_NO_ERROR,
+    BLE_PEER_DISCONNECTED_ERROR,
+    BLE_PEER_EMPTY_BROKER_ENDPOINT,
+    BLE_PEER_EMPTY_MQTT_CLIENT_ID
+} BleNetworkError_t;
 
 static void _callback( IotBleDataTransferChannelEvent_t event,
                        IotBleDataTransferChannel_t * pChannel,
                        void * pContext )
 {
     _bleNetworkConnection_t * pBleConnection = ( _bleNetworkConnection_t * ) pContext;
+    uint8_t ucPeerError = BLE_PEER_NO_ERROR;
 
     switch( event )
     {
@@ -74,6 +82,34 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
 
         case IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED:
             pBleConnection->pCallback( pBleConnection, pBleConnection->pContext );
+            break;
+
+        case IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED:
+
+            /* Currently only used for logging, but could short-circuit failure here.
+             * At time of writing, such error events could occur but operations would only fail LATER,
+             * after timeout that resulted from this error */
+            ucPeerError = ( BleNetworkError_t ) IotBleDataTransfer_GetPeerError( pChannel );
+
+            switch( ucPeerError )
+            {
+                case BLE_PEER_NO_ERROR:
+                    /* There was an error status, but it's been remedied to NO_ERROR by peer */
+                    break;
+
+                case BLE_PEER_EMPTY_MQTT_CLIENT_ID:
+                    IotLogError( "BLE Peer: invalid MQTT Client ID" );
+                    break;
+
+                case BLE_PEER_EMPTY_BROKER_ENDPOINT:
+                    IotLogError( "BLE Peer: invalid broker endpoint" );
+                    break;
+
+                default:
+                    IotLogError( "BLE Peer: Unknown error (%d)", ucPeerError );
+                    break;
+            }
+
             break;
 
         default:
@@ -199,3 +235,4 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
 
     return IOT_NETWORK_SUCCESS;
 }
+

@@ -44,7 +44,8 @@ typedef enum IotBleDataTransferChannelEvent
     IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED = 0,    /**< Indicates if the channel is opened and ready to read or write data. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED, /**< Event invoked when the last chunk of a large object or a small packet is received on the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT,     /**< Event invoked after the last chunk of data stream is sent over the channel. */
-    IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED         /**< Event invoked when the channel is closed. */
+    IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED,        /**< Event invoked when the channel is closed. */
+    IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED  /**< Event invoked when error status bits is overwritten */
 } IotBleDataTransferChannelEvent_t;
 
 /**
@@ -158,4 +159,13 @@ void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel );
  */
 bool IotBleDataTransfer_Cleanup( void );
 
+/**
+ * @brief Retrieve the current error code reported by Data Transfer peer.
+ *
+ * @return uint8_t a 7-bit error code set by peer
+ */
+uint8_t IotBleDataTransfer_GetPeerError( IotBleDataTransferChannel_t * pChannel );
+
+
 #endif /* IOT_BLE_DATA_TRANSFER_H */
+

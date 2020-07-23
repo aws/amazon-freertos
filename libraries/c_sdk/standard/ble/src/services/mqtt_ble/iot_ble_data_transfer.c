@@ -174,6 +174,18 @@ typedef enum IotBleDataTransferAttributes
 } IotBleDataTransferAttributes_t;
 
 /**
+ * Control characteristic is used to signify when when the phone is/isn't ready to connect.
+ * The phone also uses it to communicate any failure codes to the mcu device
+ */
+typedef enum IotBleDataTransferStatus
+{
+    IOT_BLE_DATA_TRANSFER_NOT_READY,
+    IOT_BLE_DATA_TRANSFER_READY,
+    IOT_BLE_DATA_TRANSFER_REMOTE_AUTH_FAIL,
+    IOT_BLE_DATA_TRANSFER_REMOTE_AUTH_PASS
+} IotBleDataTransferStatus_t;
+
+/**
  * @brief Structure used to represent a data channel buffer.
  */
 typedef struct IotBleDataChannelBuffer
@@ -202,6 +214,8 @@ struct IotBleDataTransferChannel
 
     bool isUsed;                                  /**< Flag to indicate if the channel is used. */
     bool isOpen;                                  /**< Flag to indicate if the channel is ready to send/receive data. */
+
+    uint8_t ucPeerError : 7;                      /**< 7-bit error status reported by peer */
 };
 
 
@@ -549,15 +563,30 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         if( pService != NULL )
         {
-            pService->isReady = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );
+            uint8_t ucControl = *( uint8_t * ) pEventParam->pParamWrite->pValue;
+            uint8_t ucNewErrorStatus = ucControl >> 1;
+            bool bNewReadyStatus = ( ucControl & 0x1 ) == 0x1;
 
-            if( pService->channel.callback != NULL )
+            if( pService->isReady != bNewReadyStatus )
             {
-                pService->channel.isOpen = pService->isReady;
-                channelEvent = ( pService->isReady == true ) ? IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED : IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED;
-                pService->channel.callback( channelEvent,
-                                            &pService->channel,
-                                            pService->channel.pContext );
+                pService->isReady = bNewReadyStatus;
+
+                if( pService->channel.callback != NULL )
+                {
+                    pService->channel.isOpen = pService->isReady;
+                    channelEvent = pService->isReady ? IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED : IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED;
+                    pService->channel.callback( channelEvent, &pService->channel, pService->channel.pContext );
+                }
+            }
+
+            if( pService->channel.ucPeerError != ucNewErrorStatus )
+            {
+                pService->channel.ucPeerError = ucNewErrorStatus;
+
+                if( pService->channel.callback != NULL )
+                {
+                    pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED, &pService->channel, pService->channel.pContext );
+                }
             }
 
             resp.pAttrData->handle = pEventParam->pParamWrite->attrHandle;
@@ -1255,3 +1284,17 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel,
 
     return( messageLength - remainingLength );
 }
+
+/*----------------------------------------------------------------------------------------------------------------------------*/
+uint8_t IotBleDataTransfer_GetPeerError( IotBleDataTransferChannel_t * pChannel )
+{
+    if( pChannel )
+    {
+        return pChannel->ucPeerError;
+    }
+    else
+    {
+        return 0u;
+    }
+}
+
