@@ -24,8 +24,9 @@
  */
 
 /**
- * @file iot_mqtt_serializer_deserializer_wrapper.c
- * @brief Implements serializer and deserializer wrapper functions for the shim.
+ * @file iot_mqtt_managed_api.c
+ * @brief Implements all the public facing API using MQTT v4 beta_2 library for
+ * sending the packets.
  */
 /* The config header is always included first. */
 #include "iot_config.h"

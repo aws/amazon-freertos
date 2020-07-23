@@ -304,7 +304,7 @@ typedef struct _mqttConnection
 } _mqttConnection_t;
 
 /* Defining the structure for network context used for sending the packets on the network.
- *  The declaration of the structure is mentioned in the transport_interface.h file.
+ * The declaration of the structure is mentioned in the transport_interface.h file.
  */
 struct NetworkContext
 {

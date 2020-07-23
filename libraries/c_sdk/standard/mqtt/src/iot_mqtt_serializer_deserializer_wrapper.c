@@ -45,9 +45,6 @@
 /* Atomic operations. */
 #include "iot_atomic.h"
 
-/* Platform layer includes. */
-#include "platform/iot_threads.h"
-
 /*-----------------------------------------------------------*/
 
 /* Size of Puback packet. */
