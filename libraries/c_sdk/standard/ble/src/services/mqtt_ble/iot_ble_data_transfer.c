@@ -174,18 +174,6 @@ typedef enum IotBleDataTransferAttributes
 } IotBleDataTransferAttributes_t;
 
 /**
- * Control characteristic is used to signify when when the phone is/isn't ready to connect.
- * The phone also uses it to communicate any failure codes to the mcu device
- */
-typedef enum IotBleDataTransferStatus
-{
-    IOT_BLE_DATA_TRANSFER_NOT_READY,
-    IOT_BLE_DATA_TRANSFER_READY,
-    IOT_BLE_DATA_TRANSFER_REMOTE_AUTH_FAIL,
-    IOT_BLE_DATA_TRANSFER_REMOTE_AUTH_PASS
-} IotBleDataTransferStatus_t;
-
-/**
  * @brief Structure used to represent a data channel buffer.
  */
 typedef struct IotBleDataChannelBuffer

@@ -98,11 +98,11 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
                     break;
 
                 case BLE_PEER_EMPTY_MQTT_CLIENT_ID:
-                    IotLogError( "BLE Peer: invalid MQTT Client ID" );
+                    IotLogError( "BLE Peer: Invalid MQTT Client ID. For demos, please check clientcredentialIOT_THING_NAME" );
                     break;
 
                 case BLE_PEER_EMPTY_BROKER_ENDPOINT:
-                    IotLogError( "BLE Peer: invalid broker endpoint" );
+                    IotLogError( "BLE Peer: Invalid broker endpoint. For demos, please check clientcredentialMQTT_BROKER_ENDPOINT" );
                     break;
 
                 default:
