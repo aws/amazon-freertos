@@ -168,4 +168,3 @@ uint8_t IotBleDataTransfer_GetPeerError( IotBleDataTransferChannel_t * pChannel 
 
 
 #endif /* IOT_BLE_DATA_TRANSFER_H */
-

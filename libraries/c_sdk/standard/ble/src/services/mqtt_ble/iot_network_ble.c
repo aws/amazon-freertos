@@ -235,4 +235,3 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
 
     return IOT_NETWORK_SUCCESS;
 }
-

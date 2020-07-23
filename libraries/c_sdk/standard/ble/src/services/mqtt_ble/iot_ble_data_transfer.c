@@ -1285,4 +1285,3 @@ uint8_t IotBleDataTransfer_GetPeerError( IotBleDataTransferChannel_t * pChannel 
         return 0u;
     }
 }
-
