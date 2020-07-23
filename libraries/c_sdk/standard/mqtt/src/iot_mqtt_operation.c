@@ -499,8 +499,14 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Decrement job reference count only when either the connect operation has been completed in taskpool
-     *  or the job reference needs to be decreased after the waitable operation is completed i.e cancelJob parameter is false*/
+    /*
+     * 1. For Connect Operation the taskpool status should be IOT_TASKPOOL_SUCCESS to decrement the job refence count,
+     *    if the connect opeartion is still executing in the taskpool then operation reference should not be decremented.
+     *    Shim Implementation is using taskpool for connect operation so this check needs to be updated.
+     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), this code should be executed
+     *    only when cancelJob is False as shim implementation is not using taskpool for sending packets on the network.
+     *    Packets are sent on the network using MQTT v4 beta_2 APIs. So cancelJob will be false for all other operations.
+     */
     if( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) && ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) || ( cancelJob == false ) ) )
     {
         IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
@@ -1092,10 +1098,15 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
-    _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
+    _mqttConnection_t * pMqttConnection = NULL;
+
+    /* The given operation should not be null. */
+    IotMqtt_Assert( pOperation != NULL );
 
     /* The given operation must have an allocated packet and be waiting for a status. */
     IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
+
+    pMqttConnection = pOperation->pMqttConnection;
 
     /* Check if this operation is waitable. */
     waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;

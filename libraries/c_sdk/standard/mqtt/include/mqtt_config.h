@@ -22,12 +22,11 @@
 
 /************ End of logging configuration ****************/
 
-/* Set network context to double pointer to buffer (uint8_t**). */
-/*typedef uint8_t ** NetworkContext_t; */
+/* Set network context to send packets on the network. */
 typedef struct NetworkContext
 {
-    uint8_t ** networkConnection;
-    uint8_t ** networkInterface;
+    void * networkConnection;
+    void * networkInterface;
 } NetworkContext_t;
 
 /**

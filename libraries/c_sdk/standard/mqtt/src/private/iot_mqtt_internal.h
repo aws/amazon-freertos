@@ -250,9 +250,13 @@
  */
 #define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
-/* Maximum Number of MQTT CONNECTION. */
+/**
+ * @brief Default config for Maximum Number of MQTT CONNECTIONS.
+ * This config can be specified by the application based on number of MQTT
+ * connections needed.
+ */
 #ifndef MAX_NO_OF_MQTT_CONNECTIONS
-    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
+    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 11 )
 #endif
 
 /*---------------------- MQTT internal data structures ----------------------*/
@@ -292,14 +296,19 @@ typedef struct _mqttConnection
 } _mqttConnection_t;
 
 /**
- * @brief Represents a mapping of MQTT Connection to the corresponding MQTT context
- * which used to call MQTT v4 beta_2 API that contains all the information on network
- * buffer and send transport interface used for sending packets on the network.
+ * @brief Represents a mapping of MQTT Connection in MQTT v4 beta_1 library to the corresponding MQTT context
+ * used in MQTT v4 beta_2 library. MQTT Context is used to call the MQTT v4 beta_2 API from the shim to serialize
+ * and send packets on the network.
  */
 typedef struct connContextMapping
 {
+    /* MQTT connection used in MQTT v4 beta_1 library. */
     IotMqttConnection_t mqttConnection;
+
+    /* MQTT Context used for calling MQTT v4 beta_2 API from the shim. */
     MQTTContext_t context;
+
+    /* Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     IotMutex_t contextMutex;
 } _connContext_t;
 
@@ -422,7 +431,10 @@ typedef struct _mqttPacket
     uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
 } _mqttPacket_t;
 
-/* Fixed Size Array to hold Mapping of MQTT Connection to Context. */
+/**
+ * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT v4 beta_1 library to MQTT Context
+ * used in calling MQTT v4 beta_2 API from shim to send packets on the network.
+ */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-------------------- MQTT struct validation functions ---------------------*/
@@ -937,8 +949,12 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 /*----------- Processing Operation after Sending the Packet Using Managed MQTT API for Shim-------*/
 
 /**
- * @brief Process the operation after sending it on the network using managed MQTT v4_beta2 API functions.
- *
+ * @brief Process the MQTT operation after sending it on the network using managed MQTT v4_beta2 API.
+ * Processing includes:
+ * 1. Setting the status of operation based on the type of packet.
+ * 2. Decrementing Operation references for waitable operation.
+ * 3. Destroying Operation if job refernce count is 0.
+ * 4. For non-waitable opeartion, transferring the operation from pending processing list to pending response list.
  * @param[in] pOperation The operation which needs to be processed after sending it on the network.
  *
  */
@@ -956,20 +972,18 @@ void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation );
 int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection );
 
 /**
- * @brief Set the MQTT Context for the given MQTT Connection.
+ * @brief Get the free index from the mapping Data Structure used to store mapping of MQTT Connection
+ *  used in the MQTT v4 beta_1 library and MQTT Context used to call MQTT v4 beta_2 API to send packets
+ *  on the network.
  *
- * @param[in] pNewMqttConnection The MQTT connection for which the context needs to be set.
- * @param[in] context The MQTT context for the MQTT Connection.
- *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
+ * @return Free Index from the mapping Data Structure used to store mapping of context and connection.
  */
-int8_t _IotMqtt_setContext( IotMqttConnection_t mqttConnection );
+int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
 
 /**
  * @brief Remove the MQTT Context from the given MQTT Connection.
  *
  * @param[in] mqttConnection The MQTT connection for which the context needs to be removed.
- *
  */
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
 

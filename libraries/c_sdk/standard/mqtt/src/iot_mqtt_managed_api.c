@@ -53,15 +53,17 @@
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 {
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    /* Initializing MQTT Status. */
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+
+    IotMqtt_Assert( mqttConnection != NULL );
 
     /* Getting MQTT Context for the specifies MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
     if( contextIndex >= 0 )
     {
-        /* Initializing MQTT Status. */
-        MQTTStatus_t managedMqttStatus = MQTTSuccess;
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
         IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
