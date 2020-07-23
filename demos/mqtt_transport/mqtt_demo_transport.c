@@ -52,12 +52,12 @@
  * This prefix is also used to generate topic names and topic filters used in this
  * demo.
  */
-#define CLIENT_IDENTIFIER_PREFIX              "iotdemo"
+#define CLIENT_IDENTIFIER_PREFIX             "iotdemo"
 
 /**
  * @brief The maximum length the demo will use for client identifier.
  */
-#define CLIENT_IDENTIFIER_MAX_LENGTH          12U
+#define CLIENT_IDENTIFIER_MAX_LENGTH         12U
 
 /**
  * @brief The topic the demo will subscribe and publish to.
@@ -67,7 +67,7 @@
 /**
  * @brief The size of the buffer in bytes passed to the transport code to hold streaming data.
  */
-#define STATIC_BUFFER_SIZE                    200U
+#define STATIC_BUFFER_SIZE                   200U
 
 /**
  * @brief The MQTT message published in this example.
@@ -97,9 +97,9 @@
  * @brief Callback for the demo, handles events when the data channel is first opened
  * and when data is received by the channel.
  */
-static void demoCallback ( IotBleDataTransferChannelEvent_t event,
-                                IotBleDataTransferChannel_t * pChannel,
-                                void * context );
+static void demoCallback( IotBleDataTransferChannelEvent_t event,
+                          IotBleDataTransferChannel_t * pChannel,
+                          void * context );
 
 /**
  * @brief Initializes the demo, including calling the init function for the transport layer
@@ -144,24 +144,24 @@ static NetworkContext_t pContext;
 
 /*-----------------------------------------------------------*/
 
-static void demoCallback ( IotBleDataTransferChannelEvent_t event,
-                                IotBleDataTransferChannel_t * pChannel,
-                                void * context )
+static void demoCallback( IotBleDataTransferChannelEvent_t event,
+                          IotBleDataTransferChannel_t * pChannel,
+                          void * context )
 {
     /* Unused parameters. */
-    (void) pChannel;
-    (void) pContext;
+    ( void ) pChannel;
+    ( void ) pContext;
 
     /* Event to see when the data channel is ready to receive data. */
-    if (event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED)
+    if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &pContext.isReady);
+        IotSemaphore_Post( &pContext.isReady );
     }
-    
+
     /* Event for when data is received over the channel. */
-    else if (event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED)
+    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
-        IotBleMqttTransportAcceptData(&pContext);
+        IotBleMqttTransportAcceptData( &pContext );
     }
 }
 
@@ -171,7 +171,7 @@ static IotNetworkError_t demoInitChannel()
     IotNetworkError_t status = MQTTSuccess;
 
     /* Must initialize the channel, pContext must contain the buffer and buf size at this point. */
-    IotBleMqttTransportInit(&pContext);
+    IotBleMqttTransportInit( &pContext );
 
     /* Open is a handshake proceture, so we need to wait until it is ready to use. */
     pContext.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
@@ -180,29 +180,28 @@ static IotNetworkError_t demoInitChannel()
     {
         if( IotSemaphore_Create( &pContext.isReady, 0, 1 ) == true )
         {
-            IotBleDataTransfer_SetCallback( pContext.pChannel, demoCallback, NULL);
+            IotBleDataTransfer_SetCallback( pContext.pChannel, demoCallback, NULL );
 
             if( IotSemaphore_TimedWait( &pContext.isReady, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
             {
-                LogInfo(( "The channel was initialized successfully"));
-                
+                LogInfo( ( "The channel was initialized successfully" ) );
+
                 status = IOT_NETWORK_SUCCESS;
             }
             else
             {
-                LogError(( "The BLE Connection timed out"));
+                LogError( ( "The BLE Connection timed out" ) );
             }
         }
         else
         {
-            LogError (( "Failed to create BLE network connection, cannot create network connection semaphore." ));
+            LogError( ( "Failed to create BLE network connection, cannot create network connection semaphore." ) );
         }
-        
     }
-    
+
     if( status != IOT_NETWORK_SUCCESS )
     {
-        LogError (( "Something went wrong in initializing the demo" ));
+        LogError( ( "Something went wrong in initializing the demo" ) );
     }
 
     return status;
@@ -221,22 +220,23 @@ static uint16_t getNextPacketIdentifier()
 
 /*-----------------------------------------------------------*/
 
-static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf) {
+static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf )
+{
     MQTTConnectInfo_t mqttConnectInfo;
     size_t remainingLength;
     size_t packetSize;
     MQTTStatus_t result;
     MQTTPacketInfo_t incomingPacket;
     int status;
-    char demoClientIdentifier[CLIENT_IDENTIFIER_MAX_LENGTH];
+    char demoClientIdentifier[ CLIENT_IDENTIFIER_MAX_LENGTH ];
     unsigned short packetId = 0;
     bool sessionPresent = false;
     uint8_t receiveAttempts = 0;
     uint8_t bufferIndex = 0;
     uint32_t leftToRead = 0;
-    
 
-    LogDebug (( "Trying to send a connect packet to the server" ));
+
+    LogDebug( ( "Trying to send a connect packet to the server" ) );
 
     /* Many fields not used in this demo so start with everything at 0. */
     memset( ( void * ) &mqttConnectInfo, 0x00, sizeof( mqttConnectInfo ) );
@@ -249,11 +249,11 @@ static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf) {
 
     /* Generate the payload for the PUBLISH. */
     status = snprintf( demoClientIdentifier,
-                           CLIENT_IDENTIFIER_MAX_LENGTH,
-                           CLIENT_IDENTIFIER_PREFIX "%lu",
-                           ( long unsigned int ) IotClock_GetTimeMs() );
+                       CLIENT_IDENTIFIER_MAX_LENGTH,
+                       CLIENT_IDENTIFIER_PREFIX "%lu",
+                       ( long unsigned int ) IotClock_GetTimeMs() );
 
-    LogInfo(("Generated client identifier is %s", demoClientIdentifier));
+    LogInfo( ( "Generated client identifier is %s", demoClientIdentifier ) );
 
     /* The client identifier is used to uniquely identify this MQTT client to
      * IoT Core. In a production device the identifier can be something
@@ -274,44 +274,47 @@ static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf) {
     assert( result == MQTTSuccess );
 
     /* Send the serialized connect packet to IoT Core */
-    status = IotBleMqttTransportSend(pContext, (void *) buf->pBuffer, packetSize);
+    status = IotBleMqttTransportSend( pContext, ( void * ) buf->pBuffer, packetSize );
     assert( status == ( int ) packetSize );
 
-    LogDebug(("Successfully sent a connect packet to the server"));
-    LogDebug(("Waiting for a connection acknowledgement from the server"));
+    LogDebug( ( "Successfully sent a connect packet to the server" ) );
+    LogDebug( ( "Waiting for a connection acknowledgement from the server" ) );
 
     /* Reset all fields of the incoming packet structure. */
     memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
 
     /* Check for received data. taskYIELD in between read attempts to allow data to be accepted first */
     receiveAttempts = 0;
+
     do
     {
-        status = MQTT_GetIncomingPacketTypeAndLength(IotBleMqttTransportReceive, pContext, &incomingPacket);
+        status = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, pContext, &incomingPacket );
         receiveAttempts++;
         taskYIELD();
-    } while (receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && status != MQTTSuccess);
-    assert(status == MQTTSuccess);
-    
+    } while( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && status != MQTTSuccess );
+
+    assert( status == MQTTSuccess );
+
     receiveAttempts = 0;
     leftToRead = incomingPacket.remainingLength;
+
     /* Now receive the remaining packet into statically allocated buffer. */
     do
     {
-        status = IotBleMqttTransportReceive(pContext, &buf->pBuffer[bufferIndex], leftToRead);
+        status = IotBleMqttTransportReceive( pContext, &buf->pBuffer[ bufferIndex ], leftToRead );
         receiveAttempts++;
 
         /* We are guaranteed to read up to the amount of requested bytes.
          * Update the amount of bytes still needed if we read less than requested.
          * Adjust the buffer index to write coniguously in memory. */
-        if(status <= leftToRead)
+        if( status <= leftToRead )
         {
             bufferIndex += status;
             leftToRead -= status;
         }
-        taskYIELD();
 
-    } while ((receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && leftToRead > 0 ));
+        taskYIELD();
+    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && leftToRead > 0 ) );
 
     incomingPacket.pRemainingData = buf->pBuffer;
 
@@ -319,7 +322,7 @@ static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf) {
      * is valid. Note that the packetId is not present in the connection ack. */
     result = MQTT_DeserializeAck( &incomingPacket, &packetId, &sessionPresent );
 
-    LogDebug(("Successfully received a connack packet"));
+    LogDebug( ( "Successfully received a connack packet" ) );
 
     if( result != MQTTSuccess )
     {
@@ -336,7 +339,7 @@ static int createMQTTConnectionWithBroker( MQTTFixedBuffer_t * buf) {
 }
 
 
-static void mqttSubscribeToTopic( MQTTFixedBuffer_t * buf)
+static void mqttSubscribeToTopic( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     MQTTSubscribeInfo_t mqttSubscription[ 1 ];
@@ -344,7 +347,7 @@ static void mqttSubscribeToTopic( MQTTFixedBuffer_t * buf)
     size_t packetSize;
     int status;
 
-    LogDebug (("Trying to send a subscribe packet to the server" ));
+    LogDebug( ( "Trying to send a subscribe packet to the server" ) );
 
     /***
      * For readability, error handling in this function is restricted to the use of
@@ -377,14 +380,14 @@ static void mqttSubscribeToTopic( MQTTFixedBuffer_t * buf)
     assert( result == MQTTSuccess );
 
     /* Send Subscribe request to the broker. */
-    status = IotBleMqttTransportSend(pContext, buf->pBuffer, packetSize);
+    status = IotBleMqttTransportSend( pContext, buf->pBuffer, packetSize );
     assert( status == ( int ) packetSize );
 
-    LogDebug (("Successfully sent subscribe packet to the server" ));
+    LogDebug( ( "Successfully sent subscribe packet to the server" ) );
 }
 /*-----------------------------------------------------------*/
 
-static void mqttUnsubscribeFromTopic( MQTTFixedBuffer_t * buf)
+static void mqttUnsubscribeFromTopic( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     MQTTSubscribeInfo_t mqttSubscription[ 1 ];
@@ -392,7 +395,7 @@ static void mqttUnsubscribeFromTopic( MQTTFixedBuffer_t * buf)
     size_t packetSize;
     int status;
 
-    LogDebug(("Trying to send an unsubscribe packet to the server"));
+    LogDebug( ( "Trying to send an unsubscribe packet to the server" ) );
 
     /* Some fields not used by this demo so start with everything at 0. */
     memset( ( void * ) &mqttSubscription, 0x00, sizeof( mqttSubscription ) );
@@ -415,62 +418,62 @@ static void mqttUnsubscribeFromTopic( MQTTFixedBuffer_t * buf)
                                         sizeof( mqttSubscription ) / sizeof( MQTTSubscribeInfo_t ),
                                         unsubscribePacketIdentifier,
                                         remainingLength,
-                                        buf);
+                                        buf );
     assert( result == MQTTSuccess );
 
     /* Send Unsubscribe request to the broker. */
-    status = IotBleMqttTransportSend(pContext, buf->pBuffer, packetSize);
+    status = IotBleMqttTransportSend( pContext, buf->pBuffer, packetSize );
     assert( status == ( int ) packetSize );
 
-    LogDebug(("Successfully sent an unsubscribe packet to the server"));
+    LogDebug( ( "Successfully sent an unsubscribe packet to the server" ) );
 }
 
-static void mqttKeepAlive(MQTTFixedBuffer_t * buf)
+static void mqttKeepAlive( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     int status;
     size_t packetSize = 0;
 
-    LogDebug(("Trying to send a ping request packet to the server"));
+    LogDebug( ( "Trying to send a ping request packet to the server" ) );
 
     /* Calculate PING request size. */
     status = MQTT_GetPingreqPacketSize( &packetSize );
 
-    assert(packetSize > 0);
+    assert( packetSize > 0 );
 
-    result = MQTT_SerializePingreq( buf);
+    result = MQTT_SerializePingreq( buf );
     assert( result == MQTTSuccess );
 
     /* Send Ping Request to the broker. */
-    status = IotBleMqttTransportSend(pContext, buf->pBuffer, packetSize);
+    status = IotBleMqttTransportSend( pContext, buf->pBuffer, packetSize );
     assert( status == ( int ) packetSize );
 
-    LogDebug(("Successfully sent a ping request packet to the server"));
+    LogDebug( ( "Successfully sent a ping request packet to the server" ) );
 }
 
-static void mqttDisconnect( MQTTFixedBuffer_t * buf)
+static void mqttDisconnect( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     int32_t status;
     size_t packetSize = 0;
 
-    LogDebug(("Trying to send a disconnect packet to the server"));
+    LogDebug( ( "Trying to send a disconnect packet to the server" ) );
 
     status = MQTT_GetDisconnectPacketSize( &packetSize );
 
-    assert(packetSize > 0);
+    assert( packetSize > 0 );
 
     result = MQTT_SerializeDisconnect( buf );
     assert( result == MQTTSuccess );
 
     /* Send disconnect packet to the broker */
-    status = IotBleMqttTransportSend(pContext, buf->pBuffer, packetSize);
+    status = IotBleMqttTransportSend( pContext, buf->pBuffer, packetSize );
     assert( status == ( int ) packetSize );
 
-    LogDebug(("Successfully sent a disconnect packet to the server"));
+    LogDebug( ( "Successfully sent a disconnect packet to the server" ) );
 }
 
-static void mqttPublishToTopic(MQTTFixedBuffer_t * buf)
+static void mqttPublishToTopic( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     MQTTPublishInfo_t mqttPublishInfo;
@@ -483,7 +486,7 @@ static void mqttPublishToTopic(MQTTFixedBuffer_t * buf)
      * asserts().
      ***/
 
-    LogDebug(("Trying to send a publish packet to the server"));
+    LogDebug( ( "Trying to send a publish packet to the server" ) );
 
     /* Some fields not used by this demo so start with everything as 0. */
     memset( ( void * ) &mqttPublishInfo, 0x00, sizeof( mqttPublishInfo ) );
@@ -507,14 +510,14 @@ static void mqttPublishToTopic(MQTTFixedBuffer_t * buf)
      * be sent directly in order to avoid copying it into the buffer.
      * QOS0 does not make use of packet identifier, therefore value of 0 is used */
     result = MQTT_SerializePublish( &mqttPublishInfo,
-                                          packetId,
-                                          remainingLength,
-                                          buf );
+                                    packetId,
+                                    remainingLength,
+                                    buf );
     assert( result == MQTTSuccess );
 
-    IotBleMqttTransportSend(pContext, buf->pBuffer, packetSize);
+    IotBleMqttTransportSend( pContext, buf->pBuffer, packetSize );
 
-    LogDebug(("Successfully sent a publish packet to the server"));
+    LogDebug( ( "Successfully sent a publish packet to the server" ) );
 }
 
 
@@ -564,7 +567,7 @@ static void mqttProcessIncomingPublish( MQTTPublishInfo_t * pPubInfo,
                    pPubInfo->pTopicName ) );
         LogInfo( ( "Incoming Publish Message : %.*s\n",
                    pPubInfo->payloadLength,
-                   (char *) pPubInfo->pPayload ) );
+                   ( char * ) pPubInfo->pPayload ) );
     }
     else
     {
@@ -574,7 +577,7 @@ static void mqttProcessIncomingPublish( MQTTPublishInfo_t * pPubInfo,
     }
 }
 
-static void mqttProcessIncomingPacket(MQTTFixedBuffer_t * buf)
+static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
 {
     MQTTStatus_t result;
     MQTTPacketInfo_t incomingPacket;
@@ -586,7 +589,7 @@ static void mqttProcessIncomingPacket(MQTTFixedBuffer_t * buf)
     uint8_t bufferIndex = 0;
     uint32_t leftToRead = 0;
 
-    LogDebug (("Trying to receive an incoming packet"));
+    LogDebug( ( "Trying to receive an incoming packet" ) );
 
     /***
      * For readability, error handling in this function is restricted to the use of
@@ -598,41 +601,44 @@ static void mqttProcessIncomingPacket(MQTTFixedBuffer_t * buf)
 
     /* Check for received data. taskYIELD in between read attempts to allow data to be accepted first */
     receiveAttempts = 0;
+
     do
     {
-        status = MQTT_GetIncomingPacketTypeAndLength(IotBleMqttTransportReceive, pContext, &incomingPacket);
+        status = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, pContext, &incomingPacket );
         receiveAttempts++;
         taskYIELD();
-    } while (receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && status != MQTTSuccess);
-    assert(status == MQTTSuccess);
-    
+    } while( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && status != MQTTSuccess );
+
+    assert( status == MQTTSuccess );
+
     receiveAttempts = 0;
     leftToRead = incomingPacket.remainingLength;
+
     /* Now receive the remaining packet into statically allocated buffer. */
     do
     {
-        status = IotBleMqttTransportReceive(pContext, &buf->pBuffer[bufferIndex], leftToRead);
+        status = IotBleMqttTransportReceive( pContext, &buf->pBuffer[ bufferIndex ], leftToRead );
         receiveAttempts++;
 
         /* We are guaranteed to read up to the amount of requested bytes.
          * Update the amount of bytes still needed if we read less than requested.
          * Adjust the buffer index to write coniguously in memory. */
-        if(status <= leftToRead)
+        if( status <= leftToRead )
         {
             bufferIndex += status;
             leftToRead -= status;
         }
-        taskYIELD();
 
-    } while ((receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && leftToRead > 0 ));
+        taskYIELD();
+    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && leftToRead > 0 ) );
 
     incomingPacket.pRemainingData = buf->pBuffer;
-    
+
     if( ( incomingPacket.type & 0xf0 ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         result = MQTT_DeserializePublish( &incomingPacket, &packetId, &publishInfo );
         assert( result == MQTTSuccess );
-        LogDebug(("Incoming publish packet received successfully."));
+        LogDebug( ( "Incoming publish packet received successfully." ) );
 
         /* Process incoming Publish message. */
         mqttProcessIncomingPublish( &publishInfo, packetId );
@@ -657,7 +663,7 @@ static void mqttProcessIncomingPacket(MQTTFixedBuffer_t * buf)
  * @brief Entry point of demo.
  */
 int RunMQTTTransportDemo( int argc,
-          char ** argv )
+                          char ** argv )
 {
     int status = EXIT_SUCCESS;
     MQTTFixedBuffer_t fixedBuffer;
@@ -671,9 +677,10 @@ int RunMQTTTransportDemo( int argc,
     /***
      * The network context buffer must be provided by the application.
      * Here we use static memory, but dynamic memory is OK too, so
-     * long as it is provided and allocated by the user 
+     * long as it is provided and allocated by the user
      ***/
-    uint8_t buf[MQTT_TRANSPORT_BUFFER_SIZE];
+    uint8_t buf[ MQTT_TRANSPORT_BUFFER_SIZE ];
+
     pContext.buf = buf;
     pContext.bufSize = MQTT_TRANSPORT_BUFFER_SIZE;
 
@@ -684,28 +691,26 @@ int RunMQTTTransportDemo( int argc,
      ***/
     fixedBuffer.pBuffer = demoStaticBuffer;
     fixedBuffer.size = STATIC_BUFFER_SIZE;
-    
+
     demoInitChannel();
 
-    if (status != EXIT_SUCCESS)
+    if( status != EXIT_SUCCESS )
     {
-        LogError(("There was a problem initializing the data channel"));
-        assert(false);
+        LogError( ( "There was a problem initializing the data channel" ) );
+        assert( false );
     }
-
 
     for( demoIterations = 0; demoIterations < maxDemoIterations; demoIterations++ )
     {
-
         if( status == EXIT_SUCCESS )
         {
             /* Sends an MQTT Connect packet over the already connected TCP socket
              * tcpSocket, and waits for connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Establishing MQTT connection to server" ) );
-            status = createMQTTConnectionWithBroker( &fixedBuffer);
+            status = createMQTTConnectionWithBroker( &fixedBuffer );
             assert( status == EXIT_SUCCESS );
 
-        /**************************** Subscribe. ******************************/
+            /**************************** Subscribe. ******************************/
 
             /* The client is now connected to the broker. Subscribe to the topic
              * as specified in MQTT_EXAMPLE_TOPIC at the top of this file by sending a
@@ -716,7 +721,7 @@ int RunMQTTTransportDemo( int argc,
              * messages received from the broker will have QOS0. */
             /* Subscribe and SUBACK */
             LogInfo( ( "Attempt to subscribe to the MQTT topic %s\r\n", MQTT_EXAMPLE_TOPIC ) );
-            mqttSubscribeToTopic(&fixedBuffer );
+            mqttSubscribeToTopic( &fixedBuffer );
 
             /* Process incoming packet from the broker. After sending the subscribe, the
              * client may receive a publish before it receives a subscribe ack. Therefore,
@@ -725,7 +730,7 @@ int RunMQTTTransportDemo( int argc,
              * receiving Publish message before subscribe ack is zero; but application
              * must be ready to receive any packet.  This demo uses the generic packet
              * processing function everywhere to highlight this fact. */
-            mqttProcessIncomingPacket(&fixedBuffer );
+            mqttProcessIncomingPacket( &fixedBuffer );
 
             /********************* Publish and Keep Alive Loop. ********************/
             /* Publish messages with QOS0, send and process Keep alive messages. */
@@ -736,7 +741,7 @@ int RunMQTTTransportDemo( int argc,
                 if( publishPacketSent == false )
                 {
                     LogInfo( ( "Publish to the MQTT topic %s\r\n", MQTT_EXAMPLE_TOPIC ) );
-                    mqttPublishToTopic( &fixedBuffer);
+                    mqttPublishToTopic( &fixedBuffer );
 
                     /* Set control packet sent flag to true so that the lastControlPacketSent
                      * timestamp will be updated. */
@@ -752,7 +757,7 @@ int RunMQTTTransportDemo( int argc,
                     LogInfo( ( "Sending PINGREQ to the broker\n " ) );
                     mqttKeepAlive( &fixedBuffer );
                     controlPacketSent = true;
-                    
+
 
                     /* Since PUBLISH packet is not sent for this iteration, set publishPacketSent to false
                      * so the next iteration will send PUBLISH .*/
@@ -768,7 +773,7 @@ int RunMQTTTransportDemo( int argc,
                     /* Since the application is subscribed publishing messages to the same topic,
                      * the broker will send the same message back to the application.
                      * Process incoming PUBLISH echo or PINGRESP. */
-                    mqttProcessIncomingPacket(&fixedBuffer );
+                    mqttProcessIncomingPacket( &fixedBuffer );
                 }
 
                 /* Sleep until keep alive time period, so that for the next iteration this
@@ -780,7 +785,7 @@ int RunMQTTTransportDemo( int argc,
 
             /* Unsubscribe from the previously subscribed topic */
             LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
-            mqttUnsubscribeFromTopic(  &fixedBuffer);
+            mqttUnsubscribeFromTopic( &fixedBuffer );
             /* Process Incoming unsubscribe ack from the broker. */
             mqttProcessIncomingPacket( &fixedBuffer );
 
@@ -789,7 +794,6 @@ int RunMQTTTransportDemo( int argc,
              * disconnect, client must close the network connection. */
             LogInfo( ( "Disconnecting the MQTT connection with %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
             mqttDisconnect( &fixedBuffer );
-
         }
 
         if( demoIterations < ( maxDemoIterations - 1U ) )
@@ -803,7 +807,6 @@ int RunMQTTTransportDemo( int argc,
 
     LogInfo( ( "Demo completed successfully.\r\n" ) );
     return status;
-
 }
 
 /*-----------------------------------------------------------*/

@@ -29,7 +29,8 @@
 
 #include "iot_ble_data_transfer.h"
 #include "platform/iot_threads.h"
-typedef struct NetworkContext {
+typedef struct NetworkContext
+{
     IotBleDataTransferChannel_t * pChannel;
     IotSemaphore_t isReady;
     void * buf;
