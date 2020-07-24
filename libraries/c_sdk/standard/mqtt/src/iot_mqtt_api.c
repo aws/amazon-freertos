@@ -860,17 +860,17 @@ static uint32_t getTimeMs( void )
 
 /*-----------------------------------------------------------*/
 
-static int32_t transportSend( NetworkContext_t * networkContext,
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
     int32_t bytesSend = 0;
 
-    IotMqtt_Assert( networkContext != NULL );
+    IotMqtt_Assert( pNetworkContext != NULL );
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = networkContext->networkInterface->send( networkContext->networkConnection, ( uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend < 0 )
     {
@@ -1293,7 +1293,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         {
             IotLogError( "(MQTT connection %p) Failed to allocate memory for "
                          "the MQTT context and the MQTT Connection Mapping. Update the MAX_NO_OF_MQTT_CONNECTIONS"
-                         "config value to resolve the error. ",
+                         " config value to resolve the error. ",
                          newMqttConnection );
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
@@ -1308,8 +1308,8 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
             /* Assigning the Network Context to be used by this MQTT Context. */
-            connToContext[ contextIndex ].networkContext.networkConnection = pNetworkConnection;
-            connToContext[ contextIndex ].networkContext.networkInterface = pNetworkInfo->pNetworkInterface;
+            connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
+            connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
             /* Fill in TransportInterface send function pointer. We will not be implementing the
              * TransportInterface receive function pointer as receiving of packets is handled in shim by network

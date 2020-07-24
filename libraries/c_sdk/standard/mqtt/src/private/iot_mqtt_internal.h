@@ -309,8 +309,8 @@ typedef struct _mqttConnection
  */
 struct NetworkContext
 {
-    void * networkConnection;                 /**< @brief The network connection used for sending packets on the network. */
-    IotNetworkInterface_t * networkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+    void * pNetworkConnection;                 /**< @brief The network connection used for sending packets on the network. */
+    IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
 };
 
 /**
