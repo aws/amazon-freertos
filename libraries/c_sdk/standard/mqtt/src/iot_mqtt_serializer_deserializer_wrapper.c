@@ -42,7 +42,7 @@
 /* Atomic operations. */
 #include "iot_atomic.h"
 
-/* MQTT LTS library includes*/
+/* MQTT LTS library includes. */
 #include "mqtt_lightweight.h"
 
 /*-----------------------------------------------------------*/
