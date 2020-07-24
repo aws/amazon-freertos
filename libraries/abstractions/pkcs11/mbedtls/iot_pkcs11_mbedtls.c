@@ -2903,6 +2903,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
         /* Free the mbedTLS structure used to parse the key. */
         mbedtls_pk_free( &xKeyContext );
+
+        /* Free the mbedTLS structure used to parse the certificate. */
+        mbedtls_x509_crt_free( &xMbedX509Context );
     }
 
     return xResult;
