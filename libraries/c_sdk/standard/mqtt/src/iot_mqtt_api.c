@@ -1913,7 +1913,7 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
             {
                 status = IOT_MQTT_TIMEOUT;
 
-                /* Attempt to cancel the CONNECT job of the timed out operation. As only CONNECT operation is using taskpool. */
+                /* Attempt to cancel the CONNECT job of the timed out operation. As only CONNECT operation is using taskpool for sending packets on the network. */
                 if( operation->u.operation.type == IOT_MQTT_CONNECT )
                 {
                     ( void ) _IotMqtt_DecrementOperationReferences( operation, true );

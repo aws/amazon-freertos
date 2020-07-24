@@ -505,7 +505,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
      * The job reference for the given operation needs to be deceremented in the following cases:
      * 1. For CONNECT operation, if the taskpool status is IOT_TASKPOOL_SUCCESS.
      *    If the CONNECT opeartion is still executing in the taskpool, then operation reference should not be decremented.
-     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), cancelling of taspool job is not needed as taskpool is not being
+     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), cancelling of taskpool job is not needed as taskpool is not being
      *    used to send the packets on the network. MQTT LTS library is used to send the packets on the network.
      *
      */
