@@ -3689,14 +3689,40 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             {
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
-                    lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                      MBEDTLS_MD_NONE,
-                                                      pData,
-                                                      ulDataLen,
-                                                      pxSignatureBuffer,
-                                                      &xExpectedInputLength,
-                                                      mbedtls_ctr_drbg_random,
-                                                      &xP11Context.xMbedDrbgCtx );
+                    /* Per mbed TLS documentation, if using RSA, md_alg should
+                     * be MBEDTLS_MD_NONE. If ECDSA, md_alg should never be
+                     * MBEDTLS_MD_NONE. SHA-256 will be used for ECDSA for
+                     * consistency with the rest of the port.
+                     */
+                    if( pxSessionObj->xOperationSignMechanism == CKM_RSA_PKCS )
+                    {
+                        lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                                                          MBEDTLS_MD_NONE,
+                                                          pData,
+                                                          ulDataLen,
+                                                          pxSignatureBuffer,
+                                                          &xExpectedInputLength,
+                                                          mbedtls_ctr_drbg_random,
+                                                          &xP11Context.xMbedDrbgCtx );
+                    }
+                    else if( pxSessionObj->xOperationSignMechanism == CKM_ECDSA )
+                    {
+                        lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                                                          MBEDTLS_MD_SHA256,
+                                                          pData,
+                                                          ulDataLen,
+                                                          pxSignatureBuffer,
+                                                          &xExpectedInputLength,
+                                                          mbedtls_ctr_drbg_random,
+                                                          &xP11Context.xMbedDrbgCtx );
+                    }
+                    else
+                    {
+                        /* Empty else block for MISRA compliance. Be sure to update
+                         * this, if a new signature mechanism is introduced to
+                         * this port.
+                         */
+                    }
 
                     if( lMbedTLSResult != 0 )
                     {
