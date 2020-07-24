@@ -874,8 +874,8 @@ static int32_t transportSend( NetworkContext_t * networkContext,
 
     if( bytesSend < 0 )
     {
-        /* Network Send Interface return negative value in case of error or timeout,
-         * unifying the error codes here to comply with the MQTT LTS Library.
+        /* Network Send Interface return negative value in case of any socket error,
+         * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
          */
         bytesSend = -1;
     }
