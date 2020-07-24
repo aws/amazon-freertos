@@ -500,12 +500,16 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     }
 
     /*
-     * 1. For Connect Operation the taskpool status should be IOT_TASKPOOL_SUCCESS to decrement the job refence count,
-     *    if the connect opeartion is still executing in the taskpool then operation reference should not be decremented.
-     *    Shim Implementation is using taskpool for connect operation so this check needs to be updated.
-     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), this code should be executed
-     *    only when cancelJob is False as shim implementation is not using taskpool for sending packets on the network.
-     *    Packets are sent on the network using MQTT v4 beta_2 APIs. So cancelJob will be false for all other operations.
+     * The job reference for the given operation needs to be deceremented in the following cases:
+     * 1. For CONNECT operation , if the taskpool status is IOT_TASKPOOL_SUCCESS.
+     *    If the CONNECT opeartion is still executing in the taskpool, then operation reference should not be decremented.
+     *    Shim Implementation is using taskpool for connect operation so this logic is updated.
+     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE),if cancel job is false and taskpool status is IOT_TASKPOOL_SUCCESS.
+     *    Shim implementation is using MQTT LTS API for sending packets on the network and not the taskpool.
+     * Cancel Job parameter will be false in the following cases:
+     * 1. Packet is succesfully sent on the network.
+     * 2. Received Ack for a waiting opeartion.
+     * 3. User callback returns.
      */
     if( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) && ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) || ( cancelJob == false ) ) )
     {
@@ -1095,7 +1099,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation )
+void _IotMqtt_ProcessOpeartion( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttConnection_t * pMqttConnection = NULL;

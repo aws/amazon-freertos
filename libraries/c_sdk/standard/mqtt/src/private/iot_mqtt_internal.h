@@ -44,7 +44,7 @@
 /* Task pool include. */
 #include "iot_taskpool.h"
 
-/* MQTT v4_beta 2 library includes. */
+/* MQTT LTS library includes. */
 #include "mqtt_lightweight.h"
 #include "mqtt.h"
 #include "mqtt_config.h"
@@ -260,7 +260,7 @@
 #endif
 
 /**
- * @brief Static buffer size provided to MQTT v4 beta_2 API.
+ * @brief Static buffer size provided to MQTT LTS API.
  * This buffer will be used to send the packets on the network.
  *
  */
@@ -303,40 +303,28 @@ typedef struct _mqttConnection
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
-/* Defining the structure for network context used for sending the packets on the network.
+/**
+ * @brief Defining the structure for network context used for sending the packets on the network.
  * The declaration of the structure is mentioned in the transport_interface.h file.
  */
 struct NetworkContext
 {
-    void * networkConnection;
-    IotNetworkInterface_t * networkInterface;
+    void * networkConnection;                 /**< @brief The network connection used for sending packets on the network. */
+    IotNetworkInterface_t * networkInterface; /**< @brief The network interface used to send packets on the network. */
 };
 
 /**
- * @brief Represents a mapping of MQTT Connection in MQTT v4 beta_1 library to the corresponding MQTT context
- * used in MQTT v4 beta_2 library. MQTT Context is used to call the MQTT v4 beta_2 API from the shim to serialize
+ * @brief Represents a mapping of MQTT Connection in MQTT 201906.00 library to the corresponding MQTT context
+ * used in MQTT LTS library. MQTT Context is used to call the MQTT LTS API from the shim to serialize
  * and send packets on the network.
  */
 typedef struct connContextMapping
 {
-    /* MQTT connection used in MQTT v4 beta_1 library. */
-    IotMqttConnection_t mqttConnection;
-
-    /* MQTT Context used for calling MQTT v4 beta_2 API from the shim. */
-    MQTTContext_t context;
-
-    /* Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
-    IotMutex_t contextMutex;
-
-    /* Network Buffer used to send packets on the network.
-     * This will be used by MQTT context defined above.
-     */
-    uint8_t buffer[ NETWORK_BUFFER_SIZE ];
-
-    /* Network Context used to send packets on the network.
-     * This will be used by MQTT context defined above.
-     */
-    NetworkContext_t networkContext;
+    IotMqttConnection_t mqttConnection;    /**< @brief MQTT connection used in MQTT 201906.00 library. */
+    MQTTContext_t context;                 /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
+    IotMutex_t contextMutex;               /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ]; /**< @brief Network Buffer used to send packets on the network.This will be used by MQTT context defined above. */
+    NetworkContext_t networkContext;       /**< @brief Network Context used to send packets on the network.This will be used by MQTT context defined above. */
 } _connContext_t;
 
 /**
@@ -459,8 +447,8 @@ typedef struct _mqttPacket
 } _mqttPacket_t;
 
 /**
- * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT v4 beta_1 library to MQTT Context
- * used in calling MQTT v4 beta_2 API from shim to send packets on the network.
+ * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
+ * used in calling MQTT LTS API from shim to send packets on the network.
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
@@ -973,10 +961,10 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
                                                 uint8_t ** pPubackPacket,
                                                 size_t * pPacketSize );
 
-/*----------- Processing Operation after Sending the Packet Using Managed MQTT API for Shim-------*/
+/*----------- Processing Operation after Sending the Packet Using MQTT LTS API for Shim-------*/
 
 /**
- * @brief Process the MQTT operation after sending it on the network using managed MQTT v4_beta2 API.
+ * @brief Process the MQTT operation after sending it on the network using MQTT LTS API.
  * Processing includes:
  * 1. Setting the status of operation based on the type of packet.
  * 2. Decrementing Operation references for waitable operation.
@@ -985,7 +973,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
  * @param[in] pOperation The operation which needs to be processed after sending it on the network.
  *
  */
-void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation );
+void _IotMqtt_ProcessOpeartion( _mqttOperation_t * pOperation );
 
 /*----------------- MQTT Context and MQTT Connection Mapping Functions for Shim------------------*/
 
@@ -994,16 +982,16 @@ void _IotMqtt_ManagedMqttProcessSend( _mqttOperation_t * pOperation );
  *
  * @param[in] mqttConnection The MQTT connection for which the context is needed.
  *
- * @return Index of the context from the mapping Data Structure used to store mapping of context and connection.
+ * @return Index of the context from the mapping data structure used to store mapping of context and connection.
  */
 int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection );
 
 /**
- * @brief Get the free index from the mapping Data Structure used to store mapping of MQTT Connection
- * used in the MQTT v4 beta_1 library and MQTT Context used to call MQTT v4 beta_2 API to send packets
+ * @brief Get the free index from the mapping data structure used to store mapping of MQTT Connection
+ * used in the MQTT 201906.00 library and MQTT Context used to call MQTT LTS API to send packets
  * on the network.
  *
- * @return Free Index from the mapping Data Structure used to store mapping of context and connection.
+ * @return Free Index from the mapping data structure used to store mapping of context and connection.
  */
 int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
 
@@ -1014,10 +1002,10 @@ int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
  */
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
 
-/*----------------- User - Facing API Functions Using Managed MQTT API for Shim------------------*/
+/*----------------- User - Facing API Functions Using MQTT LTS API for Shim------------------*/
 
 /**
- * @brief Disconnect the MQTT connection using Manged MQTT Disconnect API.
+ * @brief Disconnect the MQTT connection using MQTT LTS Disconnect API.
  *
  * @param[in] mqttConnection The MQTT connection which needs to be disconnected.
  *

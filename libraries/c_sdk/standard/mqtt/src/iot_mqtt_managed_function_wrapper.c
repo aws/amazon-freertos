@@ -24,9 +24,9 @@
  */
 
 /**
- * @file iot_mqtt_managed_api.c
- * @brief Implements all the public facing API using MQTT v4 beta_2 library for
- * sending the packets.
+ * @file iot_mqtt_managed_function_wrapper.c
+ * @brief Wrapper to use the MQTT LTS transmit side API for
+ * sending the packets on the network .
  */
 /* The config header is always included first. */
 #include "iot_config.h"
@@ -40,7 +40,7 @@
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
-/* MQTT v4_beta 2 lightweight library includes. */
+/* MQTT LTS lightweight library includes. */
 #include "mqtt_lightweight.h"
 
 /* Atomic operations. */
@@ -67,7 +67,7 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
     {
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
 
-        /* Calling MQTT v4 beta_2 API for sending the DISCONNECT packet on the network. */
+        /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
 
         IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );

@@ -41,27 +41,24 @@
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
+/* Platform layer includes. */
 #include "platform/iot_threads.h"
 
 /*-----------------------------------------------------------*/
 
 int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void )
 {
-    int8_t contextIndex = -1;
+    int8_t contextIndex = 0;
 
-    /* Getting the free index from the mapping Data Structure to hold the new mapping. */
+    /* Getting the free index from the mapping data structure to hold the new mapping. */
     while( contextIndex < MAX_NO_OF_MQTT_CONNECTIONS )
     {
-        contextIndex = contextIndex + 1;
-
-        if( connToContext[ contextIndex ].mqttConnection != NULL )
-        {
-            continue;
-        }
-        else
+        if( connToContext[ contextIndex ].mqttConnection == NULL )
         {
             break;
         }
+
+        contextIndex = contextIndex + 1;
     }
 
     if( contextIndex == MAX_NO_OF_MQTT_CONNECTIONS )
@@ -76,19 +73,19 @@ int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void )
 
 int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection )
 {
-    int8_t contextIndex = -1;
+    int8_t contextIndex = 0;
 
     IotMqtt_Assert( mqttConnection != NULL );
 
-    /* Getting the index of context from the mapping Data Structure for the given MQTT Connection. */
+    /* Getting the index of context from the mapping data structure for the given MQTT Connection. */
     while( contextIndex < MAX_NO_OF_MQTT_CONNECTIONS )
     {
-        contextIndex = contextIndex + 1;
-
         if( connToContext[ contextIndex ].mqttConnection == mqttConnection )
         {
             break;
         }
+
+        contextIndex = contextIndex + 1;
     }
 
     if( contextIndex == MAX_NO_OF_MQTT_CONNECTIONS )
@@ -103,21 +100,21 @@ int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnectio
 
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
 {
-    int8_t contextIndex = -1;
+    int8_t contextIndex = 0;
 
     IotMqtt_Assert( mqttConnection != NULL );
 
     /* Finding the index corresponding to the given MQTT Connection. */
     while( contextIndex < MAX_NO_OF_MQTT_CONNECTIONS )
     {
-        contextIndex = contextIndex + 1;
-
         if( connToContext[ contextIndex ].mqttConnection == mqttConnection )
         {
             connToContext[ contextIndex ].mqttConnection = NULL;
             IotMutex_Destroy( &( connToContext[ contextIndex ].contextMutex ) );
             break;
         }
+
+        contextIndex = contextIndex + 1;
     }
 }
 

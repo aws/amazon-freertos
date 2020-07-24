@@ -36,7 +36,7 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_validate.c"
         "${src_dir}/iot_mqtt_context_connection.c"
         "${src_dir}/iot_mqtt_serializer_deserializer_wrapper.c"
-        "${src_dir}/iot_mqtt_managed_api.c"
+        "${src_dir}/iot_mqtt_managed_function_wrapper.c"
         ${extra_mqtt_sources}
 )
 
