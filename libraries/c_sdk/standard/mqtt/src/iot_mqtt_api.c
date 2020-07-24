@@ -837,7 +837,7 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
     /* Destroy an unreferenced MQTT connection. */
     if( destroyConnection == true )
     {
-        /* Free the MQTT Context for the destroyed connection. */
+        /* Free the MQTT Context for the MQTT connection to be destroyed. */
         _IotMqtt_removeContext( pMqttConnection );
 
         IotLogDebug( "(MQTT connection %p) Connection will be destroyed now.",
@@ -875,7 +875,7 @@ static int32_t transportSend( NetworkContext_t * networkContext,
     if( bytesSend < 0 )
     {
         /* Network Send Interface return negative value in case of error or timeout,
-         *  unifying the error codes here to comply with the MQTT LTS Library.
+         * unifying the error codes here to comply with the MQTT LTS Library.
          */
         bytesSend = -1;
     }
@@ -1376,7 +1376,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 /* Set the operation type. */
                 pOperation->u.operation.type = IOT_MQTT_DISCONNECT;
 
-                /* Calling Managed API Disconnect. */
+                /* Calling DISCONNECT wrapper to send DISCONNECT packet on the network using MQTT LTS DISCONNECT API. */
                 status = _IotMqtt_managedDisconnect( mqttConnection );
             }
             else
