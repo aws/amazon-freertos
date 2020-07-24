@@ -1300,7 +1300,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
          * on the network using MQTT LTS API. */
-        if( IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true ) == true )
+        bool contextMutex = IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true );
+
+        if( contextMutex == true )
         {
             /* Assigning the MQTT Connection. */
             connToContext[ contextIndex ].mqttConnection = newMqttConnection;
