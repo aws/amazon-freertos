@@ -1283,7 +1283,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* Set the output parameter. */
         *pMqttConnection = newMqttConnection;
 
-        /* Fill in Time utility function pointer. */
+        /* Fill in time utility function pointer. */
         callbacks.getTime = getTimeMs;
 
         /* Getting the free index from the MQTT connection to MQTT context mapping array. */
