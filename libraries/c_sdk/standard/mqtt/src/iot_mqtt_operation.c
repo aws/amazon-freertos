@@ -500,8 +500,6 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     }
 
     /*
-     * Shim Implementation is using taskpool only for CONNECT operation so this logic is updated.
-     *
      * The job reference for the given operation needs to be deceremented in the following cases:
      * 1. For CONNECT operation, if the taskpool status is IOT_TASKPOOL_SUCCESS.
      *    If the CONNECT opeartion is still executing in the taskpool, then operation reference should not be decremented.
