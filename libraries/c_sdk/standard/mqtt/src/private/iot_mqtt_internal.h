@@ -241,7 +241,7 @@
  *
  * This value is greater than what is allowed by the MQTT specification.
  */
-#define MQTT_REMAINING_LENGTH_INVALID    ( ( size_t ) 268435456 )
+#define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
 /*---------------------- MQTT internal data structures ----------------------*/
 
