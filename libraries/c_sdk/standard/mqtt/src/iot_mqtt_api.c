@@ -238,14 +238,18 @@ static void _mqttOperation_tryDestroy( void * pData )
     }
     else
     {
-        /* Decrement reference count and destroy operation if possible. */
-        if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+        /* Decrement reference count and destroy CONNECT operation if possible.
+         *  Only the CONNECT operation is using taskpool to send packets on the network. */
+        if( pOperation->u.operation.type == IOT_MQTT_CONNECT )
         {
-            _IotMqtt_DestroyOperation( pOperation );
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
+            if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+            {
+                _IotMqtt_DestroyOperation( pOperation );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
     }
 }
@@ -1909,8 +1913,11 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
             {
                 status = IOT_MQTT_TIMEOUT;
 
-                /* Attempt to cancel the job of the timed out operation. */
-                ( void ) _IotMqtt_DecrementOperationReferences( operation, true );
+                /* Attempt to cancel the CONNECT job of the timed out operation. As only CONNECT operation is using taskpool. */
+                if( operation->u.operation.type == IOT_MQTT_CONNECT )
+                {
+                    ( void ) _IotMqtt_DecrementOperationReferences( operation, true );
+                }
 
                 /* Clean up lingering subscriptions from a timed-out SUBSCRIBE. */
                 if( operation->u.operation.type == IOT_MQTT_SUBSCRIBE )

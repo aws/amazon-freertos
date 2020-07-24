@@ -500,18 +500,16 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     }
 
     /*
+     * Shim Implementation is using taskpool only for CONNECT operation so this logic is updated.
+     *
      * The job reference for the given operation needs to be deceremented in the following cases:
-     * 1. For CONNECT operation , if the taskpool status is IOT_TASKPOOL_SUCCESS.
+     * 1. For CONNECT operation, if the taskpool status is IOT_TASKPOOL_SUCCESS.
      *    If the CONNECT opeartion is still executing in the taskpool, then operation reference should not be decremented.
-     *    Shim Implementation is using taskpool for connect operation so this logic is updated.
-     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE),if cancel job is false and taskpool status is IOT_TASKPOOL_SUCCESS.
-     *    Shim implementation is using MQTT LTS API for sending packets on the network and not the taskpool.
-     * Cancel Job parameter will be false in the following cases:
-     * 1. Packet is succesfully sent on the network.
-     * 2. Received Ack for a waiting opeartion.
-     * 3. User callback returns.
+     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), cancelling of taspool job is not needed as taskpool is not being
+     *    used to send the packets on the network. MQTT LTS library is used to send the packets on the network.
+     *
      */
-    if( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) && ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) || ( cancelJob == false ) ) )
+    if( ( ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ) ) || ( ( pOperation->u.operation.type != IOT_MQTT_CONNECT ) ) )
     {
         IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
         pOperation->u.operation.jobReference--;
