@@ -15,15 +15,8 @@
 #include "logging_levels.h"
 
 /* Configure name and log level for the MQTT library. */
-#ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "MQTT"
-#endif
-
-#ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_NONE
-#endif
-
-
+#define LIBRARY_LOG_NAME     "MQTT"
+#define LIBRARY_LOG_LEVEL    LOG_NONE
 
 #include "logging_stack.h"
 
