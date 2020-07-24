@@ -42,9 +42,6 @@
 /* Atomic operations. */
 #include "iot_atomic.h"
 
-/* MQTT LTS library includes. */
-#include "mqtt_lightweight.h"
-
 /*-----------------------------------------------------------*/
 
 /* Size of Puback packet. */
