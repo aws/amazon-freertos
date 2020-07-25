@@ -992,10 +992,10 @@ int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
  */
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
 
-/*----------------- User - Facing API Functions Using MQTT LTS API for Shim------------------*/
+/*----------------- MQTT 201906.00 wrapper functions using MQTT LTS API -----------------------*/
 
 /**
- * @brief Disconnect the MQTT connection using MQTT LTS Disconnect API.
+ * @brief Disconnect the MQTT connection using MQTT LTS DISCONNECT API.
  *
  * @param[in] mqttConnection The MQTT connection which needs to be disconnected.
  *
@@ -1007,15 +1007,56 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
  */
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection );
 
+/**
+ * @brief Send the PUBLISH packet using MQTT LTS PUBLISH API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pOperation The MQTT operation having information for the PUBLISH operation.
+ * @param[in] pPublishInfo Contains the information to be published.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
 IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                                         _mqttOperation_t * pOperation,
                                         const IotMqttPublishInfo_t * pPublishInfo );
 
+/**
+ * @brief Send the SUBSCRIBE packet using MQTT LTS SUBSCRIBE API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pSubscriptionOperation The MQTT operation having information for the SUBSCRIBE operation.
+ * @param[in] pSubscriptionList User-provided array of subscriptions.
+ * @param[in] subscriptionCount Size of `pSubscriptionList`.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
 IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                                             _mqttOperation_t * pSubscriptionOperation,
                                             const IotMqttSubscription_t * pSubscriptionList,
                                             size_t subscriptionCount );
 
+/**
+ * @brief Send the UNSUBSCRIBE packet using MQTT LTS UNSUBSCRIBE API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pSubscriptionOperation The MQTT operation having information for the UNSUBSCRIBE operation.
+ * @param[in] pSubscriptionList User-provided array of subscriptions.
+ * @param[in] subscriptionCount Size of `pSubscriptionList`.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
 IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                                           _mqttOperation_t * pSubscriptionOperation,
                                           const IotMqttSubscription_t * pSubscriptionList,
