@@ -1150,7 +1150,7 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     {
         /* Decrement reference count to signal completion of send job. Check
          * if the operation should be destroyed. */
-        if( waitable == true )
+        if( ( waitable == true ) && ( pOperation->u.operation.retry.limit <= 0 ) )
         {
             destroyOperation = _IotMqtt_DecrementOperationReferences( pOperation, false );
         }
@@ -1349,9 +1349,9 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
          * the retry job. */
         if( pResult->u.operation.retry.limit > 0 )
         {
-            taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-                                                    pResult->job,
-                                                    NULL );
+            /*taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
+             *                                      pResult->job,
+             *                                      NULL );*/
 
             /* If the retry job could not be canceled, then it is currently
              * executing. Ignore the operation. */
