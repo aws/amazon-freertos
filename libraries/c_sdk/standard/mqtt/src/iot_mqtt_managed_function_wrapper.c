@@ -151,7 +151,7 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
         pUnsubscriptionOperation->u.operation.packetIdentifier = packetId;
 
-        /* Populating the subscription list to be used by MQTT LTS API. */
+        /* Populating the unsubscription list to be used by MQTT LTS API. */
         for( size_t i = 0; i < unsubscriptionCount; i++ )
         {
             subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
