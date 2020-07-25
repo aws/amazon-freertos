@@ -74,3 +74,159 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 }
 
 /*-----------------------------------------------------------*/
+
+IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
+                                          _mqttOperation_t * pSubscriptionOperation,
+                                          const IotMqttSubscription_t * pSubscriptionList,
+                                          size_t subscriptionCount )
+{
+    int8_t contextIndex = -1;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    /* Initializing MQTT Status. */
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    uint16_t packetId = 0;
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+
+    IotMqtt_Assert( mqttConnection != NULL );
+    IotMqtt_Assert( pSubscriptionOperation != NULL );
+    IotMqtt_Assert( pSubscriptionList != NULL );
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+    if( contextIndex >= 0 )
+    {
+        /* Generating the packet id for SUBSCRIBE packet. */
+        packetId = _nextPacketIdentifier();
+
+        pSubscriptionOperation->u.operation.packetIdentifier = packetId;
+
+        /* Populating the subscription list to be used by MQTT LTS API. */
+        for( size_t i = 0; i < subscriptionCount; i++ )
+        {
+            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
+            subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
+            subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+        }
+
+        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
+        managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
+
+        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Converting the status code. */
+        status = convertReturnCode( managedMqttStatus );
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
+IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
+                                            _mqttOperation_t * pSubscriptionOperation,
+                                            const IotMqttSubscription_t * pSubscriptionList,
+                                            size_t subscriptionCount )
+{
+    int8_t contextIndex = -1;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    /* Initializing MQTT Status. */
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    uint16_t packetId = 0;
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+
+    IotMqtt_Assert( mqttConnection != NULL );
+    IotMqtt_Assert( pSubscriptionOperation != NULL );
+    IotMqtt_Assert( pSubscriptionList != NULL );
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+    if( contextIndex >= 0 )
+    {
+        /* Generating the packet id for UNSUBSCRIBE packet. */
+        packetId = _nextPacketIdentifier();
+
+        pSubscriptionOperation->u.operation.packetIdentifier = packetId;
+
+        /* Populating the subscription list to be used by MQTT LTS API. */
+        for( size_t i = 0; i < subscriptionCount; i++ )
+        {
+            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
+            subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
+            subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+        }
+
+        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
+        managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
+
+        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Converting the status code. */
+        status = convertReturnCode( managedMqttStatus );
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
+
+IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
+                                        _mqttOperation_t * pOperation,
+                                        const IotMqttPublishInfo_t * pPublishInfo )
+{
+    int8_t contextIndex = -1;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    /* Initializing MQTT Status. */
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    uint16_t packetId = 0;
+    MQTTPublishInfo_t publishInfo;
+
+    IotMqtt_Assert( mqttConnection != NULL );
+    IotMqtt_Assert( pOperation != NULL );
+    IotMqtt_Assert( pPublishInfo != NULL );
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+    if( contextIndex >= 0 )
+    {
+        /* Generating the packet id for PUBLISH packet. */
+        packetId = _nextPacketIdentifier();
+        pOperation->u.operation.packetIdentifier = packetId;
+
+        /* Populating the publish info to be used by MQTT LTS PUBLISH API. */
+        publishInfo.retain = pPublishInfo->retain;
+        publishInfo.pTopicName = pPublishInfo->pTopicName;
+        publishInfo.topicNameLength = pPublishInfo->topicNameLength;
+        publishInfo.pPayload = pPublishInfo->pPayload;
+        publishInfo.payloadLength = pPublishInfo->payloadLength;
+        publishInfo.qos = ( MQTTQoS_t ) pPublishInfo->qos;
+
+        if( pPublishInfo->qos == IOT_MQTT_QOS_1 )
+        {
+            publishInfo.dup = true;
+        }
+        else
+        {
+            publishInfo.dup = false;
+        }
+
+        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
+        managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
+        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        /* Converting the status code. */
+        status = convertReturnCode( managedMqttStatus );
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/

@@ -48,6 +48,7 @@
 #include "mqtt_lightweight.h"
 #include "mqtt.h"
 #include "mqtt_config.h"
+#include "mqtt_state.h"
 
 /**
  * @def IotMqtt_Assert( expression )
@@ -1005,5 +1006,28 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
  * #IOT_MQTT_SUCCESS otherwise.
  */
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection );
+
+IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
+                                        _mqttOperation_t * pOperation,
+                                        const IotMqttPublishInfo_t * pPublishInfo );
+
+IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
+                                            _mqttOperation_t * pSubscriptionOperation,
+                                            const IotMqttSubscription_t * pSubscriptionList,
+                                            size_t subscriptionCount );
+
+IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
+                                          _mqttOperation_t * pSubscriptionOperation,
+                                          const IotMqttSubscription_t * pSubscriptionList,
+                                          size_t subscriptionCount );
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Generate Id for packet.
+ *
+ * @return Next id generated.
+ */
+uint16_t _nextPacketIdentifier( void );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

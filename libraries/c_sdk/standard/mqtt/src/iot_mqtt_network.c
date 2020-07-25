@@ -43,8 +43,6 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
-/* MQTT v4_beta2 include*/
-#include "mqtt_lightweight.h"
 
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
@@ -285,6 +283,9 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     _mqttOperation_t * pOperation = NULL;
+    MQTTPublishState_t publishStateStatus = MQTTStateNull;
+    MQTTPublishState_t publishRecordState = MQTTStateNull;
+    int8_t contextIndex = -1;
 
     /* Deserializer function. */
     IotMqttError_t ( * deserialize )( _mqttPacket_t * ) = NULL;
@@ -386,6 +387,20 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             /* Deserialize incoming PUBLISH. */
             status = deserialize( pIncomingPacket );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
+                if( contextIndex >= 0 )
+                {
+                    IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+                    publishStateStatus = MQTT_UpdateStatePublish( &( connToContext[ contextIndex ].context ),
+                                                                  pIncomingPacket->packetIdentifier,
+                                                                  MQTT_RECEIVE, pOperation->u.publish.publishInfo.qos, &publishRecordState );
+                    IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+                }
+            }
 
             if( status == IOT_MQTT_SUCCESS )
             {
@@ -491,6 +506,22 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             /* Deserialize PUBACK and notify of result. */
             status = deserialize( pIncomingPacket );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
+                if( contextIndex >= 0 )
+                {
+                    IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+                    publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
+                                                              pIncomingPacket->packetIdentifier,
+                                                              MQTTPuback,
+                                                              MQTT_RECEIVE, &publishRecordState );
+                    IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+                }
+            }
+
             pOperation = _IotMqtt_FindOperation( pMqttConnection,
                                                  IOT_MQTT_PUBLISH_TO_SERVER,
                                                  &( pIncomingPacket->packetIdentifier ) );
@@ -499,10 +530,6 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             {
                 pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation );
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
             }
 
             break;

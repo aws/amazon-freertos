@@ -55,11 +55,6 @@
 
 /*-----------------------------------------------------------*/
 
-/* Generate Id for packet. */
-static uint16_t _nextPacketIdentifier( void );
-
-/*-----------------------------------------------------------*/
-
 /**
  *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
  *
@@ -81,21 +76,6 @@ static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
  * @return The size of the encoding of length. This is always `1`, `2`, `3`, or `4`.
  */
 static size_t _remainingLengthEncodedSize( size_t length );
-
-/*-----------------------------------------------------------*/
-
-/* Generate Id for packet. */
-static uint16_t _nextPacketIdentifier( void )
-{
-    /* MQTT specifies 2 bytes for the packet identifier; however, operating on
-     * 32-bit integers is generally faster. */
-    static uint32_t nextPacketIdentifier = 1;
-
-    /* The next packet identifier will be greater by 2. This prevents packet
-     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-    return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
-}
 
 /*-----------------------------------------------------------*/
 
@@ -774,7 +754,21 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 
 /*-----------------------------------------------------------*/
 
-static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
+uint16_t _nextPacketIdentifier( void )
+{
+    /* MQTT specifies 2 bytes for the packet identifier; however, operating on
+     * 32-bit integers is generally faster. */
+    static uint32_t nextPacketIdentifier = 1;
+
+    /* The next packet identifier will be greater by 2. This prevents packet
+     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
+     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
+    return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
+}
+/*-----------------------------------------------------------*/
+
+/* Convert the MQTT Status to IOT MQTT Status Code. */
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
 
