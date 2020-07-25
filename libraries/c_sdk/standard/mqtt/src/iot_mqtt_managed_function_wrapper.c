@@ -126,20 +126,20 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 /*-----------------------------------------------------------*/
 
 IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
-                                            _mqttOperation_t * pSubscriptionOperation,
-                                            const IotMqttSubscription_t * pSubscriptionList,
-                                            size_t subscriptionCount )
+                                            _mqttOperation_t * pUnsubscriptionOperation,
+                                            const IotMqttSubscription_t * pUnsubscriptionList,
+                                            size_t unsubscriptionCount )
 {
     int8_t contextIndex = -1;
     IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
 
     IotMqtt_Assert( mqttConnection != NULL );
-    IotMqtt_Assert( pSubscriptionOperation != NULL );
-    IotMqtt_Assert( pSubscriptionList != NULL );
+    IotMqtt_Assert( pUnsubscriptionOperation != NULL );
+    IotMqtt_Assert( pUnsubscriptionList != NULL );
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
@@ -149,20 +149,20 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
         /* Generating the packet id for UNSUBSCRIBE packet. */
         packetId = _nextPacketIdentifier();
 
-        pSubscriptionOperation->u.operation.packetIdentifier = packetId;
+        pUnsubscriptionOperation->u.operation.packetIdentifier = packetId;
 
         /* Populating the subscription list to be used by MQTT LTS API. */
-        for( size_t i = 0; i < subscriptionCount; i++ )
+        for( size_t i = 0; i < unsubscriptionCount; i++ )
         {
-            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
-            subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
-            subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
+            subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
+            subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
         }
 
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
 
         /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
-        managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
+        managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
 
         IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
 

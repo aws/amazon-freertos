@@ -1349,10 +1349,6 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
          * the retry job. */
         if( pResult->u.operation.retry.limit > 0 )
         {
-            /*taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-             *                                      pResult->job,
-             *                                      NULL );*/
-
             /* If the retry job could not be canceled, then it is currently
              * executing. Ignore the operation. */
             if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )

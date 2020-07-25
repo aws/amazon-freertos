@@ -1047,9 +1047,9 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
  * @brief Send the UNSUBSCRIBE packet using MQTT LTS UNSUBSCRIBE API.
  *
  * @param[in] mqttConnection The MQTT connection to be used.
- * @param[in] pSubscriptionOperation The MQTT operation having information for the UNSUBSCRIBE operation.
- * @param[in] pSubscriptionList User-provided array of subscriptions.
- * @param[in] subscriptionCount Size of `pSubscriptionList`.
+ * @param[in] pUnsubscriptionOperation The MQTT operation having information for the UNSUBSCRIBE operation.
+ * @param[in] pUnsubscriptionList User-provided array of subscriptions.
+ * @param[in] UnsubscriptionCount Size of `pSubscriptionList`.
  *
  * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
  * hold the MQTT packet;
@@ -1058,9 +1058,9 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
  * #IOT_MQTT_SUCCESS otherwise.
  */
 IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
-                                          _mqttOperation_t * pSubscriptionOperation,
-                                          const IotMqttSubscription_t * pSubscriptionList,
-                                          size_t subscriptionCount );
+                                          _mqttOperation_t * pUnsubscriptionOperation,
+                                          const IotMqttSubscription_t * pUnsubscriptionList,
+                                          size_t unsubscriptionCount );
 
 /*-----------------------------------------------------------*/
 
