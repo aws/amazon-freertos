@@ -973,7 +973,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
  * @param[in] pOperation The operation which needs to be processed after sending it on the network.
  *
  */
-void _IotMqtt_ProcessOpeartion( _mqttOperation_t * pOperation );
+void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation );
 
 /*----------------- MQTT Context and MQTT Connection Mapping Functions for Shim------------------*/
 

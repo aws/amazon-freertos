@@ -1393,7 +1393,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
             if( status == IOT_MQTT_SUCCESS )
             {
                 /* Processing the operation after sending it on the network. */
-                _IotMqtt_ProcessOpeartion( pOperation );
+                _IotMqtt_ProcessOperation( pOperation );
 
                 /* Destroying the operation after the DISCONNECT Packet is sent on the network. */
                 if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )

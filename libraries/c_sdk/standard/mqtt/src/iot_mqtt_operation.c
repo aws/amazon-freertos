@@ -1095,7 +1095,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_ProcessOpeartion( _mqttOperation_t * pOperation )
+void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttConnection_t * pMqttConnection = NULL;
