@@ -44,6 +44,8 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
+#include "semphr.h"
+
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
@@ -213,6 +215,9 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
     uint32_t scheduleDelay = 0;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
+    int8_t contextIndex = -1;
+
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* This function should never be called with retry count greater than
      * retry limit. */
@@ -264,7 +269,7 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
          * to manipulate the lists. */
         if( firstRetry == true )
         {
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
         }
         else
         {
@@ -284,13 +289,11 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
          * list to the pending responses list on the first retry. */
         if( firstRetry == true )
         {
-            /* Operation must be linked. */
-            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == true );
-
-            /* Transfer to pending response list. */
-            IotListDouble_Remove( &( pOperation->link ) );
-            IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
-                                      &( pOperation->link ) );
+            if( contextIndex >= 0 )
+            {
+                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+            }
         }
         else
         {
@@ -306,7 +309,7 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
      * only the first retry manipulates the connection lists. */
     if( firstRetry == true )
     {
-        IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
     }
     else
     {
@@ -327,6 +330,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     bool decrementOnError = false;
     _mqttOperation_t * pOperation = NULL;
     bool waitable = ( ( flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE );
+    int8_t contextIndex = -1;
 
     /* If the waitable flag is set, make sure that there's no callback. */
     if( waitable == true )
@@ -394,7 +398,8 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     if( waitable == true )
     {
         /* Create a semaphore to wait on for a waitable operation. */
-        if( IotSemaphore_Create( &( pOperation->u.operation.notify.waitSemaphore ), 0, 1 ) == false )
+
+        if( xSemaphoreCreateCountingStatic( 1, 0, ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) ) == NULL )
         {
             IotLogError( "(MQTT connection %p) Failed to create semaphore for "
                          "waitable operation.",
@@ -424,10 +429,15 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     }
 
     /* Add this operation to the MQTT connection's operation list. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-    IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
-                              &( pOperation->link ) );
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
+
+    if( contextIndex >= 0 )
+    {
+        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+    }
+
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Set the output parameter. */
     *pNewOperation = pOperation;
@@ -471,6 +481,9 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     bool destroyOperation = false;
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
+    int contextIndex = -1;
+
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* Attempt to cancel the CONNECT operation's job as only the CONNECT API is using taskpool
      * to send the connect packet. */
@@ -512,7 +525,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
      */
     if( ( ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ) ) || ( ( pOperation->u.operation.type != IOT_MQTT_CONNECT ) ) )
     {
-        IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
         pOperation->u.operation.jobReference--;
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
@@ -537,7 +550,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
             EMPTY_ELSE_MARKER;
         }
 
-        IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
     }
     else
     {
@@ -553,6 +566,8 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 {
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
+    int8_t contextIndex = -1;
+
     /* Default free packet function. */
     void ( * freePacket )( uint8_t * ) = _IotMqtt_FreePacket;
 
@@ -565,28 +580,19 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     IotMqtt_Assert( ( pOperation->u.operation.jobReference >= 0 ) &&
                     ( pOperation->u.operation.jobReference <= 2 ) );
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
     /* Jobs to be destroyed should be removed from the MQTT connection's
      * lists. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-    if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+    if( contextIndex >= 0 )
     {
-        IotLogDebug( "(MQTT connection %p, %s operation %p) Removed operation from connection lists.",
-                     pMqttConnection,
-                     IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation );
-
-        IotListDouble_Remove( &( pOperation->link ) );
-    }
-    else
-    {
-        IotLogDebug( "(MQTT connection %p, %s operation %p) Operation was not present in connection lists.",
-                     pMqttConnection,
-                     IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation );
+        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
     }
 
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Free any allocated MQTT packet. */
     if( pOperation->u.operation.pMqttPacket != NULL )
@@ -627,7 +633,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     /* Check if a wait semaphore was created for this operation. */
     if( ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE )
     {
-        IotSemaphore_Destroy( &( pOperation->u.operation.notify.waitSemaphore ) );
+        vSemaphoreDelete( ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) );
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) Wait semaphore destroyed.",
                      pMqttConnection,
@@ -663,10 +669,12 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     size_t bytesSent = 0;
     uint32_t scheduleDelay = 0;
     uint64_t elapsedTime = 0;
+    int contextIndex = -1;
 
     /* Retrieve the MQTT connection from the context. */
     _mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) pContext;
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
     /* Check parameters. */
     IotMqtt_Assert( pTaskPool == IOT_SYSTEM_TASKPOOL );
     IotMqtt_Assert( pKeepAliveJob == pMqttConnection->keepAliveJob );
@@ -688,7 +696,7 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
                                             &pKeepAliveJob );
     IotMqtt_Assert( taskPoolStatus == IOT_TASKPOOL_SUCCESS );
 
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
     /* Determine whether to send a PINGREQ or check for PINGRESP. */
     if( pMqttConnection->nextKeepAliveMs == pMqttConnection->keepAliveMs )
@@ -854,7 +862,7 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
         EMPTY_ELSE_MARKER;
     }
 
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -865,6 +873,7 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
 {
     _mqttOperation_t * pOperation = pContext;
     IotMqttCallbackParam_t callbackParam = { .mqttConnection = NULL };
+    int8_t contextIndex = -1;
 
     /* Check parameters. The task pool and job parameter is not used when asserts
      * are disabled. */
@@ -874,19 +883,17 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     IotMqtt_Assert( pOperation->incomingPublish == true );
     IotMqtt_Assert( pPublishJob == pOperation->job );
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
+
     /* Remove the operation from the pending processing list. */
-    IotMutex_Lock( &( pOperation->pMqttConnection->referencesMutex ) );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-    if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+    if( contextIndex >= 0 )
     {
-        IotListDouble_Remove( &( pOperation->link ) );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
+        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
     }
 
-    IotMutex_Unlock( &( pOperation->pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Process the current PUBLISH. */
     callbackParam.u.message.info = pOperation->u.publish.publishInfo;
@@ -918,6 +925,9 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttOperation_t * pOperation = ( _mqttOperation_t * ) pContext;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
+    int8_t contextIndex = -1;
+
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
     /* Check parameters. The task pool and job parameter is not used when asserts
      * are disabled. */
@@ -972,9 +982,9 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
         else
         {
             /* Update the timestamp of the last message on successful transmission. */
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
             pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
             /* DISCONNECT operations are considered successful upon successful
              * transmission. In addition, non-waitable operations with no callback
@@ -1042,17 +1052,15 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
              * pending processing to the pending response list. */
             if( destroyOperation == false )
             {
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-                /* Operation must be linked. */
-                IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
+                if( contextIndex >= 0 )
+                {
+                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                }
 
-                /* Transfer to pending response list. */
-                IotListDouble_Remove( &( pOperation->link ) );
-                IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
-                                          &( pOperation->link ) );
-
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
                 /* This operation is now awaiting a response from the network. */
                 networkPending = true;
@@ -1102,7 +1110,9 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttConnection_t * pMqttConnection = NULL;
+    int contextIndex = -1;
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
     /* The given operation should not be null. */
     IotMqtt_Assert( pOperation != NULL );
 
@@ -1115,9 +1125,9 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
     /* Update the timestamp of the last message on successful transmission. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
     pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* DISCONNECT operations are considered successful upon successful
      * transmission. In addition, non-waitable operations with no callback
@@ -1163,17 +1173,18 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
          * pending processing to the pending response list. */
         if( destroyOperation == false )
         {
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-            /* Operation must be linked. */
-            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
+            int8_t contextIndex = -1;
+            contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
-            /* Transfer to pending response list. */
-            IotListDouble_Remove( &( pOperation->link ) );
-            IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
-                                      &( pOperation->link ) );
+            if( contextIndex >= 0 )
+            {
+                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+            }
 
-            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
             /* This operation is now awaiting a response from the network. */
             networkPending = true;
@@ -1314,6 +1325,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttOperation_t * pResult = NULL;
     IotLink_t * pResultLink = NULL;
+    int8_t contextIndex = -1;
     _operationMatchParam_t param = { .type = type, .pPacketIdentifier = pPacketIdentifier };
 
     if( pPacketIdentifier != NULL )
@@ -1331,18 +1343,22 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                      IotMqtt_OperationType( type ) );
     }
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
     /* Find and remove the first matching element in the list. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-    pResultLink = IotListDouble_FindFirstMatch( &( pMqttConnection->pendingResponse ),
-                                                NULL,
-                                                _mqttOperation_match,
-                                                &param );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
+
+    if( contextIndex >= 0 )
+    {
+        pResult = IotMqtt_FindFirstMatchOperation( &( connToContext[ contextIndex ].pendingResponse ),
+                                                   NULL,
+                                                   _mqttOperation_match,
+                                                   &param );
+    }
 
     /* Check if a match was found. */
-    if( pResultLink != NULL )
+    if( pResult != NULL )
     {
-        /* Get operation pointer and check if it is waitable. */
-        pResult = IotLink_Container( _mqttOperation_t, pResultLink, link );
+        /* check if operation is waitable. */
         waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
         /* Check if the matched operation is a PUBLISH with retry. If it is, cancel
@@ -1394,8 +1410,8 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
 
-        /* Remove the matched operation from the list. */
-        IotListDouble_Remove( &( pResult->link ) );
+        /* Remove the matched operation from the array. */
+        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pResult );
     }
     else
     {
@@ -1404,7 +1420,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                      IotMqtt_OperationType( type ) );
     }
 
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     return pResult;
 }
@@ -1415,9 +1431,12 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 {
     IotMqttError_t status = IOT_MQTT_SCHEDULING_ERROR;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
+    int8_t contextIndex = -1;
 
     /* Check if operation is waitable. */
     bool waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
+
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
     /* Remove any lingering subscriptions if a SUBSCRIBE failed. Rejected
      * subscriptions are removed by the deserializer, so not removed here. */
@@ -1452,7 +1471,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         /* Schedule an invocation of the callback. */
         if( pOperation->u.operation.notify.callback.function != NULL )
         {
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
             status = _IotMqtt_ScheduleOperation( pOperation,
                                                  _IotMqtt_ProcessCompletedOperation,
@@ -1467,17 +1486,12 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 
                 /* Place the scheduled operation back in the list of operations pending
                  * processing. */
-                if( IotLink_IsLinked( &( pOperation->link ) ) == true )
-                {
-                    IotListDouble_Remove( &( pOperation->link ) );
-                }
-                else
-                {
-                    EMPTY_ELSE_MARKER;
-                }
 
-                IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
-                                          &( pOperation->link ) );
+                if( contextIndex >= 0 )
+                {
+                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                }
             }
             else
             {
@@ -1487,7 +1501,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
                             pOperation );
             }
 
-            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
         }
         else
         {
@@ -1520,8 +1534,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
                          pOperation->pMqttConnection,
                          IotMqtt_OperationType( pOperation->u.operation.type ),
                          pOperation );
-
-            IotSemaphore_Post( &( pOperation->u.operation.notify.waitSemaphore ) );
+            xSemaphoreGive( ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) );
         }
         else
         {

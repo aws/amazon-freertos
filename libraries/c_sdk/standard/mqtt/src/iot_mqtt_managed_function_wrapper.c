@@ -40,6 +40,8 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
+#include "semphr.h"
+
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
@@ -59,12 +61,13 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
     if( contextIndex >= 0 )
     {
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
 
         /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
 
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -115,12 +118,12 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
             subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
         }
 
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
 
         /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
         managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
 
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -171,12 +174,12 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
             subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
         }
 
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
 
         /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
         managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
 
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -235,10 +238,10 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
             publishInfo.dup = false;
         }
 
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
         /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
         managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );

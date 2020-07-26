@@ -43,6 +43,7 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
+#include "semphr.h"
 
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
@@ -297,6 +298,8 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
     /* Only valid packets should be given to this function. */
     IotMqtt_Assert( _incomingPacketValid( pIncomingPacket->type ) == true );
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
     /* Mask out the low bits of packet type to ignore flags. */
     switch( ( pIncomingPacket->type & 0xf0 ) )
     {
@@ -405,10 +408,14 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pIncomingPacket->pRemainingData = NULL;
 
                 /* Add the PUBLISH to the list of operations pending processing. */
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-                IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
-                                          &( pOperation->link ) );
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
+
+                if( contextIndex >= 0 )
+                {
+                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                }
+
+                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
                 /* Increment the MQTT connection reference count before scheduling an
                  * incoming PUBLISH. */
@@ -443,18 +450,14 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
 
                 /* Remove operation from pending processing list. */
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-                if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+                if( contextIndex >= 0 )
                 {
-                    IotListDouble_Remove( &( pOperation->link ) );
-                }
-                else
-                {
-                    EMPTY_ELSE_MARKER;
+                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
                 }
 
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
                 IotMqtt_Assert( pOperation != NULL );
                 IotMqtt_FreeOperation( pOperation );
@@ -495,17 +498,16 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-
                 if( contextIndex >= 0 )
                 {
                     IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
                     /* Updating the status for the outgoing publishes after the corresponding puback is received. */
+                    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
                     publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
                                                               pIncomingPacket->packetIdentifier,
                                                               MQTTPuback,
                                                               MQTT_RECEIVE, &publishRecordState );
-                    IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+                    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
                 }
             }
 
@@ -637,7 +639,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
                 if( pMqttConnection->keepAliveFailure == false )
                 {
@@ -652,7 +654,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     pMqttConnection->keepAliveFailure = false;
                 }
 
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
             }
             else
             {
@@ -822,9 +824,11 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     IotNetworkError_t closeStatus = IOT_NETWORK_SUCCESS;
     IotMqttCallbackParam_t callbackParam = { .u.message = { 0 } };
+    int contextIndex = -1;
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
     /* Mark the MQTT connection as disconnected and the keep-alive as failed. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
     pMqttConnection->disconnected = true;
     pMqttConnection->keepAliveFailure = true;
 
@@ -878,7 +882,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
         EMPTY_ELSE_MARKER;
     }
 
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Close the network connection. */
     if( pMqttConnection->pNetworkInterface->close != NULL )

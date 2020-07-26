@@ -283,13 +283,7 @@ typedef struct _mqttConnection
     #endif
 
     bool disconnected;                           /**< @brief Tracks if this connection has been disconnected. */
-    IotMutex_t referencesMutex;                  /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
     int32_t references;                          /**< @brief Counts callbacks and operations using this connection. */
-    IotListDouble_t pendingProcessing;           /**< @brief List of operations waiting to be processed by a task pool routine. */
-    IotListDouble_t pendingResponse;             /**< @brief List of processed operations awaiting a server response. */
-
-    IotListDouble_t subscriptionList;            /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;                /**< @brief Grants exclusive access to the subscription list. */
 
     uint64_t lastMessageTime;                    /**< @brief When the most recent message was transmitted. */
     bool keepAliveFailure;                       /**< @brief Failure flag for keep-alive operation. */
@@ -379,10 +373,10 @@ typedef struct _mqttOperation
             /* How to notify of an operation's completion. */
             union
             {
-                IotSemaphore_t waitSemaphore;   /**< @brief Semaphore to be used with @ref mqtt_function_wait. */
-                IotMqttCallbackInfo_t callback; /**< @brief User-provided callback function and parameter. */
-            } notify;                           /**< @brief How to notify of this operation's completion. */
-            IotMqttError_t status;              /**< @brief Result of this operation. This is reported once a response is received. */
+                StaticSemaphore_t waitSemaphore; /**< @brief Semaphore to be used with @ref mqtt_function_wait. */
+                IotMqttCallbackInfo_t callback;  /**< @brief User-provided callback function and parameter. */
+            } notify;                            /**< @brief How to notify of this operation's completion. */
+            IotMqttError_t status;               /**< @brief Result of this operation. This is reported once a response is received. */
 
             struct
             {
@@ -400,6 +394,27 @@ typedef struct _mqttOperation
         } publish;
     } u;                                      /**< @brief Valid member depends on _mqttOperation_t.incomingPublish. */
 } _mqttOperation_t;
+
+/**
+ * @brief Represents a mapping of MQTT Connection in MQTT 201906.00 library to the corresponding MQTT context
+ * used in MQTT LTS library. MQTT Context is used to call the MQTT LTS API from the shim to serialize
+ * and send packets on the network.
+ */
+typedef struct connContextMapping
+{
+    IotMqttConnection_t mqttConnection;            /**< @brief MQTT connection used in MQTT 201906.00 library. */
+    MQTTContext_t context;                         /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
+    StaticSemaphore_t contextMutex;                /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ];         /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
+    NetworkContext_t networkContext;               /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
+
+    _mqttSubscription_t * subscriptionArray[ 20 ]; /**< @brief Holds subscriptions associated with this connection. */
+    StaticSemaphore_t subscriptionMutex;           /**< @brief Grants exclusive access to the subscription list. */
+
+    _mqttOperation_t * pendingProcessing[ 30 ];    /**< @brief Array of operations waiting to be processed. */
+    _mqttOperation_t * pendingResponse[ 30 ];      /**< @brief Array of processed operations awaiting a server response. */
+    StaticSemaphore_t referencesMutex;             /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+} _connContext_t;
 
 /**
  * @brief Represents an MQTT packet received from the network.
@@ -1084,5 +1099,115 @@ uint16_t _nextPacketIdentifier( void );
  *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
  */
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
+
+/*-----------------------------------Subscription and Operation array container functions----------------------*/
+
+/**
+ * @brief Insert the subscription in the subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array in which the new subscription to be inserted.
+ * @param[in] pNewSubscription The new subscription to be inserted.
+ *
+ */
+void IotMqtt_InsertSubscription( _mqttSubscription_t ** pSubscriptionArray,
+                                 _mqttSubscription_t * pNewSubscription );
+
+/**
+ * @brief Remove the subscription in the subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be removed.
+ * @param[in] pSubscription The subscription to be removed.
+ *
+ */
+void IotMqtt_RemoveSubscription( _mqttSubscription_t ** pSubscriptionArray,
+                                 _mqttSubscription_t * pSubscription );
+
+/**
+ * @brief Remove all the matching subscriptions in the given subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscriptions to be removed.
+ * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
+ * search using the address `pMatch`, i.e. `element == pMatch`.
+ * @param[in] pMatch If `isMatch` is `NULL`, each element in the list is compared
+ * to this address to find a match. Otherwise, it is passed as the second argument
+ * to `isMatch`.
+ * @param[in] freeElement A function to free memory used by each removed array
+ * element. Optional; pass `NULL` to ignore.
+ *
+ */
+void IotMqtt_RemoveAllMatches( _mqttSubscription_t ** pSubscriptionArray,
+                               bool ( * isMatch )( _mqttSubscription_t *, void * ),
+                               void * pMatch,
+                               void ( * freeElement )( void * ) );
+
+/**
+ * @brief Find the first matching subscription in the given subscription array, starting at the given starting point.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be matched.
+ * @param[in] pStartPoint An element in `pSubscriptionArray`. Only elements after this one and
+ * the end of the array are checked. Pass `NULL` to search from the beginning of the array.
+ * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
+ * search using the address `pMatch`, i.e. `element == pMatch`.
+ * @param[in] pMatch If `isMatch` is `NULL`, each element in the array is compared
+ * to this address to find a match. Otherwise, it is passed as the second argument
+ * to `isMatch`.
+ *
+ * @return The first matching subscription from the subscription array.
+ */
+_mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscriptionArray,
+                                              _mqttSubscription_t * pStartPoint,
+                                              bool ( * isMatch )( _mqttSubscription_t *, void * ),
+                                              void * pMatch );
+
+/**
+ * @brief Insert the operation in the operation array.
+ *
+ * @param[in] pOperationArray Operation array in which the new operation to be inserted.
+ * @param[in] pOperation The new operation to be inserted.
+ *
+ */
+void IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
+                              _mqttOperation_t * pOperation );
+
+/**
+ * @brief Remove the operation in the operation array.
+ *
+ * @param[in] pOperationArray Operation array from which the operation needs to be removed.
+ * @param[in] pOperation The operation to be removed.
+ *
+ */
+void IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
+                              _mqttOperation_t * pOperation );
+
+/**
+ * @brief Find the first matching operation in the given operation array, starting at the given starting point.
+ *
+ * @param[in] pOperationArray Operation array from which the operation needs to be matched.
+ * @param[in] pStartPoint An element in `pOperationArray`. Only elements after this one and
+ * the end of the array are checked. Pass `NULL` to search from the beginning of the array.
+ * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
+ * search using the address `pMatch`, i.e. `element == pMatch`.
+ * @param[in] pMatch If `isMatch` is `NULL`, each element in the array is compared
+ * to this address to find a match. Otherwise, it is passed as the second argument
+ * to `isMatch`.
+ *
+ * @return The first matching operation from the operation array.
+ */
+_mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperationArray,
+                                                    _mqttOperation_t * pStartPoint,
+                                                    bool ( * isMatch )( _mqttOperation_t *, void * ),
+                                                    void * pMatch );
+
+/**
+ * @brief Remove all the operations in the given operation array.
+ *
+ * @param[in] pOperationArray Operation array from which the operation needs to be removed.
+ * @param[in] freeElement A function to free memory used by each removed array
+ * element. Optional; pass `NULL` to ignore.
+ *
+ */
+void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
+                                 void ( * freeElement )( void * ) );
+
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
