@@ -767,7 +767,6 @@ uint16_t _nextPacketIdentifier( void )
 }
 /*-----------------------------------------------------------*/
 
-/* Convert the MQTT Status to IOT MQTT Status Code. */
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;

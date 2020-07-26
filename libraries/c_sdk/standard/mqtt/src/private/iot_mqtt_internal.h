@@ -305,8 +305,8 @@ typedef struct _mqttConnection
  */
 struct NetworkContext
 {
-    void * pNetworkConnection;                 /**< @brief The network connection used for sending packets on the network. */
-    IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
 };
 
 /**
@@ -1070,5 +1070,17 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
  * @return Next id generated.
  */
 uint16_t _nextPacketIdentifier( void );
+
+/*-----------------------------------------------------------*/
+
+/**
+ *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
+ *
+ *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
+ *
+ *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
+ *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
+ */
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
