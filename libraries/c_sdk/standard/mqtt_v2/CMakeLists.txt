@@ -1,9 +1,12 @@
-set(CSDK_ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
-set(MODULES_DIR "${CSDK_ROOT_DIR}/libraries")
+# Set CSDK CMake variables for mqttFilePaths.cmake 
+set(ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
+set(MODULES_DIR "${ROOT_DIR}/libraries")
+set(PLATFORM_DIR "${ROOT_DIR}/platform")
+set(LOGGING_INCLUDE_DIRS "${ROOT_DIR}/demos/logging-stack")
 include(mqttFilePaths.cmake)
 
 if(AFR_ENABLE_UNIT_TESTS)
-    add_subdirectory(utest)
+    add_subdirectory("${MODULES_DIR}/standard/mqtt/utest" libraries/standard/mqtt_v2/utest)
     return()
 endif()
 
@@ -29,4 +32,5 @@ afr_module_include_dirs(
         ${MQTT_INCLUDE_PUBLIC_DIRS}
     PRIVATE
         ${MQTT_INCLUDE_PRIVATE_DIRS}
+        ${PLATFORM_INCLUDE_DIR}
 )
