@@ -29,6 +29,15 @@
 
 #include "iot_test_common_io_internal.h"
 
+#if defined( IOT_TEST_COMMON_IO_FLASH_SUPPORTED ) && ( IOT_TEST_COMMON_IO_FLASH_SUPPORTED >= 1 )
+/* FLASH */
+    void SET_TEST_IOT_FLASH_CONFIG( int testSet )
+    {
+        ultestIotFlashStartOffset = 0x4e000;
+    }
+
+#endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
+
 #if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 2 )
 /* GPIO */
     void SET_TEST_IOT_GPIO_CONFIG( int testSet )
