@@ -47,7 +47,7 @@ void IotMqtt_InsertSubscription( _mqttSubscription_t ** pSubscriptionArray,
     size_t i = 0;
 
     /* Finding the free index in subscription array to insert the subscription. */
-    for( i = 0; i < 20; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_SUBSCRIPTIONS; i++ )
     {
         if( pSubscriptionArray[ i ] == NULL )
         {
@@ -65,7 +65,7 @@ void IotMqtt_RemoveSubscription( _mqttSubscription_t ** pSubscriptionArray,
     size_t i = 0;
 
     /* Finding the index matching the input subscription to remove it from the subscription array. */
-    for( i = 0; i < 20; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_SUBSCRIPTIONS; i++ )
     {
         if( pSubscriptionArray[ i ] == pSubscription )
         {
@@ -113,9 +113,9 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
                                               void * pMatch )
 {
     _mqttSubscription_t * pCurrent = ( _mqttSubscription_t * ) pStartPoint;
-    _mqttSubscription_t * matchedSubscription = NULL;
+    _mqttSubscription_t * pMatchedSubscription = NULL;
 
-    /* This function must not be called with a NULL pList parameter. */
+    /* This function must not be called with a NULL pSubscriptionArray parameter. */
     IotMqtt_Assert( pSubscriptionArray != NULL );
 
     /* Find the next Index to start searching for match. */
@@ -127,7 +127,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
     }
     else
     {
-        while( nextIndex < 20 )
+        while( nextIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
         {
             if( pSubscriptionArray[ nextIndex ] == pCurrent )
             {
@@ -140,7 +140,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
     }
 
     /* Finding the first Match. */
-    while( nextIndex < 20 )
+    while( nextIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
         if( pSubscriptionArray[ nextIndex ] != NULL )
         {
@@ -148,7 +148,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
             {
                 if( isMatch( pSubscriptionArray[ nextIndex ], pMatch ) == true )
                 {
-                    matchedSubscription = pSubscriptionArray[ nextIndex ];
+                    pMatchedSubscription = pSubscriptionArray[ nextIndex ];
                     break;
                 }
             }
@@ -156,7 +156,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
             {
                 if( pSubscriptionArray[ nextIndex ] == pMatch )
                 {
-                    matchedSubscription = pSubscriptionArray[ nextIndex ];
+                    pMatchedSubscription = pSubscriptionArray[ nextIndex ];
                     break;
                 }
             }
@@ -165,8 +165,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
         nextIndex++;
     }
 
-    /* No match found, return NULL. */
-    return matchedSubscription;
+    return pMatchedSubscription;
 }
 
 /*-----------------------------------------------------------*/
@@ -177,7 +176,7 @@ void IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
     size_t i = 0;
 
     /* Finding the free index in operation array to insert the operation. */
-    for( i = 0; i < 30; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_OPERATIONS; i++ )
     {
         if( pOperationArray[ i ] == NULL )
         {
@@ -195,7 +194,7 @@ void IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
     size_t i = 0;
 
     /* Finding the index matching the input operation to remove it from the operation array. */
-    for( i = 0; i < 30; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_OPERATIONS; i++ )
     {
         if( pOperationArray[ i ] == pOperation )
         {
@@ -213,51 +212,59 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
                                                     void * pMatch )
 {
     _mqttOperation_t * pCurrent = ( _mqttOperation_t * ) pStartPoint;
+    _mqttOperation_t * pMatchedOperation = NULL;
 
-    /* This function must not be called with a NULL pList parameter. */
+    /* This function must not be called with a NULL pOperationArray parameter. */
     IotMqtt_Assert( pOperationArray != NULL );
 
     size_t nextIndex = 0;
 
+    /* Find the next Index to start searching for match. */
     if( pCurrent == NULL )
     {
         nextIndex = 0;
     }
     else
     {
-        for( size_t i = 0; i < 30; i++ )
+        while( nextIndex < MAX_NO_OF_MQTT_OPERATIONS )
         {
-            if( pOperationArray[ i ] == pCurrent )
+            if( pOperationArray[ nextIndex ] == pCurrent )
             {
-                nextIndex = i + 1;
+                nextIndex = nextIndex + 1;
                 break;
             }
+
+            nextIndex++;
         }
     }
 
-    for( size_t i = nextIndex; i < 30; i++ )
+    /* Finding the first Match. */
+    while( nextIndex < MAX_NO_OF_MQTT_OPERATIONS )
     {
-        if( pOperationArray[ i ] != NULL )
+        if( pOperationArray[ nextIndex ] != NULL )
         {
             if( isMatch != NULL )
             {
-                if( isMatch( pOperationArray[ i ], pMatch ) == true )
+                if( isMatch( pOperationArray[ nextIndex ], pMatch ) == true )
                 {
-                    return pOperationArray[ i ];
+                    pMatchedOperation = pOperationArray[ nextIndex ];
+                    break;
                 }
             }
             else
             {
-                if( pOperationArray[ i ] == pMatch )
+                if( pOperationArray[ nextIndex ] == pMatch )
                 {
-                    return pOperationArray[ i ];
+                    pMatchedOperation = pOperationArray[ nextIndex ];
+                    break;
                 }
             }
         }
+
+        nextIndex++;
     }
 
-    /* No match found, return NULL. */
-    return NULL;
+    return pMatchedOperation;
 }
 
 /*-----------------------------------------------------------*/
@@ -267,7 +274,7 @@ void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
 {
     size_t i = 0;
 
-    for( i = 0; i < 30; i++ )
+    for( i = 0; i < MAX_NO_OF_MQTT_OPERATIONS; i++ )
     {
         if( pOperationArray[ i ] != NULL )
         {

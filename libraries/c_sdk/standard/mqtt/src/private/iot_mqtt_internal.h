@@ -258,6 +258,22 @@
 #endif
 
 /**
+ * @brief Default config for Maximum Number of MQTT Operations.
+ */
+#ifndef MAX_NO_OF_MQTT_OPERATIONS
+    #define MAX_NO_OF_MQTT_OPERATIONS    ( 30 )
+#endif
+
+/**
+ * @brief Default config for Maximum Number of MQTT Subscriptions.
+ * This config can be specified by the application based on number of MQTT
+ * subscriptions.
+ */
+#ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
+    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 20 )
+#endif
+
+/**
  * @brief Static buffer size provided to MQTT LTS API.
  * This buffer will be used to send the packets on the network.
  *
