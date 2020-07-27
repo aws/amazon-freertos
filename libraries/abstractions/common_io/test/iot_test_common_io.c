@@ -57,6 +57,14 @@ TEST_GROUP_RUNNER( Common_IO )
     size_t i = 0;
 
     /* These already used loop back tests which require minimum of two pins */
+    #ifdef IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_PERFCOUNTER_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_PERFCOUNTER );
+        }
+    #endif
+
     #ifdef IOT_TEST_COMMON_IO_GPIO_SUPPORTED
         for( i = 1; i < IOT_TEST_COMMON_IO_GPIO_SUPPORTED; i++ )
         {
@@ -113,11 +121,11 @@ TEST_GROUP_RUNNER( Common_IO )
         }
     #endif
 
-    #ifdef IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED
-        for( i = 0; i < IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED; i++ )
+    #ifdef IOT_TEST_COMMON_IO_TIMER_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_TIMER_SUPPORTED; i++ )
         {
-            SET_TEST_IOT_PERFCOUNTER_CONFIG( i );
-            RUN_TEST_GROUP( TEST_IOT_PERFCOUNTER );
+            SET_TEST_IOT_TIMER_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_TIMER );
         }
     #endif
 
@@ -126,14 +134,6 @@ TEST_GROUP_RUNNER( Common_IO )
         {
             SET_TEST_IOT_FLASH_CONFIG( i );
             RUN_TEST_GROUP( TEST_IOT_FLASH );
-        }
-    #endif
-
-    #ifdef IOT_TEST_COMMON_IO_TIMER_SUPPORTED
-        for( i = 0; i < IOT_TEST_COMMON_IO_TIMER_SUPPORTED; i++ )
-        {
-            SET_TEST_IOT_TIMER_CONFIG( i );
-            RUN_TEST_GROUP( TEST_IOT_TIMER );
         }
     #endif
 
