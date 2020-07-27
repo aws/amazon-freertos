@@ -608,13 +608,13 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
     };
     int8_t contextIndex = -1;
 
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
     /* Prevent any other thread from modifying the subscription list while this
      * function is running. */
     xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
 
     /* Search for a matching subscription. */
-
-    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
     if( contextIndex >= 0 )
     {
