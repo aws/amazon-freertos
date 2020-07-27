@@ -1,3 +1,4 @@
+include("../mqttFilePaths.cmake")
 project ("mqtt unit test")
 cmake_minimum_required (VERSION 3.13)
 
@@ -67,7 +68,6 @@ create_real_library(${real_name}
 list(APPEND utest_link_list
             -l${mock_name}
             lib${real_name}.a
-            libutils.so
         )
 
 list(APPEND utest_dep_list
@@ -87,7 +87,6 @@ create_test(${utest_name}
 set(utest_link_list "")
 list(APPEND utest_link_list
                 lib${real_name}.a
-                libutils.so
         )
 
 # mqtt_state_utest
@@ -108,7 +107,6 @@ set(utest_source "${project_name}_lightweight_utest.c")
 set(utest_link_list "")
 list(APPEND utest_link_list
             lib${real_name}.a
-            libutils.so
         )
 
 create_test(${utest_name}
