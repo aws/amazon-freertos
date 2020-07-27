@@ -6,6 +6,7 @@ if (AFR_ENABLE_UNIT_TESTS)
     add_subdirectory(freertos_plus/standard/utils/)
     add_subdirectory(abstractions/pkcs11/)
     add_subdirectory(c_sdk/standard/ble)
+    add_subdirectory(c_sdk/standard/mqtt_v2)
     return()
 endif()
 
