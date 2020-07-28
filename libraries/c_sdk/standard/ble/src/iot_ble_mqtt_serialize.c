@@ -1317,18 +1317,18 @@ MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
     return ret;
 }
 
-size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection)
+size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection )
 {
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer(pNetworkConnection, &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection, &pBuffer, &length );
 
     return length;
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection)
+uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
@@ -1336,7 +1336,7 @@ uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnecti
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection , &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection, &pBuffer, &length );
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
