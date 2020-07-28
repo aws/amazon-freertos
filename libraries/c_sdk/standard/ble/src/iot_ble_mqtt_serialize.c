@@ -62,21 +62,6 @@
 #define _NUM_DISCONNECT_PARAMS         ( 1 )
 #define _NUM_PINGREQUEST_PARAMS        ( 1 )
 
-/**
- * @brief Guards access to the packet identifier counter.
- *
- * Each packet should have a unique packet identifier. This mutex ensures that only
- * one thread at a time may read the global packet identifer.
- */
-
-
-/**
- * @brief Generates a monotonically increasing identifier used in  MQTT message
- *
- * @return Identifier for the MQTT message
- */
-static uint16_t _nextPacketIdentifier( void );
-
 
 static inline uint16_t _getNumPublishParams( const MQTTPublishInfo_t * const pPublish )
 {
@@ -128,29 +113,6 @@ extern int snprintf( char * s,
                      ... );
 
 /*-----------------------------------------------------------*/
-
-static uint16_t _nextPacketIdentifier( void )
-{
-    static uint16_t nextPacketIdentifier = 1;
-    uint16_t newPacketIdentifier = 0;
-
-    /* Lock the packet identifier mutex so that only one thread may read and
-     * modify nextPacketIdentifier. */
-    IotMutex_Lock( &_packetIdentifierMutex );
-
-    /* Read the next packet identifier. */
-    newPacketIdentifier = nextPacketIdentifier;
-
-    /* The next packet identifier will be greater by 2. This prevents packet
-     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-    nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
-
-    /* Unlock the packet identifier mutex. */
-    IotMutex_Unlock( &_packetIdentifierMutex );
-
-    return newPacketIdentifier;
-}
 
 static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * pConnectInfo,
                                                uint8_t * const pBuffer,
