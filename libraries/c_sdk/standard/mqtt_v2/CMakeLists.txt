@@ -3,7 +3,7 @@ set(ROOT_DIR "${AFR_ROOT_DIR}/../aws-iot-device-sdk-embedded-C")
 set(MODULES_DIR "${ROOT_DIR}/libraries")
 set(PLATFORM_DIR "${ROOT_DIR}/platform")
 set(LOGGING_INCLUDE_DIRS "${ROOT_DIR}/demos/logging-stack")
-include(mqttFilePaths.cmake)
+include(${MODULES_DIR}/standard/mqtt/mqttFilePaths.cmake)
 
 if(AFR_ENABLE_UNIT_TESTS)
     add_subdirectory("${MODULES_DIR}/standard/mqtt/utest" libraries/standard/mqtt_v2/utest)
@@ -22,15 +22,14 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         ${MQTT_SOURCES}
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         ${MQTT_INCLUDE_PUBLIC_DIRS}
-    PRIVATE
         ${MQTT_INCLUDE_PRIVATE_DIRS}
         ${PLATFORM_INCLUDE_DIR}
 )
