@@ -234,13 +234,14 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         status = MQTTBadParameter;
     }
 
-    if ( status == MQTTSuccess )
+    if( status == MQTTSuccess )
     {
         /* Skips the remaining length, which is not needed in connect packet.  Finds first 'M' (77) in 'MQTT'. */
         while( buf[ bufferIndex ] != 77U )
         {
             bufferIndex++;
         }
+
         /* Skips 'MQTT'. */
         bufferIndex += 4U;
 
@@ -248,7 +249,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         if( ( buf[ bufferIndex ] != 4U ) )
         {
             LogError( ( "The service level of a connect packet must be 4, see [MQTT-3.1.2-2]" ) );
-            status =  MQTTBadParameter;
+            status = MQTTBadParameter;
         }
 
         /* Increment bufferIndex to be the start of the payload. */
@@ -263,8 +264,8 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
             status = MQTTBadParameter;
         }
     }
-    
-    if ( status == MQTTSuccess)
+
+    if( status == MQTTSuccess )
     {
         /* Get flag data from the flag byte. */
         connectConfig->cleanSession = ( ( ( connectionFlags & 0x02U ) >> 1) == 1U );
@@ -284,7 +285,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         status = MQTTBadParameter;
     }
 
-    if ( status == MQTTSuccess )
+    if( status == MQTTSuccess )
     {
         /* Third and fourth bytes are keep alive time */
         connectConfig->keepAliveSeconds = getIntFromTwoBytes( &buf[ bufferIndex + 1U ] );
@@ -366,7 +367,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         payloadIndex = payloadIndex + 2U + connectConfig->passwordLength;
     }
 
-    if ( status == MQTTSuccess )
+    if( status == MQTTSuccess )
     {
         /* Add one since we are zero indexed. */
         *pSize = payloadIndex + 1U;
@@ -389,13 +390,12 @@ static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
         status = MQTTBadParameter;
     }
 
-    if ( status == MQTTSuccess )
+    if( status == MQTTSuccess )
     {
         /* Get flag information from fixed header. */
         publishConfig->dup = ( ( ( buf[ 0 ] & 0x08U ) >> 3 ) == 1U );
         publishConfig->qos = convertIntToQos( ( ( buf[ 0 ] & 0x06U ) >> 1) == 1U ); 
     }
-    
 
     if( ( status == MQTTSuccess ) && ( publishConfig->qos > MQTTQoS1 ) )
     {
@@ -403,7 +403,7 @@ static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
         status = MQTTBadParameter;
     }
 
-    if ( status == MQTTSuccess )
+    if( status == MQTTSuccess )
     {
         publishConfig->retain = ( ( buf[ 0 ] & 0x01U ) == 1U );
         remainingLength = buf[ 1 ];
@@ -420,7 +420,7 @@ static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
         /* Add 2 for the fixed header size. */
         *pSize = ( size_t ) remainingLength + 2U;
     }
-    
+
     return status;
 }
 
@@ -471,7 +471,7 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
 
     bufferIndex = 4;
 
-    for( subscriptionIndex = 0; subscriptionIndex < *subscriptionCount; ++subscriptionIndex)
+    for( subscriptionIndex = 0; subscriptionIndex < *subscriptionCount; ++subscriptionIndex )
     {
         /* Populate the name of the topic to (un)subscribe to. */
         _subscriptions[ subscriptionIndex ].topicFilterLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
@@ -501,6 +501,7 @@ static MQTTStatus_t parsePubAck( const uint8_t * buf,
                                  uint16_t * pIdentifier )
 {
     MQTTStatus_t status = MQTTSuccess;
+
     /* For publish ACKs, the second byte must be 2. */
     if( ( buf[ 0 ] & 0xf0U ) != MQTT_PACKET_TYPE_PUBACK )
     {
@@ -512,14 +513,14 @@ static MQTTStatus_t parsePubAck( const uint8_t * buf,
     {
         LogError( ( "Malformed PUBACK packet received" ) );
 
-        status =  MQTTBadParameter;
+        status = MQTTBadParameter;
     }
     else
     {
         /* Returns the packet identifier */
         *pIdentifier = getIntFromTwoBytes( &buf[ 2 ] );
     }
-    
+
     return status;
 }
 
@@ -742,6 +743,7 @@ static MQTTStatus_t handleIncomingConnack( MQTTPacketInfo_t * packet,
     LogDebug( ( "Processing incoming CONNACK from channel" ) );
 
     status = IotBleMqtt_DeserializeConnack( packet );
+
     if( status == MQTTSuccess )
     {
         /* Packet ID is not used in connack. */
@@ -883,7 +885,7 @@ static MQTTStatus_t handleIncomingPingresp( MQTTPacketInfo_t * packet,
  */
 int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
                                  void * buf,
-                                size_t bytesToWrite )
+                                 size_t bytesToWrite )
 {
     size_t CBORbytesWritten = 0;
     uint8_t packetType = *( ( uint8_t * ) buf );
@@ -891,9 +893,9 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     MQTTFixedBuffer_t bufToSend;
     size_t pSize = 0;
     bool serializerInitVal = false;
-    
+
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
-    int32_t MQTTBytesWritten = (int32_t ) bytesToWrite;
+    int32_t MQTTBytesWritten = ( int32_t ) bytesToWrite;
 
     uint8_t sharedBuffer[ RECV_PACKET_BUFFER_SIZE ];
 
@@ -902,7 +904,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
     serializerInitVal = IotBleMqtt_InitSerialize();
 
-    if ( serializerInitVal == true )
+    if( serializerInitVal == true )
     {
         switch( packetType )
         {
@@ -953,9 +955,8 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     else
     {
         status = MQTTSendFailed;
-        LogError( ( "Serializer could not be initialized while sending data ") );
+        LogError( ( "Serializer could not be initialized while sending data " ) );
     }
-    
 
     IotBleMqtt_CleanupSerialize();
 
@@ -991,9 +992,10 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     pBuffer.size = RECV_PACKET_BUFFER_SIZE;
 
     packet.type = IotBleMqtt_GetPacketType( pContext->pChannel );
-    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t **  ) &packet.pRemainingData, &packet.remainingLength );
+    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
 
-    LogDebug ( ( "Receiving a packet from the server ") );
+    LogDebug( ( "Receiving a packet from the server " ) );
+
     switch( packet.type )
     {
         case MQTT_PACKET_TYPE_CONNACK:

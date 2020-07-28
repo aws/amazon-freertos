@@ -165,7 +165,6 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     {
         /* Empty else, MISRA 2012 15.7 */
     }
-    
 }
 
 
@@ -253,9 +252,9 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
 
     /* Generate the payload for the PUBLISH. */
     status = ( size_t ) snprintf( demoClientIdentifier,
-                       CLIENT_IDENTIFIER_MAX_LENGTH,
-                       CLIENT_IDENTIFIER_PREFIX "%u",
-                       ( uint16_t ) IotClock_GetTimeMs() );
+                                  CLIENT_IDENTIFIER_MAX_LENGTH,
+                                  CLIENT_IDENTIFIER_PREFIX "%u",
+                                  ( uint16_t ) IotClock_GetTimeMs() );
 
     LogInfo( ( "Generated client identifier is %s", demoClientIdentifier ) );
 
@@ -424,7 +423,7 @@ static void mqttUnsubscribeFromTopic( const MQTTFixedBuffer_t * buf )
     assert( result == MQTTSuccess );
 
     /* Send Unsubscribe request to the broker. */
-    status = ( size_t )IotBleMqttTransportSend( &pContext, buf->pBuffer, packetSize );
+    status = ( size_t ) IotBleMqttTransportSend( &pContext, buf->pBuffer, packetSize );
     assert( status == packetSize );
 
     LogDebug( ( "Successfully sent an unsubscribe packet to the server" ) );
@@ -690,6 +689,7 @@ MQTTStatus_t RunMQTTTransportDemo( void )
      * long as it is provided and allocated by the user
      ***/
     uint8_t buf[ STATIC_BUFFER_SIZE ];
+
     pContext.buf = buf;
     pContext.bufSize = STATIC_BUFFER_SIZE;
 
@@ -772,8 +772,8 @@ MQTTStatus_t RunMQTTTransportDemo( void )
                 }
 
                 /* Since the application is subscribed publishing messages to the same topic,
-                    * the broker will send the same message back to the application.
-                    * Process incoming PUBLISH echo or PINGRESP. */
+                 * the broker will send the same message back to the application.
+                 * Process incoming PUBLISH echo or PINGRESP. */
                 mqttProcessIncomingPacket( &fixedBuffer );
 
                 /* Sleep until keep alive time period, so that for the next iteration this
