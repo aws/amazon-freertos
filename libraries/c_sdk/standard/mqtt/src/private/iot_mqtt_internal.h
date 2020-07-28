@@ -44,6 +44,9 @@
 /* Task pool include. */
 #include "iot_taskpool.h"
 
+/* MQTT LTS library includes. */
+#include "mqtt_lightweight.h"
+
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -64,16 +67,21 @@
 
 /* Configure logs for MQTT functions. */
 #ifdef IOT_LOG_LEVEL_MQTT
-    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_MQTT
+    #define LIBRARY_LOG_LEVEL            IOT_LOG_LEVEL_MQTT
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_GLOBAL
     #else
-        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #ifndef LIBRARY_LOG_LEVEL
+            #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #endif
     #endif
 #endif
 
-#define LIBRARY_LOG_NAME    ( "MQTT" )
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    ( "MQTT" )
+#endif
+
 #include "iot_logging_setup.h"
 
 /*
@@ -226,17 +234,7 @@
  * For details, see
  * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/csprd02/mqtt-v3.1.1-csprd02.html#_Toc385349757
  */
-#define MQTT_PACKET_TYPE_CONNECT                               ( ( uint8_t ) 0x10U ) /**< @brief CONNECT (client-to-server). */
-#define MQTT_PACKET_TYPE_CONNACK                               ( ( uint8_t ) 0x20U ) /**< @brief CONNACK (server-to-client). */
-#define MQTT_PACKET_TYPE_PUBLISH                               ( ( uint8_t ) 0x30U ) /**< @brief PUBLISH (bi-directional). */
-#define MQTT_PACKET_TYPE_PUBACK                                ( ( uint8_t ) 0x40U ) /**< @brief PUBACK (server-to-client). */
-#define MQTT_PACKET_TYPE_SUBSCRIBE                             ( ( uint8_t ) 0x82U ) /**< @brief SUBSCRIBE (client-to-server). */
-#define MQTT_PACKET_TYPE_SUBACK                                ( ( uint8_t ) 0x90U ) /**< @brief SUBACK (server-to-client). */
-#define MQTT_PACKET_TYPE_UNSUBSCRIBE                           ( ( uint8_t ) 0xa2U ) /**< @brief UNSUBSCRIBE (client-to-server). */
-#define MQTT_PACKET_TYPE_UNSUBACK                              ( ( uint8_t ) 0xb0U ) /**< @brief UNSUBACK (server-to-client). */
-#define MQTT_PACKET_TYPE_PINGREQ                               ( ( uint8_t ) 0xc0U ) /**< @brief PINGREQ (client-to-server). */
-#define MQTT_PACKET_TYPE_PINGRESP                              ( ( uint8_t ) 0xd0U ) /**< @brief PINGRESP (server-to-client). */
-#define MQTT_PACKET_TYPE_DISCONNECT                            ( ( uint8_t ) 0xe0U ) /**< @brief DISCONNECT (client-to-server). */
+
 
 /**
  * @brief A value that represents an invalid remaining length.
