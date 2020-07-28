@@ -3637,6 +3637,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     /* 8 bytes added to hold ASN.1 encoding information. */
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 8 ];
     int32_t lMbedTLSResult;
+    mbedtls_md_type_t xHashType;
 
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pData ) )
@@ -3651,12 +3652,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
         {
             xSignatureLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
+            xHashType = MBEDTLS_MD_NONE;
         }
         else if( pxSessionObj->xOperationSignMechanism == CKM_ECDSA )
         {
             xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
             pxSignatureBuffer = ecSignature;
+            xHashType = MBEDTLS_MD_SHA256;
         }
         else
         {
@@ -3694,35 +3697,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
                      * MBEDTLS_MD_NONE. SHA-256 will be used for ECDSA for
                      * consistency with the rest of the port.
                      */
-                    if( pxSessionObj->xOperationSignMechanism == CKM_RSA_PKCS )
-                    {
-                        lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                          MBEDTLS_MD_NONE,
-                                                          pData,
-                                                          ulDataLen,
-                                                          pxSignatureBuffer,
-                                                          &xExpectedInputLength,
-                                                          mbedtls_ctr_drbg_random,
-                                                          &xP11Context.xMbedDrbgCtx );
-                    }
-                    else if( pxSessionObj->xOperationSignMechanism == CKM_ECDSA )
-                    {
-                        lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                          MBEDTLS_MD_SHA256,
-                                                          pData,
-                                                          ulDataLen,
-                                                          pxSignatureBuffer,
-                                                          &xExpectedInputLength,
-                                                          mbedtls_ctr_drbg_random,
-                                                          &xP11Context.xMbedDrbgCtx );
-                    }
-                    else
-                    {
-                        /* Empty else block for MISRA compliance. Be sure to update
-                         * this, if a new signature mechanism is introduced to
-                         * this port.
-                         */
-                    }
+                    lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                                                      xHashType,
+                                                      pData,
+                                                      ulDataLen,
+                                                      pxSignatureBuffer,
+                                                      &xExpectedInputLength,
+                                                      mbedtls_ctr_drbg_random,
+                                                      &xP11Context.xMbedDrbgCtx );
 
                     if( lMbedTLSResult != 0 )
                     {
