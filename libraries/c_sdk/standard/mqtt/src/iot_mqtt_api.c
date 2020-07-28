@@ -239,7 +239,7 @@ static void _mqttOperation_tryDestroy( void * pData )
     else
     {
         /* Decrement reference count and destroy CONNECT operation if possible.
-         *  Only the CONNECT operation is using taskpool to send packets on the network. */
+         * In Phase 2 Shim Implementation, only the CONNECT operation is using taskpool to send packets on the network. */
         if( pOperation->u.operation.type == IOT_MQTT_CONNECT )
         {
             if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
