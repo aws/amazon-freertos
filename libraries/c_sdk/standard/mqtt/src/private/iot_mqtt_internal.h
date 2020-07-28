@@ -1081,6 +1081,6 @@ uint16_t _nextPacketIdentifier( void );
  *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
  *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
  */
-IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
