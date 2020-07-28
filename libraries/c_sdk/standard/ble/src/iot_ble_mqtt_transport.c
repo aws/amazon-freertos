@@ -50,8 +50,15 @@
  *
  * @param[in] buf A pointer to the MSB of the integer.
  */
-
 static uint16_t getIntFromTwoBytes( const uint8_t * buf );
+
+
+/**
+ * @brief Converts the given integer to MQTTQoS_t
+ *
+ * @param[in] incomingQos, the integer to convert
+ */
+static MQTTQoS_t convertIntToQos( const uint8_t incomingQos );
 
 /**
  * @brief Sets flags in connectConfig according to the packet in buf.
@@ -183,6 +190,30 @@ static uint16_t getIntFromTwoBytes( const uint8_t * buf )
 }
 
 
+static MQTTQoS_t convertIntToQos( const uint8_t incomingQos )
+{
+    MQTTQoS_t qosValue = MQTTQoS0;
+    
+    switch( incomingQos )
+    {
+        case 0U:
+            qosValue = MQTTQoS0;
+            break;
+            
+        case 1U:
+            qosValue = MQTTQoS1;
+            break;
+            
+        default:
+            LogError( ( "QoS 2 is not supported by MQTT over BLE. Defaulting to Qos 1" ) );
+            qosValue = MQTTQoS1;
+            break;
+    }
+    
+    return qosValue;
+}
+
+
 static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
                                   const uint8_t * buf,
                                   size_t * pSize )
@@ -238,7 +269,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         /* Get flag data from the flag byte. */
         connectConfig->cleanSession = ( ( ( connectionFlags & 0x02U ) >> 1) == 1U );
         willFlag = ( ( ( connectionFlags & 0x04U ) >> 2 ) == 1U) ;
-        willQos = ( MQTTQoS_t ) ( ( connectionFlags & 0x18U ) >> 3 );
+        willQos = convertIntToQos( ( connectionFlags & 0x18U ) >> 3 );
         willRetain = ( ( ( connectionFlags & 0x20U ) >> 5 ) == 1U );
         passwordFlag = ( ( ( connectionFlags & 0x40U ) >> 6 ) == 1U );
         usernameFlag = ( ( ( connectionFlags & 0x80U ) >> 7 ) == 1U );
@@ -362,7 +393,7 @@ static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
     {
         /* Get flag information from fixed header. */
         publishConfig->dup = ( ( ( buf[ 0 ] & 0x08U ) >> 3 ) == 1U );
-        publishConfig->qos = ( MQTTQoS_t ) ( ( ( buf[ 0 ] & 0x06U ) >> 1) == 1U ); 
+        publishConfig->qos = convertIntToQos( ( ( buf[ 0 ] & 0x06U ) >> 1) == 1U ); 
     }
     
 
@@ -450,7 +481,7 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
         /* For subscribe packets only, increment past qos byte. */
         if( subscribe )
         {
-            _subscriptions[ subscriptionIndex ].qos = ( MQTTQoS_t ) ( buf[ bufferIndex ] & 0x03U);
+            _subscriptions[ subscriptionIndex ].qos = convertIntToQos( buf[ bufferIndex ] & 0x03U);
             bufferIndex++;
 
             if( _subscriptions[ subscriptionIndex ].qos > MQTTQoS1 )
