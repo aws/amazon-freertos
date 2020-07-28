@@ -3637,7 +3637,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     /* 8 bytes added to hold ASN.1 encoding information. */
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 8 ];
     int32_t lMbedTLSResult;
-    mbedtls_md_type_t xHashType;
+    mbedtls_md_type_t xHashType = MBEDTLS_MD_NONE;
 
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pData ) )
