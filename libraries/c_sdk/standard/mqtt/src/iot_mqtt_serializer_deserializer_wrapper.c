@@ -75,6 +75,11 @@ static size_t _remainingLengthEncodedSize( size_t length );
 
 /*-----------------------------------------------------------*/
 
+/* Helper function to translate new return codes to old return codes. */
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
+
+/*-----------------------------------------------------------*/
+
 /* Generate Id for packet. */
 static uint16_t _nextPacketIdentifier( void )
 {

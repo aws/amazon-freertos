@@ -14,7 +14,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
-    set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
+    set(extra_mqtt_sources "${src_dir}/../../ble/src/iot_ble_mqtt_serialize.c")
     set(extra_mqtt_dependencies AFR::serializer AFR::ble)
 endif()
 

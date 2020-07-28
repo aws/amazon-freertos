@@ -39,14 +39,14 @@
 /**
  * @brief Initiailzes the Circular buffer to store the received data
  */
-void IotBleMqttTransportInit( NetworkContext_t * context );
+void IotBleMqttTransportInit( const NetworkContext_t * context );
 
 /**
  * @brief Function to accept data from the channel
  *
  * @param[in] pContext An opaque used by transport interface.
  */
-void IotBleMqttTransportAcceptData( NetworkContext_t * pContext );
+void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
 
 
 /**
@@ -57,9 +57,9 @@ void IotBleMqttTransportAcceptData( NetworkContext_t * pContext );
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  * @return the number of bytes sent.
  */
-int32_t IotBleMqttTransportSend( NetworkContext_t context,
+int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
                                  void * buf,
-                                 const size_t bytesToWrite );
+                                 size_t bytesToWrite );
 
 /**
  * @brief Transport interface read function.
@@ -69,9 +69,9 @@ int32_t IotBleMqttTransportSend( NetworkContext_t context,
  * @param[in] bytesToRead number of bytes to read from the transport layer.
  * @return the number of bytes successfully read.
  */
-int32_t IotBleMqttTransportReceive( NetworkContext_t context,
+int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
                                     void * buf,
-                                    const size_t bytesToRead );
+                                    size_t bytesToRead );
 
 
 #endif /* ifndef IOT_BLE_MQTT_TRANSPORT_H */

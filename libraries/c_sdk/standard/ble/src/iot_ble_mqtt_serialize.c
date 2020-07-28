@@ -45,6 +45,7 @@
 #include "iot_serializer.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_serialize.h"
+#include "logging_stack.h"
 
 #define _INVALID_MQTT_PACKET_TYPE    ( 0xF0 )
 
@@ -114,19 +115,6 @@ static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
 static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
                                                    size_t * const pSize );
 
-#if LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
-
-/**
- * @brief If logging is enabled, define a log configuration that only prints the log
- * string. This is used when printing out details of deserialized MQTT packets.
- */
-    static const IotLogConfig_t _logHideAll =
-    {
-        .hideLibraryName = true,
-        .hideLogLevel    = true,
-        .hideTimestring  = true
-    };
-#endif
 
 
 static IotMutex_t _packetIdentifierMutex;
@@ -805,18 +793,12 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
     ( void ) pPacketIdentifierHigh;
 
-    if( pPublishInfo->qos != 0 )
-    {
-        usPacketIdentifier = _nextPacketIdentifier();
-    }
-
-    error = _serializePublish( pPublishInfo, NULL, &bufLen, usPacketIdentifier );
+    error = _serializePublish( pPublishInfo, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -838,7 +820,7 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
 
     if( ret == MQTTSuccess )
     {
-        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -851,7 +833,6 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
     {
         *pPublishPacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
@@ -1078,13 +1059,10 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    usPacketIdentifier = _nextPacketIdentifier();
-
-    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -1106,7 +1084,7 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 
     if( ret == MQTTSuccess )
     {
-        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -1119,7 +1097,6 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
     {
         *pSubscribePacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
@@ -1192,13 +1169,10 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    usPacketIdentifier = _nextPacketIdentifier();
-
-    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -1220,7 +1194,7 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
 
     if( ret == MQTTSuccess )
     {
-        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -1233,7 +1207,6 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
     {
         *pUnsubscribePacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
