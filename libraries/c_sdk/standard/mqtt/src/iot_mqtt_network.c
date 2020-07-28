@@ -46,6 +46,8 @@
 /* MQTT v4_beta2 include*/
 #include "mqtt_lightweight.h"
 
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 /*-----------------------------------------------------------*/
 

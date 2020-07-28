@@ -64,6 +64,12 @@
     #error "IOT_MQTT_RETRY_MS_CEILING cannot be 0 or negative."
 #endif
 
+/**
+ * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
+ * used in calling MQTT LTS API from shim to send packets on the network.
+ */
+_connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
 /*-----------------------------------------------------------*/
 
 /**

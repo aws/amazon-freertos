@@ -446,12 +446,6 @@ typedef struct connContextMapping
     NetworkContext_t networkContext;       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
 } _connContext_t;
 
-/**
- * @brief Fixed Size Array to hold Mapping of MQTT Connection used in MQTT 201906.00 library to MQTT Context
- * used in calling MQTT LTS API from shim to send packets on the network.
- */
-_connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
-
 /*-------------------- MQTT struct validation functions ---------------------*/
 
 /**

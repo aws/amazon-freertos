@@ -40,6 +40,9 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
 /*-----------------------------------------------------------*/
 
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
