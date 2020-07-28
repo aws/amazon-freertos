@@ -22,6 +22,8 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/iot_ble_gap.c"
         "${src_dir}/iot_ble_gatt.c"
+        "${src_dir}/iot_ble_mqtt_serialize.c"
+        "${src_dir}/iot_ble_mqtt_transport.c"
         "${src_dir}/iot_ble_internal.h"
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/mqtt_ble/iot_ble_data_transfer.c"
@@ -30,6 +32,7 @@ afr_module_sources(
         "${inc_dir}/iot_ble_data_transfer.h"
         "${inc_dir}/iot_ble_device_information.h"
         "${inc_dir}/iot_ble_mqtt_serialize.h"
+        "${inc_dir}/iot_ble_mqtt_transport.h"
         "${inc_dir}/iot_ble_wifi_provisioning.h"
         "${inc_dir}/iot_ble.h"
 )
@@ -48,6 +51,7 @@ afr_module_dependencies(
         AFR::ble_hal
         AFR::common
         AFR::serializer
+	AFR::mqtt_v2
 )
 
 # BLE test

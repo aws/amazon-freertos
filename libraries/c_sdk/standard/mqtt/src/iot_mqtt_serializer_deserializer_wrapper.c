@@ -60,6 +60,23 @@ static uint16_t _nextPacketIdentifier( void );
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Calculate the number of bytes required to encode an MQTT
+ * "Remaining length" field.
+ *
+ * @param[in] length The value of the "Remaining length" to encode.
+ *
+ * @return The size of the encoding of length. This is always `1`, `2`, `3`, or `4`.
+ */
+static size_t _remainingLengthEncodedSize( size_t length );
+
+/*-----------------------------------------------------------*/
+
+/* Helper function to translate new return codes to old return codes. */
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
+
+/*-----------------------------------------------------------*/
+
 /* Generate Id for packet. */
 static uint16_t _nextPacketIdentifier( void )
 {
