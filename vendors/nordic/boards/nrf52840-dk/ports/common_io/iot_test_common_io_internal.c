@@ -33,7 +33,10 @@
 /* FLASH */
     void SET_TEST_IOT_FLASH_CONFIG( int testSet )
     {
-        ultestIotFlashStartOffset = 0x4e000;
+        /* This value depends on linked flash usage. At time of writing, test project ended @ 0x49bc3
+         * Some tests require this to be page-aligned
+         */
+        ultestIotFlashStartOffset = 0x75000;
     }
 
 #endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */

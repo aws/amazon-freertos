@@ -28,13 +28,6 @@
  * @brief HAL Flash implementation on NRF52840 Development Kit
  */
 
-/*
- * TODO:
- *       - Need mech for user to specify application base addr for flash. Tests use: ultestIotFlashStartOffset
- *       - Verify each function has appropriate logging
- *       - Test with soft-device disabled
- */
-
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -121,17 +114,19 @@ static IotFlashDescriptor_t xFlashDesc = DEFAULT_FLASH_DESC;
 /*---------------------------------------------------------------------------------*
 *                                Private Helpers                                  *
 *---------------------------------------------------------------------------------*/
-static inline uint32_t prvIsAligned4K( uint32_t ulAddr )
+static inline bool prvIsAligned4K( uint32_t ulAddr )
 {
-    return ( ( ulAddr ) & ( FLASH_SECTOR_MASK_4K ) ) == 0 ? 1 : 0;
+    return ( ulAddr & FLASH_SECTOR_MASK_4K ) == 0;
 }
-static void prvWaitUntilFlashReady( nrf_fstorage_t const * p_fstorage )
+
+static inline void prvWaitUntilFlashReady( nrf_fstorage_t const * p_fstorage )
 {
     while( nrf_fstorage_is_busy( p_fstorage ) )
     {
         vTaskDelay( pdMS_TO_TICKS( 1 ) );
     }
 }
+
 static void prvFlashEventHandler( nrf_fstorage_evt_t * p_evt )
 {
     IotFlashOperationStatus_t xStatus = IOT_FLASH_SUCCESS;
@@ -182,17 +177,9 @@ static void prvGetFlashInfo( void )
                  flash_end_addr );
 }
 
-bool prvIsOperableHandle( IotFlashHandle_t const pxFlashHandle )
+static inline bool prvIsOperableHandle( IotFlashHandle_t const pxFlashHandle )
 {
     return ( pxFlashHandle != NULL ) && ( pxFlashHandle->ucState == IOT_FLASH_OPENED );
-}
-
-/* Shared reaction for blocking APIs*/
-int32_t prvMemoryOpProcess( ret_code_t xReturnCode_NRF,
-                            uint32_t ulAddress,
-                            const char * op )
-{
-    int32_t lReturnCode = IOT_FLASH_INVALID_VALUE;
 }
 
 /*---------------------------------------------------------------------------------*
@@ -212,6 +199,7 @@ IotFlashHandle_t iot_flash_open( int32_t lFlashInstance )
              * nrf_fstorage_sd uses the SoftDevice to write to flash. This implementation can safely be
              * used whenever there is a SoftDevice, regardless of its status (enabled/disabled). */
             nrf_fstorage_api_t * p_fs_api = &nrf_fstorage_sd;
+            IotLogDebug( "Backend: nrf_fstorage_sd" );
         #else
 
             /* Initialize an fstorage instance using the nrf_fstorage_nvmc backend.
@@ -220,6 +208,7 @@ IotFlashHandle_t iot_flash_open( int32_t lFlashInstance )
              *
              * Using this implementation when the SoftDevice is enabled results in a hardfault. */
             nrf_fstorage_api_t * p_fs_api = &nrf_fstorage_nvmc;
+            IotLogDebug( "Backend: nrf_fstorage_nvmc" );
         #endif
 
         xFlashDesc = DEFAULT_FLASH_DESC;
@@ -233,7 +222,7 @@ IotFlashHandle_t iot_flash_open( int32_t lFlashInstance )
         }
         else
         {
-            IotLogError( "%s: Internal NRF error", __func__ );
+            IotLogError( "%s: Internal NRF error. Could not open handle[%d]", __func__, lFlashInstance );
         }
     }
 
@@ -246,7 +235,7 @@ IotFlashInfo_t * iot_flash_getinfo( IotFlashHandle_t const pxFlashHandle )
 
     if( prvIsOperableHandle( pxFlashHandle ) )
     {
-        pxFlashInfo = &( xFlashDesc.xFlashInfo );
+        pxFlashInfo = &xFlashDesc.xFlashInfo;
     }
 
     return pxFlashInfo;
@@ -336,12 +325,12 @@ int32_t iot_flash_erase_sectors( IotFlashHandle_t const pxFlashHandle,
                 break;
 
             case NRF_ERROR_NO_MEM:
-                IotLogError( "Erase: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE" );
+                IotLogError( "%s: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE", __func__ );
                 lReturnCode = IOT_FLASH_ERASE_FAILED;
                 break;
 
             case NRF_ERROR_INVALID_ADDR:
-                IotLogError( "Erase: Out-of-bounds access (0x%x)", ulStartAddress );
+                IotLogError( "%s: Out-of-bounds access (0x%x)", __func__, ulStartAddress );
                 lReturnCode = IOT_FLASH_INVALID_VALUE;
                 break;
 
@@ -399,12 +388,12 @@ int32_t iot_flash_write_sync( IotFlashHandle_t const pxFlashHandle,
                 break;
 
             case NRF_ERROR_NO_MEM:
-                IotLogError( "Write: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE" );
+                IotLogError( "%s: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE", __func__ );
                 lReturnCode = IOT_FLASH_ERASE_FAILED;
                 break;
 
             case NRF_ERROR_INVALID_ADDR:
-                IotLogError( "Write: Out-of-bounds access (0x%x)", ulAddress );
+                IotLogError( "%s: Out-of-bounds access (0x%x)", __func__, ulAddress );
                 lReturnCode = IOT_FLASH_INVALID_VALUE;
                 break;
 
@@ -442,12 +431,12 @@ int32_t iot_flash_read_sync( IotFlashHandle_t const pxFlashHandle,
                 break;
 
             case NRF_ERROR_NO_MEM:
-                IotLogError( "Read: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE" );
+                IotLogError( "%s: Insufficient memory to queue operation. Review sdk_config.h:FDS_OP_QUEUE_SIZE", __func__ );
                 lReturnCode = IOT_FLASH_ERASE_FAILED;
                 break;
 
             case NRF_ERROR_INVALID_ADDR:
-                IotLogError( "Read: Out-of-bounds access (0x%x)", ulAddress );
+                IotLogError( "%s: Out-of-bounds access (0x%x)", __func__, ulAddress );
                 lReturnCode = IOT_FLASH_INVALID_VALUE;
                 break;
 
@@ -493,7 +482,7 @@ int32_t iot_flash_close( IotFlashHandle_t const pxFlashHandle )
         }
         else
         {
-            IotLogError( "Internal NRF error. Can not close handle" );
+            IotLogError( "%s: Internal NRF error. Failed to close handle", __func__ );
         }
     }
 

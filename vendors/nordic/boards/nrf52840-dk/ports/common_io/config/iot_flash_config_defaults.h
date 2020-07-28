@@ -35,6 +35,7 @@
     #define IOT_LOG_LEVEL_IOT_FLASH    IOT_LOG_NONE
 #endif
 
+/* User application base address. Note, iot_flash.h API does not check against this */
 #ifndef IOT_COMMON_IO_FLASH_BASE_ADDRESS
     #define IOT_COMMON_IO_FLASH_BASE_ADDRESS    0x00000000
 #endif

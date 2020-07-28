@@ -25,7 +25,6 @@
 
 /**
  * @file   iot_flash_config.h
- * @brief  Additional settings for GPIO, such as CommonIO-to-Board pin mapping.
  */
 
 #ifndef _AWS_COMMON_IO_FLASH_CONFIG_H_
