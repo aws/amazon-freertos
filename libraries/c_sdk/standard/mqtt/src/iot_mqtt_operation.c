@@ -1111,34 +1111,26 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     /* Check if this operation is waitable. */
     waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
-    /* Send an operation that is waiting for a response. */
-    if( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
+    /* Update the timestamp of the last message on successful transmission. */
+    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
+    /* DISCONNECT operations are considered successful upon successful
+     * transmission. In addition, non-waitable operations with no callback
+     * may also be considered successful. */
+    if( pOperation->u.operation.type == IOT_MQTT_DISCONNECT )
     {
-        /* Update the timestamp of the last message on successful transmission. */
-        IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-        pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-        IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+        /* DISCONNECT operations are always waitable. */
+        IotMqtt_Assert( waitable == true );
 
-        /* DISCONNECT operations are considered successful upon successful
-         * transmission. In addition, non-waitable operations with no callback
-         * may also be considered successful. */
-        if( pOperation->u.operation.type == IOT_MQTT_DISCONNECT )
+        pOperation->u.operation.status = IOT_MQTT_SUCCESS;
+    }
+    else if( waitable == false )
+    {
+        if( pOperation->u.operation.notify.callback.function == NULL )
         {
-            /* DISCONNECT operations are always waitable. */
-            IotMqtt_Assert( waitable == true );
-
             pOperation->u.operation.status = IOT_MQTT_SUCCESS;
-        }
-        else if( waitable == false )
-        {
-            if( pOperation->u.operation.notify.callback.function == NULL )
-            {
-                pOperation->u.operation.status = IOT_MQTT_SUCCESS;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
         }
         else
         {

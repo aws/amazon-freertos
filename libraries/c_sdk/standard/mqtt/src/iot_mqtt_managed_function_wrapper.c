@@ -34,17 +34,8 @@
 /* Standard includes. */
 #include <string.h>
 
-/* Error handling include. */
-#include "private/iot_error.h"
-
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
-
-/* MQTT LTS lightweight library includes. */
-#include "mqtt_lightweight.h"
-
-/* Atomic operations. */
-#include "iot_atomic.h"
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"

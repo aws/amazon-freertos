@@ -35,9 +35,6 @@
 /* Standard includes. */
 #include <string.h>
 
-/* Error handling include. */
-#include "private/iot_error.h"
-
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
@@ -110,7 +107,6 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection )
         if( connToContext[ contextIndex ].mqttConnection == mqttConnection )
         {
             connToContext[ contextIndex ].mqttConnection = NULL;
-            IotMutex_Destroy( &( connToContext[ contextIndex ].contextMutex ) );
             break;
         }
 
