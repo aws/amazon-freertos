@@ -284,7 +284,7 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
     if( status == IOT_MQTT_SUCCESS )
     {
         /* Move a successfully rescheduled PUBLISH from the pending processing
-         * list to the pending responses list on the first retry. */
+         * array to the pending responses array on the first retry. */
         if( firstRetry == true )
         {
             if( contextIndex >= 0 )
@@ -581,7 +581,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* Jobs to be destroyed should be removed from the MQTT connection's
-     * lists. */
+     * arrays. */
     xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
     if( contextIndex >= 0 )
@@ -883,7 +883,7 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
-    /* Remove the operation from the pending processing list. */
+    /* Remove the operation from the pending processing array. */
     xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
     if( contextIndex >= 0 )
@@ -1047,13 +1047,14 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
             }
 
             /* If the operation should not be destroyed, transfer it from the
-             * pending processing to the pending response list. */
+             * pending processing to the pending response array. */
             if( destroyOperation == false )
             {
                 xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
                 if( contextIndex >= 0 )
                 {
+                    /* Transferring the opeartion from pending processing to pending response array. */
                     IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
                     IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
                 }
@@ -1168,7 +1169,7 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
         }
 
         /* If the operation should not be destroyed, transfer it from the
-         * pending processing to the pending response list. */
+         * pending processing to the pending response array. */
         if( destroyOperation == false )
         {
             xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
@@ -1178,6 +1179,7 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 
             if( contextIndex >= 0 )
             {
+                /* Transferring the opeartion from pending processing to pending response array. */
                 IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
                 IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
             }
@@ -1482,7 +1484,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
                              IotMqtt_OperationType( pOperation->u.operation.type ),
                              pOperation );
 
-                /* Place the scheduled operation back in the list of operations pending
+                /* Place the scheduled operation back in the array of operations pending
                  * processing. */
 
                 if( contextIndex >= 0 )

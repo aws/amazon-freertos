@@ -470,12 +470,13 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMqtt_Assert( pMqttConnection->pPingreqPacket == NULL );
     IotMqtt_Assert( pMqttConnection->pingreqPacketSize == 0 );
 
-    /* Remove all subscriptions. */
+
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     if( contextIndex >= 0 )
     {
+        /* Remove all subscriptions as the connection is going to be destroyed. */
         xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
         IotMqtt_RemoveAllMatches( &( connToContext[ contextIndex ].subscriptionArray ),
                                   _mqttSubscription_setUnsubscribe,
@@ -505,9 +506,6 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     {
         EMPTY_ELSE_MARKER;
     }
-
-    /* Getting MQTT Context for the specified MQTT Connection. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* Destroy mutexes. */
     vSemaphoreDelete( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
@@ -648,6 +646,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
         if( contextIndex >= 0 )
         {
+            /* Transferring the opeartion from pending processing to pending response array. */
             IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pSubscriptionOperation );
             IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pSubscriptionOperation );
         }
