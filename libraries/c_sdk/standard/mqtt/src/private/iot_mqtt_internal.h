@@ -70,7 +70,9 @@
 
 /* Configure logs for MQTT functions. */
 #ifdef IOT_LOG_LEVEL_MQTT
-    #define LIBRARY_LOG_LEVEL            IOT_LOG_LEVEL_MQTT
+    #ifndef LIBRARY_LOG_LEVEL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_MQTT
+    #endif
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
         #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_GLOBAL
@@ -79,7 +81,7 @@
             #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
         #endif
     #endif
-#endif
+#endif /* ifdef IOT_LOG_LEVEL_MQTT */
 
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    ( "MQTT" )
@@ -244,7 +246,7 @@
  *
  * This value is greater than what is allowed by the MQTT specification.
  */
-#define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
+#define MQTT_REMAINING_LENGTH_INVALID    ( ( size_t ) 268435456 )
 
 /**
  * @brief Default config for Maximum Number of MQTT CONNECTIONS.
