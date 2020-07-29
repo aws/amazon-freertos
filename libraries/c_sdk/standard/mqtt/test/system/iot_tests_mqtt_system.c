@@ -635,11 +635,14 @@ TEST_SETUP( MQTT_System )
     /* Clear the serializer override flags. */
     _freePacketOverride = false;
     _connectSerializerOverride = false;
-    _publishSerializerOverride = false;
-    _pubackSerializerOverride = false;
-    _subscribeSerializerOverride = false;
-    _unsubscribeSerializerOverride = false;
-    _disconnectSerializerOverride = false;
+
+    /* Setting following variables to true as we do not need serializer as a part of shim implementation
+     * using MQTT LTS library. So to pass the assert in the test these changes are required. */
+    _publishSerializerOverride = true;
+    _pubackSerializerOverride = true;
+    _subscribeSerializerOverride = true;
+    _unsubscribeSerializerOverride = true;
+    _disconnectSerializerOverride = true;
 
     /* Initialize SDK. */
     if( IotSdk_Init() == false )

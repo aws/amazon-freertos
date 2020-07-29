@@ -46,6 +46,8 @@
 
 /* MQTT LTS library includes. */
 #include "mqtt_lightweight.h"
+#include "mqtt.h"
+#include "mqtt_config.h"
 
 /**
  * @def IotMqtt_Assert( expression )
@@ -243,6 +245,23 @@
  */
 #define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
+/**
+ * @brief Default config for Maximum Number of MQTT CONNECTIONS.
+ * This config can be specified by the application based on number of MQTT
+ * connections needed.
+ */
+#ifndef MAX_NO_OF_MQTT_CONNECTIONS
+    #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
+#endif
+
+/**
+ * @brief Static buffer size provided to MQTT LTS API.
+ * This buffer will be used to send the packets on the network.
+ *
+ */
+#ifndef NETWORK_BUFFER_SIZE
+    #define NETWORK_BUFFER_SIZE    ( 1024U )
+#endif
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
@@ -278,6 +297,16 @@ typedef struct _mqttConnection
     uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
     size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
+
+/**
+ * @brief Defining the structure for network context used for sending the packets on the network.
+ * The declaration of the structure is mentioned in the transport_interface.h file.
+ */
+struct NetworkContext
+{
+    void * pNetworkConnection;                 /**< @brief The network connection used for sending packets on the network. */
+    IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+};
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.
@@ -397,6 +426,20 @@ typedef struct _mqttPacket
     uint16_t packetIdentifier; /**< @brief (Output) MQTT packet identifier. */
     uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
 } _mqttPacket_t;
+
+/**
+ * @brief Represents a mapping of MQTT Connection in MQTT 201906.00 library to the corresponding MQTT context
+ * used in MQTT LTS library. MQTT Context is used to call the MQTT LTS API from the shim to serialize
+ * and send packets on the network.
+ */
+typedef struct connContextMapping
+{
+    IotMqttConnection_t mqttConnection;    /**< @brief MQTT connection used in MQTT 201906.00 library. */
+    MQTTContext_t context;                 /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
+    IotMutex_t contextMutex;               /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ]; /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
+    NetworkContext_t networkContext;       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
+} _connContext_t;
 
 /*-------------------- MQTT struct validation functions ---------------------*/
 
@@ -733,7 +776,7 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
 void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason,
                                       _mqttConnection_t * pMqttConnection );
 
-/*----------------- MQTT Serailization /Deserialization Wrapper functions for Shim------------------*/
+/*----------------- MQTT Serialization /Deserialization Wrapper functions for Shim------------------*/
 
 /**
  * @brief Generate a CONNECT packet from the given parameters by using MQTT v4 beta 2 serializer.
@@ -906,5 +949,61 @@ IotMqttError_t _IotMqtt_deserializePublishWrapper( _mqttPacket_t * pPublish );
 IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
                                                 uint8_t ** pPubackPacket,
                                                 size_t * pPacketSize );
+
+/*----------- Processing Operation after Sending the Packet Using MQTT LTS API for Shim-------*/
+
+/**
+ * @brief Process the MQTT operation after sending it on the network using MQTT LTS API.
+ * Processing includes:
+ * 1. Setting the status of operation based on the type of packet.
+ * 2. Decrementing Operation references for waitable operation.
+ * 3. Destroying Operation if job refernce count is 0.
+ * 4. For non-waitable opeartion, transferring the operation from pending processing list to pending response list.
+ * @param[in] pOperation The operation which needs to be processed after sending it on the network.
+ *
+ */
+void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation );
+
+/*----------------- MQTT Context and MQTT Connection Mapping Functions for Shim------------------*/
+
+/**
+ * @brief Get the MQTT Context from the given MQTT Connection.
+ *
+ * @param[in] mqttConnection The MQTT connection for which the context is needed.
+ *
+ * @return Index of the context from the mapping data structure used to store mapping of context and connection.
+ */
+int8_t _IotMqtt_getContextIndexFromConnection( IotMqttConnection_t mqttConnection );
+
+/**
+ * @brief Get the free index from the mapping data structure used to store mapping of MQTT Connection
+ * used in the MQTT 201906.00 library and MQTT Context used to call MQTT LTS API to send packets
+ * on the network.
+ *
+ * @return Free Index from the mapping data structure used to store mapping of context and connection.
+ */
+int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
+
+/**
+ * @brief Remove the MQTT Context from the given MQTT Connection.
+ *
+ * @param[in] mqttConnection The MQTT connection for which the context needs to be removed.
+ */
+void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
+
+/*----------------- User - Facing API Functions Using MQTT LTS API for Shim------------------*/
+
+/**
+ * @brief Disconnect the MQTT connection using MQTT LTS Disconnect API.
+ *
+ * @param[in] mqttConnection The MQTT connection which needs to be disconnected.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

@@ -44,6 +44,9 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -469,8 +472,9 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
-    /* Attempt to cancel the operation's job. */
-    if( cancelJob == true )
+    /* Attempt to cancel the CONNECT operation's job as only the CONNECT API is using taskpool
+     * to send the connect packet. */
+    if( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( cancelJob == true ) )
     {
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
                                                 pOperation->job,
@@ -498,8 +502,15 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Decrement job reference count. */
-    if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+    /*
+     * The job reference for the given operation needs to be deceremented in the following cases:
+     * 1. For CONNECT operation, if the taskpool status is IOT_TASKPOOL_SUCCESS.
+     *    If the CONNECT opeartion is still executing in the taskpool, then operation reference should not be decremented.
+     * 2. For all other operations(PUBLISH, SUBSCRIBE, DISCONNECT, UNSUBSCRIBE), cancelling of taskpool job is not needed as taskpool is not being
+     *    used to send the packets on the network. MQTT LTS library is used to send the packets on the network.
+     *
+     */
+    if( ( ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ) ) || ( ( pOperation->u.operation.type != IOT_MQTT_CONNECT ) ) )
     {
         IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
         pOperation->u.operation.jobReference--;
@@ -1050,6 +1061,126 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
             {
                 EMPTY_ELSE_MARKER;
             }
+        }
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    /* Destroy the operation or notify of completion if necessary. */
+    if( destroyOperation == true )
+    {
+        _IotMqtt_DestroyOperation( pOperation );
+    }
+    else
+    {
+        /* Do not check the operation status if a network response is pending,
+         * since a network response could modify the status. */
+        if( networkPending == false )
+        {
+            /* Notify of operation completion if this job set a status. */
+            if( pOperation->u.operation.status != IOT_MQTT_STATUS_PENDING )
+            {
+                _IotMqtt_Notify( pOperation );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
+{
+    bool destroyOperation = false, waitable = false, networkPending = false;
+    _mqttConnection_t * pMqttConnection = NULL;
+
+    /* The given operation should not be null. */
+    IotMqtt_Assert( pOperation != NULL );
+
+    /* The given operation must have an allocated packet and be waiting for a status. */
+    IotMqtt_Assert( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING );
+
+    pMqttConnection = pOperation->pMqttConnection;
+
+    /* Check if this operation is waitable. */
+    waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
+
+    /* Update the timestamp of the last message on successful transmission. */
+    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+    pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
+    /* DISCONNECT operations are considered successful upon successful
+     * transmission. In addition, non-waitable operations with no callback
+     * may also be considered successful. */
+    if( pOperation->u.operation.type == IOT_MQTT_DISCONNECT )
+    {
+        /* DISCONNECT operations are always waitable. */
+        IotMqtt_Assert( waitable == true );
+
+        pOperation->u.operation.status = IOT_MQTT_SUCCESS;
+    }
+    else if( waitable == false )
+    {
+        if( pOperation->u.operation.notify.callback.function == NULL )
+        {
+            pOperation->u.operation.status = IOT_MQTT_SUCCESS;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    /* Check if this operation requires further processing. */
+    if( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
+    {
+        /* Decrement reference count to signal completion of send job. Check
+         * if the operation should be destroyed. */
+        if( waitable == true )
+        {
+            destroyOperation = _IotMqtt_DecrementOperationReferences( pOperation, false );
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+
+        /* If the operation should not be destroyed, transfer it from the
+         * pending processing to the pending response list. */
+        if( destroyOperation == false )
+        {
+            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+
+            /* Operation must be linked. */
+            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
+
+            /* Transfer to pending response list. */
+            IotListDouble_Remove( &( pOperation->link ) );
+            IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
+                                      &( pOperation->link ) );
+
+            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
+            /* This operation is now awaiting a response from the network. */
+            networkPending = true;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
         }
     }
     else
