@@ -138,6 +138,11 @@ static uint16_t unsubscribePacketIdentifier;
  */
 static NetworkContext_t pContext;
 
+/**
+ * @brief Flag to mark if the channel has been disconnected at all
+ */
+static volatile bool channelActive = true;
+
 
 /*-----------------------------------------------------------*/
 
@@ -159,6 +164,12 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         IotBleMqttTransportAcceptData( &pContext );
+    }
+
+    /* Event for when channel is closed. */
+    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
+    {
+        channelActive = false;
     }
 
     else
@@ -718,7 +729,12 @@ MQTTStatus_t RunMQTTTransportDemo( void )
              * tcpSocket, and waits for connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Establishing MQTT connection to server" ) );
             status = createMQTTConnectionWithBroker( &fixedBuffer );
-            assert( status == MQTTSuccess );
+            
+            
+            if ( ( status != MQTTSuccess ) && ( channelActive == false ) )
+            {
+                break;
+            }
 
             /**************************** Subscribe. ******************************/
 
@@ -746,6 +762,11 @@ MQTTStatus_t RunMQTTTransportDemo( void )
             /* Publish messages with QOS0, send and process Keep alive messages. */
             for( loopCount = 0; loopCount < maxLoopCount; loopCount++ )
             {
+                if ( channelActive == false )
+                {
+                    break; 
+                }
+
                 /* Get the current time stamp */
                 /* Publish to the topic every other time to trigger sending of PINGREQ  */
                 if( publishPacketSent == false )
@@ -783,6 +804,11 @@ MQTTStatus_t RunMQTTTransportDemo( void )
                 ( void ) sleep( MQTT_KEEP_ALIVE_PERIOD_SECONDS );
             }
 
+            if ( channelActive == false )
+            {
+                break;
+            }
+
             /* Unsubscribe from the previously subscribed topic */
             LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
             mqttUnsubscribeFromTopic( &fixedBuffer );
@@ -805,7 +831,16 @@ MQTTStatus_t RunMQTTTransportDemo( void )
         }
     }
 
-    LogInfo( ( "Demo completed successfully.\r\n" ) );
+    if ( channelActive == false )
+    {
+        IotBleMqttTransportCleanup();
+        LogError( ( "BLE disconnected unexpectedly") );
+        status = MQTTBadResponse;
+    }
+    else
+    {
+        LogInfo( ( "Demo completed successfully.\r\n" ) );
+    }
     return status;
 }
 

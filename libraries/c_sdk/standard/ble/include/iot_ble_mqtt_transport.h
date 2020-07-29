@@ -39,7 +39,12 @@
 /**
  * @brief Initiailzes the Circular buffer to store the received data
  */
-void IotBleMqttTransportInit( const NetworkContext_t * context );
+bool IotBleMqttTransportInit( const NetworkContext_t * context );
+
+/**
+ * @brief Cleans up the Circular buffer
+ */
+void IotBleMqttTransportCleanup( void );
 
 /**
  * @brief Function to accept data from the channel
@@ -47,7 +52,6 @@ void IotBleMqttTransportInit( const NetworkContext_t * context );
  * @param[in] pContext An opaque used by transport interface.
  */
 void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
-
 
 /**
  * @brief Transport interface write function.
