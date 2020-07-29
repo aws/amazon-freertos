@@ -50,6 +50,8 @@
 #include "mqtt_config.h"
 #include "mqtt_state.h"
 
+#include "semphr.h"
+
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -418,18 +420,18 @@ typedef struct _mqttOperation
  */
 typedef struct connContextMapping
 {
-    IotMqttConnection_t mqttConnection;            /**< @brief MQTT connection used in MQTT 201906.00 library. */
-    MQTTContext_t context;                         /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
-    StaticSemaphore_t contextMutex;                /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
-    uint8_t buffer[ NETWORK_BUFFER_SIZE ];         /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
-    NetworkContext_t networkContext;               /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
+    IotMqttConnection_t mqttConnection;                                      /**< @brief MQTT connection used in MQTT 201906.00 library. */
+    MQTTContext_t context;                                                   /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
+    StaticSemaphore_t contextMutex;                                          /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ];                                   /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
+    NetworkContext_t networkContext;                                         /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
 
-    _mqttSubscription_t * subscriptionArray[ 20 ]; /**< @brief Holds subscriptions associated with this connection. */
-    StaticSemaphore_t subscriptionMutex;           /**< @brief Grants exclusive access to the subscription list. */
+    _mqttSubscription_t * subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
+    StaticSemaphore_t subscriptionMutex;                                     /**< @brief Grants exclusive access to the subscription list. */
 
-    _mqttOperation_t * pendingProcessing[ 30 ];    /**< @brief Array of operations waiting to be processed. */
-    _mqttOperation_t * pendingResponse[ 30 ];      /**< @brief Array of processed operations awaiting a server response. */
-    StaticSemaphore_t referencesMutex;             /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    _mqttOperation_t * pendingProcessing[ MAX_NO_OF_MQTT_OPERATIONS ];       /**< @brief Array of operations waiting to be processed. */
+    _mqttOperation_t * pendingResponse[ MAX_NO_OF_MQTT_OPERATIONS ];         /**< @brief Array of processed operations awaiting a server response. */
+    StaticSemaphore_t referencesMutex;                                       /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
 } _connContext_t;
 
 /**

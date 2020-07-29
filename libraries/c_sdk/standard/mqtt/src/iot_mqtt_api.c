@@ -47,8 +47,6 @@
 /* Atomic operations. */
 #include "iot_atomic.h"
 
-#include "semphr.h"
-
 /* Validate MQTT configuration settings. */
 #if IOT_MQTT_ENABLE_ASSERTS != 0 && IOT_MQTT_ENABLE_ASSERTS != 1
     #error "IOT_MQTT_ENABLE_ASSERTS must be 0 or 1."
@@ -1245,55 +1243,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     else
     {
         EMPTY_ELSE_MARKER;
-    }
-
-    /* Fill in time utility function pointer. */
-    callbacks.getTime = getTimeMs;
-
-    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
-    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
-
-    if( contextIndex < 0 )
-    {
-        IotLogError( "(MQTT connection %p) Failed to allocate memory for "
-                     "the MQTT context and the MQTT Connection Mapping. Update the MAX_NO_OF_MQTT_CONNECTIONS"
-                     " config value to resolve the error. ",
-                     newMqttConnection );
-        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
-    }
-
-    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
-     * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true );
-
-    if( contextMutex == true )
-    {
-        /* Assigning the MQTT Connection. */
-        connToContext[ contextIndex ].mqttConnection = newMqttConnection;
-
-        /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
-
-        /* Fill in TransportInterface send function pointer. We will not be implementing the
-         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
-         * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
-        transport.send = transportSend;
-
-        /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
-        networkBuffer.size = NETWORK_BUFFER_SIZE;
-
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-    }
-    else
-    {
-        IotLogError( "(MQTT connection %p) Failed to create mutex for "
-                     "the MQTT context.",
-                     newMqttConnection );
-        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
     IOT_FUNCTION_CLEANUP_BEGIN();

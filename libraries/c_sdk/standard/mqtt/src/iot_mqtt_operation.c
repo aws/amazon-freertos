@@ -44,8 +44,6 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
-#include "semphr.h"
-
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
