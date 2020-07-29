@@ -226,15 +226,6 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
         publishInfo.payloadLength = pPublishInfo->payloadLength;
         publishInfo.qos = ( MQTTQoS_t ) pPublishInfo->qos;
 
-        if( pPublishInfo->qos == IOT_MQTT_QOS_1 )
-        {
-            publishInfo.dup = true;
-        }
-        else
-        {
-            publishInfo.dup = false;
-        }
-
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
         /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
         managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
