@@ -56,18 +56,6 @@
 /*-----------------------------------------------------------*/
 
 /**
- *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
- *
- *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
- *
- *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
- *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
- */
-static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Calculate the number of bytes required to encode an MQTT
  * "Remaining length" field.
  *
