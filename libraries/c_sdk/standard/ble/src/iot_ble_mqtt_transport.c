@@ -173,9 +173,24 @@ StaticStreamBuffer_t xStreamBufferStruct;
 /*-----------------------------------------------------------*/
 
 
-void IotBleMqttTransportInit( const NetworkContext_t * context )
+bool IotBleMqttTransportInit( const NetworkContext_t * context )
 {
+    bool status = true;
+
     streamBuffer = xStreamBufferCreateStatic( context->bufSize, 1, context->buf, &xStreamBufferStruct );
+
+    if ( streamBuffer == NULL )
+    {
+        status = false;
+    }
+
+    return status;
+}
+
+
+void IotBleMqttTransportCleanup( void )
+{
+    vStreamBufferDelete( streamBuffer );
 }
 
 
@@ -205,7 +220,7 @@ static MQTTQoS_t convertIntToQos( const uint8_t incomingQos )
             break;
             
         default:
-            LogError( ( "QoS 2 is not supported by MQTT over BLE. Defaulting to Qos 1" ) );
+            LogError( ( "QoS 2 is not supported by MQTT over BLE. Defaulting to Qos 1." ) );
             qosValue = MQTTQoS1;
             break;
     }
@@ -248,7 +263,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         /* The service level of the packet. Must be 4. */
         if( ( buf[ bufferIndex ] != 4U ) )
         {
-            LogError( ( "The service level of a connect packet must be 4, see [MQTT-3.1.2-2]" ) );
+            LogError( ( "The service level of a connect packet must be 4, see [MQTT-3.1.2-2]." ) );
             status = MQTTBadParameter;
         }
 
@@ -260,7 +275,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         /* The LSB is reserved and must be 0. */
         if( ( connectionFlags & 0x01U ) != 0U )
         {
-            LogError( ( "LSB of Connect Flags byte must be 0, see [MQTT-3.1.2-3]" ) );
+            LogError( ( "LSB of Connect Flags byte must be 0, see [MQTT-3.1.2-3]." ) );
             status = MQTTBadParameter;
         }
     }
@@ -281,7 +296,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
     if( ( status == MQTTSuccess ) && ( willQos > MQTTQoS1 ) )
     {
-        LogError( ( "Qos 2 or higher is not currently supported by this library" ) );
+        LogError( ( "Qos 2 or higher is not currently supported by this library." ) );
         status = MQTTBadParameter;
     }
 
@@ -300,7 +315,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
     if( ( status == MQTTSuccess ) && ( connectConfig->clientIdentifierLength == 0U ) )
     {
-        LogError( ( "A client identifier must be present in a connect packet [MQTT-3.1.3-3]" ) );
+        LogError( ( "A client identifier must be present in a connect packet [MQTT-3.1.3-3]." ) );
         status = MQTTBadParameter;
     }
 
@@ -318,7 +333,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
         if( willInfo.topicNameLength == 0U )
         {
-            LogError( ( "The will flag was set but no will topic was given" ) );
+            LogError( ( "The will flag was set but no will topic was given." ) );
             status = MQTTBadParameter;
         }
 
@@ -345,7 +360,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
         if( connectConfig->userNameLength == 0U )
         {
-            LogError( ( "The username flag was set but no username was given" ) );
+            LogError( ( "The username flag was set but no username was given." ) );
             status = MQTTBadParameter;
         }
 
@@ -360,7 +375,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
         if( connectConfig->passwordLength == 0U )
         {
-            LogError( ( "The password flag was set but no password was given" ) );
+            LogError( ( "The password flag was set but no password was given." ) );
             status = MQTTBadParameter;
         }
 
@@ -399,7 +414,7 @@ static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
 
     if( ( status == MQTTSuccess ) && ( publishConfig->qos > MQTTQoS1 ) )
     {
-        LogError( ( "Only Qos 0 and 1 are supported over BLE" ) );
+        LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
         status = MQTTBadParameter;
     }
 
@@ -486,7 +501,7 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
 
             if( _subscriptions[ subscriptionIndex ].qos > MQTTQoS1 )
             {
-                LogError( ( "Only Qos 0 and 1 are supported over BLE" ) );
+                LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
                 status = MQTTBadParameter;
                 break;
             }
@@ -511,7 +526,7 @@ static MQTTStatus_t parsePubAck( const uint8_t * buf,
     /* Check that the remaining length is 2 bytes */
     if( ( buf[ 1 ] != 0x02U ) )
     {
-        LogError( ( "Malformed PUBACK packet received" ) );
+        LogError( ( "Malformed PUBACK packet received." ) );
 
         status = MQTTBadParameter;
     }
@@ -740,7 +755,7 @@ static MQTTStatus_t handleIncomingConnack( MQTTPacketInfo_t * packet,
 {
     MQTTStatus_t status = MQTTSuccess;
 
-    LogDebug( ( "Processing incoming CONNACK from channel" ) );
+    LogDebug( ( "Processing incoming CONNACK from channel." ) );
 
     status = IotBleMqtt_DeserializeConnack( packet );
 
@@ -766,7 +781,7 @@ static MQTTStatus_t handleIncomingPuback( MQTTPacketInfo_t * packet,
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
 
-    LogDebug( ( "Processing incoming PUBACK from channel" ) );
+    LogDebug( ( "Processing incoming PUBACK from channel." ) );
     status = IotBleMqtt_DeserializePuback( packet, &packetIdentifier );
 
     if( status == MQTTSuccess )
@@ -789,7 +804,7 @@ static MQTTStatus_t handleIncomingPublish( MQTTPacketInfo_t * packet,
     MQTTPublishInfo_t publishInfo;
     uint16_t packetIdentifier = 0;
 
-    LogDebug( ( "Processing incoming PUBLISH from channel" ) );
+    LogDebug( ( "Processing incoming PUBLISH from channel." ) );
 
     status = IotBleMqtt_DeserializePublish( packet, &publishInfo, &packetIdentifier );
 
@@ -813,7 +828,7 @@ static MQTTStatus_t handleIncomingSuback( MQTTPacketInfo_t * packet,
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
 
-    LogDebug( ( "Processing incoming SUBACK from channel" ) );
+    LogDebug( ( "Processing incoming SUBACK from channel." ) );
     status = IotBleMqtt_DeserializeSuback( packet, &packetIdentifier );
 
     if( status == MQTTSuccess )
@@ -835,7 +850,7 @@ static MQTTStatus_t handleIncomingUnsuback( MQTTPacketInfo_t * packet,
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
 
-    LogDebug( ( "Processing incoming UNSUBACK from channel" ) );
+    LogDebug( ( "Processing incoming UNSUBACK from channel." ) );
     status = IotBleMqtt_DeserializeUnsuback( packet, &packetIdentifier );
 
     if( status == MQTTSuccess )
@@ -857,7 +872,7 @@ static MQTTStatus_t handleIncomingPingresp( MQTTPacketInfo_t * packet,
 {
     MQTTStatus_t status = MQTTSuccess;
 
-    LogDebug( ( "Processing incoming PINGRESP from channel" ) );
+    LogDebug( ( "Processing incoming PINGRESP from channel." ) );
     status = IotBleMqtt_DeserializePingresp( packet );
 
     if( status == MQTTSuccess )
@@ -941,13 +956,13 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
             case MQTT_PACKET_TYPE_PUBREL:
             case MQTT_PACKET_TYPE_PUBCOMP:
                 status = MQTTSendFailed;
-                LogError( ( "Only Qos 0 and 1 are supported over BLE" ) );
+                LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
                 break;
 
             /* Client tries to send a server to client only packet */
             default:
                 status = MQTTBadParameter;
-                LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2" ) );
+                LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2." ) );
                 LogError( ( "Your packet type was %i", packetType ) );
                 break;
         }
@@ -955,7 +970,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     else
     {
         status = MQTTSendFailed;
-        LogError( ( "Serializer could not be initialized while sending data " ) );
+        LogError( ( "Serializer could not be initialized while sending data." ) );
     }
 
     IotBleMqtt_CleanupSerialize();
@@ -963,7 +978,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     if( status != MQTTSuccess )
     {
         /* The user would have already seen a log for the previous error */
-        LogError( ( "No data was sent because of a previous error" ) );
+        LogError( ( "No data was sent because of a previous error." ) );
         MQTTBytesWritten = 0;
     }
     else
@@ -973,7 +988,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
     if( CBORbytesWritten == 0U )
     {
-        LogError( ( "No data was sent because of the channel. Is the channel initialized and ready to send data?" ) );
+        LogError( ( "No data was sent because of the channel. Ensure that the channel is initialized and ready to send data." ) );
         MQTTBytesWritten = 0;
     }
 
@@ -994,7 +1009,7 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     packet.type = IotBleMqtt_GetPacketType( pContext->pChannel );
     IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
 
-    LogDebug( ( "Receiving a packet from the server " ) );
+    LogDebug( ( "Receiving a packet from the server." ) );
 
     switch( packet.type )
     {
@@ -1016,12 +1031,10 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
 
         case MQTT_PACKET_TYPE_UNSUBACK:
             status = handleIncomingUnsuback( &packet, &pBuffer );
-
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
             status = handleIncomingPingresp( &packet, &pBuffer );
-
             break;
 
         /* QoS 2 cases, currently not supported by BLE */
@@ -1030,19 +1043,19 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
         case MQTT_PACKET_TYPE_PUBCOMP:
             status = MQTTRecvFailed;
 
-            LogError( ( "Only Qos 0 and 1 are supported over BLE" ) );
+            LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
             break;
 
         /* Server tries to send a client to server only packet */
         default:
-            LogError( ( "Client received a client to server only packet" ) );
+            LogError( ( "Client received a client to server only packet." ) );
             status = MQTTBadParameter;
             break;
     }
 
     if( status != MQTTSuccess )
     {
-        LogError( ( "An error occured when receiving data from the channel. No data was sent." ) );
+        LogError( ( "An error occured when receiving data from the channel. No data was recorded." ) );
     }
     else
     {
