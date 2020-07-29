@@ -39,9 +39,6 @@
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
-/* MQTT v4_beta 2 lightweight library includes. */
-#include "mqtt_lightweight.h"
-
 /* Atomic operations. */
 #include "iot_atomic.h"
 
@@ -60,6 +57,18 @@
 
 /* Generate Id for packet. */
 static uint16_t _nextPacketIdentifier( void );
+
+/*-----------------------------------------------------------*/
+
+/**
+ *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
+ *
+ *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
+ *
+ *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
+ *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
+ */
+static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
 
 /*-----------------------------------------------------------*/
 
@@ -765,8 +774,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 
 /*-----------------------------------------------------------*/
 
-/* Convert the MQTT Status to IOT MQTT Status Code. */
-IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
+static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
 
