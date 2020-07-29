@@ -461,20 +461,6 @@ typedef struct _mqttPacket
     uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
 } _mqttPacket_t;
 
-/**
- * @brief Represents a mapping of MQTT Connection in MQTT 201906.00 library to the corresponding MQTT context
- * used in MQTT LTS library. MQTT Context is used to call the MQTT LTS API from the shim to serialize
- * and send packets on the network.
- */
-typedef struct connContextMapping
-{
-    IotMqttConnection_t mqttConnection;    /**< @brief MQTT connection used in MQTT 201906.00 library. */
-    MQTTContext_t context;                 /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
-    IotMutex_t contextMutex;               /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
-    uint8_t buffer[ NETWORK_BUFFER_SIZE ]; /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
-    NetworkContext_t networkContext;       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
-} _connContext_t;
-
 /*-------------------- MQTT struct validation functions ---------------------*/
 
 /**
