@@ -390,20 +390,6 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-
-                if( contextIndex >= 0 )
-                {
-                    IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
-                    publishStateStatus = MQTT_UpdateStatePublish( &( connToContext[ contextIndex ].context ),
-                                                                  pIncomingPacket->packetIdentifier,
-                                                                  MQTT_RECEIVE, pOperation->u.publish.publishInfo.qos, &publishRecordState );
-                    IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
-                }
-            }
-
-            if( status == IOT_MQTT_SUCCESS )
-            {
                 /* Send a PUBACK for QoS 1 PUBLISH. */
                 if( pOperation->u.publish.publishInfo.qos == IOT_MQTT_QOS_1 )
                 {
@@ -514,6 +500,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 if( contextIndex >= 0 )
                 {
                     IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+                    /* Updating the status for the outgoing publishes after the corresponding puback is received. */
                     publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
                                                               pIncomingPacket->packetIdentifier,
                                                               MQTTPuback,

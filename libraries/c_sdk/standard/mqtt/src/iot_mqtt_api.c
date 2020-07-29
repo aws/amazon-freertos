@@ -669,25 +669,22 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         *pOperationReference = pSubscriptionOperation;
     }
 
-    if( pSubscriptionOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
+    if( operation == IOT_MQTT_SUBSCRIBE )
     {
-        if( operation == IOT_MQTT_SUBSCRIBE )
-        {
-            /* Calling SUBSCRIBE wrapper to send SUBSCRIBE packet on the network using MQTT LTS SUBSCRIBE API. */
-            status = _IotMqtt_managedSubscribe( mqttConnection,
-                                                pSubscriptionOperation,
-                                                pSubscriptionList,
-                                                subscriptionCount );
-        }
+        /* Calling SUBSCRIBE wrapper to send SUBSCRIBE packet on the network using MQTT LTS SUBSCRIBE API. */
+        status = _IotMqtt_managedSubscribe( mqttConnection,
+                                            pSubscriptionOperation,
+                                            pSubscriptionList,
+                                            subscriptionCount );
+    }
 
-        if( operation == IOT_MQTT_UNSUBSCRIBE )
-        {
-            /* Calling UNSUBSCRIBE wrapper to send UNSUBSCRIBE packet on the network using MQTT LTS UNSUBSCRIBE API. */
-            status = _IotMqtt_managedUnsubscribe( mqttConnection,
-                                                  pSubscriptionOperation,
-                                                  pSubscriptionList,
-                                                  subscriptionCount );
-        }
+    if( operation == IOT_MQTT_UNSUBSCRIBE )
+    {
+        /* Calling UNSUBSCRIBE wrapper to send UNSUBSCRIBE packet on the network using MQTT LTS UNSUBSCRIBE API. */
+        status = _IotMqtt_managedUnsubscribe( mqttConnection,
+                                              pSubscriptionOperation,
+                                              pSubscriptionList,
+                                              subscriptionCount );
     }
 
     if( status == IOT_MQTT_SUCCESS )

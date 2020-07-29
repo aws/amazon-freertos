@@ -69,6 +69,11 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
     }
+    else
+    {
+        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                     mqttConnection );
+    }
 
     return status;
 }
@@ -85,11 +90,13 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
+    size_t i = 0;
 
     IotMqtt_Assert( mqttConnection != NULL );
     IotMqtt_Assert( pSubscriptionOperation != NULL );
     IotMqtt_Assert( pSubscriptionList != NULL );
+
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
@@ -97,12 +104,11 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
     if( contextIndex >= 0 )
     {
         /* Generating the packet id for SUBSCRIBE packet. */
-        packetId = _nextPacketIdentifier();
-
+        packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
         pSubscriptionOperation->u.operation.packetIdentifier = packetId;
 
         /* Populating the subscription list to be used by MQTT LTS API. */
-        for( size_t i = 0; i < subscriptionCount; i++ )
+        for( i = 0; i < subscriptionCount; i++ )
         {
             subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
             subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
@@ -118,6 +124,11 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                     mqttConnection );
     }
 
     return status;
@@ -135,11 +146,13 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
-    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
+    size_t i = 0;
 
     IotMqtt_Assert( mqttConnection != NULL );
     IotMqtt_Assert( pUnsubscriptionOperation != NULL );
     IotMqtt_Assert( pUnsubscriptionList != NULL );
+
+    MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
@@ -147,12 +160,11 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
     if( contextIndex >= 0 )
     {
         /* Generating the packet id for UNSUBSCRIBE packet. */
-        packetId = _nextPacketIdentifier();
-
+        packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
         pUnsubscriptionOperation->u.operation.packetIdentifier = packetId;
 
         /* Populating the unsubscription list to be used by MQTT LTS API. */
-        for( size_t i = 0; i < unsubscriptionCount; i++ )
+        for( i = 0; i < unsubscriptionCount; i++ )
         {
             subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
             subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
@@ -168,6 +180,11 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                     mqttConnection );
     }
 
     return status;
@@ -197,7 +214,8 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
     if( contextIndex >= 0 )
     {
         /* Generating the packet id for PUBLISH packet. */
-        packetId = _nextPacketIdentifier();
+        packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
+
         pOperation->u.operation.packetIdentifier = packetId;
 
         /* Populating the publish info to be used by MQTT LTS PUBLISH API. */
@@ -224,6 +242,11 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                     mqttConnection );
     }
 
     return status;
