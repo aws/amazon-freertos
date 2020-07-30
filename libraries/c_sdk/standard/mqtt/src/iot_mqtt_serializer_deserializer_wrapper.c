@@ -56,6 +56,15 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Generate Id for packet.
+ *
+ * @return Next id generated.
+ */
+static uint16_t _nextPacketIdentifier( void );
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Calculate the number of bytes required to encode an MQTT
  * "Remaining length" field.
  *
@@ -742,7 +751,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 
 /*-----------------------------------------------------------*/
 
-uint16_t _nextPacketIdentifier( void )
+static uint16_t _nextPacketIdentifier( void )
 {
     /* MQTT specifies 2 bytes for the packet identifier; however, operating on
      * 32-bit integers is generally faster. */

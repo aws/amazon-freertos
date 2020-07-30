@@ -1067,15 +1067,6 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Generate Id for packet.
- *
- * @return Next id generated.
- */
-uint16_t _nextPacketIdentifier( void );
-
-/*-----------------------------------------------------------*/
-
-/**
  *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
  *
  *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
