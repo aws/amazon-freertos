@@ -55,12 +55,23 @@
 
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Generate Id for packet.
- *
- * @return Next id generated.
- */
+/* Generate Id for packet. */
 static uint16_t _nextPacketIdentifier( void );
+
+/*-----------------------------------------------------------*/
+
+/* Generate Id for packet. */
+static uint16_t _nextPacketIdentifier( void )
+{
+    /* MQTT specifies 2 bytes for the packet identifier; however, operating on
+     * 32-bit integers is generally faster. */
+    static uint32_t nextPacketIdentifier = 1;
+
+    /* The next packet identifier will be greater by 2. This prevents packet
+     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
+     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
+    return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
+}
 
 /*-----------------------------------------------------------*/
 
@@ -749,19 +760,6 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
     return status;
 }
 
-/*-----------------------------------------------------------*/
-
-static uint16_t _nextPacketIdentifier( void )
-{
-    /* MQTT specifies 2 bytes for the packet identifier; however, operating on
-     * 32-bit integers is generally faster. */
-    static uint32_t nextPacketIdentifier = 1;
-
-    /* The next packet identifier will be greater by 2. This prevents packet
-     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-    return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
-}
 /*-----------------------------------------------------------*/
 
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
