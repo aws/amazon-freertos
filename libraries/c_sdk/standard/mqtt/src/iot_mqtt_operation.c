@@ -1109,7 +1109,7 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 {
     bool destroyOperation = false, waitable = false, networkPending = false;
     _mqttConnection_t * pMqttConnection = NULL;
-    int contextIndex = -1;
+    int8_t contextIndex = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
     /* The given operation should not be null. */
@@ -1174,7 +1174,6 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
         {
             xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-            int8_t contextIndex = -1;
             contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
             if( contextIndex >= 0 )

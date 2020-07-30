@@ -641,7 +641,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     if( status == IOT_MQTT_SUCCESS )
     {
         contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
-
+        /* Taking a recursive mutex as referencesMutex is a recursive mutex. */
         xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
         if( contextIndex >= 0 )
@@ -881,6 +881,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
     MQTTApplicationCallbacks_t callbacks;
+    MQTTStatus_t managedMqttStatus = MQTTSuccess;
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false, contextMutex = false, referencesMutexCreated = false;
 
@@ -1054,7 +1055,14 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         networkBuffer.size = NETWORK_BUFFER_SIZE;
 
         /* Initializing the MQTT context used in calling MQTT LTS API. */
-        MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        /* Converting the status code. */
+        status = convertReturnCode( managedMqttStatus );
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+        }
 
         /* Create the subscription mutex for a new connection. */
         if( xSemaphoreCreateMutexStatic( &( connToContext[ contextIndex ].subscriptionMutex ) ) != NULL )

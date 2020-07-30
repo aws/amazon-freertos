@@ -435,10 +435,6 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             {
                 break;
             }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
 
             /* Subscription validation should not have allowed a NULL callback function. */
             IotMqtt_Assert( pSubscription->callback.function != NULL );
@@ -478,14 +474,6 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                 {
                     vPortFree( pSubscription );
                 }
-                else
-                {
-                    EMPTY_ELSE_MARKER;
-                }
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
             }
         }
         else

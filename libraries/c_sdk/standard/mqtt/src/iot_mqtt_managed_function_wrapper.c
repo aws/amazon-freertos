@@ -60,7 +60,6 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
     if( contextIndex >= 0 )
     {
         xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
 
         /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );

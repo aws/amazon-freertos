@@ -122,14 +122,11 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
 {
     _mqttSubscription_t * pCurrent = ( _mqttSubscription_t * ) pStartPoint;
     _mqttSubscription_t * pMatchedSubscription = NULL;
-
-    IotMqtt_Assert( pSubscriptionArray != NULL );
+    /* Find the next Index to start searching for match. */
+    size_t nextIndex = 0;
 
     /* This function must not be called with a NULL pSubscriptionArray parameter. */
     IotMqtt_Assert( pSubscriptionArray != NULL );
-
-    /* Find the next Index to start searching for match. */
-    size_t nextIndex = 0;
 
     if( pCurrent == NULL )
     {
@@ -137,6 +134,7 @@ _mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscripti
     }
     else
     {
+        /* Getting the next index after the starting point to continue matching for other subscriptins. */
         while( nextIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
         {
             if( pSubscriptionArray[ nextIndex ] == pCurrent )
@@ -229,13 +227,10 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
 {
     _mqttOperation_t * pCurrent = ( _mqttOperation_t * ) pStartPoint;
     _mqttOperation_t * pMatchedOperation = NULL;
-
-    IotMqtt_Assert( pOperationArray != NULL );
+    size_t nextIndex = 0;
 
     /* This function must not be called with a NULL pOperationArray parameter. */
     IotMqtt_Assert( pOperationArray != NULL );
-
-    size_t nextIndex = 0;
 
     /* Find the next Index to start searching for match. */
     if( pCurrent == NULL )
@@ -244,6 +239,7 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
     }
     else
     {
+        /* Getting the next index after the starting point to continue matching for other opeartions. */
         while( nextIndex < MAX_NO_OF_MQTT_OPERATIONS )
         {
             if( pOperationArray[ nextIndex ] == pCurrent )
