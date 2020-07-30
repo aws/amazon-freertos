@@ -592,6 +592,10 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
     IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
+    size_t i = 0;
+    uint8_t subscriptionStatus = 0;
+    size_t remainingLength = pSuback->remainingLength;
+    const uint8_t * pVariableHeader = pSuback->pRemainingData;
 
     /* Null Check for suback packet. */
     IotMqtt_Assert( pSuback != NULL );
@@ -603,6 +607,54 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
     /* Deserializing SUBACK packet received from the network. */
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pSuback->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
+
+    /* Remove rejected subscription as the MQTT LTS library do not remove them, it has to handled in shim */
+    if( status == IOT_MQTT_SERVER_REFUSED )
+    {
+        /* Iterate through each status byte in the SUBACK packet. */
+        for( i = 0; i < remainingLength - sizeof( uint16_t ); i++ )
+        {
+            /* Read a single status byte in SUBACK. */
+            subscriptionStatus = *( pVariableHeader + sizeof( uint16_t ) + i );
+
+            /* MQTT 3.1.1 defines the following values as status codes. */
+            switch( subscriptionStatus )
+            {
+                case 0x00:
+                case 0x01:
+                case 0x02:
+                    IotLog( IOT_LOG_DEBUG,
+                            &_logHideAll,
+                            "Topic filter %lu accepted, max QoS %hhu.",
+                            ( unsigned long ) i, subscriptionStatus );
+                    break;
+
+                case 0x80:
+                    IotLog( IOT_LOG_DEBUG,
+                            &_logHideAll,
+                            "Topic filter %lu refused.", ( unsigned long ) i );
+
+                    /* Remove a rejected subscription from the subscription manager. */
+                    _IotMqtt_RemoveSubscriptionByPacket( pSuback->u.pMqttConnection,
+                                                         pSuback->packetIdentifier,
+                                                         ( int32_t ) i );
+
+                    status = IOT_MQTT_SERVER_REFUSED;
+
+                    break;
+
+                default:
+                    IotLog( IOT_LOG_DEBUG,
+                            &_logHideAll,
+                            "Bad SUBSCRIBE status %hhu.", subscriptionStatus );
+
+                    status = IOT_MQTT_BAD_RESPONSE;
+
+                    break;
+            }
+        }
+    }
+
     return status;
 }
 
