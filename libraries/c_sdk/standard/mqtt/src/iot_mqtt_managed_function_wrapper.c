@@ -166,7 +166,6 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
         /* Populating the unsubscription list to be used by MQTT LTS API. */
         for( i = 0; i < unsubscriptionCount; i++ )
         {
-            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pUnsubscriptionList + i )->qos;
             subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
             subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
         }
@@ -225,6 +224,7 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
         publishInfo.pPayload = pPublishInfo->pPayload;
         publishInfo.payloadLength = pPublishInfo->payloadLength;
         publishInfo.qos = ( MQTTQoS_t ) pPublishInfo->qos;
+        /* Existing MQTT 201906.00 library not support this parameter in publishInfo struct, so setting it to false. */
         publishInfo.dup = false;
 
         IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
