@@ -1040,10 +1040,10 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
  * #IOT_MQTT_NETWORK_ERROR if transport send failed;
  * #IOT_MQTT_SUCCESS otherwise.
  */
-IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
-                                            _mqttOperation_t * pSubscriptionOperation,
-                                            const IotMqttSubscription_t * pSubscriptionList,
-                                            size_t subscriptionCount );
+IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
+                                          _mqttOperation_t * pSubscriptionOperation,
+                                          const IotMqttSubscription_t * pSubscriptionList,
+                                          size_t subscriptionCount );
 
 /**
  * @brief Send the UNSUBSCRIBE packet using MQTT LTS UNSUBSCRIBE API.
@@ -1059,10 +1059,10 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
  * #IOT_MQTT_NETWORK_ERROR if transport send failed;
  * #IOT_MQTT_SUCCESS otherwise.
  */
-IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
-                                          _mqttOperation_t * pUnsubscriptionOperation,
-                                          const IotMqttSubscription_t * pUnsubscriptionList,
-                                          size_t unsubscriptionCount );
+IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
+                                            _mqttOperation_t * pUnsubscriptionOperation,
+                                            const IotMqttSubscription_t * pUnsubscriptionList,
+                                            size_t unsubscriptionCount );
 
 /*-----------------------------------------------------------*/
 
