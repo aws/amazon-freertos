@@ -2762,6 +2762,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                     break;
 
+                case CKA_PUBLIC_KEY_INFO:
                 case CKA_VALUE:
 
                     /* See explanation in prvCheckValidSessionAndModule for this exception. */

@@ -31,11 +31,11 @@ extern CK_SESSION_HANDLE xGlobalSession;
 extern CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 extern CK_SLOT_ID xGlobalSlotId;
 extern CK_MECHANISM_TYPE xMechanismType;
-extern CK_OBJECT_HANDLE xPublicKey;
-extern CK_OBJECT_HANDLE xPrivateKey;
+extern CK_OBJECT_HANDLE xGlobalPublicKeyHandle;
+extern CK_OBJECT_HANDLE xGlobalPrivateKeyHandle;
 extern CK_OBJECT_HANDLE xKey;
-extern CK_BBOOL xCkTrue;
-extern CK_BBOOL xCkFalse;
+extern CK_BBOOL xGlobalCkTrue;
+extern CK_BBOOL xGlobalCkFalse;
 
 CK_BYTE rsaHashPlusOid[ pkcs11RSA_SIGNATURE_INPUT_LENGTH ];
 CK_BYTE rsaHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ];
