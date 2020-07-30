@@ -448,7 +448,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             callbackFunction = pSubscription->callback.function;
 
             /* Unlock the subscription list mutex. */
-            IotMutex_Unlock( &( connToContext[ contextIndex ].subscriptionMutex ) );
+            xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
 
             /* Set the members of the callback parameter. */
             pCallbackParam->mqttConnection = pMqttConnection;
