@@ -44,13 +44,13 @@
 #define testrunnerFULL_CRYPTO_ENABLED                  0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED        0
 #define testrunnerFULL_MQTT_AGENT_ENABLED              0
-#define testrunnerFULL_TCP_ENABLED                     1
+#define testrunnerFULL_TCP_ENABLED                     0
 #define testrunnerFULL_GGD_ENABLED                     0
 #define testrunnerFULL_GGD_HELPER_ENABLED              0
 #define testrunnerFULL_SHADOW_ENABLED                  0
 #define testrunnerFULL_SHADOWv4_ENABLED                0
 #define testrunnerFULL_MQTTv4_ENABLED                  0
-#define testrunnerFULL_WIFI_ENABLED                    0
+#define testrunnerFULL_WIFI_ENABLED                    1
 #define testrunnerFULL_MEMORYLEAK_ENABLED              0
 #define testrunnerFULL_TLS_ENABLED                     0
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED     0

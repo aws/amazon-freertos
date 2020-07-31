@@ -648,7 +648,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
+    // RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */

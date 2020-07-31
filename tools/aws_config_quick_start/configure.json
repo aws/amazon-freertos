@@ -1,7 +1,7 @@
 {
-    "afr_source_dir":"../..",
-    "thing_name":"$thing_name",
-    "wifi_ssid":"$wifi_ssid",
-    "wifi_password":"$wifi_password",
-    "wifi_security":"$wifi_security"
+    "afr_source_dir":"~/amazon-freertos",
+    "thing_name":"ESP-DevKitC-1",
+    "wifi_ssid":"SSSS",
+    "wifi_password":"qiaofeifan",
+    "wifi_security":"eWiFiSecurityWPA2"
 }
