@@ -406,14 +406,20 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pIncomingPacket->pRemainingData = NULL;
 
                 /* Add the PUBLISH to the list of operations pending processing. */
-                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-                if( contextIndex >= 0 )
+                if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
                 {
-                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                }
+                    if( contextIndex >= 0 )
+                    {
+                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    }
 
-                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+                    if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                    {
+                    }
+                }
+                else
+                {
+                }
 
                 /* Increment the MQTT connection reference count before scheduling an
                  * incoming PUBLISH. */
@@ -448,14 +454,20 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
 
                 /* Remove operation from pending processing list. */
-                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-                if( contextIndex >= 0 )
+                if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
                 {
-                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                }
+                    if( contextIndex >= 0 )
+                    {
+                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    }
 
-                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+                    if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                    {
+                    }
+                }
+                else
+                {
+                }
 
                 IotMqtt_Assert( pOperation != NULL );
                 IotMqtt_FreeOperation( pOperation );
@@ -498,14 +510,21 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             {
                 if( contextIndex >= 0 )
                 {
-                    IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
                     /* Updating the status for the outgoing publishes after the corresponding puback is received. */
-                    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
-                    publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
-                                                              pIncomingPacket->packetIdentifier,
-                                                              MQTTPuback,
-                                                              MQTT_RECEIVE, &publishRecordState );
-                    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
+                    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY ) == pdTRUE )
+                    {
+                        publishStateStatus = MQTT_UpdateStateAck( &( connToContext[ contextIndex ].context ),
+                                                                  pIncomingPacket->packetIdentifier,
+                                                                  MQTTPuback,
+                                                                  MQTT_RECEIVE, &publishRecordState );
+
+                        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
+                        {
+                        }
+                    }
+                    else
+                    {
+                    }
                 }
             }
 
@@ -637,22 +656,28 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( status == IOT_MQTT_SUCCESS )
             {
-                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-                if( pMqttConnection->keepAliveFailure == false )
+                if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
                 {
-                    IotLogWarn( "(MQTT connection %p) Unexpected PINGRESP received.",
-                                pMqttConnection );
+                    if( pMqttConnection->keepAliveFailure == false )
+                    {
+                        IotLogWarn( "(MQTT connection %p) Unexpected PINGRESP received.",
+                                    pMqttConnection );
+                    }
+                    else
+                    {
+                        IotLogDebug( "(MQTT connection %p) PINGRESP successfully parsed.",
+                                     pMqttConnection );
+
+                        pMqttConnection->keepAliveFailure = false;
+                    }
+
+                    if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                    {
+                    }
                 }
                 else
                 {
-                    IotLogDebug( "(MQTT connection %p) PINGRESP successfully parsed.",
-                                 pMqttConnection );
-
-                    pMqttConnection->keepAliveFailure = false;
                 }
-
-                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
             }
             else
             {
@@ -825,62 +850,70 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     int contextIndex = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
     /* Mark the MQTT connection as disconnected and the keep-alive as failed. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-    pMqttConnection->disconnected = true;
-    pMqttConnection->keepAliveFailure = true;
-
-    if( pMqttConnection->keepAliveMs != 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        /* Keep-alive must have a PINGREQ allocated. */
-        IotMqtt_Assert( pMqttConnection->pPingreqPacket != NULL );
-        IotMqtt_Assert( pMqttConnection->pingreqPacketSize != 0 );
+        pMqttConnection->disconnected = true;
+        pMqttConnection->keepAliveFailure = true;
 
-        /* PINGREQ provides a reference to the connection, so reference count must
-         * be nonzero. */
-        IotMqtt_Assert( pMqttConnection->references > 0 );
-
-        /* Attempt to cancel the keep-alive job. */
-        taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-                                                pMqttConnection->keepAliveJob,
-                                                NULL );
-
-        /* If the keep-alive job was not canceled, it must be already executing.
-         * Any other return value is invalid. */
-        IotMqtt_Assert( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ||
-                        ( taskPoolStatus == IOT_TASKPOOL_CANCEL_FAILED ) );
-
-        /* Clean up keep-alive if its job was successfully canceled. Otherwise,
-         * the executing keep-alive job will clean up itself. */
-        if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+        if( pMqttConnection->keepAliveMs != 0 )
         {
-            /* Clean up PINGREQ packet and job. */
-            _IotMqtt_FreePacket( pMqttConnection->pPingreqPacket );
+            /* Keep-alive must have a PINGREQ allocated. */
+            IotMqtt_Assert( pMqttConnection->pPingreqPacket != NULL );
+            IotMqtt_Assert( pMqttConnection->pingreqPacketSize != 0 );
 
-            /* Clear data about the keep-alive. */
-            pMqttConnection->keepAliveMs = 0;
-            pMqttConnection->pPingreqPacket = NULL;
-            pMqttConnection->pingreqPacketSize = 0;
+            /* PINGREQ provides a reference to the connection, so reference count must
+             * be nonzero. */
+            IotMqtt_Assert( pMqttConnection->references > 0 );
 
-            /* Keep-alive is cleaned up; decrement reference count. Since this
-             * function must be followed with a call to DISCONNECT, a check to
-             * destroy the connection is not done here. */
-            pMqttConnection->references--;
+            /* Attempt to cancel the keep-alive job. */
+            taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
+                                                    pMqttConnection->keepAliveJob,
+                                                    NULL );
 
-            IotLogDebug( "(MQTT connection %p) Keep-alive job canceled and cleaned up.",
-                         pMqttConnection );
+            /* If the keep-alive job was not canceled, it must be already executing.
+             * Any other return value is invalid. */
+            IotMqtt_Assert( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ||
+                            ( taskPoolStatus == IOT_TASKPOOL_CANCEL_FAILED ) );
+
+            /* Clean up keep-alive if its job was successfully canceled. Otherwise,
+             * the executing keep-alive job will clean up itself. */
+            if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+            {
+                /* Clean up PINGREQ packet and job. */
+                _IotMqtt_FreePacket( pMqttConnection->pPingreqPacket );
+
+                /* Clear data about the keep-alive. */
+                pMqttConnection->keepAliveMs = 0;
+                pMqttConnection->pPingreqPacket = NULL;
+                pMqttConnection->pingreqPacketSize = 0;
+
+                /* Keep-alive is cleaned up; decrement reference count. Since this
+                 * function must be followed with a call to DISCONNECT, a check to
+                 * destroy the connection is not done here. */
+                pMqttConnection->references--;
+
+                IotLogDebug( "(MQTT connection %p) Keep-alive job canceled and cleaned up.",
+                             pMqttConnection );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
         else
         {
             EMPTY_ELSE_MARKER;
         }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
     }
     else
     {
-        EMPTY_ELSE_MARKER;
     }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Close the network connection. */
     if( pMqttConnection->pNetworkInterface->close != NULL )

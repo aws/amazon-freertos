@@ -328,7 +328,7 @@ struct NetworkContext
  */
 typedef struct _mqttSubscription
 {
-    IotLink_t link;     /**< @brief List link member. */
+    size_t i;           /**< @brief List link member. */
 
     int32_t references; /**< @brief How many subscription callbacks are using this subscription. */
 
@@ -352,7 +352,7 @@ typedef struct _mqttSubscription
     IotMqttCallbackInfo_t callback; /**< @brief Callback information for this subscription. */
 
     uint16_t topicFilterLength;     /**< @brief Length of #_mqttSubscription_t.pTopicFilter. */
-    char pTopicFilter[];            /**< @brief The subscription topic filter. */
+    char pTopicFilter[ 50 ];        /**< @brief The subscription topic filter. */
 } _mqttSubscription_t;
 
 /**
@@ -420,18 +420,18 @@ typedef struct _mqttOperation
  */
 typedef struct connContextMapping
 {
-    IotMqttConnection_t mqttConnection;                                      /**< @brief MQTT connection used in MQTT 201906.00 library. */
-    MQTTContext_t context;                                                   /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
-    StaticSemaphore_t contextMutex;                                          /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
-    uint8_t buffer[ NETWORK_BUFFER_SIZE ];                                   /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
-    NetworkContext_t networkContext;                                         /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
+    IotMqttConnection_t mqttConnection;                                    /**< @brief MQTT connection used in MQTT 201906.00 library. */
+    MQTTContext_t context;                                                 /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
+    StaticSemaphore_t contextMutex;                                        /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    uint8_t buffer[ NETWORK_BUFFER_SIZE ];                                 /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
+    NetworkContext_t networkContext;                                       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
 
-    _mqttSubscription_t * subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
-    StaticSemaphore_t subscriptionMutex;                                     /**< @brief Grants exclusive access to the subscription list. */
+    _mqttSubscription_t subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
+    StaticSemaphore_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
 
-    _mqttOperation_t * pendingProcessing[ MAX_NO_OF_MQTT_OPERATIONS ];       /**< @brief Array of operations waiting to be processed. */
-    _mqttOperation_t * pendingResponse[ MAX_NO_OF_MQTT_OPERATIONS ];         /**< @brief Array of processed operations awaiting a server response. */
-    StaticSemaphore_t referencesMutex;                                       /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    _mqttOperation_t * pendingProcessing[ MAX_NO_OF_MQTT_OPERATIONS ];     /**< @brief Array of operations waiting to be processed. */
+    _mqttOperation_t * pendingResponse[ MAX_NO_OF_MQTT_OPERATIONS ];       /**< @brief Array of processed operations awaiting a server response. */
+    StaticSemaphore_t referencesMutex;                                     /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
 } _connContext_t;
 
 /**
@@ -463,6 +463,24 @@ typedef struct _mqttPacket
     uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
 } _mqttPacket_t;
 
+/**
+ * @brief First parameter to #_topicMatch.
+ */
+typedef struct _topicMatchParams
+{
+    const char * pTopicName;  /**< @brief The topic name to parse. */
+    uint16_t topicNameLength; /**< @brief Length of #_topicMatchParams_t.pTopicName. */
+    bool exactMatchOnly;      /**< @brief Whether to allow wildcards or require exact matches. */
+} _topicMatchParams_t;
+
+/**
+ * @brief First parameter to #_packetMatch.
+ */
+typedef struct _packetMatchParams
+{
+    uint16_t packetIdentifier; /**< Packet identifier to match. */
+    int32_t order;             /**< Order to match. Set to `-1` to ignore. */
+} _packetMatchParams_t;
 /*-------------------- MQTT struct validation functions ---------------------*/
 
 /**
@@ -1110,58 +1128,44 @@ IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
  * @brief Insert the subscription in the subscription array.
  *
  * @param[in] pSubscriptionArray Subscription array in which the new subscription to be inserted.
- * @param[in] pNewSubscription The new subscription to be inserted.
  *
  */
-void IotMqtt_InsertSubscription( _mqttSubscription_t ** pSubscriptionArray,
-                                 _mqttSubscription_t * pNewSubscription );
+int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray );
 
 /**
  * @brief Remove the subscription in the subscription array.
  *
  * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be removed.
- * @param[in] pSubscription The subscription to be removed.
+ * @param[in] deleteIndex The index position from where the subscription to be removed.
  *
  */
-void IotMqtt_RemoveSubscription( _mqttSubscription_t ** pSubscriptionArray,
-                                 _mqttSubscription_t * pSubscription );
+void IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
+                                 int8_t deleteIndex );
 
 /**
  * @brief Remove all the matching subscriptions in the given subscription array.
  *
  * @param[in] pSubscriptionArray Subscription array from which the subscriptions to be removed.
- * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
- * search using the address `pMatch`, i.e. `element == pMatch`.
- * @param[in] pMatch If `isMatch` is `NULL`, each element in the list is compared
- * to this address to find a match. Otherwise, it is passed as the second argument
- * to `isMatch`.
- * @param[in] freeElement A function to free memory used by each removed array
- * element. Optional; pass `NULL` to ignore.
+ * @param[in] pMatch If `pMatch` is `NULL`, all the subscriptions will be removed.
+ * Otherwise, it is used to find the matching subscription.
  *
  */
-void IotMqtt_RemoveAllMatches( _mqttSubscription_t ** pSubscriptionArray,
-                               bool ( * isMatch )( _mqttSubscription_t *, void * ),
-                               void * pMatch,
-                               void ( * freeElement )( void * ) );
+void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
+                               _packetMatchParams_t * pMatch );
 
 /**
  * @brief Find the first matching subscription in the given subscription array, starting at the given starting point.
  *
  * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be matched.
- * @param[in] pStartPoint An element in `pSubscriptionArray`. Only elements after this one and
- * the end of the array are checked. Pass `NULL` to search from the beginning of the array.
- * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
- * search using the address `pMatch`, i.e. `element == pMatch`.
- * @param[in] pMatch If `isMatch` is `NULL`, each element in the array is compared
- * to this address to find a match. Otherwise, it is passed as the second argument
- * to `isMatch`.
+ * @param[in] startIndex An element in `pSubscriptionArray`. Only elements starting from this one and
+ * the end of the array are checked. Pass 0 to search from the beginning of the array.
+ * @param[in] pMatch Contains the parameters used for matching the subscription.
  *
  * @return The first matching subscription from the subscription array.
  */
-_mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscriptionArray,
-                                              _mqttSubscription_t * pStartPoint,
-                                              bool ( * isMatch )( _mqttSubscription_t *, void * ),
-                                              void * pMatch );
+int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
+                               size_t startIndex,
+                               _topicMatchParams_t * pMatch );
 
 /**
  * @brief Insert the operation in the operation array.
@@ -1212,6 +1216,8 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
  */
 void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
                                  void ( * freeElement )( void * ) );
+
+void IotMqtt_RemoveAllSubscriptions( _mqttSubscription_t * pSubscriptionArray );
 
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

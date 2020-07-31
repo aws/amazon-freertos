@@ -59,12 +59,18 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
     if( contextIndex >= 0 )
     {
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
+            managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
 
-        /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
-        managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
-
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
+            {
+            }
+        }
+        else
+        {
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -115,12 +121,18 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
             subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
         }
 
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
+            managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
 
-        /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
-        managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
-
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
+            {
+            }
+        }
+        else
+        {
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -171,12 +183,18 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
             subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
         }
 
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
+            managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
 
-        /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
-        managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
-
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
+            {
+            }
+        }
+        else
+        {
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -235,10 +253,18 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
             publishInfo.dup = false;
         }
 
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY );
-        /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
-        managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
+            managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
+
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
+            {
+            }
+        }
+        else
+        {
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );

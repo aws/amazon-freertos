@@ -50,27 +50,6 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 /*-----------------------------------------------------------*/
 
 /**
- * @brief First parameter to #_topicMatch.
- */
-typedef struct _topicMatchParams
-{
-    const char * pTopicName;  /**< @brief The topic name to parse. */
-    uint16_t topicNameLength; /**< @brief Length of #_topicMatchParams_t.pTopicName. */
-    bool exactMatchOnly;      /**< @brief Whether to allow wildcards or require exact matches. */
-} _topicMatchParams_t;
-
-/**
- * @brief First parameter to #_packetMatch.
- */
-typedef struct _packetMatchParams
-{
-    uint16_t packetIdentifier; /**< Packet identifier to match. */
-    int32_t order;             /**< Order to match. Set to `-1` to ignore. */
-} _packetMatchParams_t;
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Matches a topic name (from a publish) with a topic filter (from a
  * subscription).
  *
@@ -80,7 +59,7 @@ typedef struct _packetMatchParams
  * @return `true` if the arguments match the subscription topic filter; `false`
  * otherwise.
  */
-static bool _topicMatch( _mqttSubscription_t * pSubscription,
+static bool _topicMatch( _mqttSubscription_t pSubscription,
                          void * pMatch );
 
 /**
@@ -97,7 +76,7 @@ static bool _packetMatch( _mqttSubscription_t * pSubscription,
 
 /*-----------------------------------------------------------*/
 
-static bool _topicMatch( _mqttSubscription_t * pSubscription,
+static bool _topicMatch( _mqttSubscription_t pSubscription,
                          void * pMatch )
 {
     IOT_FUNCTION_ENTRY( bool, false );
@@ -105,15 +84,15 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
 
     /* Because this function is called from a container function, the given link
      * must never be NULL. */
-    IotMqtt_Assert( pSubscription != NULL );
+    /*IotMqtt_Assert( pSubscription != NULL ); */
 
     _topicMatchParams_t * pParam = ( _topicMatchParams_t * ) pMatch;
 
     /* Extract the relevant strings and lengths from parameters. */
     const char * pTopicName = pParam->pTopicName;
-    const char * pTopicFilter = pSubscription->pTopicFilter;
+    const char * pTopicFilter = pSubscription.pTopicFilter;
     const uint16_t topicNameLength = pParam->topicNameLength;
-    const uint16_t topicFilterLength = pSubscription->topicFilterLength;
+    const uint16_t topicFilterLength = pSubscription.topicFilterLength;
 
     /* Check for an exact match. */
     if( topicNameLength == topicFilterLength )
@@ -318,66 +297,76 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
     IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams = { .exactMatchOnly = true };
     int8_t contextIndex = -1;
+    int8_t matchedIndex = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
-    xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
-
-    for( i = 0; i < subscriptionCount; i++ )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        /* Check if this topic filter is already registered. */
-        topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
-        topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
-
-        if( contextIndex >= 0 )
+        for( i = 0; i < subscriptionCount; i++ )
         {
-            pNewSubscription = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), NULL,
-                                                       _topicMatch, &topicMatchParams );
-        }
+            /* Check if this topic filter is already registered. */
+            topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
+            topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
 
-        if( pNewSubscription != NULL )
-        {
-            /* The lengths of exactly matching topic filters must match. */
-            IotMqtt_Assert( pNewSubscription->topicFilterLength == pSubscriptionList[ i ].topicFilterLength );
-
-            /* Replace the callback and packet info with the new parameters. */
-            pNewSubscription->callback = pSubscriptionList[ i ].callback;
-            pNewSubscription->packetInfo.identifier = subscribePacketIdentifier;
-            pNewSubscription->packetInfo.order = i;
-        }
-        else
-        {
-            /* Allocate memory for a new subscription. */
-            pNewSubscription = IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) +
-                                                           pSubscriptionList[ i ].topicFilterLength );
-
-            if( pNewSubscription == NULL )
+            if( contextIndex >= 0 )
             {
-                status = IOT_MQTT_NO_MEMORY;
-                break;
+                matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0, &topicMatchParams );
+            }
+
+            if( matchedIndex >= 0 )
+            {
+                /* The lengths of exactly matching topic filters must match. */
+                IotMqtt_Assert( connToContext[ contextIndex ].subscriptionArray[ matchedIndex ].topicFilterLength == pSubscriptionList[ i ].topicFilterLength );
+
+                /* Replace the callback and packet info with the new parameters. */
+                connToContext[ contextIndex ].subscriptionArray[ matchedIndex ].callback = pSubscriptionList[ i ].callback;
+                connToContext[ contextIndex ].subscriptionArray[ matchedIndex ].packetInfo.identifier = subscribePacketIdentifier;
+                connToContext[ contextIndex ].subscriptionArray[ matchedIndex ].packetInfo.order = i;
             }
             else
             {
-                /* Clear the new subscription. */
-                ( void ) memset( pNewSubscription,
-                                 0x00,
-                                 sizeof( _mqttSubscription_t ) + pSubscriptionList[ i ].topicFilterLength );
+                /* Allocate memory for a new subscription. */
+                int8_t index = -1;
+                index = IotMqtt_InsertSubscription( ( connToContext[ contextIndex ].subscriptionArray ), pNewSubscription );
 
-                /* Set the members of the new subscription and add it to the list. */
-                pNewSubscription->packetInfo.identifier = subscribePacketIdentifier;
-                pNewSubscription->packetInfo.order = i;
-                pNewSubscription->callback = pSubscriptionList[ i ].callback;
-                pNewSubscription->topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
-                ( void ) memcpy( pNewSubscription->pTopicFilter,
-                                 pSubscriptionList[ i ].pTopicFilter,
-                                 ( size_t ) ( pSubscriptionList[ i ].topicFilterLength ) );
+                /*pNewSubscription = IotMqtt_MallocSubscription(sizeof(_mqttSubscription_t) +
+                 *  pSubscriptionList[i].topicFilterLength);*/
 
-                IotMqtt_InsertSubscription( &( connToContext[ contextIndex ].subscriptionArray ), pNewSubscription );
+                if( index == -1 )
+                {
+                    status = IOT_MQTT_NO_MEMORY;
+                    IotLogError( "(MQTT connection %p) Subscription array is full.Need to update the config. ",
+                                 pMqttConnection );
+                    break;
+                }
+                else
+                {
+                    /* Clear the new subscription. */
+
+                    /*(void)memset(pNewSubscription,
+                     *  0x00,
+                     *  sizeof(_mqttSubscription_t) + pSubscriptionList[i].topicFilterLength);*/
+
+                    /* Set the members of the new subscription and add it to the list. */
+                    connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.identifier = subscribePacketIdentifier;
+                    connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
+                    connToContext[ contextIndex ].subscriptionArray[ index ].callback = pSubscriptionList[ i ].callback;
+                    connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
+                    ( void ) memcpy( connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter,
+                                     pSubscriptionList[ i ].pTopicFilter,
+                                     ( size_t ) ( pSubscriptionList[ i ].topicFilterLength ) );
+                }
             }
         }
-    }
 
-    xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
+        if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* If memory allocation failed, remove all previously added subscriptions. */
     if( status != IOT_MQTT_SUCCESS )
@@ -420,20 +409,25 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
     xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
 
     /* Search the subscription list for all matching subscriptions starting at
-     * the list head. */
-    while( true )
+     * the array head. */
+    int8_t i = 0;
+
+    while( i < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
         if( contextIndex >= 0 )
         {
-            pSubscription = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
-                                                    pSubscription,
-                                                    _topicMatch,
-                                                    &topicMatchParams );
+            i = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+                                        i,
+                                        &topicMatchParams );
 
             /* No subscription found. Exit loop. */
-            if( pSubscription == NULL )
+            if( i == -1 )
             {
                 break;
+            }
+            else
+            {
+                pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ i ] );
             }
 
             /* Subscription validation should not have allowed a NULL callback function. */
@@ -475,6 +469,8 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                     vPortFree( pSubscription );
                 }
             }
+
+            i++;
         }
         else
         {
@@ -502,16 +498,21 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
-    xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        IotMqtt_RemoveAllMatches( &( connToContext[ contextIndex ].subscriptionArray ), _packetMatch,
-                                  ( void * ) ( &packetMatchParams ),
-                                  vPortFree );
-    }
+        if( contextIndex >= 0 )
+        {
+            IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), _packetMatch,
+                                      ( &packetMatchParams ) );
+        }
 
-    xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
+        if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -530,50 +531,54 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 
     /* Prevent any other thread from modifying the subscription list while this
      * function is running. */
-    xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
-
-    /* Find and remove each topic filter from the list. */
-    for( i = 0; i < subscriptionCount; i++ )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
-        topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
-        topicMatchParams.exactMatchOnly = true;
+        int8_t matchedIndex = -1;
 
-        if( contextIndex >= 0 )
+        /* Find and remove each topic filter from the list. */
+        for( i = 0; i < subscriptionCount; i++ )
         {
-            pSubscription = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), NULL,
-                                                    _topicMatch, &topicMatchParams );
-        }
+            topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
+            topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
+            topicMatchParams.exactMatchOnly = true;
 
-        if( pSubscription != NULL )
-        {
-            /* Reference count must not be negative. */
-            IotMqtt_Assert( pSubscription->references >= 0 );
-
-            /* Remove subscription from list. */
-            IotMqtt_RemoveSubscription( &( connToContext[ contextIndex ].subscriptionArray ), pSubscription );
-
-            /* Check the reference count. This subscription cannot be removed if
-             * there are subscription callbacks using it. */
-            if( pSubscription->references > 0 )
+            if( contextIndex >= 0 )
             {
-                /* Set the unsubscribed flag. The last active subscription callback
-                 * will remove and clean up this subscription. */
-                pSubscription->unsubscribed = true;
+                matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0,
+                                                       &topicMatchParams );
+            }
+
+            if( matchedIndex != -1 )
+            {
+                pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ matchedIndex ] );
+                /* Reference count must not be negative. */
+                IotMqtt_Assert( pSubscription->references >= 0 );
+
+                /* Remove subscription from list. */
+                IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex );
+
+                /* Check the reference count. This subscription cannot be removed if
+                 * there are subscription callbacks using it. */
+                if( pSubscription->references > 0 )
+                {
+                    /* Set the unsubscribed flag. The last active subscription callback
+                     * will remove and clean up this subscription. */
+                    pSubscription->unsubscribed = true;
+                }
             }
             else
             {
-                /* Free a subscription with no references. */
-                IotMqtt_FreeSubscription( pSubscription );
+                EMPTY_ELSE_MARKER;
             }
         }
-        else
+
+        if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
-            EMPTY_ELSE_MARKER;
         }
     }
-
-    xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
+    else
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -598,40 +603,47 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
     /* Prevent any other thread from modifying the subscription list while this
      * function is running. */
-    xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
-
-    /* Search for a matching subscription. */
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        pSubscription = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), NULL,
-                                                _topicMatch, &topicMatchParams );
-    }
+        int8_t matchedIndex = -1;
+        /* Search for a matching subscription. */
 
-    /* Check if a matching subscription was found. */
-    if( pSubscription != NULL )
-    {
-        /* Copy the matching subscription to the output parameter. */
-        if( pCurrentSubscription != NULL )
+        if( contextIndex >= 0 )
         {
-            pCurrentSubscription->pTopicFilter = pTopicFilter;
-            pCurrentSubscription->topicFilterLength = topicFilterLength;
-            pCurrentSubscription->qos = IOT_MQTT_QOS_0;
-            pCurrentSubscription->callback = pSubscription->callback;
+            matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0
+                                                   , &topicMatchParams );
+        }
+
+        /* Check if a matching subscription was found. */
+        if( matchedIndex != -1 )
+        {
+            /* Copy the matching subscription to the output parameter. */
+            if( pCurrentSubscription != NULL )
+            {
+                pCurrentSubscription->pTopicFilter = pTopicFilter;
+                pCurrentSubscription->topicFilterLength = topicFilterLength;
+                pCurrentSubscription->qos = IOT_MQTT_QOS_0;
+                pCurrentSubscription->callback = pSubscription->callback;
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
+
+            status = true;
         }
         else
         {
             EMPTY_ELSE_MARKER;
         }
 
-        status = true;
+        if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
+        {
+        }
     }
     else
     {
-        EMPTY_ELSE_MARKER;
     }
-
-    IotMutex_Unlock( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
     return status;
 }
@@ -640,5 +652,5 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
 /* Provide access to internal functions and variables if testing. */
 #if IOT_BUILD_TESTS == 1
-    #include "iot_test_access_mqtt_subscription.c"
+    /*#include "iot_test_access_mqtt_subscription.c" */
 #endif

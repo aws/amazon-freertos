@@ -477,13 +477,21 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     if( contextIndex >= 0 )
     {
         /* Remove all subscriptions as the connection is going to be destroyed. */
-        xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY );
-        IotMqtt_RemoveAllMatches( &( connToContext[ contextIndex ].subscriptionArray ),
-                                  _mqttSubscription_setUnsubscribe,
-                                  NULL,
-                                  _mqttSubscription_tryDestroy );
+        if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
 
-        xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) );
+            if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
+            {
+                IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex.",
+                             pMqttConnection );
+            }
+        }
+        else
+        {
+            IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex.",
+                         pMqttConnection );
+        }
     }
 
     /* Destroy an owned network connection. */
@@ -642,16 +650,23 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     {
         contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
         /* Taking a recursive mutex as referencesMutex is a recursive mutex. */
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-        if( contextIndex >= 0 )
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
         {
-            /* Transferring the opeartion from pending processing to pending response array. */
-            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pSubscriptionOperation );
-            IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pSubscriptionOperation );
-        }
+            if( contextIndex >= 0 )
+            {
+                /* Transferring the opeartion from pending processing to pending response array. */
+                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pSubscriptionOperation );
+                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pSubscriptionOperation );
+            }
 
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+            {
+            }
+        }
+        else
+        {
+        }
 
         /* Processing opeartion after sending it on the network. */
         _IotMqtt_ProcessOperation( pSubscriptionOperation );
@@ -708,30 +723,37 @@ bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection
     int contextIndex = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
     /* Lock the mutex protecting the reference count. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    /* Reference count must not be negative. */
-    IotMqtt_Assert( pMqttConnection->references >= 0 );
-
-    /* Read connection status. */
-    disconnected = pMqttConnection->disconnected;
-
-    /* Increment the connection's reference count if it is not disconnected. */
-    if( disconnected == false )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        ( pMqttConnection->references )++;
-        IotLogDebug( "(MQTT connection %p) Reference count changed from %ld to %ld.",
-                     pMqttConnection,
-                     ( long int ) pMqttConnection->references - 1,
-                     ( long int ) pMqttConnection->references );
+        /* Reference count must not be negative. */
+        IotMqtt_Assert( pMqttConnection->references >= 0 );
+
+        /* Read connection status. */
+        disconnected = pMqttConnection->disconnected;
+
+        /* Increment the connection's reference count if it is not disconnected. */
+        if( disconnected == false )
+        {
+            ( pMqttConnection->references )++;
+            IotLogDebug( "(MQTT connection %p) Reference count changed from %ld to %ld.",
+                         pMqttConnection,
+                         ( long int ) pMqttConnection->references - 1,
+                         ( long int ) pMqttConnection->references );
+        }
+        else
+        {
+            IotLogWarn( "(MQTT connection %p) Attempt to use closed connection.", pMqttConnection );
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
     }
     else
     {
-        IotLogWarn( "(MQTT connection %p) Attempt to use closed connection.", pMqttConnection );
     }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     return( disconnected == false );
 }
@@ -746,28 +768,35 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* Lock the mutex protecting the reference count. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-    /* Decrement reference count. It must not be negative. */
-    ( pMqttConnection->references )--;
-    IotMqtt_Assert( pMqttConnection->references >= 0 );
-
-    IotLogDebug( "(MQTT connection %p) Reference count changed from %ld to %ld.",
-                 pMqttConnection,
-                 ( long int ) pMqttConnection->references + 1,
-                 ( long int ) pMqttConnection->references );
-
-    /* Check if this connection may be destroyed. */
-    if( pMqttConnection->references == 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        destroyConnection = true;
+        /* Decrement reference count. It must not be negative. */
+        ( pMqttConnection->references )--;
+        IotMqtt_Assert( pMqttConnection->references >= 0 );
+
+        IotLogDebug( "(MQTT connection %p) Reference count changed from %ld to %ld.",
+                     pMqttConnection,
+                     ( long int ) pMqttConnection->references + 1,
+                     ( long int ) pMqttConnection->references );
+
+        /* Check if this connection may be destroyed. */
+        if( pMqttConnection->references == 0 )
+        {
+            destroyConnection = true;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
     }
     else
     {
-        EMPTY_ELSE_MARKER;
     }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     /* Destroy an unreferenced MQTT connection. */
     if( destroyConnection == true )
@@ -883,7 +912,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     MQTTApplicationCallbacks_t callbacks;
     MQTTStatus_t managedMqttStatus = MQTTSuccess;
     int8_t contextIndex = -1;
-    bool subscriptionMutexCreated = false, contextMutex = false, referencesMutexCreated = false;
+    SemaphoreHandle_t contextMutexHandle = NULL, subscriptionMutexHandle = NULL, referencesMutexHandle = NULL;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t (* serializeConnect)( const IotMqttConnectInfo_t *,
@@ -1030,12 +1059,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    if( xSemaphoreCreateRecursiveMutexStatic( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) != NULL )
-    {
-        contextMutex = true;
-    }
+    contextMutexHandle = xSemaphoreCreateRecursiveMutexStatic( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) );
 
-    if( contextMutex == true )
+    if( contextMutexHandle != NULL )
     {
         /* Assigning the MQTT Connection. */
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
@@ -1065,29 +1091,22 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         }
 
         /* Create the subscription mutex for a new connection. */
-        if( xSemaphoreCreateMutexStatic( &( connToContext[ contextIndex ].subscriptionMutex ) ) != NULL )
-        {
-            subscriptionMutexCreated = true;
-        }
+        subscriptionMutexHandle = xSemaphoreCreateMutexStatic( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
-        if( subscriptionMutexCreated == false )
+        if( subscriptionMutexHandle == NULL )
         {
             IotLogError( "Failed to create subscription mutex for new connection." );
-
-            IOT_SET_AND_GOTO_CLEANUP( false );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
 
         /* Create the references mutex for a new connection. It is a recursive mutex. */
-        if( xSemaphoreCreateRecursiveMutexStatic( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) != NULL )
-        {
-            referencesMutexCreated = true;
-        }
+        referencesMutexHandle = xSemaphoreCreateRecursiveMutexStatic( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
-        if( referencesMutexCreated == false )
+        if( referencesMutexHandle == NULL )
         {
             IotLogError( "Failed to create references mutex for new connection." );
 
-            IOT_SET_AND_GOTO_CLEANUP( false );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
@@ -1322,9 +1341,17 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
     /* Read the connection status. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-    disconnected = mqttConnection->disconnected;
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+    {
+        disconnected = mqttConnection->disconnected;
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* Only send a DISCONNECT packet if the connection is active and the "cleanup only"
      * flag is not set. */
@@ -1392,23 +1419,29 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                                      mqttConnection );
 
     /* Check if the connection may be destroyed. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    /* At this point, the connection should be marked disconnected. */
-    IotMqtt_Assert( mqttConnection->disconnected == true );
-
-    /* Attempt cancel and destroy each operation in the connection's array. */
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingProcessing ),
-                                    _mqttOperation_tryDestroy );
+        /* At this point, the connection should be marked disconnected. */
+        IotMqtt_Assert( mqttConnection->disconnected == true );
 
-        IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingResponse ),
-                                    _mqttOperation_tryDestroy );
+        /* Attempt cancel and destroy each operation in the connection's array. */
+
+        if( contextIndex >= 0 )
+        {
+            IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingProcessing ),
+                                        _mqttOperation_tryDestroy );
+
+            IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingResponse ),
+                                        _mqttOperation_tryDestroy );
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
     }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+    else
+    {
+    }
 
     /* Decrement the connection reference count and destroy it if possible. */
     _IotMqtt_DecrementConnectionReferences( mqttConnection );
@@ -1812,27 +1845,33 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
     /* Check the MQTT connection status. */
     if( status == IOT_MQTT_SUCCESS )
     {
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-        if( pMqttConnection->disconnected == true )
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
         {
-            IotLogError( "(MQTT connection %p, %s operation %p) MQTT connection is closed. "
-                         "Operation cannot be waited on.",
-                         pMqttConnection,
-                         IotMqtt_OperationType( operation->u.operation.type ),
-                         operation );
+            if( pMqttConnection->disconnected == true )
+            {
+                IotLogError( "(MQTT connection %p, %s operation %p) MQTT connection is closed. "
+                             "Operation cannot be waited on.",
+                             pMqttConnection,
+                             IotMqtt_OperationType( operation->u.operation.type ),
+                             operation );
 
-            status = IOT_MQTT_NETWORK_ERROR;
+                status = IOT_MQTT_NETWORK_ERROR;
+            }
+            else
+            {
+                IotLogInfo( "(MQTT connection %p, %s operation %p) Waiting for operation completion.",
+                            pMqttConnection,
+                            IotMqtt_OperationType( operation->u.operation.type ),
+                            operation );
+            }
+
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+            {
+            }
         }
         else
         {
-            IotLogInfo( "(MQTT connection %p, %s operation %p) Waiting for operation completion.",
-                        pMqttConnection,
-                        IotMqtt_OperationType( operation->u.operation.type ),
-                        operation );
         }
-
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
         /* Only wait on an operation if the MQTT connection is active. */
         if( status == IOT_MQTT_SUCCESS )
@@ -2009,5 +2048,5 @@ const char * IotMqtt_OperationType( IotMqttOperationType_t operation )
 
 /* Provide access to internal functions and variables if testing. */
 #if IOT_BUILD_TESTS == 1
-    #include "iot_test_access_mqtt_api.c"
+    /*#include "iot_test_access_mqtt_api.c" */
 #endif

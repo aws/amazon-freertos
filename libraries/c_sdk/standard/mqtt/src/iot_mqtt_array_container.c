@@ -41,140 +41,318 @@
 
 /*-----------------------------------------------------------*/
 
-void IotMqtt_InsertSubscription( _mqttSubscription_t ** pSubscriptionArray,
-                                 _mqttSubscription_t * pNewSubscription )
+static bool _packetMatch( _mqttSubscription_t * pSubscription,
+                          _packetMatchParams_t * pMatch )
 {
-    size_t i = 0;
+    bool match = false;
 
-    IotMqtt_Assert( pSubscriptionArray != NULL );
-    IotMqtt_Assert( pNewSubscription != NULL );
-
-    /* Finding the free index in subscription array to insert the subscription. */
-    for( i = 0; i < MAX_NO_OF_MQTT_SUBSCRIPTIONS; i++ )
-    {
-        if( pSubscriptionArray[ i ] == NULL )
-        {
-            pSubscriptionArray[ i ] = pNewSubscription;
-            break;
-        }
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-void IotMqtt_RemoveSubscription( _mqttSubscription_t ** pSubscriptionArray,
-                                 _mqttSubscription_t * pSubscription )
-{
-    size_t i = 0;
-
-    IotMqtt_Assert( pSubscriptionArray != NULL );
+    /* Because this function is called from a container function, the given link
+     * must never be NULL. */
     IotMqtt_Assert( pSubscription != NULL );
 
-    /* Finding the index matching the input subscription to remove it from the subscription array. */
-    for( i = 0; i < MAX_NO_OF_MQTT_SUBSCRIPTIONS; i++ )
+    _packetMatchParams_t * pParam = ( _packetMatchParams_t * ) pMatch;
+
+    /* Compare packet identifiers. */
+    if( pParam->packetIdentifier == pSubscription->packetInfo.identifier )
     {
-        if( pSubscriptionArray[ i ] == pSubscription )
+        /* Compare orders if order is not -1. */
+        if( pParam->order == -1 )
         {
-            pSubscriptionArray[ i ] = NULL;
-            break;
+            match = true;
+        }
+        else
+        {
+            match = ( ( size_t ) pParam->order ) == pSubscription->packetInfo.order;
         }
     }
-}
 
-/*-----------------------------------------------------------*/
-
-void IotMqtt_RemoveAllMatches( _mqttSubscription_t ** pSubscriptionArray,
-                               bool ( * isMatch )( _mqttSubscription_t *, void * ),
-                               void * pMatch,
-                               void ( * freeElement )( void * ) )
-{
-    _mqttSubscription_t * pMatchedElement = NULL;
-
-    IotMqtt_Assert( pSubscriptionArray != NULL );
-
-    /* Search the Subscription Array for all matching elements. */
-    do
+    /* If this subscription should be removed, check the reference count. */
+    if( match == true )
     {
-        pMatchedElement = IotMqtt_FindFirstMatch( pSubscriptionArray,
-                                                  pMatchedElement,
-                                                  isMatch,
-                                                  pMatch );
+        /* Reference count must not be negative. */
+        IotMqtt_Assert( pSubscription->references >= 0 );
 
-        if( pMatchedElement != NULL )
+        /* If the reference count is positive, this subscription cannot be
+         * removed yet because there are subscription callbacks using it. */
+        if( pSubscription->references > 0 )
         {
-            /* Match found; remove and free. */
-            IotMqtt_RemoveSubscription( pSubscriptionArray, pMatchedElement );
+            match = false;
 
-            if( freeElement != NULL )
-            {
-                freeElement( pMatchedElement );
-            }
+            /* Set the unsubscribed flag. The last active subscription callback
+             * will remove and clean up this subscription. */
+            pSubscription->unsubscribed = true;
         }
-    } while ( pMatchedElement != NULL );
-}
-
-/*-----------------------------------------------------------*/
-
-_mqttSubscription_t * IotMqtt_FindFirstMatch( _mqttSubscription_t ** pSubscriptionArray,
-                                              _mqttSubscription_t * pStartPoint,
-                                              bool ( * isMatch )( _mqttSubscription_t *, void * ),
-                                              void * pMatch )
-{
-    _mqttSubscription_t * pCurrent = ( _mqttSubscription_t * ) pStartPoint;
-    _mqttSubscription_t * pMatchedSubscription = NULL;
-    /* Find the next Index to start searching for match. */
-    size_t nextIndex = 0;
-
-    /* This function must not be called with a NULL pSubscriptionArray parameter. */
-    IotMqtt_Assert( pSubscriptionArray != NULL );
-
-    if( pCurrent == NULL )
-    {
-        nextIndex = 0;
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
     }
     else
     {
-        /* Getting the next index after the starting point to continue matching for other subscriptins. */
-        while( nextIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
-        {
-            if( pSubscriptionArray[ nextIndex ] == pCurrent )
-            {
-                nextIndex = nextIndex + 1;
-                break;
-            }
-
-            nextIndex++;
-        }
+        EMPTY_ELSE_MARKER;
     }
 
-    /* Finding the first Match. */
-    while( nextIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    return match;
+}
+
+/*-----------------------------------------------------------*/
+
+static bool _topicMatch( _mqttSubscription_t * pSubscription,
+                         void * pMatch )
+{
+    IOT_FUNCTION_ENTRY( bool, false );
+    uint16_t nameIndex = 0, filterIndex = 0;
+
+    /* Because this function is called from a container function, the given link
+     * must never be NULL. */
+    /*IotMqtt_Assert( pSubscription != NULL ); */
+
+    _topicMatchParams_t * pParam = ( _topicMatchParams_t * ) pMatch;
+
+    /* Extract the relevant strings and lengths from parameters. */
+    const char * pTopicName = pParam->pTopicName;
+    const char * pTopicFilter = pSubscription->pTopicFilter;
+    const uint16_t topicNameLength = pParam->topicNameLength;
+    const uint16_t topicFilterLength = pSubscription->topicFilterLength;
+
+    /* Check for an exact match. */
+    if( topicNameLength == topicFilterLength )
     {
-        if( pSubscriptionArray[ nextIndex ] != NULL )
+        status = ( strncmp( pTopicName, pTopicFilter, topicNameLength ) == 0 );
+
+        IOT_GOTO_CLEANUP();
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    /* If the topic lengths are different but an exact match is required, return
+     * false. */
+    if( pParam->exactMatchOnly == true )
+    {
+        IOT_SET_AND_GOTO_CLEANUP( false );
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    while( ( nameIndex < topicNameLength ) && ( filterIndex < topicFilterLength ) )
+    {
+        /* Check if the character in the topic name matches the corresponding
+         * character in the topic filter string. */
+        if( pTopicName[ nameIndex ] == pTopicFilter[ filterIndex ] )
         {
-            if( isMatch != NULL )
+            /* Handle special corner cases as documented by the MQTT protocol spec. */
+
+            /* Filter "sport/#" also matches "sport" since # includes the parent level. */
+            if( nameIndex == topicNameLength - 1 )
             {
-                if( isMatch( pSubscriptionArray[ nextIndex ], pMatch ) == true )
+                if( filterIndex == topicFilterLength - 3 )
                 {
-                    pMatchedSubscription = pSubscriptionArray[ nextIndex ];
-                    break;
+                    if( pTopicFilter[ filterIndex + 1 ] == '/' )
+                    {
+                        if( pTopicFilter[ filterIndex + 2 ] == '#' )
+                        {
+                            IOT_SET_AND_GOTO_CLEANUP( true );
+                        }
+                        else
+                        {
+                            EMPTY_ELSE_MARKER;
+                        }
+                    }
+                    else
+                    {
+                        EMPTY_ELSE_MARKER;
+                    }
+                }
+                else
+                {
+                    EMPTY_ELSE_MARKER;
                 }
             }
             else
             {
-                if( pSubscriptionArray[ nextIndex ] == pMatch )
+                EMPTY_ELSE_MARKER;
+            }
+
+            /* Filter "sport/+" also matches the "sport/" but not "sport". */
+            if( nameIndex == topicNameLength - 1 )
+            {
+                if( filterIndex == topicFilterLength - 2 )
                 {
-                    pMatchedSubscription = pSubscriptionArray[ nextIndex ];
-                    break;
+                    if( pTopicFilter[ filterIndex + 1 ] == '+' )
+                    {
+                        IOT_SET_AND_GOTO_CLEANUP( true );
+                    }
+                    else
+                    {
+                        EMPTY_ELSE_MARKER;
+                    }
                 }
+                else
+                {
+                    EMPTY_ELSE_MARKER;
+                }
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
+        }
+        else
+        {
+            /* Check for wildcards. */
+            if( pTopicFilter[ filterIndex ] == '+' )
+            {
+                /* Move topic name index to the end of the current level.
+                 * This is identified by '/'. */
+                while( nameIndex < topicNameLength && pTopicName[ nameIndex ] != '/' )
+                {
+                    nameIndex++;
+                }
+
+                /* Increment filter index to skip '/'. */
+                filterIndex++;
+                continue;
+            }
+            else if( pTopicFilter[ filterIndex ] == '#' )
+            {
+                /* Subsequent characters don't need to be checked if the for the
+                 * multi-level wildcard. */
+                IOT_SET_AND_GOTO_CLEANUP( true );
+            }
+            else
+            {
+                /* Any character mismatch other than '+' or '#' means the topic
+                 * name does not match the topic filter. */
+                IOT_SET_AND_GOTO_CLEANUP( false );
             }
         }
 
-        nextIndex++;
+        /* Increment indexes. */
+        nameIndex++;
+        filterIndex++;
     }
 
-    return pMatchedSubscription;
+    /* If the end of both strings has been reached, they match. */
+    if( ( nameIndex == topicNameLength ) && ( filterIndex == topicFilterLength ) )
+    {
+        IOT_SET_AND_GOTO_CLEANUP( true );
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
+
+/*-----------------------------------------------------------*/
+
+int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray )
+{
+    int8_t index = 0;
+
+    IotMqtt_Assert( pSubscriptionArray != NULL );
+
+    /* Finding the free index in subscription array to insert the subscription. */
+    while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    {
+        if( pSubscriptionArray[ index ].i == 0 )
+        {
+            pSubscriptionArray[ index ].i = 1;
+            break;
+        }
+
+        index++;
+    }
+
+    if( index == MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    {
+        index = -1;
+    }
+
+    return index;
+}
+
+/*-----------------------------------------------------------*/
+
+void IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
+                                 int8_t deleteIndex )
+{
+    IotMqtt_Assert( pSubscriptionArray != NULL );
+
+    /* Remove the subscription from the subscription array. */
+    pSubscriptionArray[ deleteIndex ].i = 0;
+}
+
+/*-----------------------------------------------------------*/
+
+void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
+                               _packetMatchParams_t * pMatch )
+{
+    size_t i = 0;
+
+    IotMqtt_Assert( pSubscriptionArray != NULL );
+
+    if( pMatch != NULL )
+    {
+        while( i < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+        {
+            /* Removing the subscription if it matches the given params. */
+            if( _packetMatch( &( pSubscriptionArray[ i ] ), pMatch ) == true )
+            {
+                pSubscriptionArray[ i ].i = 0;
+            }
+
+            i++;
+        }
+    }
+    else
+    {
+        /* Removing all the subscriptions from the subscription array. */
+        while( i < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+        {
+            pSubscriptionArray[ i ].i == 0;
+
+            pSubscriptionArray[ i ].unsubscribed = true;
+            i++;
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
+                               size_t startIndex,
+                               _topicMatchParams_t * pMatch )
+{
+    /* This function must not be called with a NULL pSubscriptionArray parameter. */
+    IotMqtt_Assert( pSubscriptionArray != NULL );
+
+    /* Finding the first Match. */
+    while( startIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    {
+        /* Check whether the subscription match the given params. */
+        if( _topicMatch( &( pSubscriptionArray[ startIndex ] ), pMatch ) == true )
+        {
+            break;
+        }
+
+        startIndex++;
+    }
+
+    if( startIndex == MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    {
+        startIndex = -1;
+    }
+
+    return startIndex;
+}
+
+
 
 /*-----------------------------------------------------------*/
 

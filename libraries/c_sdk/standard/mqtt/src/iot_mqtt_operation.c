@@ -428,14 +428,21 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
 
     /* Add this operation to the MQTT connection's operation list. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
 
-    if( contextIndex >= 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-    }
+        if( contextIndex >= 0 )
+        {
+            IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+        }
 
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* Set the output parameter. */
     *pNewOperation = pOperation;
@@ -523,32 +530,39 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
      */
     if( ( ( ( pOperation->u.operation.type == IOT_MQTT_CONNECT ) && ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ) ) || ( ( pOperation->u.operation.type != IOT_MQTT_CONNECT ) ) )
     {
-        xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-        pOperation->u.operation.jobReference--;
-
-        IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
-                     " from %d to %d.",
-                     pMqttConnection,
-                     IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation,
-                     pOperation->u.operation.jobReference + 1,
-                     pOperation->u.operation.jobReference );
-
-        /* The job reference count must be 0 or 1 after the decrement. */
-        IotMqtt_Assert( ( pOperation->u.operation.jobReference == 0 ) ||
-                        ( pOperation->u.operation.jobReference == 1 ) );
-
-        /* This operation may be destroyed if its reference count is 0. */
-        if( pOperation->u.operation.jobReference == 0 )
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
         {
-            destroyOperation = true;
+            pOperation->u.operation.jobReference--;
+
+            IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
+                         " from %d to %d.",
+                         pMqttConnection,
+                         IotMqtt_OperationType( pOperation->u.operation.type ),
+                         pOperation,
+                         pOperation->u.operation.jobReference + 1,
+                         pOperation->u.operation.jobReference );
+
+            /* The job reference count must be 0 or 1 after the decrement. */
+            IotMqtt_Assert( ( pOperation->u.operation.jobReference == 0 ) ||
+                            ( pOperation->u.operation.jobReference == 1 ) );
+
+            /* This operation may be destroyed if its reference count is 0. */
+            if( pOperation->u.operation.jobReference == 0 )
+            {
+                destroyOperation = true;
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
+
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+            {
+            }
         }
         else
         {
-            EMPTY_ELSE_MARKER;
         }
-
-        xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
     }
     else
     {
@@ -582,15 +596,21 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
     /* Jobs to be destroyed should be removed from the MQTT connection's
      * arrays. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
-    }
+        if( contextIndex >= 0 )
+        {
+            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+        }
 
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* Free any allocated MQTT packet. */
     if( pOperation->u.operation.pMqttPacket != NULL )
@@ -694,173 +714,179 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
                                             &pKeepAliveJob );
     IotMqtt_Assert( taskPoolStatus == IOT_TASKPOOL_SUCCESS );
 
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    /* Determine whether to send a PINGREQ or check for PINGRESP. */
-    if( pMqttConnection->nextKeepAliveMs == pMqttConnection->keepAliveMs )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        /* Only send the PINGREQ if the keep-alive period has elapsed since the connection
-         * was last used. */
-        elapsedTime = IotClock_GetTimeMs() - pMqttConnection->lastMessageTime;
-
-        if( elapsedTime < ( uint64_t ) pMqttConnection->keepAliveMs )
+        /* Determine whether to send a PINGREQ or check for PINGRESP. */
+        if( pMqttConnection->nextKeepAliveMs == pMqttConnection->keepAliveMs )
         {
-            IotLogDebug( "(MQTT connection %p) Connection was last used %llu ms ago, which "
-                         "is less than keep-alive period %lu ms. PINGREQ will not be sent.",
-                         pMqttConnection,
-                         ( unsigned long long ) elapsedTime,
-                         ( unsigned long ) pMqttConnection->keepAliveMs );
+            /* Only send the PINGREQ if the keep-alive period has elapsed since the connection
+             * was last used. */
+            elapsedTime = IotClock_GetTimeMs() - pMqttConnection->lastMessageTime;
 
-            /* Schedule the next keep-alive job one keep-alive period after the last packet was sent. */
-            scheduleDelay = pMqttConnection->keepAliveMs - ( ( uint32_t ) elapsedTime );
-        }
-        else
-        {
-            IotLogDebug( "(MQTT connection %p) Sending PINGREQ.", pMqttConnection );
-
-            /* Because PINGREQ may be used to keep the MQTT connection alive, it is
-             * more important than other operations. Bypass the queue of jobs for
-             * operations by directly sending the PINGREQ in this job. */
-            bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
-                                                                  pMqttConnection->pPingreqPacket,
-                                                                  pMqttConnection->pingreqPacketSize );
-
-            if( bytesSent != pMqttConnection->pingreqPacketSize )
+            if( elapsedTime < ( uint64_t ) pMqttConnection->keepAliveMs )
             {
-                IotLogError( "(MQTT connection %p) Failed to send PINGREQ.", pMqttConnection );
-                status = false;
+                IotLogDebug( "(MQTT connection %p) Connection was last used %llu ms ago, which "
+                             "is less than keep-alive period %lu ms. PINGREQ will not be sent.",
+                             pMqttConnection,
+                             ( unsigned long long ) elapsedTime,
+                             ( unsigned long ) pMqttConnection->keepAliveMs );
+
+                /* Schedule the next keep-alive job one keep-alive period after the last packet was sent. */
+                scheduleDelay = pMqttConnection->keepAliveMs - ( ( uint32_t ) elapsedTime );
             }
             else
             {
-                /* Update the timestamp of the last message on successful transmission. */
-                pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+                IotLogDebug( "(MQTT connection %p) Sending PINGREQ.", pMqttConnection );
 
-                /* Assume the keep-alive will fail. The network receive callback will
-                 * clear the failure flag upon receiving a PINGRESP. */
-                pMqttConnection->keepAliveFailure = true;
+                /* Because PINGREQ may be used to keep the MQTT connection alive, it is
+                 * more important than other operations. Bypass the queue of jobs for
+                 * operations by directly sending the PINGREQ in this job. */
+                bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
+                                                                      pMqttConnection->pPingreqPacket,
+                                                                      pMqttConnection->pingreqPacketSize );
 
-                /* Schedule a check for PINGRESP. */
-                pMqttConnection->nextKeepAliveMs = IOT_MQTT_RESPONSE_WAIT_MS;
+                if( bytesSent != pMqttConnection->pingreqPacketSize )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to send PINGREQ.", pMqttConnection );
+                    status = false;
+                }
+                else
+                {
+                    /* Update the timestamp of the last message on successful transmission. */
+                    pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
 
-                IotLogDebug( "(MQTT connection %p) PINGREQ sent. Scheduling check for PINGRESP in %d ms.",
-                             pMqttConnection,
-                             IOT_MQTT_RESPONSE_WAIT_MS );
+                    /* Assume the keep-alive will fail. The network receive callback will
+                     * clear the failure flag upon receiving a PINGRESP. */
+                    pMqttConnection->keepAliveFailure = true;
+
+                    /* Schedule a check for PINGRESP. */
+                    pMqttConnection->nextKeepAliveMs = IOT_MQTT_RESPONSE_WAIT_MS;
+
+                    IotLogDebug( "(MQTT connection %p) PINGREQ sent. Scheduling check for PINGRESP in %d ms.",
+                                 pMqttConnection,
+                                 IOT_MQTT_RESPONSE_WAIT_MS );
+                }
             }
-        }
-    }
-    else
-    {
-        IotLogDebug( "(MQTT connection %p) Checking for PINGRESP.", pMqttConnection );
-
-        if( pMqttConnection->keepAliveFailure == false )
-        {
-            IotLogDebug( "(MQTT connection %p) PINGRESP was received.", pMqttConnection );
-
-            /* This function is called for two purposes:
-             *
-             * 1. To send a PINGREQ.
-             * 2. To check that the corresponding PINGRESP is received within
-             * IOT_MQTT_RESPONSE_WAIT_MS.
-             *
-             * The way it differentiates between the two is by checking
-             * pMqttConnection->nextKeepAliveMs:
-             *
-             * If pMqttConnection->nextKeepAliveMs is set to pMqttConnection->keepAliveMs,
-             * the invocation is for sending PINGREQ.
-             * Otherwise, the invocation is for checking that PINGRESP is received
-             * within IOT_MQTT_RESPONSE_WAIT_MS.
-             *
-             * Therefore, it is necessary to set pMqttConnection->nextKeepAliveMs
-             * to pMqttConnection->keepAliveMs to ensure that PINGREQ is sent in
-             * the next invocation. But we must ensure that the next time to send
-             * PINGREQ is calculated from the moment last PINGREQ was sent and NOT
-             * when we checked for PINGRESP. As a result we need to schedule the next
-             * invocation at pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS.
-             * The following diagram also explains it:
-             *
-             *      WaitMS    KeepAliveMS - WaitMS
-             *    <-------->|<-------------------->
-             *    ---------------------------------
-             *    ^         ^                     ^
-             *    |         |                     |
-             * PINGREQ   PINGRESP              PINGREQ
-             * (Call 1)  (Call 2)             (Call 3)
-             *    <------------------------------->
-             *                 KeepAliveMS
-             * WaitMS = IOT_MQTT_RESPONSE_WAIT_MS.
-             * KeepAliveMS = pMqttConnection->keepAliveMs.
-             * Call 1 - First PINGREQ is sent.
-             * Call 2 - PINGRESP is checked after IOT_MQTT_RESPONSE_WAIT_MS.
-             * Call 3 - Next PINGREQ is sent. Time difference between Call 2 and
-             * Call 3 is KeepAliveMS - WaitMS, while time difference between Call 1
-             * and Call 3 is KeepAliveMS. */
-            pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
-
-            IotMqtt_Assert( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS );
-
-            /* Subtract time taken for PINGRESP check. */
-            scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to receive PINGRESP within %d ms.",
-                         pMqttConnection,
-                         IOT_MQTT_RESPONSE_WAIT_MS );
+            IotLogDebug( "(MQTT connection %p) Checking for PINGRESP.", pMqttConnection );
 
-            /* The network receive callback did not clear the failure flag. */
-            status = false;
+            if( pMqttConnection->keepAliveFailure == false )
+            {
+                IotLogDebug( "(MQTT connection %p) PINGRESP was received.", pMqttConnection );
+
+                /* This function is called for two purposes:
+                 *
+                 * 1. To send a PINGREQ.
+                 * 2. To check that the corresponding PINGRESP is received within
+                 * IOT_MQTT_RESPONSE_WAIT_MS.
+                 *
+                 * The way it differentiates between the two is by checking
+                 * pMqttConnection->nextKeepAliveMs:
+                 *
+                 * If pMqttConnection->nextKeepAliveMs is set to pMqttConnection->keepAliveMs,
+                 * the invocation is for sending PINGREQ.
+                 * Otherwise, the invocation is for checking that PINGRESP is received
+                 * within IOT_MQTT_RESPONSE_WAIT_MS.
+                 *
+                 * Therefore, it is necessary to set pMqttConnection->nextKeepAliveMs
+                 * to pMqttConnection->keepAliveMs to ensure that PINGREQ is sent in
+                 * the next invocation. But we must ensure that the next time to send
+                 * PINGREQ is calculated from the moment last PINGREQ was sent and NOT
+                 * when we checked for PINGRESP. As a result we need to schedule the next
+                 * invocation at pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS.
+                 * The following diagram also explains it:
+                 *
+                 *      WaitMS    KeepAliveMS - WaitMS
+                 *    <-------->|<-------------------->
+                 *    ---------------------------------
+                 *    ^         ^                     ^
+                 *    |         |                     |
+                 * PINGREQ   PINGRESP              PINGREQ
+                 * (Call 1)  (Call 2)             (Call 3)
+                 *    <------------------------------->
+                 *                 KeepAliveMS
+                 * WaitMS = IOT_MQTT_RESPONSE_WAIT_MS.
+                 * KeepAliveMS = pMqttConnection->keepAliveMs.
+                 * Call 1 - First PINGREQ is sent.
+                 * Call 2 - PINGRESP is checked after IOT_MQTT_RESPONSE_WAIT_MS.
+                 * Call 3 - Next PINGREQ is sent. Time difference between Call 2 and
+                 * Call 3 is KeepAliveMS - WaitMS, while time difference between Call 1
+                 * and Call 3 is KeepAliveMS. */
+                pMqttConnection->nextKeepAliveMs = pMqttConnection->keepAliveMs;
+
+                IotMqtt_Assert( pMqttConnection->keepAliveMs > IOT_MQTT_RESPONSE_WAIT_MS );
+
+                /* Subtract time taken for PINGRESP check. */
+                scheduleDelay = pMqttConnection->keepAliveMs - IOT_MQTT_RESPONSE_WAIT_MS;
+            }
+            else
+            {
+                IotLogError( "(MQTT connection %p) Failed to receive PINGRESP within %d ms.",
+                             pMqttConnection,
+                             IOT_MQTT_RESPONSE_WAIT_MS );
+
+                /* The network receive callback did not clear the failure flag. */
+                status = false;
+            }
         }
-    }
 
-    /* When a PINGREQ is successfully sent, reschedule this job to check for a
-     * response shortly. */
-    if( status == true )
-    {
-        if( scheduleDelay == 0U )
+        /* When a PINGREQ is successfully sent, reschedule this job to check for a
+         * response shortly. */
+        if( status == true )
         {
-            scheduleDelay = pMqttConnection->nextKeepAliveMs;
+            if( scheduleDelay == 0U )
+            {
+                scheduleDelay = pMqttConnection->nextKeepAliveMs;
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
+
+            taskPoolStatus = IotTaskPool_ScheduleDeferred( pTaskPool,
+                                                           pKeepAliveJob,
+                                                           scheduleDelay );
+
+            if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+            {
+                IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
+                             pMqttConnection,
+                             ( unsigned long ) scheduleDelay );
+            }
+            else
+            {
+                IotLogError( "(MQTT connection %p) Failed to reschedule keep-alive job, error %s.",
+                             pMqttConnection,
+                             IotTaskPool_strerror( taskPoolStatus ) );
+
+                status = false;
+            }
         }
         else
         {
             EMPTY_ELSE_MARKER;
         }
 
-        taskPoolStatus = IotTaskPool_ScheduleDeferred( pTaskPool,
-                                                       pKeepAliveJob,
-                                                       scheduleDelay );
-
-        if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+        /* Close the connection on failures. */
+        if( status == false )
         {
-            IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
-                         pMqttConnection,
-                         ( unsigned long ) scheduleDelay );
+            _IotMqtt_CloseNetworkConnection( IOT_MQTT_KEEP_ALIVE_TIMEOUT,
+                                             pMqttConnection );
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to reschedule keep-alive job, error %s.",
-                         pMqttConnection,
-                         IotTaskPool_strerror( taskPoolStatus ) );
+            EMPTY_ELSE_MARKER;
+        }
 
-            status = false;
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
         }
     }
     else
     {
-        EMPTY_ELSE_MARKER;
     }
-
-    /* Close the connection on failures. */
-    if( status == false )
-    {
-        _IotMqtt_CloseNetworkConnection( IOT_MQTT_KEEP_ALIVE_TIMEOUT,
-                                         pMqttConnection );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -884,14 +910,20 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
     /* Remove the operation from the pending processing array. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-    }
+        if( contextIndex >= 0 )
+        {
+            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+        }
 
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* Process the current PUBLISH. */
     callbackParam.u.message.info = pOperation->u.publish.publishInfo;
@@ -980,9 +1012,17 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
         else
         {
             /* Update the timestamp of the last message on successful transmission. */
-            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-            pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+            if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+            {
+                pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+
+                if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                {
+                }
+            }
+            else
+            {
+            }
 
             /* DISCONNECT operations are considered successful upon successful
              * transmission. In addition, non-waitable operations with no callback
@@ -1050,16 +1090,22 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
              * pending processing to the pending response array. */
             if( destroyOperation == false )
             {
-                xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-                if( contextIndex >= 0 )
+                if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
                 {
-                    /* Transferring the opeartion from pending processing to pending response array. */
-                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
-                }
+                    if( contextIndex >= 0 )
+                    {
+                        /* Transferring the opeartion from pending processing to pending response array. */
+                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                    }
 
-                xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+                    if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                    {
+                    }
+                }
+                else
+                {
+                }
 
                 /* This operation is now awaiting a response from the network. */
                 networkPending = true;
@@ -1124,9 +1170,17 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     waitable = ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
     /* Update the timestamp of the last message on successful transmission. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-    pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+    {
+        pMqttConnection->lastMessageTime = IotClock_GetTimeMs();
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+        }
+    }
+    else
+    {
+    }
 
     /* DISCONNECT operations are considered successful upon successful
      * transmission. In addition, non-waitable operations with no callback
@@ -1172,18 +1226,24 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
          * pending processing to the pending response array. */
         if( destroyOperation == false )
         {
-            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-            contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
-
-            if( contextIndex >= 0 )
+            if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
             {
-                /* Transferring the opeartion from pending processing to pending response array. */
-                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
-            }
+                contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
-            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
+                if( contextIndex >= 0 )
+                {
+                    /* Transferring the opeartion from pending processing to pending response array. */
+                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                }
+
+                if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                {
+                }
+            }
+            else
+            {
+            }
 
             /* This operation is now awaiting a response from the network. */
             networkPending = true;
@@ -1343,83 +1403,90 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
     }
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+
     /* Find and remove the first matching element in the list. */
-    xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-    if( contextIndex >= 0 )
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        pResult = IotMqtt_FindFirstMatchOperation( &( connToContext[ contextIndex ].pendingResponse ),
-                                                   NULL,
-                                                   _mqttOperation_match,
-                                                   &param );
-    }
-
-    /* Check if a match was found. */
-    if( pResult != NULL )
-    {
-        /* check if operation is waitable. */
-        waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
-
-        /* Check if the matched operation is a PUBLISH with retry. If it is, cancel
-         * the retry job. */
-        if( pResult->u.operation.retry.limit > 0 )
+        if( contextIndex >= 0 )
         {
-            /* If the retry job could not be canceled, then it is currently
-             * executing. Ignore the operation. */
-            if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
+            pResult = IotMqtt_FindFirstMatchOperation( &( connToContext[ contextIndex ].pendingResponse ),
+                                                       NULL,
+                                                       _mqttOperation_match,
+                                                       &param );
+        }
+
+        /* Check if a match was found. */
+        if( pResult != NULL )
+        {
+            /* check if operation is waitable. */
+            waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
+
+            /* Check if the matched operation is a PUBLISH with retry. If it is, cancel
+             * the retry job. */
+            if( pResult->u.operation.retry.limit > 0 )
             {
-                pResult = NULL;
+                /* If the retry job could not be canceled, then it is currently
+                 * executing. Ignore the operation. */
+                if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
+                {
+                    pResult = NULL;
+                }
+                else
+                {
+                    /* Check job reference counts. A waitable operation should have a
+                     * count of 2; a non-waitable operation should have a count of 1. */
+                    IotMqtt_Assert( pResult->u.operation.jobReference == ( 1 + ( waitable == true ) ) );
+                }
             }
             else
             {
-                /* Check job reference counts. A waitable operation should have a
-                 * count of 2; a non-waitable operation should have a count of 1. */
-                IotMqtt_Assert( pResult->u.operation.jobReference == ( 1 + ( waitable == true ) ) );
+                /* An operation with no retry in the pending responses list should
+                 * always have a job reference of 1. */
+                IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
+
+                /* Increment job references of a waitable operation to prevent Wait from
+                 * destroying this operation if it times out. */
+                if( waitable == true )
+                {
+                    ( pResult->u.operation.jobReference )++;
+
+                    IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
+                                 pMqttConnection,
+                                 IotMqtt_OperationType( type ),
+                                 pResult,
+                                 ( long int ) ( pResult->u.operation.jobReference - 1 ),
+                                 ( long int ) ( pResult->u.operation.jobReference ) );
+                }
             }
         }
         else
         {
-            /* An operation with no retry in the pending responses list should
-             * always have a job reference of 1. */
-            IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
+            EMPTY_ELSE_MARKER;
+        }
 
-            /* Increment job references of a waitable operation to prevent Wait from
-             * destroying this operation if it times out. */
-            if( waitable == true )
-            {
-                ( pResult->u.operation.jobReference )++;
+        if( pResult != NULL )
+        {
+            IotLogDebug( "(MQTT connection %p) Found operation %s.",
+                         pMqttConnection,
+                         IotMqtt_OperationType( type ) );
 
-                IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
-                             pMqttConnection,
-                             IotMqtt_OperationType( type ),
-                             pResult,
-                             ( long int ) ( pResult->u.operation.jobReference - 1 ),
-                             ( long int ) ( pResult->u.operation.jobReference ) );
-            }
+            /* Remove the matched operation from the array. */
+            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pResult );
+        }
+        else
+        {
+            IotLogDebug( "(MQTT connection %p) Operation %s not found.",
+                         pMqttConnection,
+                         IotMqtt_OperationType( type ) );
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
         }
     }
     else
     {
-        EMPTY_ELSE_MARKER;
     }
-
-    if( pResult != NULL )
-    {
-        IotLogDebug( "(MQTT connection %p) Found operation %s.",
-                     pMqttConnection,
-                     IotMqtt_OperationType( type ) );
-
-        /* Remove the matched operation from the array. */
-        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pResult );
-    }
-    else
-    {
-        IotLogDebug( "(MQTT connection %p) Operation %s not found.",
-                     pMqttConnection,
-                     IotMqtt_OperationType( type ) );
-    }
-
-    xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
 
     return pResult;
 }
@@ -1470,37 +1537,43 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         /* Schedule an invocation of the callback. */
         if( pOperation->u.operation.notify.callback.function != NULL )
         {
-            xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY );
-
-            status = _IotMqtt_ScheduleOperation( pOperation,
-                                                 _IotMqtt_ProcessCompletedOperation,
-                                                 0 );
-
-            if( status == IOT_MQTT_SUCCESS )
+            if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
             {
-                IotLogDebug( "(MQTT connection %p, %s operation %p) Callback scheduled.",
-                             pOperation->pMqttConnection,
-                             IotMqtt_OperationType( pOperation->u.operation.type ),
-                             pOperation );
+                status = _IotMqtt_ScheduleOperation( pOperation,
+                                                     _IotMqtt_ProcessCompletedOperation,
+                                                     0 );
 
-                /* Place the scheduled operation back in the array of operations pending
-                 * processing. */
-
-                if( contextIndex >= 0 )
+                if( status == IOT_MQTT_SUCCESS )
                 {
-                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
-                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    IotLogDebug( "(MQTT connection %p, %s operation %p) Callback scheduled.",
+                                 pOperation->pMqttConnection,
+                                 IotMqtt_OperationType( pOperation->u.operation.type ),
+                                 pOperation );
+
+                    /* Place the scheduled operation back in the array of operations pending
+                     * processing. */
+
+                    if( contextIndex >= 0 )
+                    {
+                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                    }
+                }
+                else
+                {
+                    IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule callback.",
+                                pOperation->pMqttConnection,
+                                IotMqtt_OperationType( pOperation->u.operation.type ),
+                                pOperation );
+                }
+
+                if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                {
                 }
             }
             else
             {
-                IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule callback.",
-                            pOperation->pMqttConnection,
-                            IotMqtt_OperationType( pOperation->u.operation.type ),
-                            pOperation );
             }
-
-            xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) );
         }
         else
         {
@@ -1533,7 +1606,10 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
                          pOperation->pMqttConnection,
                          IotMqtt_OperationType( pOperation->u.operation.type ),
                          pOperation );
-            xSemaphoreGive( ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) );
+
+            if( xSemaphoreGive( ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) ) == pdFALSE )
+            {
+            }
         }
         else
         {
