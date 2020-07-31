@@ -98,37 +98,46 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 
     MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * subscriptionCount );
 
-    /* Getting MQTT Context for the specified MQTT Connection. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
-
-    if( contextIndex >= 0 )
+    if( subscriptionList == NULL )
     {
-        /* Generating the packet id for SUBSCRIBE packet. */
-        packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
-        pSubscriptionOperation->u.operation.packetIdentifier = packetId;
-
-        /* Populating the subscription list to be used by MQTT LTS API. */
-        for( i = 0; i < subscriptionCount; i++ )
-        {
-            subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
-            subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
-            subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
-        }
-
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
-
-        /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
-        managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
-
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
-
-        /* Converting the status code. */
-        status = convertReturnCode( managedMqttStatus );
+        IotLogError( "Failed to allocate memory for subscription list." );
+        status = IOT_MQTT_NO_MEMORY;
     }
     else
     {
-        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
-                     mqttConnection );
+        /* Getting MQTT Context for the specified MQTT Connection. */
+        contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+        if( contextIndex >= 0 )
+        {
+            /* Generating the packet id for SUBSCRIBE packet. */
+            packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
+            pSubscriptionOperation->u.operation.packetIdentifier = packetId;
+
+            /* Populating the subscription list to be used by MQTT LTS API. */
+            for( i = 0; i < subscriptionCount; i++ )
+            {
+                subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
+                subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
+                subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+            }
+
+            IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+
+            /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
+            managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
+
+            IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+            /* Converting the status code. */
+            status = convertReturnCode( managedMqttStatus );
+            IotMqtt_FreeMessage( subscriptionList );
+        }
+        else
+        {
+            IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                         mqttConnection );
+        }
     }
 
     return status;
@@ -154,36 +163,45 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
     MQTTSubscribeInfo_t * subscriptionList = IotMqtt_MallocMessage( sizeof( MQTTSubscribeInfo_t ) * unsubscriptionCount );
 
-    /* Getting MQTT Context for the specified MQTT Connection. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
-
-    if( contextIndex >= 0 )
+    if( subscriptionList == NULL )
     {
-        /* Generating the packet id for UNSUBSCRIBE packet. */
-        packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
-        pUnsubscriptionOperation->u.operation.packetIdentifier = packetId;
-
-        /* Populating the unsubscription list to be used by MQTT LTS API. */
-        for( i = 0; i < unsubscriptionCount; i++ )
-        {
-            subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
-            subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
-        }
-
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
-
-        /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
-        managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
-
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
-
-        /* Converting the status code. */
-        status = convertReturnCode( managedMqttStatus );
+        IotLogError( "Failed to allocate memory for subscription list." );
+        status = IOT_MQTT_NO_MEMORY;
     }
     else
     {
-        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
-                     mqttConnection );
+        /* Getting MQTT Context for the specified MQTT Connection. */
+        contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+        if( contextIndex >= 0 )
+        {
+            /* Generating the packet id for UNSUBSCRIBE packet. */
+            packetId = MQTT_GetPacketId( &( connToContext[ contextIndex ].context ) );
+            pUnsubscriptionOperation->u.operation.packetIdentifier = packetId;
+
+            /* Populating the unsubscription list to be used by MQTT LTS API. */
+            for( i = 0; i < unsubscriptionCount; i++ )
+            {
+                subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
+                subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
+            }
+
+            IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+
+            /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
+            managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
+
+            IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+            /* Converting the status code. */
+            status = convertReturnCode( managedMqttStatus );
+            IotMqtt_FreeMessage( subscriptionList );
+        }
+        else
+        {
+            IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                         mqttConnection );
+        }
     }
 
     return status;
