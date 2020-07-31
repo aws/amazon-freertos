@@ -340,6 +340,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashReadInfo )
         TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulPageSize & ( pxFlashInfo->ulPageSize - 1 ) );
         TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulSectorSize & ( pxFlashInfo->ulSectorSize - 1 ) );
         TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulBlockSize & ( pxFlashInfo->ulBlockSize - 1 ) );
+        TEST_ASSERT_EQUAL( 0, pxFlashInfo->ulFlashSize & ( pxFlashInfo->ulFlashSize - 1 ) );
     }
 
     /* Close flash handle */

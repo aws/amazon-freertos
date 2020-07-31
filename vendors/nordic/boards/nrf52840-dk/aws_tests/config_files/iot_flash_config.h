@@ -30,6 +30,10 @@
 #ifndef _AWS_COMMON_IO_FLASH_CONFIG_H_
 #define _AWS_COMMON_IO_FLASH_CONFIG_H_
 
+
+#define IOT_LOG_LEVEL_IOT_FLASH    IOT_LOG_NONE
+
+
 /* Set defaults which are not overridden */
 #include "iot_flash_config_defaults.h"
 

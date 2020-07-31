@@ -71,7 +71,7 @@
 
 static void prvFlashEventHandler( nrf_fstorage_evt_t * p_evt );
 
-NRF_FSTORAGE_DEF( nrf_fstorage_t iot_fstorage ) =
+NRF_FSTORAGE_DEF( nrf_fstorage_t xFStorage_NRF ) =
 {
     /* Set a handler for fstorage events. */
     .evt_handler = prvFlashEventHandler,
@@ -156,25 +156,27 @@ static void prvFlashEventHandler( nrf_fstorage_evt_t * p_evt )
 
 static void prvGetFlashInfo( void )
 {
-    uint32_t const bootloader_addr = NRF_UICR->NRFFW[ 0 ];
-    uint32_t const page_sz = NRF_FICR->CODEPAGESIZE;
-    uint32_t const code_sz = NRF_FICR->CODESIZE;
-    uint32_t const total_flash = code_sz * page_sz;
+    const uint32_t ulBooterAddress = NRF_UICR->NRFFW[ 0 ];
+    const uint32_t ulMBRAddress = NRF_UICR->NRFFW[ 1 ];
+    const uint32_t ulPageSize = NRF_FICR->CODEPAGESIZE;
+    const uint32_t ulPageCount = NRF_FICR->CODESIZE;
+    const uint32_t ulTotalFlashBytes = ulPageCount * ulPageSize;
 
-    /*End of flash */
-    uint32_t flash_end_addr = ( bootloader_addr != 0xFFFFFFFF ) ? bootloader_addr : ( total_flash );
+    xFStorage_NRF.start_addr = IOT_COMMON_IO_FLASH_BASE_ADDRESS;
+    xFStorage_NRF.end_addr = ulTotalFlashBytes - 1;
 
-    /* Set last valid address for MCU to write jsut below bootloader which allows */
-    /* this instance to completely erase config storage as well */
-    iot_fstorage.end_addr = bootloader_addr - 1;
-    iot_fstorage.start_addr = IOT_COMMON_IO_FLASH_BASE_ADDRESS;
+    IotLogInfo( "Available Flash: [0x%x, 0x%x]", xFStorage_NRF.start_addr, xFStorage_NRF.end_addr );
+    IotLogDebug( "MBR @ 0x%x  --  Bootloader @ 0x%x -- Flash: [0x%x , 0x%x] (%d %s)",
+                 ulMBRAddress,
+                 ulBooterAddress,
+                 xFStorage_NRF.start_addr,
+                 xFStorage_NRF.end_addr,
+                 ( ulTotalFlashBytes % 1024 ) ? ulTotalFlashBytes : ulTotalFlashBytes / 1024,
+                 ( ulTotalFlashBytes % 1024 ) ? "B" : "KB" );
 
-    IotLogDebug( "Available Flash: [0x%x, 0x%x]", iot_fstorage.start_addr, iot_fstorage.end_addr );
-    IotLogDebug( "Total Flash: %d %s -- Bootloader @ 0x%x -- Flash End @ 0x%x",
-                 ( total_flash % 1024 ) ? total_flash : total_flash / 1024,
-                 ( total_flash % 1024 ) ? "B" : "KB",
-                 bootloader_addr,
-                 flash_end_addr );
+    #ifdef SOFTDEVICE_PRESENT
+        IotLogDebug( "Soft Device Flash: [0x%x, 0x%x]", 0u, SD_SIZE_GET( MBR_SIZE ) );
+    #endif
 }
 
 static inline bool prvIsOperableHandle( IotFlashHandle_t const pxFlashHandle )
@@ -212,11 +214,11 @@ IotFlashHandle_t iot_flash_open( int32_t lFlashInstance )
         #endif
 
         xFlashDesc = DEFAULT_FLASH_DESC;
-        ret_code_t xReturnCode_NRF = nrf_fstorage_init( &iot_fstorage, p_fs_api, NULL );
+        ret_code_t xReturnCode_NRF = nrf_fstorage_init( &xFStorage_NRF, p_fs_api, NULL );
 
         if( xReturnCode_NRF == NRF_SUCCESS )
         {
-            xFlashDesc.xFlashInfo.ulFlashSize = iot_fstorage.end_addr - iot_fstorage.start_addr + 1;
+            xFlashDesc.xFlashInfo.ulFlashSize = xFStorage_NRF.end_addr - xFStorage_NRF.start_addr + 1;
             xFlashDesc.ucState = IOT_FLASH_OPENED;
             xHandle = &xFlashDesc;
         }
@@ -272,9 +274,9 @@ int32_t iot_flash_ioctl( IotFlashHandle_t const pxFlashHandle,
         {
             case eGetFlashTxNoOfbytes:
 
-                if( iot_fstorage.p_flash_info )
+                if( xFStorage_NRF.p_flash_info )
                 {
-                    memcpy( pvBuffer, &iot_fstorage.p_flash_info->program_unit, sizeof( uint32_t ) );
+                    memcpy( pvBuffer, &xFStorage_NRF.p_flash_info->program_unit, sizeof( uint32_t ) );
                     lReturnCode = IOT_FLASH_SUCCESS;
                 }
 
@@ -305,7 +307,7 @@ int32_t iot_flash_erase_sectors( IotFlashHandle_t const pxFlashHandle,
     {
         lReturnCode = IOT_FLASH_INVALID_VALUE;
     }
-    else if( nrf_fstorage_is_busy( &iot_fstorage ) )
+    else if( nrf_fstorage_is_busy( &xFStorage_NRF ) )
     {
         lReturnCode = IOT_FLASH_DEVICE_BUSY;
     }
@@ -315,12 +317,12 @@ int32_t iot_flash_erase_sectors( IotFlashHandle_t const pxFlashHandle,
     }
     else
     {
-        ret_code_t xReturnCode_NRF = nrf_fstorage_erase( &iot_fstorage, ulStartAddress, xSize / FLASH_PAGE_SIZE, NULL );
+        ret_code_t xReturnCode_NRF = nrf_fstorage_erase( &xFStorage_NRF, ulStartAddress, xSize / FLASH_PAGE_SIZE, NULL );
 
         switch( xReturnCode_NRF )
         {
             case NRF_SUCCESS:
-                prvWaitUntilFlashReady( &iot_fstorage );
+                prvWaitUntilFlashReady( &xFStorage_NRF );
                 lReturnCode = IOT_FLASH_SUCCESS;
                 break;
 
@@ -361,7 +363,7 @@ int32_t iot_flash_write_sync( IotFlashHandle_t const pxFlashHandle,
     {
         lReturnCode = IOT_FLASH_INVALID_VALUE;
     }
-    else if( nrf_fstorage_is_busy( &iot_fstorage ) )
+    else if( nrf_fstorage_is_busy( &xFStorage_NRF ) )
     {
         lReturnCode = IOT_FLASH_DEVICE_BUSY;
     }
@@ -378,12 +380,12 @@ int32_t iot_flash_write_sync( IotFlashHandle_t const pxFlashHandle,
         memset( write_buf + xBytes, FLASH_PADDING_BYTE, write_size - xBytes );
 
         /* Write and check status*/
-        ret_code_t xReturnCode_NRF = nrf_fstorage_write( &iot_fstorage, ulAddress, write_buf, write_size, NULL );
+        ret_code_t xReturnCode_NRF = nrf_fstorage_write( &xFStorage_NRF, ulAddress, write_buf, write_size, NULL );
 
         switch( xReturnCode_NRF )
         {
             case NRF_SUCCESS:
-                prvWaitUntilFlashReady( &iot_fstorage );
+                prvWaitUntilFlashReady( &xFStorage_NRF );
                 lReturnCode = IOT_FLASH_SUCCESS;
                 break;
 
@@ -416,13 +418,13 @@ int32_t iot_flash_read_sync( IotFlashHandle_t const pxFlashHandle,
     {
         lReturnCode = IOT_FLASH_INVALID_VALUE;
     }
-    else if( nrf_fstorage_is_busy( &iot_fstorage ) )
+    else if( nrf_fstorage_is_busy( &xFStorage_NRF ) )
     {
         lReturnCode = IOT_FLASH_DEVICE_BUSY;
     }
     else
     {
-        ret_code_t xReturnCode_NRF = nrf_fstorage_read( &iot_fstorage, ulAddress, pvBuffer, xBytes );
+        ret_code_t xReturnCode_NRF = nrf_fstorage_read( &xFStorage_NRF, ulAddress, pvBuffer, xBytes );
 
         switch( xReturnCode_NRF )
         {
@@ -475,7 +477,9 @@ int32_t iot_flash_close( IotFlashHandle_t const pxFlashHandle )
 
     if( prvIsOperableHandle( pxFlashHandle ) )
     {
-        if( NRF_SUCCESS == nrf_fstorage_uninit( &iot_fstorage, NULL ) )
+        ret_code_t xReturnCode_NRF = nrf_fstorage_uninit( &xFStorage_NRF, NULL );
+
+        if( NRF_SUCCESS == xReturnCode_NRF )
         {
             *pxFlashHandle = DEFAULT_FLASH_DESC;
             lReturnCode = IOT_FLASH_SUCCESS;
