@@ -54,7 +54,6 @@
 #include "mbedtls_error.h"
 
 /* C runtime includes. */
-#include <stdio.h>
 #include <string.h>
 
 /*-----------------------------------------------------------*/

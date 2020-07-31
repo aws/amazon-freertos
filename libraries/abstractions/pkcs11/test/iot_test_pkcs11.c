@@ -1651,12 +1651,12 @@ TEST( Full_PKCS11_EC, AFQP_DestroyObject )
 
 TEST( Full_PKCS11_EC, AFQP_CreateObject )
 {
-    CK_RV xResult;
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
 
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+        CK_RV xResult;
         CK_OBJECT_HANDLE xRootCertificateHandle;
         CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
         CK_OBJECT_HANDLE xJITPCertificateHandle;
