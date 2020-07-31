@@ -131,13 +131,14 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 
             /* Converting the status code. */
             status = convertReturnCode( managedMqttStatus );
-            IotMqtt_FreeMessage( subscriptionList );
         }
         else
         {
             IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
                          mqttConnection );
         }
+
+        IotMqtt_FreeMessage( subscriptionList );
     }
 
     return status;
@@ -195,13 +196,14 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
             /* Converting the status code. */
             status = convertReturnCode( managedMqttStatus );
-            IotMqtt_FreeMessage( subscriptionList );
         }
         else
         {
             IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
                          mqttConnection );
         }
+
+        IotMqtt_FreeMessage( subscriptionList );
     }
 
     return status;
