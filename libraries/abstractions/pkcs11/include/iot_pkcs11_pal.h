@@ -56,6 +56,9 @@
  */
 
 /**
+ * @function_page{PKCS11_PAL_Initialize,pkcs11_pal,initialize}
+ * @function_snippet{pkcs11_pal,initialize,this}
+ * @copydoc PKCS11_PAL_Initialize
  * @function_page{PKCS11_PAL_SaveObject,pkcs11_pal,saveobject}
  * @function_snippet{pkcs11_pal,saveobject,this}
  * @copydoc PKCS11_PAL_SaveObject
