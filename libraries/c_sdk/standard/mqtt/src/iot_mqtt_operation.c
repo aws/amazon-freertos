@@ -434,10 +434,14 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 
     /* Set the output parameter. */
@@ -555,10 +559,14 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
             {
+                IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                             pMqttConnection );
             }
         }
         else
         {
+            IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                         pMqttConnection );
         }
     }
     else
@@ -603,10 +611,14 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 
     /* Free any allocated MQTT packet. */
@@ -881,10 +893,14 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 }
 
@@ -918,10 +934,14 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 
     /* Process the current PUBLISH. */
@@ -1018,10 +1038,14 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                 {
+                    IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                                 pMqttConnection );
                 }
             }
             else
             {
+                IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                             pMqttConnection );
             }
 
             /* DISCONNECT operations are considered successful upon successful
@@ -1101,10 +1125,14 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
 
                     if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                     {
+                        IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                                     pMqttConnection );
                     }
                 }
                 else
                 {
+                    IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                                 pMqttConnection );
                 }
 
                 /* This operation is now awaiting a response from the network. */
@@ -1176,10 +1204,14 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 
     /* DISCONNECT operations are considered successful upon successful
@@ -1239,10 +1271,14 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                 {
+                    IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                                 pMqttConnection );
                 }
             }
             else
             {
+                IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                             pMqttConnection );
             }
 
             /* This operation is now awaiting a response from the network. */
@@ -1481,10 +1517,14 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                     pMqttConnection );
     }
 
     return pResult;
@@ -1568,10 +1608,14 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                 {
+                    IotLogError( "(MQTT connection %p) Failed to unlock reference mutex.",
+                                 pMqttConnection );
                 }
             }
             else
             {
+                IotLogError( "(MQTT connection %p) Failed to take lock on reference mutex.",
+                             pMqttConnection );
             }
         }
         else

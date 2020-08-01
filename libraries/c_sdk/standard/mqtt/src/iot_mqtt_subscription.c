@@ -354,10 +354,14 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+                     pMqttConnection );
     }
 
     /* If memory allocation failed, remove all previously added subscriptions. */
@@ -384,6 +388,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
     IotLink_t * pCurrentLink = NULL, * pNextLink = NULL;
     void * pCallbackContext = NULL;
     int8_t contextIndex = -1;
+    int8_t index = 0;
 
     void ( * callbackFunction )( void *,
                                  IotMqttCallbackParam_t * ) = NULL;
@@ -402,24 +407,23 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
 
     /* Search the subscription list for all matching subscriptions starting at
      * the array head. */
-    int8_t i = 0;
 
-    while( i < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
         if( contextIndex >= 0 )
         {
-            i = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
-                                        i,
-                                        &topicMatchParams );
+            index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+                                            index,
+                                            &topicMatchParams );
 
             /* No subscription found. Exit loop. */
-            if( i == -1 )
+            if( index == -1 )
             {
                 break;
             }
             else
             {
-                pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ i ] );
+                pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ index ] );
             }
 
             /* Subscription validation should not have allowed a NULL callback function. */
@@ -464,7 +468,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                 }
             }
 
-            i++;
+            index++;
         }
         else
         {
@@ -502,10 +506,14 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+                     pMqttConnection );
     }
 }
 
@@ -568,10 +576,14 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+                         pMqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+                     pMqttConnection );
     }
 }
 
@@ -592,6 +604,7 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
         .exactMatchOnly  = true
     };
     int8_t contextIndex = -1;
+    int8_t matchedIndex = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
 
@@ -599,7 +612,6 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
      * function is running. */
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
     {
-        int8_t matchedIndex = -1;
         /* Search for a matching subscription. */
 
         if( contextIndex >= 0 )
@@ -633,10 +645,14 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
+            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+                         mqttConnection );
         }
     }
     else
     {
+        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+                     mqttConnection );
     }
 
     return status;
