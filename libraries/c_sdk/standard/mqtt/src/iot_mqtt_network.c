@@ -347,9 +347,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             IotLogDebug( "(MQTT connection %p) PUBLISH in data stream.", pMqttConnection );
 
             /* Allocate memory to handle the incoming PUBLISH. */
-            pOperation = IotMqtt_MallocOperation( sizeof( _mqttOperation_t ) );
+            int8_t index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+            /*pOperation = IotMqtt_MallocOperation( sizeof( _mqttOperation_t ) ); */
 
-            if( pOperation == NULL )
+            if( index == -1 )
             {
                 IotLogWarn( "Failed to allocate memory for incoming PUBLISH." );
                 status = IOT_MQTT_NO_MEMORY;
@@ -359,7 +360,8 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             else
             {
                 /* Set the members of the incoming PUBLISH operation. */
-                ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
+                /*( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) ); */
+                pOperation = &( connToContext[ contextIndex ].operationArray[ index ] );
                 pOperation->incomingPublish = true;
                 pOperation->pMqttConnection = pMqttConnection;
                 pIncomingPacket->u.pIncomingPublish = pOperation;
@@ -470,7 +472,8 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
 
                 IotMqtt_Assert( pOperation != NULL );
-                IotMqtt_FreeOperation( pOperation );
+                IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+                /*IotMqtt_FreeOperation( pOperation ); */
             }
             else
             {

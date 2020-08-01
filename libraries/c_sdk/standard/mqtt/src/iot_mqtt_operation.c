@@ -96,18 +96,14 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation );
 
 /*-----------------------------------------------------------*/
 
-static bool _mqttOperation_match( const IotLink_t * pOperationLink,
+static bool _mqttOperation_match( _mqttOperation_t * pOperation,
                                   void * pMatch )
 {
     bool match = false;
 
-    /* Because this function is called from a container function, the given link
-     * must never be NULL. */
-    IotMqtt_Assert( pOperationLink != NULL );
+    /* The given opeartion must never be NULL. */
+    IotMqtt_Assert( pOperation != NULL );
 
-    _mqttOperation_t * pOperation = IotLink_Container( _mqttOperation_t,
-                                                       pOperationLink,
-                                                       link );
     _operationMatchParam_t * pParam = ( _operationMatchParam_t * ) pMatch;
 
     /* Check for matching operations. */
@@ -326,9 +322,8 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     bool decrementOnError = false;
-    _mqttOperation_t * pOperation = NULL;
     bool waitable = ( ( flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE );
-    int8_t contextIndex = -1;
+    int8_t contextIndex = -1, index = -1;
 
     /* If the waitable flag is set, make sure that there's no callback. */
     if( waitable == true )
@@ -368,27 +363,28 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
         decrementOnError = true;
     }
 
-    /* Allocate memory for a new operation. */
-    pOperation = IotMqtt_MallocOperation( sizeof( _mqttOperation_t ) );
+    /* Get index of context for the given connnection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
-    if( pOperation == NULL )
+    /* Get index from operation array for a new operation. */
+    index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+
+    if( index == -1 )
     {
-        IotLogError( "(MQTT connection %p) Failed to allocate memory for new "
-                     "operation record.",
+        IotLogError( "(MQTT connection %p) Failed to allocate memory for "
+                     "new operation. Update the MAX_NO_OF_MQTT_OPERATIONS"
+                     " config value to resolve the error. ",
                      pMqttConnection );
 
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
     else
     {
-        /* Clear the operation data. */
-        ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
-
         /* Initialize some members of the new operation. */
-        pOperation->pMqttConnection = pMqttConnection;
-        pOperation->u.operation.jobReference = 1;
-        pOperation->u.operation.flags = flags;
-        pOperation->u.operation.status = IOT_MQTT_STATUS_PENDING;
+        connToContext[ contextIndex ].operationArray[ index ].pMqttConnection = pMqttConnection;
+        connToContext[ contextIndex ].operationArray[ index ].u.operation.jobReference = 1;
+        connToContext[ contextIndex ].operationArray[ index ].u.operation.flags = flags;
+        connToContext[ contextIndex ].operationArray[ index ].u.operation.status = IOT_MQTT_STATUS_PENDING;
     }
 
     /* Check if the waitable flag is set. If it is, create a semaphore to
@@ -397,7 +393,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     {
         /* Create a semaphore to wait on for a waitable operation. */
 
-        if( xSemaphoreCreateCountingStatic( 1, 0, ( SemaphoreHandle_t ) &( pOperation->u.operation.notify.waitSemaphore ) ) == NULL )
+        if( xSemaphoreCreateCountingStatic( 1, 0, ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].operationArray[ index ].u.operation.notify.waitSemaphore ) ) == NULL )
         {
             IotLogError( "(MQTT connection %p) Failed to create semaphore for "
                          "waitable operation.",
@@ -409,7 +405,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
         {
             /* A waitable operation is created with an additional reference for the
              * Wait function. */
-            ( pOperation->u.operation.jobReference )++;
+            ( connToContext[ contextIndex ].operationArray[ index ].u.operation.jobReference )++;
         }
     }
     else
@@ -418,7 +414,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
          * information. */
         if( pCallbackInfo != NULL )
         {
-            pOperation->u.operation.notify.callback = *pCallbackInfo;
+            connToContext[ contextIndex ].operationArray[ index ].u.operation.notify.callback = *pCallbackInfo;
         }
         else
         {
@@ -433,7 +429,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     {
         if( contextIndex >= 0 )
         {
-            IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+            IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), &( connToContext[ contextIndex ].operationArray[ index ] ) );
         }
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -445,7 +441,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     }
 
     /* Set the output parameter. */
-    *pNewOperation = pOperation;
+    *pNewOperation = &( connToContext[ contextIndex ].operationArray[ index ] );
 
     /* Clean up operation and decrement reference count if this function failed. */
     IOT_FUNCTION_CLEANUP_BEGIN();
@@ -461,9 +457,10 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
             EMPTY_ELSE_MARKER;
         }
 
-        if( pOperation != NULL )
+        if( index != -1 )
         {
-            IotMqtt_FreeOperation( pOperation );
+            IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, connToContext[ contextIndex ].operationArray[ index ] );
+            /*IotMqtt_FreeOperation( pOperation ); */
         }
         else
         {
@@ -669,7 +666,9 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
                  pOperation );
 
     /* Free the memory used to hold operation data. */
-    IotMqtt_FreeOperation( pOperation );
+    /*pOperation->u.operation.pMqttPacket = NULL; */
+    IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+    /*IotMqtt_FreeOperation( pOperation ); */
 
     /* Decrement the MQTT connection's reference count after destroying an
      * operation. */
@@ -942,7 +941,8 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     }
 
     /* Free the incoming PUBLISH operation. */
-    IotMqtt_FreeOperation( pOperation );
+    /*IotMqtt_FreeOperation( pOperation ); */
+    IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
 }
 
 /*-----------------------------------------------------------*/
@@ -1410,7 +1410,6 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         if( contextIndex >= 0 )
         {
             pResult = IotMqtt_FindFirstMatchOperation( &( connToContext[ contextIndex ].pendingResponse ),
-                                                       NULL,
                                                        _mqttOperation_match,
                                                        &param );
         }

@@ -263,7 +263,7 @@
  * @brief Default config for Maximum Number of MQTT Operations.
  */
 #ifndef MAX_NO_OF_MQTT_OPERATIONS
-    #define MAX_NO_OF_MQTT_OPERATIONS    ( 30 )
+    #define MAX_NO_OF_MQTT_OPERATIONS    ( 5 )
 #endif
 
 /**
@@ -272,7 +272,7 @@
  * subscriptions.
  */
 #ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
-    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 20 )
+    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 5 )
 #endif
 
 /**
@@ -328,8 +328,6 @@ struct NetworkContext
  */
 typedef struct _mqttSubscription
 {
-    size_t i;           /**< @brief List link member. */
-
     int32_t references; /**< @brief How many subscription callbacks are using this subscription. */
 
     /**
@@ -352,7 +350,7 @@ typedef struct _mqttSubscription
     IotMqttCallbackInfo_t callback; /**< @brief Callback information for this subscription. */
 
     uint16_t topicFilterLength;     /**< @brief Length of #_mqttSubscription_t.pTopicFilter. */
-    char pTopicFilter[ 50 ];        /**< @brief The subscription topic filter. */
+    char * pTopicFilter;            /**< @brief The subscription topic filter. */
 } _mqttSubscription_t;
 
 /**
@@ -364,7 +362,7 @@ typedef struct _mqttSubscription
 typedef struct _mqttOperation
 {
     /* Pointers to neighboring queue elements. */
-    IotLink_t link;                      /**< @brief List link member. */
+    int8_t opId;                         /**< @brief Id for the operation. */
 
     bool incomingPublish;                /**< @brief Set to true if this operation an incoming PUBLISH. */
     _mqttConnection_t * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
@@ -429,9 +427,10 @@ typedef struct connContextMapping
     _mqttSubscription_t subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
     StaticSemaphore_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
 
-    _mqttOperation_t * pendingProcessing[ MAX_NO_OF_MQTT_OPERATIONS ];     /**< @brief Array of operations waiting to be processed. */
-    _mqttOperation_t * pendingResponse[ MAX_NO_OF_MQTT_OPERATIONS ];       /**< @brief Array of processed operations awaiting a server response. */
-    StaticSemaphore_t referencesMutex;                                     /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    _mqttOperation_t operationArray[ MAX_NO_OF_MQTT_OPERATIONS ];
+    _mqttOperation_t * pendingProcessing[ MAX_NO_OF_MQTT_OPERATIONS ]; /**< @brief Array of operations waiting to be processed. */
+    _mqttOperation_t * pendingResponse[ MAX_NO_OF_MQTT_OPERATIONS ];   /**< @brief Array of processed operations awaiting a server response. */
+    StaticSemaphore_t referencesMutex;                                 /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
 } _connContext_t;
 
 /**
@@ -1191,18 +1190,12 @@ void IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
  * @brief Find the first matching operation in the given operation array, starting at the given starting point.
  *
  * @param[in] pOperationArray Operation array from which the operation needs to be matched.
- * @param[in] pStartPoint An element in `pOperationArray`. Only elements after this one and
- * the end of the array are checked. Pass `NULL` to search from the beginning of the array.
- * @param[in] isMatch Function to determine if an element matches. Pass `NULL` to
- * search using the address `pMatch`, i.e. `element == pMatch`.
- * @param[in] pMatch If `isMatch` is `NULL`, each element in the array is compared
- * to this address to find a match. Otherwise, it is passed as the second argument
- * to `isMatch`.
+ * @param[in] isMatch Function to determine if an element matches.
+ * @param[in] pMatch Contains the parameters for matching the opeartion.
  *
  * @return The first matching operation from the operation array.
  */
 _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperationArray,
-                                                    _mqttOperation_t * pStartPoint,
                                                     bool ( * isMatch )( _mqttOperation_t *, void * ),
                                                     void * pMatch );
 
@@ -1217,7 +1210,13 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
 void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
                                  void ( * freeElement )( void * ) );
 
-void IotMqtt_RemoveAllSubscriptions( _mqttSubscription_t * pSubscriptionArray );
+/**
+ * @brief Get free index from the given operation array to hold the new operation.
+ *
+ * @param[in] pOperationArray Operation array to be searched for the free index.
+ *
+ */
+int8_t IotMqtt_getFreeIndexfromOperationArray( _mqttOperation_t * pOperationArray );
 
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

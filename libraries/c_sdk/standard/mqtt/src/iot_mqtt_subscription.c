@@ -342,20 +342,12 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                 }
                 else
                 {
-                    /* Clear the new subscription. */
-
-                    /*(void)memset(pNewSubscription,
-                     *  0x00,
-                     *  sizeof(_mqttSubscription_t) + pSubscriptionList[i].topicFilterLength);*/
-
                     /* Set the members of the new subscription and add it to the list. */
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.identifier = subscribePacketIdentifier;
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
                     connToContext[ contextIndex ].subscriptionArray[ index ].callback = pSubscriptionList[ i ].callback;
                     connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
-                    ( void ) memcpy( connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter,
-                                     pSubscriptionList[ i ].pTopicFilter,
-                                     ( size_t ) ( pSubscriptionList[ i ].topicFilterLength ) );
+                    connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter = pSubscriptionList[ i ].pTopicFilter;
                 }
             }
         }
@@ -466,7 +458,9 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                 /* Free subscriptions with no references. */
                 if( pSubscription->references == 0 )
                 {
-                    vPortFree( pSubscription );
+                    /* Free the subscription by setting the topicfilterlength to 0. */
+                    /*vPortFree(pSubscription); */
+                    pSubscription->topicFilterLength = 0;
                 }
             }
 

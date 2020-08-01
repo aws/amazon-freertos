@@ -1237,7 +1237,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         /* The call to wait cleans up the CONNECT operation, so set the pointer
          * to NULL. */
-        pOperation = NULL;
+        IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+        /*pOperation->u.operation.pMqttPacket = NULL; */
+        /*pOperation = NULL; */
     }
 
     /* When a connection is successfully established, schedule keep-alive job. */
@@ -1571,6 +1573,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     _mqttOperation_t * pOperation = NULL;
     uint8_t ** pPacketIdentifierHigh = NULL;
 
+    /*int8_t contextIndex = -1; */
 
     /* Check that the PUBLISH information is valid. */
     if( _IotMqtt_ValidatePublish( mqttConnection->awsIotMqttMode,
