@@ -66,10 +66,14 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                             mqttConnection );
             }
         }
         else
         {
+            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+                         mqttConnection );
         }
 
         /* Converting the status code. */
@@ -128,10 +132,14 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                             mqttConnection );
             }
         }
         else
         {
+            IotLogError( "(MQTT connection %p) Failed to lock subscription mutex.",
+                         mqttConnection );
         }
 
         /* Converting the status code. */
@@ -190,10 +198,14 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                             mqttConnection );
             }
         }
         else
         {
+            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+                         mqttConnection );
         }
 
         /* Converting the status code. */
@@ -260,10 +272,14 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                             mqttConnection );
             }
         }
         else
         {
+            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+                         mqttConnection );
         }
 
         /* Converting the status code. */
