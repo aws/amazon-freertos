@@ -704,7 +704,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
         IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
-        /* Processing opeartion after sending it on the network. */
+        /* Processing operation after sending it on the network. */
         _IotMqtt_ProcessOperation( pSubscriptionOperation );
     }
     else

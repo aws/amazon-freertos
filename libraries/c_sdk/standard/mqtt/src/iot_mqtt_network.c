@@ -507,6 +507,11 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                                                               MQTT_RECEIVE, &publishRecordState );
                     IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
                 }
+                else
+                {
+                    IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                                 pMqttConnection );
+                }
             }
 
             pOperation = _IotMqtt_FindOperation( pMqttConnection,

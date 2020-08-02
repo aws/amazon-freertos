@@ -117,9 +117,9 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
             /* Populating the subscription list to be used by MQTT LTS API. */
             for( i = 0; i < subscriptionCount; i++ )
             {
-                subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList + i )->qos;
-                subscriptionList[ i ].pTopicFilter = ( pSubscriptionList + i )->pTopicFilter;
-                subscriptionList[ i ].topicFilterLength = ( pSubscriptionList + i )->topicFilterLength;
+                subscriptionList[ i ].qos = ( MQTTQoS_t ) ( pSubscriptionList[ i ].qos );
+                subscriptionList[ i ].pTopicFilter = pSubscriptionList[ i ].pTopicFilter;
+                subscriptionList[ i ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
             }
 
             IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
@@ -183,8 +183,8 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
             /* Populating the unsubscription list to be used by MQTT LTS API. */
             for( i = 0; i < unsubscriptionCount; i++ )
             {
-                subscriptionList[ i ].pTopicFilter = ( pUnsubscriptionList + i )->pTopicFilter;
-                subscriptionList[ i ].topicFilterLength = ( pUnsubscriptionList + i )->topicFilterLength;
+                subscriptionList[ i ].pTopicFilter = pUnsubscriptionList[ i ].pTopicFilter;
+                subscriptionList[ i ].topicFilterLength = pUnsubscriptionList[ i ].topicFilterLength;
             }
 
             IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
