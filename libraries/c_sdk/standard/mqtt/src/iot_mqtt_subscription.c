@@ -298,6 +298,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
     _topicMatchParams_t topicMatchParams = { .exactMatchOnly = true };
     int8_t contextIndex = -1;
     int8_t matchedIndex = -1;
+    int8_t index = -1;
 
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
@@ -327,11 +328,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
             else
             {
                 /* Allocate memory for a new subscription. */
-                int8_t index = -1;
-                index = IotMqtt_InsertSubscription( ( connToContext[ contextIndex ].subscriptionArray ), pNewSubscription );
-
-                /*pNewSubscription = IotMqtt_MallocSubscription(sizeof(_mqttSubscription_t) +
-                 *  pSubscriptionList[i].topicFilterLength);*/
+                index = IotMqtt_InsertSubscription( ( connToContext[ contextIndex ].subscriptionArray ) );
 
                 if( index == -1 )
                 {
@@ -347,7 +344,10 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
                     connToContext[ contextIndex ].subscriptionArray[ index ].callback = pSubscriptionList[ i ].callback;
                     connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
-                    connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter = pSubscriptionList[ i ].pTopicFilter;
+                    connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter = IotMqtt_MallocMessage( pSubscriptionList[ i ].topicFilterLength );
+                    ( void ) memcpy( connToContext[ contextIndex ].subscriptionArray[ index ].pTopicFilter,
+                                     pSubscriptionList[ i ].pTopicFilter,
+                                     ( size_t ) ( pSubscriptionList[ i ].topicFilterLength ) );
                 }
             }
         }
@@ -463,7 +463,6 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
                 if( pSubscription->references == 0 )
                 {
                     /* Free the subscription by setting the topicfilterlength to 0. */
-                    /*vPortFree(pSubscription); */
                     pSubscription->topicFilterLength = 0;
                 }
             }

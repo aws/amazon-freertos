@@ -463,8 +463,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
 
         if( index != -1 )
         {
-            IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, connToContext[ contextIndex ].operationArray[ index ] );
-            /*IotMqtt_FreeOperation( pOperation ); */
+            IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, &( connToContext[ contextIndex ].operationArray[ index ] ) );
         }
         else
         {
@@ -678,9 +677,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
                  pOperation );
 
     /* Free the memory used to hold operation data. */
-    /*pOperation->u.operation.pMqttPacket = NULL; */
     IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
-    /*IotMqtt_FreeOperation( pOperation ); */
 
     /* Decrement the MQTT connection's reference count after destroying an
      * operation. */
@@ -961,7 +958,6 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     }
 
     /* Free the incoming PUBLISH operation. */
-    /*IotMqtt_FreeOperation( pOperation ); */
     IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
 }
 

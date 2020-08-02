@@ -479,7 +479,6 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
                 IotMqtt_Assert( pOperation != NULL );
                 IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
-                /*IotMqtt_FreeOperation( pOperation ); */
             }
             else
             {

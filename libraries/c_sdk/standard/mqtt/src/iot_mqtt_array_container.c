@@ -332,7 +332,7 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
 /*-----------------------------------------------------------*/
 
 int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
-                               size_t startIndex,
+                               int8_t startIndex,
                                _topicMatchParams_t * pMatch )
 {
     /* This function must not be called with a NULL pSubscriptionArray parameter. */
@@ -396,7 +396,7 @@ void IotMqtt_freeIndexInOperationArray( _mqttOperation_t * pOperationArray,
     IotMqtt_Assert( pOperation != NULL );
     IotMqtt_Assert( pOperationArray != NULL );
 
-    /* Finding the free index in operation array for the new operation. */
+    /* Free the index occupied by thie given opeartion. */
     while( index < MAX_NO_OF_MQTT_OPERATIONS )
     {
         if( &( pOperationArray[ index ] ) == pOperation )

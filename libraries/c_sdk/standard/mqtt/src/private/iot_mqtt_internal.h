@@ -272,7 +272,7 @@
  * subscriptions.
  */
 #ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
-    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 5 )
+    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 10 )
 #endif
 
 /**
@@ -1163,7 +1163,7 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
  * @return The first matching subscription from the subscription array.
  */
 int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
-                               size_t startIndex,
+                               int8_t startIndex,
                                _topicMatchParams_t * pMatch );
 
 /**
@@ -1218,5 +1218,14 @@ void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
  */
 int8_t IotMqtt_getFreeIndexfromOperationArray( _mqttOperation_t * pOperationArray );
 
+/**
+ * @brief Free the index from the given operation array.
+ *
+ * @param[in] pOperationArray Operation array from which the index needs to be freed.
+ * @param[in] pOperation operation for which the index to be freed.
+ *
+ */
+void IotMqtt_freeIndexInOperationArray( _mqttOperation_t * pOperationArray,
+                                        _mqttOperation_t * pOperation );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
