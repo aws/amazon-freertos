@@ -371,7 +371,6 @@ int8_t IotMqtt_getFreeIndexfromOperationArray( _mqttOperation_t * pOperationArra
     {
         if( pOperationArray[ index ].u.operation.pMqttPacket == NULL )
         {
-            /*pOperationArray[index].opId = 1; */
             break;
         }
 

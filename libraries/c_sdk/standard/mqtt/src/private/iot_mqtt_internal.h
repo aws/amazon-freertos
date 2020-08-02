@@ -362,7 +362,6 @@ typedef struct _mqttSubscription
 typedef struct _mqttOperation
 {
     /* Pointers to neighboring queue elements. */
-    int8_t opId;                         /**< @brief Id for the operation. */
 
     bool incomingPublish;                /**< @brief Set to true if this operation an incoming PUBLISH. */
     _mqttConnection_t * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
