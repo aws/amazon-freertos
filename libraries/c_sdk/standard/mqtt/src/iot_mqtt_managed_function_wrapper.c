@@ -34,6 +34,9 @@
 /* Standard includes. */
 #include <string.h>
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /* MQTT internal includes. */
 #include "private/iot_mqtt_internal.h"
 
@@ -47,8 +50,8 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
@@ -66,14 +69,17 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              mqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on context mutex within specified time.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
 
         /* Converting the status code. */
@@ -85,7 +91,10 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
                      mqttConnection );
     }
 
-    return status;
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -95,8 +104,8 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                                           const IotMqttSubscription_t * pSubscriptionList,
                                           size_t subscriptionCount )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -132,14 +141,17 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              mqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to lock subscription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on context mutex within specified time.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
 
         /* Converting the status code. */
@@ -151,7 +163,10 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                      mqttConnection );
     }
 
-    return status;
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -161,8 +176,8 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                                             const IotMqttSubscription_t * pUnsubscriptionList,
                                             size_t unsubscriptionCount )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -198,14 +213,17 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              mqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on context mutex within specified time.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
 
         /* Converting the status code. */
@@ -217,7 +235,10 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                      mqttConnection );
     }
 
-    return status;
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -227,8 +248,8 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                                         _mqttOperation_t * pOperation,
                                         const IotMqttPublishInfo_t * pPublishInfo )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -272,14 +293,17 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].contextMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock context mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock context mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              mqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to lock context mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on context mutex within specified time.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
 
         /* Converting the status code. */
@@ -291,7 +315,10 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                      mqttConnection );
     }
 
-    return status;
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/

@@ -410,6 +410,7 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 
 static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
 
     int8_t contextIndex = -1;
@@ -454,14 +455,17 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 
             if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex within specified time.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
     }
 
@@ -498,6 +502,11 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 
     /* Free connection. */
     IotMqtt_FreeConnection( pMqttConnection );
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -632,14 +641,17 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                 {
-                    IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+                    IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                                 "An error occured due to no space on the queue to post a message.",
                                  mqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
                 }
             }
             else
             {
-                IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+                IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                              mqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
             }
         }
 
@@ -694,6 +706,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
 bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     bool disconnected = false;
     int contextIndex = -1;
 
@@ -724,23 +737,32 @@ bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
     return( disconnected == false );
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
 
 void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     bool destroyConnection = false;
     int contextIndex = -1;
 
@@ -767,14 +789,17 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
     /* Destroy an unreferenced MQTT connection. */
@@ -785,6 +810,11 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
         _destroyMqttConnection( pMqttConnection );
     }
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -1308,8 +1338,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                          uint32_t flags )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_STATUS_PENDING );
     bool disconnected = false;
-    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    /*IotMqttError_t status = IOT_MQTT_STATUS_PENDING; */
     _mqttOperation_t * pOperation = NULL;
     int8_t contextIndex = -1;
 
@@ -1324,14 +1355,17 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                      mqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
     /* Only send a DISCONNECT packet if the connection is active and the "cleanup only"
@@ -1418,18 +1452,26 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                      mqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
     /* Decrement the connection reference count and destroy it if possible. */
     _IotMqtt_DecrementConnectionReferences( mqttConnection );
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -1812,7 +1854,8 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
 IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
                              uint32_t timeoutMs )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
+    /*IotMqttError_t status = IOT_MQTT_SUCCESS; */
     _mqttConnection_t * pMqttConnection = operation->pMqttConnection;
     int contextIndex = -1;
 
@@ -1853,14 +1896,17 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
 
             if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
             {
-                IotLogError( "(MQTT connection %p) Failed to unlock references mutex.",
+                IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
                              pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
             }
         }
         else
         {
-            IotLogError( "(MQTT connection %p) Failed to take lock on references mutex.",
+            IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
         }
 
         /* Only wait on an operation if the MQTT connection is active. */
@@ -1928,6 +1974,11 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
     }
 
     return status;
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/

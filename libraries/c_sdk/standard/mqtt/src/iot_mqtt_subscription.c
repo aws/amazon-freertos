@@ -291,7 +291,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                                           const IotMqttSubscription_t * pSubscriptionList,
                                           size_t subscriptionCount )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     size_t i = 0;
     _mqttSubscription_t * pNewSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
@@ -354,14 +354,17 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex within specified time.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
     /* If memory allocation failed, remove all previously added subscriptions. */
@@ -377,6 +380,11 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
     }
 
     return status;
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -486,6 +494,7 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
                                           uint16_t packetIdentifier,
                                           int32_t order )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     const _packetMatchParams_t packetMatchParams =
     {
         .packetIdentifier = packetIdentifier,
@@ -505,15 +514,23 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex within specified time.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -522,6 +539,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
                                                const IotMqttSubscription_t * pSubscriptionList,
                                                size_t subscriptionCount )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     size_t i = 0;
     _mqttSubscription_t * pSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
@@ -575,15 +593,23 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex within specified time.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -593,7 +619,8 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
                            uint16_t topicFilterLength,
                            IotMqttSubscription_t * pCurrentSubscription )
 {
-    bool status = false;
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
+    bool subscribedStatus = false;
     _mqttSubscription_t * pSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams =
@@ -635,7 +662,7 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
                 EMPTY_ELSE_MARKER;
             }
 
-            status = true;
+            subscribedStatus = true;
         }
         else
         {
@@ -644,17 +671,25 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
         {
-            IotLogError( "(MQTT connection %p) Failed to unlock subscription mutex.",
+            IotLogError( "(MQTT connection %p) Failed to unlock subsription mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
                          mqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to take lock on subscription mutex.",
+        IotLogError( "(MQTT connection %p) Failed to take lock on subsription mutex within specified time.",
                      mqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
-    return status;
+    return subscribedStatus;
+
+    /* Clean up if this function failed. */
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
