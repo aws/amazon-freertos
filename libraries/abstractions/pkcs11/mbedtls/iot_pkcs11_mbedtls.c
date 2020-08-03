@@ -3634,6 +3634,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
     /* 8 bytes added to hold ASN.1 encoding information. */
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 8 ];
     int32_t lMbedTLSResult;
+    mbedtls_md_type_t xHashType = MBEDTLS_MD_NONE;
 
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pData ) )
@@ -3654,6 +3655,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
             pxSignatureBuffer = ecSignature;
+            xHashType = MBEDTLS_MD_SHA256;
         }
         else
         {
@@ -3686,8 +3688,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             {
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
+                    /* Per mbed TLS documentation, if using RSA, md_alg should
+                     * be MBEDTLS_MD_NONE. If ECDSA, md_alg should never be
+                     * MBEDTLS_MD_NONE. SHA-256 will be used for ECDSA for
+                     * consistency with the rest of the port.
+                     */
                     lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                      MBEDTLS_MD_NONE,
+                                                      xHashType,
                                                       pData,
                                                       ulDataLen,
                                                       pxSignatureBuffer,
