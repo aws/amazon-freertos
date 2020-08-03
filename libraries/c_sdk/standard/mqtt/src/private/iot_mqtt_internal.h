@@ -48,6 +48,7 @@
 #include "mqtt_lightweight.h"
 #include "mqtt.h"
 #include "mqtt_config.h"
+#include "mqtt_state.h"
 
 /**
  * @def IotMqtt_Assert( expression )
@@ -69,7 +70,9 @@
 
 /* Configure logs for MQTT functions. */
 #ifdef IOT_LOG_LEVEL_MQTT
-    #define LIBRARY_LOG_LEVEL            IOT_LOG_LEVEL_MQTT
+    #ifndef LIBRARY_LOG_LEVEL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_MQTT
+    #endif
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
         #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_GLOBAL
@@ -78,7 +81,7 @@
             #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
         #endif
     #endif
-#endif
+#endif /* ifdef IOT_LOG_LEVEL_MQTT */
 
 #ifndef LIBRARY_LOG_NAME
     #define LIBRARY_LOG_NAME    ( "MQTT" )
@@ -243,7 +246,7 @@
  *
  * This value is greater than what is allowed by the MQTT specification.
  */
-#define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
+#define MQTT_REMAINING_LENGTH_INVALID    ( ( size_t ) 268435456 )
 
 /**
  * @brief Default config for Maximum Number of MQTT CONNECTIONS.
@@ -304,8 +307,8 @@ typedef struct _mqttConnection
  */
 struct NetworkContext
 {
-    void * pNetworkConnection;                 /**< @brief The network connection used for sending packets on the network. */
-    IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
+    void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
 };
 
 /**
@@ -991,10 +994,10 @@ int8_t _IotMqtt_getFreeIndexFromContextConnectionArray( void );
  */
 void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
 
-/*----------------- User - Facing API Functions Using MQTT LTS API for Shim------------------*/
+/*----------------- MQTT 201906.00 wrapper functions using MQTT LTS API -----------------------*/
 
 /**
- * @brief Disconnect the MQTT connection using MQTT LTS Disconnect API.
+ * @brief Disconnect the MQTT connection using MQTT LTS DISCONNECT API.
  *
  * @param[in] mqttConnection The MQTT connection which needs to be disconnected.
  *
@@ -1005,5 +1008,72 @@ void _IotMqtt_removeContext( IotMqttConnection_t mqttConnection );
  * #IOT_MQTT_SUCCESS otherwise.
  */
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection );
+
+/**
+ * @brief Send the PUBLISH packet using MQTT LTS PUBLISH API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pOperation The MQTT operation having information for the PUBLISH operation.
+ * @param[in] pPublishInfo Contains the information to be published.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
+                                        _mqttOperation_t * pOperation,
+                                        const IotMqttPublishInfo_t * pPublishInfo );
+
+/**
+ * @brief Send the SUBSCRIBE packet using MQTT LTS SUBSCRIBE API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pSubscriptionOperation The MQTT operation having information for the SUBSCRIBE operation.
+ * @param[in] pSubscriptionList User-provided array of subscriptions.
+ * @param[in] subscriptionCount Size of `pSubscriptionList`.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
+                                          _mqttOperation_t * pSubscriptionOperation,
+                                          const IotMqttSubscription_t * pSubscriptionList,
+                                          size_t subscriptionCount );
+
+/**
+ * @brief Send the UNSUBSCRIBE packet using MQTT LTS UNSUBSCRIBE API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ * @param[in] pUnsubscriptionOperation The MQTT operation having information for the UNSUBSCRIBE operation.
+ * @param[in] pUnsubscriptionList User-provided array of subscriptions.
+ * @param[in] UnsubscriptionCount Size of `pSubscriptionList`.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
+                                            _mqttOperation_t * pUnsubscriptionOperation,
+                                            const IotMqttSubscription_t * pUnsubscriptionList,
+                                            size_t unsubscriptionCount );
+
+/*-----------------------------------------------------------*/
+
+/**
+ *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
+ *
+ *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
+ *
+ *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
+ *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
+ */
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

@@ -1345,46 +1345,22 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         pResult = IotLink_Container( _mqttOperation_t, pResultLink, link );
         waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
-        /* Check if the matched operation is a PUBLISH with retry. If it is, cancel
-         * the retry job. */
-        if( pResult->u.operation.retry.limit > 0 )
+        /* An operation with no retry in the pending responses list should
+         * always have a job reference of 1. */
+        IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
+
+        /* Increment job references of a waitable operation to prevent Wait from
+         * destroying this operation if it times out. */
+        if( waitable == true )
         {
-            taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-                                                    pResult->job,
-                                                    NULL );
+            ( pResult->u.operation.jobReference )++;
 
-            /* If the retry job could not be canceled, then it is currently
-             * executing. Ignore the operation. */
-            if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-            {
-                pResult = NULL;
-            }
-            else
-            {
-                /* Check job reference counts. A waitable operation should have a
-                 * count of 2; a non-waitable operation should have a count of 1. */
-                IotMqtt_Assert( pResult->u.operation.jobReference == ( 1 + ( waitable == true ) ) );
-            }
-        }
-        else
-        {
-            /* An operation with no retry in the pending responses list should
-             * always have a job reference of 1. */
-            IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
-
-            /* Increment job references of a waitable operation to prevent Wait from
-             * destroying this operation if it times out. */
-            if( waitable == true )
-            {
-                ( pResult->u.operation.jobReference )++;
-
-                IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
-                             pMqttConnection,
-                             IotMqtt_OperationType( type ),
-                             pResult,
-                             ( long int ) ( pResult->u.operation.jobReference - 1 ),
-                             ( long int ) ( pResult->u.operation.jobReference ) );
-            }
+            IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
+                         pMqttConnection,
+                         IotMqtt_OperationType( type ),
+                         pResult,
+                         ( long int ) ( pResult->u.operation.jobReference - 1 ),
+                         ( long int ) ( pResult->u.operation.jobReference ) );
         }
     }
     else

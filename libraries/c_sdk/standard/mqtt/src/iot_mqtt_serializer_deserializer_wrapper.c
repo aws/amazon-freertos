@@ -60,30 +60,6 @@ static uint16_t _nextPacketIdentifier( void );
 
 /*-----------------------------------------------------------*/
 
-/**
- *  @brief Convert the MQTT LTS library status to MQTT 201906.00 status Code.
- *
- *  @param[in] managedMqttStatus The status code in MQTT LTS library status which needs to be converted to IOT MQTT status code.
- *
- *  @return #IOT_MQTT_SUCCESS, #IOT_MQTT_NETWORK_ERROR, #IOT_MQTT_NO_MEMORY, #IOT_MQTT_STATUS_PENDING, #IOT_MQTT_INIT_FAILED
- *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
- */
-static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Calculate the number of bytes required to encode an MQTT
- * "Remaining length" field.
- *
- * @param[in] length The value of the "Remaining length" to encode.
- *
- * @return The size of the encoding of length. This is always `1`, `2`, `3`, or `4`.
- */
-static size_t _remainingLengthEncodedSize( size_t length );
-
-/*-----------------------------------------------------------*/
-
 /* Generate Id for packet. */
 static uint16_t _nextPacketIdentifier( void )
 {
@@ -96,6 +72,18 @@ static uint16_t _nextPacketIdentifier( void )
      * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
     return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
 }
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Calculate the number of bytes required to encode an MQTT
+ * "Remaining length" field.
+ *
+ * @param[in] length The value of the "Remaining length" to encode.
+ *
+ * @return The size of the encoding of length. This is always `1`, `2`, `3`, or `4`.
+ */
+static size_t _remainingLengthEncodedSize( size_t length );
 
 /*-----------------------------------------------------------*/
 
@@ -774,7 +762,7 @@ IotMqttError_t _IotMqtt_pubackSerializeWrapper( uint16_t packetIdentifier,
 
 /*-----------------------------------------------------------*/
 
-static IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
+IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
 
