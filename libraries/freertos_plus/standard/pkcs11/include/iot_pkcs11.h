@@ -157,6 +157,16 @@
  */
 #define pkcs11DER_ENCODED_OID_P256           { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
 
+
+/**
+ * @brief Set to 1 if importing private keys is supported.
+ *
+ * If private key import is not supported, this value should be defined 0 in aws_pkcs11_config.h
+ */
+#ifndef pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED
+    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
+#endif
+
 /**
  * @ingroup pkcs11_wrapper_macros
  * @brief RSA signature padding for interoperability between providing hashed messages
