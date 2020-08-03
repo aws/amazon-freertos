@@ -41,13 +41,39 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Matches a packet identifier and order.
+ *
+ * @param[in] pSubscription Pointer to #_mqttSubscription_t.
+ * @param[in] pMatch Pointer to a #_packetMatchParams_t.
+ *
+ * @return `true` if the arguments match the subscription's packet info; `false`
+ * otherwise.
+ */
+static bool _packetMatch( _mqttSubscription_t * pSubscription,
+                          void * pMatch );
+
+/**
+ * @brief Matches a topic name (from a publish) with a topic filter (from a
+ * subscription).
+ *
+ * @param[in] pSubscription Pointer to #_mqttSubscription_t.
+ * @param[in] pMatch Pointer to a #_topicMatchParams_t.
+ *
+ * @return `true` if the arguments match the subscription topic filter; `false`
+ * otherwise.
+ */
+static bool _topicMatch( _mqttSubscription_t pSubscription,
+                         void * pMatch );
+
+/*-----------------------------------------------------------*/
+
 static bool _packetMatch( _mqttSubscription_t * pSubscription,
                           _packetMatchParams_t * pMatch )
 {
     bool match = false;
 
-    /* Because this function is called from a container function, the given link
-     * must never be NULL. */
+    /* The given subscription must never be NULL. */
     IotMqtt_Assert( pSubscription != NULL );
 
     _packetMatchParams_t * pParam = ( _packetMatchParams_t * ) pMatch;
@@ -103,9 +129,8 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
     IOT_FUNCTION_ENTRY( bool, false );
     uint16_t nameIndex = 0, filterIndex = 0;
 
-    /* Because this function is called from a container function, the given link
-     * must never be NULL. */
-    /*IotMqtt_Assert( pSubscription != NULL ); */
+    /* The given subscription must never be NULL. */
+    IotMqtt_Assert( pSubscription != NULL );
 
     _topicMatchParams_t * pParam = ( _topicMatchParams_t * ) pMatch;
 
@@ -253,6 +278,7 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
 
 int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray )
 {
+    /* The shim supports only upto 256 subscriptions as the implementation uses 8 bit index. */
     int8_t index = 0;
 
     IotMqtt_Assert( pSubscriptionArray != NULL );
@@ -260,6 +286,7 @@ int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray )
     /* Finding the free index in subscription array to insert the subscription. */
     while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
+        /* Using topicFilterLength as a unique parameter to check whether index is free or not. */
         if( pSubscriptionArray[ index ].topicFilterLength == 0 )
         {
             break;
@@ -286,6 +313,7 @@ void IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
     /* Remove the subscription from the subscription array. */
     if( deleteIndex != -1 )
     {
+        /* Using topicFilterLength as a unique parameter to free index and make it available for other subscriptions. */
         pSubscriptionArray[ deleteIndex ].topicFilterLength = 0;
     }
     else
@@ -303,29 +331,26 @@ void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
 
     IotMqtt_Assert( pSubscriptionArray != NULL );
 
-    if( pMatch != NULL )
+    while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
-        while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+        if( pMatch != NULL )
         {
             /* Removing the subscription if it matches the given params. */
             if( _packetMatch( &( pSubscriptionArray[ index ] ), pMatch ) == true )
             {
+                /* Using topicFilterLength as a unique parameter to free index and make it available for other subscriptions.
+                 * As topicFilterLength will be non zero for the currently used subscriptions. */
                 pSubscriptionArray[ index ].topicFilterLength = 0;
             }
-
-            index++;
         }
-    }
-    else
-    {
-        /* Removing all the subscriptions from the subscription array. */
-        while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+        else
         {
             pSubscriptionArray[ index ].topicFilterLength == 0;
 
             pSubscriptionArray[ index ].unsubscribed = true;
-            index++;
         }
+
+        index++;
     }
 }
 
@@ -337,6 +362,7 @@ int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
 {
     /* This function must not be called with a NULL pSubscriptionArray parameter. */
     IotMqtt_Assert( pSubscriptionArray != NULL );
+    IotMqtt_Assert( startIndex >= 0 );
 
     /* Finding the first Match. */
     while( startIndex < MAX_NO_OF_MQTT_SUBSCRIPTIONS )

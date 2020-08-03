@@ -41,7 +41,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/unit/aws_iot_tests_defender_unit.c"
+        #"${test_dir}/unit/aws_iot_tests_defender_unit.c"
         "${test_dir}/system/aws_iot_tests_defender_system.c"
 )
 afr_module_dependencies(
