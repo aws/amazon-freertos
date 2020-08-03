@@ -101,10 +101,6 @@ static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
                                                    size_t * const pSize );
 
 
-
-static IotMutex_t _packetIdentifierMutex;
-
-
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */
 extern int snprintf( char * s,
@@ -631,19 +627,6 @@ static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
 }
 
 
-bool IotBleMqtt_InitSerialize( void )
-{
-    /* Create the packet identifier mutex. */
-    return IotMutex_Create( &_packetIdentifierMutex, false );
-}
-
-void IotBleMqtt_CleanupSerialize( void )
-{
-    /* Destroy the packet identifier mutex */
-    IotMutex_Destroy( &_packetIdentifierMutex );
-}
-
-
 MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConnectInfo,
                                           uint8_t ** const pConnectPacket,
                                           size_t * const pPacketSize )
@@ -750,15 +733,12 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
 MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
                                           uint8_t ** const pPublishPacket,
                                           size_t * const pPacketSize,
-                                          uint16_t * const pPacketIdentifier,
-                                          uint8_t ** pPacketIdentifierHigh )
+                                          uint16_t * const pPacketIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
-
-    ( void ) pPacketIdentifierHigh;
 
     error = _serializePublish( pPublishInfo, NULL, &bufLen, *pPacketIdentifier );
 

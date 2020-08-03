@@ -39,7 +39,7 @@
 /**
  * @brief Initiailzes the Circular buffer to store the received data
  */
-bool IotBleMqttTransportInit( const NetworkContext_t * context );
+bool IotBleMqttTransportInit( const NetworkContext_t * pContext );
 
 /**
  * @brief Cleans up the Circular buffer

@@ -43,6 +43,20 @@
 #define SIZE_OF_SUB_ACK       5U
 
 
+/* Define masks for each flag in Connect packets */
+#define CLEAN_SESSION_MASK    0x02U
+
+#define WILL_FLAG_MASK        0X04U
+
+#define WILL_QOS_MASK         0x18U
+
+#define WILL_RETAIN_MASK      0x20U
+
+#define PASSWORD_MASK         0x40U
+
+#define USERNAME_MASK         0x80U
+
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -65,32 +79,17 @@ static MQTTQoS_t convertIntToQos( const uint8_t incomingQos );
  *
  * @param[in] connectConfig, expected to be empty.
  * @param[in] buf, which points to the MQTT packet.
- * @param[in] pSize, which points to packet size.
  * @return MQTTSuccess or MQTTBadParameter
  */
 static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
-                                  const uint8_t * buf,
-                                  size_t * pSize );
-
-/**
- * @brief Sets flags in publishConfig according to the packet in buf.
- *
- * @param[in] publishConfig, expected to be empty.
- * @param[in] buf, which points to the MQTT packet.
- * @param[in] pSize, which points to packet size.
- * @param[in] pIdentifier, which points to packet identifier.
- * @return MQTTSuccess or MQTTBadParameter
- */
-static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
-                                  const uint8_t * buf,
-                                  size_t * pSize,
-                                  uint16_t * pIdentifier );
+                                  const uint8_t * buf );
 
 /**
  * @brief Calculates number of subscriptions requested in a subscribe packet.
  *
  * @param[in] buf, whic points to the MQTT packet.
  * @param[in] remainingLength which is the size of the rest of the packet.
+ * @param[in] subscribe, true iff you are parsing a subscribe packet, false if unsubscribe.
  * @return the number of subscriptions.
  */
 static uint16_t calculateNumSubs( const uint8_t * buf,
@@ -102,26 +101,14 @@ static uint16_t calculateNumSubs( const uint8_t * buf,
  *
  * @param[in] subscription count, a pointer to a size_t with num subscriptions.
  * @param[in] buf, which points to the MQTT packet.
- * @param[in] pSize, which points to packet size.
- * @param[in] pIdentifier, which points to packet identifier.
+ * @param[out] pIdentifier, which points to packet identifier.
  * @param[in] subscribe, true iff you are parsing a subscribe packet, false if unsubscribe.
  * @return MQTTSuccess or MQTTBadParameter
  */
 static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
                                     const uint8_t * buf,
-                                    size_t * pSize,
                                     uint16_t * pIdentifier,
                                     bool subscribe );
-
-/**
- * @brief Gets the packet identifier from a puback packet.
- *
- * @param[in] buf, which points to the MQTT packet.
- * @param[in] pIdentifier, which points to packet identifier.
- * @return MQTTSuccess or MQTTBadParameter
- */
-static MQTTStatus_t parsePubAck( const uint8_t * buf,
-                                 uint16_t * pIdentifier );
 
 /**
  * @brief Serializes an ACK packet in MQTT format.
@@ -157,6 +144,12 @@ static MQTTStatus_t transportSerializeAck( MQTTFixedBuffer_t * pBuffer,
  */
 static MQTTStatus_t transportSerializePingresp( MQTTFixedBuffer_t * pBuffer );
 
+
+/**
+ * @brief Deserializes a Publish packet in MQTT Format
+ * @param[in]
+
+statis MQTTStatus_t */
 /*-----------------------------------------------------------*/
 
 /**
@@ -173,11 +166,11 @@ StaticStreamBuffer_t xStreamBufferStruct;
 /*-----------------------------------------------------------*/
 
 
-bool IotBleMqttTransportInit( const NetworkContext_t * context )
+bool IotBleMqttTransportInit( const NetworkContext_t * pContext )
 {
     bool status = true;
 
-    streamBuffer = xStreamBufferCreateStatic( context->bufSize, 1, context->buf, &xStreamBufferStruct );
+    streamBuffer = xStreamBufferCreateStatic( pContext->bufSize, 1, pContext->buf, &xStreamBufferStruct );
 
     if ( streamBuffer == NULL )
     {
@@ -230,8 +223,7 @@ static MQTTQoS_t convertIntToQos( const uint8_t incomingQos )
 
 
 static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
-                                  const uint8_t * buf,
-                                  size_t * pSize )
+                                  const uint8_t * buf )
 {
     bool willFlag = false;
     bool willRetain = false;
@@ -241,7 +233,6 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
     MQTTQoS_t willQos = 0;
     uint8_t connectionFlags = 0;
     size_t bufferIndex = 0;
-    size_t payloadIndex = 0;
 
 
     if( ( buf[ 0 ] & 0xf0U ) != MQTT_PACKET_TYPE_CONNECT )
@@ -283,12 +274,12 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
     if( status == MQTTSuccess )
     {
         /* Get flag data from the flag byte. */
-        connectConfig->cleanSession = ( ( ( connectionFlags & 0x02U ) >> 1) == 1U );
-        willFlag = ( ( ( connectionFlags & 0x04U ) >> 2 ) == 1U );
-        willQos = convertIntToQos( ( connectionFlags & 0x18U ) >> 3 );
-        willRetain = ( ( ( connectionFlags & 0x20U ) >> 5 ) == 1U );
-        passwordFlag = ( ( ( connectionFlags & 0x40U ) >> 6 ) == 1U );
-        usernameFlag = ( ( ( connectionFlags & 0x80U ) >> 7 ) == 1U );
+        connectConfig->cleanSession = ( ( ( connectionFlags & CLEAN_SESSION_MASK ) >> 1) == 1U );
+        willFlag = ( ( ( connectionFlags & WILL_FLAG_MASK ) >> 2 ) == 1U) ;
+        willQos = convertIntToQos( ( connectionFlags & WILL_QOS_MASK ) >> 3 );
+        willRetain = ( ( ( connectionFlags & WILL_RETAIN_MASK ) >> 5 ) == 1U );
+        passwordFlag = ( ( ( connectionFlags & PASSWORD_MASK ) >> 6 ) == 1U );
+        usernameFlag = ( ( ( connectionFlags & USERNAME_MASK ) >> 7 ) == 1U );
 
         /* The will retain flag is currently unused */
         ( void ) willRetain;
@@ -305,12 +296,12 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         /* Third and fourth bytes are keep alive time */
         connectConfig->keepAliveSeconds = getIntFromTwoBytes( &buf[ bufferIndex + 1U ] );
 
-        /* Index variable for each payload byte */
-        payloadIndex = bufferIndex + 3U;
+        /* Start of the payload */
+        bufferIndex += 3U;
 
         /* Client identifier is required, 2 length bytes and then identifier */
-        connectConfig->clientIdentifierLength = getIntFromTwoBytes( &buf[ payloadIndex ] );
-        connectConfig->pClientIdentifier = ( const char * ) &buf[ payloadIndex + 2U ];
+        connectConfig->clientIdentifierLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
+        connectConfig->pClientIdentifier = ( const char * ) &buf[ bufferIndex + 2U ];
     }
 
     if( ( status == MQTTSuccess ) && ( connectConfig->clientIdentifierLength == 0U ) )
@@ -320,7 +311,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
     }
 
     /* Set to start of rest of payload. */
-    payloadIndex = payloadIndex + 2U + connectConfig->clientIdentifierLength;
+    bufferIndex = bufferIndex + 2U + connectConfig->clientIdentifierLength;
 
     if( ( status == MQTTSuccess ) && ( willFlag == true ) )
     {
@@ -328,8 +319,8 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
         MQTTPublishInfo_t willInfo;
         willInfo.qos = willQos;
         willInfo.retain = willRetain;
-        willInfo.topicNameLength = getIntFromTwoBytes( &buf[ payloadIndex ] );
-        willInfo.pTopicName = ( const char * ) &buf[ payloadIndex + 2U ];
+        willInfo.topicNameLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
+        willInfo.pTopicName = ( const char * ) &buf[ bufferIndex + 2U ];
 
         if( willInfo.topicNameLength == 0U )
         {
@@ -339,13 +330,13 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
 
         if( status == MQTTSuccess )
         {
-            payloadIndex = payloadIndex + 2U + willInfo.topicNameLength;
+            bufferIndex = bufferIndex + 2U + willInfo.topicNameLength;
 
             /* Populate Last Will payload information. */
-            willInfo.payloadLength = getIntFromTwoBytes( &buf[ payloadIndex ] );
-            willInfo.pPayload = ( const char * ) &buf[ payloadIndex + 2U ];
+            willInfo.payloadLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
+            willInfo.pPayload = ( const char * ) &buf[ bufferIndex + 2U ];
 
-            payloadIndex = payloadIndex + 2U + willInfo.payloadLength;
+            bufferIndex = bufferIndex + 2U + willInfo.payloadLength;
         }
 
         /* As of now, last will is not used */
@@ -355,8 +346,8 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
     if( ( status == MQTTSuccess ) && ( usernameFlag == true ) )
     {
         /* Populate Username header information. */
-        connectConfig->userNameLength = getIntFromTwoBytes( &buf[ payloadIndex ] );
-        connectConfig->pUserName = ( const char * ) &buf[ payloadIndex + 2U ];
+        connectConfig->userNameLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
+        connectConfig->pUserName = ( const char * ) &buf[ bufferIndex + 2U ];
 
         if( connectConfig->userNameLength == 0U )
         {
@@ -364,14 +355,14 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
             status = MQTTBadParameter;
         }
 
-        payloadIndex = payloadIndex + 2U + connectConfig->userNameLength;
+        bufferIndex = bufferIndex + 2U + connectConfig->userNameLength;
     }
 
     if( ( status == MQTTSuccess ) && ( passwordFlag == true ) )
     {
         /* Populate Password header information. */
-        connectConfig->passwordLength = getIntFromTwoBytes( &buf[ payloadIndex ] );
-        connectConfig->pPassword = ( const char * ) &buf[ payloadIndex + 2U ];
+        connectConfig->passwordLength = getIntFromTwoBytes( &buf[ bufferIndex ] );
+        connectConfig->pPassword = ( const char * ) &buf[ bufferIndex + 2U ];
 
         if( connectConfig->passwordLength == 0U )
         {
@@ -379,61 +370,7 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
             status = MQTTBadParameter;
         }
 
-        payloadIndex = payloadIndex + 2U + connectConfig->passwordLength;
-    }
-
-    if( status == MQTTSuccess )
-    {
-        /* Add one since we are zero indexed. */
-        *pSize = payloadIndex + 1U;
-    }
-
-    return status;
-}
-
-
-static MQTTStatus_t parsePublish( MQTTPublishInfo_t * publishConfig,
-                                  const uint8_t * buf,
-                                  size_t * pSize,
-                                  uint16_t * pIdentifier )
-{
-    uint16_t remainingLength = 0;
-    MQTTStatus_t status = MQTTSuccess;
-
-    if( ( buf[ 0 ] & 0xf0U ) != MQTT_PACKET_TYPE_PUBLISH )
-    {
-        status = MQTTBadParameter;
-    }
-
-    if( status == MQTTSuccess )
-    {
-        /* Get flag information from fixed header. */
-        publishConfig->dup = ( ( ( buf[ 0 ] & 0x08U ) >> 3 ) == 1U );
-        publishConfig->qos = convertIntToQos( ( ( buf[ 0 ] & 0x06U ) >> 1) == 1U ); 
-    }
-
-    if( ( status == MQTTSuccess ) && ( publishConfig->qos > MQTTQoS1 ) )
-    {
-        LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
-        status = MQTTBadParameter;
-    }
-
-    if( status == MQTTSuccess )
-    {
-        publishConfig->retain = ( ( buf[ 0 ] & 0x01U ) == 1U );
-        remainingLength = buf[ 1 ];
-
-        /* Get information from the variable header. */
-        publishConfig->topicNameLength = getIntFromTwoBytes( &buf[ 2 ] );
-        publishConfig->pTopicName = ( const char * ) &buf[ 4 ];
-        *pIdentifier = getIntFromTwoBytes( &buf[ 4U + publishConfig->topicNameLength ] );
-
-        /* Populate the payload information. */
-        publishConfig->payloadLength = ( ( size_t ) remainingLength - ( 2U + ( size_t ) publishConfig->topicNameLength ) );
-        publishConfig->pPayload = &buf[ 4U + publishConfig->topicNameLength ];
-
-        /* Add 2 for the fixed header size. */
-        *pSize = ( size_t ) remainingLength + 2U;
+        bufferIndex = bufferIndex + 2U + connectConfig->passwordLength;
     }
 
     return status;
@@ -465,7 +402,6 @@ static uint16_t calculateNumSubs( const uint8_t * buf,
 
 static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
                                     const uint8_t * buf,
-                                    size_t * pSize,
                                     uint16_t * pIdentifier,
                                     bool subscribe )
 {
@@ -478,9 +414,6 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
 
     /* Stores the remaining length after the identifier */
     remainingLength = buf[ 1 ] - 2U;
-
-    /* Add 2 for fixed header and 2 for the identifier */
-    *pSize = ( size_t ) remainingLength + 4U;
 
     *subscriptionCount = calculateNumSubs( &buf[ 4 ], remainingLength, subscribe );
 
@@ -496,7 +429,7 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
         /* For subscribe packets only, increment past qos byte. */
         if( subscribe )
         {
-            _subscriptions[ subscriptionIndex ].qos = convertIntToQos( buf[ bufferIndex ] & 0x03U);
+            _subscriptions[ subscriptionIndex ].qos = convertIntToQos( buf[ bufferIndex ] & 0x03U );
             bufferIndex++;
 
             if( _subscriptions[ subscriptionIndex ].qos > MQTTQoS1 )
@@ -511,34 +444,67 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
     return status;
 }
 
-
-static MQTTStatus_t parsePubAck( const uint8_t * buf,
-                                 uint16_t * pIdentifier )
+static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer, MQTTPublishInfo_t * pPublishConfig, uint16_t packetId )
 {
+    const char * restOfTopicName = &pPublishConfig->pTopicName[1];
+    const uint16_t restOfTopicNameLength = pPublishConfig->topicNameLength - 1U;
+    const char * pPayload = pPublishConfig->pPayload;
+    const uint16_t payloadLength = ( uint16_t ) pPublishConfig->payloadLength;
+    size_t remainingLength = 0U;
+    size_t packetSize = 0U;
+    size_t headerSize = 0U;
+    uint8_t headerBuffer[10];
+    uint8_t serializedArray[2];
     MQTTStatus_t status = MQTTSuccess;
 
-    /* For publish ACKs, the second byte must be 2. */
-    if( ( buf[ 0 ] & 0xf0U ) != MQTT_PACKET_TYPE_PUBACK )
+    /* Header will only be type (1) + remaining length ( <= 4) + topic length (2) + 1 char of topic */
+    pBuffer->pBuffer = headerBuffer;
+
+    /* Change size to prevent memory errors, the real allocation is in stream buffer. */
+    pBuffer->size = 0xFFU;
+
+    pPublishConfig->topicNameLength = 1U;
+    pPublishConfig->payloadLength = 0;
+    
+    status = MQTT_GetPublishPacketSize( pPublishConfig, &remainingLength, &packetSize );
+
+    /* Topic name length + topic name + 1 for its first character + payload size */
+    remainingLength = 2U + restOfTopicNameLength + 1U + payloadLength;
+
+    /* Packet Identifier only exists in Qos 1 and Qos 2 */
+    if (pPublishConfig->qos >= MQTTQoS1)
     {
-        status = MQTTBadParameter;
+        remainingLength += 2;
     }
 
-    /* Check that the remaining length is 2 bytes */
-    if( ( buf[ 1 ] != 0x02U ) )
-    {
-        LogError( ( "Malformed PUBACK packet received." ) );
+    /* Generate the header with one character of topic to save stack allocation */
+    status = MQTT_SerializePublishHeader( pPublishConfig, packetId, remainingLength, pBuffer, &headerSize );
 
-        status = MQTTBadParameter;
-    }
-    else
+    if( status == MQTTSuccess )
     {
-        /* Returns the packet identifier */
-        *pIdentifier = getIntFromTwoBytes( &buf[ 2 ] );
+        /* Change the length of the topic name in the packet to its real length */
+        pBuffer->pBuffer[ packetSize - 2U ] = ( ( restOfTopicNameLength + 1U ) );
+
+        /* Send the Fixed header + length + first character of topic into the buffer */
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pBuffer->pBuffer, packetSize, pdMS_TO_TICKS( 100 ) );
+   
+        /* Send the rest of the topic into the buffer */
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) restOfTopicName, restOfTopicNameLength, pdMS_TO_TICKS( 100 ) );
+
+        if ( pPublishConfig->qos >= MQTTQoS1)
+        {
+            /* Send the packet identifier to the buffer; need to represent as two seperate bytes to resolve endianness. */
+            serializedArray[0] = ( uint8_t ) ( ( packetId & 0xFF00U ) >> 8 );
+            serializedArray[1] = ( uint8_t ) ( packetId & 0x00FFU );
+            ( void ) xStreamBufferSend( streamBuffer, ( void * ) serializedArray, 2U, pdMS_TO_TICKS( 100 ) );
+        }
+        
+        /* Send the payload itself into the buffer */
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pPayload, payloadLength, pdMS_TO_TICKS( 100 ) );
     }
 
     return status;
 }
-
 
 static MQTTStatus_t transportSerializePingresp( MQTTFixedBuffer_t * pBuffer )
 {
@@ -598,7 +564,6 @@ static MQTTStatus_t transportSerializeAck( MQTTFixedBuffer_t * pBuffer,
 }
 
 
-
 static MQTTStatus_t transportSerializeSuback( MQTTFixedBuffer_t * pBuffer,
                                               uint8_t packetType,
                                               uint16_t packetId )
@@ -642,7 +607,9 @@ static MQTTStatus_t handleOutgoingConnect( const void * buf,
     MQTTStatus_t status = MQTTSuccess;
     MQTTConnectInfo_t connectConfig;
 
-    status = parseConnect( &connectConfig, buf, pSize );
+    memset( &connectConfig, 0x00, sizeof( MQTTConnectInfo_t ) );
+
+    status = parseConnect( &connectConfig, buf );
 
     if( status == MQTTSuccess )
     {
@@ -652,19 +619,27 @@ static MQTTStatus_t handleOutgoingConnect( const void * buf,
     return status;
 }
 
-static MQTTStatus_t handleOutgoingPublish( const void * buf,
+static MQTTStatus_t handleOutgoingPublish( void * buf,
                                            MQTTFixedBuffer_t * bufToSend,
-                                           size_t * pSize )
+                                           size_t * pSize,
+                                           size_t * bytesToSend )
 {
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
     MQTTPublishInfo_t publishConfig;
+    MQTTPacketInfo_t publishPacket;
 
-    status = parsePublish( &publishConfig, buf, pSize, &packetIdentifier );
+    memset( &publishConfig, 0x00, sizeof( MQTTPublishInfo_t ) );
+
+    publishPacket.pRemainingData = &( (uint8_t * ) buf )[2]; 
+    publishPacket.type = MQTT_PACKET_TYPE_PUBLISH;
+    publishPacket.remainingLength = *bytesToSend - 2U;
+
+    status = MQTT_DeserializePublish( &publishPacket, &packetIdentifier, &publishConfig );
 
     if( status == MQTTSuccess )
     {
-        status = IotBleMqtt_SerializePublish( &publishConfig, &bufToSend->pBuffer, pSize, &packetIdentifier, NULL );
+        status = IotBleMqtt_SerializePublish( &publishConfig, &bufToSend->pBuffer, pSize, &packetIdentifier );
     }
 
     return status;
@@ -677,13 +652,15 @@ static MQTTStatus_t handleOutgoingPuback( const void * buf,
 {
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
+    MQTTPacketInfo_t pubackPacket;
 
-    status = parsePubAck( buf, &packetIdentifier );
+    pubackPacket.pRemainingData = ( uint8_t * ) buf;
+    pubackPacket.type = MQTT_PACKET_TYPE_PUBACK;
+
+    status = MQTT_DeserializeAck( &pubackPacket, &packetIdentifier, NULL );
 
     if( status == MQTTSuccess )
     {
-        /* Pub Ack packet sizes are always 4 bytes (control + remaining length + 2 identifier) */
-        *pSize = SIZE_OF_SIMPLE_ACK;
         status = IotBleMqtt_SerializePuback( packetIdentifier, &bufToSend->pBuffer, pSize );
     }
 
@@ -699,7 +676,7 @@ static MQTTStatus_t handleOutgoingSubscribe( const void * buf,
     uint16_t packetIdentifier = 0;
     size_t subscriptionCount = 0;
 
-    status = parseSubscribe( &subscriptionCount, buf, pSize, &packetIdentifier, true );
+    status = parseSubscribe( &subscriptionCount, buf, &packetIdentifier, true );
 
     if( status == MQTTSuccess )
     {
@@ -718,7 +695,7 @@ static MQTTStatus_t handleOutgoingUnsubscribe( const void * buf,
     uint16_t packetIdentifier = 0;
     size_t subscriptionCount = 0;
 
-    status = parseSubscribe( &subscriptionCount, buf, pSize, &packetIdentifier, false );
+    status = parseSubscribe( &subscriptionCount, buf, &packetIdentifier, false );
 
     if( status == MQTTSuccess )
     {
@@ -750,6 +727,8 @@ static MQTTStatus_t handleOutgoingDisconnect( MQTTFixedBuffer_t * bufToSend,
     return status;
 }
 
+/*-----------------------------------------------------------*/
+
 static MQTTStatus_t handleIncomingConnack( MQTTPacketInfo_t * packet,
                                            MQTTFixedBuffer_t * pBuffer )
 {
@@ -772,8 +751,6 @@ static MQTTStatus_t handleIncomingConnack( MQTTPacketInfo_t * packet,
 
     return status;
 }
-
-/*-----------------------------------------------------------*/
 
 static MQTTStatus_t handleIncomingPuback( MQTTPacketInfo_t * packet,
                                           MQTTFixedBuffer_t * pBuffer )
@@ -798,7 +775,7 @@ static MQTTStatus_t handleIncomingPuback( MQTTPacketInfo_t * packet,
 }
 
 static MQTTStatus_t handleIncomingPublish( MQTTPacketInfo_t * packet,
-                                           const MQTTFixedBuffer_t * pBuffer )
+                                           MQTTFixedBuffer_t * pBuffer )
 {
     MQTTStatus_t status = MQTTSuccess;
     MQTTPublishInfo_t publishInfo;
@@ -810,12 +787,7 @@ static MQTTStatus_t handleIncomingPublish( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        status = MQTT_SerializePublish( &publishInfo, packetIdentifier, packet->remainingLength, pBuffer );
-    }
-
-    if( status == MQTTSuccess )
-    {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, packet->remainingLength + 2U, pdMS_TO_TICKS( 100 ) );
+        status = transportSerializePublish( pBuffer, &publishInfo, packetIdentifier );
     }
 
     return status;
@@ -906,84 +878,71 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     uint8_t packetType = *( ( uint8_t * ) buf );
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t bufToSend;
-    size_t pSize = 0;
-    bool serializerInitVal = false;
+    size_t packetSize = 0;
 
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t MQTTBytesWritten = ( int32_t ) bytesToWrite;
 
-    uint8_t sharedBuffer[ RECV_PACKET_BUFFER_SIZE ];
-
-    bufToSend.pBuffer = sharedBuffer;
-    bufToSend.size = RECV_PACKET_BUFFER_SIZE;
-
-    serializerInitVal = IotBleMqtt_InitSerialize();
-
-    if( serializerInitVal == true )
+    switch( packetType )
     {
-        switch( packetType )
-        {
-            case MQTT_PACKET_TYPE_CONNECT:
-                status = handleOutgoingConnect( buf, &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_CONNECT:
+            status = handleOutgoingConnect( buf, &bufToSend, &packetSize );
+            break;
 
-            case MQTT_PACKET_TYPE_PUBLISH:
-                status = handleOutgoingPublish( buf, &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_PUBLISH:
+            status = handleOutgoingPublish( buf, &bufToSend, &packetSize, &bytesToWrite );
+            break;
 
-            case MQTT_PACKET_TYPE_PUBACK:
-                status = handleOutgoingPuback( buf, &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_PUBACK:
+            status = handleOutgoingPuback( buf, &bufToSend, &packetSize );
+            break;
 
-            case MQTT_PACKET_TYPE_SUBSCRIBE:
-                status = handleOutgoingSubscribe( buf, &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_SUBSCRIBE:
+            status = handleOutgoingSubscribe( buf, &bufToSend, &packetSize );
+            break;
 
-            case MQTT_PACKET_TYPE_UNSUBSCRIBE:
-                status = handleOutgoingUnsubscribe( buf, &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_UNSUBSCRIBE:
+            status = handleOutgoingUnsubscribe( buf, &bufToSend, &packetSize );
+            break;
 
-            case MQTT_PACKET_TYPE_PINGREQ:
-                status = handleOutgoingPingReq( &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_PINGREQ:
+            status = handleOutgoingPingReq( &bufToSend, &packetSize );
+            break;
 
-            case MQTT_PACKET_TYPE_DISCONNECT:
-                status = handleOutgoingDisconnect( &bufToSend, &pSize );
-                break;
+        case MQTT_PACKET_TYPE_DISCONNECT:
+            status = handleOutgoingDisconnect( &bufToSend, &packetSize );
+            break;
 
-            /* QoS 2 cases, currently not supported by BLE */
-            case MQTT_PACKET_TYPE_PUBREC:
-            case MQTT_PACKET_TYPE_PUBREL:
-            case MQTT_PACKET_TYPE_PUBCOMP:
-                status = MQTTSendFailed;
-                LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
-                break;
+        /* QoS 2 cases, currently not supported by BLE */
+        case MQTT_PACKET_TYPE_PUBREC:
+        case MQTT_PACKET_TYPE_PUBREL:
+        case MQTT_PACKET_TYPE_PUBCOMP:
+            status = MQTTSendFailed;
+            LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
+            break;
 
-            /* Client tries to send a server to client only packet */
-            default:
-                status = MQTTBadParameter;
-                LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2." ) );
-                LogError( ( "Your packet type was %i", packetType ) );
-                break;
-        }
+        /* Client tries to send a server to client only packet */
+        default:
+            status = MQTTBadParameter;
+            LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2." ) );
+            LogError( ( "Your packet type was %i", packetType ) );
+            break;
     }
-    else
-    {
-        status = MQTTSendFailed;
-        LogError( ( "Serializer could not be initialized while sending data." ) );
-    }
-
-    IotBleMqtt_CleanupSerialize();
 
     if( status != MQTTSuccess )
     {
         /* The user would have already seen a log for the previous error */
         LogError( ( "No data was sent because of a previous error." ) );
         MQTTBytesWritten = 0;
+
+        if( bufToSend.pBuffer != NULL )
+        {
+            IotMqtt_FreeMessage( bufToSend.pBuffer );
+        }
     }
     else
     {
-        CBORbytesWritten = IotBleDataTransfer_Send( pContext->pChannel, bufToSend.pBuffer, pSize );
+        CBORbytesWritten = IotBleDataTransfer_Send( pContext->pChannel, bufToSend.pBuffer, packetSize );
     }
 
     if( CBORbytesWritten == 0U )
@@ -991,6 +950,12 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
         LogError( ( "No data was sent because of the channel. Ensure that the channel is initialized and ready to send data." ) );
         MQTTBytesWritten = 0;
     }
+    else
+    {
+        IotMqtt_FreeMessage( bufToSend.pBuffer );
+        LogInfo( ( "Packet sent successfully over the BLE channel") );
+    }
+    
 
     return MQTTBytesWritten;
 }
@@ -1001,10 +966,11 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     MQTTPacketInfo_t packet;
     MQTTFixedBuffer_t pBuffer;
 
-    uint8_t sharedBuffer[ RECV_PACKET_BUFFER_SIZE ];
+    /* Sub ack is the largest packet size expected except for publish, which has its own buffer allocation */
+    uint8_t sharedBuffer[ SIZE_OF_SUB_ACK ];
 
     pBuffer.pBuffer = sharedBuffer;
-    pBuffer.size = RECV_PACKET_BUFFER_SIZE;
+    pBuffer.size = SIZE_OF_SUB_ACK;
 
     packet.type = IotBleMqtt_GetPacketType( pContext->pChannel );
     IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
@@ -1079,3 +1045,5 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
     ( void ) pContext;
     return ( int32_t ) xStreamBufferReceive( streamBuffer, buf, bytesToRead, pdMS_TO_TICKS( 100 ) );
 }
+
+
