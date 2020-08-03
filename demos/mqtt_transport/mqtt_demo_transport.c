@@ -236,7 +236,8 @@ static uint16_t getNextPacketIdentifier( void )
     return packetId;
 }
 
-static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf, MQTTPacketInfo_t * incomingPacket )
+static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf,
+                                MQTTPacketInfo_t * incomingPacket )
 {
     MQTTStatus_t result = MQTTSuccess;
     size_t receiveAttempts = 0;
@@ -249,7 +250,6 @@ static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf, MQTTPacketInfo_t 
         taskYIELD();
         result = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, &pContext, incomingPacket );
         receiveAttempts++;
-        
     } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( result != MQTTSuccess ) );
 
     assert( result == MQTTSuccess );
@@ -277,7 +277,7 @@ static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf, MQTTPacketInfo_t 
 
     incomingPacket->pRemainingData = buf->pBuffer;
 
-    return result; 
+    return result;
 }
 /*-----------------------------------------------------------*/
 
@@ -341,6 +341,7 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
     ( void ) memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
 
     status = getNewData( buf, &incomingPacket );
+
     /* Deserialize the received packet to make sure the content of the CONNACK
      * is valid. Note that the packetId is not present in the connection ack. */
     result = MQTT_DeserializeAck( &incomingPacket, &packetId, &sessionPresent );
@@ -699,9 +700,8 @@ MQTTStatus_t RunMQTTTransportDemo( void )
              * tcpSocket, and waits for connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Establishing MQTT connection to server" ) );
             status = createMQTTConnectionWithBroker( &fixedBuffer );
-            
-            
-            if ( ( status != MQTTSuccess ) && ( channelActive == false ) )
+
+            if( ( status != MQTTSuccess ) && ( channelActive == false ) )
             {
                 break;
             }
@@ -732,9 +732,9 @@ MQTTStatus_t RunMQTTTransportDemo( void )
             /* Publish messages with QOS0, send and process Keep alive messages. */
             for( loopCount = 0; loopCount < maxLoopCount; loopCount++ )
             {
-                if ( channelActive == false )
+                if( channelActive == false )
                 {
-                    break; 
+                    break;
                 }
 
                 /* Get the current time stamp */
@@ -774,7 +774,7 @@ MQTTStatus_t RunMQTTTransportDemo( void )
                 ( void ) sleep( MQTT_KEEP_ALIVE_PERIOD_SECONDS );
             }
 
-            if ( channelActive == false )
+            if( channelActive == false )
             {
                 break;
             }
@@ -798,22 +798,23 @@ MQTTStatus_t RunMQTTTransportDemo( void )
              * bombard the public test mosquitto broker. */
             LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
             ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
-            
+
             IotBleMqttTransportCleanup();
             IotBleMqttTransportInit( &pContext );
         }
     }
 
-    if ( channelActive == false )
+    if( channelActive == false )
     {
         IotBleMqttTransportCleanup();
-        LogError( ( "BLE disconnected unexpectedly") );
+        LogError( ( "BLE disconnected unexpectedly" ) );
         status = MQTTBadResponse;
     }
     else
     {
         LogInfo( ( "Demo completed successfully.\r\n" ) );
     }
+
     return status;
 }
 
