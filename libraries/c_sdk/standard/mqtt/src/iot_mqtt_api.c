@@ -241,8 +241,8 @@ static bool _createKeepAliveJob( const IotMqttNetworkInfo_t * pNetworkInfo,
     ( void ) pNetworkInfo;
 
     /* Default PINGREQ serializer function. */
-    IotMqttError_t (* serializePingreq)( uint8_t **,
-                                         size_t * ) = _IotMqtt_pingreqSerializeWrapper;
+    IotMqttError_t ( * serializePingreq )( uint8_t **,
+                                           size_t * ) = _IotMqtt_pingreqSerializeWrapper;
 
     /* Convert the keep-alive interval to milliseconds. */
     pMqttConnection->keepAliveMs = keepAliveSeconds * 1000;
@@ -890,9 +890,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     SemaphoreHandle_t contextMutexHandle = NULL, subscriptionMutexHandle = NULL, referencesMutexHandle = NULL;
 
     /* Default CONNECT serializer function. */
-    IotMqttError_t (* serializeConnect)( const IotMqttConnectInfo_t *,
-                                         uint8_t **,
-                                         size_t * ) = _IotMqtt_connectSerializeWrapper;
+    IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
+                                           uint8_t **,
+                                           size_t * ) = _IotMqtt_connectSerializeWrapper;
 
     /* Network info must not be NULL. */
     if( pNetworkInfo == NULL )
