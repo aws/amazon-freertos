@@ -3652,7 +3652,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
         {
             xSignatureLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
             xExpectedInputLength = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
-            xHashType = MBEDTLS_MD_NONE;
         }
         else if( pxSessionObj->xOperationSignMechanism == CKM_ECDSA )
         {
