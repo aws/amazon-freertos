@@ -13,7 +13,6 @@ afr_module_sources(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::mqtt_v2
-	AFR::ble
+        AFR::mqtt_ble
 )
 

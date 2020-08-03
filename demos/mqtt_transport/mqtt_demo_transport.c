@@ -25,6 +25,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "iot_ble_mqtt_transport.h"
+#include "iot_ble_data_transfer.h"
+#include "iot_ble_config_defaults.h"
+#include "platform/iot_clock.h"
+
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>
@@ -37,10 +42,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "iot_ble_mqtt_transport.h"
-#include "iot_ble_data_transfer.h"
-#include "iot_ble_config_defaults.h"
-#include "platform/iot_clock.h"
 
 
 /************ End of logging configuration ****************/
@@ -90,6 +91,7 @@
  */
 #define MQTT_DEMO_ITERATION_DELAY_SECONDS    5U
 
+#define HIGH_BYTE_MASK                       0xF0U
 
 /*-----------------------------------------------------------*/
 
@@ -204,11 +206,13 @@ static MQTTStatus_t demoInitChannel( void )
             else
             {
                 LogError( ( "The BLE Connection timed out" ) );
+                status = MQTTServerRefused;
             }
         }
         else
         {
-            LogError( ( "Failed to create BLE network connection, cannot create network connection semaphore." ) );
+            LogError( ( "Could not create network connection semaphore." ) );
+            status = MQTTNoMemory;
         }
     }
 
@@ -232,6 +236,49 @@ static uint16_t getNextPacketIdentifier( void )
     return packetId;
 }
 
+static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf, MQTTPacketInfo_t * incomingPacket )
+{
+    MQTTStatus_t result = MQTTSuccess;
+    size_t receiveAttempts = 0;
+    uint8_t bufferIndex = 0;
+    uint32_t bytesReturned = 0;
+    size_t bytesToRead = 0;
+
+    do
+    {
+        taskYIELD();
+        result = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, &pContext, incomingPacket );
+        receiveAttempts++;
+        
+    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( result != MQTTSuccess ) );
+
+    assert( result == MQTTSuccess );
+
+    receiveAttempts = 0;
+    bytesToRead = incomingPacket->remainingLength;
+
+    /* Now receive the remaining packet into statically allocated buffer. */
+    do
+    {
+        bytesReturned = ( size_t ) IotBleMqttTransportReceive( &pContext, &buf->pBuffer[ bufferIndex ], bytesToRead );
+        receiveAttempts++;
+
+        /* We are guaranteed to read up to the amount of requested bytes.
+         * Update the amount of bytes still needed if we read less than requested.
+         * Adjust the buffer index to write coniguously in memory. */
+        if( bytesReturned <= bytesToRead )
+        {
+            bufferIndex += bytesReturned;
+            bytesToRead -= bytesReturned;
+        }
+
+        taskYIELD();
+    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( bytesToRead > 0U ) );
+
+    incomingPacket->pRemainingData = buf->pBuffer;
+
+    return result; 
+}
 /*-----------------------------------------------------------*/
 
 static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * buf )
@@ -245,10 +292,6 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
     char demoClientIdentifier[ CLIENT_IDENTIFIER_MAX_LENGTH ];
     uint16_t packetId = 0;
     bool sessionPresent = false;
-    uint8_t receiveAttempts = 0;
-    uint8_t bufferIndex = 0;
-    uint32_t leftToRead = 0;
-
 
     LogDebug( ( "Trying to send a connect packet to the server" ) );
 
@@ -297,41 +340,7 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
     /* Reset all fields of the incoming packet structure. */
     ( void ) memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
 
-    /* Check for received data. taskYIELD in between read attempts to allow data to be accepted first */
-    receiveAttempts = 0;
-
-    do
-    {
-        result = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, &pContext, &incomingPacket );
-        receiveAttempts++;
-        taskYIELD();
-    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( result != MQTTSuccess ) );
-
-    assert( result == MQTTSuccess );
-
-    receiveAttempts = 0;
-    leftToRead = incomingPacket.remainingLength;
-
-    /* Now receive the remaining packet into statically allocated buffer. */
-    do
-    {
-        status = ( size_t ) IotBleMqttTransportReceive( &pContext, &buf->pBuffer[ bufferIndex ], leftToRead );
-        receiveAttempts++;
-
-        /* We are guaranteed to read up to the amount of requested bytes.
-         * Update the amount of bytes still needed if we read less than requested.
-         * Adjust the buffer index to write coniguously in memory. */
-        if( status <= leftToRead )
-        {
-            bufferIndex += status;
-            leftToRead -= status;
-        }
-
-        taskYIELD();
-    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS && leftToRead > 0U ) );
-
-    incomingPacket.pRemainingData = buf->pBuffer;
-
+    status = getNewData( buf, &incomingPacket );
     /* Deserialize the received packet to make sure the content of the CONNACK
      * is valid. Note that the packetId is not present in the connection ack. */
     result = MQTT_DeserializeAck( &incomingPacket, &packetId, &sessionPresent );
@@ -522,7 +531,6 @@ static void mqttPublishToTopic( const MQTTFixedBuffer_t * buf )
 
     subPacketId = getNextPacketIdentifier();
 
-
     /* Serialize MQTT Publish packet header. The publish message payload will
      * be sent directly in order to avoid copying it into the buffer.
      * QOS0 does not make use of packet identifier, therefore value of 0 is used */
@@ -543,7 +551,7 @@ static void mqttPublishToTopic( const MQTTFixedBuffer_t * buf )
 static void mqttProcessResponse( const MQTTPacketInfo_t * pIncomingPacket,
                                  const uint16_t packetId )
 {
-    switch( pIncomingPacket->type & 0xf0U )
+    switch( pIncomingPacket->type & HIGH_BYTE_MASK )
     {
         case MQTT_PACKET_TYPE_SUBACK:
             LogDebug( ( "Subscribed to the topic %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
@@ -605,11 +613,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
     MQTTPacketInfo_t incomingPacket;
     MQTTPublishInfo_t publishInfo;
     uint16_t responsePacketId = 0;
-    size_t status = 0;
     bool sessionPresent = false;
-    uint8_t receiveAttempts = 0;
-    size_t bufferIndex = 0;
-    uint32_t leftToRead = 0;
 
     LogDebug( ( "Trying to receive an incoming packet" ) );
 
@@ -620,43 +624,9 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
 
     ( void ) memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
 
+    result = getNewData( buf, &incomingPacket );
 
-    /* Check for received data. taskYIELD in between read attempts to allow data to be accepted first */
-    receiveAttempts = 0;
-
-    do
-    {
-        result = MQTT_GetIncomingPacketTypeAndLength( IotBleMqttTransportReceive, &pContext, &incomingPacket );
-        receiveAttempts++;
-        taskYIELD();
-    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( result != MQTTSuccess ) );
-
-    assert( result == MQTTSuccess );
-
-    receiveAttempts = 0;
-    leftToRead = incomingPacket.remainingLength;
-
-    /* Now receive the remaining packet into statically allocated buffer. */
-    do
-    {
-        status = ( size_t ) IotBleMqttTransportReceive( &pContext, &buf->pBuffer[ bufferIndex ], leftToRead );
-        receiveAttempts++;
-
-        /* We are guaranteed to read up to the amount of requested bytes.
-         * Update the amount of bytes still needed if we read less than requested.
-         * Adjust the buffer index to write coniguously in memory. */
-        if( status <= leftToRead )
-        {
-            bufferIndex += status;
-            leftToRead -= status;
-        }
-
-        taskYIELD();
-    } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( leftToRead > 0U ) );
-
-    incomingPacket.pRemainingData = buf->pBuffer;
-
-    if( ( incomingPacket.type & 0xf0U ) == MQTT_PACKET_TYPE_PUBLISH )
+    if( ( incomingPacket.type & HIGH_BYTE_MASK ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         result = MQTT_DeserializePublish( &incomingPacket, &responsePacketId, &publishInfo );
         assert( result == MQTTSuccess );
@@ -828,6 +798,9 @@ MQTTStatus_t RunMQTTTransportDemo( void )
              * bombard the public test mosquitto broker. */
             LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
             ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
+            
+            IotBleMqttTransportCleanup();
+            IotBleMqttTransportInit( &pContext );
         }
     }
 
