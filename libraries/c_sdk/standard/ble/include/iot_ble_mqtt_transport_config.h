@@ -31,7 +31,4 @@
  */
 #define MQTT_MAX_SUBS_PER_PACKET    10U
 
-#define RECV_PACKET_BUFFER_SIZE     200U
-
-
 #endif

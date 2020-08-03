@@ -148,8 +148,8 @@ static MQTTStatus_t transportSerializePingresp( MQTTFixedBuffer_t * pBuffer );
 /**
  * @brief Deserializes a Publish packet in MQTT Format
  * @param[in]
-
-statis MQTTStatus_t */
+ *
+ * statis MQTTStatus_t */
 /*-----------------------------------------------------------*/
 
 /**
@@ -172,7 +172,7 @@ bool IotBleMqttTransportInit( const NetworkContext_t * pContext )
 
     streamBuffer = xStreamBufferCreateStatic( pContext->bufSize, 1, pContext->buf, &xStreamBufferStruct );
 
-    if ( streamBuffer == NULL )
+    if( streamBuffer == NULL )
     {
         status = false;
     }
@@ -201,23 +201,23 @@ static uint16_t getIntFromTwoBytes( const uint8_t * buf )
 static MQTTQoS_t convertIntToQos( const uint8_t incomingQos )
 {
     MQTTQoS_t qosValue = MQTTQoS0;
-    
+
     switch( incomingQos )
     {
         case 0U:
             qosValue = MQTTQoS0;
             break;
-            
+
         case 1U:
             qosValue = MQTTQoS1;
             break;
-            
+
         default:
             LogError( ( "QoS 2 is not supported by MQTT over BLE. Defaulting to Qos 1." ) );
             qosValue = MQTTQoS1;
             break;
     }
-    
+
     return qosValue;
 }
 
@@ -274,8 +274,8 @@ static MQTTStatus_t parseConnect( MQTTConnectInfo_t * connectConfig,
     if( status == MQTTSuccess )
     {
         /* Get flag data from the flag byte. */
-        connectConfig->cleanSession = ( ( ( connectionFlags & CLEAN_SESSION_MASK ) >> 1) == 1U );
-        willFlag = ( ( ( connectionFlags & WILL_FLAG_MASK ) >> 2 ) == 1U) ;
+        connectConfig->cleanSession = ( ( ( connectionFlags & CLEAN_SESSION_MASK ) >> 1 ) == 1U );
+        willFlag = ( ( ( connectionFlags & WILL_FLAG_MASK ) >> 2 ) == 1U );
         willQos = convertIntToQos( ( connectionFlags & WILL_QOS_MASK ) >> 3 );
         willRetain = ( ( ( connectionFlags & WILL_RETAIN_MASK ) >> 5 ) == 1U );
         passwordFlag = ( ( ( connectionFlags & PASSWORD_MASK ) >> 6 ) == 1U );
@@ -444,17 +444,19 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
     return status;
 }
 
-static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer, MQTTPublishInfo_t * pPublishConfig, uint16_t packetId )
+static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer,
+                                               MQTTPublishInfo_t * pPublishConfig,
+                                               uint16_t packetId )
 {
-    const char * restOfTopicName = &pPublishConfig->pTopicName[1];
+    const char * restOfTopicName = &pPublishConfig->pTopicName[ 1 ];
     const uint16_t restOfTopicNameLength = pPublishConfig->topicNameLength - 1U;
     const char * pPayload = pPublishConfig->pPayload;
     const uint16_t payloadLength = ( uint16_t ) pPublishConfig->payloadLength;
     size_t remainingLength = 0U;
     size_t packetSize = 0U;
     size_t headerSize = 0U;
-    uint8_t headerBuffer[10];
-    uint8_t serializedArray[2];
+    uint8_t headerBuffer[ 10 ];
+    uint8_t serializedArray[ 2 ];
     MQTTStatus_t status = MQTTSuccess;
 
     /* Header will only be type (1) + remaining length ( <= 4) + topic length (2) + 1 char of topic */
@@ -465,14 +467,14 @@ static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer, MQTT
 
     pPublishConfig->topicNameLength = 1U;
     pPublishConfig->payloadLength = 0;
-    
+
     status = MQTT_GetPublishPacketSize( pPublishConfig, &remainingLength, &packetSize );
 
     /* Topic name length + topic name + 1 for its first character + payload size */
     remainingLength = 2U + restOfTopicNameLength + 1U + payloadLength;
 
     /* Packet Identifier only exists in Qos 1 and Qos 2 */
-    if (pPublishConfig->qos >= MQTTQoS1)
+    if( pPublishConfig->qos >= MQTTQoS1 )
     {
         remainingLength += 2;
     }
@@ -487,18 +489,18 @@ static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer, MQTT
 
         /* Send the Fixed header + length + first character of topic into the buffer */
         ( void ) xStreamBufferSend( streamBuffer, ( void * ) pBuffer->pBuffer, packetSize, pdMS_TO_TICKS( 100 ) );
-   
+
         /* Send the rest of the topic into the buffer */
         ( void ) xStreamBufferSend( streamBuffer, ( void * ) restOfTopicName, restOfTopicNameLength, pdMS_TO_TICKS( 100 ) );
 
-        if ( pPublishConfig->qos >= MQTTQoS1)
+        if( pPublishConfig->qos >= MQTTQoS1 )
         {
             /* Send the packet identifier to the buffer; need to represent as two seperate bytes to resolve endianness. */
-            serializedArray[0] = ( uint8_t ) ( ( packetId & 0xFF00U ) >> 8 );
-            serializedArray[1] = ( uint8_t ) ( packetId & 0x00FFU );
+            serializedArray[ 0 ] = ( uint8_t ) ( ( packetId & 0xFF00U ) >> 8 );
+            serializedArray[ 1 ] = ( uint8_t ) ( packetId & 0x00FFU );
             ( void ) xStreamBufferSend( streamBuffer, ( void * ) serializedArray, 2U, pdMS_TO_TICKS( 100 ) );
         }
-        
+
         /* Send the payload itself into the buffer */
         ( void ) xStreamBufferSend( streamBuffer, ( void * ) pPayload, payloadLength, pdMS_TO_TICKS( 100 ) );
     }
@@ -631,7 +633,7 @@ static MQTTStatus_t handleOutgoingPublish( void * buf,
 
     memset( &publishConfig, 0x00, sizeof( MQTTPublishInfo_t ) );
 
-    publishPacket.pRemainingData = &( (uint8_t * ) buf )[2]; 
+    publishPacket.pRemainingData = &( ( uint8_t * ) buf )[ 2 ];
     publishPacket.type = MQTT_PACKET_TYPE_PUBLISH;
     publishPacket.remainingLength = *bytesToSend - 2U;
 
@@ -953,9 +955,8 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     else
     {
         IotMqtt_FreeMessage( bufToSend.pBuffer );
-        LogInfo( ( "Packet sent successfully over the BLE channel") );
+        LogInfo( ( "Packet sent successfully over the BLE channel" ) );
     }
-    
 
     return MQTTBytesWritten;
 }
@@ -1045,5 +1046,3 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
     ( void ) pContext;
     return ( int32_t ) xStreamBufferReceive( streamBuffer, buf, bytesToRead, pdMS_TO_TICKS( 100 ) );
 }
-
-
