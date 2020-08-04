@@ -4,4 +4,4 @@ set(
     CACHE INTERNAL "Supported boards list."
 )
 
-set(AFR_MANIFEST_BOARD_DIR "rx_mcu_boards/boards")
+set(AFR_MANIFEST_BOARD_DIR "boards")
