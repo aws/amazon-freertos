@@ -346,8 +346,25 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
         case MQTT_PACKET_TYPE_PUBLISH:
             IotLogDebug( "(MQTT connection %p) PUBLISH in data stream.", pMqttConnection );
 
-            /* Allocate memory to handle the incoming PUBLISH. */
-            index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+            if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+            {
+                /* Allocate memory to handle the incoming PUBLISH. */
+                index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+
+                if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                                 "An error occured due to no space on the queue to post a message.",
+                                 pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+                }
+            }
+            else
+            {
+                IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+            }
 
             if( index == -1 )
             {
@@ -410,7 +427,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 {
                     if( contextIndex >= 0 )
                     {
-                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                        if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to insert operation in the pending processing array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
                     }
 
                     if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -465,14 +487,27 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 {
                     if( contextIndex >= 0 )
                     {
-                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                        if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
+
+                        IotMqtt_Assert( pOperation != NULL );
+
+                        if( ( IotMqtt_freeOperationInOperationArray( pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
                     }
 
                     if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                     {
                         IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
                                      "An error occured due to no space on the queue to post a message.",
-                                     mqttConnection );
+                                     pMqttConnection );
                         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
                     }
                 }
@@ -483,8 +518,28 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
                 }
 
-                IotMqtt_Assert( pOperation != NULL );
-                IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+                /*IotMqtt_Assert( pOperation != NULL ); */
+
+                /*if (xSemaphoreTakeRecursive((SemaphoreHandle_t) & (connToContext[contextIndex].referencesMutex), portMAX_DELAY) == pdTRUE)
+                 * {
+                 *  if ((IotMqtt_freeOperationInOperationArray(pOperation)) == false) {
+                 *      IotLogError("(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection);
+                 *      IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_BAD_PARAMETER);
+                 *  }
+                 *  if (xSemaphoreGiveRecursive((SemaphoreHandle_t) & (connToContext[contextIndex].referencesMutex)) == pdFALSE)
+                 *  {
+                 *      IotLogError("(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                 *          "An error occured due to no space on the queue to post a message.",
+                 *          pMqttConnection);
+                 *      IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_NO_MEMORY);
+                 *  }
+                 * }
+                 * else
+                 * {
+                 *  IotLogError("(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                 *      pMqttConnection);
+                 *  IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_TIMEOUT);
+                 * }*/
             }
             else
             {

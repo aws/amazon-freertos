@@ -451,7 +451,12 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
         /* Remove all subscriptions as the connection is going to be destroyed. */
         if( xSemaphoreTake( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ), portMAX_DELAY ) == pdTRUE )
         {
-            IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
+            if( ( IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove all matched subscriptions from the subscription array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
 
             if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
             {
@@ -636,8 +641,19 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
             if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
             {
                 /* Transferring the opeartion from pending processing to pending response array. */
-                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pSubscriptionOperation );
-                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pSubscriptionOperation );
+                if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pSubscriptionOperation ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                                 mqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
+
+                if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pSubscriptionOperation ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to insert operation in the pending response array. ",
+                                 mqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
                 {
@@ -1244,7 +1260,28 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         /* The call to wait cleans up the CONNECT operation, so set the pointer
          * to NULL. */
-        IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+        if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+        {
+            if( ( IotMqtt_freeOperationInOperationArray( pOperation ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
+
+            if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+            {
+                IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                             "An error occured due to no space on the queue to post a message.",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+            }
+        }
+        else
+        {
+            IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                         pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+        }
     }
 
     /* When a connection is successfully established, schedule keep-alive job. */
@@ -1443,11 +1480,17 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
         if( contextIndex >= 0 )
         {
-            IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingProcessing ),
-                                        _mqttOperation_tryDestroy );
+            if( ( IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingProcessing ),
+                                              _mqttOperation_tryDestroy ) ) == false )
+            {
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
 
-            IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingResponse ),
-                                        _mqttOperation_tryDestroy );
+            if( ( IotMqtt_RemoveAllOperation( &( connToContext[ contextIndex ].pendingResponse ),
+                                              _mqttOperation_tryDestroy ) ) == false )
+            {
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )

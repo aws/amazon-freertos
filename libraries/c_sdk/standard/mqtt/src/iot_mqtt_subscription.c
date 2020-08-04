@@ -508,8 +508,13 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
     {
         if( contextIndex >= 0 )
         {
-            IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), _packetMatch,
-                                      ( &packetMatchParams ) );
+            if( ( IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), _packetMatch,
+                                            ( &packetMatchParams ) ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove all matched subscriptions from the subscription array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
 
         if( xSemaphoreGive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].subscriptionMutex ) ) == pdFALSE )
@@ -574,7 +579,12 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
                 IotMqtt_Assert( pSubscription->references >= 0 );
 
                 /* Remove subscription from list. */
-                IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex );
+                if( ( IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to remove the subscription from the subscription array. ",
+                                 pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
 
                 /* Check the reference count. This subscription cannot be removed if
                  * there are subscription callbacks using it. */

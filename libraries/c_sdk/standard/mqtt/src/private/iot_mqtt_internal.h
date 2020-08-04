@@ -1127,6 +1127,7 @@ IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
  *
  * @param[in] pSubscriptionArray Subscription array in which the new subscription to be inserted.
  *
+ * @return The index where the subscription to be inserted.
  */
 int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray );
 
@@ -1136,8 +1137,9 @@ int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray );
  * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be removed.
  * @param[in] deleteIndex The index position from where the subscription to be removed.
  *
+ * @return 'true' if subscription is removed else 'false'.
  */
-void IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
+bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
                                  int8_t deleteIndex );
 
 /**
@@ -1147,8 +1149,9 @@ void IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
  * @param[in] pMatch If `pMatch` is `NULL`, all the subscriptions will be removed.
  * Otherwise, it is used to find the matching subscription.
  *
+ * @return 'true' if all matching subscriptions are removed else 'false'.
  */
-void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
+bool IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                                _packetMatchParams_t * pMatch );
 
 /**
@@ -1171,8 +1174,9 @@ int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
  * @param[in] pOperationArray Operation array in which the new operation to be inserted.
  * @param[in] pOperation The new operation to be inserted.
  *
+ * @return 'true' if operation is inserted successfully else 'false'.
  */
-void IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
+bool IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
                               _mqttOperation_t * pOperation );
 
 /**
@@ -1181,8 +1185,9 @@ void IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
  * @param[in] pOperationArray Operation array from which the operation needs to be removed.
  * @param[in] pOperation The operation to be removed.
  *
+ * @return 'true' if operation is removed successfully else 'false'.
  */
-void IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
+bool IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
                               _mqttOperation_t * pOperation );
 
 /**
@@ -1205,9 +1210,19 @@ _mqttOperation_t * IotMqtt_FindFirstMatchOperation( _mqttOperation_t ** pOperati
  * @param[in] freeElement A function to free memory used by each removed array
  * element. Optional; pass `NULL` to ignore.
  *
+ * @return 'true' if all operations are removed successfully else 'false'.
  */
-void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
+bool IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
                                  void ( * freeElement )( void * ) );
+
+/**
+ * @brief Free the index from the given operation array.
+ *
+ * @param[in] pOperationArray Operation array from which the index needs to be freed.
+ * @param[in] pOperation operation for which the index to be freed.
+ *
+ */
+bool IotMqtt_freeOperationInOperationArray( _mqttOperation_t * pOperation );
 
 /**
  * @brief Get free index from the given operation array to hold the new operation.
@@ -1217,14 +1232,6 @@ void IotMqtt_RemoveAllOperation( _mqttOperation_t ** pOperationArray,
  */
 int8_t IotMqtt_getFreeIndexfromOperationArray( _mqttOperation_t * pOperationArray );
 
-/**
- * @brief Free the index from the given operation array.
- *
- * @param[in] pOperationArray Operation array from which the index needs to be freed.
- * @param[in] pOperation operation for which the index to be freed.
- *
- */
-void IotMqtt_freeIndexInOperationArray( _mqttOperation_t * pOperationArray,
-                                        _mqttOperation_t * pOperation );
+
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */

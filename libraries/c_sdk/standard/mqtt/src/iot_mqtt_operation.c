@@ -205,9 +205,10 @@ static bool _checkRetryLimit( _mqttOperation_t * pOperation )
 
 static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_STATUS_PENDING );
     bool firstRetry = false;
     uint32_t scheduleDelay = 0;
-    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    /*IotMqttError_t status = IOT_MQTT_STATUS_PENDING; */
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
     int8_t contextIndex = -1;
 
@@ -285,8 +286,19 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
         {
             if( contextIndex >= 0 )
             {
-                IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                                 pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
+
+                if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to insert operation in the pending response array. ",
+                                 pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
             }
         }
         else
@@ -311,6 +323,9 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
     }
 
     return( status == IOT_MQTT_SUCCESS );
+
+    IOT_FUNCTION_CLEANUP_BEGIN();
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -366,8 +381,25 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     /* Get index of context for the given connnection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
-    /* Get index from operation array for a new operation. */
-    index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+    {
+        /* Get index from operation array for a new operation. */
+        index = IotMqtt_getFreeIndexfromOperationArray( connToContext[ contextIndex ].operationArray );
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
+                         pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                     pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+    }
 
     if( index == -1 )
     {
@@ -422,14 +454,16 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
         }
     }
 
-    /* Add this operation to the MQTT connection's operation list. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-
     if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
     {
         if( contextIndex >= 0 )
         {
-            IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), &( connToContext[ contextIndex ].operationArray[ index ] ) );
+            if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), &( connToContext[ contextIndex ].operationArray[ index ] ) ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to insert operation in the pending processing array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -466,7 +500,28 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
 
         if( index != -1 )
         {
-            IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, &( connToContext[ contextIndex ].operationArray[ index ] ) );
+            if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+            {
+                if( ( IotMqtt_freeOperationInOperationArray( &( connToContext[ contextIndex ].operationArray[ index ] ) ) ) == false )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                }
+
+                if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+                {
+                    IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                                 "An error occured due to no space on the queue to post a message.",
+                                 pMqttConnection );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+                }
+            }
+            else
+            {
+                IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+            }
         }
         else
         {
@@ -617,8 +672,19 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     {
         if( contextIndex >= 0 )
         {
-            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+            if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
+
+            if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove operation from the pending response array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -702,7 +768,28 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     IOT_FUNCTION_CLEANUP_BEGIN();
 
     /* Free the memory used to hold operation data. */
-    IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+    {
+        if( ( IotMqtt_freeOperationInOperationArray( pOperation ) ) == false )
+        {
+            IotLogError( "(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
+                         pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                     pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+    }
 
     IOT_FUNCTION_CLEANUP_END();
 }
@@ -959,7 +1046,12 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     {
         if( contextIndex >= 0 )
         {
-            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+            if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                             pOperation->pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
 
         if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -997,7 +1089,29 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
     }
 
     /* Free the incoming PUBLISH operation. */
-    IotMqtt_freeIndexInOperationArray( connToContext[ contextIndex ].operationArray, pOperation );
+    if( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ), portMAX_DELAY ) == pdTRUE )
+    {
+        if( ( IotMqtt_freeOperationInOperationArray( pOperation ) ) == false )
+        {
+            IotLogError( "(MQTT connection %p) Failed to free operation from the operation array. ", pOperation->pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+        }
+
+        if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
+        {
+            IotLogError( "(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
+                         "An error occured due to no space on the queue to post a message.",
+                         pMqttConnection );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to take lock on references mutex within specified time.",
+                     pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+    }
+
     IOT_FUNCTION_CLEANUP_END();
 }
 
@@ -1159,8 +1273,19 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
                     if( contextIndex >= 0 )
                     {
                         /* Transferring the opeartion from pending processing to pending response array. */
-                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                        if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
+
+                        if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to insert operation in the pending response array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
                     }
 
                     if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -1317,8 +1442,19 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
                 if( contextIndex >= 0 )
                 {
                     /* Transferring the opeartion from pending processing to pending response array. */
-                    IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
-                    IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
+                    if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                    {
+                        IotLogError( "(MQTT connection %p) Failed to remove operation from the pending processing array. ",
+                                     pMqttConnection );
+                        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                    }
+
+                    if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation ) ) == false )
+                    {
+                        IotLogError( "(MQTT connection %p) Failed to insert operation in the pending response array. ",
+                                     pMqttConnection );
+                        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                    }
                 }
 
                 if( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &( connToContext[ contextIndex ].referencesMutex ) ) == pdFALSE )
@@ -1567,7 +1703,12 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                          IotMqtt_OperationType( type ) );
 
             /* Remove the matched operation from the array. */
-            IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pResult );
+            if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pResult ) ) == false )
+            {
+                IotLogError( "(MQTT connection %p) Failed to remove operation from the pending response array. ",
+                             pMqttConnection );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+            }
         }
         else
         {
@@ -1662,8 +1803,19 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 
                     if( contextIndex >= 0 )
                     {
-                        IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation );
-                        IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation );
+                        if( ( IotMqtt_RemoveOperation( &( connToContext[ contextIndex ].pendingResponse ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to remove operation from the pending response array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
+
+                        if( ( IotMqtt_InsertOperation( &( connToContext[ contextIndex ].pendingProcessing ), pOperation ) ) == false )
+                        {
+                            IotLogError( "(MQTT connection %p) Failed to insert operation in the pending processing array. ",
+                                         pMqttConnection );
+                            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_PARAMETER );
+                        }
                     }
                 }
                 else
