@@ -60,7 +60,17 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Default EC operations to ON.
+ * @defgroup pkcs11_macros PKCS #11 Implementation Macros
+ * @brief Macros for PKCS #11 software implementation.
+ */
+
+/**
+ * @defgroup pkcs11_datatypes PKCS #11 Datatypes
+ * @brief Internal datatypes for PKCS #11 software implementation.
+ */
+
+/* @ingroup pkcs11_macros
+ * @brief Suppress EC operations.
  */
 #ifndef pkcs11configSUPPRESS_ECDSA_MECHANISM
     #define pkcs11configSUPPRESS_ECDSA_MECHANISM    0
@@ -97,7 +107,6 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 /**
  * @ingroup pkcs11_macros
  * @brief Macro for logging in PKCS #11.
- *
  */
 #define PKCS11_PRINT( X )            configPRINTF( X )
 
