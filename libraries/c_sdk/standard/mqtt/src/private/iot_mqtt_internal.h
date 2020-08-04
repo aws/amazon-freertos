@@ -98,11 +98,11 @@
 #if IOT_STATIC_MEMORY_ONLY == 1
     #include "private/iot_static_memory.h"
 
-/**
- * @brief Allocate an #_mqttConnection_t. This function should have the same
- * signature as [malloc]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
- */
+    /**
+     * @brief Allocate an #_mqttConnection_t. This function should have the same
+     * signature as [malloc]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+     */
     void * IotMqtt_MallocConnection( size_t size );
 
 /**
@@ -119,18 +119,18 @@
  */
     #define IotMqtt_MallocMessage    Iot_MallocMessageBuffer
 
-/**
- * @brief Free an MQTT packet. This function should have the same signature
- * as [free]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
- */
+    /**
+     * @brief Free an MQTT packet. This function should have the same signature
+     * as [free]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+     */
     #define IotMqtt_FreeMessage      Iot_FreeMessageBuffer
 
-/**
- * @brief Allocate an #_mqttOperation_t. This function should have the same
- * signature as [malloc]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
- */
+    /**
+     * @brief Allocate an #_mqttOperation_t. This function should have the same
+     * signature as [malloc]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+     */
     void * IotMqtt_MallocOperation( size_t size );
 
 /**
