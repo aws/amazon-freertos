@@ -36,13 +36,13 @@
 
 CK_MECHANISM generateValidSigningMechanism()
 {
-    switch( xMechanismType )
+    switch( xGlobalMechanismType )
     {
         case CKM_RSA_PKCS:
         case CKM_ECDSA_SHA1:
         default:
             return ( CK_MECHANISM ) {
-                       xMechanismType, NULL_PTR, 0
+                       xGlobalMechanismType, NULL_PTR, 0
             };
     }
 }
@@ -69,7 +69,7 @@ void generateECDSAKeyPair( CK_OBJECT_HANDLE_PTR phPrivateKey,
 
 void generateValidSingingKeyPair()
 {
-    switch( xMechanismType )
+    switch( xGlobalMechanismType )
     {
         case CKM_RSA_PKCS:
             generateRSAKeyPair( &xGlobalPrivateKeyHandle, xGlobalCkTrue, &xGlobalPublicKeyHandle, xGlobalCkTrue );
@@ -176,7 +176,7 @@ void C_SignInit_exceptional_behavior_6()
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         /* TODO: Not yet implemented */
         return;

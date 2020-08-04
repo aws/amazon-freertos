@@ -30,7 +30,7 @@
 extern CK_SESSION_HANDLE xGlobalSession;
 extern CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 extern CK_SLOT_ID xGlobalSlotId;
-extern CK_MECHANISM_TYPE xMechanismType;
+extern CK_MECHANISM_TYPE xGlobalMechanismType;
 extern CK_OBJECT_HANDLE xGlobalPublicKeyHandle;
 extern CK_OBJECT_HANDLE xGlobalPrivateKeyHandle;
 extern CK_OBJECT_HANDLE xKey;

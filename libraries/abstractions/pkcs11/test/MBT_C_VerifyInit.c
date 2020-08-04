@@ -36,13 +36,13 @@
 
 CK_MECHANISM generateValidVerifyMechanism()
 {
-    switch( xMechanismType )
+    switch( xGlobalMechanismType )
     {
         case CKM_RSA_PKCS:
         case CKM_ECDSA_SHA1:
         default:
             return ( CK_MECHANISM ) {
-                       xMechanismType, NULL_PTR, 0
+                       xGlobalMechanismType, NULL_PTR, 0
             };
     }
 }
