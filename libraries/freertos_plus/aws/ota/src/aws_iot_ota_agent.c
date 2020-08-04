@@ -1304,7 +1304,6 @@ static OTA_Err_t prvResumeHandler( OTA_EventData_t * pxEventData )
 static OTA_Err_t prvJobNotificationHandler( OTA_EventData_t * pxEventData )
 {
     ( void ) pxEventData;
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     /*  We receieved job notification so stop the data request timer. */
