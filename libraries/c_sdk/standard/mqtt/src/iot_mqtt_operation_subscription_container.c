@@ -406,7 +406,7 @@ bool IotMqtt_InsertOperation( _mqttOperation_t ** pOperationArray,
                               _mqttOperation_t * pOperation )
 {
     size_t index = 0;
-    bool status = true;
+    bool status = false;
 
     IotMqtt_Assert( pOperationArray != NULL );
     IotMqtt_Assert( pOperation != NULL );
@@ -433,7 +433,7 @@ bool IotMqtt_RemoveOperation( _mqttOperation_t ** pOperationArray,
                               _mqttOperation_t * pOperation )
 {
     size_t index = 0;
-    bool status = true;
+    bool status = false;
 
     IotMqtt_Assert( pOperationArray != NULL );
     IotMqtt_Assert( pOperation != NULL );
