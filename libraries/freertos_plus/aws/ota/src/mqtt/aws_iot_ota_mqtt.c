@@ -935,15 +935,24 @@ OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t * pucMessageBuffer,
 }
 
 /*
- * Perform any cleanup operations required like unsubscribing from
- * job topics.
+ * Perform any cleanup operations required for control plane.
  */
-OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t * pxAgentCtx )
+OTA_Err_t prvCleanupControl_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
-    DEFINE_OTA_METHOD_NAME( "prvCleanup_Mqtt" );
+    DEFINE_OTA_METHOD_NAME( "prvCleanupControl_Mqtt" );
 
     /* Unsubscribe from job notification topics. */
     prvUnSubscribeFromJobNotificationTopic( pxAgentCtx );
+
+    return kOTA_Err_None;
+}
+
+/*
+ * Perform any cleanup operations required for data plane.
+ */
+OTA_Err_t prvCleanupData_Mqtt( OTA_AgentContext_t * pxAgentCtx )
+{
+    DEFINE_OTA_METHOD_NAME( "prvCleanupData_Mqtt" );
 
     /* Unsubscribe from data stream topics. */
     prvUnSubscribeFromDataStream( pxAgentCtx );

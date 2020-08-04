@@ -2651,7 +2651,13 @@ static void prvAgentShutdownCleanup( void )
         xOTA_Agent.xRequestTimer = NULL;
     }
 
-    /* Cleanup related to selected protocol. */
+    /* Control plane cleanup related to selected protocol. */
+    if( xOTA_ControlInterface.prvCleanup != NULL )
+    {
+        ( void ) xOTA_ControlInterface.prvCleanup( &xOTA_Agent );
+    }
+
+    /* Data plane cleanup related to selected protocol. */
     if( xOTA_DataInterface.prvCleanup != NULL )
     {
         ( void ) xOTA_DataInterface.prvCleanup( &xOTA_Agent );
