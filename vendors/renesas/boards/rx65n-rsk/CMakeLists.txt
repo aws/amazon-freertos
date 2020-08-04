@@ -1,8 +1,8 @@
 # Set variables.
 set(renesas_dir "${AFR_VENDORS_DIR}/renesas")
-set(rx65nrsk_dir "${AFR_VENDORS_DIR}/renesas/rx_mcu_boards/boards/rx65n-rsk")
+set(rx65nrsk_dir "${AFR_VENDORS_DIR}/renesas/boards/rx65n-rsk")
 set(rx65nrsk_ports_dir "${rx65nrsk_dir}/ports")
-set(rx_driver_package_dir "${AFR_VENDORS_DIR}/renesas/rx_mcu_boards/rx_driver_package/v125")
+set(rx_driver_package_dir "${AFR_VENDORS_DIR}/renesas/rx_driver_package/v125")
 
 if(AFR_IS_TESTING)
     set(rx65nrsk_aws_dir "${rx65nrsk_dir}/aws_tests")
@@ -83,7 +83,7 @@ target_link_options(
 # FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
-set(renesas_amazon_freertos_common_dir "${renesas_dir}/rx_mcu_boards/amazon_freertos_common")
+set(renesas_amazon_freertos_common_dir "${renesas_dir}/amazon_freertos_common")
 afr_glob_src(afr_common_src DIRECTORY "${renesas_amazon_freertos_common_dir}")
 afr_glob_src(afr_common_compiler_src DIRECTORY "${renesas_amazon_freertos_common_dir}/compiler_support/ccrx")
 afr_glob_src(afr_common_network_src DIRECTORY "${renesas_amazon_freertos_common_dir}/network_support/onchip_rx_ether")
