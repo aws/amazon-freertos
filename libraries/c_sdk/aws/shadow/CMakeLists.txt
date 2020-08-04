@@ -52,6 +52,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        # Running only system tests on shim currently.
         #"${test_dir}/unit/aws_iot_tests_shadow_api.c"
         #"${test_dir}/unit/aws_iot_tests_shadow_parser.c"
         "${test_dir}/system/aws_iot_tests_shadow_system.c"
