@@ -1064,6 +1064,19 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                                             const IotMqttSubscription_t * pUnsubscriptionList,
                                             size_t unsubscriptionCount );
 
+/**
+ * @brief Send the PINGREQ packet using MQTT LTS PINGREQ API.
+ *
+ * @param[in] mqttConnection The MQTT connection to be used.
+ *
+ * @return #IOT_MQTT_NO_MEMORY if the #networkBuffer is too small to
+ * hold the MQTT packet;
+ * #IOT_MQTT_BAD_PARAMETER if invalid parameters are passed;
+ * #IOT_MQTT_NETWORK_ERROR if transport send failed;
+ * #IOT_MQTT_SUCCESS otherwise.
+ */
+IotMqttError_t _IotMqtt_managedPing( IotMqttConnection_t mqttConnection );
+
 /*-----------------------------------------------------------*/
 
 /**
