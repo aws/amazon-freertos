@@ -517,29 +517,6 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                                  pMqttConnection );
                     IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
                 }
-
-                /*IotMqtt_Assert( pOperation != NULL ); */
-
-                /*if (xSemaphoreTakeRecursive((SemaphoreHandle_t) & (connToContext[contextIndex].referencesMutex), portMAX_DELAY) == pdTRUE)
-                 * {
-                 *  if ((IotMqtt_freeOperationInOperationArray(pOperation)) == false) {
-                 *      IotLogError("(MQTT connection %p) Failed to free operation from the operation array. ", pMqttConnection);
-                 *      IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_BAD_PARAMETER);
-                 *  }
-                 *  if (xSemaphoreGiveRecursive((SemaphoreHandle_t) & (connToContext[contextIndex].referencesMutex)) == pdFALSE)
-                 *  {
-                 *      IotLogError("(MQTT connection %p) Failed to unlock references mutex. Semaphores are implemented using queues."
-                 *          "An error occured due to no space on the queue to post a message.",
-                 *          pMqttConnection);
-                 *      IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_NO_MEMORY);
-                 *  }
-                 * }
-                 * else
-                 * {
-                 *  IotLogError("(MQTT connection %p) Failed to take lock on references mutex within specified time.",
-                 *      pMqttConnection);
-                 *  IOT_SET_AND_GOTO_CLEANUP(IOT_MQTT_TIMEOUT);
-                 * }*/
             }
             else
             {

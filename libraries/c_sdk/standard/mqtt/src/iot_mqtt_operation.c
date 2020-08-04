@@ -1240,16 +1240,6 @@ void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
         /* Check if this operation should be scheduled for retransmission. */
         if( pOperation->u.operation.retry.limit > 0 )
         {
-            if( _scheduleNextRetry( pOperation ) == false )
-            {
-                pOperation->u.operation.status = IOT_MQTT_SCHEDULING_ERROR;
-            }
-            else
-            {
-                /* A successfully scheduled PUBLISH retry is awaiting a response
-                 * from the network. */
-                networkPending = true;
-            }
         }
         else
         {

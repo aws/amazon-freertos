@@ -1377,7 +1377,6 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_STATUS_PENDING );
     bool disconnected = false;
-    /*IotMqttError_t status = IOT_MQTT_STATUS_PENDING; */
     _mqttOperation_t * pOperation = NULL;
     int8_t contextIndex = -1;
 
@@ -1898,7 +1897,6 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
                              uint32_t timeoutMs )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    /*IotMqttError_t status = IOT_MQTT_SUCCESS; */
     _mqttConnection_t * pMqttConnection = operation->pMqttConnection;
     int contextIndex = -1;
 
