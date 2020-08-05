@@ -515,15 +515,20 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
         .order            = order
     };
     int8_t contextIndex = -1;
-    bool mutexStatus = true;
+    bool mutexStatus = true, subscriptionStatus = true;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
-                                  ( &packetMatchParams ) );
+        if( IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
+                                      ( &packetMatchParams ) ) == false )
+        {
+            subscriptionStatus = false;
+        }
+
+        IotMqtt_Assert( subscriptionStatus == true );
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
@@ -551,6 +556,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
     int8_t contextIndex = -1;
     int8_t matchedIndex = -1;
     bool mutexStatus = true;
+    bool subscriptionStatus = true;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
@@ -577,7 +583,12 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
                 IotMqtt_Assert( pSubscription->references >= 0 );
 
                 /* Remove subscription from list. */
-                IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex );
+                if( IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex ) == false )
+                {
+                    subscriptionStatus = false;
+                }
+
+                IotMqtt_Assert( subscriptionStatus == true );
 
                 /* Check the reference count. This subscription cannot be removed if
                  * there are subscription callbacks using it. */

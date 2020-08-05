@@ -250,7 +250,6 @@ int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray )
     if( index == MAX_NO_OF_MQTT_SUBSCRIPTIONS )
     {
         index = -1;
-        IotLogWarn( "Failed to insert subscription in the subscription array." );
     }
 
     return index;
