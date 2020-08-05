@@ -42,10 +42,13 @@
 # list the files you would like to test here
         list(APPEND real_source_files
                     ${standard_dir}/pkcs11/src/iot_pkcs11.c
+                    ${AFR_ROOT_DIR}/tests/unit_test/linux/config_files/logging_stack.h
+                    ${common_dir}/include/logging_levels.h
                 )
 
 # list the directories the module under test includes
         list(APPEND real_include_directories
+            ${common_dir}/include
             ${3rdparty_dir}/pkcs11/
             ${standard_dir}/pkcs11/include
             ${CMAKE_CURRENT_BINARY_DIR}/mocks
@@ -56,6 +59,7 @@
 # list the directories your test needs to include
     list(APPEND test_include_directories
             ${CMAKE_CURRENT_BINARY_DIR}/mocks
+            ${common_dir}/include
             ${standard_dir}/pkcs11/include
             ${3rdparty_dir}/pkcs11
         )
