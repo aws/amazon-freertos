@@ -462,7 +462,7 @@ static CK_RV prvDestroyTestCredentials( void )
          ulLabelCount++ )
     {
         xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                                pxPkcsLabels[ ulLabelCount ],
+                                                ( char * ) pxPkcsLabels[ ulLabelCount ],
                                                 xClass[ ulLabelCount ],
                                                 &xObject );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Found an object after deleting it.\r\n" );
