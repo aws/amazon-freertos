@@ -386,7 +386,6 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
     }
 
     /* Create the new connection's subscription and operation lists. */
-    /*IotListDouble_Create( &( pMqttConnection->subscriptionList ) ); */
     IotListDouble_Create( &( pMqttConnection->pendingProcessing ) );
     IotListDouble_Create( &( pMqttConnection->pendingResponse ) );
 
@@ -473,7 +472,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     int8_t contextIndex = -1;
-    bool mutextStatus = true;
+    bool mutexStatus = true;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
@@ -512,15 +511,15 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
-            mutextStatus = false;
+            mutexStatus = false;
         }
     }
     else
     {
-        mutextStatus = false;
+        mutexStatus = false;
     }
 
-    IotMqtt_Assert( mutextStatus == true );
+    IotMqtt_Assert( mutexStatus == true );
 
     /* Destroy an owned network connection. */
     if( pMqttConnection->ownNetworkConnection == true )

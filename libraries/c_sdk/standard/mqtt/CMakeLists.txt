@@ -80,6 +80,7 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        # Running System tests currently on shim.
         #"${test_dir}/mock/iot_tests_mqtt_mock.c"
         #"${test_dir}/unit/iot_tests_mqtt_api.c"
         #"${test_dir}/unit/iot_tests_mqtt_receive.c"
