@@ -96,8 +96,8 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                                           const IotMqttSubscription_t * pSubscriptionList,
                                           size_t subscriptionCount )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -170,8 +170,8 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                                             const IotMqttSubscription_t * pUnsubscriptionList,
                                             size_t unsubscriptionCount )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -243,8 +243,8 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                                         _mqttOperation_t * pOperation,
                                         const IotMqttPublishInfo_t * pPublishInfo )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;

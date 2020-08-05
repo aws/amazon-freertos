@@ -119,7 +119,7 @@ bool IotMutex_Give( StaticSemaphore_t * pMutex )
     {
         /* Mutex cannot be given back as no space is avaliable on the queue to post the message. */
         IotLogError( "Failed to unlock mutex. Semaphores are implemented using queues."
-                     "An error occured due to no space on the queue to post a message." );
+                     "An error occurred due to no space on the queue to post a message." );
         status = false;
     }
 
@@ -162,7 +162,7 @@ bool IotMutex_GiveRecursive( StaticSemaphore_t * pMutex )
     {
         /* Mutex cannot be given back as no space is avaliable on the queue to post the message. */
         IotLogError( "Failed to unlock mutex. Semaphores are implemented using queues."
-                     "An error occured due to no space on the queue to post a message." );
+                     "An error occurred due to no space on the queue to post a message." );
         status = false;
     }
 
