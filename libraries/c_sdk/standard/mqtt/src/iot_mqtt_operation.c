@@ -716,9 +716,6 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
             /* Because PINGREQ may be used to keep the MQTT connection alive, it is
              * more important than other operations. Bypass the queue of jobs for
              * operations by directly sending the PINGREQ in this job. */
-            /*bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
-            *                                                    pMqttConnection->pPingreqPacket,
-            *                                                    pMqttConnection->pingreqPacketSize );*/
 
             /* Calling PINGREQ wrapper to send PINGREQ packet on the network using MQTT LTS PINGREQ API. */
             pingStatus = _IotMqtt_managedPing( pMqttConnection );
