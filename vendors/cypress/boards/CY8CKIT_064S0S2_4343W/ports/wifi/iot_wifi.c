@@ -33,6 +33,7 @@
 #include <task.h>
 #include <iot_wifi.h>
 #include <iot_wifi_common.h>
+#include <cy_wifi_notify.h>
 
 /* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"
@@ -74,10 +75,18 @@ cy_mutex_t wifiMutex;
 WIFIDeviceMode_t devMode = eWiFiModeNotSupported;
 bool isConnected = false;
 bool isPoweredUp = false;
+bool isMutexInitialized = false;
 
 static whd_scan_userdata_t internalScanData;
 static whd_scan_result_t internalScanResult;
 static cy_semaphore_t scanSema;
+
+/* This function will be overridden by LPA Library
+*/
+__WEAK cy_rslt_t cy_olm_create(void *ifp, void *oflds_list)
+{
+    return CY_RSLT_SUCCESS;
+}
 
 static WIFIPMMode_t whd_topmmode(uint32_t mode)
 {
@@ -179,8 +188,33 @@ WIFIReturnCode_t WIFI_On( void )
             cy_rtos_deinit_mutex(&wifiMutex);
             return eWiFiFailure;
         }
+
+        /* create a worker thread */
+        if(cy_wifi_worker_thread_create() != CY_RSLT_SUCCESS)
+        {
+            cy_rtos_deinit_mutex(&wifiMutex);
+            return eWiFiFailure;
+        }
+        if (cy_rtos_init_mutex(&cy_app_cb_Mutex) != CY_RSLT_SUCCESS)
+        {
+            cy_rtos_deinit_mutex(&wifiMutex);
+            return eWiFiFailure;
+        }
+        /* Offload Manager create : This is entry function for LPA Offload 
+         * Manager and definition of the function is added as WEAK
+         * and will be replaced by strong function in LPA Library when it is included.
+         */
+        if (cy_olm_create(primaryInterface, NULL) != CY_RSLT_SUCCESS)
+        {
+            cy_rtos_deinit_mutex(&wifiMutex);
+            cy_rtos_deinit_mutex(&cy_app_cb_Mutex);
+            return eWiFiFailure;
+        }
+        isMutexInitialized = true;
         isPoweredUp = true;
-    }   
+
+    }
+
     return eWiFiSuccess;
 }
 
@@ -245,28 +279,26 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     }
 
     const whd_scan_result_t *record = *result_ptr;
-    
+
     /* Filter Duplicates */
     for (unsigned int i = 0; i < data->offset; i++) {
         if (CMP_MAC(data->aps[i].ucBSSID, record->BSSID.octet)) {
             return;
         }
-    }   
+    }
 
     WIFIScanResult_t ap;
-
-    ap.ucSSIDLength = record->SSID.length;
-    if( ap.ucSSIDLength > wificonfigMAX_SSID_LEN )
-    {
-        ap.ucSSIDLength = wificonfigMAX_SSID_LEN;
-    }
-    memcpy( ap.ucSSID, record->SSID.value, ap.ucSSIDLength );
+    uint8_t length = (record->SSID.length > sizeof(ap.cSSID) - 1)
+        ? sizeof(ap.cSSID) - 1
+        : record->SSID.length;
+    memcpy(ap.cSSID, record->SSID.value, length);
+    ap.cSSID[length] = '\0';
     memcpy(ap.ucBSSID, record->BSSID.octet, sizeof(ap.ucBSSID));
     ap.xSecurity = whd_tosecurity(record->security);
     ap.cRSSI = record->signal_strength;
-    ap.ucChannel = record->channel;
+    ap.cChannel = record->channel;
     data->aps[data->offset] = ap;
-    data->offset++;  
+    data->offset++;
 }
 
 WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer, uint8_t ucNumNetworks )
@@ -409,13 +441,6 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile, uint1
     configASSERT(pxNetworkProfile != NULL);
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
-            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_set_mutex(&wifiMutex);
-            return eWiFiFailure;
-        }
-
         if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
             cy_objstore_read_object(usIndex + CY_FIRST_WIFI_PROFILE, (uint8_t *)pxNetworkProfile, sizeof(WIFINetworkProfile_t)))
         {
@@ -437,17 +462,10 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile, uint1
 
 WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
-    uint32_t index; 
+    uint32_t index;
     uint32_t size;
     if (cy_rtos_get_mutex(&wifiMutex, wificonfigMAX_SEMAPHORE_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
-        if (cy_objstore_is_initialized() == CY_OBJSTORE_NOT_INITIALIZED &&
-            cy_objstore_initialize(false, 1) != CY_RSLT_SUCCESS)
-        {
-            cy_rtos_set_mutex(&wifiMutex);
-            return eWiFiFailure;
-        }
-
         if (usIndex >= CY_TOTAL_WIFI_PROFILES ||
             (cy_objstore_find_object(usIndex + CY_FIRST_WIFI_PROFILE, &index, &size) != CY_OBJSTORE_NO_SUCH_OBJECT &&
             cy_objstore_delete_object(usIndex + CY_FIRST_WIFI_PROFILE) != CY_RSLT_SUCCESS))
@@ -586,7 +604,7 @@ WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
             return eWiFiFailure;
         }
     }
-    else 
+    else
     {
         return eWiFiTimeout;
     }

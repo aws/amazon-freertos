@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,14 +34,14 @@
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
-#define otaconfigSTACK_SIZE                     6144U
+#define otaconfigSTACK_SIZE                     8192U
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL    /* 2^10 = 1024 block size */
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL    /* 2^12 = 4096 block size */
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
@@ -70,7 +70,7 @@
  * initializing the OTA agent. The agent uses this size to allocate static storage for the
  * Thing name used in all OTA base topics. Namely $aws/things/<thingName>
  */
-#define otaconfigMAX_THINGNAME_LEN              64U
+#define otaconfigMAX_THINGNAME_LEN              64
 
 /**
  * @brief The maximum number of data blocks requested per request from the OTA

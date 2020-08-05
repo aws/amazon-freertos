@@ -65,12 +65,12 @@
 #endif
 #endif
 
-#if (CY_BLE_SUPPORTED == 1)
+#if (BLE_SUPPORTED == 1)
 #include "bt_hal_manager_types.h"
 #endif
 
 /* Logging Task Defines. */
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 45 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 30 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Unit test defines. */
@@ -87,7 +87,7 @@
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME				"cypress_tests" /* FIX ME.*/
 
 #ifdef CY_USE_FREERTOS_TCP
 /* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
@@ -181,12 +181,8 @@ static struct ns_mailbox_queue_t ns_mailbox_queue;
 static void tfm_ns_multi_core_boot(void)
 {
     int32_t ret;
-
-    printf("Non-secure code running on non-secure core.\r\n");
-
     if (tfm_ns_wait_for_s_cpu_ready()) {
-        printf("Error sync'ing with secure core.\r\n");
-
+        /* Error sync'ing with secure core */
         /* Avoid undefined behavior after multi-core sync-up failed */
         for (;;) {
         }
@@ -194,8 +190,7 @@ static void tfm_ns_multi_core_boot(void)
 
     ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
     if (ret != MAILBOX_SUCCESS) {
-        printf("Non-secure mailbox initialization failed.\r\n");
-
+        /* Non-secure mailbox initialization failed. */
         /* Avoid undefined behavior after NS mailbox initialization failed */
         for (;;) {
         }
@@ -248,7 +243,7 @@ int main( void )
     return 0;
 }
 
-#if (CY_BLE_SUPPORTED == 1)
+#if (BLE_SUPPORTED == 1)
 BTStatus_t bleStackInit( void )
 {
     return eBTStatusSuccess;
@@ -259,19 +254,19 @@ BTStatus_t bleStackInit( void )
 static void prvMiscInitialization( void )
 {
     cy_rslt_t result = cybsp_init();
-    if (result != CY_RSLT_SUCCESS)
-    {
-        printf(  "BSP initialization failed \r\n" );
-    }
-    result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+    CY_ASSERT(CY_RSLT_SUCCESS == result);
+}
+/*-----------------------------------------------------------*/
+
+void vApplicationDaemonTaskStartupHook( void )
+{
+    cy_rslt_t result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
     if (result != CY_RSLT_SUCCESS)
     {
         printf( "Retarget IO initialization failed \r\n" );
     }
 
 #ifdef CY_BOOT_USE_EXTERNAL_FLASH
-    __enable_irq();
-
 #ifdef PDL_CODE
     if (qspi_init_sfdp(1) < 0)
     {
@@ -286,14 +281,6 @@ static void prvMiscInitialization( void )
 
 #endif /* PDL_CODE */
 #endif /* CY_BOOT_USE_EXTERNAL_FLASH */
-}
-/*-----------------------------------------------------------*/
-
-void vApplicationDaemonTaskStartupHook( void )
-{
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-
 
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries

@@ -40,6 +40,10 @@
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 
+#if defined(CY_DEVICE_SECURE)
+    #include "cy_pra.h"
+#endif /* defined(CY_DEVICE_SECURE) */
+
 
 /*******************************************************************************
 * SystemCoreClockUpdate()
@@ -229,6 +233,11 @@ void SystemInit(void)
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+
+#if defined(CY_DEVICE_SECURE)
+    /* Initialize Protected Register Access driver */
+    Cy_PRA_Init();
+#endif /* defined(CY_DEVICE_SECURE) */
 }
 
 
