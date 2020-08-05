@@ -257,6 +257,14 @@
     #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
 #endif
 
+ /**
+  * @brief Default config for Maximum Number of MQTT Subscriptions.
+  * This config can be specified by the application based on number of MQTT
+  * subscriptions.
+  */
+#ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
+#define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 10 )
+#endif
 /**
  * @brief Static buffer size provided to MQTT LTS API.
  * This buffer will be used to send the packets on the network.
@@ -287,9 +295,6 @@ typedef struct _mqttConnection
     int32_t references;                          /**< @brief Counts callbacks and operations using this connection. */
     IotListDouble_t pendingProcessing;           /**< @brief List of operations waiting to be processed by a task pool routine. */
     IotListDouble_t pendingResponse;             /**< @brief List of processed operations awaiting a server response. */
-
-    IotListDouble_t subscriptionList;            /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;                /**< @brief Grants exclusive access to the subscription list. */
 
     uint64_t lastMessageTime;                    /**< @brief When the most recent message was transmitted. */
     bool keepAliveFailure;                       /**< @brief Failure flag for keep-alive operation. */
@@ -340,7 +345,7 @@ typedef struct _mqttSubscription
     IotMqttCallbackInfo_t callback; /**< @brief Callback information for this subscription. */
 
     uint16_t topicFilterLength;     /**< @brief Length of #_mqttSubscription_t.pTopicFilter. */
-    char pTopicFilter[];            /**< @brief The subscription topic filter. */
+    char *pTopicFilter;            /**< @brief The subscription topic filter. */
 } _mqttSubscription_t;
 
 /**
@@ -442,7 +447,28 @@ typedef struct connContextMapping
     IotMutex_t contextMutex;               /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     uint8_t buffer[ NETWORK_BUFFER_SIZE ]; /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
     NetworkContext_t networkContext;       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
+    _mqttSubscription_t subscriptionArray[MAX_NO_OF_MQTT_SUBSCRIPTIONS]; /**< @brief Holds subscriptions associated with this connection. */
+    StaticSemaphore_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
 } _connContext_t;
+
+/**
+ * @brief First parameter to #_topicMatch.
+ */
+typedef struct _topicMatchParams
+{
+    const char* pTopicName;  /**< @brief The topic name to parse. */
+    uint16_t topicNameLength; /**< @brief Length of #_topicMatchParams_t.pTopicName. */
+    bool exactMatchOnly;      /**< @brief Whether to allow wildcards or require exact matches. */
+} _topicMatchParams_t;
+
+/**
+ * @brief First parameter to #_packetMatch.
+ */
+typedef struct _packetMatchParams
+{
+    uint16_t packetIdentifier; /**< Packet identifier to match. */
+    int32_t order;             /**< Order to match. Set to `-1` to ignore. */
+} _packetMatchParams_t;
 
 /*-------------------- MQTT struct validation functions ---------------------*/
 
@@ -1075,5 +1101,118 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
  *  #IOT_MQTT_SCHEDULING_ERROR, #IOT_MQTT_BAD_RESPONSE, #IOT_MQTT_TIMEOUT, #IOT_MQTT_SERVER_REFUSED, #IOT_MQTT_RETRY_NO_RESPONSE.
  */
 IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
+
+
+/*-----------------------------------Subscription and Operation array container functions----------------------*/
+
+/**
+ * @brief Insert the subscription in the subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array in which the new subscription to be inserted.
+ *
+ * @return The index where the subscription to be inserted.
+ */
+int8_t IotMqtt_InsertSubscription(_mqttSubscription_t* pSubscriptionArray);
+
+/**
+ * @brief Remove the subscription in the subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be removed.
+ * @param[in] deleteIndex The index position from where the subscription to be removed.
+ *
+ * @return 'true' if subscription is removed else 'false'.
+ */
+bool IotMqtt_RemoveSubscription(_mqttSubscription_t* pSubscriptionArray,
+    int8_t deleteIndex);
+
+/**
+ * @brief Remove all the matching subscriptions in the given subscription array.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscriptions to be removed.
+ * @param[in] pMatch If `pMatch` is `NULL`, all the subscriptions will be removed.
+ * Otherwise, it is used to find the matching subscription.
+ *
+ * @return 'true' if all matching subscriptions are removed else 'false'.
+ */
+bool IotMqtt_RemoveAllMatches(_mqttSubscription_t* pSubscriptionArray,_packetMatchParams_t* pMatch);
+
+/**
+ * @brief Find the first matching subscription in the given subscription array, starting at the given starting point.
+ *
+ * @param[in] pSubscriptionArray Subscription array from which the subscription needs to be matched.
+ * @param[in] startIndex An element in `pSubscriptionArray`. Only elements starting from this one and
+ * the end of the array are checked. Pass 0 to search from the beginning of the array.
+ * @param[in] pMatch Contains the parameters used for matching the subscription.
+ *
+ * @return The first matching subscription from the subscription array.
+ */
+int8_t IotMqtt_FindFirstMatch(_mqttSubscription_t* pSubscriptionArray,
+    int8_t startIndex,
+    _topicMatchParams_t* pMatch);
+
+/*-----------------------------------Mutexes Wrappers--------------------------------------------*/
+
+/**
+ * @brief Create a non recursive mutex.
+ *
+ * @param[in] pMutex mutex to be created.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_CreateNonRecursive(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Create a recursive mutex.
+ *
+ * @param[in] pMutex mutex to be created.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_CreateRecursive(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Take a non recursive mutex.
+ *
+ * @param[in] pMutex mutex to be taken.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_Take(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Give a non recursive mutex.
+ *
+ * @param[in] pMutex mutex to be given.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_Give(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Take a non recursive mutex.
+ *
+ * @param[in] pMutex mutex to be taken.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_TakeRecursive(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Give a non recursive mutex.
+ *
+ * @param[in] pMutex mutex to be given.
+ *
+ * @return true if mutex is created else false
+ */
+bool IotMutex_GiveRecursive(StaticSemaphore_t* pMutex);
+
+/**
+ * @brief Delete the mutex.
+ *
+ * @param[in] pMutex mutex to be deleted.
+ *
+ * @return true if mutex is created else false
+ */
+void IotMutex_Delete(StaticSemaphore_t* pMutex);
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
