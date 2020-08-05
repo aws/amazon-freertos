@@ -1,0 +1,59 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+	            &&JSONINCLUDELIST&&
+                "&&MODUSTOOLCHAIN&&/include",
+                "&&MODUSTOOLCHAIN&&/include/libcxx"
+            ],
+            "browse": {
+                "path": [
+	                &&JSONINCLUDELIST&&
+                    "&&MODUSTOOLCHAIN&&/include",
+                    "&&MODUSTOOLCHAIN&&/include/libcxx"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+                &&JSONDEFINELIST&&
+                "__GNUC__"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "&&MODUSTOOLCHAIN&&/bin/armclang.exe &&CFLAGS&&",
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+	            &&JSONINCLUDELIST&&
+                "&&MODUSTOOLCHAIN&&/include",
+                "&&MODUSTOOLCHAIN&&/include/libcxx",
+                "&&MODUSTOOLCHAIN&&/include/arm_linux",
+                "&&MODUSTOOLCHAIN&&/include/arm_linux_compat"
+            ],
+            "browse": {
+                "path": [
+	                &&JSONINCLUDELIST&&
+                    "&&MODUSTOOLCHAIN&&/include",
+                    "&&MODUSTOOLCHAIN&&/include/libcxx",
+                    "&&MODUSTOOLCHAIN&&/include/arm_linux",
+                    "&&MODUSTOOLCHAIN&&/include/arm_linux_compat"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "defines": [
+                &&JSONDEFINELIST&&
+                "__GNUC__"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "&&MODUSTOOLCHAIN&&/bin/armclang &&CFLAGS&&",
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        }            
+    ],
+    "version": 4
+}

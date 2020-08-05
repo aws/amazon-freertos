@@ -48,6 +48,20 @@ CY_IGNORE_PRUNE:=$(filter-out cytemp-o,cytemp$(addprefix -o -path ,$(abspath $(f
 
 
 ################################################################################
+# Dependent apps shared directories
+################################################################################
+
+ifneq ($(DEPENDENT_APP_PATHS),)
+
+CY_DEPAPP_EXTAPP_LIST=$(foreach app,$(DEPENDENT_APP_PATHS),$($(notdir $(app))_DEPAPP_BUILD_LOCATION)/extapp.rsp)
+CY_DEPAPP_EXTAPP_DIRS=$(foreach extapp,$(CY_DEPAPP_EXTAPP_LIST),$(if $(wildcard $(extapp)),\
+                        $(shell extappVal=$$(cat $(extapp)); \
+                        perl -e 'use File::Spec; print File::Spec->abs2rel(@ARGV) . "\n"' $$extappVal $(CY_INTERNAL_APP_PATH))))
+
+endif
+
+
+################################################################################
 # Search Files
 ################################################################################
 
@@ -64,7 +78,7 @@ CY_SEARCH_IGNORE_FILES:=$(patsubst $(CY_SEARCH_APP_PATH)/%,$(CY_INTERNAL_APP_PAT
 #
 CY_SEARCH_ALL_FILES:=$(patsubst $(CY_SEARCH_APP_PATH)/%,$(CY_INTERNAL_APP_PATH)/%,\
                         $(patsubst $(CY_SEARCH_EXTAPP_PATH)/%,$(CY_INTERNAL_EXTAPP_PATH)/%,\
-                        $(sort $(shell $(CY_FIND) -L $(CY_SEARCH_APP_PATH) $(CY_SEARCH_EXTAPP_PATH) \
+                        $(sort $(shell $(CY_FIND) -L $(CY_SEARCH_APP_PATH) $(CY_SEARCH_EXTAPP_PATH) $(CY_DEPAPP_EXTAPP_DIRS) \
                         \( $(CY_IGNORE_PRUNE) \) -prune \
                         -o -type f -name "*.$(CY_TOOLCHAIN_SUFFIX_C)" -print \
                         -o -type f -name "*.$(CY_TOOLCHAIN_SUFFIX_S)" -print \
@@ -151,8 +165,9 @@ CY_SEARCH_AVAILABLE_HPP_INCLUDES:=$(sort $(call CY_MACRO_DIR,$(call CY_MACRO_FIL
 #
 # Separate out the external and internal includes
 #
+CY_SEARCH_DEPAPP_INCLUDES:=$(foreach depapp,$(CY_DEPAPP_EXTAPP_DIRS),$(filter $(depapp)%,$(CY_SEARCH_AVAILABLE_H_INCLUDES) $(CY_SEARCH_AVAILABLE_HPP_INCLUDES)))
 CY_SEARCH_EXTAPP_INCLUDES:=$(filter $(CY_INTERNAL_EXTAPP_PATH)/%,$(CY_SEARCH_AVAILABLE_H_INCLUDES) $(CY_SEARCH_AVAILABLE_HPP_INCLUDES))
-CY_SEARCH_INTAPP_INCLUDES:=$(filter-out $(CY_SEARCH_EXTAPP_INCLUDES),$(CY_SEARCH_AVAILABLE_H_INCLUDES) $(CY_SEARCH_AVAILABLE_HPP_INCLUDES))
+CY_SEARCH_INTAPP_INCLUDES:=$(filter-out $(CY_SEARCH_EXTAPP_INCLUDES) $(CY_SEARCH_DEPAPP_INCLUDES),$(CY_SEARCH_AVAILABLE_H_INCLUDES) $(CY_SEARCH_AVAILABLE_HPP_INCLUDES))
 
 #
 # Combine the directories of the header files and its parent directories  

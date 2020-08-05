@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_iar_freertos.h
+* \file cy_iar_freertos.c
 *
 * \brief
 * IAR C library port for FreeRTOS
@@ -74,30 +74,50 @@ void _reclaim_reent(struct _reent *r)
 void cy_toolchain_init(void)
 {
     extern void __iar_Initlocks(void);
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_setup();
+#endif
     __iar_Initlocks();
 }
 
 void __iar_system_Mtxinit(__iar_Rmtx *arg)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     *(SemaphoreHandle_t *)arg = cy_mutex_pool_create();
+#else
+    (void)arg;
+#endif
 }
 
 void __iar_system_Mtxlock(__iar_Rmtx *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_acquire(*(SemaphoreHandle_t *)m);
+#else
+    (void)m;
+    vTaskSuspendAll();
+#endif
 }
 
 void __iar_system_Mtxunlock(__iar_Rmtx *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_release(*(SemaphoreHandle_t *)m);
+#else
+    (void)m;
+    xTaskResumeAll();
+#endif
 }
 
 void __iar_system_Mtxdst(__iar_Rmtx *arg)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     SemaphoreHandle_t *m = (SemaphoreHandle_t *)arg;
     cy_mutex_pool_destroy(*m);
     *m = NULL;
+#else
+    (void)arg;
+#endif
 }
 
 void __iar_file_Mtxinit(__iar_Rmtx *m)
@@ -124,11 +144,15 @@ void __iar_file_Mtxdst(__iar_Rmtx *m)
 
 void __iar_Initdynamiclock(__iar_Rmtx *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     SemaphoreHandle_t handle = xSemaphoreCreateRecursiveMutex();
     *(SemaphoreHandle_t *)m = handle;
     if (NULL == handle) {
         __BKPT(0);  // Failed to allocate C++ dynamic lock
     }
+#else
+    (void)m;
+#endif
 }
 
 void __iar_Lockdynamiclock(__iar_Rmtx *m)
@@ -143,8 +167,12 @@ void __iar_Unlockdynamiclock(__iar_Rmtx *m)
 
 void __iar_Dstdynamiclock(__iar_Rmtx *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     vSemaphoreDelete(*(SemaphoreHandle_t *)m);
     *(SemaphoreHandle_t *)m = NULL;
+#else
+    (void)m;
+#endif
 }
 
 #endif

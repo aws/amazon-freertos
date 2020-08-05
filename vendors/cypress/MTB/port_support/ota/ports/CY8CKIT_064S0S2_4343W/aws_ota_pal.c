@@ -184,6 +184,13 @@ static OTA_ImageState_t current_OTA_ImageState = eOTA_ImageState_Unknown;
  * Keep track of the last signature check value for prvPAL_SetPlatformImageState
  */
 static OTA_Err_t last_signature_check;
+
+/**
+ * @brief FLASH write block
+ * This is used if a block is < Block size to satisfy requirements
+ * of flash_area_write()
+ */
+static uint8_t block_buffer[CY_FLASH_SIZEOF_ROW];
 /***********************************************************************
  *
  * UNTAR variables
@@ -285,19 +292,91 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 static int eraseSlotTwo( void )
 {
     const struct flash_area *fap;
+    int image;
 
-    if (flash_area_open(FLASH_AREA_IMAGE_SECONDARY(0), &fap) != 0)
+    /* MCUBLOOT_IMAGE_NUMBER == 2, will ewrae both Secondary slot 1 and 2 */
+    for (image = 0; image < MCUBOOT_IMAGE_NUMBER; image++)
     {
-        configPRINTF( ( "%s() flash_area_open(FLASH_AREA_IMAGE_SECONDARY(0)) failed\n", __func__) );
-        return -1;
-    }
-    if (flash_area_erase(fap, 0, fap->fa_size) != 0)
-    {
-        configPRINTF( ( "%s() flash_area_erase(fap, 0) failed\n", __func__) );
-        return -1;
-    }
+        if (flash_area_open(FLASH_AREA_IMAGE_SECONDARY(image), &fap) != 0)
+        {
+            configPRINTF( ( "%s() flash_area_open(FLASH_AREA_IMAGE_SECONDARY(%d)) failed\n", __func__, image) );
+            return -1;
+        }
 
-    flash_area_close(fap);
+        if (flash_area_erase(fap, 0, fap->fa_size) != 0)
+        {
+            configPRINTF( ( "%s() flash_area_erase(fap, 0) (image:%d) failed\n", __func__, image) );
+            return -1;
+        }
+
+        flash_area_close(fap);
+    }
+    return 0;
+}
+
+/**
+ * @brief Write different sized chunks in 512 byte blocks
+ *
+ * @param fap           currently open Flash Area
+ * @param offset        offset into the Flash Area to write data
+ * @param source        data to use
+ * @param size          amount of data in source to write
+ *
+ * return    0 == success
+ *          -1 == error
+ */
+static int write_data_to_flash( const struct flash_area *fap,
+        uint32_t offset,
+        uint8_t * const source,
+        uint32_t size)
+{
+    uint32_t bytes_to_write;
+    uint32_t curr_offset;
+    uint8_t *curr_src;
+
+    bytes_to_write = size;
+    curr_offset = offset;
+    curr_src = source;
+
+    while (bytes_to_write > 0)
+    {
+        uint32_t chunk_size = bytes_to_write;
+        if (chunk_size > CY_FLASH_SIZEOF_ROW)
+        {
+            chunk_size = CY_FLASH_SIZEOF_ROW;
+        }
+
+        /* this should only happen on last part of last 4k chunk */
+        if (chunk_size % CY_FLASH_SIZEOF_ROW)
+        {
+            /* we will read a 512 byte block, write out data into the block, then write the whole block */
+            if (flash_area_read(fap, curr_offset, block_buffer, sizeof(block_buffer)) != 0)
+            {
+                configPRINTF( ( "%s() flash_area_read() failed\n", __func__) );
+                return -1;
+            }
+            memcpy (block_buffer, curr_src, chunk_size);
+
+            if (flash_area_write(fap, curr_offset, block_buffer, sizeof(block_buffer)) != 0)
+            {
+                configPRINTF( ( "%d:%s() flash_area_write() failed\n", __LINE__, __func__) );
+                return -1;
+            }
+
+        }
+        else
+        {
+            if (flash_area_write(fap, curr_offset, curr_src, chunk_size) != 0)
+            {
+                configPRINTF( ( "%d:%s() flash_area_write() failed\n", __LINE__, __func__) );
+                return -1;
+            }
+        }
+
+        curr_offset += chunk_size;
+        curr_src += chunk_size;
+        bytes_to_write -= chunk_size;
+    }
 
     return 0;
 }
@@ -322,7 +401,7 @@ cy_untar_result_t ota_untar_write_callback(cy_untar_context_ptr ctxt,
                                    uint32_t chunk_size,
                                    void *cb_arg)
 {
-    int type = 0;
+    int image = 0;
     const struct flash_area *fap;
     OTA_FileContext_t * const C = (OTA_FileContext_t *)cb_arg;
 
@@ -331,34 +410,34 @@ cy_untar_result_t ota_untar_write_callback(cy_untar_context_ptr ctxt,
         return CY_UNTAR_ERROR;
     }
 
-    //configPRINTF( ("%d:%s FILE %d name %s : %s\n", __LINE__, __func__, file_index, ctxt->files[file_index].name, ctxt->files[file_index].type) );
     if ( strncmp(ctxt->files[file_index].type, CY_FILE_TYPE_SPE, strlen(CY_FILE_TYPE_SPE)) == 0)
     {
-
-        type = 1;
+        image = 1;  /* The TFM code, cm0 */
     }
     else if ( strncmp(ctxt->files[file_index].type, CY_FILE_TYPE_NSPE, strlen(CY_FILE_TYPE_NSPE)) == 0)
     {
-        type = 0;
+        image = 0;  /* The application code, cm4 */
     }
     else
     {
         /* unknown file type */
-        configPRINTF( ("%d:%s BAD FILE TYPE : >%s<\n", __LINE__, __func__, ctxt->files[file_index].type) );
+//        configPRINTF( ("%d:%s BAD FILE TYPE : >%s<\n", __LINE__, __func__, ctxt->files[file_index].type) );
         return CY_UNTAR_ERROR;
     }
 
-    if (flash_area_open(FLASH_AREA_IMAGE_SECONDARY(type), &fap) != 0)
+    if (flash_area_open(FLASH_AREA_IMAGE_SECONDARY(image), &fap) != 0)
     {
-        configPRINTF( ( "%s() flash_area_open(%d) failed\n", __func__, type) );
+        configPRINTF( ( "%s() flash_area_open(%d) failed\n", __func__, image) );
         return CY_UNTAR_ERROR;
     }
-    if (flash_area_write(fap, file_offset, buffer, chunk_size) != 0)
+
+    if (write_data_to_flash(fap, file_offset, buffer, chunk_size) != 0)
     {
-        configPRINTF( ( "%s() flash_area_write() failed\n", __func__) );
+        configPRINTF( ( "%s() write_data_to_flash() failed\n", __func__) );
         flash_area_close(fap);
         return CY_UNTAR_ERROR;
     }
+
     flash_area_close(fap);
 
     return CY_UNTAR_SUCCESS;
@@ -379,6 +458,37 @@ cy_rslt_t ota_untar_init_context( cy_untar_context_t* ctxt, OTA_FileContext_t * 
         return CY_RSLT_SUCCESS;
     }
     return CY_RSLT_TYPE_ERROR;
+}
+
+/**
+ * @brief - set pending for the files contained in the TAR archive we just validated.
+ */
+static int cy_ota_untar_set_pending(void)
+{
+    int i, rc;
+    int image = 0;
+    for (i = 0; i < ota_untar_context.num_files_in_json; i++ )
+    {
+        if ( strncmp(ota_untar_context.files[i].type, CY_FILE_TYPE_SPE, strlen(CY_FILE_TYPE_SPE)) == 0)
+        {
+            image = 1;  /* The TFM code, cm0 */
+        }
+        else if ( strncmp(ota_untar_context.files[i].type, CY_FILE_TYPE_NSPE, strlen(CY_FILE_TYPE_NSPE)) == 0)
+        {
+            image = 0;  /* The application code, cm4 */
+        }
+        else
+        {
+            /* unknown file type */
+            configPRINTF( ("%d:%s BAD FILE TYPE %d: >%s<\n", __LINE__, __func__, i, ota_untar_context.files[i].type) );
+            continue;
+        }
+        rc = boot_set_pending(image, 0);
+        printf("%d:%s Called : boot_set_pending(%d) for rc:%d\n", __LINE__, __func__, image, rc);
+    }
+
+    return CY_UNTAR_SUCCESS;
+
 }
 
 /**
@@ -587,7 +697,6 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
  */
 OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 {
-    OTA_Err_t   result = kOTA_Err_None;
     const struct flash_area *fap;
 
     if (C == NULL)
@@ -616,7 +725,8 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
     pvSigVerifyContext = NULL;
     pucSignerCert = NULL;
     ulSignerCertSize = 0;
-    return result;
+
+    return kOTA_Err_None;
 }
 
 /**
@@ -675,7 +785,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
             * bootable image going forward.
             */
             configPRINTF( ("%s() TAR prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
-            boot_set_pending(0);
+            cy_ota_untar_set_pending();
         }
         else
         {
@@ -730,7 +840,8 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
                 * bootable image going forward.
                 */
                 configPRINTF( ("%s() BIN prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
-                boot_set_pending(0);
+                /* Non-tar only has type 0 (NSPE) update */
+                boot_set_pending(0, 0);
             }
             else
             {
@@ -778,6 +889,7 @@ _exit_CloseFile:
  *
  * @return The number of bytes written on a success, or a negative error code from the platform abstraction layer.
  */
+
 int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
                            uint32_t ulOffset,
                            uint8_t * const pcData,
@@ -890,9 +1002,9 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
             configPRINTF( ( "%s() flash_area_pointer is NULL\n", __func__) );
             return -1;
         }
-        if (flash_area_write(fap, ulOffset, pcData, ulBlockSize) != 0)
+
+        if (write_data_to_flash( fap, ulOffset, pcData, ulBlockSize) == -1)
         {
-            configPRINTF( ( "%s() flash_area_write() FAILED\n", __func__) );
             return -1;
         }
     }
@@ -993,7 +1105,11 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
             // We need to know if the last check was good...
             if (last_signature_check == kOTA_Err_None)
             {
-                boot_set_confirmed();
+                int rc;
+                rc = boot_set_confirmed();
+                if (rc != 0) {
+                    result = kOTA_Err_CommitFailed;
+                }
             }
             else
             {

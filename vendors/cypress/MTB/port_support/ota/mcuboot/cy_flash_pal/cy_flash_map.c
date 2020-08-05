@@ -123,39 +123,36 @@ static struct flash_area primary_1 =
 {
     .fa_id = FLASH_AREA_IMAGE_PRIMARY(0),
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-    .fa_off = CY_FLASH_BASE + CY_BOOT_BOOTLOADER_SIZE,
+    .fa_off = CY_FLASH_BASE + CY_BOOT_PRIMARY_1_START,  //CY_BOOT_BOOTLOADER_SIZE,
     .fa_size = CY_BOOT_PRIMARY_1_SIZE
 };
 
-#ifndef CY_BOOT_USE_EXTERNAL_FLASH
 static struct flash_area secondary_1 =
 {
     .fa_id = FLASH_AREA_IMAGE_SECONDARY(0),
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+    .fa_device_id = FLASH_DEVICE_EXTERNAL_FLASH(CY_BOOT_EXTERNAL_DEVICE_INDEX),
+    .fa_off = CY_SMIF_BASE_MEM_OFFSET,
+#else
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
     .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE,
-    .fa_size = CY_BOOT_SECONDARY_1_SIZE
-};
-#else
-static struct flash_area secondary_1 =
-{
-    .fa_id = FLASH_AREA_IMAGE_SECONDARY(0),
-    .fa_device_id = FLASH_DEVICE_EXTERNAL_FLASH(CY_BOOT_EXTERNAL_DEVICE_INDEX),
-    .fa_off = CY_SMIF_BASE_MEM_OFFSET,
-    .fa_size = CY_BOOT_SECONDARY_1_SIZE
-};
 #endif
-// TODO: run-time multi-image
-//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+    .fa_size = CY_BOOT_SECONDARY_1_SIZE
+};
+
+#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
 static struct flash_area primary_2 =
 {
     .fa_id = FLASH_AREA_IMAGE_PRIMARY(1),
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-    .fa_off = CY_FLASH_BASE +\
-                CY_BOOT_BOOTLOADER_SIZE +\
-                CY_BOOT_PRIMARY_1_SIZE +\
-                CY_BOOT_SECONDARY_1_SIZE,
+    .fa_off = CY_FLASH_BASE + CY_BOOT_PRIMARY_2_START,
+
+//                CY_BOOT_BOOTLOADER_SIZE
+//                CY_BOOT_PRIMARY_1_SIZE
+//                CY_BOOT_SECONDARY_1_SIZE
+
     .fa_size = CY_BOOT_PRIMARY_2_SIZE
 };
 
@@ -165,24 +162,23 @@ static struct flash_area secondary_2 =
     /* TODO: it is for external flash memory
     .fa_device_id = FLASH_DEVICE_EXTERNAL_FLASH(CY_BOOT_EXTERNAL_DEVICE_INDEX), */
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-    .fa_off = CY_FLASH_BASE +\
-                CY_BOOT_SECONDARY_2_START,
+    .fa_off = CY_FLASH_BASE + CY_BOOT_SECONDARY_2_START,
     .fa_size = CY_BOOT_SECONDARY_2_SIZE
 };
-//#endif
+#endif
 static struct flash_area scratch =
 {
     .fa_id = FLASH_AREA_IMAGE_SCRATCH,
     .fa_device_id = FLASH_DEVICE_INTERNAL_FLASH,
-//#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
-//#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+#if (MCUBOOT_IMAGE_NUMBER == 1) /* if single-image */
+#elif (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     .fa_off = CY_FLASH_BASE +\
                 CY_BOOT_BOOTLOADER_SIZE +\
                 CY_BOOT_PRIMARY_1_SIZE +\
                 CY_BOOT_SECONDARY_1_SIZE +\
                 CY_BOOT_PRIMARY_2_SIZE +\
                 CY_BOOT_SECONDARY_2_SIZE,
-//#endif
+#endif
     .fa_size = CY_BOOT_SCRATCH_SIZE
 };
 #endif
@@ -196,10 +192,10 @@ struct flash_area *boot_area_descs[] =
     &bootloader,
     &primary_1,
     &secondary_1,
-//#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
     &primary_2,
     &secondary_2,
-//#endif
+#endif
     &scratch,
     NULL
 };
@@ -294,7 +290,7 @@ int flash_area_read(const struct flash_area *fa, uint32_t off, void *dst,
 {
     int rc = 0;
     size_t addr;
-    
+
     /* check if requested offset not less then flash area (fa) start */
     assert(off < fa->fa_off);
     assert(off + len < fa->fa_off);
@@ -518,7 +514,7 @@ int flash_area_get_sectors(int idx, uint32_t *cnt, struct flash_sector *ret)
 {
     int rc = 0;
     uint32_t i = 0;
-    struct flash_area *fa;
+    struct flash_area *fa = NULL;
     size_t sector_size = 0;
     size_t sectors_n = 0;
     uint32_t addr = 0;

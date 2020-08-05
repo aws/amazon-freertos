@@ -26,6 +26,23 @@ ifeq ($(WHICHFILE),true)
 $(info Processing $(lastword $(MAKEFILE_LIST)))
 endif
 
+
+################################################################################
+# Macros
+################################################################################
+
+#
+# Run ELF2BIN conversion
+# $(1) : artifact elf
+# $(2) : artifact bin
+#
+CY_MACRO_ELF2BIN?=$(error Mach-O to bin not implemented. Cannot convert $1 to $2)
+
+
+################################################################################
+# Tools
+################################################################################
+
 #
 # The base path to the Clang cross compilation executables
 #
@@ -43,6 +60,16 @@ CXX=$(CC)
 AS=$(CC)
 AR=libtool
 LD=ld
+
+#
+# Elf to bin conversion tool
+#
+CY_TOOLCHAIN_ELF2BIN=
+
+
+################################################################################
+# Options
+################################################################################
 
 #
 # DEBUG/NDEBUG selection
@@ -128,6 +155,7 @@ CY_TOOLCHAIN_CXXFLAGS=$(CY_TOOLCHAIN_CFLAGS)
 CY_TOOLCHAIN_ASFLAGS=\
 	-c\
 	$(CY_TOOLCHAIN_FLAGS_CORE)\
+	$(CY_TOOLCHAIN_VFP_FLAGS)\
 	$(CY_TOOLCHAIN_COMMON_FLAGS)\
 	-fasm-blocks\
 	-integrated-as\

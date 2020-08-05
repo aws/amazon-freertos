@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +22,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cy_utils.h"
-#include "cy_result.h"
-#include "cyabs_rtos.h"
+#include <cy_utils.h>
+#include <cy_result.h>
+#include <cyabs_rtos.h>
 #include <stdlib.h>
 #include <FreeRTOS.h>
 #include <task.h>
+#include "cyhal.h"
 
 static const uint32_t TASK_IDENT = 0xABCDEF01;
 static cy_rtos_error_t last_error;
@@ -83,11 +84,11 @@ cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_
     }
     else
     {
-        /* If the user provides a stack, we need to allocate memory for the StaticTask_t. If we 
-         * allocate memory we also need to clean it up. This is true when the task exits itself or 
-         * when it is killed. In the case it is killed is fairly straight forward. In the case 
-         * where it exits, we can't clean up any allocated memory since we can't free it before 
-         * calling vTaskDelete() and vTaskDelete() never returns. Thus we need to do it in join. 
+        /* If the user provides a stack, we need to allocate memory for the StaticTask_t. If we
+         * allocate memory we also need to clean it up. This is true when the task exits itself or
+         * when it is killed. In the case it is killed is fairly straight forward. In the case
+         * where it exits, we can't clean up any allocated memory since we can't free it before
+         * calling vTaskDelete() and vTaskDelete() never returns. Thus we need to do it in join.
          * However, if the task exited itself it has also released any memory it allocated. Thus
          * in order to be able to reliably free memory as part of join, we need to know that the
          * data we are accessing (the StaticTask_t) has not been freed. We therefore need to always
@@ -112,7 +113,7 @@ cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_
             wrapper->magic = TASK_IDENT;
             wrapper->memptr = ident;
             CY_ASSERT(((uint32_t)wrapper & CY_RTOS_ALIGNMENT_MASK) == 0UL);
-            *thread = xTaskCreateStatic((TaskFunction_t)entry_function, name, stack_size_rtos, (void *)arg, priority, stack_rtos, &(wrapper->task));
+            *thread = xTaskCreateStatic((TaskFunction_t)entry_function, name, stack_size_rtos, arg, priority, stack_rtos, &(wrapper->task));
             CY_ASSERT(((void*)*thread == (void*)&(wrapper->task)) || (*thread == NULL));
             status = CY_RSLT_SUCCESS;
         }
@@ -220,17 +221,17 @@ cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread)
     {
         TickType_t ticks = pdMS_TO_TICKS(1);
 
-        /* In order to join the thread, we must make sure it has finished running 
+        /* In order to join the thread, we must make sure it has finished running
          * (state == eDeleted). However, just because the state is eDeleted does
          * not actually mean that the RTOS has stoped using it. It just means that
          * vTaskDelete() was called on the thread. The idle task must still run
          * to finish processing the deleted items and free up any memory that was
          * allocated by the RTOS. So, we need to make sure the idle task has run
-         * before attempting to free up memory we allocated for it. To do this,we 
-         * lower our priority to that of the idle task, wait for the thread to be 
-         * deleted, and then delay again to ensure the idle task has run after 
+         * before attempting to free up memory we allocated for it. To do this,we
+         * lower our priority to that of the idle task, wait for the thread to be
+         * deleted, and then delay again to ensure the idle task has run after
          * the thread changed state to eDeleted.
-         * NOTE: Each call to vTaskDelay() ensure that other threads at or above 
+         * NOTE: Each call to vTaskDelay() ensure that other threads at or above
          * our priority level have had a chance to run.
          */
         TaskHandle_t handle = xTaskGetCurrentTaskHandle();
@@ -244,6 +245,7 @@ cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread)
         vTaskPrioritySet(handle, priority);
 
         check_and_free_task(*thread);
+        *thread = NULL;
 
         status = CY_RSLT_SUCCESS;
     }
@@ -267,7 +269,7 @@ cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread)
 *                 Mutexes
 ******************************************************/
 
-cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
+cy_rslt_t cy_rtos_init_mutex2(cy_mutex_t *mutex, bool recursive)
 {
     cy_rslt_t status;
     if (mutex == NULL)
@@ -276,8 +278,11 @@ cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
     }
     else
     {
-        *mutex = xSemaphoreCreateRecursiveMutex();
-        if (*mutex == NULL)
+        mutex->is_recursive = recursive;
+        mutex->mutex_handle = recursive
+            ? xSemaphoreCreateRecursiveMutex()
+            : xSemaphoreCreateMutex();
+        if (mutex->mutex_handle == NULL)
             status = CY_RTOS_NO_MEMORY;
         else
             status = CY_RSLT_SUCCESS;
@@ -295,11 +300,13 @@ cy_rslt_t cy_rtos_get_mutex(cy_mutex_t *mutex, cy_time_t timeout_ms)
     else
     {
         TickType_t ticks = pdMS_TO_TICKS(timeout_ms);
+        BaseType_t result = (mutex->is_recursive)
+                    ? xSemaphoreTakeRecursive(mutex->mutex_handle, ticks)
+                    : xSemaphoreTake(mutex->mutex_handle, ticks);
 
-        if (xSemaphoreTakeRecursive(*mutex, ticks) == pdFALSE)
-            status = CY_RTOS_TIMEOUT;
-        else
-            status = CY_RSLT_SUCCESS;
+        status = (result  == pdFALSE)
+                ? CY_RTOS_TIMEOUT
+                : CY_RSLT_SUCCESS;
     }
     return status;
 }
@@ -313,10 +320,13 @@ cy_rslt_t cy_rtos_set_mutex(cy_mutex_t *mutex)
     }
     else
     {
-        if (xSemaphoreGiveRecursive(*mutex) == pdFALSE)
-            status = CY_RTOS_GENERAL_ERROR;
-        else
-            status = CY_RSLT_SUCCESS;
+        BaseType_t result = (mutex->is_recursive)
+                    ? xSemaphoreGiveRecursive(mutex->mutex_handle)
+                    : xSemaphoreGive(mutex->mutex_handle);
+
+        status = (result  == pdFALSE)
+                ? CY_RTOS_GENERAL_ERROR
+                : CY_RSLT_SUCCESS;
     }
     return status;
 }
@@ -330,7 +340,7 @@ cy_rslt_t cy_rtos_deinit_mutex(cy_mutex_t *mutex)
     }
     else
     {
-        vSemaphoreDelete(*mutex);
+        vSemaphoreDelete(mutex->mutex_handle);
         status = CY_RSLT_SUCCESS;
     }
     return status;
@@ -410,6 +420,21 @@ cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t *semaphore, bool in_isr)
             status = CY_RTOS_GENERAL_ERROR;
         else
             status = CY_RSLT_SUCCESS;
+    }
+    return status;
+}
+
+cy_rslt_t cy_rtos_get_count_semaphore(cy_semaphore_t *semaphore, size_t *count)
+{
+    cy_rslt_t status;
+    if (semaphore == NULL)
+    {
+        status = CY_RTOS_BAD_PARAM;
+    }
+    else
+    {
+        *count = uxSemaphoreGetCount(*semaphore);
+        status = CY_RSLT_SUCCESS;
     }
     return status;
 }
@@ -645,7 +670,10 @@ cy_rslt_t cy_rtos_count_queue(cy_queue_t *queue, size_t *num_waiting)
     }
     else
     {
-        *num_waiting = uxQueueMessagesWaiting(*queue);
+        bool in_isr = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+        *num_waiting = in_isr
+            ? uxQueueMessagesWaitingFromISR(*queue)
+            : uxQueueMessagesWaiting(*queue);
         status = CY_RSLT_SUCCESS;
     }
     return status;

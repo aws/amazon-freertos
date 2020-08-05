@@ -25,6 +25,14 @@
 * limitations under the License.
 *******************************************************************************/
 
+/**
+* \addtogroup group_hal_psoc6_lptimer LPTIMER
+* \ingroup group_hal_psoc6
+* \{
+* The maximum number of ticks that can set to an LPTIMER is 0xFFF0FFFF. It is not recommended to use 0xFFFFFFFF because to avoid both C0 and C1 overflowing.
+* \} group_hal_psoc6_lptimer
+*/
+
 #include "cmsis_compiler.h"
 #include "cy_mcwdt.h"
 #include "cy_syslib.h"
@@ -52,12 +60,16 @@ static MCWDT_STRUCT_Type * const CYHAL_LPTIMER_BASE_ADDRESSES[] = {
 #endif
 };
 
-#define CY_MCWDT_MAX_DELAY_TICKS    (0xfff0ffffUL) /* ~36hours, Not set to 0xffffffff to avoid C0 and C1 both overflowing */
 #define CY_MCWDT_LPTIMER_CTRL       (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2)
 
-#define CY_MCWDT_MIN_DELAY          3 /* minimum amount of lfclk cycles of that LPTIMER can delay for. */
+#define CY_MCWDT_MIN_DELAY          (3U) /* minimum amount of lfclk cycles of that LPTIMER can delay for. */
+#define CY_MCWDT_MAX_DELAY_TICKS    (0xfff0ffffUL) /* ~36hours, Not set to 0xffffffff to avoid C0 and C1 both overflowing */
+#define CY_MCWDT_MAX_COUNTER_VAL    (0xffffffffUL) /* Maximum value of the counter before it rolls over */
 
-#define CY_DEFAULT_MCWDT_PRIORITY   3
+#define CY_DEFAULT_MCWDT_PRIORITY   (3U)
+
+/* For all PSoC 6 architectures the MCWDT is driven by CLK_LF that will always run at 32.768 KHz */
+#define CY_MCWDT_CLK_FREQ_HZ        (32768U)
 
 static const uint16_t CY_MCWDT_RESET_TIME_US = 62;
 static const uint16_t CY_MCWDT_SETMATCH_NOWAIT_TIME_US = 0;
@@ -66,7 +78,7 @@ static cyhal_lptimer_t *cyhal_lptimer_config_structs[CY_IP_MXS40SRSS_MCWDT_INSTA
 
 static void cyhal_lptimer_irq_handler(void)
 {
-    uint32_t instance = CYHAL_GET_CURRENT_IRQN() - (uint32_t) srss_interrupt_mcwdt_0_IRQn;
+    uint32_t instance = (uint32_t)CYHAL_GET_CURRENT_IRQN() - (uint32_t) srss_interrupt_mcwdt_0_IRQn;
     cyhal_lptimer_t *obj = cyhal_lptimer_config_structs[instance];
 
     Cy_MCWDT_ClearInterrupt(obj->base, CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2);
@@ -152,7 +164,7 @@ void cyhal_lptimer_free(cyhal_lptimer_t *obj)
 
 cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj)
 {
-    Cy_MCWDT_ResetCounters(obj->base, CY_MCWDT_CTR2, CY_MCWDT_RESET_TIME_US);
+    Cy_MCWDT_ResetCounters(obj->base, (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2), 2 * CY_MCWDT_RESET_TIME_US);
     return CY_RSLT_SUCCESS;
 }
 
@@ -190,7 +202,7 @@ cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay)
 
     Cy_MCWDT_ClearInterrupt(obj->base, CY_MCWDT_CTR1);
 
-    uint16_t c0_old_match = Cy_MCWDT_GetMatch(obj->base, CY_MCWDT_COUNTER0);
+    uint16_t c0_old_match = (uint16_t)Cy_MCWDT_GetMatch(obj->base, CY_MCWDT_COUNTER0);
 
     uint32_t critical_section = cyhal_system_critical_section_enter();
 
@@ -202,9 +214,9 @@ cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay)
      * Case 3: everything works as expected.
      */
     uint16_t c0_current_ticks;
-    while ((c0_current_ticks = (Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0))) == c0_old_match) {}
+    while ((c0_current_ticks = (uint16_t)(Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0))) == c0_old_match) {}
 
-    uint16_t c1_current_ticks = Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
+    uint16_t c1_current_ticks = (uint16_t)Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
     if (c0_current_ticks == c0_old_match + 1)
     {
         c1_current_ticks++;
@@ -212,7 +224,7 @@ cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay)
     if (Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0) != c0_current_ticks)
     {
         // Just in the very unlikely case that an increment occurred while previous instruction was running.
-        c1_current_ticks = Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
+        c1_current_ticks = (uint16_t)Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
     }
     Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER0, c0_current_ticks + c0_increment, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
     Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER1, c1_current_ticks + c1_increment, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
@@ -239,14 +251,14 @@ void cyhal_lptimer_register_callback(cyhal_lptimer_t *obj, cyhal_lptimer_event_c
     cyhal_system_critical_section_exit(savedIntrStatus);
 }
 
-void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t event, uint8_t intr_priority, bool enable)
 {
     CY_ASSERT(event == CYHAL_LPTIMER_COMPARE_MATCH);
     Cy_MCWDT_ClearInterrupt(obj->base, CY_MCWDT_CTR1);
     Cy_MCWDT_SetInterruptMask(obj->base, enable ? CY_MCWDT_CTR1 : 0);
 
     IRQn_Type irqn = (IRQn_Type)(srss_interrupt_mcwdt_0_IRQn + obj->resource.block_num);
-    NVIC_SetPriority(irqn, intrPriority);
+    NVIC_SetPriority(irqn, intr_priority);
 }
 
 void cyhal_lptimer_irq_trigger(cyhal_lptimer_t *obj)
@@ -254,6 +266,16 @@ void cyhal_lptimer_irq_trigger(cyhal_lptimer_t *obj)
     CY_ASSERT_L2(CYHAL_RSC_INVALID != obj->resource.block_num);
     IRQn_Type irqn = (IRQn_Type)(srss_interrupt_mcwdt_0_IRQn + obj->resource.block_num);
     NVIC_SetPendingIRQ(irqn);
+}
+
+void cyhal_lptimer_get_info(cyhal_lptimer_t *obj, cyhal_lptimer_info_t *info)
+{
+    CY_UNUSED_PARAMETER(obj);
+    CY_ASSERT(info != NULL);
+
+    info->frequency_hz = CY_MCWDT_CLK_FREQ_HZ;
+    info->min_set_delay = CY_MCWDT_MIN_DELAY;
+    info->max_counter_value = CY_MCWDT_MAX_COUNTER_VAL;
 }
 
 #if defined(__cplusplus)

@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_arm_freertos.h
+* \file cy_arm_freertos.c
 *
 * \brief
 * ARM C library port for FreeRTOS
@@ -35,11 +35,15 @@
 
 __asm(".global __use_no_semihosting\n\t");
 
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
 SemaphoreHandle_t cy_ctor_mutex;
+#endif
 
 void _platform_post_stackheap_init(void)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_ctor_mutex = cy_mutex_pool_create();
+#endif
 }
 
 // ARM thread-local state
@@ -60,26 +64,42 @@ struct _reent *__user_perthread_libspace(void)
 __attribute__((used))
 int _mutex_initialize(SemaphoreHandle_t *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     *m = cy_mutex_pool_create();
+#else
+    (void)m;
+#endif
     return 1;
 }
 
 __attribute__((used))
 void _mutex_acquire(SemaphoreHandle_t *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_acquire(*m);
+#else
+    (void)m;
+    vTaskSuspendAll();
+#endif
 }
 
 __attribute__((used))
 void _mutex_release(SemaphoreHandle_t *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_release(*m);
+#else
+    (void)m;
+    xTaskResumeAll();
+#endif
 }
 
 __attribute__((used))
 void _mutex_free(SemaphoreHandle_t *m)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_destroy(*m);
+#endif
     *m = NULL;
 }
 
@@ -96,19 +116,31 @@ typedef struct {
 int __cxa_guard_acquire(cy_cxa_guard_object_t *guard_object)
 {
     int acquired = 0;
-    if (0 == atomic_load(&guard_object->initialized)) {
+    if (0 == atomic_load(&guard_object->initialized))
+    {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
         cy_mutex_pool_acquire(cy_ctor_mutex);
-        if (0 == atomic_load(&guard_object->initialized)) {
+#else
+        vTaskSuspendAll();
+#endif
+        if (0 == atomic_load(&guard_object->initialized))
+        {
             acquired = 1;
 #ifndef NDEBUG
-            if (guard_object->acquired) {
+            if (guard_object->acquired)
+            {
                 __BKPT(0);  // acquire called again without release/abort
             }
 #endif
             guard_object->acquired = 1;
         }
-        else {
+        else
+        {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
             cy_mutex_pool_release(cy_ctor_mutex);
+#else
+            xTaskResumeAll();
+#endif
         }
     }
     return acquired;
@@ -116,12 +148,18 @@ int __cxa_guard_acquire(cy_cxa_guard_object_t *guard_object)
 
 void __cxa_guard_abort(cy_cxa_guard_object_t *guard_object)
 {
-    if (guard_object->acquired) {
+    if (guard_object->acquired)
+    {
         guard_object->acquired = 0;
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
         cy_mutex_pool_release(cy_ctor_mutex);
+#else
+        xTaskResumeAll();
+#endif
     }
 #ifndef NDEBUG
-    else {
+    else
+    {
         __BKPT(0);  // __cxa_guard_abort called when not acquired
     }
 #endif
@@ -139,7 +177,8 @@ __attribute__((used))
 void _sys_exit(int unused __attribute__((unused)))
 {
     __disable_irq();
-    while (1) {
+    while (1)
+    {
         __WFI();
     }
 }
@@ -157,13 +196,16 @@ int $Sub$$_sys_open(const char *name, int openmode __attribute__((unused)))
 {
     extern const char __stdin_name, __stdout_name, __stderr_name;
     int fd = -1;
-    if (0 == strcmp(name, &__stdin_name)) {
+    if (0 == strcmp(name, &__stdin_name))
+    {
         fd = 0; // STDIN_FILENO
     }
-    else if (0 == strcmp(name, &__stdout_name)) {
+    else if (0 == strcmp(name, &__stdout_name))
+    {
         fd = 1; // STDOUT_FILENO
     }
-    else if (0 == strcmp(name, &__stderr_name)) {
+    else if (0 == strcmp(name, &__stderr_name))
+    {
         fd = 2; // STDERR_FILENO
     }
     return fd;

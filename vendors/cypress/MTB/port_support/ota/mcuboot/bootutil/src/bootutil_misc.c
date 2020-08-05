@@ -598,6 +598,7 @@ boot_swap_type(void)
  * Marks the image in the secondary slot as pending.  On the next reboot,
  * the system will perform a one-time boot of the the secondary slot image.
  *
+ * @param image             0 = Secondary_Slot_1, 1 = Secondary_Slot_2
  * @param permanent         Whether the image should be used permanently or
  *                              only tested once:
  *                                  0=run image once, then confirm or revert.
@@ -606,14 +607,14 @@ boot_swap_type(void)
  * @return                  0 on success; nonzero on failure.
  */
 int
-boot_set_pending(int permanent)
+boot_set_pending(int image, int permanent)
 {
     const struct flash_area *fap;
     struct boot_swap_state state_secondary_slot;
     uint8_t swap_type;
     int rc;
 
-    rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_SECONDARY(0),
+    rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_SECONDARY(image),
                                     &state_secondary_slot);
     if (rc != 0) {
         return rc;
@@ -625,7 +626,7 @@ boot_set_pending(int permanent)
         return 0;
 
     case BOOT_MAGIC_UNSET:
-        rc = flash_area_open(FLASH_AREA_IMAGE_SECONDARY(0), &fap);
+        rc = flash_area_open(FLASH_AREA_IMAGE_SECONDARY(image), &fap);
         if (rc != 0) {
             rc = BOOT_EFLASH;
         } else {
@@ -652,7 +653,7 @@ boot_set_pending(int permanent)
         /* The image slot is corrupt.  There is no way to recover, so erase the
          * slot to allow future upgrades.
          */
-        rc = flash_area_open(FLASH_AREA_IMAGE_SECONDARY(0), &fap);
+        rc = flash_area_open(FLASH_AREA_IMAGE_SECONDARY(image), &fap);
         if (rc != 0) {
             return BOOT_EFLASH;
         }

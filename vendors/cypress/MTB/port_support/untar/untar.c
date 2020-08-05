@@ -20,8 +20,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "untar.h"
+#include "cy_utils.h"
 #include "cy_result.h"
-#include "JSON.h"
+#include "cy_json_parser.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -31,8 +32,6 @@
  ************************************************************/
 #define CY_FILENAME_COMPONENT_JSON  "components.json"
 #define CY_UNTAR_COMPONENTS_JSON_INDEX  (0)
-
-#define CY_ASSERT(a, b)
 
 /* components.json key strings */
 #define CY_KEY_NUM_COMPONENTS       "numberOfComponents"
@@ -92,7 +91,7 @@ static uint32_t cy_octal_string_to_u32(const char *octal_string)
     return value;
 }
 
-static cy_rslt_t ota_untar_json_callback( cy_json_object_t *obj, void*cb_arg )
+static cy_rslt_t ota_untar_json_callback( cy_JSON_object_t *obj, void*cb_arg )
 {
     cy_untar_context_t *ctxt = (cy_untar_context_t *)cb_arg;
     if (ctxt == NULL)
@@ -306,7 +305,7 @@ static cy_untar_result_t cy_untar_parse_process_data(cy_untar_context_t *ctxt, u
              * Signal for buffer to coalesce data until we have enough to parse.
              */
             ctxt->coalesce_needs = ( (ctxt->files[ctxt->current_file].size + (TAR_BLOCK_SIZE - 1)) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-            CY_ASSERT((ctxt->coalesce_needs < sizeof(ctxt->coalesce_buffer)), "Needs > Buffer size");
+            CY_ASSERT(ctxt->coalesce_needs < sizeof(ctxt->coalesce_buffer));
             if (ctxt->coalesce_needs > sizeof(ctxt->coalesce_buffer))
             {
                 configPRINTF( ("%s() Buffer needs > coalesce buffer. Reduce size of components.json or increase buffer size.\n",__func__) );

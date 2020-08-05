@@ -57,10 +57,10 @@ static uint16_t cyhal_crypto_features_max_val[CRYPTO_FEATURES_NUM] = {CRYPTO_FEA
 
 static bool cy_crypto_enabled(uint32_t instance_count)
 {
-    uint8_t reserved = (cyhal_crypto_features[instance_count][CYHAL_CRYPTO_CRC]  |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_TRNG] |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_VU]   |
-                        cyhal_crypto_features[instance_count][CYHAL_CRYPTO_COMMON]);
+    uint8_t reserved = (uint8_t)(cyhal_crypto_features[instance_count][CYHAL_CRYPTO_CRC]  |
+                                 cyhal_crypto_features[instance_count][CYHAL_CRYPTO_TRNG] |
+                                 cyhal_crypto_features[instance_count][CYHAL_CRYPTO_VU]   |
+                                 cyhal_crypto_features[instance_count][CYHAL_CRYPTO_COMMON]);
 
     return (reserved != 0);
 }
@@ -74,7 +74,7 @@ cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resour
         if (cyhal_crypto_features[i][feature] < cyhal_crypto_features_max_val[feature])
         {
             resource->type = CYHAL_RSC_CRYPTO;
-            resource->block_num = i;
+            resource->block_num = (uint8_t)i;
             resource->channel_num = 0;
             *base = CYHAL_CRYPTO_BASE_ADDRESSES[i];
 

@@ -26,23 +26,50 @@ ifeq ($(WHICHFILE),true)
 $(info Processing $(lastword $(MAKEFILE_LIST)))
 endif
 
+
+################################################################################
+# Macros
+################################################################################
+
+#
+# Run ELF2BIN conversion
+# $(1) : artifact elf
+# $(2) : artifact bin
+#
+CY_MACRO_ELF2BIN=$(CY_TOOLCHAIN_ELF2BIN) -O binary $1 $2
+
+
+################################################################################
+# Tools
+################################################################################
+
 #
 # The base path to the GCC cross compilation executables
 #
 ifeq ($(CY_COMPILER_PATH),)
-CY_CROSSPATH=$(CY_COMPILER_GCC_ARM_DIR)/bin
+CY_CROSSPATH=$(CY_COMPILER_GCC_ARM_DIR)
 else
-CY_CROSSPATH=$(CY_COMPILER_PATH)/bin
+CY_CROSSPATH=$(CY_COMPILER_PATH)
 endif
 
 #
 # Build tools
 #
-CC=$(CY_CROSSPATH)/arm-none-eabi-gcc
-CXX=$(CY_CROSSPATH)/arm-none-eabi-g++
+CC=$(CY_CROSSPATH)/bin/arm-none-eabi-gcc
+CXX=$(CY_CROSSPATH)/bin/arm-none-eabi-g++
 AS=$(CC)
-AR=$(CY_CROSSPATH)/arm-none-eabi-ar
+AR=$(CY_CROSSPATH)/bin/arm-none-eabi-ar
 LD=$(CXX)
+
+#
+# Elf to bin conversion tool
+#
+CY_TOOLCHAIN_ELF2BIN=$(CY_CROSSPATH)/bin/arm-none-eabi-objcopy
+
+
+################################################################################
+# Options
+################################################################################
 
 #
 # DEBUG/NDEBUG selection
@@ -108,6 +135,7 @@ CY_TOOLCHAIN_CXXFLAGS=\
 CY_TOOLCHAIN_ASFLAGS=\
 	-c\
 	$(CY_TOOLCHAIN_FLAGS_CORE)\
+	$(CY_TOOLCHAIN_VFP_FLAGS)\
 	$(CY_TOOLCHAIN_COMMON_FLAGS)
 
 #
@@ -117,8 +145,8 @@ CY_TOOLCHAIN_LDFLAGS=\
 	$(CY_TOOLCHAIN_FLAGS_CORE)\
 	$(CY_TOOLCHAIN_VFP_FLAGS)\
 	$(CY_TOOLCHAIN_COMMON_FLAGS)\
-	--enable-objc-gc\
-	-Wl,--gc-sections,--undefined=uxTopUsedPriority
+	--specs=nano.specs\
+	-Wl,--gc-sections
 
 #
 # Command line flags for archiving

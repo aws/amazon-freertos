@@ -1,6 +1,5 @@
 {
     // Added by build system's vscode target
-    "cortex-debug.armToolchainPath": "&&MODUSTOOLCHAIN&&/bin",
-    "cortex-debug.openocdPath": "&&MODUSOPENCOD&&/bin/openocd",
-    "cortex-debug.JLinkGDBServerPath": ""
+    "cortex-debug.armToolchainPath": "&&GDBPATH&&/bin",
+    "cortex-debug.openocdPath": "&&MODUSOPENOCD&&/bin/openocd"
 }

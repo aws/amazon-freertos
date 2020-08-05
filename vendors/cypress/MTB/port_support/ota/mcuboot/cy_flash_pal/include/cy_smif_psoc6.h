@@ -52,12 +52,11 @@
 #include "stdbool.h"
 
 #include "flash_qspi.h"
+#include "flash_map_backend/flash_map_backend.h"
 
 #ifndef off_t
 typedef long int off_t;
 #endif
-
-struct flash_area;
 
 int psoc6_smif_read(const struct flash_area *fap, off_t addr, void *data, size_t len);
 int psoc6_smif_write(const struct flash_area *fap, off_t addr, const void *data, size_t len);

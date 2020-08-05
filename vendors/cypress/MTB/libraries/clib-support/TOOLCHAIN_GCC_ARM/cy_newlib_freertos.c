@@ -30,16 +30,21 @@
 #include <envlock.h>
 #include <FreeRTOS.h>
 #include <semphr.h>
+#include <task.h>
 #include <cmsis_compiler.h>
 #include "cy_mutex_pool.h"
 
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
 static SemaphoreHandle_t cy_malloc_mutex = NULL, cy_env_mutex = NULL, cy_ctor_mutex = NULL;
+#endif
 
 void cy_toolchain_init(void)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_malloc_mutex = cy_mutex_pool_create();
     cy_env_mutex = cy_mutex_pool_create();
     cy_ctor_mutex = cy_mutex_pool_create();
+#endif
 }
 
 caddr_t _sbrk(uint32_t incr)
@@ -47,7 +52,8 @@ caddr_t _sbrk(uint32_t incr)
     extern uint8_t __HeapBase, __HeapLimit;
     static uint8_t *heapBrk = &__HeapBase;
     uint8_t *prevBrk = heapBrk;
-    if (incr < 0 || incr > &__HeapLimit - heapBrk) {
+    if (incr > (uint32_t)(&__HeapLimit - heapBrk))
+    {
         errno = ENOMEM;
         return (caddr_t)-1;
     }
@@ -57,22 +63,38 @@ caddr_t _sbrk(uint32_t incr)
 
 void __malloc_lock(struct _reent *reent)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_acquire(cy_malloc_mutex);
+#else
+    vTaskSuspendAll();
+#endif
 }
 
 void __malloc_unlock(struct _reent *reent)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_release(cy_malloc_mutex);
+#else
+    xTaskResumeAll();
+#endif
 }
 
 void __env_lock(struct _reent *reent)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_acquire(cy_env_mutex);
+#else
+    vTaskSuspendAll();
+#endif
 }
 
 void __env_unlock(struct _reent *reent)
 {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
     cy_mutex_pool_release(cy_env_mutex);
+#else
+    xTaskResumeAll();
+#endif
 }
 
 // The __cxa_guard_acquire, __cxa_guard_release, and __cxa_guard_abort
@@ -88,19 +110,31 @@ typedef struct {
 int __cxa_guard_acquire(cy_cxa_guard_object_t *guard_object)
 {
     int acquired = 0;
-    if (0 == atomic_load(&guard_object->initialized)) {
+    if (0 == atomic_load(&guard_object->initialized))
+    {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
         cy_mutex_pool_acquire(cy_ctor_mutex);
-        if (0 == atomic_load(&guard_object->initialized)) {
+#else
+        vTaskSuspendAll();
+#endif
+        if (0 == atomic_load(&guard_object->initialized))
+        {
             acquired = 1;
 #ifndef NDEBUG
-            if (guard_object->acquired) {
+            if (guard_object->acquired)
+            {
                 __BKPT(0);  // acquire called again without release/abort
             }
 #endif
             guard_object->acquired = 1;
         }
-        else {
+        else
+        {
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
             cy_mutex_pool_release(cy_ctor_mutex);
+#else
+            xTaskResumeAll();
+#endif
         }
     }
     return acquired;
@@ -108,12 +142,18 @@ int __cxa_guard_acquire(cy_cxa_guard_object_t *guard_object)
 
 void __cxa_guard_abort(cy_cxa_guard_object_t *guard_object)
 {
-    if (guard_object->acquired) {
+    if (guard_object->acquired)
+    {
         guard_object->acquired = 0;
+#if (configHEAP_ALLOCATION_SCHEME != HEAP_ALLOCATION_TYPE3)
         cy_mutex_pool_release(cy_ctor_mutex);
+#else
+        xTaskResumeAll();
+#endif
     }
 #ifndef NDEBUG
-    else {
+    else
+    {
         __BKPT(0);  // __cxa_guard_abort called when not acquired
     }
 #endif
@@ -124,3 +164,5 @@ void __cxa_guard_release(cy_cxa_guard_object_t *guard_object)
     atomic_store(&guard_object->initialized, 1);
     __cxa_guard_abort(guard_object);    // Release mutex
 }
+
+

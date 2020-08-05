@@ -42,7 +42,7 @@ CY_OPEN_TYPE_LIST+=\
 CY_OPEN_library_manager_EXT=
 CY_OPEN_library_manager_FILE=
 CY_OPEN_library_manager_TOOL=$(CY_LIBRARY_MANAGER_DIR)/library-manager
-CY_OPEN_library_manager_TOOL_FLAGS=
+CY_OPEN_library_manager_TOOL_FLAGS=--target-dir $(CY_INTERNAL_APPLOC)
 CY_OPEN_library_manager_TOOL_NEWCFG_FLAGS=
 
 ##########################
@@ -82,7 +82,7 @@ ifneq ($(filter get_app_info open,$(MAKECMDGOALS)),)
 
 # Look for tools that DISALLOW new configurations
 CY_OPEN_NEWCFG_XML_TYPES+=$(shell \
-	xmlFileArray=($$(find $(CY_INTERNAL_TOOLS) -maxdepth 2 -name "configurator.xml" \
+	xmlFileArray=($$($(CY_FIND) $(CY_INTERNAL_TOOLS) -maxdepth 2 -name "configurator.xml" \
 					-exec grep "<new_configuration_enabled>false</new_configuration_enabled>" {} +));\
 	for xmlFile in "$${xmlFileArray[@]}"; do\
 		if [[ "$$xmlFile" == *"configurator.xml"* ]]; then\
@@ -154,7 +154,7 @@ endif
 
 modlibs:
 	$(info Launching library-manager)
-	$(CY_NOISE) $(CY_OPEN_library_manager_TOOL) $(CY_OPEN_library_manager_FLAGS) &
+	$(CY_NOISE) $(CY_OPEN_library_manager_TOOL) $(CY_OPEN_library_manager_TOOL_FLAGS) &
 
 #
 # Identify the phony targets

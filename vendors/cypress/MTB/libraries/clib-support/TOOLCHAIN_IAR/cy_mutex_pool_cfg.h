@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_mutex_pool_cfg.h
+* \file TOOLCHAIN_IAR/cy_mutex_pool_cfg.h
 *
 * \brief
 * Configuration for cy_mutex_pool.c
@@ -28,4 +28,8 @@
 #include <stdlib.h>
 #include <DLib_Threads.h>
 
+#if defined(FOPEN_MAX)
 #define CY_STATIC_MUTEX_MAX ((_MAX_LOCK)+(FOPEN_MAX))
+#else
+#define CY_STATIC_MUTEX_MAX (_MAX_LOCK)
+#endif

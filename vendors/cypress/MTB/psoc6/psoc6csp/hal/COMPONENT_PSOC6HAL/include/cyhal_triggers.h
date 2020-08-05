@@ -37,15 +37,11 @@ extern "C" {
 
 #include "cy_device.h"
 
-#ifdef CY_DEVICE_PSOC6ABLE2
+#if defined(CY_DEVICE_PSOC6ABLE2)
 #include "triggers/cyhal_triggers_psoc6_01.h"
-#endif
-
-#ifdef CY_DEVICE_PSOC6A2M
+#elif defined(CY_DEVICE_PSOC6A2M)
 #include "triggers/cyhal_triggers_psoc6_02.h"
-#endif
-
-#ifdef CY_DEVICE_PSOC6A512K
+#elif defined(CY_DEVICE_PSOC6A512K)
 #include "triggers/cyhal_triggers_psoc6_03.h"
 #endif
 

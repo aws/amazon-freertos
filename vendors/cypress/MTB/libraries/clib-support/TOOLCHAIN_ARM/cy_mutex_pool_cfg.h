@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_mutex_pool_cfg.h
+* \file TOOLCHAIN_ARM/cy_mutex_pool_cfg.h
 *
 * \brief
 * Configuration for cy_mutex_pool.c

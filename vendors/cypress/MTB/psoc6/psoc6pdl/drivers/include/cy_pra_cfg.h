@@ -2,7 +2,8 @@
 * \file cy_pra_cfg.h
 * \version 1.0
 *
-* \brief The header file of the PRA driver.
+* \brief The header file of the PRA driver. The API is not intended to
+* be used directly by the user application.
 *
 ********************************************************************************
 * \copyright
@@ -44,6 +45,82 @@ extern "C" {
 *                            Type Definitions
 *******************************************************************************/
 
+/** \cond INTERNAL */
+
+#define CY_PRA_FREQUENCY_HZ_CONVERSION   1000000UL
+#define CY_PRA_150MHZ_FREQUENCY          150UL
+#define CY_PRA_FLL_ENABLE_TIMEOUT        200000UL
+#define CY_PRA_ECO_ENABLE_TIMEOUT        3000UL
+#define CY_PRA_WCO_ENABLE_TIMEOUT        1000000UL
+#define CY_PRA_IMO_SRC_FREQUENCY         8000000UL
+#define CY_PRA_ILO_SRC_FREQUENCY         32000UL
+#define CY_PRA_WCO_SRC_FREQUENCY         32768UL
+#define CY_PRA_PILO_SRC_FREQUENCY        32768UL
+#define CY_PRA_DEFAULT_SRC_FREQUENCY     0xFFFFFFFEUL
+#define CY_PRA_ULP_MODE_MAX_FREQUENCY    50000000UL
+#define CY_PRA_LP_MODE_MAX_FREQUENCY     100000000UL
+#define CY_PRA_ALTHF_MIN_FREQUENCY       2000000UL
+#define CY_PRA_ALTHF_MAX_FREQUENCY       32000000UL
+#define CY_PRA_ALTHF_MIN_STARTUP_TIME    400UL
+#define CY_PRA_ALTHF_MAX_STARTUP_TIME    4704UL
+#define CY_PRA_ALTHF_MIN_LOAD            7.5
+#define CY_PRA_ALTHF_MAX_LOAD            26.325
+
+#define CY_PRA_FLL_SRC_MIN_FREQUENCY     (1000UL)       /* 1 KHz */
+#define CY_PRA_FLL_SRC_MAX_FREQUENCY     (100000000UL)  /* 100 MHz */
+#define CY_PRA_FLL_OUT_MIN_FREQUENCY     (24000000UL)   /* 24 MHz */
+#define CY_PRA_FLL_ULP_OUT_MAX_FREQUENCY (50000000UL)   /* 50 MHz */
+#define CY_PRA_FLL_OUT_MAX_FREQUENCY     ((CY_HF_CLK_MAX_FREQ > 100000000UL) ? (100000000UL) : (CY_HF_CLK_MAX_FREQ))
+#define CY_PRA_FLL_MIN_MULTIPLIER        1UL
+#define CY_PRA_FLL_MAX_MULTIPLIER        262143UL
+#define CY_PRA_FLL_MIN_REFDIV            1UL
+#define CY_PRA_FLL_MAX_REFDIV            8191UL
+#define CY_PRA_FLL_MAX_LOCK_TOLERENCE    511UL
+
+#define CY_PRA_PLL_SRC_MIN_FREQUENCY     (4000000UL)    /* 4 MHz */
+#define CY_PRA_PLL_SRC_MAX_FREQUENCY     (64000000UL)   /* 64 MHz */
+#define CY_PRA_PLL_LOW_OUT_MIN_FREQUENCY (10625000UL)   /* 10.625 MHz */
+#define CY_PRA_PLL_OUT_MIN_FREQUENCY     (12500000UL)   /* 12.5 MHz */
+#define CY_PRA_PLL_ULP_OUT_MAX_FREQUENCY (50000000UL)   /* 50 MHz */
+#define CY_PRA_PLL_OUT_MAX_FREQUENCY     (CY_HF_CLK_MAX_FREQ)
+
+#define CY_PRA_HF0_MIN_FREQUENCY         200000UL
+#define CY_PRA_PUMP_OUT_MAX_FREQUENCY    400000000UL
+#define CY_PRA_BAK_OUT_MAX_FREQUENCY     100000UL
+#define CY_PRA_FAST_OUT_MAX_FREQUENCY    400000000UL
+#define CY_PRA_TIMER_OUT_MAX_FREQUENCY   400000000UL
+#define CY_PRA_SLOW_OUT_MAX_FREQUENCY    100000000UL
+#define CY_PRA_SYSTICK_OUT_MAX_FREQUENCY   400000000UL
+#define CY_PRA_ULP_MODE_HF0_MAX_FREQUENCY  25000000UL
+
+#define CY_PRA_DEFAULT_ZERO              0U
+#define CY_PRA_STRUCT_INITIALIZED        1UL
+#define CY_PRA_STRUCT_NOT_INITIALIZED    0UL
+#define CY_PRA_DATA_ENABLE               1UL
+#define CY_PRA_DATA_DISABLE              0UL
+#define CY_PRA_CLKHF_0                   0UL
+#define CY_PRA_CLKHF_1                   1UL
+#define CY_PRA_CLKHF_2                   2UL
+#define CY_PRA_CLKHF_3                   3UL
+#define CY_PRA_CLKHF_4                   4UL
+#define CY_PRA_CLKHF_5                   5UL
+#define CY_PRA_CLKPATH_0                 0U
+#define CY_PRA_CLKPATH_1                 1U
+#define CY_PRA_CLKPATH_2                 2U
+#define CY_PRA_CLKPATH_3                 3U
+#define CY_PRA_CLKPATH_4                 4U
+#define CY_PRA_CLKPATH_5                 5U
+#define CY_PRA_CLKPLL_1                  1U
+#define CY_PRA_CLKPLL_2                  2U
+#define CY_PRA_DIVIDER_0                 0U
+#define CY_PRA_DIVIDER_1                 1U
+#define CY_PRA_DIVIDER_2                 2U
+#define CY_PRA_DIVIDER_4                 4U
+#define CY_PRA_DIVIDER_8                 8U
+
+/** \endcond */
+
+
 /**
 * \addtogroup group_pra_data_structures_cfg
 * \{
@@ -64,12 +141,12 @@ typedef struct
     bool fllEnable;                                     /**< FLL Enable */
     bool pll0Enable;                                    /**< PLL0 Enable */
     bool pll1Enable;                                    /**< PLL1 Enable */
-    bool path0Enable;                                   /**< CLKPATH0 Enable */
-    bool path1Enable;                                   /**< CLKPATH1 Enable */
-    bool path2Enable;                                   /**< CLKPATH2 Enable */
-    bool path3Enable;                                   /**< CLKPATH3 Enable */
-    bool path4Enable;                                   /**< CLKPATH4 Enable */
-    bool path5Enable;                                   /**< CLKPATH5 Enable */
+    bool path0Enable;                                   /**< PATH_MUX0 Enable */
+    bool path1Enable;                                   /**< PATH_MUX1 Enable */
+    bool path2Enable;                                   /**< PATH_MUX2 Enable */
+    bool path3Enable;                                   /**< PATH_MUX3 Enable */
+    bool path4Enable;                                   /**< PATH_MUX4 Enable */
+    bool path5Enable;                                   /**< PATH_MUX5 Enable */
     bool clkFastEnable;                                 /**< CLKFAST Enable */
     bool clkPeriEnable;                                 /**< CLKPERI Enable */
     bool clkSlowEnable;                                 /**< CLKSLOW Enable */
@@ -152,8 +229,8 @@ typedef struct
     bool                        pll1LfMode;             /**< PLL1 CLK_PLL_CONFIG register, PLL_LF_MODE bit */
     cy_en_fll_pll_output_mode_t pll1OutputMode;         /**< PLL1 CLK_PLL_CONFIG register, BYPASS_SEL bits */
 
-    /* Number of clock Path available for device is defined in CY_SRSS_NUM_CLKPATH.
-     * Max 6 clock path are defined */
+    /* The number of clock paths available for the device is defined in CY_SRSS_NUM_CLKPATH.
+     * Max 6 clock paths are defined */
 
     /* Clock Paths Configuration */
     cy_en_clkpath_in_sources_t path0Src;                /**< Input multiplexer0 clock source */
@@ -168,7 +245,7 @@ typedef struct
     uint8_t clkPeriDiv;                                 /**< Peri clock divider. User has to pass actual divider-1 */
     uint8_t clkSlowDiv;                                 /**< Slow clock divider. User has to pass actual divider-1 */
 
-    /* Number of HF clocks are defined in device specific header CY_SRSS_NUM_HFROOT
+    /* The number of HF clocks is defined in the device specific header CY_SRSS_NUM_HFROOT
      * Max 6 HFs are defined */
      /* HF Configurations */
     cy_en_clkhf_in_sources_t hf0Source;                 /**< HF0 Source Clock Path */

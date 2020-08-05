@@ -39,7 +39,7 @@ CORE?=CM4
 CY_START_FLASH=0x10000000
 CY_START_SRAM=0x08000000
 
-CY_OPEN_bt_configurator_DEVICE=--device PSoC6 
+CY_OPEN_bt_configurator_DEVICE=--device PSoC6
 
 #
 # Core specifics
@@ -130,7 +130,7 @@ CY_JLINK_DEVICE_CFG_DEBUG=$(CY_JLINK_DEVICE_CFG_ATTACH)$(CY_JLINK_DEVICE_CFG_DEB
 ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_SECURE)))
 CY_PSOC_ARCH=psoc6_2m_secure
 CY_PSOC_DIE_NAME=PSoC6A2MSecure
-CY_OPENOCD_CHIP_NAME=psoc64_2m
+CY_OPENOCD_CHIP_NAME=psoc64
 CY_OPENOCD_DEVICE_CFG=psoc6_2m_secure.cfg
 endif
 
@@ -145,9 +145,18 @@ CY_JLINK_DEVICE_CFG_DEBUG=$(CY_JLINK_DEVICE_CFG_ATTACH)$(CY_JLINK_DEVICE_CFG_DEB
 ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_SECURE)))
 CY_PSOC_ARCH=psoc6_512k_secure
 CY_PSOC_DIE_NAME=PSoC6A512KSecure
-CY_OPENOCD_CHIP_NAME=psoc64_512k
+CY_OPENOCD_CHIP_NAME=psoc64
 CY_OPENOCD_DEVICE_CFG=psoc6_512k_secure.cfg
 endif
+
+else ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_DIE_PSOC6A256K)))
+
+CY_PSOC_ARCH=psoc6_04
+CY_PSOC_DIE_NAME=PSoC6A256K
+CY_OPENOCD_DEVICE_CFG=psoc6_256k.cfg
+CY_JLINK_DEVICE_CFG_PROGRAM=CY8C6xx4_CM0p_tm
+CY_JLINK_DEVICE_CFG_ATTACH=CY8C6xx4_$(CY_JLINKSCRIPT_CORE)
+CY_JLINK_DEVICE_CFG_DEBUG=$(CY_JLINK_DEVICE_CFG_ATTACH)$(CY_JLINK_DEVICE_CFG_DEBUG_SUFFIX)
 
 else
 $(call CY_MACRO_ERROR,Incorrect part number $(DEVICE). Check DEVICE variable.)
@@ -156,7 +165,9 @@ endif
 #
 # Flash memory specifics
 #
-ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_448)))
+ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_256)))
+CY_MEMORY_FLASH=262144
+else ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_448)))
 CY_MEMORY_FLASH=458752
 else ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_512)))
 CY_MEMORY_FLASH=524288
@@ -213,7 +224,11 @@ endif
 # Non-secure part
 else
 
-ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_DIE_PSOC6A512K)))
+ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_DIE_PSOC6A256K)))
+ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_256)))
+CY_LINKER_SCRIPT_NAME=cy8c6xx4
+endif
+else ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_DIE_PSOC6A512K)))
 ifneq (,$(findstring $(DEVICE),$(CY_DEVICES_WITH_FLASH_KB_512)))
 CY_LINKER_SCRIPT_NAME=cy8c6xx5
 endif
@@ -261,6 +276,8 @@ else ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A2M)))
 CY_BSP_STARTUP=psoc6_02
 else ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A512K)))
 CY_BSP_STARTUP=psoc6_03
+else ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A256K)))
+CY_BSP_STARTUP=psoc6_04
 endif
 
 # Linker scripts - Secure parts
@@ -279,7 +296,11 @@ endif
 # Linker scripts - Non-secure parts
 else
 
-ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A512K)))
+ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A256K)))
+ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_FLASH_KB_256)))
+CY_BSP_LINKER_SCRIPT=cy8c6xx4
+endif
+else ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_DIE_PSOC6A512K)))
 ifneq (,$(findstring $(DEVICE_GEN),$(CY_DEVICES_WITH_FLASH_KB_512)))
 CY_BSP_LINKER_SCRIPT=cy8c6xx5
 endif
@@ -319,8 +340,8 @@ CY_BSP_TEMPLATES_CMD=\
 		echo "Populating $(CY_BSP_LINKER_SCRIPT) linker scripts and $(CY_BSP_STARTUP) startup files...";\
 		rm -rf $(CY_BSP_DESTINATION_CM0P_DIR) $(CY_BSP_DESTINATION_CM4_DIR);\
 		pushd  $(CY_BSP_TEMPLATES_DIR) 1> /dev/null;\
-		find . -type d -exec mkdir -p $(CY_BSP_DESTINATION_ABSOLUTE)/'{}' \; ;\
-		find . -type f \( \
+		$(CY_FIND) . -type d -exec mkdir -p $(CY_BSP_DESTINATION_ABSOLUTE)/'{}' \; ;\
+		$(CY_FIND) . -type f \( \
 		-name "system_psoc6*" \
 		-o -name "*$(CY_BSP_STARTUP_CM0P)*" \
 		-o -name "*$(CY_BSP_STARTUP_CM4)*" \
@@ -333,9 +354,9 @@ CY_BSP_TEMPLATES_CMD=\
 	fi;
 endif
 
-# Command for updating the device(s) 
+# Command for updating the device(s)
 CY_BSP_DEVICES_CMD=\
-	designFile=$$(find $(CY_TARGET_GEN_DIR) -name *.modus);\
+	designFile=$$($(CY_FIND) $(CY_TARGET_GEN_DIR) -name *.modus);\
 	if [[ $$designFile ]]; then\
 		echo "Running device-configurator for $(DEVICE_GEN) $(ADDITIONAL_DEVICES_GEN)...";\
 		$(CY_CONFIG_MODUS_EXEC)\
@@ -356,7 +377,7 @@ CY_OPENOCD_SVD_PATH?=
 else
 CY_OPENOCD_SVD_PATH?=
 endif
-CY_OPENOCD_QSPI_CFG_PATH=$(CY_TARGET_DIR)/COMPONENT_BSP_DESIGN_MODUS/GeneratedSource
+CY_OPENOCD_QSPI_CFG_PATH=$(CY_CONFIG_MODUS_OUTPUT)
 
 #
 # Set the output file paths
@@ -373,17 +394,29 @@ endif
 # IDE specifics
 #
 
-CY_VSCODE_ARGS="s|&&RELEASETARGET&&|build/$(TARGET)/Release/$(APPNAME).elf|g;"\
-				"s|&&DEBUGTARGET&&|build/$(TARGET)/Debug/$(APPNAME).elf|g;"\
+CY_VSCODE_ARGS="s|&&ELFFILE&&|$(CY_CONFIG_DIR)/$(APPNAME).elf|g;"\
+				"s|&&HEXFILE&&|$(CY_CONFIG_DIR)/$(APPNAME).hex|g;"\
 				"s|&&PSOCFAMILY&&|$(CY_PSOC_ARCH)|g;"\
 				"s|&&MODUSSHELL&&|$(CY_MODUS_SHELL_DIR)|g;"\
 				"s|&&OPENOCDFILE&&|$(CY_OPENOCD_DEVICE_CFG)|g;"\
 				"s|&&SVDFILENAME&&|$(CY_OPENOCD_SVD_PATH)|g;"\
-				"s|&&MODUSTOOLCHAIN&&|$(CY_COMPILER_DIR)|g;"\
-				"s|&&MODUSTOOLCHAINVERSION&&|$(subst gcc-,,$(notdir $(CY_COMPILER_DIR)))|g;"\
+				"s|&&MODUSTOOLCHAIN&&|$(subst ",,$(CY_CROSSPATH))|g;"\
+				"s|&&MODUSTOOLCHAINVERSION&&|$(subst ",,$(subst gcc-,,$(notdir $(CY_CROSSPATH))))|g;"\
 				"s|&&CFLAGS&&|$(CY_RECIPE_CFLAGS)|g;"\
-				"s|&&MODUSOPENCOD&&|$(CY_OPENOCD_DIR)|g;"\
+				"s|&&MODUSOPENOCD&&|$(CY_OPENOCD_DIR)|g;"\
 				"s|&&MODUSLIBMANAGER&&|$(CY_LIBRARY_MANAGER_DIR)|g;"\
+				"s|&&GDBPATH&&|$(CY_COMPILER_DIR)|g;"\
+				"s|&&DEVICEPROGRAM&&|$(CY_JLINK_DEVICE_CFG_PROGRAM)|g;"\
+				"s|&&DEVICEDEBUG&&|$(CY_JLINK_DEVICE_CFG_DEBUG)|g;"\
+				"s|&&DEVICEATTACH&&|$(CY_JLINK_DEVICE_CFG_ATTACH)|g;"
+
+ifeq ($(CORE),CM0P)
+CY_VSCODE_ARGS+="s|&&TARGETPROCESSORNAME&&|CM0+|g;"\
+                "s|&&TARGETPROCESSORNUMBER&&|0|g;"
+else
+CY_VSCODE_ARGS+="s|&&TARGETPROCESSORNAME&&|CM4|g;"\
+                "s|&&TARGETPROCESSORNUMBER&&|1|g;"
+endif
 
 CY_ECLIPSE_ARGS="s|&&CY_OPENOCD_CFG&&|$(CY_OPENOCD_DEVICE_CFG)|g;"\
 				"s|&&CY_OPENOCD_CHIP&&|$(CY_OPENOCD_CHIP_NAME)|g;"\
@@ -420,7 +453,6 @@ CY_SUPPORTED_TOOL_TYPES+=\
 	qspi-configurator\
 	seglcd-configurator\
 	smartio-configurator\
-	cype-tool\
 	dfuh-tool
 
 # PSoC 6 smartio also uses the .modus extension

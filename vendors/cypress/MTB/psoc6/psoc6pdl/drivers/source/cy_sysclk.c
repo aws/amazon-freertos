@@ -401,17 +401,18 @@ uint32_t Cy_SysClk_EcoGetFrequency(void)
 *******************************************************************************/
 cy_en_sysclk_status_t Cy_SysClk_ClkPathSetSource(uint32_t clkPath, cy_en_clkpath_in_sources_t source)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    cy_stc_pra_clkpathsetsource_t clkpath_set_source;
-    clkpath_set_source.clk_path = clkPath;
-    clkpath_set_source.source   = source;
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PATH_SET_SOURCE, &clkpath_set_source);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((clkPath < CY_SRSS_NUM_CLKPATH) &&
         ((source <= CY_SYSCLK_CLKPATH_IN_DSIMUX) ||
          ((CY_SYSCLK_CLKPATH_IN_DSI <= source) && (source <= CY_SYSCLK_CLKPATH_IN_PILO))))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clkpathsetsource_t clkpath_set_source;
+        clkpath_set_source.clk_path = clkPath;
+        clkpath_set_source.source   = source;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PATH_SET_SOURCE, &clkpath_set_source);
+#else
+
         if (source >= CY_SYSCLK_CLKPATH_IN_DSI)
         {
             SRSS_CLK_DSI_SELECT[clkPath] = _VAL2FLD(SRSS_CLK_DSI_SELECT_DSI_MUX, (uint32_t)source);
@@ -422,9 +423,10 @@ cy_en_sysclk_status_t Cy_SysClk_ClkPathSetSource(uint32_t clkPath, cy_en_clkpath
             SRSS_CLK_PATH_SELECT[clkPath] = _VAL2FLD(SRSS_CLK_PATH_SELECT_PATH_MUX, (uint32_t)source);
         }
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 }
 
 /*******************************************************************************
@@ -1225,12 +1227,6 @@ cy_en_sysclk_status_t Cy_SysClk_PllConfigure(uint32_t clkPath, const cy_stc_pll_
 *******************************************************************************/
 cy_en_sysclk_status_t Cy_SysClk_PllManualConfigure(uint32_t clkPath, const cy_stc_pll_manual_config_t *config)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    cy_stc_pra_clk_pll_manconfigure_t pll_config;
-    pll_config.clkPath   = clkPath;
-    pll_config.praConfig    = (cy_stc_pll_manual_config_t *)config;
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_MANCONFIG, &pll_config);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_SUCCESS;
 
     /* check for errors */
@@ -1251,6 +1247,12 @@ cy_en_sysclk_status_t Cy_SysClk_PllManualConfigure(uint32_t clkPath, const cy_st
     }
     else /* no errors */
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clk_pll_manconfigure_t pll_config;
+        pll_config.clkPath   = clkPath;
+        pll_config.praConfig    = (cy_stc_pll_manual_config_t *)config;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_MANCONFIG, &pll_config);
+#else
         clkPath--; /* to correctly access PLL config registers structure */
         /* If output mode is bypass (input routed directly to output), then done.
            The output frequency equals the input frequency regardless of the frequency parameters. */
@@ -1264,10 +1266,10 @@ cy_en_sysclk_status_t Cy_SysClk_PllManualConfigure(uint32_t clkPath, const cy_st
         }
 
         CY_REG32_CLR_SET(SRSS_CLK_PLL_CONFIG[clkPath], SRSS_CLK_PLL_CONFIG_BYPASS_SEL, (uint32_t)config->outputMode);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
 
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 /*******************************************************************************
@@ -1355,15 +1357,16 @@ cy_en_sysclk_status_t Cy_SysClk_PllGetConfiguration(uint32_t clkPath, cy_stc_pll
 *******************************************************************************/
 cy_en_sysclk_status_t Cy_SysClk_PllEnable(uint32_t clkPath, uint32_t timeoutus)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    (void)timeoutus;
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_ENABLE, clkPath);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     bool nonZeroTimeout = (timeoutus != 0ul);
     clkPath--; /* to correctly access PLL config and status registers structures */
     if (clkPath < CY_SRSS_NUM_PLL)
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        (void)timeoutus;
+        (void)nonZeroTimeout;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_ENABLE, (clkPath + 1U));
+#else
         /* first set the PLL enable bit */
         SRSS_CLK_PLL_CONFIG[clkPath] |= SRSS_CLK_PLL_CONFIG_ENABLE_Msk;
 
@@ -1375,9 +1378,9 @@ cy_en_sysclk_status_t Cy_SysClk_PllEnable(uint32_t clkPath, uint32_t timeoutus)
             Cy_SysLib_DelayUs(1U);
         }
         retVal = ((nonZeroTimeout && (timeoutus == 0ul)) ? CY_SYSCLK_TIMEOUT : CY_SYSCLK_SUCCESS);
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 /** \} group_sysclk_pll_funcs */
 

@@ -1,0 +1,13 @@
+{
+    "target_overrides": {
+        "*": {
+            "platform.stdio-convert-newlines": true,
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-security": "WPA_WPA2",
+            "nsapi.default-wifi-ssid": "\"SSID\"",
+            "nsapi.default-wifi-password": "\"PASSWORD\"",
+            "platform.stdio-baud-rate": 115200,
+            "target.components_add": ["MBED"]
+        }
+    }
+}

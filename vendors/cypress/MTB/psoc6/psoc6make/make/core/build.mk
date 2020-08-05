@@ -82,62 +82,6 @@ endif
 
 endef
 
-#
-# Construct recursive make for dependent lib apps
-# 1: The name of the target
-# 2: The lib app directory
-#
-define CY_MACRO_SHAREDLIB_DEPENDENCIES
-
-$(1)_SED_PATTERN=$(subst /,\/,$(subst .,\.,$(2)))
-ifeq ($(CY_BUILD_LOC),$(CY_APP_LOCATION)/build)
-$(1)_SHAREDLIB_BUILD_LOCATION?=$(2)/build/$(TARGET)/$(CONFIG)
-else
-$(1)_SHAREDLIB_BUILD_LOCATION?=$(CY_INTERNAL_BUILD_LOCATION)/$(1)/$(TARGET)/$(CONFIG)
-endif
-
-# Satisfy dependencies
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist.rsp: | shared_libs
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist.rsp: | shared_libs
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact.rsp: | shared_libs
-$(1)_shared_lib: | $$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist.rsp $$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist.rsp $$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact.rsp
-
-$(1)_shared_lib:
-	 @inclist_read=$$$$(cat $$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist.rsp | sed -e "s/I\.\//I$$($(1)_SED_PATTERN)\//g" | tr " " "\n"); \
-	 if [ -f "$$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp" ]; then \
-	 	inclist_export_read=$$$$(cat $$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp | tr " " "\n"); \
-	 else \
-		 echo $$$$inclist_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp ;\
-	 fi;\
-	 if [[ "$$$$inclist_read" != "$$$$inclist_export_read" ]]; then \
-		echo $$$$inclist_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp ;\
-	 fi; \
-	 liblist_read=$$$$(cat $$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist.rsp | sed -e "s/\.\//$$($(1)_SED_PATTERN)\//g" | tr " " "\n"); \
-	 if [ -f "$$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp" ]; then \
-	 	liblist_export_read=$$$$(cat $$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp | tr " " "\n"); \
-	 else \
-	  	echo $$$$liblist_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp ;\
-	 fi;\
-	 if [[ "$$$$liblist_read" != "$$$$liblist_export_read" ]]; then \
-		echo $$$$liblist_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp ;\
-	 fi; \
-	 artifact_read=$$$$(sed '1s;^;$$($(1)_SHAREDLIB_BUILD_LOCATION)/;' $$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact.rsp); \
-	 if [ -f "$$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp" ]; then \
- 		artifact_export_read=$$$$(cat $$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp); \
-	 else \
-		echo $$$$artifact_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp;\
-	 fi;\
-	 if [[ "$$$$artifact_read" -nt "$(CY_BUILD_TARGET)" ]] || [[ "$$$$artifact_read" != "$$$$artifact_export_read" ]]; then\
-		echo $$$$artifact_read > $$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp;\
-	 fi;
-
-# Satisfy dependencies
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp: | $(1)_shared_lib
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp: | $(1)_shared_lib
-$$($(1)_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp: | $(1)_shared_lib
-
-endef
-
 
 ################################################################################
 # Target output
@@ -152,28 +96,36 @@ endif
 
 
 ################################################################################
-# Shared libraries
+# Shared libs
 ################################################################################
 
 ifneq ($(SEARCH_LIBS_AND_INCLUDES),)
 
-# Construct targets for all dependent lib apps
-$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$(eval $(call CY_MACRO_SHAREDLIB_DEPENDENCIES,$(notdir $(lib)),$(lib))))
-
-CY_SHAREDLIB_LIST=$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$(notdir $(lib)_shared_lib))
-CY_SHAREDLIB_ARTIFACT_LIST=$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$($(notdir $(lib))_SHAREDLIB_BUILD_LOCATION)/artifact.rsp)
-
 CY_SHAREDLIB_INCLUDES_EXPORT_LIST=$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$($(notdir $(lib))_SHAREDLIB_BUILD_LOCATION)/inclist_export.rsp)
 CY_SHAREDLIB_LIBS_EXPORT_LIST=$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$($(notdir $(lib))_SHAREDLIB_BUILD_LOCATION)/liblist_export.rsp)
 CY_SHAREDLIB_ARTIFACT_EXPORT_LIST=$(foreach lib,$(SEARCH_LIBS_AND_INCLUDES),$($(notdir $(lib))_SHAREDLIB_BUILD_LOCATION)/artifact_export.rsp)
+CY_SHAREDLIB_ARTIFACTS=$(foreach d,$(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST),$(shell cat $(d)))
 
 CY_BUILD_SHAREDLIB_INCLIST=$(foreach inc,$(CY_SHAREDLIB_INCLUDES_EXPORT_LIST),$(addprefix $(CY_TOOLCHAIN_INCRSPFILE),$(inc)))
 CY_BUILD_SHAREDLIB_LIBLIST=$(foreach lib,$(CY_SHAREDLIB_LIBS_EXPORT_LIST),$(addprefix $(CY_TOOLCHAIN_OBJRSPFILE),$(lib)))\
 							$(foreach artifact,$(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST),$(addprefix $(CY_TOOLCHAIN_OBJRSPFILE),$(artifact)))
 
-# Sentinel file to always trigger link step
-CY_SHAREDLIB_TIMESTAMP=$(CY_CONFIG_DIR)/shared_libs.timestamp
-$(shell touch $(CY_SHAREDLIB_TIMESTAMP))
+endif
+
+
+################################################################################
+# Dependent apps
+################################################################################
+
+ifneq ($(DEPENDENT_APP_PATHS),)
+
+CY_DEPAPP_TARGET=$(CY_CONFIG_DIR)/$(APPNAME)_standalone.$(CY_TOOLCHAIN_SUFFIX_TARGET)
+CY_DEPAPP_MAPFILE=$(CY_CONFIG_DIR)/$(APPNAME)_standalone.$(CY_TOOLCHAIN_SUFFIX_MAP)
+
+CY_DEPAPP_ARTIFACT_EXPORT_LIST=$(foreach app,$(DEPENDENT_APP_PATHS),$($(notdir $(app))_DEPAPP_BUILD_LOCATION)/artifact_export.rsp)
+CY_DEPAPP_C_FILES=$(foreach d,$(CY_DEPAPP_ARTIFACT_EXPORT_LIST),$(shell cat $(d)))
+CY_DEPAPP_STRIPPED=$(notdir $(CY_DEPAPP_C_FILES))
+CY_DEPAPP_OBJ_FILES=$(addprefix $(CY_CONFIG_DIR)/dep_apps/,$(CY_DEPAPP_STRIPPED:%.$(CY_TOOLCHAIN_SUFFIX_C)=%.$(CY_TOOLCHAIN_SUFFIX_O)))
 
 endif
 
@@ -223,6 +175,7 @@ CY_BUILD_EXTSRC_s_OBJ_FILES=$(addprefix $(CY_CONFIG_DIR)/user/,$(CY_BUILD_EXTSRC
 CY_BUILD_EXTSRC_C_OBJ_FILES=$(addprefix $(CY_CONFIG_DIR)/user/,$(CY_BUILD_EXTSRC_C_FILES:%.$(CY_TOOLCHAIN_SUFFIX_C)=%.$(CY_TOOLCHAIN_SUFFIX_O)))
 CY_BUILD_EXTSRC_CPP_OBJ_FILES=$(addprefix $(CY_CONFIG_DIR)/user/,$(CY_BUILD_EXTSRC_CPP_FILES:%.$(CY_TOOLCHAIN_SUFFIX_CPP)=%.$(CY_TOOLCHAIN_SUFFIX_O)))
 
+# All object files from the application
 CY_BUILD_ALL_OBJ_FILES=\
 	$(call CY_MACRO_REMOVE_DOUBLESLASH,\
 	$(CY_BUILD_SRC_S_OBJ_FILES)\
@@ -236,7 +189,11 @@ CY_BUILD_ALL_OBJ_FILES=\
 	$(CY_BUILD_EXTSRC_S_OBJ_FILES)\
 	$(CY_BUILD_EXTSRC_s_OBJ_FILES)\
 	$(CY_BUILD_EXTSRC_C_OBJ_FILES)\
-	$(CY_BUILD_EXTSRC_CPP_OBJ_FILES))
+	$(CY_BUILD_EXTSRC_CPP_OBJ_FILES))\
+	$(CY_DEPAPP_OBJ_FILES)
+
+# Obj list without dependent apps
+CY_DEPAPP_OBJ_FILES_WO=$(filter-out $(CY_DEPAPP_OBJ_FILES),$(CY_BUILD_ALL_OBJ_FILES))
 
 #
 # Dependency files
@@ -310,14 +267,17 @@ CY_BUILD_COMPILE_CPP:=$(CXX) $(CY_BUILD_ALL_CXXFLAGS) $(CY_TOOLCHAIN_INCRSPFILE)
 CY_BUILD_COMPILE_EXPLICIT_C:=$(CC) $(CY_BUILD_ALL_CFLAGS) $(CY_TOOLCHAIN_INCRSPFILE)$(CY_CONFIG_DIR)/inclist.rsp \
 						$(CY_BUILD_SHAREDLIB_INCLIST) $(CY_TOOLCHAIN_EXPLICIT_DEPENDENCIES) $(CY_TOOLCHAIN_OUTPUT_OPTION) 
 CY_BUILD_COMPILE_EXPLICIT_CPP:=$(CXX) $(CY_BUILD_ALL_CXXFLAGS) $(CY_TOOLCHAIN_INCRSPFILE)$(CY_CONFIG_DIR)/inclist.rsp \
-						$(CY_BUILD_SHAREDLIB_INCLIST) $(CY_TOOLCHAIN_EXPLICIT_DEPENDENCIES) $(CY_TOOLCHAIN_OUTPUT_OPTION)
+						$(CY_BUILD_SHAREDLIB_INCLIST) $(CY_TOOLCHAIN_EXPLICIT_DEPENDENCIES) $(CY_TOOLCHAIN_OUTPUT_OPTION) 
 
 #
 # Linker arguments
 #
 CY_BUILD_LINK=$(LD) $(CY_RECIPE_LDFLAGS) $(CY_TOOLCHAIN_OUTPUT_OPTION) $@ $(CY_TOOLCHAIN_MAPFILE)$(CY_BUILD_MAPFILE) \
-	$(CY_TOOLCHAIN_OBJRSPFILE)$(CY_CONFIG_DIR)/objlist.rsp \
-	$(CY_TOOLCHAIN_STARTGROUP) $(CY_RECIPE_EXTRA_LIBS) $(CY_BUILD_ALL_LIB_FILES) $(CY_BUILD_SHAREDLIB_LIBLIST) $(CY_TOOLCHAIN_ENDGROUP)
+			$(CY_TOOLCHAIN_OBJRSPFILE)$(CY_CONFIG_DIR)/objlist.rsp \
+			$(CY_TOOLCHAIN_STARTGROUP) $(CY_RECIPE_EXTRA_LIBS) $(CY_BUILD_ALL_LIB_FILES) $(CY_BUILD_SHAREDLIB_LIBLIST) $(CY_TOOLCHAIN_ENDGROUP)
+CY_BUILD_LINK_STANDALONE=$(LD) $(CY_RECIPE_LDFLAGS) $(CY_TOOLCHAIN_OUTPUT_OPTION) $@ $(CY_TOOLCHAIN_MAPFILE)$(CY_BUILD_MAPFILE) \
+			$(CY_TOOLCHAIN_OBJRSPFILE)$(CY_CONFIG_DIR)/objlist_standalone.rsp \
+			$(CY_TOOLCHAIN_STARTGROUP) $(CY_RECIPE_EXTRA_LIBS) $(CY_BUILD_ALL_LIB_FILES) $(CY_BUILD_SHAREDLIB_LIBLIST) $(CY_TOOLCHAIN_ENDGROUP)
 
 #
 # Archiver arguments
@@ -345,6 +305,7 @@ CY_BUILD_COMPILER_DEPS=\
 CY_BUILD_LINKER_DEPS=\
 	$(CY_BUILD_LINK)\
 	$(CY_BUILD_ARCHIVE)\
+	$(CY_SHAREDLIB_LIBS_EXPORT_LIST)\
 	$(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST)
 
 #
@@ -404,10 +365,27 @@ $(foreach explicit,$(CY_BUILD_EXTSRC_ABSOLUTE),$(eval $(call \
 CY_MACRO_EXPLICIT_RULE,$(explicit),$(addprefix user/,$(notdir $(addsuffix \
 .$(CY_TOOLCHAIN_SUFFIX_O),$(basename $(explicit))))),user)))
 
+# Create explicit rules for dependent app c-files
+$(foreach explicit,$(CY_DEPAPP_C_FILES),$(eval $(call \
+CY_MACRO_EXPLICIT_RULE,$(explicit),$(addprefix dep_apps/,$(notdir $(addsuffix \
+.$(CY_TOOLCHAIN_SUFFIX_O),$(basename $(explicit))))),dep_apps)))
+
 
 ################################################################################
-# Prebuild, Postbuild and Link
+# Link and Postbuild
 ################################################################################
+
+#
+# Empty target intentional 
+#
+prebuild:
+
+#
+# Dependencies
+#
+build: prebuild app memcalc
+qbuild: prebuild app memcalc
+memcalc: app
 
 #
 # Top-level application dependency
@@ -417,7 +395,7 @@ app: CY_BUILD_sentinel
 #
 # Print information before we start the build
 #
-CY_BUILD_preprint: | $(CY_SHAREDLIB_INCLUDES_EXPORT_LIST) $(CY_SHAREDLIB_LIBS_EXPORT_LIST) $(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST)
+CY_BUILD_preprint:
 	$(info )
 	$(info ==============================================================================)
 	$(info = Building application =)
@@ -433,25 +411,14 @@ ifeq ($(CY_RECIPE_GENERATED_FLAG),TRUE)
 endif
 
 #
-# Run BSP pre-build step
-#
-CY_BUILD_bsp_prebuild: CY_BUILD_mkdirs
-	$(CY_BSP_PREBUILD)
-
-#
-# Run application pre-build step
-#
-CY_BUILD_app_prebuild: CY_BUILD_bsp_prebuild
-	$(PREBUILD)
-
-#
 # Run generate source step
 #
-CY_BUILD_gensrc: CY_BUILD_app_prebuild
-ifneq ($(CY_SEARCH_RESOURCE_FILES),)
-	@echo $(CY_RECIPE_RESOURCE_FILES) > $(CY_GENERATED_DIR)/resources.cyrsc
-endif
+CY_BUILD_gensrc: CY_BUILD_mkdirs
 ifeq ($(CY_RECIPE_GENERATED_FLAG),TRUE)
+	$(CY_NOISE)mkdir -p $(CY_GENERATED_DIR) $(CY_CMD_TERM)
+ifneq ($(CY_SEARCH_RESOURCE_FILES),)
+	$(CY_NOISE)echo $(CY_RECIPE_RESOURCE_FILES) > $(CY_GENERATED_DIR)/resources.cyrsc
+endif
 	$(CY_NOISE)$(CY_RECIPE_GENSRC) $(CY_CMD_TERM)
 	$(info Generated $(words $(CY_RECIPE_GENERATED)) source file(s))
 endif
@@ -462,19 +429,19 @@ endif
 $(CY_BUILD_GENSRC_C_FILES): | CY_BUILD_gensrc
 
 #
-# Run pre-build step
-#
-CY_BUILD_prebuild: CY_BUILD_gensrc
-	$(CY_NOISE)$(CY_RECIPE_PREBUILD) $(CY_CMD_TERM)
-
-#
 # Print before compilation
 #
-CY_BUILD_precompile: CY_BUILD_prebuild
+CY_BUILD_precompile: CY_BUILD_gensrc
 	$(info Building $(words $(CY_BUILD_ALL_OBJ_FILES)) file(s))
-	@echo $(CY_RECIPE_INCLUDES) | tr " " "\n" > $(CY_CONFIG_DIR)/inclist.rsp; \
+	$(CY_NOISE)echo $(CY_RECIPE_INCLUDES) | tr " " "\n" > $(CY_CONFIG_DIR)/inclist.rsp; \
 	 echo $(CY_BUILD_ALL_OBJ_FILES) | tr " " "\n"  > $(CY_CONFIG_DIR)/objlist.rsp; \
 	 echo $(CY_BUILD_ALL_LIB_FILES) | tr " " "\n"  > $(CY_CONFIG_DIR)/liblist.rsp;
+ifneq ($(CY_INTERNAL_EXTAPP_PATH),)
+	$(CY_NOISE)echo $(abspath $(CY_INTERNAL_EXTAPP_PATH)) | tr " " "\n"  > $(CY_CONFIG_DIR)/extapp.rsp;
+endif
+ifneq ($(DEPENDENT_APP_PATHS),)
+	$(CY_NOISE)echo $(CY_DEPAPP_OBJ_FILES_WO) | tr " " "\n"  > $(CY_CONFIG_DIR)/objlist_standalone.rsp
+endif
 
 #
 # Dependencies for compilation
@@ -486,7 +453,7 @@ $(CY_BUILD_ALL_OBJ_FILES): $(CY_CONFIG_DIR)/.cycompiler $(CY_SHAREDLIB_INCLUDES_
 # Dependencies for link
 #
 $(CY_BUILD_TARGET): | CY_BUILD_precompile
-$(CY_BUILD_TARGET): $(CY_CONFIG_DIR)/.cylinker $(CY_SHAREDLIB_LIBS_EXPORT_LIST) $(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST)
+$(CY_BUILD_TARGET): $(CY_CONFIG_DIR)/.cylinker $(CY_SHAREDLIB_LIBS_EXPORT_LIST) $(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST) $(CY_SHAREDLIB_ARTIFACTS)
 
 #
 # Link/archive the application
@@ -498,37 +465,24 @@ ifneq ($(strip $(CY_BUILD_ALL_OBJ_FILES) $(CY_BUILD_ALL_LIB_FILES)),)
 	$(CY_NOISE)$(CY_BUILD_ARCHIVE) $(CY_CMD_TERM)
 endif
 else
-$(CY_BUILD_TARGET): $(CY_BUILD_ALL_OBJ_FILES) $(CY_BUILD_ALL_LIB_FILES) $(LINKER_SCRIPT) $(CY_SHAREDLIB_TIMESTAMP)
-ifneq ($(SEARCH_LIBS_AND_INCLUDES),)
-	@libArray=($(CY_SHAREDLIB_LIBS_EXPORT_LIST)); \
-	for libFile in "$${libArray[@]}"; do \
-		if [ "$$libFile" -nt "$(CY_BUILD_TARGET)" ]; then \
-			relink=true; \
-		fi; \
-	done; \
-	artifactArray=($(CY_SHAREDLIB_ARTIFACT_EXPORT_LIST)); \
-	for artifactFile in "$${artifactArray[@]}"; do \
-		if [ "$$artifactFile" -nt "$(CY_BUILD_TARGET)" ]; then \
-			relink=true; \
-		fi; \
-	done; \
-	if [[ "$?" == *".$(CY_TOOLCHAIN_SUFFIX_O)"* ]] || [[ "$?" == *".$(CY_TOOLCHAIN_SUFFIX_A)"* ]]; then \
-		relink=true; \
-	fi; \
-	if [ $$relink ]; then \
-		echo "    Linking output file $(notdir $@)"; \
-		$(CY_BUILD_LINK); \
-	fi
-else
+$(CY_BUILD_TARGET): $(CY_BUILD_ALL_OBJ_FILES) $(CY_BUILD_ALL_LIB_FILES) $(LINKER_SCRIPT)
 	$(info $(CY_INDENT)Linking output file $(notdir $@))
 	$(CY_NOISE)$(CY_BUILD_LINK)
 endif
+
+#
+# Link the standalone application (excludes the dependent apps)
+#
+ifneq ($(DEPENDENT_APP_PATHS),)
+$(CY_DEPAPP_TARGET): $(CY_DEPAPP_OBJ_FILES_WO) $(CY_BUILD_ALL_LIB_FILES) $(LINKER_SCRIPT)
+	$(info $(CY_INDENT)Linking standalone file $(notdir $@))
+	$(CY_NOISE)$(CY_BUILD_LINK_STANDALONE)
 endif
 
 #
 # Perform post-build step
 #
-CY_BUILD_postbuild: $(CY_BUILD_TARGET)
+CY_BUILD_postbuild: $(CY_BUILD_TARGET) $(CY_DEPAPP_TARGET)
 	$(CY_NOISE)$(CY_RECIPE_POSTBUILD) $(CY_CMD_TERM)
 
 #
@@ -553,18 +507,14 @@ CY_BUILD_postprint: CY_BUILD_app_postbuild
 	$(info )
 
 #
-# Create an artifact sentinel file for shared libs
+# Create an artifact sentinel file for shared libs and dependent apps
 #
-ifneq ($(LIBNAME),)
 CY_BUILD_sentinel: CY_BUILD_postprint
 ifneq ($(strip $(CY_BUILD_ALL_OBJ_FILES) $(CY_BUILD_ALL_LIB_FILES)),)
-	@echo $(LIBNAME).$(CY_TOOLCHAIN_SUFFIX_ARCHIVE) > $(CY_CONFIG_DIR)/artifact.rsp
+	$(CY_NOISE)echo $(notdir $(CY_BUILD_TARGET)) > $(CY_CONFIG_DIR)/artifact.rsp
 else
-	@touch $(CY_CONFIG_DIR)/artifact.rsp
-endif
-else
-CY_BUILD_sentinel: CY_BUILD_postprint
-
+	$(CY_NOISE)rm -f $(CY_CONFIG_DIR)/artifact.rsp
+	$(CY_NOISE)touch $(CY_CONFIG_DIR)/artifact.rsp
 endif
 
 #
@@ -577,12 +527,10 @@ $(info Build rules construction complete)
 #
 # Indicate all phony targets that should be built regardless
 #
-.PHONY: app $(CY_SHAREDLIB_LIST)
+.PHONY: app
 .PHONY: CY_BUILD_mkdirs
-.PHONY: CY_BUILD_prebuild CY_BUILD_app_prebuild CY_BUILD_bsp_prebuild
 .PHONY: CY_BUILD_postbuild CY_BUILD_app_postbuild CY_BUILD_bsp_postbuild
 .PHONY: CY_BUILD_gensrc
-.PHONY: CY_BUILD_genresource
 .PHONY: CY_BUILD_preprint
 .PHONY: CY_BUILD_postprint 
 .PHONY: CY_BUILD_sentinel

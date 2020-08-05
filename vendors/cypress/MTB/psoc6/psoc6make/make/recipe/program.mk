@@ -46,31 +46,35 @@ ifeq (,$(findstring CYB0,$(DEVICE)))
 CY_OPENOCD_CUSTOM_COMMAND?=psoc6 allow_efuse_program off;
 endif
 
-CY_OPENOCD_ERASE=init; reset init; psoc6 sflash_restrictions 1; erase_all; exit;
-CY_OPENOCD_PROGRAM=psoc6 sflash_restrictions 1; program $(CY_OPENOCD_PROGRAM_IMG) verify reset exit;
-CY_OPENOCD_DEBUG=$(CY_OPENOCD_CHIP_NAME).cpu.$(CY_OPENOCD_CORE) configure -rtos auto -rtos-wipe-on-reset-halt 1; $(CY_OPENOCD_EXTRA_PORT_FLAG); init; reset init;
+CY_OPENOCD_ERASE?=init; reset init; psoc6 sflash_restrictions 1; erase_all; exit;
+CY_OPENOCD_PROGRAM?=psoc6 sflash_restrictions 1; program $(CY_OPENOCD_PROGRAM_IMG) verify reset exit;
+CY_OPENOCD_DEBUG?=$(CY_OPENOCD_CHIP_NAME).cpu.$(CY_OPENOCD_CORE) configure -rtos auto -rtos-wipe-on-reset-halt 1; $(CY_OPENOCD_EXTRA_PORT_FLAG); init; reset init;
 
-CY_OPENOCD_ERASE_ARGS=$(CY_OPENOCD_SCRIPTS) -c \
+CY_OPENOCD_ERASE_ARGS?=$(CY_OPENOCD_SCRIPTS) -c \
 					"$(CY_OPENOCD_INTERFACE) $(CY_OPENOCD_CM0_DISABLE_FLAG); $(CY_OPENOCD_SMIF_DISABLE); $(CY_OPENOCD_TARGET) $(CY_OPENOCD_CUSTOM_COMMAND) $(CY_OPENOCD_ERASE)"
-CY_OPENOCD_PROGRAM_ARGS=$(CY_OPENOCD_SCRIPTS) $(CY_OPENOCD_QSPI) -c \
+CY_OPENOCD_PROGRAM_ARGS?=$(CY_OPENOCD_SCRIPTS) $(CY_OPENOCD_QSPI) -c \
 					"$(CY_OPENOCD_INTERFACE) $(CY_OPENOCD_CM0_DISABLE_FLAG); $(CY_OPENOCD_TARGET) $(CY_OPENOCD_CUSTOM_COMMAND) $(CY_OPENOCD_PROGRAM)"
-CY_OPENOCD_DEBUG_ARGS=$(CY_OPENOCD_SCRIPTS) $(CY_OPENOCD_QSPI) -c \
+CY_OPENOCD_DEBUG_ARGS?=$(CY_OPENOCD_SCRIPTS) $(CY_OPENOCD_QSPI) -c \
 					"$(CY_OPENOCD_INTERFACE) $(CY_OPENOCD_CM0_DISABLE_FLAG); $(CY_OPENOCD_TARGET) $(CY_OPENOCD_CUSTOM_COMMAND) $(CY_OPENOCD_DEBUG)"
 
+CY_OPENOCD_ERASE_ARGS_STRING="$(CY_OPENOCD_ERASE_ARGS)"
+CY_OPENOCD_PROGRAM_ARGS_STRING="$(CY_OPENOCD_PROGRAM_ARGS)"
+CY_OPENOCD_DEBUG_ARGS_STRING="$(CY_OPENOCD_DEBUG_ARGS)"
+
 erase:
-	@echo;\
-	echo "Erasing target device... ";\
+	$(CY_NOISE)echo;\
+	echo "Erasing target device with OOCD args:" '$(CY_OPENOCD_ERASE_ARGS_STRING)';\
 	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_ERASE_ARGS)
 
 program: build qprogram
 
 qprogram: memcalc
 ifeq ($(LIBNAME),)
-	@echo;\
-	echo "Programming target device... ";\
+	$(CY_NOISE)echo;\
+	echo "Programming target device with OOCD args:" '$(CY_OPENOCD_PROGRAM_ARGS_STRING)';\
 	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_PROGRAM_ARGS)
 else
-	@echo "Library application detected. Skip programming... ";\
+	$(CY_NOISE)echo "Library application detected. Skip programming... ";\
 	echo
 endif
 
@@ -78,22 +82,22 @@ debug: program qdebug
 
 qdebug: qprogram
 ifeq ($(LIBNAME),)
-	@echo;\
+	$(CY_NOISE)echo;\
 	echo ==============================================================================;\
 	echo "Instruction:";\
 	echo "Open a separate shell and run the attach target (make attach)";\
 	echo "to start the GDB client. Then use the GDB commands to debug.";\
 	echo ==============================================================================;\
 	echo;\
-	echo "Opening GDB port ... ";\
+	echo "Opening GDB port with OOCD args: " '$(CY_OPENOCD_DEBUG_ARGS_STRING)';\
 	$(CY_OPENOCD_DIR)/bin/openocd $(CY_OPENOCD_DEBUG_ARGS)
 else
-	@echo "Library application detected. Skip debug... ";\
+	$(CY_NOISE)echo "Library application detected. Skip debug... ";\
 	echo
 endif
 
 attach:
-	@echo;\
+	$(CY_NOISE)echo;\
 	echo "Starting GDB Client... ";\
 	$(CY_GDB_CLIENT) $(CY_OPENOCD_SYMBOL_IMG) -x $(CY_GDB_ARGS)
 

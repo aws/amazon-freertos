@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@
 #include <task.h>
 #include <event_groups.h>
 #include <timers.h>
+#include "stdbool.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,9 +39,9 @@ extern "C" {
 /******************************************************
 *                 Constants
 ******************************************************/
-#define CY_RTOS_MIN_STACK_SIZE      300                     /** Minimum stack size */
-#define CY_RTOS_ALIGNMENT           0x00000008UL            /** Minimum alignment for RTOS objects */
-#define CY_RTOS_ALIGNMENT_MASK      0x00000007UL            /** Mask for checking the alignement of crated RTOS objects */
+#define CY_RTOS_MIN_STACK_SIZE      300                     /**< Minimum stack size in bytes */
+#define CY_RTOS_ALIGNMENT           0x00000008UL            /**< Minimum alignment for RTOS objects */
+#define CY_RTOS_ALIGNMENT_MASK      0x00000007UL            /**< Mask for checking the alignment of created RTOS objects */
 
 /******************************************************
 *                   Enumerations
@@ -62,9 +63,13 @@ typedef enum cy_thread_priority
 *                 Type Definitions
 ******************************************************/
 
+typedef struct {
+    SemaphoreHandle_t mutex_handle;
+    bool is_recursive;
+} cy_mutex_t;
+
 typedef QueueHandle_t cy_queue_t;
 typedef SemaphoreHandle_t cy_semaphore_t;
-typedef SemaphoreHandle_t cy_mutex_t;
 typedef TaskHandle_t cy_thread_t;
 typedef EventGroupHandle_t cy_event_t;
 typedef TimerHandle_t cy_timer_t;

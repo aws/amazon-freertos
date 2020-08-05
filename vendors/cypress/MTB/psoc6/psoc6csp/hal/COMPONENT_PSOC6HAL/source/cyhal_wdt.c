@@ -101,8 +101,8 @@ extern "C" {
 #define CYHAL_WDT_MAX_IGNORE_BITS 12
 
 typedef struct {
-    uint32_t min_period_ms; // Minimum period in milliseconds that can be represented with this many ignored bits
-    uint32_t round_threshold_ms; // Timeout threshold in milliseconds from which to round up to the minimum period
+    uint16_t min_period_ms; // Minimum period in milliseconds that can be represented with this many ignored bits
+    uint16_t round_threshold_ms; // Timeout threshold in milliseconds from which to round up to the minimum period
     // uint32_t pre_match_cycles; // The number of clock cycles in the first two full counter cycles (before the match value matters)
 } cyhal_wdt_internal_ignore_bits_data_t;
 
@@ -224,6 +224,12 @@ uint32_t cyhal_wdt_get_timeout_ms(cyhal_wdt_t *obj)
 uint32_t cyhal_wdt_get_max_timeout_ms(void)
 {
     return CYHAL_WDT_MAX_TIMEOUT_MS;
+}
+
+bool cyhal_wdt_is_enabled(cyhal_wdt_t *obj)
+{
+    CY_UNUSED_PARAMETER(obj);
+    return Cy_WDT_IsEnabled();
 }
 
 #if defined(__cplusplus)

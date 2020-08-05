@@ -28,13 +28,15 @@ FLASH_ERASE_VALUE=$1
 shift
 MCUBOOT_HEADER_SIZE=$1
 shift
-MCUBOOT_MAX_IMG_SECTORS=$1
-shift
 CY_BUILD_VERSION=$1
 shift
 CY_BOOT_PRIMARY_1_START=$1
 shift
 CY_BOOT_PRIMARY_1_SIZE=$1
+shift
+CY_BOOT_PRIMARY_2_SIZE=$1
+shift
+CY_BOOT_SECONDARY_2_START=$1
 shift
 SIGNING_KEY_PATH=$1
 shift
@@ -86,10 +88,11 @@ CY_COMPONENTS_JSON_NAME=components.json
 #echo " IMGTOOL_SCRIPT_NAME      $IMGTOOL_SCRIPT_NAME"
 #echo " FLASH_ERASE_VALUE        $FLASH_ERASE_VALUE"
 #echo " MCUBOOT_HEADER_SIZE      $MCUBOOT_HEADER_SIZE"
-#echo " MCUBOOT_MAX_IMG_SECTORS  $MCUBOOT_MAX_IMG_SECTORS"
 #echo " CY_BUILD_VERSION         $CY_BUILD_VERSION"
 #echo " CY_BOOT_PRIMARY_1_START  $CY_BOOT_PRIMARY_1_START"
 #echo " CY_BOOT_PRIMARY_1_SIZE   $CY_BOOT_PRIMARY_1_SIZE"
+#echo " CY_BOOT_PRIMARY_2_SIZE   $CY_BOOT_PRIMARY_2_SIZE"
+#echo " CY_BOOT_SECONDARY_2_START $CY_BOOT_SECONDARY_2_START"
 #echo " SIGNING_KEY_PATH         $SIGNING_KEY_PATH"
 #
 # For FLASH_ERASE_VALUE
@@ -151,6 +154,7 @@ echo "{\"fileName\":\"$CY_OUTPUT_FILE_CM4_NAME_BIN\",\"fileType\": \"NSPE\",\"fi
 # create tarball for CM0 & CM4 OTA
 tar -cf $CY_CM4_CM0_TAR $CY_COMPONENTS_JSON_NAME $CY_OUTPUT_FILE_CM0_NAME_BIN $CY_OUTPUT_FILE_CM4_NAME_BIN
 
+
 #==============================================================================
 # "upgrade" OTA tarballs (includes cybootloader magic, etc)
 # get size of binary file for components.json for "upgrade" files
@@ -182,6 +186,14 @@ echo "{\"fileName\":\"$CY_OUTPUT_FILE_CM4_UPGRADE_BIN\",\"fileType\": \"NSPE\",\
 tar -cf $CY_CM4_CM0_UPGRADE_TAR $CY_COMPONENTS_JSON_NAME $CY_OUTPUT_FILE_CM0_UPGRADE_BIN $CY_OUTPUT_FILE_CM4_UPGRADE_BIN
 
 echo ""
+echo "Application Name                         : $CY_OUTPUT_NAME"
+echo "Application Version                      : $CY_BUILD_VERSION"
+echo "Primary 1 Slot Start                     : $CY_BOOT_PRIMARY_1_START"
+echo "Primary 1 Slot Size                      : $CY_BOOT_PRIMARY_1_SIZE"
+echo "Primary 2 slot size                      : $CY_BOOT_PRIMARY_2_SIZE"
+echo "Secondary 2 slot start                   : $CY_BOOT_SECONDARY_2_START"
+echo "FLASH ERASE Value (NOTE: Empty for 0xff) : $FLASH_ERASE_VALUE"
+echo "Cypress MCUBoot Header size              : $MCUBOOT_HEADER_SIZE"
 
 ls -l *.bin
 

@@ -26,13 +26,30 @@ ifeq ($(WHICHFILE),true)
 $(info Processing $(lastword $(MAKEFILE_LIST)))
 endif
 
+
+################################################################################
+# Macros
+################################################################################
+
+#
+# Run ELF2BIN conversion
+# $(1) : artifact elf
+# $(2) : artifact bin
+#
+CY_MACRO_ELF2BIN=$(CY_TOOLCHAIN_ELF2BIN) -O binary $1 $2
+
+
+################################################################################
+# Tools
+################################################################################
+
 #
 # The base path to the IAR cross compilation executables
 #
 ifeq ($(CY_COMPILER_PATH),)
-CY_CROSSPATH=$(CY_COMPILER_IAR_DIR)/bin
+CY_CROSSPATH=$(CY_COMPILER_IAR_DIR)
 else
-CY_CROSSPATH=$(CY_COMPILER_PATH)/bin
+CY_CROSSPATH=$(CY_COMPILER_PATH)
 endif
 
 #
@@ -42,21 +59,31 @@ ifeq ($(OS),Windows_NT)
 #
 # Windows paths
 #
-CC=$(CY_CROSSPATH)/iccarm.exe
+CC=$(CY_CROSSPATH)/bin/iccarm.exe
 CXX=$(CC)
-AS=$(CY_CROSSPATH)/iasmarm.exe
-AR=$(CY_CROSSPATH)/iarchive.exe
-LD=$(CY_CROSSPATH)/ilinkarm.exe
+AS=$(CY_CROSSPATH)/bin/iasmarm.exe
+AR=$(CY_CROSSPATH)/bin/iarchive.exe
+LD=$(CY_CROSSPATH)/bin/ilinkarm.exe
 else
 #
 # Linux and macOS paths
 #
-CC=$(CY_CROSSPATH)/iccarm
+CC=$(CY_CROSSPATH)/bin/iccarm
 CXX=$(CC)
-AS=$(CY_CROSSPATH)/iasmarm
-AR=$(CY_CROSSPATH)/iarchive
-LD=$(CY_CROSSPATH)/ilinkarm
+AS=$(CY_CROSSPATH)/bin/iasmarm
+AR=$(CY_CROSSPATH)/bin/iarchive
+LD=$(CY_CROSSPATH)/bin/ilinkarm
 endif
+
+#
+# Elf to bin conversion tool
+#
+CY_TOOLCHAIN_ELF2BIN=$(CY_COMPILER_GCC_ARM_DIR)/bin/arm-none-eabi-objcopy
+
+
+################################################################################
+# Options
+################################################################################
 
 #
 # DEBUG/NDEBUG selection

@@ -102,11 +102,22 @@
 *   </tr>
 * </table>
 *
+* \section group_sysclk_errata Known Issues
+* <table class="doxtable">
+*   <tr><th>Issue</th><th>Workaround</th></tr>
+*   <tr>
+*     <td>The CLKLF does not work if after transition to the new clock
+*         source the previous one is immediately disabled.
+*     </td>
+*     <td>Wait 4 clock cycles of previous CLKLF clock source before disabling it.</td>
+*   </tr>
+* </table>
+*
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
-*     <td rowspan="2">3.0</td>
+*     <td rowspan="3">2.10</td>
 *     <td>Updated SysClk functions for PSoC 64 devices. Now the SysClk functions can return
 *         PRA driver status value.</td>
 *     <td>The SysClk driver uses the PRA driver to change the protected registers.
@@ -115,15 +126,13 @@
 *         refer to PRA return statuses. Refer to functions description for details.</td>
 *   </tr>
 *   <tr>
-*     <td>Minor documentation updates.</td>
-*     <td>Documentation enhancement.</td>
-*   </tr>
-*   <tr>
-*     <td>2.10</td>
 *     <td>Updated the code of \ref Cy_SysClk_ClkPathGetFrequency function.</td>
 *     <td>Make the code more error-resistant to user errors for some corner cases.</td>
 *   </tr>
-
+*   <tr>
+*     <td>Minor documentation updates.</td>
+*     <td>Documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>2.0</td>
 *     <td>Updated the ECO trimming values calculation algorithm in the \ref Cy_SysClk_EcoConfigure implementation. \n
@@ -1204,14 +1213,13 @@ __STATIC_INLINE bool Cy_SysClk_PllLostLock(uint32_t clkPath)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_DISABLE, clkPath);
-
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     clkPath--; /* to correctly access PLL config and status registers structures */
     if (clkPath < CY_SRSS_NUM_PLL)
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_PLL_DISABLE, (clkPath + 1U));
+#else
         /* First bypass PLL */
         CY_REG32_CLR_SET(SRSS_CLK_PLL_CONFIG[clkPath], SRSS_CLK_PLL_CONFIG_BYPASS_SEL, CY_SYSCLK_FLLPLL_OUTPUT_INPUT);
         /* Wait at least 6 PLL clock cycles */
@@ -1219,9 +1227,9 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath)
         /* And now disable the PLL itself */
         SRSS_CLK_PLL_CONFIG[clkPath] &= ~SRSS_CLK_PLL_CONFIG_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))*/
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))*/
 }
 /** \} group_sysclk_pll_funcs */
 
@@ -1836,7 +1844,11 @@ __STATIC_INLINE void Cy_SysClk_MfoEnable(bool deepSleepEnable)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_CLK_MFO_CONFIG, (SRSS_CLK_MFO_CONFIG_ENABLE_Msk | (deepSleepEnable ? SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Msk : 0UL)));
+    #else
         SRSS_CLK_MFO_CONFIG = SRSS_CLK_MFO_CONFIG_ENABLE_Msk | (deepSleepEnable ? SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Msk : 0UL);
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1875,7 +1887,11 @@ __STATIC_INLINE void Cy_SysClk_MfoDisable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_SET(CY_PRA_INDX_SRSS_CLK_MFO_CONFIG, 0UL);
+    #else
         SRSS_CLK_MFO_CONFIG = 0UL;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1902,7 +1918,11 @@ __STATIC_INLINE void Cy_SysClk_ClkMfEnable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_ENABLE, 1U);
+    #else
         SRSS_CLK_MF_SELECT |= SRSS_CLK_MF_SELECT_ENABLE_Msk;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1941,7 +1961,11 @@ __STATIC_INLINE void Cy_SysClk_ClkMfDisable(void)
 {
     if (CY_SRSS_MFO_PRESENT)
     {
+    #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+        CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_ENABLE, 0U);
+    #else
         SRSS_CLK_MF_SELECT &= ~SRSS_CLK_MF_SELECT_ENABLE_Msk;
+    #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
     }
 }
 
@@ -1974,7 +1998,11 @@ __STATIC_INLINE void Cy_SysClk_ClkMfSetDivider(uint32_t divider)
     {
         if (!Cy_SysClk_ClkMfIsEnabled())
         {
+        #if CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE)
+            CY_PRA_REG32_CLR_SET(CY_PRA_INDX_SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_MFCLK_DIV, divider - 1UL);
+        #else
             CY_REG32_CLR_SET(SRSS_CLK_MF_SELECT, SRSS_CLK_MF_SELECT_MFCLK_DIV, divider - 1UL);
+        #endif /* CY_CPU_CORTEX_M4 && defined(CY_DEVICE_SECURE) */
         }
     }
 }
@@ -2142,17 +2170,18 @@ __STATIC_INLINE cy_en_clkhf_dividers_t Cy_SysClk_ClkHfGetDivider(uint32_t clkHf)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfEnable(uint32_t clkHf)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_ENABLE, clkHf);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if (clkHf < CY_SRSS_NUM_HFROOT)
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_ENABLE, clkHf);
+#else
         SRSS_CLK_ROOT_SELECT[clkHf] |= SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 }
 
 
@@ -2199,18 +2228,18 @@ __STATIC_INLINE bool Cy_SysClk_ClkHfIsEnabled(uint32_t clkHf)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfDisable(uint32_t clkHf)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_DISABLE, clkHf);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((0UL < clkHf) /* prevent CLK_HF0 disabling */
            && (clkHf < CY_SRSS_NUM_HFROOT))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_DISABLE, clkHf);
+#else
         SRSS_CLK_ROOT_SELECT[clkHf] &= ~SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
 }
 
 
@@ -2249,20 +2278,21 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfDisable(uint32_t clkHf)
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetSource(uint32_t clkHf, cy_en_clkhf_in_sources_t source)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    cy_stc_pra_clkhfsetsource_t set_source;
-    set_source.clkHf = clkHf;
-    set_source.source = source;
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_SOURCE, &set_source);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((clkHf < CY_SRSS_NUM_HFROOT) && (source <= CY_SYSCLK_CLKHF_IN_CLKPATH15))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clkhfsetsource_t set_source;
+        set_source.clkHf = clkHf;
+        set_source.source = source;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_SOURCE, &set_source);
+#else
         CY_REG32_CLR_SET(SRSS_CLK_ROOT_SELECT[clkHf], SRSS_CLK_ROOT_SELECT_ROOT_MUX, source);
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (!defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (!defined(CY_DEVICE_SECURE))) */
+
 }
 
 
@@ -2324,20 +2354,21 @@ __STATIC_INLINE cy_en_clkhf_in_sources_t Cy_SysClk_ClkHfGetSource(uint32_t clkHf
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetDivider(uint32_t clkHf, cy_en_clkhf_dividers_t divider)
 {
-#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
-    cy_stc_pra_clkhfsetdivider_t set_divider;
-    set_divider.clkHf = clkHf;
-    set_divider.divider = divider;
-    return (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_DIVIDER, &set_divider);
-#else
     cy_en_sysclk_status_t retVal = CY_SYSCLK_BAD_PARAM;
     if ((clkHf < CY_SRSS_NUM_HFROOT) && (divider <= CY_SYSCLK_CLKHF_DIVIDE_BY_8))
     {
+#if ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE)))
+        cy_stc_pra_clkhfsetdivider_t set_divider;
+        set_divider.clkHf = clkHf;
+        set_divider.divider = divider;
+        retVal = (cy_en_sysclk_status_t)CY_PRA_FUNCTION_CALL_RETURN_PARAM(CY_PRA_MSG_TYPE_FUNC_POLICY, CY_PRA_CLK_FUNC_HF_SET_DIVIDER, &set_divider);
+#else
         CY_REG32_CLR_SET(SRSS_CLK_ROOT_SELECT[clkHf], SRSS_CLK_ROOT_SELECT_ROOT_DIV, divider);
         retVal = CY_SYSCLK_SUCCESS;
+#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
     }
     return (retVal);
-#endif /* ((CY_CPU_CORTEX_M4) && (defined(CY_DEVICE_SECURE))) */
+
 }
 
 

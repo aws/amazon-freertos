@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-	        &&JSONINCLUDELIST&&
+	            &&JSONINCLUDELIST&&
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                 "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -13,7 +13,7 @@
             ],
             "browse": {
                 "path": [
-	            &&JSONINCLUDELIST&&
+	                &&JSONINCLUDELIST&&
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                     "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -25,8 +25,8 @@
                 "databaseFilename": ""
             },
             "defines": [
-	      &&JSONDEFINELIST&&
-		"EMPTY_ENTRY"
+	            &&JSONDEFINELIST&&
+		        "__GNUC__"
             ],
             "intelliSenseMode": "msvc-x64",
             "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc.exe &&CFLAGS&&",
@@ -36,7 +36,7 @@
         {
             "name": "macOS",
             "includePath": [
-	        &&JSONINCLUDELIST&&
+	            &&JSONINCLUDELIST&&
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                 "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -46,7 +46,7 @@
             ],
             "browse": {
                 "path": [
-	            &&JSONINCLUDELIST&&
+	                &&JSONINCLUDELIST&&
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                     "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -58,8 +58,8 @@
                 "databaseFilename": ""
             },
             "defines": [
-	        &&JSONDEFINELIST&&
-		  "EMPTY_ENTRY"
+                &&JSONDEFINELIST&&
+                "__GNUC__"
             ],
             "intelliSenseMode": "clang-x64",
             "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc &&CFLAGS&&",
@@ -69,7 +69,7 @@
         {
             "name": "Linux",
             "includePath": [
-	        &&JSONINCLUDELIST&&
+	            &&JSONINCLUDELIST&&
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                 "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                 "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -79,7 +79,7 @@
             ],
             "browse": {
                 "path": [
-	            &&JSONINCLUDELIST&&
+	                &&JSONINCLUDELIST&&
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include",
                     "&&MODUSTOOLCHAIN&&/lib/gcc/arm-none-eabi/&&MODUSTOOLCHAINVERSION&&/include-fixed",
                     "&&MODUSTOOLCHAIN&&/arm-none-eabi/include",
@@ -91,8 +91,8 @@
                 "databaseFilename": ""
             },
             "defines": [
-	        &&JSONDEFINELIST&&
-		  "EMPTY_ENTRY"
+                &&JSONDEFINELIST&&
+                "__GNUC__"
             ],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "&&MODUSTOOLCHAIN&&/bin/arm-none-eabi-gcc &&CFLAGS&&",

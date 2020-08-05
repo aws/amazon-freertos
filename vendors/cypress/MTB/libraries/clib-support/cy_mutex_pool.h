@@ -34,19 +34,19 @@ extern "C" {
 //! Internal use only. Initializes the mutex pool.
 void cy_mutex_pool_setup(void);
 
-//! Internal use only. Allocates a mutex.
+//! Internal use only. Allocates a recursive mutex.
 //! \return SemaphoreHandle_t
 SemaphoreHandle_t cy_mutex_pool_create(void);
 
-//! Internal use only. Acquires a mutex.
+//! Internal use only. Acquires a recursive mutex.
 //! \param m SemaphoreHandle_t
 void cy_mutex_pool_acquire(SemaphoreHandle_t m);
 
-//! Internal use only. Releases a mutex.
+//! Internal use only. Releases a recursive mutex.
 //! \param m SemaphoreHandle_t
 void cy_mutex_pool_release(SemaphoreHandle_t m);
 
-//! Internal use only. Destroys a mutex.
+//! Internal use only. Destroys a recursive mutex.
 //! \param m SemaphoreHandle_t
 void cy_mutex_pool_destroy(SemaphoreHandle_t m);
 

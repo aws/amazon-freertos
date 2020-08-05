@@ -3,6 +3,8 @@
 #ifndef __SYSFLASH_H__
 #define __SYSFLASH_H__
 
+#include "mcuboot_config/mcuboot_config.h"
+
 #define FLASH_DEVICE_INTERNAL_FLASH        (0x7F)
 
 #define FLASH_AREA_BOOTLOADER 0
@@ -35,8 +37,9 @@
 #endif
 
 
-// TODO: run-time multi-image
-//#if (BOOT_IMAGE_NUMBER == 2) /* if dual-image */
+/* multi-image */
+#if (MCUBOOT_IMAGE_NUMBER == 2) /* if dual-image */
+
 #ifndef CY_BOOT_PRIMARY_2_SIZE
 #define CY_BOOT_PRIMARY_2_SIZE              (0x10000)
 #endif
@@ -47,19 +50,21 @@
 #ifndef CY_BOOT_SECONDARY_2_SIZE
 #define CY_BOOT_SECONDARY_2_SIZE            (0x10000)
 #endif
-//#endif
 
-// TODO: run-time multi-image
-//#if (MCUBOOT_IMAGE_NUMBER == 1)
-/*
+#endif  /* multi-image==2 */
+
+/* multi-image */
+#if (MCUBOOT_IMAGE_NUMBER == 1)
+
 #define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
                                          FLASH_AREA_IMAGE_0 : \
                                          FLASH_AREA_IMAGE_0)
+
 #define FLASH_AREA_IMAGE_SECONDARY(x)  (((x) == 0) ?          \
                                          FLASH_AREA_IMAGE_1 : \
-                                         FLASH_AREA_IMAGE_1) */
+                                         FLASH_AREA_IMAGE_1)
 
-//#elif (MCUBOOT_IMAGE_NUMBER == 2)
+#elif (MCUBOOT_IMAGE_NUMBER == 2)
 
 #define FLASH_AREA_IMAGE_PRIMARY(x)    (((x) == 0) ?          \
                                          FLASH_AREA_IMAGE_0 : \
@@ -72,9 +77,10 @@
                                          FLASH_AREA_IMAGE_3 : \
                                          255)
 
-//#else
-//#warning "Image slot and flash area mapping is not defined"
-//#endif
+#else
+#warning "Image slot and flash area mapping is not defined"
+#endif
+
 #define CY_IMG_HDR_SIZE 0x400
 
 #ifndef CY_FLASH_MAP_EXT_DESC

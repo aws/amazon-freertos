@@ -214,13 +214,12 @@ CY_DEVICESUPPORT_SEARCH_PATH:=$(call CY_MACRO_SEARCH,devicesupport.xml,$(CY_INTE
                     $(if $(CY_INTERNAL_EXTAPP_PATH),$(call CY_MACRO_SEARCH,devicesupport.xml,$(CY_INTERNAL_EXTAPP_PATH)))\
                     $(if $(SEARCH_LIBS_AND_INCLUDES),$(foreach d,$(SEARCH_LIBS_AND_INCLUDES),$(call CY_MACRO_SEARCH,devicesupport.xml,$(d))))
 
-CY_HELP_bsp=Generates a TARGET_GEN board/kit from TARGET.
 bsp:
 ifeq ($(TARGET_GEN),)
 	$(error TARGET_GEN variable must be specified to generate a BSP)
 else
 	$(info $(CY_NEWLINE)Creating $(TARGET_GEN) TARGET from $(TARGET)...)
-	@if [ -d $(CY_TARGET_GEN_DIR) ]; then\
+	$(CY_NOISE)if [ -d $(CY_TARGET_GEN_DIR) ]; then\
 		echo "ERROR: "$(TARGET_GEN)" TARGET already exists at "$(CY_TARGET_GEN_DIR)"";\
 		exit 1;\
 	else\
@@ -235,6 +234,144 @@ else
 	fi
 endif
 
+ifneq ($(SEARCH_LIBS_AND_INCLUDES),)
+CY_SHARED_ALL_LIB_FILES=$(call CY_MACRO_SEARCH,.lib,$(CY_SHARED_PATH))
+CY_SHARED_USED_LIB_NAMES=$(foreach item,$(SEARCH_LIBS_AND_INCLUDES),$(notdir $(item).lib))
+CY_SHARED_USED_LIB_FILES=$(foreach name,$(CY_SHARED_USED_LIB_NAMES),$(filter %/$(name),$(CY_SHARED_ALL_LIB_FILES)))
+endif
+
+
+get_app_info:
+ifeq ($(CY_PROTOCOL),2)
+	$(CY_NOISE)echo;\
+	echo "=======================================";\
+	echo " IDE variables";\
+	echo "=======================================";\
+	echo "CY_PROTOCOL=$(CY_PROTOCOL)";\
+	echo "APP_NAME=$(APPNAME)";\
+	echo "LIB_NAME=$(LIBNAME)";\
+	echo "TARGET=$(TARGET)";\
+	echo "TARGET_DEVICE=$(DEVICE)";\
+	echo "CONFIGURATOR_FILES=$(CY_CONFIG_FILES)";\
+	echo "SUPPORTED_TOOL_TYPES=$(CY_OPEN_FILTERED_SUPPORTED_TYPES)";\
+	echo "CY_TOOLS_PATH=$(CY_TOOLS_DIR)";\
+	echo "CY_GETLIBS_OFFLINE=$(CY_GETLIBS_OFFLINE)";\
+	echo "CY_GETLIBS_PATH=$(CY_INTERNAL_GETLIBS_PATH)";\
+	echo "CY_GETLIBS_DEPS_PATH=$(CY_INTERNAL_GETLIBS_DEPS_PATH)";\
+	echo "CY_GETLIBS_CACHE_PATH=$(CY_INTERNAL_GETLIBS_CACHE_PATH)";\
+	echo "CY_GETLIBS_OFFLINE_PATH=$(CY_INTERNAL_GETLIBS_OFFLINE_PATH)";\
+	echo "SHAREDLIBS_ROOT=$(CY_SHARED_PATH)";\
+	echo "SHAREDLIBS=$(SEARCH_LIBS_AND_INCLUDES)";\
+	echo "SHAREDLIBS_FILES=$(CY_SHARED_USED_LIB_FILES)";\
+	echo "CY_DEPENDENT_PROJECTS=$(CY_DEPENDENT_PROJECTS)";
+else
+# Default scenario. Covers CY_PROTOCOL=1 and CY_PROTOCOL=""
+	$(CY_NOISE)echo;\
+	echo "=======================================";\
+	echo " IDE variables";\
+	echo "=======================================";\
+	echo "APP_NAME=$(APPNAME)";\
+	echo "LIB_NAME=$(LIBNAME)";\
+	echo "TARGET=$(TARGET)";\
+	echo "TARGET_DEVICE=$(DEVICE)";\
+	echo "CONFIGURATOR_FILES=$(CY_CONFIG_FILES)";\
+	echo "SUPPORTED_TOOL_TYPES=$(CY_OPEN_FILTERED_SUPPORTED_TYPES)";\
+	echo "CY_TOOLS_PATH=$(CY_TOOLS_DIR)";\
+	echo "CY_GETLIBS_PATH=$(CY_INTERNAL_GETLIBS_PATH)";\
+	echo "SHAREDLIBS_ROOT=$(CY_SHARED_PATH)";\
+	echo "SHAREDLIBS=$(SEARCH_LIBS_AND_INCLUDES)";\
+	echo "SHAREDLIBS_FILES=$(CY_SHARED_USED_LIB_FILES)";\
+	echo "CY_DEPENDENT_PROJECTS=$(CY_DEPENDENT_PROJECTS)";
+endif
+# General debug info
+	$(CY_NOISE)echo;\
+	echo "=======================================";\
+	echo " User: Basic configuration variables";\
+	echo "=======================================";\
+	echo "TARGET=$(TARGET)";\
+	echo "APPNAME=$(APPNAME)";\
+	echo "LIBNAME=$(LIBNAME)";\
+	echo "TOOLCHAIN=$(TOOLCHAIN)";\
+	echo "CONFIG=$(CONFIG)";\
+	echo "VERBOSE=$(VERBOSE)";\
+	echo;\
+	echo "=======================================";\
+	echo " User: Advanced configuration variables";\
+	echo "=======================================";\
+	echo "SOURCES=$(SOURCES)";\
+	echo "INCLUDES=$(INCLUDES)";\
+	echo "DEFINES=$(DEFINES)";\
+	echo "VFP_SELECT=$(VFP_SELECT)";\
+	echo "CFLAGS=$(CXXFLAGS)";\
+	echo "ASFLAGS=$(ASFLAGS)";\
+	echo "LDFLAGS=$(LDFLAGS)";\
+	echo "LDLIBS=$(LDLIBS)";\
+	echo "LINKER_SCRIPT=$(LINKER_SCRIPT)";\
+	echo "PREBUILD=$(PREBUILD)";\
+	echo "POSTBUILD=$(POSTBUILD)";\
+	echo "COMPONENTS=$(COMPONENTS)";\
+	echo "DISABLE_COMPONENTS=$(DISABLE_COMPONENTS)";\
+	echo "DEPENDENT_LIB_PATHS=$(DEPENDENT_LIB_PATHS)";\
+	echo "DEPENDENT_APP_PATHS=$(DEPENDENT_APP_PATHS)";\
+	echo;\
+	echo "=======================================";\
+	echo " User: BSP variables";\
+	echo "=======================================";\
+	echo "DEVICE=$(DEVICE)";\
+	echo "ADDITIONAL_DEVICES=$(ADDITIONAL_DEVICES)";\
+	echo "TARGET_GEN=$(TARGET_GEN)";\
+	echo "DEVICE_GEN=$(DEVICE_GEN)";\
+	echo "ADDITIONAL_DEVICES_GEN=$(ADDITIONAL_DEVICES_GEN)";\
+	echo;\
+	echo "=======================================";\
+	echo " User: Getlibs variables";\
+	echo "=======================================";\
+	echo "CY_GETLIBS_NO_CACHE=$(CY_GETLIBS_NO_CACHE)";\
+	echo "CY_GETLIBS_OFFLINE=$(CY_GETLIBS_OFFLINE)";\
+	echo "CY_GETLIBS_PATH=$(CY_INTERNAL_GETLIBS_PATH)";\
+	echo "CY_GETLIBS_DEPS_PATH=$(CY_INTERNAL_GETLIBS_DEPS_PATH)";\
+	echo "CY_GETLIBS_CACHE_PATH=$(CY_INTERNAL_GETLIBS_CACHE_PATH)";\
+	echo "CY_GETLIBS_OFFLINE_PATH=$(CY_INTERNAL_GETLIBS_OFFLINE_PATH)";\
+	echo "CY_GETLIBS_SEARCH_PATH=$(CY_INTERNAL_GETLIBS_SEARCH_PATH)";\
+	echo;\
+	echo "=======================================";\
+	echo " User: Path variables";\
+	echo "=======================================";\
+	echo "CY_APP_PATH=$(CY_APP_PATH)";\
+	echo "CY_BASELIB_PATH=$(CY_BASELIB_PATH)";\
+	echo "CY_EXTAPP_PATH=$(CY_EXTAPP_PATH)";\
+	echo "CY_DEVICESUPPORT_PATH=$(CY_DEVICESUPPORT_PATH)";\
+	echo "CY_SHARED_PATH=$(CY_SHARED_PATH)";\
+	echo "CY_COMPILER_PATH=$(CY_COMPILER_PATH)";\
+	echo "CY_TOOLS_DIR=$(CY_TOOLS_DIR)";\
+	echo "CY_BUILD_LOCATION=$(CY_BUILD_LOCATION)";\
+	echo "CY_PYTHON_PATH=$(CY_PYTHON_PATH)";\
+	echo "TOOLCHAIN_MK_PATH=$(TOOLCHAIN_MK_PATH)";\
+	echo;\
+	echo "=======================================";\
+	echo " User: Miscellaneous variables";\
+	echo "=======================================";\
+	echo "CY_IGNORE=$(CY_IGNORE_DIRS)";\
+	echo "CY_SKIP_RECIPE=$(CY_SKIP_RECIPE)";\
+	echo "CY_EXTRA_INCLUDES=$(CY_EXTRA_INCLUDES)";\
+	echo "CY_LIBS_SEARCH_DEPTH=$(CY_LIBS_SEARCH_DEPTH)";\
+	echo "CY_UTILS_SEARCH_DEPTH=$(CY_UTILS_SEARCH_DEPTH)";\
+	echo "CY_IDE_PRJNAME=$(CY_IDE_PRJNAME)";\
+	echo "CY_CONFIG_FILE_EXT=$(CY_CONFIG_FILE_EXT)";\
+	echo "CY_SUPPORTED_TOOL_TYPES=$(CY_SUPPORTED_TOOL_TYPES)";\
+	echo;\
+	echo "=======================================";\
+	echo " Internal variables";\
+	echo "=======================================";\
+	echo "CY_INTERNAL_BUILD_LOC=$(CY_INTERNAL_BUILD_LOC)";\
+	echo "CY_INTERNAL_APPLOC=$(CY_INTERNAL_APPLOC)";\
+	echo "CY_DEVICESUPPORT_SEARCH_PATH=$(strip $(CY_DEVICESUPPORT_SEARCH_PATH))";\
+	echo "CC="$(CC)"";\
+	echo "CXX="$(CXX)"";\
+	echo "AS="$(AS)"";\
+	echo "AR="$(AR)"";\
+	echo "LD="$(LD)""
+
 
 ################################################################################
 # Test/debug targets
@@ -242,11 +379,10 @@ endif
 
 CY_TOOLS_LIST+=bash git find ls cp mkdir rm cat sed awk perl file whereis
 
-CY_HELP_check=Checks for the necessary tools.
 check:
 	$(info )
 	$(foreach tool,$(CY_TOOLS_LIST),$(if $(shell which $(tool)),,$(error "$(tool) was not found in user's PATH")))
-	@if [ ! -d $(CY_BT_CONFIGURATOR_DIR) ]; then toolsTest+=("bt-configurator could not be found"); fi;\
+	$(CY_NOISE)if [ ! -d $(CY_BT_CONFIGURATOR_DIR) ]; then toolsTest+=("bt-configurator could not be found"); fi;\
 	if [ ! -d $(CY_CAPSENSE_CONFIGURATOR_DIR) ]; then toolsTest+=("capsense-configurator could not be found"); fi;\
 	if [ ! -d $(CY_CFG_BACKEND_CLI_DIR) ]; then toolsTest+=("cfg-backend-cli could not be found"); fi;\
 	if [ ! -d $(CY_MCUELFTOOL_DIR) ]; then toolsTest+=("cymcuelftool could not be found"); fi;\
@@ -271,9 +407,8 @@ check:
 		printf '  %s\n' "$${toolsTest[@]}";\
 	fi;
 
-CY_HELP_get_env_info=Prints the make, git, and app repo info.
 get_env_info:
-	@echo;\
+	$(CY_NOISE)echo;\
 	echo "make location :" $$(which make);\
 	echo "make version  :" $(MAKE_VERSION);\
 	echo "git location  :" $$(which git);\
@@ -282,11 +417,9 @@ get_env_info:
 	git remote -v;\
 	echo "git rev-parse :" $$(git rev-parse HEAD)
 
-CY_HELP_printlibs=Prints the status of the library repos.
 printlibs:
 
 # Defined in recipe's program.mk
-CY_HELP_progtool=Performs specified operations on the programmer/firmware-loader
 progtool:
 
 # Empty libs on purpose. May be defined by the application

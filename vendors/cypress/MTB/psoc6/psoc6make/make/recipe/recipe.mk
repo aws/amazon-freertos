@@ -192,17 +192,17 @@ CY_MEM_CALC=\
 	$(CY_START_SRAM)
 endif
 
-memcalc: app
-ifneq ($(LIBNAME),)
-else
-	@echo Calculating memory consumption: $(DEVICE) $(TOOLCHAIN) $(CY_TOOLCHAIN_OPTIMIZATION)
-	@echo
+memcalc:
+ifeq ($(LIBNAME),)
+	$(CY_NOISE)echo Calculating memory consumption: $(DEVICE) $(TOOLCHAIN) $(CY_TOOLCHAIN_OPTIMIZATION)
+	$(CY_NOISE)echo
 	$(CY_NOISE)$(CY_GEN_READELF)
 	$(CY_NOISE)$(CY_MEM_CALC)
+	$(CY_NOISE)echo
 endif
 
 progtool:
-	@echo;\
+	$(CY_NOISE)echo;\
 	echo ==============================================================================;\
 	echo "Available commands";\
 	echo ==============================================================================;\
