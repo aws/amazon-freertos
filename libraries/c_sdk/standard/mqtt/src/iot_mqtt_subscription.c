@@ -360,11 +360,13 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
+            /* Fail to give subscription mutex as no space is available on queue. */
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
     }
     else
     {
+        /* Fail to take context mutex due to timeout. */
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
     }
 
@@ -410,6 +412,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
      * function is searching. */
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
     {
+        /* Fail to take context mutex due to timeout. */
         mutexStatus = false;
     }
 
@@ -450,6 +453,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             /* Unlock the subscription array mutex. */
             if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
             {
+                /* Fail to give subscription mutex as no space is available on queue. */
                 mutexStatus = false;
             }
 
@@ -465,6 +469,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             /* Lock the subscription array mutex to decrement the reference count. */
             if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
             {
+                /* Fail to take context mutex due to timeout. */
                 mutexStatus = false;
             }
 
@@ -496,6 +501,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
 
     if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
     {
+        /* Fail to give subscription mutex as no space is available on queue. */
         mutexStatus = false;
     }
 
@@ -532,11 +538,13 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
+            /* Fail to give subscription mutex as no space is available on queue. */
             mutexStatus = false;
         }
     }
     else
     {
+        /* Fail to take context mutex due to timeout. */
         mutexStatus = false;
     }
 
@@ -612,11 +620,13 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
+            /* Fail to give subscription mutex as no space is available on queue. */
             mutexStatus = false;
         }
     }
     else
     {
+        /* Fail to take context mutex due to timeout. */
         mutexStatus = false;
     }
 
@@ -679,6 +689,7 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
+            /* Fail to give subscription mutex as no space is available on queue. */
             status = false;
         }
     }

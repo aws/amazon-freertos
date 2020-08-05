@@ -516,11 +516,13 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
         {
+            /* Fail to give subscription mutex as no space is available on queue. */
             mutexStatus = false;
         }
     }
     else
     {
+        /* Fail to take context mutex due to timeout. */
         mutexStatus = false;
     }
 
@@ -548,7 +550,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     }
 
     /* Destroy mutexes. */
-    IotMutex_Destroy( &( connToContext[ contextIndex ].contextMutex ) );
+    IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
     IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
@@ -1082,7 +1084,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    bool contextMutex = IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true );
+    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
     /* Create the subscription mutex for a new connection. */
 
     if( contextMutex == true )
@@ -1104,7 +1106,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
 
-        subscriptionMutexCreated = IotMutex_CreateNonRecursive( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
         if( subscriptionMutexCreated == false )
         {

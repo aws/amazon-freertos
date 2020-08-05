@@ -43,7 +43,7 @@
 
 /*-----------------------------------------------------------*/
 
-bool IotMutex_CreateNonRecursive( StaticSemaphore_t * pMutex )
+bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
 {
     bool status = false;
 
@@ -63,7 +63,7 @@ bool IotMutex_CreateNonRecursive( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_CreateRecursive( StaticSemaphore_t * pMutex )
+bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
 {
     bool status = false;
 
