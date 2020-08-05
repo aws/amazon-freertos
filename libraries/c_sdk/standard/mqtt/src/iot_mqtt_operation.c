@@ -1345,7 +1345,6 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         pResult = IotLink_Container( _mqttOperation_t, pResultLink, link );
         waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
-
         /* An operation with no retry in the pending responses list should
          * always have a job reference of 1. */
         IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
