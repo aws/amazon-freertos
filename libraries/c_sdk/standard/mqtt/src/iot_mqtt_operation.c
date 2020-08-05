@@ -1148,69 +1148,39 @@ void _IotMqtt_ProcessOperation( _mqttOperation_t * pOperation )
     /* Check if this operation requires further processing. */
     if( pOperation->u.operation.status == IOT_MQTT_STATUS_PENDING )
     {
-        /* Check if this operation should be scheduled for retransmission. */
-        if( pOperation->u.operation.retry.limit > 0 )
+        /* Decrement reference count to signal completion of send job. Check
+         * if the operation should be destroyed. */
+        if( waitable == true )
         {
-            /* If the operation should not be destroyed, transfer it from the
-             * pending processing to the pending response list. */
-            if( destroyOperation == false )
-            {
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-
-                /* Operation must be linked. */
-                IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
-
-                /* Transfer to pending response list. */
-                IotListDouble_Remove( &( pOperation->link ) );
-                IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
-                                          &( pOperation->link ) );
-
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
-
-                /* This operation is now awaiting a response from the network. */
-                networkPending = true;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
+            destroyOperation = _IotMqtt_DecrementOperationReferences( pOperation, false );
         }
         else
         {
-            /* Decrement reference count to signal completion of send job. Check
-             * if the operation should be destroyed. */
-            if( waitable == true )
-            {
-                destroyOperation = _IotMqtt_DecrementOperationReferences( pOperation, false );
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
+            EMPTY_ELSE_MARKER;
+        }
 
-            /* If the operation should not be destroyed, transfer it from the
-             * pending processing to the pending response list. */
-            if( destroyOperation == false )
-            {
-                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+        /* If the operation should not be destroyed, transfer it from the
+         * pending processing to the pending response list. */
+        if( destroyOperation == false )
+        {
+            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
 
-                /* Operation must be linked. */
-                IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
+            /* Operation must be linked. */
+            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
 
-                /* Transfer to pending response list. */
-                IotListDouble_Remove( &( pOperation->link ) );
-                IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
-                                          &( pOperation->link ) );
+            /* Transfer to pending response list. */
+            IotListDouble_Remove( &( pOperation->link ) );
+            IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
+                                      &( pOperation->link ) );
 
-                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
-                /* This operation is now awaiting a response from the network. */
-                networkPending = true;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
+            /* This operation is now awaiting a response from the network. */
+            networkPending = true;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
         }
     }
     else
@@ -1375,40 +1345,23 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         pResult = IotLink_Container( _mqttOperation_t, pResultLink, link );
         waitable = ( pResult->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == IOT_MQTT_FLAG_WAITABLE;
 
-        if( pResult->u.operation.retry.limit > 0 )
-        {
-            /* If the retry job could not be canceled, then it is currently
-             * executing. Ignore the operation. */
-            if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
-            {
-                /*pResult = NULL; */
-            }
-            else
-            {
-                /* Check job reference counts. A waitable operation should have a
-                 * count of 2; a non-waitable operation should have a count of 1. */
-                /*IotMqtt_Assert(pResult->u.operation.jobReference == (1 + (waitable == true))); */
-            }
-        }
-        else
-        {
-            /* An operation with no retry in the pending responses list should
-             * always have a job reference of 1. */
-            IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
 
-            /* Increment job references of a waitable operation to prevent Wait from
-             * destroying this operation if it times out. */
-            if( waitable == true )
-            {
-                ( pResult->u.operation.jobReference )++;
+        /* An operation with no retry in the pending responses list should
+         * always have a job reference of 1. */
+        IotMqtt_Assert( pResult->u.operation.jobReference == 1 );
 
-                IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
-                             pMqttConnection,
-                             IotMqtt_OperationType( type ),
-                             pResult,
-                             ( long int ) ( pResult->u.operation.jobReference - 1 ),
-                             ( long int ) ( pResult->u.operation.jobReference ) );
-            }
+        /* Increment job references of a waitable operation to prevent Wait from
+         * destroying this operation if it times out. */
+        if( waitable == true )
+        {
+            ( pResult->u.operation.jobReference )++;
+
+            IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
+                         pMqttConnection,
+                         IotMqtt_OperationType( type ),
+                         pResult,
+                         ( long int ) ( pResult->u.operation.jobReference - 1 ),
+                         ( long int ) ( pResult->u.operation.jobReference ) );
         }
     }
     else
