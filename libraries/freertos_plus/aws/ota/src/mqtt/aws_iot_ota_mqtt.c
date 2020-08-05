@@ -231,7 +231,7 @@ static bool prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCtx 
 
     const OTA_FileContext_t * pFileContext = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
-    if( ( pxAgentCtx != NULL ) && ( pFileContext != NULL ) && ( pFileContext->pucStreamName != NULL ) )
+    if( ( pFileContext != NULL ) && ( pFileContext->pucStreamName != NULL ) )
     {
         /* Try to build the dynamic data stream topic and un-subscribe from it. */
 
