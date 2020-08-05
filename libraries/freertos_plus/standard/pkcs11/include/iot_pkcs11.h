@@ -325,7 +325,7 @@ CK_RV xInitializePkcs11Token( void );
  */
 /* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    CK_BYTE_PTR pcLabelName,
+                                    char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
 /* @[declare_pkcs11_iot_xfindobjectwithlabelandclass] */

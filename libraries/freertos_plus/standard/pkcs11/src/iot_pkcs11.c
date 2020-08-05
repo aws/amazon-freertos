@@ -278,7 +278,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 /*-----------------------------------------------------------*/
 
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    CK_BYTE_PTR pcLabelName,
+                                    char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle )
 {
