@@ -1,14 +1,26 @@
 /*
- * $ Copyright Cypress Semiconductor $
+ * Copyright 2019-2020 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /** @file
  *
  */
-
+#include "cy_json_parser.h"
 #include <stddef.h>
 #include <string.h>
-#include "JSON.h"
 
 /******************************************************
  *                      Macros
@@ -37,16 +49,16 @@
  *               Static Function Declarations
  ******************************************************/
 
-cy_json_callback_t      internal_json_callback;
-void                    *internal_json_callback_arg;
 static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len );
 
 /******************************************************
  *               Variable Definitions
  ******************************************************/
+static cy_JSON_callback_t      internal_json_callback;
+static void                    *internal_json_argument;
 
 static char*               previous_token   = NULL;
-static cy_json_object_t json_object =
+static cy_JSON_object_t json_object =
 {
     .object_string        = NULL,
     .object_string_length =                 0,
@@ -57,9 +69,9 @@ static cy_json_object_t json_object =
 };
 
 static int32_t             parent_counter = 0;
-static cy_json_object_t parent_json_object[ MAX_PARENTS ];
+static cy_JSON_object_t parent_json_object[ MAX_PARENTS ];
 
-static int                  incomplete_response       = 0;
+static bool        incomplete_response       = false;
 
 static int32_t             object_counter            = 0;
 
@@ -69,7 +81,7 @@ static char*               string_end                = NULL;
 static char*               value_start               = NULL;
 static char*               value_end                 = NULL;
 
-static cy_JSON_types_t  type                      = UNKNOWN_JSON_TYPE;
+static cy_JSON_type_t      type                      = UNKNOWN_JSON_TYPE;
 
 static char*               current_input_token;
 static char*               end_of_input;
@@ -80,7 +92,7 @@ char                       packet_backup[ MAX_BACKUP_SIZE ];
 
 uint32_t                   number_of_bytes_backed_up;
 
-static int                 escape_token              = 0;
+static bool        escape_token              = false;
 static int32_t             array_counter            = 0;
 
 /******************************************************
@@ -104,7 +116,7 @@ static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len )
         }
         else
         {
-            return CY_RSLT_TYPE_ERROR;
+            return CY_RSLT_JSON_GENERIC_ERROR;
         }
     }
     if ( ( *start == 't' ) && ( len == 4 ) )
@@ -115,7 +127,7 @@ static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len )
         }
         else
         {
-            return CY_RSLT_TYPE_ERROR;
+            return CY_RSLT_JSON_GENERIC_ERROR;
         }
     }
     if ( ( *start == 'n' ) && ( len == 4 ) )
@@ -126,7 +138,7 @@ static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len )
         }
         else
         {
-            return CY_RSLT_TYPE_ERROR;
+            return CY_RSLT_JSON_GENERIC_ERROR;
         }
     }
 
@@ -173,12 +185,12 @@ static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len )
 
         if ( !( ( ( *temp >= '0' ) && ( *temp <= '9' ) ) || ( *temp == 'e' ) || ( *temp == '-' ) || ( *temp == '.' ) || ( *temp == '+' ) ) )
         {
-            return CY_RSLT_TYPE_ERROR;
+            return CY_RSLT_JSON_GENERIC_ERROR;
         }
 
         if ( ( e_count > 1 ) || ( minus > 1 ) || ( plus > 1 ) || ( dot > 1 ) )
         {
-            return CY_RSLT_TYPE_ERROR;
+            return CY_RSLT_JSON_GENERIC_ERROR;
         }
         temp++;
     }
@@ -188,17 +200,17 @@ static cy_rslt_t validate_array_value( char* start, char* stop, uint8_t len )
 
 
 /* Register callbacks parser will use to populate fields*/
-cy_rslt_t cy_JSON_parser_register_callback( cy_json_callback_t json_callback, void *json_cb_arg )
+cy_rslt_t cy_JSON_parser_register_callback( cy_JSON_callback_t json_callback, void *arg )
 {
     internal_json_callback = json_callback;
-    internal_json_callback_arg = json_cb_arg;
+    internal_json_argument = arg;
 
     return CY_RSLT_SUCCESS;
 }
 
 
 /* Get current callback */
-cy_json_callback_t cy_JSON_parser_get_callback( void )
+cy_JSON_callback_t cy_JSON_parser_get_callback( void )
 {
     return internal_json_callback;
 }
@@ -232,7 +244,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
             end_of_input        = current_input_token + input_length;
         }
 
-        incomplete_response = 0;
+        incomplete_response = false;
     }
     else
     {
@@ -259,7 +271,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
@@ -313,7 +325,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
@@ -329,7 +341,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                     {
                         if ( *( current_input_token ) == ( OBJECT_END_TOKEN ) )
                         {
-                            valid_json_string = CY_RSLT_TYPE_ERROR;
+                            valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                             object_counter = 0;
                             array_counter = 0;
                             return valid_json_string;
@@ -390,11 +402,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                                 start++;
                             }
 
-                            len = (uint8_t)(end - start + 1);
+                            len = end - start + 1;
 
                             if ( validate_array_value( start, end, len ) != CY_RSLT_SUCCESS )
                             {
-                                valid_json_string = CY_RSLT_TYPE_ERROR;
+                                valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                                 object_counter = 0;
                                 array_counter = 0;
                                 return valid_json_string;
@@ -410,7 +422,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                             value_start = value_end;
 
                             /* Move value_start token until we encounter a non-digit value */
-                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) || ( *value_start == '+' ) || ( *value_start == 'e' ) )
+                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) )
                             {
                                 value_start--;
                             }
@@ -422,11 +434,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                         /* Prepare JSON object */
                         json_object.value_type = type;
                         json_object.value = value_start;
-                        json_object.value_length = (uint16_t)(value_end - value_start + 1);
+                        json_object.value_length = value_end - value_start + 1;
 
                         if ( internal_json_callback != NULL )
                         {
-                            internal_json_callback( &json_object, internal_json_callback_arg );
+                            internal_json_callback( &json_object, internal_json_argument );
                         }
 
                         /* Reset the value pointers */
@@ -461,7 +473,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
                     /* This indicates this must be closing token for object name */
@@ -483,12 +495,12 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                 case TRUE_TOKEN:
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
                     if ( *previous_token == OBJECT_START_TOKEN )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
 
                         return valid_json_string;
@@ -504,12 +516,12 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                 case FALSE_TOKEN:
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
                     if ( *previous_token == OBJECT_START_TOKEN )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
                         array_counter = 0;
                         return valid_json_string;
@@ -525,7 +537,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                 case NULL_TOKEN:
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
                     if ( ( *previous_token == START_OF_VALUE ) && ( string_end ) )
@@ -539,7 +551,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
@@ -564,7 +576,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( internal_json_callback != NULL )
                     {
-                        internal_json_callback( &json_object, internal_json_callback_arg );
+                        internal_json_callback( &json_object, internal_json_argument );
                     }
 
                     /* Reset object string start/end tokens */
@@ -579,7 +591,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
@@ -594,14 +606,14 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( *( previous_token ) == START_OF_VALUE )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
                         return valid_json_string;
                     }
 
                     if ( *( current_input_token - space - 1 ) == COMMA_SEPARATOR )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
                         array_counter = 0;
                         return valid_json_string;
@@ -672,11 +684,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                                 start++;
                             }
 
-                            len = (uint8_t)(end - start + 1);
+                            len = end - start + 1;
 
                             if ( validate_array_value( start, end, len ) != CY_RSLT_SUCCESS )
                             {
-                                valid_json_string = CY_RSLT_TYPE_ERROR;
+                                valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                                 object_counter = 0;
                                 array_counter = 0;
                                 return valid_json_string;
@@ -692,7 +704,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                             value_start = value_end;
 
                             /* Increment value_start until you reach first number */
-                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) || ( *value_start == '+' ) || ( *value_start == 'e' ) )
+                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) )
                             {
                                 value_start--;
                             }
@@ -706,11 +718,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                         json_object.object_string_length = 0;
                         json_object.value_type = type;
                         json_object.value = value_start;
-                        json_object.value_length = (uint16_t)(value_end - value_start + 1);
+                        json_object.value_length = value_end - value_start + 1;
 
                         if ( internal_json_callback != NULL )
                         {
-                            internal_json_callback( &json_object, internal_json_callback_arg );
+                            internal_json_callback( &json_object, internal_json_argument );
                         }
 
                         string_start = NULL;
@@ -729,13 +741,13 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
                     if ( ( *( previous_token  ) == OBJECT_START_TOKEN ) || ( *( previous_token  ) == ARRAY_START_TOKEN ) )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
                         array_counter = 0;
                         return valid_json_string;
@@ -744,7 +756,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                     {
                         /* prepare JSON object */
                         json_object.object_string = string_start + 1;
-                        json_object.object_string_length = (uint8_t)(string_end - string_start - 1);
+                        json_object.object_string_length = string_end - string_start - 1;
                         type = UNKNOWN_JSON_TYPE;
                         previous_token = current_input_token;
                     }
@@ -759,7 +771,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                     if ( escape_token )
                     {
-                        escape_token = 0;
+                        escape_token = false;
                         break;
                     }
 
@@ -818,7 +830,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                             value_start = value_end;
 
                             /* Increment value_start until you reach first number */
-                            while ( ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) || ( *value_start == '+' ) || ( *value_start == 'e' ) ) && ( *previous_token != *value_start ) )
+                            while ( ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) ) && ( *previous_token != *value_start ) )
                             {
                                 value_start--;
                             }
@@ -832,11 +844,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
                         json_object.object_string_length = 0;
                         json_object.value_type = type;
                         json_object.value = value_start;
-                        json_object.value_length = (uint16_t)(value_end - value_start + 1);
+                        json_object.value_length = value_end - value_start + 1;
 
                         if ( internal_json_callback != NULL )
                         {
-                            internal_json_callback( &json_object, internal_json_callback_arg );
+                            internal_json_callback( &json_object, internal_json_argument );
                         }
                         value_start = NULL;
                         value_end = NULL;
@@ -916,7 +928,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                             value_start = value_end;
 
-                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) || ( *value_start == '+' ) || ( *value_start == 'e' ) )
+                            while ( ( ( *value_start >= '0' ) && ( *value_start <= '9' ) ) || ( *value_start == '.' ) || ( *value_start == '-' ) )
                             {
                                 value_start--;
                             }
@@ -926,11 +938,11 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                         json_object.value_type = type;
                         json_object.value = value_start;
-                        json_object.value_length = (uint16_t)(value_end - value_start + 1);
+                        json_object.value_length = value_end - value_start + 1;
 
                         if ( internal_json_callback != NULL )
                         {
-                            internal_json_callback( &json_object, internal_json_callback_arg );
+                            internal_json_callback( &json_object, internal_json_argument );
                         }
 
                         string_start = NULL;
@@ -946,17 +958,17 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
                 case ESCAPE_TOKEN:
                     /* Clear escape token flag, if the previous token is an escape token. Else set it */
-                    escape_token = ( escape_token == 1 ) ? 0 : 1;
+                    escape_token = ( escape_token == true ) ? false : true;
 
                     break;
 
                 default:
                     /* Reset escape token flag */
-                    escape_token = 0;
+                    escape_token = false;
                     if ( ( object_counter == 0 ) && ( array_counter == 0 ) && ( *current_input_token  != ' ' ) &&
                          ( JSON_IS_NOT_ESC_CHAR ( *current_input_token ) ) )
                     {
-                        valid_json_string = CY_RSLT_TYPE_ERROR;
+                        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                         object_counter = 0;
                         array_counter = 0;
                         return valid_json_string;
@@ -976,7 +988,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
             current_input_token++;
             if ( ( *( current_input_token ) == '\0' ) && ( ( ( *( previous_token ) == COMMA_SEPARATOR ) || ( *( previous_token ) == STRING_TOKEN ) || ( *( previous_token ) == START_OF_VALUE ) || ( *( previous_token ) == ARRAY_START_TOKEN ) ) ) )
             {
-                valid_json_string = CY_RSLT_TYPE_ERROR;
+                valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
                 object_counter = 0;
                 array_counter = 0;
                 return valid_json_string;
@@ -985,7 +997,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
     }     // if
     else
     {
-        valid_json_string = CY_RSLT_TYPE_ERROR;
+        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
         return valid_json_string;
     }
 
@@ -996,13 +1008,13 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
         // Copy everything from the most recent unfinished object onwards
 
-        number_of_bytes_backed_up = (uint32_t)(end_of_input - most_recent_object_marker);
+        number_of_bytes_backed_up = end_of_input - most_recent_object_marker;
 
         memcpy( packet_backup, most_recent_object_marker, number_of_bytes_backed_up );
 
 
-        incomplete_response = 1;
-        valid_json_string = CY_RSLT_TYPE_ERROR;
+        incomplete_response = true;
+        valid_json_string = CY_RSLT_JSON_GENERIC_ERROR;
         object_counter      = 0;
 
         return valid_json_string;
@@ -1011,7 +1023,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
     memset( &parent_json_object, 0x0, sizeof( parent_json_object ) );
 
-    incomplete_response = 0;
+    incomplete_response = false;
 
     object_counter      = 0;
 
@@ -1023,7 +1035,7 @@ cy_rslt_t cy_JSON_parser( const char* json_input, uint32_t input_length )
 
     type                = UNKNOWN_JSON_TYPE;
 
-    escape_token        = 0;
+    escape_token        = false;
 
     previous_token      = NULL;
 
