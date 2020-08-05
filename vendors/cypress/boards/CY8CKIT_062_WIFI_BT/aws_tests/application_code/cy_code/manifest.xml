@@ -1,0 +1,53 @@
+<boards>
+  <board>
+    <id>CY8CKIT-062-WIFI-BT</id>
+    <category>PSoC 6 BSPs</category>
+    <board_uri>http://git-ore.aus.cypress.com/repo-staging/TARGET_CY8CKIT-062-WIFI-BT</board_uri>
+    <chips>
+      <mcu>CY8C6247BZI-D54</mcu>
+      <radio>CYW4343WKUBG</radio>
+    </chips>
+    <name>CY8CKIT-062-WIFI-BT</name>
+    <summary>The PSoC 6 WiFi-BT Pioneer Kit is a low-cost hardware platform that enables design and debug of the PSoC 62 MCU (CY8C6247BZI-D54) and the Murata LBEE5KL1DX Module (CYW4343W WiFi + Bluetooth Combo Chip).</summary>
+    <prov_capabilities>psoc6 cyw43xxx cyw4343w mcu_gp arduino j2 led switch wifi bt usb_device usb_host capsense capsense_button capsense_linear_slider qspi memory udb std_crypto</prov_capabilities>
+    <description><![CDATA[
+        <div class="category">Kit Features:</div><ul>
+        <li>BLE v5.0</li>
+        <li>Serial memory interface</li>
+        <li>PDM-PCM digital microphone interface</li>
+        <li>Industry-leading CapSense</li>
+        <li>Full-speed USB</li>
+        <li>IEEE 802.11a/b/g/n WLAN</li>
+        </ul><p/>
+
+        <div class="category">Kit Contents:</div><ul>
+        <li>CY8CKIT-062-WIFI-BT evaluation board</li>
+        <li>TFT display shield with a 2.4" TFT display, light sensor, 6-axis motion sensor, and digital microphone</li>
+        <li>USB cable</li>
+        </ul>
+      ]]></description>
+    <documentation_url>http://www.cypress.com/documentation/development-kitsboards/psoc-6-wifi-bt-pioneer-kit</documentation_url>
+    <versions>
+      <version>
+        <num>Latest 1.X release</num>
+        <commit>latest-v1.X</commit>
+      </version>
+      <version>
+        <num>1.2.0 release</num>
+        <commit>release-v1.2.0</commit>
+      </version>
+      <version>
+        <num>1.1.0 release</num>
+        <commit>release-v1.1.0</commit>
+      </version>
+      <version>
+        <num>1.0.1 release</num>
+        <commit>release-v1.0.1</commit>
+      </version>
+      <version>
+        <num>1.0.0 release</num>
+        <commit>release-v1.0.0</commit>
+      </version>
+    </versions>
+  </board>
+</boards>
