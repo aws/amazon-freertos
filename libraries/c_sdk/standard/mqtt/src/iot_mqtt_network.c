@@ -676,7 +676,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                EMPTY_ELSE_MARKER;
+                status = IOT_MQTT_BAD_RESPONSE;
             }
 
             break;

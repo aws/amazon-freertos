@@ -615,7 +615,7 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
                            uint16_t topicFilterLength,
                            IotMqttSubscription_t * pCurrentSubscription )
 {
-    bool status = false;
+    bool status = false, mutexStatus = true;
     _mqttSubscription_t * pSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams =
@@ -654,12 +654,15 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
             status = true;
         }
 
-        status = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
     else
     {
-        status = false;
+        mutexStatus = false;
     }
+
+    /* Assert to check whether mutex was given successfully or not. */
+    IotMqtt_Assert( mutexStatus == true );
 
     return status;
 }
