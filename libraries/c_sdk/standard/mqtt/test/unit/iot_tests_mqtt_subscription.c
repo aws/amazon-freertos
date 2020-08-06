@@ -131,6 +131,9 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
  */
 static bool _connectionCreated = false;
 
+/**
+ * @brief Tracks whether the global MQTT connection has been created.
+ */
 static int8_t contextIndex = -1;
 
 /**
@@ -272,6 +275,80 @@ static void _blockingCallback( void * pArgument,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Setting the MQTT Context for the given MQTT Connection.
+ *
+ */
+static void _setContext( IotMqttConnection_t pMqttConnection )
+{
+    bool subscriptionMutexCreated = false;
+    bool contextMutex = false;
+    TransportInterface_t transport;
+    MQTTFixedBuffer_t networkBuffer;
+    MQTTApplicationCallbacks_t callbacks;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+
+    /* Create the subscription mutex for a new connection. */
+
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = pMqttConnection;
+
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IotLogError( "Failed to create subscription mutex for new connection." );
+        }
+
+        /* Initializing the MQTT context used in calling MQTT LTS API. */
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        status = convertReturnCode( managedMqttStatus );
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "(MQTT connection %p) Failed to initialize context for "
+                         "the MQTT connection.",
+                         pMqttConnection );
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to create mutex for "
+                     "the MQTT context.",
+                     pMqttConnection );
+    }
+}
+
+static bool _isEmpty( _mqttSubscription_t * pSubscriptionArray )
+{
+    bool status = true;
+    size_t index = 0;
+
+    while( index < MAX_NO_OF_MQTT_SUBSCRIPTIONS )
+    {
+        if( pSubscriptionArray[ index ].topicFilterLength != 0 )
+        {
+            status = false;
+            break;
+        }
+
+        index++;
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for MQTT subscription tests.
  */
 TEST_GROUP( MQTT_Unit_Subscription );
@@ -300,68 +377,8 @@ TEST_SETUP( MQTT_Unit_Subscription )
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
-
-
-    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
-    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
-
-    if( contextIndex == -1 )
-    {
-        connToContext[ 0 ].mqttConnection = NULL;
-        contextIndex = 0;
-    }
-
-    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
-     * on the network using MQTT LTS API. */
-
-    bool subscriptionMutexCreated = false;
-    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
-    TransportInterface_t transport;
-    MQTTFixedBuffer_t networkBuffer;
-    MQTTApplicationCallbacks_t callbacks;
-    MQTTStatus_t managedMqttStatus;
-
-    /* Create the subscription mutex for a new connection. */
-
-    if( contextMutex == true )
-    {
-        /* Assigning the MQTT Connection. */
-        connToContext[ contextIndex ].mqttConnection = _pMqttConnection;
-
-        /* Assigning the Network Context to be used by this MQTT Context. */
-        /*connToContext[contextIndex].networkContext.pNetworkConnection = pNetworkConnection; */
-        /*connToContext[contextIndex].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface; */
-
-        /* Fill in TransportInterface send function pointer. We will not be implementing the
-         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
-         * receive task. Only using MQTT LTS APIs for transmit path.*/
-        /*transport.pNetworkContext = &(connToContext[contextIndex].networkContext); */
-        /*transport.send = transportSend; */
-
-        /* Fill the values for network buffer. */
-        /*networkBuffer.pBuffer = &(connToContext[contextIndex].buffer); */
-        /*networkBuffer.size = NETWORK_BUFFER_SIZE; */
-        /* Fill in time utility function pointer. */
-        /*callbacks.getTime = getTimeMs; */
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
-
-        if( subscriptionMutexCreated == false )
-        {
-            IotLogError( "Failed to create subscription mutex for new connection." );
-        }
-
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-        /*status = convertReturnCode(managedMqttStatus); */
-
-        /*if (status != IOT_MQTT_SUCCESS)
-         * {
-         *
-         * }*/
-    }
-    else
-    {
-    }
+    /* Setting the MQTT Context for the MQTT Connection. */
+    _setContext( _pMqttConnection );
 
     _connectionCreated = true;
 }
@@ -392,19 +409,19 @@ TEST_TEAR_DOWN( MQTT_Unit_Subscription )
  */
 TEST_GROUP_RUNNER( MQTT_Unit_Subscription )
 {
-    /*RUN_TEST_CASE( MQTT_Unit_Subscription, ListInsertRemove ); */
+    RUN_TEST_CASE( MQTT_Unit_Subscription, ListInsertRemove );
     RUN_TEST_CASE( MQTT_Unit_Subscription, ListFindByTopicFilter );
 
-    //RUN_TEST_CASE( MQTT_Unit_Subscription, ListFindByPacket );
-     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByPacket );
-     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter );
-     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddDuplicate );
-      //RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddMallocFail );
-      RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublish );
-      RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublishMultiple );
-      RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionReferences );
-      RUN_TEST_CASE( MQTT_Unit_Subscription, TopicFilterMatchTrue );
-     RUN_TEST_CASE( MQTT_Unit_Subscription, TopicFilterMatchFalse );
+    /*RUN_TEST_CASE( MQTT_Unit_Subscription, ListFindByPacket ); */
+    RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByPacket );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddDuplicate );
+    /*RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddMallocFail ); */
+    RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublish );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublishMultiple );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionReferences );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, TopicFilterMatchTrue );
+    RUN_TEST_CASE( MQTT_Unit_Subscription, TopicFilterMatchFalse );
 }
 
 /*-----------------------------------------------------------*/
@@ -414,26 +431,27 @@ TEST_GROUP_RUNNER( MQTT_Unit_Subscription )
  */
 TEST( MQTT_Unit_Subscription, ListInsertRemove )
 {
-    /*_mqttSubscription_t node1;
-     * _mqttSubscription_t node2;
-     * _mqttSubscription_t node3;
-     *
-     * ( void ) memset( &node1, 0x00, sizeof( _mqttSubscription_t ) );
-     * ( void ) memset( &node2, 0x00, sizeof( _mqttSubscription_t ) );
-     * ( void ) memset( &node3, 0x00, sizeof( _mqttSubscription_t ) );
-     *
-     * IotListDouble_InsertHead( &( _pMqttConnection->subscriptionList ),
-     *                        &( node1.link ) );
-     * IotListDouble_InsertHead( &( _pMqttConnection->subscriptionList ),
-     *                        &( node2.link ) );
-     * IotListDouble_InsertHead( &( _pMqttConnection->subscriptionList ),
-     *                        &( node3.link ) );
-     *
-     * IotListDouble_Remove( &( node1.link ) );
-     * IotListDouble_Remove( &( node2.link ) );
-     * IotListDouble_Remove( &( node3.link ) );
-     *
-     * TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );*/
+    int8_t index1 = -1;
+    int8_t index2 = -1;
+    int8_t index3 = -1;
+
+    index1 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+
+    TEST_ASSERT_NOT_EQUAL( -1, index1 );
+
+    index2 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+
+    TEST_ASSERT_NOT_EQUAL( -1, index2 );
+
+    index3 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+
+    TEST_ASSERT_NOT_EQUAL( -1, index3 );
+
+    IotMqtt_RemoveSubscription( connToContext[ contextIndex ].subscriptionArray, index1 );
+    IotMqtt_RemoveSubscription( connToContext[ contextIndex ].subscriptionArray, index2 );
+    IotMqtt_RemoveSubscription( connToContext[ contextIndex ].subscriptionArray, index3 );
+
+    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -503,14 +521,14 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
     }
 
     /* List should be empty. */
-    //TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
+    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
 
     /* Remove all subscriptions for a packet one-shot. */
     _populateList();
     _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
                                          1,
                                          -1 );
-    //TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
+    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
 }
 
 /*-----------------------------------------------------------*/
@@ -548,11 +566,11 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     }
 
     /* List should be empty. */
-    //TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
+    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
 
     /* Refill the list. */
     _populateList();
-    //TEST_ASSERT_EQUAL_INT( false, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
+    /*TEST_ASSERT_EQUAL_INT( false, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
 
     /* Removal all at once. */
     for( i = 0; i < LIST_ITEM_COUNT; i++ )
@@ -569,7 +587,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
                                               LIST_ITEM_COUNT );
 
     /* List should be empty. */
-    //TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
+    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
 }
 
 /*-----------------------------------------------------------*/
@@ -606,8 +624,8 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
     /* Change the callback information, but not the topic filter. */
-    subscription[1].callback.function = _publishCallback;
-    subscription[1].callback.pCallbackContext = _pMqttConnection;
+    subscription[ 1 ].callback.function = _publishCallback;
+    subscription[ 1 ].callback.pCallbackContext = _pMqttConnection;
 
     /* Add the duplicate subscription. */
     status = _IotMqtt_AddSubscriptions( _pMqttConnection,
@@ -618,34 +636,36 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
 
     /* Find the subscription that was just modified. */
     int8_t index = -1;
+
     topicMatchParams.pTopicName = "/test1";
     topicMatchParams.topicNameLength = 6;
     topicMatchParams.exactMatchOnly = true;
-    index = IotMqtt_FindFirstMatch(&(connToContext[contextIndex].subscriptionArray),
-        0,
-        &topicMatchParams);
-    //TEST_ASSERT_EQUAL(0, index);
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+                                    0,
+                                    &topicMatchParams );
+    /*TEST_ASSERT_EQUAL(0, index); */
+
     /*index = IotListDouble_FindFirstMatch( &( _pMqttConnection->subscriptionList ),
-                                                      NULL,
-                                                      IotTestMqtt_topicMatch,
-                                                      &topicMatchParams );*/
+     *                                                NULL,
+     *                                                IotTestMqtt_topicMatch,
+     *                                                &topicMatchParams );*/
     TEST_ASSERT_NOT_EQUAL( -1, index );
 
     /* Check that the information was changed. */
-    TEST_ASSERT_EQUAL_UINT16( 3, (connToContext[contextIndex].subscriptionArray[index]).packetInfo.identifier );
-    TEST_ASSERT_EQUAL( 0, (connToContext[contextIndex].subscriptionArray[index]).packetInfo.order );
-    TEST_ASSERT_EQUAL_PTR( _publishCallback, (connToContext[contextIndex].subscriptionArray[index]).callback.function );
-    TEST_ASSERT_EQUAL_PTR( _pMqttConnection, (connToContext[contextIndex].subscriptionArray[index]).callback.pCallbackContext );
+    TEST_ASSERT_EQUAL_UINT16( 3, ( connToContext[ contextIndex ].subscriptionArray[ index ] ).packetInfo.identifier );
+    TEST_ASSERT_EQUAL( 0, ( connToContext[ contextIndex ].subscriptionArray[ index ] ).packetInfo.order );
+    TEST_ASSERT_EQUAL_PTR( _publishCallback, ( connToContext[ contextIndex ].subscriptionArray[ index ] ).callback.function );
+    TEST_ASSERT_EQUAL_PTR( _pMqttConnection, ( connToContext[ contextIndex ].subscriptionArray[ index ] ).callback.pCallbackContext );
 
     /* Check that a duplicate entry wasn't created. */
-    //IotListDouble_Remove( &( pSubscription->link ) );
+    /*IotListDouble_Remove( &( pSubscription->link ) ); */
 
-    //IotMqtt_FreeSubscription( pSubscription );
-    IotMqtt_RemoveSubscription((connToContext[contextIndex].subscriptionArray),index);
-    index = IotMqtt_FindFirstMatch(&(connToContext[contextIndex].subscriptionArray),
-        0,
-        &topicMatchParams);
-    TEST_ASSERT_EQUAL(-1, index);
+    /*IotMqtt_FreeSubscription( pSubscription ); */
+    IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), index );
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+                                    0,
+                                    &topicMatchParams );
+    TEST_ASSERT_EQUAL( -1, index );
 }
 
 /*-----------------------------------------------------------*/
@@ -786,8 +806,8 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
 
     /* Get the pointer to the subscription in the MQTT connection. */
 
-    //TEST_ASSERT_NOT_NULL( pSubscriptionLink );
-    pSubscription = &(connToContext[contextIndex].subscriptionArray[0]);
+    /*TEST_ASSERT_NOT_NULL( pSubscriptionLink ); */
+    pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
     TEST_ASSERT_NOT_NULL( pSubscription );
 
     /* Create 3 incoming PUBLISH messages that match the subscription. */
@@ -824,7 +844,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
                                                     3 + keepAliveReference ) );
 
         /* Check that the subscription also has a reference count of 3. */
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCount(&(connToContext[contextIndex].subscriptionMutex) ,
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCount( &( connToContext[ contextIndex ].subscriptionMutex ),
                                                       &( pSubscription->references ),
                                                       3 ) );
 
@@ -837,9 +857,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
                                                     &( _pMqttConnection->references ),
                                                     2 + keepAliveReference ) );
-        TEST_ASSERT_EQUAL_INT32(true, _waitForCount(&(connToContext[contextIndex].subscriptionMutex),
-            &(pSubscription->references),
-            2));
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCount( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                      &( pSubscription->references ),
+                                                      2 ) );
 
         /* Shut down the MQTT connection. */
         IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
@@ -869,8 +889,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
  */
 TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
 {
-    _mqttSubscription_t* pTopicFilter = &(connToContext[contextIndex].subscriptionArray[0]);
-        //IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH );
+    _mqttSubscription_t * pTopicFilter = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
+
+    /*IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH ); */
 
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 
@@ -903,7 +924,7 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
         TEST_TOPIC_MATCH( "aws/iot/shadow/thing/temp", "aws/+/shadow/#", false, true );
     }
 
-    //IotMqtt_FreeSubscription( pTopicFilter );
+    /*IotMqtt_FreeSubscription( pTopicFilter ); */
     pTopicFilter->topicFilterLength = 0;
 }
 
@@ -915,8 +936,9 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
  */
 TEST( MQTT_Unit_Subscription, TopicFilterMatchFalse )
 {
-    _mqttSubscription_t* pTopicFilter = &(connToContext[contextIndex].subscriptionArray[0]);
-        //IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH );
+    _mqttSubscription_t * pTopicFilter = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
+
+    /*IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH ); */
 
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 

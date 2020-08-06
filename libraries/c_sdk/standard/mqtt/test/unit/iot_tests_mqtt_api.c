@@ -544,6 +544,10 @@ static uint32_t getTimeMs( void )
     return 0U;
 }
 
+/**
+ * @brief Setting the MQTT Context for the given MQTT Connection.
+ *
+ */
 static void _setContext( IotMqttConnection_t pMqttConnection )
 {
     int8_t contextIndex = -1;
