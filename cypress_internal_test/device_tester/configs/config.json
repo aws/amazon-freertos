@@ -1,0 +1,20 @@
+{
+  "log": {
+    "location": "../logs/"
+  },
+  "configFiles": {
+    "root": "../configs",
+    "device": "../configs/device.json"
+  },
+  "testPath": "../tests/",
+  "reportPath": "../results/",
+  "certificatePath": "../certificates/",
+  "awsRegion": "us-west-2",
+  "auth": {
+    "method": "environment"
+  },
+  "product": {
+    "name": "GG",
+    "version": "1"
+  }
+}

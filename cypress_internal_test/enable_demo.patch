@@ -1,0 +1,105 @@
+diff --git a/demos/include/aws_clientcredential.h b/demos/include/aws_clientcredential.h
+index bd9213a4f..ae9dd0383 100644
+--- a/demos/include/aws_clientcredential.h
++++ b/demos/include/aws_clientcredential.h
+@@ -31,14 +31,14 @@
+  *
+  * @todo Set this to the fully-qualified DNS name of your MQTT broker.
+  */
+-#define clientcredentialMQTT_BROKER_ENDPOINT         ""
++#define clientcredentialMQTT_BROKER_ENDPOINT         "a33jl9z28enc1q-ats.iot.us-east-2.amazonaws.com"
+
+ /*
+  * @brief Host name.
+  *
+  * @todo Set this to the unique name of your IoT Thing.
+  */
+-#define clientcredentialIOT_THING_NAME               ""
++#define clientcredentialIOT_THING_NAME               "lava_thing"
+
+ /*
+  * @brief Port number the MQTT broker is using.
+@@ -55,13 +55,13 @@
+  *
+  * @todo If you are using Wi-Fi, set this to your network name.
+  */
+-#define clientcredentialWIFI_SSID                    ""
++#define clientcredentialWIFI_SSID                    "Cypress:24"
+
+ /*
+  * @brief Password needed to join Wi-Fi network.
+  * @todo If you are using WPA, set this to your network password.
+  */
+-#define clientcredentialWIFI_PASSWORD                ""
++#define clientcredentialWIFI_PASSWORD                "Cypress13700"
+
+ /*
+  * @brief Wi-Fi network security type.
+diff --git a/demos/include/aws_clientcredential_keys.h b/demos/include/aws_clientcredential_keys.h
+index 5c85947c5..03cb2870e 100644
+--- a/demos/include/aws_clientcredential_keys.h
++++ b/demos/include/aws_clientcredential_keys.h
+@@ -37,7 +37,27 @@
+  * "...base64 data...\n"\
+  * "-----END CERTIFICATE-----\n"
+  */
+-#define keyCLIENT_CERTIFICATE_PEM                   NULL
++#define keyCLIENT_CERTIFICATE_PEM \
++"-----BEGIN CERTIFICATE-----\n" \
++"MIIDWjCCAkKgAwIBAgIVAK/KXJQvpg2Fd964s4mQnWrr656XMA0GCSqGSIb3DQEB\n" \
++"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n" \
++"IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0yMDAzMzEyMjE1\n" \
++"MjZaFw00OTEyMzEyMzU5NTlaMB4xHDAaBgNVBAMME0FXUyBJb1QgQ2VydGlmaWNh\n" \
++"dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDMN97QRkPPbN/NFJVr\n" \
++"nBtV5J2FsrxWBJc3P1zI+46AnlbQpf4FHgjHud2p+VGq2nFkzGtJUZZjNLz4e6OV\n" \
++"fN4Tcmy2I0zmIMzaSEZLVtMBFnl4yPCFuZXVwwL4SnSZoeg8J3ETA/y1rPIMryW0\n" \
++"ZWkwc9PJH2F0NTKbvSEnBdJdm6AlSnx7KDrASvf1vQ1nmx2Ddn7cJ4UeQc29lWbX\n" \
++"uLQROPRMsODSbi2x5wjJzRxaKbCR6cCDaRVcnE4h2BEt8AtCYmYsAVxVHfk10mIp\n" \
++"DG0U6FXMlBf2rAf6feoCRDiAzfYYgSsCCRCAZuyI9FerlcbtgyS5+568V4O/QRy1\n" \
++"Nio/AgMBAAGjYDBeMB8GA1UdIwQYMBaAFDf4YFzJ6FWogJLF4jJPRtjBF3zxMB0G\n" \
++"A1UdDgQWBBTH0wYkOeULf0fZez2Wx7f9KY8AfDAMBgNVHRMBAf8EAjAAMA4GA1Ud\n" \
++"DwEB/wQEAwIHgDANBgkqhkiG9w0BAQsFAAOCAQEAys0P+Va85mVe90U5L5XfyOyX\n" \
++"vHKdVVQAM1AxEcRocV9eFRUqrEF+z4OHG4USuBALVEO08dLLzppq2MtZ7v876j3S\n" \
++"7TdQRRjIMLd156NI2ABzx3mX8h8Xnxcz0BUh6dwtcvs8QMD7vgh0+J9WhQT1MHDh\n" \
++"0eYfPbuK398zE0jiUF4eXA/jrsS5dG5dHAGYOfqPxWF4lEQ6YPJm8C++eIoh2lBt\n" \
++"UED1W+qpi3VYsLzJc0wtK9nqLpkhPNOr4PFNTyErR2uoeuGLXqYsQ/bD0oFtqaX0\n" \
++"oppU5T8XHqbTAtpyu4rr/gjjPZMleTabWNK6Nkz2cFsxmcvu2vd+uXWlZtmdTw==\n" \
++"-----END CERTIFICATE-----\n"
+
+ /*
+  * @brief PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
+@@ -71,6 +91,33 @@
+  * "...base64 data...\n"\
+  * "-----END RSA PRIVATE KEY-----\n"
+  */
+-#define keyCLIENT_PRIVATE_KEY_PEM                   NULL
++#define keyCLIENT_PRIVATE_KEY_PEM \
++"-----BEGIN RSA PRIVATE KEY-----\n" \
++"MIIEpQIBAAKCAQEAzDfe0EZDz2zfzRSVa5wbVeSdhbK8VgSXNz9cyPuOgJ5W0KX+\n" \
++"BR4Ix7ndqflRqtpxZMxrSVGWYzS8+HujlXzeE3JstiNM5iDM2khGS1bTARZ5eMjw\n" \
++"hbmV1cMC+Ep0maHoPCdxEwP8tazyDK8ltGVpMHPTyR9hdDUym70hJwXSXZugJUp8\n" \
++"eyg6wEr39b0NZ5sdg3Z+3CeFHkHNvZVm17i0ETj0TLDg0m4tsecIyc0cWimwkenA\n" \
++"g2kVXJxOIdgRLfALQmJmLAFcVR35NdJiKQxtFOhVzJQX9qwH+n3qAkQ4gM32GIEr\n" \
++"AgkQgGbsiPRXq5XG7YMkufuevFeDv0EctTYqPwIDAQABAoIBAQDIxMyq2clkrVbA\n" \
++"2dGkP46oPN+YR4Xc0xqO2B4yAQ2x6PjUm7xF76cWI+aGanQdkjAUtttq82j0Ey8M\n" \
++"4xCJsH7rg3zY+49oVyrOFmv1OWCsGxpE4teDwFZMFzJeQ2SqfYBBU01ZMnxJZ8N3\n" \
++"MOHSnjhxyA2YFt/KTVp5vdBP+us71jhUv/0c5EuBQDKzEuMEGawaFi2aszF6daIB\n" \
++"sCaNkpNWEa316g+731l9NILEHR5MRoeVRsPygucaS8LURwlxpBDhtKrGIo5T6LkP\n" \
++"aQzEXGeXQcWSOeVeU75z1xPTRK45Yd8g50FMcPvgorMGvD3BxXIkCyW8qLZo1IK/\n" \
++"I7qgJREhAoGBAOgGUqrsm2CR6XqXx1iCbC8iGGC+5DXaKIsv2rmAnqTkIwfFHzPw\n" \
++"P2UBNs/XBFSuDLlSV3sm25UgsH8sYAhPHf6Ud286JfzRsiQYmasrsoSdJ963X2TW\n" \
++"kiNQHXourEDRy7Bl6Yz4Uqd4cWOjgN3ekDVsgh/DCGu+eOnsM1OIeL4pAoGBAOFR\n" \
++"/fAhw3Or9lZ8tv3bagmI7LyVA+EMRPLWAMPm2flmXFrITVHrQOOMKm73iW2PaB4R\n" \
++"esqzV5vJw8DILoOEAjQy4d0lmZbYADEaguVMAIhi/WeIBUSca+IbvrFgcfwX/8Rd\n" \
++"Da3mjDRe1EN+LAKN01aU8+qTIX/01qn1Gmn3ieInAoGAIOEcf9otnn6uzk+J0TIS\n" \
++"MI+tUrBaWINEsYyjexwN3yHxEN3PMSX/ZcnJQaSfmXxckzpm6S21eil6uVrJdQP5\n" \
++"JSVW020zCuOQUesmg4oarw4yIy5rFzgM13I36yOIB1tzeNjIQtDBrbe0ocD+tvIe\n" \
++"D2QEAIo7vEDuk3+EOnchXRkCgYEA1b9tcc7l1qasUtGO2vW5+v+c7S1D98sm4WMo\n" \
++"aK9n2tNDC4/24Z6V+Qcv/gLvqTKg591XKlHF63EVNZ3xmiux14jpgVw4/sM8M1je\n" \
++"Ed3up3OYxw1fSf5FzcLaPPSsTSULKmHIJ0+Nc+T94mUgJPAcK4e0eLRI1FUVCzgM\n" \
++"bbg5YoMCgYEAmu1GvQw6RFiH5QNQUvPHnFSSQg+8XeTdxopYXaQ3mepQ2Y6TQtN2\n" \
++"Jqq1TnGf4rPwg2ayEUXQVUctYGwylH4PLqMkpn6hNEYKWDXySB5dVOdCZenmwX5n\n" \
++"mtTuCYWRBE5q5iIKs+9D4F6q1PpVJmBs9mqUa0PJrDKUpPRatoTuuf8=\n" \
++"-----END RSA PRIVATE KEY-----\n"
+
+ #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */
