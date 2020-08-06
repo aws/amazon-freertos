@@ -507,11 +507,9 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     /* Remove all subscriptions. */
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        if( IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL ) == false )
-        {
-            subscriptionStatus = false;
-        }
+        subscriptionStatus = IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
 
+        /* Asserting to check that all subscriptions have been successfully removed from subscription array. */
         IotMqtt_Assert( subscriptionStatus == true );
 
         if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )

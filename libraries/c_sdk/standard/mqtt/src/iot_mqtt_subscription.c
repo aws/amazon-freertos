@@ -300,7 +300,6 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                                           size_t subscriptionCount )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    /*IotMqttError_t status = IOT_MQTT_SUCCESS; */
     size_t i = 0;
     _mqttSubscription_t * pNewSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
@@ -333,13 +332,13 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
             }
             else
             {
-                /* Allocate memory for a new subscription. */
+                /* Getting index to insert the subscription in the subscription array. */
                 index = IotMqtt_InsertSubscription( ( connToContext[ contextIndex ].subscriptionArray ) );
 
                 if( index == -1 )
                 {
                     status = IOT_MQTT_NO_MEMORY;
-                    IotLogError( "(MQTT connection %p) Subscription array is full.Need to update the config. ",
+                    IotLogError( "(MQTT connection %p) Subscription array is full.Need to update the MAX_NO_OF_MQTT_SUBSCRIPTIONS config. ",
                                  pMqttConnection );
                     break;
                 }
@@ -410,12 +409,9 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
 
     /* Prevent any other thread from modifying the subscription array while this
      * function is searching. */
-    if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-    {
-        /* Fail to take context mutex due to timeout. */
-        mutexStatus = false;
-    }
+    mutexStatus = IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
+    /* Assert to check mutex has been taken successfully. */
     IotMqtt_Assert( mutexStatus == true );
 
     /* Search the subscription list for all matching subscriptions starting at
@@ -451,12 +447,9 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             callbackFunction = pSubscription->callback.function;
 
             /* Unlock the subscription array mutex. */
-            if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-            {
-                /* Fail to give subscription mutex as no space is available on queue. */
-                mutexStatus = false;
-            }
+            mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
+            /* Assert to check mutex has been given successfully. */
             IotMqtt_Assert( mutexStatus == true );
             /* Set the members of the callback parameter. */
             pCallbackParam->mqttConnection = pMqttConnection;
@@ -467,12 +460,9 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
             callbackFunction( pCallbackContext, pCallbackParam );
 
             /* Lock the subscription array mutex to decrement the reference count. */
-            if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-            {
-                /* Fail to take context mutex due to timeout. */
-                mutexStatus = false;
-            }
+            mutexStatus = IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
+            /* Assert to check mutex has been taken successfully. */
             IotMqtt_Assert( mutexStatus == true );
 
             /* Decrement the reference count. It must still be positive. */
@@ -499,12 +489,9 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
         }
     }
 
-    if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-    {
-        /* Fail to give subscription mutex as no space is available on queue. */
-        mutexStatus = false;
-    }
+    mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
+    /* Assert to check mutex has been given successfully. */
     IotMqtt_Assert( mutexStatus == true );
     _IotMqtt_DecrementConnectionReferences( pMqttConnection );
 }
@@ -528,19 +515,13 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        if( IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
-                                      ( &packetMatchParams ) ) == false )
-        {
-            subscriptionStatus = false;
-        }
+        subscriptionStatus = IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
+                                                       ( &packetMatchParams ) );
 
+        /* Assert to check that all subscriptions have benn removed from the subscription array. */
         IotMqtt_Assert( subscriptionStatus == true );
 
-        if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-        {
-            /* Fail to give subscription mutex as no space is available on queue. */
-            mutexStatus = false;
-        }
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
     else
     {
@@ -591,11 +572,9 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
                 IotMqtt_Assert( pSubscription->references >= 0 );
 
                 /* Remove subscription from list. */
-                if( IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex ) == false )
-                {
-                    subscriptionStatus = false;
-                }
+                subscriptionStatus = IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), matchedIndex );
 
+                /* Assert to check that subscription has been removed successfully. */
                 IotMqtt_Assert( subscriptionStatus == true );
 
                 /* Check the reference count. This subscription cannot be removed if
@@ -608,7 +587,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
                 }
                 else
                 {
-                    /* Free a subscription by setting topicFilterLength to 0 as it indiactes that subscription is unsubscribed. */
+                    /* Free a subscription by setting topicFilterLength to 0 as it indicates that subscription is unsubscribed. */
                     pSubscription->topicFilterLength = 0;
                 }
             }
@@ -618,11 +597,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
             }
         }
 
-        if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-        {
-            /* Fail to give subscription mutex as no space is available on queue. */
-            mutexStatus = false;
-        }
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
     else
     {
@@ -675,23 +650,11 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
                 pCurrentSubscription->qos = IOT_MQTT_QOS_0;
                 pCurrentSubscription->callback = pSubscription->callback;
             }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
 
             status = true;
         }
-        else
-        {
-            EMPTY_ELSE_MARKER;
-        }
 
-        if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-        {
-            /* Fail to give subscription mutex as no space is available on queue. */
-            status = false;
-        }
+        status = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
     else
     {

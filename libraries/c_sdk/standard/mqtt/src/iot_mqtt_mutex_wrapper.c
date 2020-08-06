@@ -54,11 +54,6 @@ bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
         /* Mutex created successfully. */
         status = true;
     }
-    else
-    {
-        /* Mutex Buffer is full, mutex is not created. */
-        status = false;
-    }
 
     return status;
 }
@@ -73,11 +68,6 @@ bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
     {
         /* Mutex created successfully. */
         status = true;
-    }
-    else
-    {
-        /* Mutex Buffer is full, mutex is not created. */
-        status = false;
     }
 
     return status;
@@ -98,7 +88,6 @@ bool IotMutex_Take( StaticSemaphore_t * pMutex )
     {
         /* Time expired without the mutex becoming available. */
         IotLogError( "Failed to take lock on mutex within specified time." );
-        status = false;
     }
 
     return status;
@@ -120,7 +109,6 @@ bool IotMutex_Give( StaticSemaphore_t * pMutex )
         /* Mutex cannot be given back as no space is avaliable on the queue to post the message. */
         IotLogError( "Failed to unlock mutex. Semaphores are implemented using queues."
                      "An error occurred due to no space on the queue to post a message." );
-        status = false;
     }
 
     return status;
@@ -141,7 +129,6 @@ bool IotMutex_TakeRecursive( StaticSemaphore_t * pMutex )
     {
         /* Time expired without the mutex becoming available. */
         IotLogError( "Failed to take lock on mutex within specified time." );
-        status = false;
     }
 
     return status;
@@ -163,7 +150,6 @@ bool IotMutex_GiveRecursive( StaticSemaphore_t * pMutex )
         /* Mutex cannot be given back as no space is avaliable on the queue to post the message. */
         IotLogError( "Failed to unlock mutex. Semaphores are implemented using queues."
                      "An error occurred due to no space on the queue to post a message." );
-        status = false;
     }
 
     return status;

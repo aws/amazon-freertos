@@ -63,7 +63,7 @@ static bool _packetMatch( _mqttSubscription_t * pSubscription,
  * @return `true` if the arguments match the subscription topic filter; `false`
  * otherwise.
  */
-static bool _topicMatch( _mqttSubscription_t pSubscription,
+static bool _topicMatch( _mqttSubscription_t * pSubscription,
                          void * pMatch );
 
 /*-----------------------------------------------------------*/
@@ -274,7 +274,6 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
     }
     else
     {
-        status = false;
         IotLogWarn( "Failed to remove subscription from the subscription array." );
     }
 
@@ -305,7 +304,7 @@ bool IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
         }
         else
         {
-            pSubscriptionArray[ index ].topicFilterLength == 0;
+            pSubscriptionArray[ index ].topicFilterLength = 0;
 
             pSubscriptionArray[ index ].unsubscribed = true;
         }

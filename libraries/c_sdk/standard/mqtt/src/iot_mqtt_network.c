@@ -509,7 +509,11 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                                                               pIncomingPacket->packetIdentifier,
                                                               MQTTPuback,
                                                               MQTT_RECEIVE, &publishRecordState );
-                    IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) );
+
+                    if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+                    {
+                        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+                    }
                 }
                 else
                 {
@@ -518,9 +522,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
             }
 
-            pOperation = _IotMqtt_FindOperation( pMqttConnection,
-                                                 IOT_MQTT_PUBLISH_TO_SERVER,
-                                                 &( pIncomingPacket->packetIdentifier ) );
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                pOperation = _IotMqtt_FindOperation( pMqttConnection,
+                                                     IOT_MQTT_PUBLISH_TO_SERVER,
+                                                     &( pIncomingPacket->packetIdentifier ) );
+            }
 
             if( pOperation != NULL )
             {
@@ -599,9 +606,13 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             /* Deserialize UNSUBACK and notify of result. */
             status = deserialize( pIncomingPacket );
-            pOperation = _IotMqtt_FindOperation( pMqttConnection,
-                                                 IOT_MQTT_UNSUBSCRIBE,
-                                                 &( pIncomingPacket->packetIdentifier ) );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                pOperation = _IotMqtt_FindOperation( pMqttConnection,
+                                                     IOT_MQTT_UNSUBSCRIBE,
+                                                     &( pIncomingPacket->packetIdentifier ) );
+            }
 
             if( pOperation != NULL )
             {

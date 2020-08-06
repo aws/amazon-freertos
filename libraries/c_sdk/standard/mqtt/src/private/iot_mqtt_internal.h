@@ -251,7 +251,7 @@
 /**
  * @brief Default config for Maximum Number of MQTT CONNECTIONS.
  * This config can be specified by the application based on number of MQTT
- * connections needed.
+ * connections needed. Maximum number of subscriptions that shim can hold is 2^7.
  */
 #ifndef MAX_NO_OF_MQTT_CONNECTIONS
     #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
