@@ -251,7 +251,7 @@
 /**
  * @brief Default config for Maximum Number of MQTT CONNECTIONS.
  * This config can be specified by the application based on number of MQTT
- * connections needed. Maximum number of subscriptions that shim can hold is 2^7.
+ * connections needed.
  */
 #ifndef MAX_NO_OF_MQTT_CONNECTIONS
     #define MAX_NO_OF_MQTT_CONNECTIONS    ( 2 )
@@ -260,10 +260,10 @@
 /**
  * @brief Default config for Maximum Number of MQTT Subscriptions.
  * This config can be specified by the application based on number of MQTT
- * subscriptions.
+ * subscriptions. Maximum number of subscriptions that shim can hold is 128.
  */
 #ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
-    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 10 )
+    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 20 )
 #endif
 
 /**
@@ -1113,7 +1113,7 @@ IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
  *
  * @return The index where the subscription to be inserted.
  */
-int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray );
+int8_t IotMqtt_GetFreeIndexInSubscriptionArray( _mqttSubscription_t * pSubscriptionArray );
 
 /**
  * @brief Remove the subscription in the subscription array.

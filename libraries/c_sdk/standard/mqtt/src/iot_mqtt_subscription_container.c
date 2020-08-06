@@ -228,9 +228,9 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
 
 /*-----------------------------------------------------------*/
 
-int8_t IotMqtt_InsertSubscription( _mqttSubscription_t * pSubscriptionArray )
+int8_t IotMqtt_GetFreeIndexInSubscriptionArray( _mqttSubscription_t * pSubscriptionArray )
 {
-    /* The shim supports only upto 256 subscriptions as the implementation uses 8 bit index. */
+    /* The shim supports only upto 128 subscriptions as the implementation uses 8 bit index. */
     int8_t index = 0;
 
     IotMqtt_Assert( pSubscriptionArray != NULL );

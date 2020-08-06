@@ -333,12 +333,13 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
             else
             {
                 /* Getting index to insert the subscription in the subscription array. */
-                index = IotMqtt_InsertSubscription( ( connToContext[ contextIndex ].subscriptionArray ) );
+                index = IotMqtt_GetFreeIndexInSubscriptionArray( ( connToContext[ contextIndex ].subscriptionArray ) );
 
                 if( index == -1 )
                 {
                     status = IOT_MQTT_NO_MEMORY;
-                    IotLogError( "(MQTT connection %p) Subscription array is full.Need to update the MAX_NO_OF_MQTT_SUBSCRIPTIONS config. ",
+                    IotLogError( "(MQTT connection %p) Subscription array is full. "
+                                 "Consider updating the MAX_NO_OF_MQTT_SUBSCRIPTIONS config to resolve the issue. ",
                                  pMqttConnection );
                     break;
                 }
@@ -516,7 +517,7 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
         IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
-                                                       ( &packetMatchParams ) );
+                                  ( &packetMatchParams ) );
 
         mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
