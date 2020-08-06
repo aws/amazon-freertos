@@ -690,6 +690,10 @@ TEST_SETUP( Quarantine_WiFi )
 
 TEST_TEAR_DOWN( Quarantine_WiFi )
 {
+}
+
+TEST_GROUP_RUNNER( Quarantine_WiFi )
+{
     /* Happy path tests. */
     RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiOnOff );
     RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiMode );
