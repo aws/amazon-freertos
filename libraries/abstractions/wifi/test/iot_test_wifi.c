@@ -624,7 +624,6 @@ static void prvSetupWiFiTests( void )
         ( "End of WiFi Networks\r\n" ) );
 
     vTaskDelay( testwifiCONNECTION_DELAY );
-
 }
 
 /* Unity TEST initializations. */
@@ -710,7 +709,6 @@ TEST_TEAR_DOWN( Quarantine_WiFi )
     /* Stability tests. */
     RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
     RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
-
 }
 
 /**
