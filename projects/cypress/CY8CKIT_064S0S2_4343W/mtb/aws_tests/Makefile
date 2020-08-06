@@ -26,9 +26,6 @@
 # Choose between "aws_demos" and "aws_tests"
 CY_AFR_BUILD=aws_tests
 
-# AWS testing
-AFR_IS_TESTING=1
-
 # BLE support
 BLE_SUPPORT=1
 
@@ -71,9 +68,16 @@ VERBOSE=
 # OTA_SUPPORT needed for some AWS Demos
 OTA_SUPPORT=0
 
+# Are we using external FLASH?
+OTA_USE_EXTERNAL_FLASH:=1
+
 ################################################################################
 # Advanced Configuration
 ################################################################################
+
+# Security configuration
+CY_TFM_PSA_SUPPORTED=1
+CY_TFM_ENABLED=true
 
 # Enable optional code that is ordinarily disabled by default.
 #
@@ -100,8 +104,14 @@ SOURCES=
 # directories (without a leading -I).
 INCLUDES=
 
+# Set App version here. Using the project-level include directory rather than the demos/include
+# directory, we remove the warnings and allow us to set the version in just one place.
+APP_VERSION_MAJOR=1
+APP_VERSION_MINOR=0
+APP_VERSION_BUILD=0
+
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_USING_HAL
+DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USING_HAL
 
 # Add TFM defines
 DEFINES+=CY_TFM_PSA_SUPPORTED TFM_MULTI_CORE_MULTI_CLIENT_CALL CY_TFM_VERSION_1_0
@@ -115,13 +125,13 @@ DEFINES+=CY_USE_LWIP LWIP_ERRNO_STDINCLUDE LWIP_TIMEVAL_PRIVATE=0
 DEFINES+=FREERTOS_ENABLE_UNIT_TESTS IOT_BUILD_TESTS=1 UNITY_INCLUDE_CONFIG_H
 
 # Add BLE defines
+ifneq ($(BLE_SUPPORT),)
 DEFINES+=CY_BLE_SUPPORTED
-
-# Add OTA defines
-ifeq ($(OTA_SUPPORT),1)
-DEFINES+=OTA_SUPPORT
 endif
 
+#ifeq ($(OTA_SUPPORT),1)
+#DEFINES+=OTA_SUPPORT
+#endif
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
 
@@ -179,8 +189,7 @@ CY_BASELIB_PATH=$(CY_AFR_ROOT)/vendors/cypress/MTB/psoc6/psoc6make
 CY_COMPILER_PATH=
 
 # Include aFR configuration make file
-include ./afr.mk
-
+include $(CY_AFR_ROOT)/projects/cypress/make_support/afr.mk
 
 ################################################################################
 # Tools path
