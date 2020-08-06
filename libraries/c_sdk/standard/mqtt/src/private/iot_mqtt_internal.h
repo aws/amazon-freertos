@@ -1133,9 +1133,8 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
  * @param[in] pMatch If `pMatch` is `NULL`, all the subscriptions will be removed.
  * Otherwise, it is used to find the matching subscription.
  *
- * @return 'true' if all matching subscriptions are removed else 'false'.
  */
-bool IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
+void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                                _packetMatchParams_t * pMatch );
 
 /**

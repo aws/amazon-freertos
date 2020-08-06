@@ -282,7 +282,7 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
 
 /*-----------------------------------------------------------*/
 
-bool IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
+void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
                                _packetMatchParams_t * pMatch )
 {
     size_t index = 0;
@@ -311,17 +311,6 @@ bool IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
 
         index++;
     }
-
-    if( index == MAX_NO_OF_MQTT_SUBSCRIPTIONS )
-    {
-        status = true;
-    }
-    else
-    {
-        IotLogWarn( "Failed to remove all matching subscriptions from the subscription array." );
-    }
-
-    return status;
 }
 
 /*-----------------------------------------------------------*/

@@ -515,11 +515,8 @@ void _IotMqtt_RemoveSubscriptionByPacket( _mqttConnection_t * pMqttConnection,
 
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        subscriptionStatus = IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
+        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ),
                                                        ( &packetMatchParams ) );
-
-        /* Assert to check that all subscriptions have benn removed from the subscription array. */
-        IotMqtt_Assert( subscriptionStatus == true );
 
         mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }

@@ -472,7 +472,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     int8_t contextIndex = -1;
-    bool mutexStatus = true, subscriptionStatus = true;
+    bool mutexStatus = true;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
@@ -507,16 +507,10 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     /* Remove all subscriptions. */
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        subscriptionStatus = IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
+        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
 
-        /* Asserting to check that all subscriptions have been successfully removed from subscription array. */
-        IotMqtt_Assert( subscriptionStatus == true );
-
-        if( IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) ) == false )
-        {
-            /* Fail to give subscription mutex as no space is available on queue. */
-            mutexStatus = false;
-        }
+        mutexStatus = IotMutex_Give(&(connToContext[contextIndex].subscriptionMutex));
+        
     }
     else
     {
