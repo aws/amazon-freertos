@@ -1,0 +1,1 @@
+{"Version": "2012-10-17", "Statement": [{"Action": ["s3:ListBucketVersions", "s3:GetObjectVersion", "s3:GetObject", "s3:PutObject"], "Resource": ["arn:aws:s3:::lava-bucket4/*", "arn:aws:s3:::lava-bucket4"], "Effect": "Allow"}]}

@@ -66,7 +66,7 @@ function afr_compile_psoc6make()
     local toolchain="$1"
     local board="$2"
     local build_dir="$PWD/build/make"
-    
+        
     do_not_convert_list=("CY8CKIT_064S0S2_4343W")
 
     if [[ " ${do_not_convert_list[@]} " =~ " ${board} " ]]; then
@@ -75,7 +75,7 @@ function afr_compile_psoc6make()
         local makeboard="${board//_/-}"
     fi
 
-    echo "afr compile psoc6make $makeboard"
+    echo "afr compile psoc6make ${makeboard}"
     
     make -C projects/cypress/$board/mtb/aws_demos clean -j4 TOOLCHAIN=$toolchain TARGET=$makeboard \
         CY_TOOLS_PATHS=$PWD/cypress_internal_test/tools CY_BUILD_LOCATION=$build_dir CY_RECIPE_POSTBUILD=

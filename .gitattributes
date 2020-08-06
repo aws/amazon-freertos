@@ -110,3 +110,7 @@
 make text
 makefile text
 *.mk text
+
+# Never modify line endings of bash scripts
+*.sh text eol=lf
+*.sh.example text eol=lf

@@ -5,7 +5,7 @@
     "name": "mybuild",
     "version": "1.0",
     "command": [
-      "bash {cy_afr_path}/cypress_internal_test/device_tester/mybuild.sh {cy_afr_path} {{enableTests}} {cy_board_name} {cy_compiler}"
+      "bash {cy_afr_path}/cypress_internal_test/device_tester/mybuild.sh {cy_afr_path} {{enableTests}} {cy_board_name} {cy_compiler} {cy_ota_en}"
     ],
     "buildImageInfo" : {
       "testsImageName": "{cy_afr_path}/build/aws_tests",
@@ -39,9 +39,9 @@
     "insecurePortForWiFi": 33335
   },
   "otaConfiguration": {
-    "otaDemoConfigFilePath": "{{testData.sourcePath}}/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/config_files/aws_demo_config.h",
-    "otaFirmwareFilePath": "{{testData.sourcePath}}/build/cm4_upgrade.bin",
-    "deviceFirmwareFileName": "{{testData.sourcePath}}/build/cm4_signed.bin",
+    "otaDemoConfigFilePath": "{cy_afr_path}/vendors/cypress/boards/{cy_board_name}/aws_demos/config_files/aws_demo_config.h",
+    "otaFirmwareFilePath": "{cy_afr_path}/build/cm4_upgrade.bin",
+    "deviceFirmwareFileName": "{cy_afr_path}/build/cm4_signed.bin",
     "codeSigningConfiguration": {
       "signingMethod": "AWS",
       "signerHashingAlgorithm": "SHA256",

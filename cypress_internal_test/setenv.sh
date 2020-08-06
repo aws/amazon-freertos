@@ -36,7 +36,7 @@ function save_timestamp()
 
 function run_setenv()
 {
-    local IDT_VER=${1:-'1.7.0'}
+    local IDT_VER=${1:-'3.1.0'}
     
     # Set OS-specific directories
     KERNEL="$($(which uname) -s)"
@@ -50,16 +50,14 @@ function run_setenv()
             export CY_DEP_MANIFEST="dependencies-windows.txt"
             export PATH="$(cygpath --unix "$CY_DEP_DIR/cmake-3.15.3-win64-x64/bin"):$PATH"
             export PATH="$(cygpath --unix "$CY_DEP_DIR/ninja-1.9.0-win"):$PATH"
-            export PATH="$(cygpath --unix "$CY_DEP_DIR/openocd-3.0.0.665-windows/openocd/bin"):$PATH"  
+            export PATH="$(cygpath --unix "$CY_DEP_DIR/openocd-4.0.0.820-windows/openocd/bin"):$PATH"  
             export CMAKE_DIR="$CY_DEP_DIR/cmake-3.15.3-win64-x64/bin"
             export NINJA_DIR="$CY_DEP_DIR/ninja-1.9.0-win"
-            export OPENOCD_DIR="$CY_DEP_DIR/openocd-3.0.0.665-windows/openocd"
+            export OPENOCD_DIR="$CY_DEP_DIR/openocd-4.0.0.820-windows/openocd"
             
             # Set path to GCC toolchain root directory
             export GCC_DIR="$(cygpath --mixed "${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-windows}")"
-            export IAR_DIR="$(cygpath --mixed "${IAR_DIR:-C:/Program Files (x86)/IAR Systems/Embedded Workbench 8.2/arm}")"
-            export ARMCC_DIR="$(cygpath --mixed "${ARMCC_DIR:-C:/Program Files/ARMCompiler6.11}")"
-
+            export IAR_DIR="$(cygpath --mixed "${HOST_IAR_PATH_8504}")"
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_win_$IDT_VER/devicetester_freertos_win}"
             ;;
         Linux*)
@@ -69,14 +67,15 @@ function run_setenv()
             export CY_DEP_MANIFEST="dependencies-linux.txt"
             export PATH="$CY_DEP_DIR/cmake-3.15.3-Linux-x86_64/bin:$PATH"
             export PATH="$CY_DEP_DIR/ninja-1.9.0-linux:$PATH"
-            export PATH="$CY_DEP_DIR/openocd-3.0.0.665-linux/openocd/bin:$PATH" 
+            export PATH="$CY_DEP_DIR/openocd-4.0.0.820-linux/openocd/bin:$PATH" 
             export CMAKE_DIR="$CY_DEP_DIR/cmake-3.15.3-Linux-x86_64/bin"
             export NINJA_DIR="$CY_DEP_DIR/ninja-1.9.0-linux"
-            export OPENOCD_DIR="$CY_DEP_DIR/openocd-3.0.0.665-linux/openocd"
+            export OPENOCD_DIR="$CY_DEP_DIR/openocd-4.0.0.820-linux/openocd"
 
             # Set path to GCC toolchain root directory
             export GCC_DIR="${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-linux}"
             export ARMCC_DIR="${ARMCC_DIR:-$CY_DEP_DIR/arm-compiler-6.12-linux-x86_64}"
+            export PATH="${ARMCC_DIR}/bin:$PATH"
 
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_linux_$IDT_VER/devicetester_freertos_linux}"
             ;;
@@ -87,10 +86,10 @@ function run_setenv()
             export CY_DEP_MANIFEST="dependencies-osx.txt"
             export PATH="$CY_DEP_DIR/cmake-3.15.3-Darwin-x86_64/CMake.app/Contents/bin:$PATH"
             export PATH="$CY_DEP_DIR/ninja-1.9.0-mac:$PATH"
-            export PATH="$CY_DEP_DIR/openocd-3.0.0.665-macos/openocd/bin:$PATH"
+            export PATH="$CY_DEP_DIR/openocd-4.0.0.820-macos/openocd/bin:$PATH"
             export CMAKE_DIR="$CY_DEP_DIR/cmake-3.15.3-Darwin-x86_64/CMake.app/Contents/bin"
             export NINJA_DIR="$CY_DEP_DIR/ninja-1.9.0-mac"
-            export OPENOCD_DIR="$CY_DEP_DIR/openocd-3.0.0.665-macos/openocd"
+            export OPENOCD_DIR="$CY_DEP_DIR/openocd-4.0.0.820-macos/openocd"
 
             # Set path to GCC toolchain root directory
             export GCC_DIR="${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-macos}"
@@ -117,4 +116,18 @@ function run_setenv()
         sh "downloaddeps.sh" "$deps_file"
         save_timestamp "$timestamp_file"
     fi
+    
+    case "$KERNEL" in
+        CYGWIN*|MINGW*|MSYS*)
+            pushd $CY_DEP_DIR
+            _arm_compiler=Win64
+            git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git
+            devops_scripts/install_tool.sh git@git-ore.aus.cypress.com:devops/tools/ARM_Compiler.git arm_compiler_612 ${_arm_compiler}
+            
+            export ARMCC_DIR=$(pwd)/ARM_Compiler/${_arm_compiler}
+            export PATH=${ARMCC_DIR}/bin:$PATH
+            popd 
+        ;;
+    esac
+    
 }

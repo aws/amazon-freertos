@@ -15,12 +15,9 @@ run_setenv
 [ -d $BUILD_DIR ] && rm -r $BUILD_DIR
 mkdir -p $BUILD_DIR
 
-# Temporary Workaround: The -DBLE_SUPPORTED=1 is only added when not running OTA tests due to issue in AFRSDK-69
 if [ $OTA = "OTA_YES" ]; then
     support_args="-DOTA_SUPPORT=1"
-else
-    support_args="-DBLE_SUPPORTED=1"
 fi
 
-$CMAKE_DIR/cmake -G Ninja -DVENDOR=cypress -DBOARD=$BOARD -DCOMPILER=$COMPILER -DAFR_ENABLE_TESTS=$RUN_TESTS -S $AFR_ROOT_DIR -B $BUILD_DIR -DAFR_TOOLCHAIN_PATH=$GCC_DIR $support_args
+$CMAKE_DIR/cmake -G Ninja -DVENDOR=cypress -DBOARD=$BOARD -DCOMPILER=$COMPILER -DAFR_ENABLE_TESTS=$RUN_TESTS -S $AFR_ROOT_DIR -B $BUILD_DIR -DAFR_TOOLCHAIN_PATH=$GCC_DIR -DBLE_SUPPORTED=1 $support_args
 $NINJA_DIR/ninja -C $BUILD_DIR
