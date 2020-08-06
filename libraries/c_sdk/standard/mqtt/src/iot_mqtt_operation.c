@@ -807,6 +807,43 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
         }
     }
 
+    /* When a PINGREQ is successfully sent, reschedule this job to check for a
+     * response shortly. */
+    if( status == true )
+    {
+        if( scheduleDelay == 0U )
+        {
+            scheduleDelay = pMqttConnection->nextKeepAliveMs;
+        }
+        else
+        {
+            EMPTY_ELSE_MARKER;
+        }
+
+        taskPoolStatus = IotTaskPool_ScheduleDeferred( pTaskPool,
+                                                       pKeepAliveJob,
+                                                       scheduleDelay );
+
+        if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+        {
+            IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
+                         pMqttConnection,
+                         ( unsigned long ) scheduleDelay );
+        }
+        else
+        {
+            IotLogError( "(MQTT connection %p) Failed to reschedule keep-alive job, error %s.",
+                         pMqttConnection,
+                         IotTaskPool_strerror( taskPoolStatus ) );
+
+            status = false;
+        }
+    }
+    else
+    {
+        EMPTY_ELSE_MARKER;
+    }
+
     /* Close the connection on failures. */
     if( status == false )
     {
