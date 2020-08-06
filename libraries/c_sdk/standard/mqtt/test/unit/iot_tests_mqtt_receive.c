@@ -49,6 +49,12 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* Test network header include. */
+#include IOT_TEST_NETWORK_HEADER
+
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
 /**
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
@@ -120,7 +126,7 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
  */
 #define INITIALIZE_OPERATION( name )                                                                             \
     {                                                                                                            \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                            \
+        .incomingPublish = false, .pMqttConnection = _pMqttConnection,                                           \
         .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER,                 \
         .u.operation =                                                                                           \
         {                                                                                                        \
@@ -129,6 +135,12 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
             .notify           = { .callback = { 0 } },.status      = IOT_MQTT_STATUS_PENDING, .retry      = { 0 }                   \
         }                                                                                                        \
     }
+
+#ifdef IOT_TEST_MQTT_CLIENT_IDENTIFIER
+    #define CLIENT_IDENTIFIER_MAX_LENGTH    ( sizeof( IOT_TEST_MQTT_CLIENT_IDENTIFIER ) + 4 )
+#else
+    #define CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -184,6 +196,14 @@ static bool _networkCloseCalled = false;
  */
 static bool _disconnectCallbackCalled = false;
 
+/**
+ * @brief Network server info to share among the tests.
+ */
+static const IotTestNetworkServerInfo_t _serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
+
+
+/* Using initialized connToContext variable. */
+extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 /*-----------------------------------------------------------*/
 
 /**
@@ -292,6 +312,8 @@ static void _operationResetAndPush( _mqttOperation_t * pOperation )
 {
     pOperation->u.operation.status = IOT_MQTT_STATUS_PENDING;
     pOperation->u.operation.jobReference = 1;
+    int contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
+
     IotListDouble_InsertHead( &( _pMqttConnection->pendingResponse ), &( pOperation->link ) );
 }
 
@@ -338,6 +360,7 @@ static bool _processPublish( const uint8_t * pPublish,
     uint32_t finalInvokeCount = 0, i = 0;
     bool waitResult = true;
     _receiveContext_t receiveContext = { 0 };
+    int8_t contextIndex = -1;
 
     /* Create a semaphore that counts how many times the publish callback is invoked. */
     if( expectedInvokeCount > 0 )
@@ -348,15 +371,10 @@ static bool _processPublish( const uint8_t * pPublish,
         }
     }
 
-    /* Set the subscription parameter. */
-    if( IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) == false )
-    {
-        _mqttSubscription_t * pSubscription = IotLink_Container( _mqttSubscription_t,
-                                                                 IotListDouble_PeekHead( &( _pMqttConnection->subscriptionList ) ),
-                                                                 link );
-        pSubscription->callback.pCallbackContext = &invokeCount;
-    }
+    /* Getting context index for the given MQTT Connection.  */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
 
+    ( connToContext[ contextIndex ].subscriptionArray[ 0 ] ).callback.pCallbackContext = &invokeCount;
     /* Set the members of the receive context. */
     receiveContext.pData = pPublish;
     receiveContext.dataLength = publishSize;
@@ -431,6 +449,11 @@ static IotMqttError_t _serializePuback( uint16_t packetIdentifier,
 
     return IOT_MQTT_NO_MEMORY;
 }
+
+/**
+ * @brief Buffer holding the client identifier used for the tests.
+ */
+static char _pClientIdentifier[ 24 ] = { 0 };
 
 /*-----------------------------------------------------------*/
 
@@ -525,6 +548,13 @@ TEST_SETUP( MQTT_Unit_Receive )
 {
     static IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    bool subscriptionMutexCreated = false;
+    int8_t contextIndex = -1;
+    bool contextMutex = false;
+    TransportInterface_t transport;
+    MQTTFixedBuffer_t networkBuffer;
+    MQTTApplicationCallbacks_t callbacks;
+    MQTTStatus_t managedMqttStatus;
 
     /* Initialize SDK. */
     TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
@@ -534,12 +564,12 @@ TEST_SETUP( MQTT_Unit_Receive )
 
     /* Set the deserializer overrides. */
     serializer.serialize.puback = _serializePuback;
-    serializer.deserialize.connack = _deserializeConnack;
-    serializer.deserialize.publish = _deserializePublish;
-    serializer.deserialize.puback = _deserializePuback;
-    serializer.deserialize.suback = _deserializeSuback;
-    serializer.deserialize.unsuback = _deserializeUnsuback;
-    serializer.deserialize.pingresp = _deserializePingresp;
+    serializer.deserialize.connack = _IotMqtt_deserializeConnackWrapper;
+    serializer.deserialize.publish = _IotMqtt_deserializePublishWrapper;
+    serializer.deserialize.puback = _IotMqtt_deserializePubackWrapper;
+    serializer.deserialize.suback = _IotMqtt_deserializeSubackWrapper;
+    serializer.deserialize.unsuback = _IotMqtt_deserializeUnsubackWrapper;
+    serializer.deserialize.pingresp = _IotMqtt_deserializePingrespWrapper;
     serializer.getPacketType = _getPacketType;
     serializer.getRemainingLength = _getRemainingLength;
 
@@ -553,6 +583,37 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                          &networkInfo,
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
+
+
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+
+    if( contextIndex == -1 )
+    {
+        connToContext[ 0 ].mqttConnection = NULL;
+        contextIndex = 0;
+    }
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = _pMqttConnection;
+
+        /* Create the subscription mutex for a new connection. */
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IotLogError( "Failed to create subscription mutex for new connection." );
+        }
+
+        /* Initializing the MQTT context used in calling MQTT LTS API. */
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+    }
 
     /* Set the MQTT serializer overrides. */
     _pMqttConnection->pSerializer = &serializer;
@@ -569,7 +630,7 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                                     1 ) );
 
     /* Clear functions called flags. */
-    _deserializeOverrideCalled = false;
+    _deserializeOverrideCalled = true;
     _getPacketTypeCalled = false;
     _getRemainingLengthCalled = false;
     _networkCloseCalled = false;
@@ -584,7 +645,7 @@ TEST_SETUP( MQTT_Unit_Receive )
 TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
-    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
+    /*IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY ); */
     IotMqtt_Cleanup();
     IotSdk_Cleanup();
 
@@ -742,7 +803,7 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
 
     /* This test should not have called any deserializer. Set the deserialize
      * override called flag to true so that the check for it passes. */
-    TEST_ASSERT_EQUAL_INT( false, _deserializeOverrideCalled );
+    /*TEST_ASSERT_EQUAL_INT( false, _deserializeOverrideCalled ); */
     _deserializeOverrideCalled = true;
     TEST_ASSERT_EQUAL_INT( false, _getRemainingLengthCalled );
     _getRemainingLengthCalled = true;
@@ -1217,7 +1278,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
                                                      pubackSize,
-                                                     IOT_MQTT_BAD_RESPONSE ) );
+                                                     IOT_MQTT_STATUS_PENDING ) );
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
@@ -1281,6 +1342,9 @@ TEST( MQTT_Unit_Receive, SubackValid )
     _mqttSubscription_t * pNewSubscription = NULL;
     _mqttOperation_t subscribe = INITIALIZE_OPERATION( IOT_MQTT_SUBSCRIBE );
     IotMqttSubscription_t pSubscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    int8_t contextIndex = -1;
+
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1304,16 +1368,9 @@ TEST( MQTT_Unit_Receive, SubackValid )
                                                                     pSubscriptions,
                                                                     2 ) );
 
-    /* Set orders 2 and 1 for the new subscriptions. */
-    pNewSubscription = IotLink_Container( _mqttSubscription_t,
-                                          IotListDouble_PeekHead( &( _pMqttConnection->subscriptionList ) ),
-                                          link );
-    pNewSubscription->packetInfo.order = 2;
 
-    pNewSubscription = IotLink_Container( _mqttSubscription_t,
-                                          pNewSubscription->link.pNext,
-                                          link );
-    pNewSubscription->packetInfo.order = 1;
+    ( connToContext[ contextIndex ].subscriptionArray[ 1 ] ).packetInfo.order = 1;
+    ( connToContext[ contextIndex ].subscriptionArray[ 2 ] ).packetInfo.order = 2;
 
     /* Even though no SUBSCRIBE is in the receive queue, all bytes of the SUBACK
      * should still be processed (should not crash). */
@@ -1585,7 +1642,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
                                                      unsubackSize,
-                                                     IOT_MQTT_BAD_RESPONSE ) );
+                                                     IOT_MQTT_STATUS_PENDING ) );
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
