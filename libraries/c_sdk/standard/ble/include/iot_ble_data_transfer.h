@@ -45,7 +45,7 @@ typedef enum IotBleDataTransferChannelEvent
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED, /**< Event invoked when the last chunk of a large object or a small packet is received on the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT,     /**< Event invoked after the last chunk of data stream is sent over the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED,        /**< Event invoked when the channel is closed. */
-    IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED  /**< Event invoked when error status bits is overwritten */
+    IOT_BLE_DATA_TRANSFER_CHANNEL_PEER_ERROR     /**< Event invoked when error status bits is overwritten */
 } IotBleDataTransferChannelEvent_t;
 
 /**

@@ -573,7 +573,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
 
                 if( pService->channel.callback != NULL )
                 {
-                    pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED, &pService->channel, pService->channel.pContext );
+                    pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_PEER_ERROR, &pService->channel, pService->channel.pContext );
                 }
             }
 

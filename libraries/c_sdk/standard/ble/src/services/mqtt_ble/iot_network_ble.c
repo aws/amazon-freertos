@@ -64,7 +64,8 @@ typedef enum
     BLE_PEER_NO_ERROR,
     BLE_PEER_DISCONNECTED_ERROR,
     BLE_PEER_EMPTY_BROKER_ENDPOINT,
-    BLE_PEER_EMPTY_MQTT_CLIENT_ID
+    BLE_PEER_EMPTY_MQTT_CLIENT_ID,
+    BLE_PEER_COGNITO_AUTH_FAIL
 } BleNetworkError_t;
 
 static void _callback( IotBleDataTransferChannelEvent_t event,
@@ -84,7 +85,7 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
             pBleConnection->pCallback( pBleConnection, pBleConnection->pContext );
             break;
 
-        case IOT_BLE_DATA_TRANSFER_CHANNEL_ERROR_UPDATED:
+        case IOT_BLE_DATA_TRANSFER_CHANNEL_PEER_ERROR:
 
             /* Currently only used for logging, but could short-circuit failure here.
              * At time of writing, such error events could occur but operations would only fail LATER,
@@ -103,6 +104,10 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
 
                 case BLE_PEER_EMPTY_BROKER_ENDPOINT:
                     IotLogError( "BLE Peer: Invalid broker endpoint. For demos, please check clientcredentialMQTT_BROKER_ENDPOINT" );
+                    break;
+
+                case BLE_PEER_COGNITO_AUTH_FAIL:
+                    IotLogError( "BLE Peer: Cognito authentication failed. Please review policies and app cognito settings" );
                     break;
 
                 default:
