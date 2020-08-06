@@ -263,7 +263,7 @@
  * subscriptions. Maximum number of subscriptions that shim can hold is 128.
  */
 #ifndef MAX_NO_OF_MQTT_SUBSCRIPTIONS
-    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 20 )
+    #define MAX_NO_OF_MQTT_SUBSCRIPTIONS    ( 10 )
 #endif
 
 /**
