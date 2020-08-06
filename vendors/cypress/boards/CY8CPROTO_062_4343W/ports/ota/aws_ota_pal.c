@@ -455,7 +455,7 @@ cy_rslt_t ota_untar_init_context( cy_untar_context_t* ctxt, OTA_FileContext_t * 
  */
 static int cy_ota_untar_set_pending(void)
 {
-    int i, rc;
+    int i;
     int image = 0;
     for (i = 0; i < ota_untar_context.num_files_in_json; i++ )
     {
@@ -473,8 +473,7 @@ static int cy_ota_untar_set_pending(void)
             configPRINTF( ("%d:%s BAD FILE TYPE %d: >%s<\n", __LINE__, __func__, i, ota_untar_context.files[i].type) );
             continue;
         }
-        rc = boot_set_pending(image, 0);
-        printf("%d:%s Called : boot_set_pending(%d) for rc:%d\n", __LINE__, __func__, image, rc);
+        boot_set_pending(image, 0);
     }
 
     return CY_UNTAR_SUCCESS;
@@ -1093,11 +1092,7 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
             // We need to know if the last check was good...
             if (last_signature_check == kOTA_Err_None)
             {
-                int rc;
-                rc = boot_set_confirmed();
-                if (rc != 0) {
-                    result = kOTA_Err_CommitFailed;
-                }
+                boot_set_confirmed();
             }
             else
             {
