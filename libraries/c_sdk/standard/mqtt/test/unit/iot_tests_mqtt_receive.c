@@ -123,7 +123,7 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
  */
 #define INITIALIZE_OPERATION( name )                                                                             \
     {                                                                                                            \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                                           \
+        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                            \
         .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER,                 \
         .u.operation =                                                                                           \
         {                                                                                                        \
@@ -570,6 +570,7 @@ TEST_SETUP( MQTT_Unit_Receive )
 
     if( contextIndex == -1 )
     {
+        /* Making space for other tests. */
         connToContext[ 0 ].mqttConnection = NULL;
         contextIndex = 0;
     }
@@ -625,7 +626,7 @@ TEST_SETUP( MQTT_Unit_Receive )
 TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
-    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
+    /*IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY ); */
     IotMqtt_Cleanup();
     IotSdk_Cleanup();
 
@@ -646,7 +647,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_Receive )
     RUN_TEST_CASE( MQTT_Unit_Receive, InvalidPacket );
     RUN_TEST_CASE( MQTT_Unit_Receive, ConnackValid );
     RUN_TEST_CASE( MQTT_Unit_Receive, ConnackInvalid );
-    //RUN_TEST_CASE( MQTT_Unit_Receive, PublishValid );
+    RUN_TEST_CASE( MQTT_Unit_Receive, PublishValid );
     RUN_TEST_CASE( MQTT_Unit_Receive, PublishInvalid );
     RUN_TEST_CASE( MQTT_Unit_Receive, PubackValid );
     RUN_TEST_CASE( MQTT_Unit_Receive, PubackInvalid );
@@ -783,7 +784,6 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
 
     /* This test should not have called any deserializer. Set the deserialize
      * override called flag to true so that the check for it passes. */
-    /*TEST_ASSERT_EQUAL_INT( false, _deserializeOverrideCalled ); */
     _deserializeOverrideCalled = true;
     TEST_ASSERT_EQUAL_INT( false, _getRemainingLengthCalled );
     _getRemainingLengthCalled = true;

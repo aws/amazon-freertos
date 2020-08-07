@@ -411,7 +411,6 @@ TEST_GROUP_RUNNER( MQTT_Unit_Subscription )
 {
     RUN_TEST_CASE( MQTT_Unit_Subscription, ListInsertRemove );
     RUN_TEST_CASE( MQTT_Unit_Subscription, ListFindByTopicFilter );
-
     /*RUN_TEST_CASE( MQTT_Unit_Subscription, ListFindByPacket ); */
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByPacket );
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter );
@@ -462,7 +461,6 @@ TEST( MQTT_Unit_Subscription, ListInsertRemove )
 TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
 {
     _mqttSubscription_t * pSubscription = NULL;
-    /*IotLink_t * pSubscriptionLink = NULL; */
     _topicMatchParams_t topicMatchParams = { 0 };
     int index = -1;
 
@@ -482,8 +480,6 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( 0, index );
-    /*pSubscription = IotLink_Container( _mqttSubscription_t, pSubscriptionLink, link ); */
-    /*TEST_ASSERT_NOT_EQUAL( NULL, pSubscription ); */
 
     /* Topic filter not present. */
     topicMatchParams.pTopicName = "/notpresent";
@@ -520,15 +516,12 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
                                              i );
     }
 
-    /* List should be empty. */
-    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
-
     /* Remove all subscriptions for a packet one-shot. */
     _populateList();
     _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
                                          1,
                                          -1 );
-    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
+    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -566,11 +559,11 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     }
 
     /* List should be empty. */
-    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
+    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Refill the list. */
     _populateList();
-    /*TEST_ASSERT_EQUAL_INT( false, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
+    TEST_ASSERT_EQUAL_INT( false, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Removal all at once. */
     for( i = 0; i < LIST_ITEM_COUNT; i++ )
@@ -587,7 +580,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
                                               LIST_ITEM_COUNT );
 
     /* List should be empty. */
-    /*TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) ); */
+    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -643,12 +636,6 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
                                     0,
                                     &topicMatchParams );
-    /*TEST_ASSERT_EQUAL(0, index); */
-
-    /*index = IotListDouble_FindFirstMatch( &( _pMqttConnection->subscriptionList ),
-     *                                                NULL,
-     *                                                IotTestMqtt_topicMatch,
-     *                                                &topicMatchParams );*/
     TEST_ASSERT_NOT_EQUAL( -1, index );
 
     /* Check that the information was changed. */
@@ -658,19 +645,12 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     TEST_ASSERT_EQUAL_PTR( _pMqttConnection, ( connToContext[ contextIndex ].subscriptionArray[ index ] ).callback.pCallbackContext );
 
     /* Check that a duplicate entry wasn't created. */
-    /*IotListDouble_Remove( &( pSubscription->link ) ); */
-
-    /*IotMqtt_FreeSubscription( pSubscription ); */
     IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), index );
     index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( -1, index );
 }
-
-/*-----------------------------------------------------------*/
-
-
 
 /*-----------------------------------------------------------*/
 
@@ -806,7 +786,6 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
 
     /* Get the pointer to the subscription in the MQTT connection. */
 
-    /*TEST_ASSERT_NOT_NULL( pSubscriptionLink ); */
     pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
     TEST_ASSERT_NOT_NULL( pSubscription );
 
@@ -891,8 +870,6 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
 {
     _mqttSubscription_t * pTopicFilter = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
 
-    /*IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH ); */
-
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 
     if( TEST_PROTECT() )
@@ -924,7 +901,7 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
         TEST_TOPIC_MATCH( "aws/iot/shadow/thing/temp", "aws/+/shadow/#", false, true );
     }
 
-    /*IotMqtt_FreeSubscription( pTopicFilter ); */
+    /* Free the index occupied by this subscription. */
     pTopicFilter->topicFilterLength = 0;
 }
 
@@ -937,8 +914,6 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
 TEST( MQTT_Unit_Subscription, TopicFilterMatchFalse )
 {
     _mqttSubscription_t * pTopicFilter = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
-
-    /*IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH ); */
 
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 
@@ -970,6 +945,7 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchFalse )
         TEST_TOPIC_MATCH( "aws/iot/shadow", "iot/+/#", false, false );
     }
 
+    /* Free the index occupied by this subscription. */
     pTopicFilter->topicFilterLength = 0;
 }
 
