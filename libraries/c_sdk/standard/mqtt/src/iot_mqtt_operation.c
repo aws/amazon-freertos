@@ -663,6 +663,7 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
     size_t bytesSent = 0;
     uint32_t scheduleDelay = 0;
     uint64_t elapsedTime = 0;
+    IotMqttError_t pingStatus = IOT_MQTT_BAD_PARAMETER;
 
     /* Retrieve the MQTT connection from the context. */
     _mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) pContext;
@@ -715,13 +716,13 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
             /* Because PINGREQ may be used to keep the MQTT connection alive, it is
              * more important than other operations. Bypass the queue of jobs for
              * operations by directly sending the PINGREQ in this job. */
-            bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
-                                                                  pMqttConnection->pPingreqPacket,
-                                                                  pMqttConnection->pingreqPacketSize );
 
-            if( bytesSent != pMqttConnection->pingreqPacketSize )
+            /* Calling PINGREQ wrapper to send PINGREQ packet on the network using MQTT LTS PINGREQ API. */
+            pingStatus = _IotMqtt_managedPing( pMqttConnection );
+
+            if( pingStatus != IOT_MQTT_SUCCESS )
             {
-                IotLogError( "(MQTT connection %p) Failed to send PINGREQ.", pMqttConnection );
+                IotLogError( "(MQTT connection %p) Failed to send PINGREQ packet on the network.", pMqttConnection );
                 status = false;
             }
             else

@@ -264,4 +264,33 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
     return status;
 }
 
+IotMqttError_t _IotMqtt_managedPing( IotMqttConnection_t mqttConnection )
+{
+    int8_t contextIndex = -1;
+    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
+    /* Initializing MQTT Status. */
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+
+    IotMqtt_Assert( mqttConnection != NULL );
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+
+    if( contextIndex >= 0 )
+    {
+        /* Calling MQTT LTS API for sending the PINGREQ packet on the network. */
+        managedMqttStatus = MQTT_Ping( &( connToContext[ contextIndex ].context ) );
+
+        /* Converting the status code. */
+        status = convertReturnCode( managedMqttStatus );
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) MQTT Context is not set for this MQTT Connection.",
+                     mqttConnection );
+    }
+
+    return status;
+}
+
 /*-----------------------------------------------------------*/
