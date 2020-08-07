@@ -54,12 +54,12 @@
 #define MQTT_MAX_REMAINING_LENGTH     ( 268435455UL )
 
 /*
- *
+ * @brief Return status codes for subscription as per the MQTT 3.1.1 spec.
  */
 #define SUBSCRIPTION_ACCEPTED_QOS0    ( 0x00 )               /**< @brief  Status code for accepted QOS0 subscription. */
-#define SUBSCRIPTION_REFUSED          ( 0x80 )               /**< @brief  Status code for refused subscription. */
 #define SUBSCRIPTION_ACCEPTED_QOS1    ( 0x01 )               /**< @brief  Status code for accepted QOS1 subscription. */
 #define SUBSCRIPTION_ACCEPTED_QOS2    ( 0x02 )               /**< @brief  Status code for accepted QOS1 subscription. */
+#define SUBSCRIPTION_REFUSED          ( 0x80 )               /**< @brief  Status code for refused subscription. */
 
 /*-----------------------------------------------------------*/
 
