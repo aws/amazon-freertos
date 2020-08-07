@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * https://github.com/freertos
- * http://www.FreeRTOS.org
+ * https://www.FreeRTOS.org
  */
 
 /**
