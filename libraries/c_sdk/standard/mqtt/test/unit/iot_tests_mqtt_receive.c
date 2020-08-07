@@ -1266,7 +1266,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
         _networkCloseCalled = false;
         _disconnectCallbackCalled = false;
     }
-
+    IotListDouble_RemoveHead( &( _pMqttConnection->pendingResponse ) );
     _operationResetAndPush( &publish );
 
     /* A PUBACK must have a remaining length of 2. */
@@ -1630,7 +1630,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
         _networkCloseCalled = false;
         _disconnectCallbackCalled = false;
     }
-
+    IotListDouble_RemoveHead( &( _pMqttConnection->pendingResponse ) );
     _operationResetAndPush( &unsubscribe );
 
     /* An UNSUBACK must have a remaining length of 2. */
