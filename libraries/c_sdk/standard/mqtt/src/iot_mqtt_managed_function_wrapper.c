@@ -19,8 +19,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
+ * https://github.com/freertos
+ * https://www.FreeRTOS.org
  */
 
 /**
@@ -40,6 +40,9 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
@@ -47,8 +50,8 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
 
 IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
@@ -59,12 +62,20 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
 
     if( contextIndex >= 0 )
     {
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        if( IotMutex_TakeRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+        {
+            /* Fail to take context mutex due to timeout. */
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+        }
 
         /* Calling MQTT LTS API for sending the DISCONNECT packet on the network. */
         managedMqttStatus = MQTT_Disconnect( &( connToContext[ contextIndex ].context ) );
 
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+        if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+        {
+            /* Fail to give context mutex as no space is available on queue. */
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -75,7 +86,7 @@ IotMqttError_t _IotMqtt_managedDisconnect( IotMqttConnection_t mqttConnection )
                      mqttConnection );
     }
 
-    return status;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
@@ -85,8 +96,8 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                                           const IotMqttSubscription_t * pSubscriptionList,
                                           size_t subscriptionCount )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -122,12 +133,20 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
                 subscriptionList[ i ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
             }
 
-            IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+            if( IotMutex_TakeRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+            {
+                /* Fail to take context mutex due to timeout. */
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+            }
 
             /* Calling MQTT LTS API for sending the SUBSCRIBE packet on the network. */
             managedMqttStatus = MQTT_Subscribe( &( connToContext[ contextIndex ].context ), subscriptionList, subscriptionCount, packetId );
 
-            IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+            if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+            {
+                /* Fail to give context mutex as no space is available on queue. */
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+            }
 
             /* Converting the status code. */
             status = convertReturnCode( managedMqttStatus );
@@ -141,7 +160,7 @@ IotMqttError_t _IotMqtt_managedSubscribe( IotMqttConnection_t mqttConnection,
         IotMqtt_FreeMessage( subscriptionList );
     }
 
-    return status;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
@@ -151,8 +170,8 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                                             const IotMqttSubscription_t * pUnsubscriptionList,
                                             size_t unsubscriptionCount )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -187,12 +206,20 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
                 subscriptionList[ i ].topicFilterLength = pUnsubscriptionList[ i ].topicFilterLength;
             }
 
-            IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+            if( IotMutex_TakeRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+            {
+                /* Fail to take context mutex due to timeout. */
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+            }
 
             /* Calling MQTT LTS API for sending the UNSUBSCRIBE packet on the network. */
             managedMqttStatus = MQTT_Unsubscribe( &( connToContext[ contextIndex ].context ), subscriptionList, unsubscriptionCount, packetId );
 
-            IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+            if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+            {
+                /* Fail to give context mutex as no space is available on queue. */
+                IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+            }
 
             /* Converting the status code. */
             status = convertReturnCode( managedMqttStatus );
@@ -206,7 +233,7 @@ IotMqttError_t _IotMqtt_managedUnsubscribe( IotMqttConnection_t mqttConnection,
         IotMqtt_FreeMessage( subscriptionList );
     }
 
-    return status;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
@@ -216,8 +243,8 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                                         _mqttOperation_t * pOperation,
                                         const IotMqttPublishInfo_t * pPublishInfo )
 {
+    IOT_FUNCTION_ENTRY(IotMqttError_t, IOT_MQTT_BAD_PARAMETER);
     int8_t contextIndex = -1;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     /* Initializing MQTT Status. */
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     uint16_t packetId = 0;
@@ -247,10 +274,20 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
         /* Existing MQTT 201906.00 library not support this parameter in publishInfo struct, so setting it to false. */
         publishInfo.dup = false;
 
-        IotMutex_Lock( &( connToContext[ contextIndex ].contextMutex ) );
+        if( IotMutex_TakeRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+        {
+            /* Fail to take context mutex due to timeout. */
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_TIMEOUT );
+        }
+
         /* Calling MQTT LTS API for sending the PUBLISH packet on the network. */
         managedMqttStatus = MQTT_Publish( &( connToContext[ contextIndex ].context ), &publishInfo, packetId );
-        IotMutex_Unlock( &( connToContext[ contextIndex ].contextMutex ) );
+
+        if( IotMutex_GiveRecursive( &( connToContext[ contextIndex ].contextMutex ) ) == false )
+        {
+            /* Fail to give context mutex as no space is available on queue. */
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
 
         /* Converting the status code. */
         status = convertReturnCode( managedMqttStatus );
@@ -261,7 +298,7 @@ IotMqttError_t _IotMqtt_managedPublish( IotMqttConnection_t mqttConnection,
                      mqttConnection );
     }
 
-    return status;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 IotMqttError_t _IotMqtt_managedPing( IotMqttConnection_t mqttConnection )

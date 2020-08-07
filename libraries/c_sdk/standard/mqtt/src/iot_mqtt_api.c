@@ -19,8 +19,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
+ * https://github.com/freertos
+ * https://www.FreeRTOS.org
  */
 
 /**
@@ -385,22 +385,7 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Create the subscription mutex for a new connection. */
-    subscriptionMutexCreated = IotMutex_Create( &( pMqttConnection->subscriptionMutex ), false );
-
-    if( subscriptionMutexCreated == false )
-    {
-        IotLogError( "Failed to create subscription mutex for new connection." );
-
-        IOT_SET_AND_GOTO_CLEANUP( false );
-    }
-    else
-    {
-        EMPTY_ELSE_MARKER;
-    }
-
     /* Create the new connection's subscription and operation lists. */
-    IotListDouble_Create( &( pMqttConnection->subscriptionList ) );
     IotListDouble_Create( &( pMqttConnection->pendingProcessing ) );
     IotListDouble_Create( &( pMqttConnection->pendingResponse ) );
 
@@ -454,15 +439,6 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 
     if( status == false )
     {
-        if( subscriptionMutexCreated == true )
-        {
-            IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
-        }
-
         if( referencesMutexCreated == true )
         {
             IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
@@ -495,7 +471,11 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
-    int contextIndex = -1;
+    int8_t contextIndex = -1;
+    bool mutexStatus = true;
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
 
     /* Clean up keep-alive if still allocated. */
     if( pMqttConnection->keepAliveMs != 0 )
@@ -525,13 +505,19 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     IotMqtt_Assert( pMqttConnection->pingreqPacketSize == 0 );
 
     /* Remove all subscriptions. */
-    IotMutex_Lock( &( pMqttConnection->subscriptionMutex ) );
-    IotListDouble_RemoveAllMatches( &( pMqttConnection->subscriptionList ),
-                                    _mqttSubscription_setUnsubscribe,
-                                    NULL,
-                                    _mqttSubscription_tryDestroy,
-                                    offsetof( _mqttSubscription_t, link ) );
-    IotMutex_Unlock( &( pMqttConnection->subscriptionMutex ) );
+    if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
+    {
+        IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
+
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
+    }
+    else
+    {
+        /* Fail to take context mutex due to timeout. */
+        mutexStatus = false;
+    }
+
+    IotMqtt_Assert( mutexStatus == true );
 
     /* Destroy an owned network connection. */
     if( pMqttConnection->ownNetworkConnection == true )
@@ -554,13 +540,10 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
         EMPTY_ELSE_MARKER;
     }
 
-    /* Getting MQTT Context for the specified MQTT Connection. */
-    contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
-
     /* Destroy mutexes. */
-    IotMutex_Destroy( &( connToContext[ contextIndex ].contextMutex ) );
+    IotMutex_Delete( &( connToContext[ contextIndex ].contextMutex ) );
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
-    IotMutex_Destroy( &( pMqttConnection->subscriptionMutex ) );
+    IotMutex_Delete( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
     /* Free the MQTT Context for the MQTT connection to be destroyed. */
     _IotMqtt_removeContext( pMqttConnection );
@@ -928,6 +911,8 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     MQTTFixedBuffer_t networkBuffer;
     MQTTApplicationCallbacks_t callbacks;
     int8_t contextIndex = -1;
+    bool subscriptionMutexCreated = false;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1073,6 +1058,69 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         EMPTY_ELSE_MARKER;
     }
 
+    /* Fill in time utility function pointer. */
+    callbacks.getTime = getTimeMs;
+
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+
+    if( contextIndex < 0 )
+    {
+        IotLogError( "(MQTT connection %p) Failed to allocate memory for "
+                     "the MQTT context and the MQTT Connection Mapping. Update the MAX_NO_OF_MQTT_CONNECTIONS"
+                     " config value to resolve the error. ",
+                     newMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+    /* Create the subscription mutex for a new connection. */
+
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = newMqttConnection;
+
+        /* Assigning the Network Context to be used by this MQTT Context. */
+        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
+        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+
+        /* Fill in TransportInterface send function pointer. We will not be implementing the
+         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+         * receive task. Only using MQTT LTS APIs for transmit path.*/
+        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.send = transportSend;
+
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+
+        /* Initializing the MQTT context used in calling MQTT LTS API. */
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        status = convertReturnCode( managedMqttStatus );
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "(MQTT connection %p) Failed to initialize context for "
+                         "the MQTT connection.",
+                         newMqttConnection );
+            IOT_GOTO_CLEANUP();
+        }
+    }
+    else
+    {
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
     /* Create a CONNECT operation. */
     status = _IotMqtt_CreateOperation( newMqttConnection,
                                        IOT_MQTT_FLAG_WAITABLE,
@@ -1209,55 +1257,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     else
     {
         EMPTY_ELSE_MARKER;
-    }
-
-    /* Fill in time utility function pointer. */
-    callbacks.getTime = getTimeMs;
-
-    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
-    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
-
-    if( contextIndex < 0 )
-    {
-        IotLogError( "(MQTT connection %p) Failed to allocate memory for "
-                     "the MQTT context and the MQTT Connection Mapping. Update the MAX_NO_OF_MQTT_CONNECTIONS"
-                     " config value to resolve the error. ",
-                     newMqttConnection );
-        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
-    }
-
-    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
-     * on the network using MQTT LTS API. */
-    bool contextMutex = IotMutex_Create( &( connToContext[ contextIndex ].contextMutex ), true );
-
-    if( contextMutex == true )
-    {
-        /* Assigning the MQTT Connection. */
-        connToContext[ contextIndex ].mqttConnection = newMqttConnection;
-
-        /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
-
-        /* Fill in TransportInterface send function pointer. We will not be implementing the
-         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
-         * receive task. Only using MQTT LTS APIs for transmit path.*/
-        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
-        transport.send = transportSend;
-
-        /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
-        networkBuffer.size = NETWORK_BUFFER_SIZE;
-
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-    }
-    else
-    {
-        IotLogError( "(MQTT connection %p) Failed to create mutex for "
-                     "the MQTT context.",
-                     newMqttConnection );
-        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
     IOT_FUNCTION_CLEANUP_BEGIN();

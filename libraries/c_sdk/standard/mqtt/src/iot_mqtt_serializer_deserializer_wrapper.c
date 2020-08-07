@@ -19,8 +19,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
+ * https://github.com/freertos
+ * https://www.FreeRTOS.org
  */
 
 /**
@@ -45,13 +45,21 @@
 /*-----------------------------------------------------------*/
 
 /* Size of Puback packet. */
-#define MQTT_PACKET_PUBACK_SIZE      ( 4 )
+#define MQTT_PACKET_PUBACK_SIZE       ( 4 )
 
 /**
  * @brief Per the MQTT 3.1.1 spec, the largest "Remaining Length" of an MQTT
  * packet is this value.
  */
-#define MQTT_MAX_REMAINING_LENGTH    ( 268435455UL )
+#define MQTT_MAX_REMAINING_LENGTH     ( 268435455UL )
+
+/*
+ * @brief Return status codes for subscription as per the MQTT 3.1.1 spec.
+ */
+#define SUBSCRIPTION_ACCEPTED_QOS0    ( 0x00 )               /**< @brief  Status code for accepted QOS0 subscription. */
+#define SUBSCRIPTION_ACCEPTED_QOS1    ( 0x01 )               /**< @brief  Status code for accepted QOS1 subscription. */
+#define SUBSCRIPTION_ACCEPTED_QOS2    ( 0x02 )               /**< @brief  Status code for accepted QOS1 subscription. */
+#define SUBSCRIPTION_REFUSED          ( 0x80 )               /**< @brief  Status code for refused subscription. */
 
 /*-----------------------------------------------------------*/
 
@@ -612,6 +620,10 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
     IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
     MQTTPacketInfo_t pIncomingPacket;
+    size_t i = 0;
+    uint8_t subscriptionStatus = 0;
+    size_t remainingLength = pSuback->remainingLength;
+    const uint8_t * pVariableHeader = pSuback->pRemainingData;
 
     /* Null Check for suback packet. */
     IotMqtt_Assert( pSuback != NULL );
@@ -623,6 +635,50 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
     /* Deserializing SUBACK packet received from the network. */
     managedMqttStatus = MQTT_DeserializeAck( &pIncomingPacket, &( pSuback->packetIdentifier ), NULL );
     status = convertReturnCode( managedMqttStatus );
+
+    /* Remove rejected subscription as the MQTT LTS library do not remove them, it has to handled in shim */
+    if( status == IOT_MQTT_SERVER_REFUSED )
+    {
+        /* Iterate through each status byte in the SUBACK packet. */
+        for( i = 0; i < remainingLength - sizeof( uint16_t ); i++ )
+        {
+            /* Read a single status byte in SUBACK. */
+            subscriptionStatus = *( pVariableHeader + sizeof( uint16_t ) + i );
+
+            /* MQTT 3.1.1 defines the following values as status codes. */
+            switch( subscriptionStatus )
+            {
+                case SUBSCRIPTION_ACCEPTED_QOS0:
+                case SUBSCRIPTION_ACCEPTED_QOS1:
+                case SUBSCRIPTION_ACCEPTED_QOS2:
+                    IotLogDebug( "Topic filter %lu accepted, max QoS %hhu.",
+                                 ( unsigned long ) i, subscriptionStatus );
+                    break;
+
+                case SUBSCRIPTION_REFUSED:
+                    IotLogDebug( "Topic filter %lu refused.",
+                                 ( unsigned long ) i );
+
+                    /* Remove a rejected subscription from the subscription manager. */
+                    _IotMqtt_RemoveSubscriptionByPacket( pSuback->u.pMqttConnection,
+                                                         pSuback->packetIdentifier,
+                                                         ( int32_t ) i );
+
+                    status = IOT_MQTT_SERVER_REFUSED;
+
+                    break;
+
+                default:
+                    IotLogDebug( "Bad SUBSCRIBE status %hhu.",
+                                 subscriptionStatus );
+
+                    status = IOT_MQTT_BAD_RESPONSE;
+
+                    break;
+            }
+        }
+    }
+
     return status;
 }
 

@@ -37,6 +37,8 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_context_connection.c"
         "${src_dir}/iot_mqtt_serializer_deserializer_wrapper.c"
         "${src_dir}/iot_mqtt_managed_function_wrapper.c"
+        "${src_dir}/iot_mqtt_subscription_container.c"
+        "${src_dir}/iot_mqtt_mutex_wrapper.c"
         ${extra_mqtt_sources}
 )
 
@@ -78,12 +80,13 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/mock/iot_tests_mqtt_mock.c"
-        "${test_dir}/unit/iot_tests_mqtt_api.c"
-        "${test_dir}/unit/iot_tests_mqtt_receive.c"
-        "${test_dir}/unit/iot_tests_mqtt_subscription.c"
-        "${test_dir}/unit/iot_tests_mqtt_validate.c"
-        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
+        # Running System tests currently on shim.
+        #"${test_dir}/mock/iot_tests_mqtt_mock.c"
+        #"${test_dir}/unit/iot_tests_mqtt_api.c"
+        #"${test_dir}/unit/iot_tests_mqtt_receive.c"
+        #"${test_dir}/unit/iot_tests_mqtt_subscription.c"
+        #"${test_dir}/unit/iot_tests_mqtt_validate.c"
+        #"${test_dir}/unit/iot_tests_mqtt_metrics.c"
         "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
