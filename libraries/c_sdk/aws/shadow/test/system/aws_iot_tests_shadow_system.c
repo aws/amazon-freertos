@@ -568,7 +568,7 @@ TEST_TEAR_DOWN( Shadow_System )
  */
 TEST_GROUP_RUNNER( Shadow_System )
 {
-    //RUN_TEST_CASE( Shadow_System, UpdateGetDeleteAsyncQoS0 );
+    RUN_TEST_CASE( Shadow_System, UpdateGetDeleteAsyncQoS0 );
     RUN_TEST_CASE( Shadow_System, UpdateGetDeleteAsyncQoS1 );
     RUN_TEST_CASE( Shadow_System, UpdateGetDeleteBlockingQoS0 );
     RUN_TEST_CASE( Shadow_System, UpdateGetDeleteBlockingQoS1 );
