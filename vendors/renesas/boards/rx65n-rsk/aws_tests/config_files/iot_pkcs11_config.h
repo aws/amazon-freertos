@@ -32,9 +32,17 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+/* Logging configuration for the PKCS #11 library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "PKCS11 MBEDTLS"
+#endif
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-#define pkcs11configC_INITIALIZE_ALT
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
+#include "logging_stack.h"
+
 
 /**
  * @brief PKCS #11 default user PIN.

@@ -86,6 +86,8 @@ else()
             "${src_dir}/iot_pkcs11_mbedtls.c"
             "${src_dir}/threading_alt.h"
             "${inc_dir}/iot_pkcs11_pal.h"
+            "${inc_dir}/logging_levels.h"
+            "${inc_dir}/logging_stack.h"
     )
 
     afr_module_dependencies(

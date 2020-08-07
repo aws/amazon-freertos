@@ -33,6 +33,19 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+#include "logging_levels.h"
+
+/* Logging configuration for the PKCS #11 library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "PKCS11 MBEDTLS"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
+#include "logging_stack.h"
+
 /**
  * @brief ESP32 NVS Partition where PKCS #11 data is stored
  */
