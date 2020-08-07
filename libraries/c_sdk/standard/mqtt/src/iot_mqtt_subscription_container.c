@@ -69,7 +69,7 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
 /*-----------------------------------------------------------*/
 
 static bool _packetMatch( _mqttSubscription_t * pSubscription,
-                          _packetMatchParams_t * pMatch )
+                          void * pMatch )
 {
     bool match = false;
 

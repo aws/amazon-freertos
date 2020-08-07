@@ -676,9 +676,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                /* Deserialization of PINGRESP using MQTT Lightweight API returns one of the following status
-                 * #MQTTBadParameter , #MQTTBadResponse and # MQTTSuccess, so combining both the bad status codes to IOT_MQTT_BAD_RESPONSE
-                 * and closing the network connection. */
+                /* Any error in deserializing a packet needs to be considered as a bad response. */
                 status = IOT_MQTT_BAD_RESPONSE;
             }
 

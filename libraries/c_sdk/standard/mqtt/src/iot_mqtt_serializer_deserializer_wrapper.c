@@ -45,13 +45,21 @@
 /*-----------------------------------------------------------*/
 
 /* Size of Puback packet. */
-#define MQTT_PACKET_PUBACK_SIZE      ( 4 )
+#define MQTT_PACKET_PUBACK_SIZE       ( 4 )
 
 /**
  * @brief Per the MQTT 3.1.1 spec, the largest "Remaining Length" of an MQTT
  * packet is this value.
  */
-#define MQTT_MAX_REMAINING_LENGTH    ( 268435455UL )
+#define MQTT_MAX_REMAINING_LENGTH     ( 268435455UL )
+
+/*
+ *
+ */
+#define SUBSCRIPTION_ACCEPTED_QOS0    ( 0x00 )               /**< @brief  Status code for accepted QOS0 subscription. */
+#define SUBSCRIPTION_REFUSED          ( 0x80 )               /**< @brief  Status code for refused subscription. */
+#define SUBSCRIPTION_ACCEPTED_QOS1    ( 0x01 )               /**< @brief  Status code for accepted QOS1 subscription. */
+#define SUBSCRIPTION_ACCEPTED_QOS2    ( 0x02 )               /**< @brief  Status code for accepted QOS1 subscription. */
 
 /*-----------------------------------------------------------*/
 
@@ -640,19 +648,16 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
             /* MQTT 3.1.1 defines the following values as status codes. */
             switch( subscriptionStatus )
             {
-                case 0x00:
-                case 0x01:
-                case 0x02:
-                    IotLog( IOT_LOG_DEBUG,
-                            &_logHideAll,
-                            "Topic filter %lu accepted, max QoS %hhu.",
-                            ( unsigned long ) i, subscriptionStatus );
+                case SUBSCRIPTION_ACCEPTED_QOS0:
+                case SUBSCRIPTION_ACCEPTED_QOS1:
+                case SUBSCRIPTION_ACCEPTED_QOS2:
+                    IotLogDebug( "Topic filter %lu accepted, max QoS %hhu.",
+                                 ( unsigned long ) i, subscriptionStatus );
                     break;
 
-                case 0x80:
-                    IotLog( IOT_LOG_DEBUG,
-                            &_logHideAll,
-                            "Topic filter %lu refused.", ( unsigned long ) i );
+                case SUBSCRIPTION_REFUSED:
+                    IotLogDebug( "Topic filter %lu refused.",
+                                 ( unsigned long ) i );
 
                     /* Remove a rejected subscription from the subscription manager. */
                     _IotMqtt_RemoveSubscriptionByPacket( pSuback->u.pMqttConnection,
@@ -664,9 +669,8 @@ IotMqttError_t _IotMqtt_deserializeSubackWrapper( _mqttPacket_t * pSuback )
                     break;
 
                 default:
-                    IotLog( IOT_LOG_DEBUG,
-                            &_logHideAll,
-                            "Bad SUBSCRIBE status %hhu.", subscriptionStatus );
+                    IotLogDebug( "Bad SUBSCRIBE status %hhu.",
+                                 subscriptionStatus );
 
                     status = IOT_MQTT_BAD_RESPONSE;
 

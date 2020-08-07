@@ -54,6 +54,10 @@ bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
         /* Mutex created successfully. */
         status = true;
     }
+    else
+    {
+        IotLogError( "Failed to create mutex for new connection, no memory is available." );
+    }
 
     return status;
 }
@@ -68,6 +72,10 @@ bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
     {
         /* Mutex created successfully. */
         status = true;
+    }
+    else
+    {
+        IotLogError( "Failed to create mutex for new connection, no memory is available." );
     }
 
     return status;

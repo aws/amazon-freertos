@@ -1107,7 +1107,7 @@ IotMqttError_t convertReturnCode( MQTTStatus_t managedMqttStatus );
 /*-----------------------------------Subscription and Operation array container functions----------------------*/
 
 /**
- * @brief Insert the subscription in the subscription array.
+ * @brief Get free index from the subscription array to insert the new subscription.
  *
  * @param[in] pSubscriptionArray Subscription array in which the new subscription to be inserted.
  *

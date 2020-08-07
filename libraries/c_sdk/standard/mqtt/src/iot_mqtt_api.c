@@ -509,8 +509,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
     {
         IotMqtt_RemoveAllMatches( ( connToContext[ contextIndex ].subscriptionArray ), NULL );
 
-        mutexStatus = IotMutex_Give(&(connToContext[contextIndex].subscriptionMutex));
-        
+        mutexStatus = IotMutex_Give( &( connToContext[ contextIndex ].subscriptionMutex ) );
     }
     else
     {
@@ -1102,8 +1101,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         if( subscriptionMutexCreated == false )
         {
-            IotLogError( "Failed to create subscription mutex for new connection." );
-
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
 
@@ -1121,9 +1118,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     }
     else
     {
-        IotLogError( "(MQTT connection %p) Failed to create mutex for "
-                     "the MQTT context.",
-                     newMqttConnection );
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
