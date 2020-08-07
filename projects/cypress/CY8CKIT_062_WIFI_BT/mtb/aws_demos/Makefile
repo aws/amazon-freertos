@@ -61,6 +61,8 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+# BLE_SUPPORT needed for enable BLE
+BLE_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration
@@ -76,7 +78,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CKIT_062_WIFI_BT
+COMPONENTS=FREERTOS 4343W CY8CKIT_062_WIFI_BT WICED_BLE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=

@@ -26,9 +26,6 @@
 # Choose between "aws_demos" and "aws_tests"
 CY_AFR_BUILD=aws_demos
 
-# BLE support
-BLE_SUPPORT=1
-
 # Root location of AFR directory
 CY_AFR_ROOT=../../../../..
 
@@ -71,6 +68,9 @@ OTA_SUPPORT=0
 # Are we using external FLASH?
 OTA_USE_EXTERNAL_FLASH:=1
 
+# BLE_SUPPORT needed for enable BLE
+BLE_SUPPORT=0
+
 ################################################################################
 # Advanced Configuration
 ################################################################################
@@ -89,7 +89,7 @@ CY_TFM_ENABLED=true
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CKIT_064S0S2_4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE
+COMPONENTS=FREERTOS 4343W CY8CKIT_064S0S2_4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE WICED_BLE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=

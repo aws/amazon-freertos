@@ -41,6 +41,10 @@ else()
     set(include_dirs "${app_dir}/config_files;${iot_common_dir}")
 endif()
 
+if(BLE_SUPPORTED)
+set(cy_bt_dir                   "${cy_libraries_dir}/bluetooth")
+endif()
+
 #--------------------------------------------------------------------
 # MCUBOOT directory used for inclusion of C files and Header directories
 #

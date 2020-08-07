@@ -163,9 +163,14 @@ function(cy_add_link_libraries)
         TOOLCHAIN     "${AFR_TOOLCHAIN}"
     )
 
-    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS}")
+    if(BLE_SUPPORTED)
+        set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS};WICED_BLE")
+        set(CY_ARCH_DIR     "${cy_libraries_clib_dir};${cy_psoc6_dir};${cy_libraries_whd_dir};${cy_psoc6_capsense_dir};${cy_bt_dir}")
+    else()
+        set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS}")
+        set(CY_ARCH_DIR     "${cy_libraries_clib_dir};${cy_psoc6_dir};${cy_libraries_whd_dir};${cy_psoc6_capsense_dir}")
+    endif()
 
-    set(CY_ARCH_DIR     "${cy_libraries_clib_dir};${cy_psoc6_dir};${cy_libraries_whd_dir};${cy_psoc6_capsense_dir}")
     # Find MTB files
     add_library(psoc6_core INTERFACE)
     cy_find_files(mtb_files DIRECTORY "${CY_ARCH_DIR}")
@@ -306,31 +311,19 @@ function(cy_add_link_libraries)
             "${afr_ports_dir}/ble/iot_ble_hal_manager_adapter_ble.c"
             "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
             "${afr_ports_dir}/ble/wiced_bt_cfg.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyosal/src/wiced_time_common.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform_gpio.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform_clock.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform_uart.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform_bluetooth.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/ring_buffer.c"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c"
         )
 
         target_include_directories(AFR::ble_hal::mcu_port INTERFACE
             "${afr_ports_dir}/ble"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyosal/include"
-            "${cy_libraries_dir}/bluetooth/psoc6/cyhal/include"
-            "${cy_libraries_dir}/bluetooth/include"
-            "${cy_libraries_dir}/bluetooth/include/stackHeaders"
+            "${cy_bt_dir}/common"
+            "${cy_bt_dir}/platform/include"
+            "${cy_bt_dir}/platform/common"
+            "${cy_bt_dir}/wiced_include"
         )
 
         target_link_libraries(
             AFR::ble_hal::mcu_port
             INTERFACE
-            "${cy_libraries_dir}/bluetooth/bluetooth.FreeRTOS.ARM_CM4.release.a"
-            "${cy_libraries_dir}/bluetooth/shim.FreeRTOS.ARM_CM4.release.a"
         )
 
         target_compile_definitions(

@@ -50,7 +50,7 @@ APPNAME=$(CY_AFR_BUILD)
 # IAR     -- IAR Compiler (must be installed separately)
 #
 # See also: CY_COMPILER_PATH below
-TOOLCHAIN?=GCC_ARM
+TOOLCHAIN=GCC_ARM
 
 # Default build configuration. Options include:
 #
@@ -60,6 +60,9 @@ CONFIG=Debug
 
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
+
+# BLE_SUPPORT needed for enable BLE
+BLE_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration
@@ -75,7 +78,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CPROTO_062_4343W
+COMPONENTS=FREERTOS 4343W CY8CPROTO_062_4343W WICED_BLE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
