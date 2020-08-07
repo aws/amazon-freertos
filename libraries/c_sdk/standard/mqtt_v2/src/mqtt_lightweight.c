@@ -356,7 +356,7 @@ static uint8_t * encodeRemainingLength( uint8_t * pDestination,
         /* Output a single encoded byte. */
         *pLengthEnd = lengthByte;
         pLengthEnd++;
-    } while ( remainingLength > 0U );
+    } while( remainingLength > 0U );
 
     return pLengthEnd;
 }
@@ -606,7 +606,7 @@ static size_t getRemainingLength( TransportRecv_t recvFunc,
         {
             break;
         }
-    } while ( ( encodedByte & 0x80U ) != 0U );
+    } while( ( encodedByte & 0x80U ) != 0U );
 
     /* Check that the decoded remaining length conforms to the MQTT specification. */
     if( remainingLength != MQTT_REMAINING_LENGTH_INVALID )
@@ -2145,6 +2145,7 @@ MQTTStatus_t MQTT_DeserializeAck( const MQTTPacketInfo_t * pIncomingPacket,
         LogError( ( "pSessionPresent cannot be NULL for CONNACK packet." ) );
         status = MQTTBadParameter;
     }
+
     /* Pointer for remaining data cannot be NULL for packets other
      * than PINGRESP. */
     else if( ( pIncomingPacket->pRemainingData == NULL ) &&

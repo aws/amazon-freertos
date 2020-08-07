@@ -29,9 +29,6 @@
  * RECV_PACKET_BUFFER_SIZE will be reconfigured in testing, and MAX_SUBS_PER_PACKET
  * will be a some factor of the buffer size.
  */
-#define MQTT_MAX_SUBS_PER_PACKET             10U
-
-#define RECV_PACKET_BUFFER_SIZE              200U
-
+#define MQTT_MAX_SUBS_PER_PACKET    10U
 
 #endif

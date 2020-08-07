@@ -45,6 +45,7 @@
 #include "iot_serializer.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_serialize.h"
+#include "logging_stack.h"
 
 #define _INVALID_MQTT_PACKET_TYPE    ( 0xF0 )
 
@@ -60,21 +61,6 @@
 #define _NUM_UNSUBACK_PARAMS           ( 3 )
 #define _NUM_DISCONNECT_PARAMS         ( 1 )
 #define _NUM_PINGREQUEST_PARAMS        ( 1 )
-
-/**
- * @brief Guards access to the packet identifier counter.
- *
- * Each packet should have a unique packet identifier. This mutex ensures that only
- * one thread at a time may read the global packet identifer.
- */
-
-
-/**
- * @brief Generates a monotonically increasing identifier used in  MQTT message
- *
- * @return Identifier for the MQTT message
- */
-static uint16_t _nextPacketIdentifier( void );
 
 
 static inline uint16_t _getNumPublishParams( const MQTTPublishInfo_t * const pPublish )
@@ -114,23 +100,6 @@ static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
 static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
                                                    size_t * const pSize );
 
-#if LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
-
-/**
- * @brief If logging is enabled, define a log configuration that only prints the log
- * string. This is used when printing out details of deserialized MQTT packets.
- */
-    static const IotLogConfig_t _logHideAll =
-    {
-        .hideLibraryName = true,
-        .hideLogLevel    = true,
-        .hideTimestring  = true
-    };
-#endif
-
-
-static IotMutex_t _packetIdentifierMutex;
-
 
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */
@@ -140,29 +109,6 @@ extern int snprintf( char * s,
                      ... );
 
 /*-----------------------------------------------------------*/
-
-static uint16_t _nextPacketIdentifier( void )
-{
-    static uint16_t nextPacketIdentifier = 1;
-    uint16_t newPacketIdentifier = 0;
-
-    /* Lock the packet identifier mutex so that only one thread may read and
-     * modify nextPacketIdentifier. */
-    IotMutex_Lock( &_packetIdentifierMutex );
-
-    /* Read the next packet identifier. */
-    newPacketIdentifier = nextPacketIdentifier;
-
-    /* The next packet identifier will be greater by 2. This prevents packet
-     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-    nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
-
-    /* Unlock the packet identifier mutex. */
-    IotMutex_Unlock( &_packetIdentifierMutex );
-
-    return newPacketIdentifier;
-}
 
 static IotSerializerError_t _serializeConnect( const MQTTConnectInfo_t * pConnectInfo,
                                                uint8_t * const pBuffer,
@@ -681,19 +627,6 @@ static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
 }
 
 
-bool IotBleMqtt_InitSerialize( void )
-{
-    /* Create the packet identifier mutex. */
-    return IotMutex_Create( &_packetIdentifierMutex, false );
-}
-
-void IotBleMqtt_CleanupSerialize( void )
-{
-    /* Destroy the packet identifier mutex */
-    IotMutex_Destroy( &_packetIdentifierMutex );
-}
-
-
 MQTTStatus_t IotBleMqtt_SerializeConnect( const MQTTConnectInfo_t * const pConnectInfo,
                                           uint8_t ** const pConnectPacket,
                                           size_t * const pPacketSize )
@@ -800,23 +733,14 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
 MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
                                           uint8_t ** const pPublishPacket,
                                           size_t * const pPacketSize,
-                                          uint16_t * const pPacketIdentifier,
-                                          uint8_t ** pPacketIdentifierHigh )
+                                          uint16_t * const pPacketIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    ( void ) pPacketIdentifierHigh;
-
-    if( pPublishInfo->qos != 0 )
-    {
-        usPacketIdentifier = _nextPacketIdentifier();
-    }
-
-    error = _serializePublish( pPublishInfo, NULL, &bufLen, usPacketIdentifier );
+    error = _serializePublish( pPublishInfo, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -838,7 +762,7 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
 
     if( ret == MQTTSuccess )
     {
-        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -851,7 +775,6 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
     {
         *pPublishPacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
@@ -1078,13 +1001,10 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    usPacketIdentifier = _nextPacketIdentifier();
-
-    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -1106,7 +1026,7 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
 
     if( ret == MQTTSuccess )
     {
-        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -1119,7 +1039,6 @@ MQTTStatus_t IotBleMqtt_SerializeSubscribe( const MQTTSubscribeInfo_t * const pS
     {
         *pSubscribePacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
@@ -1192,13 +1111,10 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
-    uint16_t usPacketIdentifier = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    usPacketIdentifier = _nextPacketIdentifier();
-
-    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, *pPacketIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -1220,7 +1136,7 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
 
     if( ret == MQTTSuccess )
     {
-        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, *pPacketIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
@@ -1233,7 +1149,6 @@ MQTTStatus_t IotBleMqtt_SerializeUnsubscribe( const MQTTSubscribeInfo_t * const 
     {
         *pUnsubscribePacket = pBuffer;
         *pPacketSize = bufLen;
-        *pPacketIdentifier = usPacketIdentifier;
     }
     else
     {
@@ -1344,18 +1259,18 @@ MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
     return ret;
 }
 
-size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection)
+size_t IotBleMqtt_GetRemainingLength( IotBleDataTransferChannel_t * pNetworkConnection )
 {
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer(pNetworkConnection, &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection, &pBuffer, &length );
 
     return length;
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection)
+uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnection )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
@@ -1363,7 +1278,7 @@ uint8_t IotBleMqtt_GetPacketType( IotBleDataTransferChannel_t * pNetworkConnecti
     const uint8_t * pBuffer;
     size_t length;
 
-    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection , &pBuffer, &length );
+    IotBleDataTransfer_PeekReceiveBuffer( pNetworkConnection, &pBuffer, &length );
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
