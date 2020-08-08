@@ -1075,7 +1075,7 @@
 				<property key="place-data-into-section" value="false"/>
 				<property key="post-instruction-scheduling" value="default"/>
 				<property key="pre-instruction-scheduling" value="default"/>
-				<property key="preprocessor-macros" value="MBEDTLS_CONFIG_FILE=\\\&quot;aws_mbedtls_config.h\\\&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
+				<property key="preprocessor-macros" value="MBEDTLS_CONFIG_FILE=\&quot;aws_mbedtls_config.h\&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
 				<property key="strict-ansi" value="false"/>
 				<property key="support-ansi" value="false"/>
 				<property key="toplevel-reordering" value=""/>
