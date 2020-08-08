@@ -510,7 +510,6 @@ static void _decrementReferencesJob( IotTaskPool_t pTaskPool,
 
 /**
  * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
- *
  */
 static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
@@ -537,7 +536,6 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
 
 /**
  * @brief The time interface provided to the MQTT context used in calling MQTT LTS APIs.
- *
  */
 static uint32_t getTimeMs( void )
 {
@@ -546,7 +544,6 @@ static uint32_t getTimeMs( void )
 
 /**
  * @brief Setting the MQTT Context for the given MQTT Connection.
- *
  */
 static void _setContext( IotMqttConnection_t pMqttConnection )
 {
@@ -1446,7 +1443,6 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttOperation_t subscribeOperation = IOT_MQTT_OPERATION_INITIALIZER;
-    int8_t contextIndex = -1;
 
     /* Initializer parameters. */
     _networkInterface.send = _sendSuccess;
@@ -1493,9 +1489,6 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
             TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
         }
 
-        contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
-        /* No lingering subscriptions should be in the MQTT connection. */
-        TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
