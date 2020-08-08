@@ -700,7 +700,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_API )
     RUN_TEST_CASE( MQTT_Unit_API, SubscribeMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, UnsubscribeMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, KeepAlivePeriodic );
-    /*RUN_TEST_CASE( MQTT_Unit_API, KeepAliveJobCleanup ); */
+    RUN_TEST_CASE( MQTT_Unit_API, KeepAliveJobCleanup );
     RUN_TEST_CASE( MQTT_Unit_API, WaitAfterDisconnect );
 }
 
@@ -1655,16 +1655,17 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
                                                              &_networkInfo,
                                                              1 );
         TEST_ASSERT_NOT_NULL( _pMqttConnection );
-
-        /* Set the MQTT Context for the new MQTT Connection*/
-        _setContext( _pMqttConnection );
-
         /* Set the parameter to the send function. */
         _pMqttConnection->pNetworkConnection = &waitSem;
 
         /* Set a short keep-alive interval so this test runs faster. */
         _pMqttConnection->keepAliveMs = SHORT_KEEP_ALIVE_MS;
         _pMqttConnection->nextKeepAliveMs = SHORT_KEEP_ALIVE_MS;
+
+        /* Set the MQTT Context for the new MQTT Connection*/
+        _setContext( _pMqttConnection );
+
+       
 
         /* Schedule the initial PINGREQ. */
         TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
