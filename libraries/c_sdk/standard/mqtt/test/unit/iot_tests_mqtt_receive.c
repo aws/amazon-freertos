@@ -49,9 +49,6 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
-/* Test network header include. */
-#include IOT_TEST_NETWORK_HEADER
-
 /**
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
@@ -187,8 +184,11 @@ static bool _networkCloseCalled = false;
  */
 static bool _disconnectCallbackCalled = false;
 
+/*-----------------------------------------------------------*/
+
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -626,7 +626,7 @@ TEST_SETUP( MQTT_Unit_Receive )
 TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
-    /*IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY ); */
+    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
     IotMqtt_Cleanup();
     IotSdk_Cleanup();
 

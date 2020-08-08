@@ -52,8 +52,11 @@
 #include "iot_test_access_mqtt.h"
 
 /*-----------------------------------------------------------*/
+
 /* Using initialized connToContext variable. */
 extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+
+/*-----------------------------------------------------------*/
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -154,10 +157,6 @@ static void _populateList( void )
 
     for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
-        /*pSubscription = IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TEST_TOPIC_FILTER_LENGTH );
-         * TEST_ASSERT_NOT_NULL( pSubscription );
-         *
-         * ( void ) memset( pSubscription, 0x00, sizeof( _mqttSubscription_t ) + TEST_TOPIC_FILTER_LENGTH );*/
         connToContext[ contextIndex ].subscriptionArray[ i ].packetInfo.identifier = 1;
         connToContext[ contextIndex ].subscriptionArray[ i ].packetInfo.order = i;
         connToContext[ contextIndex ].subscriptionArray[ i ].callback.function = SUBSCRIPTION_CALLBACK_FUNCTION;
@@ -170,9 +169,6 @@ static void _populateList( void )
         ( void ) memcpy( connToContext[ contextIndex ].subscriptionArray[ i ].pTopicFilter,
                          connToContext[ contextIndex ].subscriptionArray[ i ].pTopicFilter,
                          ( size_t ) ( connToContext[ contextIndex ].subscriptionArray[ i ].topicFilterLength ) );
-
-        /*IotListDouble_InsertHead( &( _pMqttConnection->subscriptionList ),
-         *                        &( pSubscription->link ) );*/
     }
 }
 
@@ -492,8 +488,6 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
 
 /*-----------------------------------------------------------*/
 
-/*-----------------------------------------------------------*/
-
 /**
  * @brief Tests removing subscriptions by packet identifier.
  */
@@ -515,6 +509,8 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
                                              1,
                                              i );
     }
+
+    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Remove all subscriptions for a packet one-shot. */
     _populateList();
