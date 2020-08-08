@@ -1,0 +1,21 @@
+line,original,mutant,result
+1302,if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||,if ( 1 || !CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||,FAIL/KILLED
+463,if (ret == ESP_OK),if (ret  =  ESP_OK),No-Compile
+391,"/* Security is wildcard, only ssid/password is required */","/* Security is wildcard, -1 *  only ssid/password is required */",No-Compile
+350,return eWiFiSuccess;,return 0; //eWiFiSuccess;,FAIL/KILLED
+1051,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),FAIL/KILLED
+499,".ssid = NULL,",".ssid = NULL, !",No-Compile
+610,/*-----------------------------------------------------------*/,/*----------------------------++-----------------------------*/,No-Compile
+1372,case eWiFiPMNormal:,// case eWiFiPMNormal:,No-Compile
+967,if( pxNetworkProfile != NULL ),if( pxNetworkProfile  <  NULL ),FAIL/KILLED
+68,uint16_t usStorageIdx[ wificonfigMAX_NETWORK_PROFILES ];,uint16_t usStorageIdx[ -1 +  wificonfigMAX_NETWORK_PROFILES ];,FAIL/KILLED
+934,xRet = nvs_commit( xNvsHandle );,xRet > nvs_commit( xNvsHandle );,No-Compile
+1045,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),FAIL/KILLED
+1077,WIFIReturnCode_t xRetVal = eWiFiFailure;,WIFIReturnCode_t xRetVal = 0 ;//eWiFiFailure;,FAIL/KILLED
+417,"ESP_LOGE(TAG, ""%s: Failed to start wifi %d"", __func__, ret);","ESP_LOGE(TAG, ""%s: Failed to start wifi %d"", __func__, ret*0);",FAIL/KILLED
+1420,else{,// else{,No-Compile
+1307,"if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )","if( xSemaphoreTake( xWiFiSem, 0 *  xSemaphoreWaitTicks ) == pdTRUE )",FAIL/KILLED
+68,uint16_t usStorageIdx[ wificonfigMAX_NETWORK_PROFILES ];,uint16_t usStorageIdx[ -1 +  wificonfigMAX_NETWORK_PROFILES ];,FAIL/KILLED
+193,"xEventGroupSetBits(wifi_event_group, ESPTOUCH_DONE_BIT);","xEventGroupSetBits(wifi_event_group, 2 * ESPTOUCH_DONE_BIT);",No-Compile
+830,"esp_err_t prvGetWIFINetwork( nvs_handle xNvsHandle, WIFINetworkProfile_t* pxNetwork, uint16_t usIndex )","esp_err_t prvGetWIFINetwork( nvs_handle xNvsHandle, 2 * WIFINetworkProfile_t* pxNetwork, uint16_t usIndex )",No-Compile
+1366,configASSERT( pvOptionValue != NULL );,configASSERT( pvOptionValue != NULL *2);,No-Compile

@@ -1,0 +1,4 @@
+line,original,mutant,result
+857,"xRet =  prxDeSerializeWifiNetworkProfile( pxNetwork, pucBuffer, ulSize );","xRet =  prxDeSerializeWifiNetworkProfile (!  pxNetwork, pucBuffer, ulSize );",FAIL/KILLED
+169,case SC_STATUS_WAIT:,// case SC_STATUS_WAIT:,FAIL/KILLED
+2 KILLS,2 MUTANTS,SCORE,100.00%

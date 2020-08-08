@@ -1,0 +1,4 @@
+line,original,mutant,result
+726,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),FAIL/KILLED
+83,static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );,static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS (!  wificonfigMAX_SEMAPHORE_WAIT_TIME_MS );,FAIL/KILLED
+2 KILLS,2 MUTANTS,SCORE,100.00%

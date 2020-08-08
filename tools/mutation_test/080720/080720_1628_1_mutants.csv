@@ -1,0 +1,3 @@
+line,original,mutant,result
+223,"xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits(wifi_event_group, STARTED_BIT, !  pdFALSE, pdFALSE, portMAX_DELAY);",FAIL/KILLED
+SCORE,Killed: 1,Total: 1,100.00%

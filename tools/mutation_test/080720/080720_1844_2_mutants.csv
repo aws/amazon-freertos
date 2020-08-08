@@ -1,0 +1,4 @@
+line,original,mutant,result
+285,goto err;,//goto err;,FAIL/KILLED
+162,return ESP_OK;,return 1; //ESP_OK;,FAIL/KILLED
+2 KILLS,2 MUTANTS,SCORE,100.00%

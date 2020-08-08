@@ -1,0 +1,101 @@
+line,original,mutant,result
+857,"xRet =  prxDeSerializeWifiNetworkProfile( pxNetwork, pucBuffer, ulSize );","xRet =  prxDeSerializeWifiNetworkProfile( pxNetwork, pucBuffer, ulSize *2);",PASS/LIVE
+1091,"pucIPAddr[1],","pucIPAddr[ 0 * 1],",PASS/LIVE
+140,break;,{;},FAIL/KILLED
+175,case SC_STATUS_GETTING_SSID_PSWD:,// case SC_STATUS_GETTING_SSID_PSWD:,PASS/LIVE
+382,if (wifi_conn_state == true) {,if ( ~ wifi_conn_state == true) {,PASS/LIVE
+827,return xRet;,return 1; //xRet;,FAIL/KILLED
+178,case SC_STATUS_LINK:,// case SC_STATUS_LINK:,PASS/LIVE
+638,xRetVal = eWiFiTimeout;,xRetVal = 0 * eWiFiTimeout;,PASS/LIVE
+889,WIFIReturnCode_t xWiFiRet = eWiFiFailure;,WIFIReturnCode_t xWiFiRet = 0 ;//eWiFiFailure;,FAIL/KILLED
+1330,if (ret != ESP_OK) {,if  (! ret != ESP_OK) {,PASS/LIVE
+46,"static const char *TAG = ""WIFI"";","static const char *TAG = ""\0WIFI"";",PASS/LIVE
+603,else,// else,FAIL/KILLED
+194,break;,{;},FAIL/KILLED
+416,if (ret != ESP_OK) {,if ( ! ret != ESP_OK) {,FAIL/KILLED
+437,if (wifi_conn_state == true) {,if (wifi_conn_state  <=  true) {,FAIL/KILLED
+999,nvs_close( xNvsHandle );,nvs_close( xNvsHandle *0);,PASS/LIVE
+754,return xRet;,return 1; //xRet;,FAIL/KILLED
+1282,return ESP_FAIL;,return NULL; //ESP_FAIL;,PASS/LIVE
+1156,xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;,xRetVal = (ret  <  ESP_OK) ? eWiFiSuccess : eWiFiFailure;,FAIL/KILLED
+546,if ( wifi_conn_state == false && wifi_auth_failure == true ),if ( wifi_conn_state == true  && wifi_auth_failure == true ),FAIL/KILLED
+927,xRegistry.usNumNetworks++;,xRegistry.usNumNetworks--;,FAIL/KILLED
+564,for (int i = 0; i < num_aps; i++) {,for (int i = 0; i > num_aps; i++) {,PASS/LIVE
+1272,case eWiFiSecurityWEP:,// case eWiFiSecurityWEP:,PASS/LIVE
+715,"memcpy(pucBuffer, pxNetwork->cPassword, pxNetwork->ucPasswordLength );","memcpy(pucBuffer, pxNetwork->cPassword, pxNetwork->ucPasswordLength *2);",FAIL/KILLED
+579,break;,{;},PASS/LIVE
+52,const int AP_STARTED_BIT = BIT3;,const char AP_STARTED_BIT = BIT3;,PASS/LIVE
+1185,if (he != NULL) {,if (he = NULL) {,PASS/LIVE
+1001,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
+438,wifi_ret = eWiFiSuccess;,wifi_ret = 0 ;//eWiFiSuccess;,PASS/LIVE
+1343,"ret = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);","ret = esp_wifi_set_config (! ESP_IF_WIFI_AP, &wifi_config);",PASS/LIVE
+183,"esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config);","esp_wifi_set_config (! ESP_IF_WIFI_STA, wifi_config);",PASS/LIVE
+46,"static const char *TAG = ""WIFI"";","static const char *TAG = ""\0WIFI"";",PASS/LIVE
+1323,"memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);","memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, -1 *  pxNetworkParams->ucSSIDLength);",PASS/LIVE
+827,return xRet;,return -1; //xRet;,FAIL/KILLED
+833,uint8_t *pucBuffer = NULL;,uint8_t *pucBuffer = 0 ;//NULL;,PASS/LIVE
+849,else,// else,FAIL/KILLED
+1323,"memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);","memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, 2 * pxNetworkParams->ucSSIDLength);",PASS/LIVE
+552,"xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, 30);","xEventGroupWaitBits (! wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, 30);",FAIL/KILLED
+946,nvs_close( xNvsHandle );,nvs_close( xNvsHandle *0);,PASS/LIVE
+91,case SYSTEM_EVENT_STA_START:,// case SYSTEM_EVENT_STA_START:,FAIL/KILLED
+1077,WIFIReturnCode_t xRetVal = eWiFiFailure;,WIFIReturnCode_t xRetVal = ! eWiFiFailure;,FAIL/KILLED
+905,xRet = prvInitRegistry( xNvsHandle );,xRet = prvInitRegistry (!  xNvsHandle );,PASS/LIVE
+261,return xRetVal;,return 0; //xRetVal;,FAIL/KILLED
+68,uint16_t usStorageIdx[ wificonfigMAX_NETWORK_PROFILES ];,uint16_t usStorageIdx[ -1 +  wificonfigMAX_NETWORK_PROFILES ];,PASS/LIVE
+711,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),FAIL/KILLED
+768,pxNetwork->cSSID[ulLen] = '\0';,pxNetwork->cSSID[ -1 + ulLen] = '\0';,FAIL/KILLED
+211,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,PASS/LIVE
+1275,case eWiFiSecurityWPA:,// case eWiFiSecurityWPA:,PASS/LIVE
+939,*pusIndex = ( xRegistry.usNumNetworks - 1 );,*pusIndex = ( xRegistry.usNumNetworks+ 0 );,FAIL/KILLED
+1175,return xRetVal;,return -1 * xRetVal;,PASS/LIVE
+441,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
+193,"xEventGroupSetBits(wifi_event_group, ESPTOUCH_DONE_BIT);","xEventGroupSetBits(wifi_event_group, ESPTOUCH_DONE_BIT*-1);",FAIL/KILLED
+1025,if( xIsRegistryInit == pdFALSE ),if( xIsRegistryInit  >=  pdFALSE ),PASS/LIVE
+174,break;,{;},PASS/LIVE
+891,nvs_handle xNvsHandle = NULL;,nvs_handle xNvsHandle = NULL; //NULL;,FAIL/KILLED
+819,if( xRet == ESP_OK ),if( xRet  >=  ESP_OK ),PASS/LIVE
+1444,return wifi_ret;,return -1; //wifi_ret;,FAIL/KILLED
+832,uint32_t ulSize = 0;,uint32_t ulSize = NULL; //0;,PASS/LIVE
+1064,return xWiFiRet;,return 1; //xWiFiRet;,FAIL/KILLED
+754,return xRet;,return -1; //xRet;,FAIL/KILLED
+652,return eWiFiFailure;,return 2* eWiFiFailure;,FAIL/KILLED
+242,return wifi_ret;,return -1; //wifi_ret;,FAIL/KILLED
+932,if( xRet == ESP_OK ),if( xRet  !=  ESP_OK ),PASS/LIVE
+1059,nvs_close( xNvsHandle );,nvs_close (!  xNvsHandle );,PASS/LIVE
+949,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
+997,if( xOpened ),if (!  xOpened ),PASS/LIVE
+1307,"if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )","if( xSemaphoreTake (!  xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )",PASS/LIVE
+1331,"ESP_LOGE(TAG, ""%s: Invalid security mode %d"", __func__, ret);","ESP_LOGE(TAG, ""%s: Invalid security mode %d"", __func__, ret*-1);",PASS/LIVE
+208,ret = esp_wifi_set_mode(WIFI_MODE_STA);,ret = esp_wifi_set_mode(WIFI_MODE_STA*2);,FAIL/KILLED
+315,if (event_loop_inited == false) {,if (event_loop_inited  !=  false) {,FAIL/KILLED
+789,xRet = ESP_FAIL;,xRet = 0 ;//ESP_FAIL;,PASS/LIVE
+986,else,// else,FAIL/KILLED
+1207,return xRetVal;,return 2* xRetVal;,PASS/LIVE
+877,if( xRet == ESP_OK ),if( xRet  >  ESP_OK ),PASS/LIVE
+770,pucBuffer += ( ulLen + 1 );,pucBuffer +=  (!  ulLen + 1 );,FAIL/KILLED
+1227,"xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, 2 * pdFALSE, pdFALSE, portMAX_DELAY);",PASS/LIVE
+1257,else,// else,FAIL/KILLED
+1230,return wifi_ret;,return -1 * wifi_ret;,PASS/LIVE
+185,break;,{;},PASS/LIVE
+46,"static const char *TAG = ""WIFI"";","static const char *TAG = ""\0WIFI"";",PASS/LIVE
+1132,if (pucMac == NULL) {,if (pucMac  !=  NULL) {,FAIL/KILLED
+623,xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;,xRetVal = (ret == ESP_OK) && 0 ? eWiFiSuccess : eWiFiFailure;,FAIL/KILLED
+571,case WIFI_AUTH_OPEN:,// case WIFI_AUTH_OPEN:,FAIL/KILLED
+910,if( xRegistry.usNumNetworks == wificonfigMAX_NETWORK_PROFILES ),if( xRegistry.usNumNetworks  <=  wificonfigMAX_NETWORK_PROFILES ),FAIL/KILLED
+130,break;,{;},FAIL/KILLED
+577,case WIFI_AUTH_WPA_PSK:,// case WIFI_AUTH_WPA_PSK:,PASS/LIVE
+1101,xRetVal = eWiFiSuccess;,xRetVal = NULL; //eWiFiSuccess;,FAIL/KILLED
+168,switch (status) {,switch  (! status) {,PASS/LIVE
+171,break;,{;},FAIL/KILLED
+1227,"xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits (! wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);",PASS/LIVE
+296,if (wifi_event_group) {,if ( ! wifi_event_group) {,FAIL/KILLED
+1118,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
+1118,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
+922,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),FAIL/KILLED
+233,"xEventGroupWaitBits(wifi_event_group, ESPTOUCH_DONE_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits(wifi_event_group, ESPTOUCH_DONE_BIT & DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);",FAIL/KILLED
+939,*pusIndex = ( xRegistry.usNumNetworks - 1 );,*pusIndex = 0 ;//( xRegistry.usNumNetworks - 1 );,PASS/LIVE
+944,if( xOpened ),if (!  xOpened ),PASS/LIVE
+816,"xRet = prxSerializeWifiNetworkProfile( pxNetwork, pucBuffer, &ulSize );","xRet = prxSerializeWifiNetworkProfile (!  pxNetwork, pucBuffer, &ulSize );",FAIL/KILLED
+768,pxNetwork->cSSID[ulLen] = '\0';,pxNetwork->cSSID[ulLen] = 0 ;//'\0';,PASS/LIVE
+577,case WIFI_AUTH_WPA_PSK:,// case WIFI_AUTH_WPA_PSK:,PASS/LIVE

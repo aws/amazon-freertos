@@ -1,0 +1,3 @@
+line,original,mutant,result
+568,pxBuffer[i].cChannel = ap_info[i].primary;,pxBuffer[ 0 * i].cChannel = ap_info[i].primary;,FAIL/KILLED
+1 KILLS,1 MUTANTS,SCORE,100.00%

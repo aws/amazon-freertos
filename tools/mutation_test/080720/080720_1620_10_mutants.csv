@@ -1,0 +1,6 @@
+line,original,mutant,result
+787,else,// else,FAIL/KILLED
+624,break;,{;},FAIL/KILLED
+1160,else,// else,FAIL/KILLED
+128,break;,{;},PASS/LIVE
+SCORE,Killed: 3,Total: 4,75.00%

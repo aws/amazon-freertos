@@ -1,0 +1,3 @@
+line,original,mutant,result
+1156,xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;,xRetVal = (ret  !=  ESP_OK) ? eWiFiSuccess : eWiFiFailure;,FAIL/KILLED
+SCORE,Killed: 1,Total: 1,100.00%

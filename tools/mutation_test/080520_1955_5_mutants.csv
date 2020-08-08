@@ -1,0 +1,6 @@
+line,original,mutant,result
+1064,return xWiFiRet;,return -1; //xWiFiRet;,No-Compile
+980,if( xRet == ESP_OK ),if (!  xRet == ESP_OK ),No-Compile
+463,if (ret == ESP_OK),if ( 0 && ret == ESP_OK),No-Compile
+1093,pucIPAddr[3]));,pucIPAddr[3])*2);,No-Compile
+511,if (ret != ESP_OK) {,if  (! ret != ESP_OK) {,No-Compile

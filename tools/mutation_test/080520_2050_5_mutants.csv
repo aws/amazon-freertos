@@ -1,0 +1,6 @@
+line,original,mutant,result
+992,if( xRet == ESP_OK ),if( xRet  =  ESP_OK ),No-Compile
+359,((x) > 0 && (x) <= wificonfigMAX_PASSPHRASE_LEN),((x) > 0 &&  (! x) <= wificonfigMAX_PASSPHRASE_LEN),No-Compile
+869,"xRet = nvs_get_blob( xNvsHandle, ""registry"", &xRegistry, &ulSize );","xRet = nvs_get_blob( xNvsHandle, ""\0registry"", &xRegistry, &ulSize );",FAIL/KILLED
+1080,return xRetVal;,return 2* xRetVal;,FAIL/KILLED
+1295,WIFIReturnCode_t wifi_ret = eWiFiFailure;,WIFIReturnCode_t wifi_ret = NULL; //eWiFiFailure;,No-Compile
