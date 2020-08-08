@@ -434,15 +434,15 @@ TEST( MQTT_Unit_Subscription, ListInsertRemove )
     int8_t index2 = -1;
     int8_t index3 = -1;
 
-    index1 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+    index1 = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
 
     TEST_ASSERT_NOT_EQUAL( -1, index1 );
 
-    index2 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+    index2 = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
 
     TEST_ASSERT_NOT_EQUAL( -1, index2 );
 
-    index3 = IotMqtt_InsertSubscription( connToContext[ contextIndex ].subscriptionArray );
+    index3 = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
 
     TEST_ASSERT_NOT_EQUAL( -1, index3 );
 

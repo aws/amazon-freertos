@@ -674,7 +674,6 @@ TEST_GROUP_RUNNER( MQTT_Unit_API )
     RUN_TEST_CASE( MQTT_Unit_API, PublishQoS0Parameters );
     RUN_TEST_CASE( MQTT_Unit_API, PublishQoS0MallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, PublishQoS1 );
-    /*RUN_TEST_CASE( MQTT_Unit_API, PublishDuplicates ); */
     RUN_TEST_CASE( MQTT_Unit_API, SubscribeUnsubscribeParameters );
     RUN_TEST_CASE( MQTT_Unit_API, SubscribeMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, UnsubscribeMallocFail );
@@ -692,11 +691,6 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
 {
     _mqttOperation_t * pOperation = NULL;
     bool subscriptionMutexCreated = false;
-
-    TransportInterface_t transport;
-    MQTTFixedBuffer_t networkBuffer;
-    MQTTApplicationCallbacks_t callbacks;
-    MQTTStatus_t managedMqttStatus;
 
     /* Create a new MQTT connection. */
     _pMqttConnection = IotTestMqtt_createMqttConnection( AWS_IOT_MQTT_SERVER,
