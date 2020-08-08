@@ -480,7 +480,7 @@ static size_t _receive( void * pConnection,
 
 /*-----------------------------------------------------------*/
 
-/**12
+/**
  * @brief A network close function that reports if it was invoked.
  */
 static IotNetworkError_t _close( void * pConnection )
