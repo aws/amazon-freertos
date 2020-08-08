@@ -1,3 +1,0 @@
-line,original,mutant,result
-862,return xRet;,return 0; //xRet;,FAIL/KILLED
-SCORE,Killed: 1,Total: 1,100.00%

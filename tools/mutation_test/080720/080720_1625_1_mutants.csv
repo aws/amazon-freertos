@@ -1,4 +1,0 @@
-line,original,mutant,result
-1051,if( xRet == ESP_OK ),if( xRet  >=  ESP_OK ),FAIL/KILLED
-97,break;,{;},FAIL/KILLED
-SCORE,Killed: 2,Total: 2,100.00%

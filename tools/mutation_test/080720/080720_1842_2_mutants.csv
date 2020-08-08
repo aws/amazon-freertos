@@ -1,4 +1,0 @@
-line,original,mutant,result
-975,if( xIsRegistryInit == pdFALSE ),if (!  xIsRegistryInit == pdFALSE ),FAIL/KILLED
-1386,if (ret != ESP_OK) {,if (ret  <=  ESP_OK) {,FAIL/KILLED
-2 KILLS,2 MUTANTS,SCORE,100.00%

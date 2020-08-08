@@ -1,3 +1,0 @@
-line,original,mutant,result
-1088,"configPRINTF((""%s: local ip address is %d.%d.%d.%d\n"",","configPRINTF (! (""%s: local ip address is %d.%d.%d.%d\n"",",FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

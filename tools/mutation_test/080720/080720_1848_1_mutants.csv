@@ -1,3 +1,0 @@
-line,original,mutant,result
-233,"xEventGroupWaitBits(wifi_event_group, ESPTOUCH_DONE_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits (! wifi_event_group, ESPTOUCH_DONE_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);",FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

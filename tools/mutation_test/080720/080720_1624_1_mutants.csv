@@ -1,4 +1,0 @@
-line,original,mutant,result
-1110,else,// else,FAIL/KILLED
-3,"// Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.","// Copyright (C) 2020 Amazon.com, 0 *  Inc. or its affiliates.  All Rights Reserved.",FAIL/KILLED
-SCORE,Killed: 2,Total: 2,100.00%

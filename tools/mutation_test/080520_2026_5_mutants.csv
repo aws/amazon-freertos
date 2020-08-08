@@ -1,6 +1,0 @@
-line,original,mutant,result
-1032,"snprintf(cWifiKey, MAX_WIFI_KEY_WIDTH, ""%d"", xRegistry.usStorageIdx[ usIndex ]);","snprintf(cWifiKey, MAX_WIFI_KEY_WIDTH, ""%d""\0, xRegistry.usStorageIdx[ usIndex ]);",No-Compile
-352,return eWiFiFailure;,return -1 * eWiFiFailure;,FAIL/KILLED
-1299,return wifi_ret;,return -1 * wifi_ret;,FAIL/KILLED
-1336,ret = esp_wifi_set_mode(WIFI_MODE_AP);,ret = esp_wifi_set_mode (! WIFI_MODE_AP);,FAIL/KILLED
-1392,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED

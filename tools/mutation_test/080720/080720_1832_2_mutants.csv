@@ -1,4 +1,0 @@
-line,original,mutant,result
-100,wifi_conn_state = true;,wifi_conn_state = ! true;,FAIL/KILLED
-1156,xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;,xRetVal = (ret  <=  ESP_OK) ? eWiFiSuccess : eWiFiFailure;,FAIL/KILLED
-2 KILLS,2 MUTANTS,SCORE,100.00%

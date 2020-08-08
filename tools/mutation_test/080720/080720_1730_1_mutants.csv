@@ -1,3 +1,0 @@
-line,original,mutant,result
-209,if (ret != ESP_OK) {,if  (! ret != ESP_OK) {,FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

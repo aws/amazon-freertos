@@ -1,3 +1,0 @@
-line,original,mutant,result
-977,xRet = prvInitRegistry( xNvsHandle );,xRet = prvInitRegistry( xNvsHandle *-1);,FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

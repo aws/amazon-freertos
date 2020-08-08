@@ -1,3 +1,0 @@
-line,original,mutant,result
-967,if( pxNetworkProfile != NULL ),if (!  pxNetworkProfile != NULL ),FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

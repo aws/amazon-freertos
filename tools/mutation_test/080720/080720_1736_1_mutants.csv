@@ -1,3 +1,0 @@
-line,original,mutant,result
-470,xSemaphoreGive( xWiFiSem );,xSemaphoreGive (!  xWiFiSem );,FAIL/KILLED
-1 KILLS,1 MUTANTS,SCORE,100.00%

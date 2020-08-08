@@ -1,3 +1,0 @@
-line,original,mutant,result
-1251,"xEventGroupWaitBits(wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);","xEventGroupWaitBits (! wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);",FAIL/KILLED
-SCORE,Killed: 1,Total: 1,100.00%

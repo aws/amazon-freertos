@@ -1,6 +1,0 @@
-line,original,mutant,result
-1382,return eWiFiNotSupported;,return 2* eWiFiNotSupported;,No-Compile
-1267,switch( securityMode ),switch (!  securityMode ),No-Compile
-338,wifi_event_group = xEventGroupCreate();,wifi_event_group = xEventGroupCreate (! );,No-Compile
-1389,return wifi_ret;,return 1; //wifi_ret;,No-Compile
-1156,xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;,xRetVal = (ret == ESP_OK) || 1 ? eWiFiSuccess : eWiFiFailure;,No-Compile
