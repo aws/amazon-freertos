@@ -97,18 +97,18 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
-        RUN_TEST_GROUP( Shadow_Unit_Parser );
-        RUN_TEST_GROUP( Shadow_Unit_API );
+        //RUN_TEST_GROUP( Shadow_Unit_Parser );
+        //RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
     #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-        //RUN_TEST_GROUP( MQTT_Unit_Validate );
-        //RUN_TEST_GROUP( MQTT_Unit_Subscription );
-        //RUN_TEST_GROUP( MQTT_Unit_Receive );
+        RUN_TEST_GROUP( MQTT_Unit_Validate );
+        RUN_TEST_GROUP( MQTT_Unit_Subscription );
+        RUN_TEST_GROUP( MQTT_Unit_Receive );
         RUN_TEST_GROUP( MQTT_Unit_API );
-        //RUN_TEST_GROUP( MQTT_Unit_Metrics );
-        //RUN_TEST_GROUP( MQTT_System );
+        RUN_TEST_GROUP( MQTT_Unit_Metrics );
+        RUN_TEST_GROUP( MQTT_System );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
@@ -162,7 +162,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-        RUN_TEST_GROUP( Defender_Unit );
+        //RUN_TEST_GROUP( Defender_Unit );
         RUN_TEST_GROUP( Defender_System );
     #endif
 
