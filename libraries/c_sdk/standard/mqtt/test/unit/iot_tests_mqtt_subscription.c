@@ -458,7 +458,7 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
 {
     _mqttSubscription_t * pSubscription = NULL;
     _topicMatchParams_t topicMatchParams = { 0 };
-    int index = -1;
+    int8_t index = -1;
 
     topicMatchParams.pTopicName = "/test0";
     topicMatchParams.topicNameLength = 6;
