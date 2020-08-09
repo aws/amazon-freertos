@@ -358,7 +358,7 @@ static bool _processPublish( const uint8_t * pPublish,
 
     /* Getting context index for the given MQTT Connection.  */
     contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
-
+    ( connToContext[ contextIndex ].subscriptionArray[ 0 ] ).unsubscribed = false;
     ( connToContext[ contextIndex ].subscriptionArray[ 0 ] ).callback.pCallbackContext = &invokeCount;
     /* Set the members of the receive context. */
     receiveContext.pData = pPublish;
