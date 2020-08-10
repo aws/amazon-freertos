@@ -1148,7 +1148,7 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
  *
  */
 void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
-                               _packetMatchParams_t * pMatch );
+                               const _packetMatchParams_t * pMatch );
 
 /**
  * @brief Find the first matching subscription in the given subscription array, starting at the given starting point.

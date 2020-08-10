@@ -49,7 +49,7 @@ bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreCreateMutexStatic( ( SemaphoreHandle_t ) pMutex ) != NULL ) )
+    if( ( xSemaphoreCreateMutexStatic( pMutex ) != NULL ) )
     {
         /* Mutex created successfully. */
         status = true;
@@ -68,7 +68,7 @@ bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreCreateRecursiveMutexStatic( ( SemaphoreHandle_t ) pMutex ) != NULL ) )
+    if( ( xSemaphoreCreateRecursiveMutexStatic( pMutex ) != NULL ) )
     {
         /* Mutex created successfully. */
         status = true;
