@@ -25,9 +25,6 @@ compiler = 'xtensa-esp32'
 src_path = os.path.join(root_path, 'vendors/espressif/boards/esp32/ports/wifi')
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
-# EXIT SERIAL MONITOR KEY
-CTRL_RBRACKET = '\x1d'  # Ctrl+]
-
 # TEST REGEX
 EndFlag                             = "-------ALL TESTS FINISHED-------"
 StartFlag                           = "---------STARTING TESTS---------"
@@ -61,8 +58,8 @@ def yellow_print(s):
 
 def run_command(command):
     try:
-        (master_fd, slave_fd) = pty.openpty()
-        process = subprocess.Popen(shlex.split(command), stdin=slave_fd, stdout=subprocess.PIPE, close_fds=True, bufsize=0)
+        # (master_fd, slave_fd) = pty.openpty()
+        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, close_fds=True, bufsize=0)
         start = time.time()
         fail = True
         while True:
@@ -80,7 +77,7 @@ def run_command(command):
             
             # end the process since we know at least one test has failed
             # if crash -> treat as fail
-            if any(flag in output for flag in [StartFlag, RebootFlag, NoConnectFlag]):
+            if any(flag in output for flag in [EndFlag, RebootFlag, NoConnectFlag, FailFlag]):
                 break
 
             curr = time.time()
@@ -91,14 +88,7 @@ def run_command(command):
         # end the process
         if process.poll() is None:
             # idf_monitor is still running
-            try:
-                process.kill()
-            except OSError as e:
-                if e.errno == errno.ESRCH:
-                    # ignores a possible race condition which can occur when the process exits between poll() and kill()
-                    pass
-                else:
-                    raise
+            process.kill()
             rc = process.wait()
         else:
             rc = process.poll()
@@ -107,22 +97,12 @@ def run_command(command):
         raise KeyboardInterrupt
     except:
         traceback.print_exc()
-        try:
-            process.kill()
-        except OSError as e:
-            if e.errno == errno.ESRCH:
-                # ignores a possible race condition which can occur when the process exits between poll() and kill()
-                pass
-            else:
-                raise
-        except:
-            print("reached here")
-            pass
+        process.kill()
     finally:
         end = time.time()
         yellow_print("Elapsed Time: {}s".format(str(format(end - start, '.2f'))))
-        os.close(slave_fd)
-        os.close(master_fd)
+        # os.close(slave_fd)
+        # os.close(master_fd)
 
 def percentage(part, whole):
         return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
@@ -184,7 +164,7 @@ def main():
     os.chdir(src_path)
 
     # TEMPORARY: COPY ORIGINAL SOURCE
-    shutil.copyfile('iot_wifi_original.c', src)
+    # shutil.copyfile('iot_wifi_original.c', src)
 
     total = 0
     failures = 0
@@ -203,7 +183,7 @@ def main():
             os.chdir(root_path)
             # cmake the mutant
             # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
-            cmd = "cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1"
+            cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
             yellow_print(cmd)
             subprocess.check_call(shlex.split(cmd))
             # build and execute the mutant
@@ -269,6 +249,7 @@ def main():
         os.chdir(src_path)
         os.remove('original')
         print('Done')
+        sys.exit()
 
 if __name__ == "__main__":
     main()
