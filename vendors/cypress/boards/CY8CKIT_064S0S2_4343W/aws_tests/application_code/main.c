@@ -208,6 +208,8 @@ int main( void )
 {
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
+    BaseType_t xReturnMessage;
+
     prvMiscInitialization();
 
 #ifdef CY_TFM_PSA_SUPPORTED
@@ -215,9 +217,9 @@ int main( void )
 #endif
 
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
-    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            tskIDLE_PRIORITY,
-                            mainLOGGING_MESSAGE_QUEUE_LENGTH );
+    xReturnMessage = xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
+                                             tskIDLE_PRIORITY,
+                                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
 #ifdef CY_TFM_PSA_SUPPORTED
     /* Initialize TFM interface */
@@ -225,11 +227,14 @@ int main( void )
 #endif
 
 #ifdef CY_USE_FREERTOS_TCP
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+    if (pdPASS == xReturn)
+    {
+        xReturnMessage = FreeRTOS_IPInit( ucIPAddress,
+                                          ucNetMask,
+                                          ucGatewayAddress,
+                                          ucDNSServerAddress,
+                                          ucMACAddress );
+    }
 #endif /* CY_USE_FREERTOS_TCP */
 
     /* Add 5s delay to let serial port establish a connection to PC before starting the tests */
@@ -238,9 +243,19 @@ int main( void )
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
-    vTaskStartScheduler();
+    if (pdPASS == xReturnMessage)
+    {
+        vTaskStartScheduler();
+    }
 
-    return 0;
+    if (pdPASS == xReturnMessage)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 #if (BLE_SUPPORTED == 1)
@@ -286,6 +301,7 @@ void vApplicationDaemonTaskStartupHook( void )
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
      * have been imported into the project. If you are not using Wi-Fi, see the
      * vApplicationIPNetworkEventHook function. */
+    CK_RV xResult;
 
     if( SYSTEM_Init() == pdPASS )
     {
@@ -310,15 +326,18 @@ void vApplicationDaemonTaskStartupHook( void )
         prvWifiConnect();
 
         /* Provision the device with AWS certificate and private key. */
-        vDevModeKeyProvisioning();
+        xResult = vDevModeKeyProvisioning();
 
         /* Create the task to run unit tests. */
-        xTaskCreate( TEST_RUNNER_RunTests_task,
+        if (xResult == CKR_OK)
+        {
+            xTaskCreate( TEST_RUNNER_RunTests_task,
                         "RunTests_task",
                         mainTEST_RUNNER_TASK_STACK_SIZE,
                         NULL,
                         mainTEST_RUNNER_TASK_PRIORITY,
                         NULL );
+        }
 #endif /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
     }
 }

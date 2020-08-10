@@ -172,27 +172,42 @@ int main( void )
 {
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
+    BaseType_t xReturnMessage;
+
     prvMiscInitialization();
 
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
-    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            tskIDLE_PRIORITY,
-                            mainLOGGING_MESSAGE_QUEUE_LENGTH );
+    xReturnMessage = xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
+                                             tskIDLE_PRIORITY,
+                                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
 #ifdef CY_USE_FREERTOS_TCP
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+    if (pdPASS == xReturnMessage)
+    {
+        xReturnMessage = FreeRTOS_IPInit( ucIPAddress,
+                                          ucNetMask,
+                                          ucGatewayAddress,
+                                          ucDNSServerAddress,
+                                          ucMACAddress );
+    }
 #endif /* CY_USE_FREERTOS_TCP */
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
-    vTaskStartScheduler();
+    if (pdPASS == xReturnMessage)
+    {
+        vTaskStartScheduler();
+    }
 
-    return 0;
+    if (pdPASS == xReturnMessage)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -236,6 +251,8 @@ void vApplicationDaemonTaskStartupHook( void )
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
      * have been imported into the project. If you are not using Wi-Fi, see the
      * vApplicationIPNetworkEventHook function. */
+    CK_RV xResult;
+
     if( SYSTEM_Init() == pdPASS )
     {
 #ifdef CY_USE_LWIP
@@ -248,10 +265,13 @@ void vApplicationDaemonTaskStartupHook( void )
         prvWifiConnect();
 
         /* Provision the device with AWS certificate and private key. */
-        vDevModeKeyProvisioning();
+        xResult = vDevModeKeyProvisioning();
 
         /* Start the demo tasks. */
-        DEMO_RUNNER_RunDemos();
+        if (xResult == CKR_OK)
+        {
+            DEMO_RUNNER_RunDemos();
+        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -456,6 +476,7 @@ void vAssertCalled(const char * pcFile,
         uint8_t *ptr;
         uint32_t numBytes = 0;
         uint8_t msgLength = 0;
+        cy_rslt_t result = CY_RSLT_SUCCESS;
 
         /* Dynamically allocate memory to store user input. */
         pxINPUTmessage->pcData = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) * INPUT_MSG_ALLOC_SIZE );
@@ -473,21 +494,28 @@ void vAssertCalled(const char * pcFile,
             if (numBytes > 0)
             {
                 /* Get a single character from UART buffer. */
-                cyhal_uart_getc(&cy_retarget_io_uart_obj, ptr, 0);
-
-                /* Stop checking for more characters when line feed or carriage return is received. */
-                if((*ptr == '\n') || (*ptr == '\r'))
+                result = cyhal_uart_getc(&cy_retarget_io_uart_obj, ptr, 0);
+                if (CY_RSLT_SUCCESS != result)
                 {
-                    *ptr = '\0';
-                    xReturnMessage = pdTRUE;
+                    xReturnMessage = pdFALSE;
                     break;
+                }
+                else
+                {
+                    /* Stop checking for more characters when line feed or carriage return is received. */
+                    if((*ptr == '\n') || (*ptr == '\r'))
+                    {
+                        *ptr = '\0';
+                        xReturnMessage = pdTRUE;
+                        break;
+                    }
                 }
 
                 ptr++;
                 msgLength++;
 
                 /* Check if the allocated buffer for user input storage is full. */
-                if (msgLength >= INPUT_MSG_ALLOC_SIZE)
+                if ((msgLength >= INPUT_MSG_ALLOC_SIZE) && (CY_RSLT_SUCCESS != result))
                 {
                     break;
                 }
