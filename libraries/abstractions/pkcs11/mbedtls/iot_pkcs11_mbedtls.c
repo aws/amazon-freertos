@@ -54,7 +54,6 @@
 #include "mbedtls_error.h"
 
 /* C runtime includes. */
-#include <stdio.h>
 #include <string.h>
 
 /*-----------------------------------------------------------*/
@@ -1172,18 +1171,26 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint32_t ulDerBufSize = 0;
 
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
         ulDerBufSize = pkcs11_MAX_EC_PRIVATE_KEY_DER_SIZE;
     }
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
         ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
     }
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
     {
         ulDerBufSize = pkcs11_MAX_PRIVATE_KEY_DER_SIZE;
     }
+    /* See explanation in prvCheckValidSessionAndModule for this exception. */
+    /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
     {
         ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
@@ -1211,7 +1218,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
     }
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
-    else if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
+    else if( ( xResult == CKR_OK ) )
     {
         lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, ulDerBufSize );
     }
@@ -2762,6 +2769,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                     break;
 
+                case CKA_PUBLIC_KEY_INFO:
                 case CKA_VALUE:
 
                     /* See explanation in prvCheckValidSessionAndModule for this exception. */

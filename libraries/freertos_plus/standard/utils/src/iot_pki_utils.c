@@ -33,7 +33,6 @@
 #include "iot_pki_utils.h"
 
 /* CRT includes. */
-#include <stdio.h>
 #include <string.h>
 
 #define FAILURE    ( -1 )

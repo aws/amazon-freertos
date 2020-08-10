@@ -151,10 +151,10 @@ TEST_GROUP_RUNNER( Full_PKCS11_ModelBased_SignMachine )
 {
     xGlobalSlotId = 1;
 
-    xMechanismType = CKM_RSA_PKCS;
+    xGlobalMechanismType = CKM_RSA_PKCS;
     runAllSignTestCases();
 
-    xMechanismType = CKM_ECDSA;
+    xGlobalMechanismType = CKM_ECDSA;
     resetCredentials();
     generateValidSingingKeyPair();
     runAllSignTestCases();
