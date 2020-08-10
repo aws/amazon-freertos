@@ -1443,6 +1443,7 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttOperation_t subscribeOperation = IOT_MQTT_OPERATION_INITIALIZER;
+    int8_t contextIndex = -1;
 
     /* Initializer parameters. */
     _networkInterface.send = _sendSuccess;
@@ -1489,6 +1490,7 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
             TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
         }
 
+        TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
@@ -1658,7 +1660,7 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
         /* Set the MQTT Context for the new MQTT Connection*/
         _setContext( _pMqttConnection );
 
-       
+
 
         /* Schedule the initial PINGREQ. */
         TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
