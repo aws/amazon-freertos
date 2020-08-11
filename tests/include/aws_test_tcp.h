@@ -33,8 +33,8 @@
 #define tcptestECHO_SERVER_ADDR0         10
 #define tcptestECHO_SERVER_ADDR1         0
 #define tcptestECHO_SERVER_ADDR2         0
-#define tcptestECHO_SERVER_ADDR3         196
-#define tcptestECHO_PORT                 ( 9000 )
+#define tcptestECHO_SERVER_ADDR3         51
+#define tcptestECHO_PORT                 ( 8000 )
 
 /* Encrypted Echo Server.
  * If tcptestSECURE_SERVER is set to 1, the following must be updated:
