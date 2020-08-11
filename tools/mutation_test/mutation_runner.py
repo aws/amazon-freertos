@@ -12,17 +12,22 @@ import traceback
 import pty
 import time
 import argparse
-import tty
+import re
+
+import comm
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.join(dir_path, os.pardir)
 root_path = os.path.join(root_path, os.pardir)
 
+# configs
 vendor = 'espressif'
 board = 'esp32_wrover_kit'
 compiler = 'xtensa-esp32'
-src_path = os.path.join(root_path, 'vendors/espressif/boards/esp32/ports/wifi')
+src_path = 'vendors/espressif/boards/esp32/ports/wifi'
+
+src_path = os.path.join(root_path, src_path)
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
 # TEST REGEX
@@ -32,6 +37,8 @@ PassFlag                            = "OK"
 FailFlag                            = "FAIL"
 RebootFlag                          = "Rebooting..."
 NoConnectFlag                       = "WiFi failed to connect to AP SSSS."
+
+TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -72,12 +79,12 @@ def run_command(command, timeout=500):
             print(output.strip())
 
             # check if all tests have passed then we have discovered a live mutant
-            if PassFlag in output:
+            if PassFlag in str(output):
                 fail = False
             
             # end the process since we know at least one test has failed
             # if crash -> treat as fail
-            if any(flag in output for flag in [EndFlag, RebootFlag, NoConnectFlag, FailFlag]):
+            if any(flag in str(output) for flag in [EndFlag, RebootFlag, NoConnectFlag, FailFlag]):
                 break
 
             curr = time.time()
@@ -104,6 +111,19 @@ def run_command(command, timeout=500):
         # os.close(slave_fd)
         # os.close(master_fd)
 
+def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None, start_timeout=360, exec_timeout):
+    """
+    Read output from a board. Will look for `start_flag`, or wait for output if not provided, until
+    `start_timeout` expires. If success, continue to read output until `exec_timeout` expires or
+    end_flag is detected if provided.
+    """
+    try:
+        with serial.Serial(port, 115200, timeout=comm.SERIAL_TIMEOUT) as port:
+            output, alive = comm.read_target_output(port, start_flag, end_flags, pass_flag, start_timeout, exec_timeout)
+    except serial.SerialException as e:
+        raise SerialPortError(str(e))
+    return output, alive
+
 def percentage(part, whole):
         return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
 
@@ -123,6 +143,18 @@ def get_default_serial_port():
         return ports[0]
     except IndexError:
         raise RuntimeError("No serial ports found. Connect a device, or use '-p PORT' option to set a specific port.")
+
+class MutationTestError(Exception):
+    def __init__(self, message):
+        self.message = message
+        self.enhanced_message = 'MT Source: {}. Exception: {}'.format(root_path, message)
+        super(MutationTestError, self).__init__(self.enhanced_message)
+
+class SerialPortError(MutationTestError):
+    pass
+
+class ExternalCommandFailed(MutationTestError):
+    pass
 
 def main():
     parser = argparse.ArgumentParser('Mutation Testing')
@@ -166,6 +198,7 @@ def main():
     # TEMPORARY: COPY ORIGINAL SOURCE
     # shutil.copyfile('iot_wifi_original.c', src)
 
+
     total = 0
     failures = 0
     nc = 0
@@ -188,30 +221,34 @@ def main():
             subprocess.check_call(shlex.split(cmd))
             # build and execute the mutant
             # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-            cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build"
+            cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build"
             yellow_print(cmd)
-            fail = True
+            alive = False
             try:
-                rc, fail = run_command(cmd, timeout)
-                yellow_print("Return Code: {}".format(rc))
-                if rc == 2:
-                    yellow_print("Cannot compile, discard and move on")
+                # rc, fail = run_command(cmd, timeout)
+                if comm.subproc_run(cmd) != 0:
+                    raise ExternalCommandFailed('Flash command failed.')
+                yellow_print("Done Flashing")
+                output, alive = read_device_output(get_default_serial_port(), start_flag=None, end_flags=[EndFlag], pass_flag=PassFlag, exec_timeout=500)
+                with open(os.path.join(dir_path, "output.txt"), 'w'):
+                    f.write(output)
+                total += 1
+                if not alive:
+                    failures += 1
+                    green_print("Mutant is Killed")
+                else:
+                    red_print("Mutant is Alive")
+                results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
+                                'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
+                yellow_print("Successful Mutant Runs: {}".format(total))
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except ExternalCommandFailed:
+                yellow_print("Cannot compile, discard and move on")
                     # Include no-compile in csv results?
                     # results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                     #                 'result':"No-Compile"})
-                    nc += 1
-                else:
-                    total += 1
-                    if fail:
-                        failures += 1
-                        green_print("Mutant is Killed")
-                    else:
-                        red_print("Mutant is Alive")
-                    results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
-                                    'result':"FAIL/KILLED" if fail else "PASS/LIVE"})
-                    yellow_print("Successful Mutant Runs: {}".format(total))
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
+                nc += 1
             except:
                 traceback.print_exc()
             finally:
