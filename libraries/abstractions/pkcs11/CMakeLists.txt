@@ -21,6 +21,7 @@ afr_module_dependencies(
     PUBLIC
         3rdparty::pkcs11 
         AFR::pkcs11
+        AFR::common
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
 	    AFR::utils
@@ -86,9 +87,8 @@ else()
             "${src_dir}/iot_pkcs11_mbedtls.c"
             "${src_dir}/threading_alt.h"
             "${inc_dir}/iot_pkcs11_pal.h"
-            "${inc_dir}/logging_levels.h"
-            "${inc_dir}/logging_stack.h"
     )
+
 
     afr_module_dependencies(
         pkcs11_mbedtls
