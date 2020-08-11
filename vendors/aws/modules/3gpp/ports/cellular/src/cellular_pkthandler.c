@@ -658,7 +658,7 @@ void _Cellular_AtParseInit( const CellularContext_t * pContext )
                 finit = true;
                 taskEXIT_CRITICAL();
             }
-        #else  /* if ( SORT_MODULE_TOKEN_MAP == 1U ) */
+        #else /* if ( SORT_MODULE_TOKEN_MAP == 1U ) */
             if( finit != true )
             {
                 IotLogError( "AtParseFail URC token table is not sorted" );

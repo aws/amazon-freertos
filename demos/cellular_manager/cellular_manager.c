@@ -645,8 +645,6 @@ static void _cellularManagerSmTrigger( cellularSmEvent_t event )
         IotLogInfo( "State Machine Change oldState = %s, newState = %s ,trigger = %s",
                     _cellularSmInfoMapping[ oldState ].str, _cellularSmInfoMapping[ newState ].str, _cellularEventMapping[ event ].str );
     }
-
-    return;
 }
 
 /*-----------------------------------------------------------*/

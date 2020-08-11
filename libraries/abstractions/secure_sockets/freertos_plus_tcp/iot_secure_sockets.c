@@ -56,7 +56,7 @@ typedef struct SSOCKETContext
     char ** ppcAlpnProtocols;
     uint32_t ulAlpnProtocolsCount;
     BaseType_t xConnectAttempted;
-} SSOCKETContext_t, *SSOCKETContextPtr_t;
+} SSOCKETContext_t, * SSOCKETContextPtr_t;
 
 /*
  * Helper routines.
