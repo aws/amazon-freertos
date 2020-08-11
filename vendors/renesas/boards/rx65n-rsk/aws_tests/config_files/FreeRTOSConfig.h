@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.2.0
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.3.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -56,7 +56,7 @@
 #define configTICK_RATE_HZ                         ( 1000 )
 #define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 512 )
 #define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 256U * 1024U ) )
-#define configMAX_TASK_NAME_LEN                    ( 15 )
+#define configMAX_TASK_NAME_LEN                    ( 12 )
 #define configUSE_TRACE_FACILITY                   1
 #define configUSE_16_BIT_TICKS                     0
 #define configIDLE_SHOULD_YIELD                    1
@@ -72,8 +72,8 @@
 
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 
-#define configCPU_CLOCK_HZ				( 120000000UL )
-#define configPERIPHERAL_CLOCK_HZ		( 60000000UL )
+#define configCPU_CLOCK_HZ				(BSP_ICLK_HZ)
+#define configPERIPHERAL_CLOCK_HZ		(BSP_PCLKB_HZ)
 #define configUSE_QUEUE_SETS			1
 
 /* Hook function related definitions. */
@@ -179,7 +179,7 @@ extern void vLoggingPrint( const char * pcMessage );
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
-#define configLOGGING_MAX_MESSAGE_LENGTH            240
+#define configLOGGING_MAX_MESSAGE_LENGTH            192
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */

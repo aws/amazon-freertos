@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -220,12 +220,12 @@
     extern uint32_t ulAssistedTestIotPwmInstance;     /* PWM Instance for assisted test */
 
 /**
- * Board specific Power config set
+ * Board specific PWM config set
  *
  * @param: testSet: number of config set to be test
  * @return None
  */
-    void SET_TEST_IOT_POWER_CONFIG( int testSet );
+    void SET_TEST_IOT_PWM_CONFIG( int testSet );
 #else /* if defined( IOT_TEST_COMMON_IO_PWM_SUPPORTED ) && ( IOT_TEST_COMMON_IO_PWM_SUPPORTED >= 1 ) */
     #define IOT_TEST_COMMON_IO_PWM_SUPPORTED    0
 #endif /* ifdef IOT_TEST_COMMON_IO_PWM_SUPPORTED */
@@ -328,7 +328,7 @@
 #endif
 
 /* Power */
-#if defined( IOT_TEST_COMMON_IO_PWM_SUPPORTED ) && ( IOT_TEST_COMMON_IO_PWM_SUPPORTED >= 1 )
+#if defined( IOT_TEST_COMMON_IO_POWER_SUPPORTED ) && ( IOT_TEST_COMMON_IO_POWER_SUPPORTED >= 1 )
     extern uint32_t ultestIotPowerDelay;               /* Delay used to wait for the DUT enter idle */
 
     extern uint32_t ultestIotPowerPcWakeThreshold;     /* Threshold (minimum idle Time required to enter PC Idle Mode */
@@ -342,14 +342,14 @@
     extern uint8_t * puctestIotPowerWakeupSources;     /* Array of wakeup sources, HW-dependent */
 
 /**
- * Board specific PWM config set
+ * Board specific Power config set
  *
  * @param: testSet: number of config set to be test
  * @return None
  */
-    void SET_TEST_IOT_PWM_CONFIG( int testSet );
+    void SET_TEST_IOT_POWER_CONFIG( int testSet );
 #else /* if defined( IOT_TEST_COMMON_IO_PWM_SUPPORTED ) && ( IOT_TEST_COMMON_IO_PWM_SUPPORTED >= 1 ) */
-    #define IOT_TEST_COMMON_IO_PWM_SUPPORTED    0
+    #define IOT_TEST_COMMON_IO_POWER_SUPPORTED    0
 #endif /* ifdef IOT_TEST_COMMON_IO_PWM_SUPPORTED */
 
 /* USB Device */

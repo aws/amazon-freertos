@@ -73,7 +73,7 @@ else()
 endif()
 
 # Provide an option to enable unit tests with mocking
-option(AFR_ENABLE_UNIT_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
+option(AFR_ENABLE_UNIT_TESTS "Build tests for FreeRTOS. Requires recompiling whole library." OFF)
 if (AFR_ENABLE_UNIT_TESTS)
      add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
      add_compile_definitions(IOT_BUILD_TESTS=1)

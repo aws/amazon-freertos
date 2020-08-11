@@ -1,8 +1,8 @@
 # Set variables.
 set(renesas_dir "${AFR_VENDORS_DIR}/renesas")
 set(rx65nrsk_dir "${AFR_VENDORS_DIR}/renesas/boards/rx65n-rsk")
-
 set(rx65nrsk_ports_dir "${rx65nrsk_dir}/ports")
+set(rx_driver_package_dir "${AFR_VENDORS_DIR}/renesas/rx_driver_package/v125")
 
 if(AFR_IS_TESTING)
     set(rx65nrsk_aws_dir "${rx65nrsk_dir}/aws_tests")
@@ -83,77 +83,70 @@ target_link_options(
 # FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 
-afr_glob_src(afr_common_src DIRECTORY "${renesas_dir}/amazon_freertos_common")
-afr_glob_src(afr_common_compiler_src DIRECTORY "${renesas_dir}/amazon_freertos_common/compiler_support/ccrx")
-afr_glob_src(afr_common_network_src DIRECTORY "${renesas_dir}/amazon_freertos_common/network_support/onchip_rx_ether")
+set(renesas_amazon_freertos_common_dir "${renesas_dir}/amazon_freertos_common")
+afr_glob_src(afr_common_src DIRECTORY "${renesas_amazon_freertos_common_dir}")
+afr_glob_src(afr_common_compiler_src DIRECTORY "${renesas_amazon_freertos_common_dir}/compiler_support/ccrx")
+afr_glob_src(afr_common_network_src DIRECTORY "${renesas_amazon_freertos_common_dir}/network_support/onchip_rx_ether")
 
 set(afr_common_include
-    "${renesas_dir}/amazon_freertos_common"
-    "${renesas_dir}/amazon_freertos_common/compiler_support/ccrx"
-    "${renesas_dir}/amazon_freertos_common/network_support/onchip_rx_ether"
+    "${renesas_amazon_freertos_common_dir}"
+    "${renesas_amazon_freertos_common_dir}/compiler_support/ccrx"
+    "${renesas_amazon_freertos_common_dir}/network_support/onchip_rx_ether"
 )
 
 # r_cmt_rx, r_riic_rx, r_sci_iic_rx are excluded
-afr_glob_src(FIT_rbyteq_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_byteq" RECURSE)
-afr_glob_src(FIT_retherrx_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_ether_rx" RECURSE)
-afr_glob_src(FIT_rflashrx_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx" RECURSE)
-afr_glob_src(FIT_rs12adrx_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx" RECURSE)
+afr_glob_src(rbyteq_src DIRECTORY "${rx_driver_package_dir}/r_byteq" RECURSE)
+afr_glob_src(retherrx_src DIRECTORY "${rx_driver_package_dir}/r_ether_rx" RECURSE)
+afr_glob_src(rflashrx_src DIRECTORY "${rx_driver_package_dir}/r_flash_rx" RECURSE)
+afr_glob_src(rs12adrx_src DIRECTORY "${rx_driver_package_dir}/r_s12ad_rx" RECURSE)
 
 # select only RX65 for r_bsp
-afr_glob_src(FIT_rbsp_board_all_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all")
-afr_glob_src(FIT_rbsp_board_genericrx65n_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/generic_rx65n")
-afr_glob_src(FIT_rbsp_board_rx65n_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/rx65n")
-afr_glob_src(FIT_rbsp_mcu_all_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/mcu/all")
-afr_glob_src(FIT_rbsp_mcu_rx65n_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/mcu/rx65n")
+afr_glob_src(rbsp_mcu_src DIRECTORY "${rx_driver_package_dir}/r_bsp/mcu")
+afr_glob_src(rbsp_board_genericrx65n_src DIRECTORY "${rx_driver_package_dir}/r_bsp/board/generic_rx65n")
+afr_glob_src(rbsp_mcu_all_src DIRECTORY "${rx_driver_package_dir}/r_bsp/mcu/all")
+afr_glob_src(rbsp_mcu_rx65n_src DIRECTORY "${rx_driver_package_dir}/r_bsp/mcu/rx65n")
 
-set(FIT_rbsp_board_all_src
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all/dbsct.c"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all/lowlvl.c"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all/lowsrc.c"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all/resetprg.c"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/all/sbrk.c"
+set(rbsp_mcu_src
+    "${rx_driver_package_dir}/r_bsp/mcu/all/dbsct.c"
+    "${rx_driver_package_dir}/r_bsp/mcu/all/lowlvl.c"
+    "${rx_driver_package_dir}/r_bsp/mcu/all/lowsrc.c"
+    "${rx_driver_package_dir}/r_bsp/mcu/all/resetprg.c"
+    "${rx_driver_package_dir}/r_bsp/mcu/all/sbrk.c"
 )
 
-set(FIT_rbsp_src
-    ${FIT_rbsp_board_all_src}
-    ${FIT_rbsp_board_genericrx65n_src}
-    ${FIT_rbsp_board_rx65n_src}
-    ${FIT_rbsp_mcu_all_src}
-    ${FIT_rbsp_mcu_rx65n_src}
+set(rbsp_src
+    ${rbsp_mcu_src}
+    ${rbsp_board_genericrx65n_src}
+    ${rbsp_mcu_all_src}
+    ${rbsp_mcu_rx65n_src}
 )
 
 # select only RX65 for r_sci_rx
-afr_glob_src(FIT_rscirx_target_src DIRECTORY "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_rx/src/targets/rx65n")
+afr_glob_src(rscirx_target_rx65n_src DIRECTORY "${rx_driver_package_dir}/r_sci_rx/src/targets/rx65n")
 
-set(FIT_rscirx_src
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_rx/src/r_sci_rx.c"
-    ${FIT_rscirx_target_src}
+set(rscirx_src
+    "${rx_driver_package_dir}/r_sci_rx/src/r_sci_rx.c"
+    ${rscirx_target_rx65n_src}
 )
 
-set(FIT_include
-    "${renesas_dir}/FIT/RDP_v1.15_modified"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_bsp/board/generic_rx65n"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_ether_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src/flash_type_1"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src/flash_type_2"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src/flash_type_3"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src/flash_type_4"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_flash_rx/src/targets"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_byteq"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_byteq/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_riic_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_riic_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_iic_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_sci_iic_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_cmt_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx/src"
-    "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx/src/targets/rx65x"
+set(rx_driver_package_include
+    "${rx_driver_package_dir}"
+    "${rx_driver_package_dir}/r_bsp"
+    "${rx_driver_package_dir}/r_bsp/board/generic_rx65n"
+    "${rx_driver_package_dir}/r_ether_rx"
+    "${rx_driver_package_dir}/r_flash_rx"
+    "${rx_driver_package_dir}/r_flash_rx/src"
+    "${rx_driver_package_dir}/r_flash_rx/src/flash_type_1"
+    "${rx_driver_package_dir}/r_flash_rx/src/flash_type_3"
+    "${rx_driver_package_dir}/r_flash_rx/src/flash_type_4"
+    "${rx_driver_package_dir}/r_flash_rx/src/targets"
+    "${rx_driver_package_dir}/r_byteq"
+    "${rx_driver_package_dir}/r_byteq/src"
+    "${rx_driver_package_dir}/r_sci_rx"
+    "${rx_driver_package_dir}/r_sci_rx/src"
+    "${rx_driver_package_dir}/r_s12ad_rx"
+    "${rx_driver_package_dir}/r_s12ad_rx/src"
+    "${rx_driver_package_dir}/r_s12ad_rx/src/targets/rx65n"
 )
 
 afr_glob_src(smc_gen_src DIRECTORY "${rx65nrsk_aws_dir}/src/smc_gen" RECURSE)
@@ -173,12 +166,12 @@ target_sources(
         ${afr_common_src}
         ${afr_common_compiler_src}
         ${afr_common_network_src}
-        ${FIT_rbsp_src}
-        ${FIT_rbyteq_src}
-        ${FIT_retherrx_src}
-        ${FIT_rflashrx_src}
-        ${FIT_rs12adrx_src}
-        ${FIT_rscirx_src}
+        ${rbsp_src}
+        ${rbyteq_src}
+        ${retherrx_src}
+        ${rflashrx_src}
+        ${rs12adrx_src}
+        ${rscirx_src}
         ${smc_gen_src}
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2/port_asm.src"
@@ -188,7 +181,7 @@ target_sources(
 
 set(kernel_inc_dirs
     ${afr_common_include}
-    ${FIT_include}
+    ${rx_driver_package_include}
     ${smc_gen_include}
     "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2"
     "${rx65nrsk_aws_dir}/config_files"
@@ -237,6 +230,21 @@ afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
+)
+
+# OTA
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE "${rx65nrsk_ports_dir}/ota/aws_ota_pal.c"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::crypto
+        AFR::pkcs11
+        AFR::ota_mqtt
+        AFR::ota_http
 )
 
 # -------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -544,7 +544,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocks )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 
@@ -633,7 +633,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedAddress )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 
@@ -731,7 +731,7 @@ TEST( TEST_IOT_FLASH, AFQP_IotFlashEraseFlashBlocksUnAlignedSize )
         }
         else
         {
-            TEST_MESSAGE( "Start offset is not aligned with blockSize" );
+            /* TEST_MESSAGE( "Start offset is not aligned with blockSize" ); */
         }
     }
 

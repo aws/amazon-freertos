@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -107,8 +107,8 @@ typedef struct IotBatteryInfo
     uint16_t usMinVoltage;         /*!< minimum designed voltage battery can be used at */
     uint16_t usMaxVoltage;         /*!< maximum designed voltage battery can be used at */
     int16_t sMinTemperature;       /*!< lowest temperature the battery can be used at by design */
-    int16_t sMaxTemperature;       /*!< max temperature the battery can be used at by design */
-    uint8_t usMaxCapacity;         /*!< max capacity of battery by design */
+    int32_t lMaxTemperature;       /*!< max temperature the battery can be used at by design */
+    uint16_t usMaxCapacity;        /*!< max capacity of battery by design */
     uint8_t ucAsyncSupported;      /*!< Is asynchronous notifications supported by the driver. This will be
                                     *  set, if the battery/charging has an IC/battery and charging hw module that
                                     *  can atonomously monitor battery characterstics and generate interrupts */
@@ -132,19 +132,19 @@ typedef enum IotBatteryIoctlRequest
                                          *   This IOCTL takes int16_t value as input in milliCelcius units. */
     eSetBatteryMaxBatteryTempThreshold, /*!< Set the maximum battery temperature threshold. When the battery temperature goes above this value,
                                          *   the registered callback will be called with the status value "eBatteryUnderTemp".
-                                         *   This IOCTL takes int16_t value as input in milliCelcius units. */
+                                         *   This IOCTL takes int32_t value as input in milliCelcius units. */
     eSetBatteryMinChargeTempThreshold,  /*!< Set the minimum charge temperature threshold. When the charging temperature goes below this value,
                                          *   the registered callback will be called with the status value "eBatteryUnderChargingTemp".
                                          *   This IOCTL takes int16_t value as input in milliCelcius units.*/
     eSetBatteryMaxChargeTempThreshold,  /*!< Set the maximum charge temperature threshold. When the charging temperature goes above this value,
                                          *   the registered callback will be called with the status value "eBatteryOverChargingTemp".
-                                         *   This IOCTL takes int16_t value as input in milliCelcius units. */
+                                         *   This IOCTL takes int32_t value as input in milliCelcius units. */
     eSetBatteryMaxOutputCurrent,        /*!< Set the maximum output current limit from the battery.
                                          *   This IOCTL takes uint16_t value as input in milliAmp units. */
     eSetBatteryMaxInputChargeCurrent,   /*!< Set the maximum input charging current limit to the battery.
                                          *   This IOCTL takes uint16_t value as input in milliAmp units. */
     eSetBatteryChargeTimer,             /*!< Set the battery charging timer limit. AFter the timer expires charging will stop.
-                                         *   This IOCTL takes uint16_t value as input in milliSec units. */
+                                         *   This IOCTL takes uint32_t value as input in milliSec units. */
     eGetBatteryMinVoltageThreshold,     /*!< Get the battery minimum thresold.
                                          *   This IOCTL returns uint16_t value in milliVolt units. */
     eGetBatteryMaxVoltageThreshold,     /*!< Get the battery maximum thresold.
@@ -156,17 +156,17 @@ typedef enum IotBatteryIoctlRequest
     eGetBatteryMinBatteryTempThreshold, /*!< Get the minimum battery temperature thresholde
                                          *   This IOCTL returns int16_t value in milliCelcius units. */
     eGetBatteryMaxBatteryTempThreshold, /*!< Get the maximum battery temperature threshold.
-                                         *   This IOCTL returns int16_t value in milliCelcius units. */
+                                         *   This IOCTL returns int32_t value in milliCelcius units. */
     eGetBatteryMinChargeTempThreshold,  /*!< Get the minimum charging temperature threshold.
                                          *   This IOCTL returns int16_t value in milliCelcius units. */
     eGetBatteryMaxChargeTempThreshold,  /*!< Get the maximum charging temperature threshold.
-                                         *   This IOCTL returns int16_t value in milliCelcius units. */
+                                         *   This IOCTL returns int32_t value in milliCelcius units. */
     eGetBatteryMaxOutputCurrent,        /*!< Get the battery output current limit.
                                          *   This IOCTL returns uint16_t value in milliAmp units. */
     eGetBatteryMaxInputChargeCurrent,   /*!< Get the battery input charge current limit.
                                          *   This IOCTL returns uint16_t value in milliAmp units. */
     eGetBatteryChargeTimer,             /*!< Get the current battery charge time limit.
-                                         *   This IOCTL returns uint16_t value in milliSec units. */
+                                         *   This IOCTL returns uint32_t value in milliSec units. */
     eGetBatteryChargeSource,            /*!< Get the current battery charge source.
                                          *   This IOCTL returns a IotBatteryChargeSource_t as it's parameter. */
     eGetBatteryStatus                   /*!< Get the battery status. Returns one of the IotBatteryStatus_t values as it's parameter. */
@@ -331,7 +331,7 @@ int32_t iot_battery_capacity( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  psTemp   battery temperature in milliCelcius
+ * @param[out]  plTemp   battery temperature in milliCelcius
  *
  * @return
  * - IOT_BATTERY_SUCCESS on success
@@ -341,7 +341,7 @@ int32_t iot_battery_capacity( IotBatteryHandle_t const pxBatteryHandle,
  * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_temp( IotBatteryHandle_t const pxBatteryHandle,
-                          int16_t * psTemp );
+                          int32_t * plTemp );
 
 /*!
  * @brief   iot_battery_enable_charging is used to enable battery charging if charging is supported.
