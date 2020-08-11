@@ -554,13 +554,14 @@ static CK_RV prvMbedTLS_Initialize( void )
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
 
         lMbedTLSResult = mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
-                                        mbedtls_entropy_func,
-                                        &xP11Context.xMbedEntropyContext,
-                                        NULL,
-                                        0 );
-        if( 0 != lMbedTLSResult ) 
+                                                mbedtls_entropy_func,
+                                                &xP11Context.xMbedEntropyContext,
+                                                NULL,
+                                                0 );
+
+        if( 0 != lMbedTLSResult )
         {
-            LogError( ( "Failed to seed the mbed TLS DRBG for the PKCS #11 module with error %s", 
+            LogError( ( "Failed to seed the mbed TLS DRBG for the PKCS #11 module with error %s",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
             LogError( ( "%s", mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
@@ -685,6 +686,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     int32_t lMbedTLSResult = 0;
     CK_BBOOL xBool;
     mbedtls_rsa_context * pxRsaContext = ( mbedtls_rsa_context * ) pxMbedContext->pk_ctx;
+
     configASSERT( pxRsaContext != NULL );
 
     switch( pxAttribute->type )
@@ -711,47 +713,47 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 
         case ( CKA_MODULUS ):
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* N */
-                                                  NULL, 0,                                      /* P */
-                                                  NULL, 0,                                      /* Q */
-                                                  NULL, 0,                                      /* D */
-                                                  NULL, 0 );                                    /* E */
+                                                     pxAttribute->pValue, pxAttribute->ulValueLen, /* N */
+                                                     NULL, 0,                                      /* P */
+                                                     NULL, 0,                                      /* Q */
+                                                     NULL, 0,                                      /* D */
+                                                     NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PUBLIC_EXPONENT ):
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                        /* N */
-                                                  NULL, 0,                                        /* P */
-                                                  NULL, 0,                                        /* Q */
-                                                  NULL, 0,                                        /* D */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen ); /* E */
+                                                     NULL, 0,                                        /* N */
+                                                     NULL, 0,                                        /* P */
+                                                     NULL, 0,                                        /* Q */
+                                                     NULL, 0,                                        /* D */
+                                                     pxAttribute->pValue, pxAttribute->ulValueLen ); /* E */
             break;
 
         case ( CKA_PRIME_1 ):
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                      /* N */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* P */
-                                                  NULL, 0,                                      /* Q */
-                                                  NULL, 0,                                      /* D */
-                                                  NULL, 0 );                                    /* E */
+                                                     NULL, 0,                                      /* N */
+                                                     pxAttribute->pValue, pxAttribute->ulValueLen, /* P */
+                                                     NULL, 0,                                      /* Q */
+                                                     NULL, 0,                                      /* D */
+                                                     NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PRIME_2 ):
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                      /* N */
-                                                  NULL, 0,                                      /* P */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* Q */
-                                                  NULL, 0,                                      /* D */
-                                                  NULL, 0 );                                    /* E */
+                                                     NULL, 0,                                      /* N */
+                                                     NULL, 0,                                      /* P */
+                                                     pxAttribute->pValue, pxAttribute->ulValueLen, /* Q */
+                                                     NULL, 0,                                      /* D */
+                                                     NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_PRIVATE_EXPONENT ):
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
-                                                  NULL, 0,                                      /* N */
-                                                  NULL, 0,                                      /* P */
-                                                  NULL, 0,                                      /* Q */
-                                                  pxAttribute->pValue, pxAttribute->ulValueLen, /* D */
-                                                  NULL, 0 );                                    /* E */
+                                                     NULL, 0,                                      /* N */
+                                                     NULL, 0,                                      /* P */
+                                                     NULL, 0,                                      /* Q */
+                                                     pxAttribute->pValue, pxAttribute->ulValueLen, /* D */
+                                                     NULL, 0 );                                    /* E */
             break;
 
         case ( CKA_EXPONENT_1 ):
@@ -775,9 +777,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     if( lMbedTLSResult != 0 )
     {
         LogError( ( "mbedTLS create private RSA key failed with error %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
         LogError( ( "%s.",
-                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
         xResult = CKR_FUNCTION_FAILED;
     }
 
@@ -797,6 +799,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
+
         configASSERT( pxKeyPair != NULL );
 
         if( pxAttribute->type == CKA_SIGN )
@@ -814,16 +817,16 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         else
         {
             lMbedTLSResult = mbedtls_mpi_read_binary( &pxKeyPair->d,
-                                                   pxAttribute->pValue,
-                                                   pxAttribute->ulValueLen );
+                                                      pxAttribute->pValue,
+                                                      pxAttribute->ulValueLen );
 
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_FUNCTION_FAILED;
                 LogError( ( "mbedTLS mpi read binary failed with error %s.",
-                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                 LogError( ( "%s.",
-                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
         }
 
@@ -844,6 +847,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
         mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
+
         configASSERT( pxKeyPair != NULL );
 
         if( pxAttribute->type == CKA_VERIFY )
@@ -861,17 +865,17 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         else
         {
             lMbedTLSResult = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
-                                                         &pxKeyPair->Q,
-                                                         ( ( uint8_t * ) ( pxAttribute->pValue ) + 2U ),
-                                                         ( pxAttribute->ulValueLen - 2U ) );
+                                                            &pxKeyPair->Q,
+                                                            ( ( uint8_t * ) ( pxAttribute->pValue ) + 2U ),
+                                                            ( pxAttribute->ulValueLen - 2U ) );
 
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_FUNCTION_FAILED;
                 LogError( ( "mbedTLS ecp point read binary failed with %s.",
-                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                 LogError( ( "%s.",
-                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
         }
 
@@ -1249,9 +1253,9 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         if( lDerKeyLength < 0 )
         {
             LogError( ( "mbedTLS sign failed with error %s.",
-                            mbedtlsHighLevelCodeOrDefault( lDerKeyLength ) ) );
+                        mbedtlsHighLevelCodeOrDefault( lDerKeyLength ) ) );
             LogError( ( "%s.",
-                            mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
+                        mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
         else
@@ -1362,7 +1366,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
                 }
                 else
                 {
-                    LogError( ( "Failed to allocated a buffer of length %lu", ulObjectLength ) ); 
+                    LogError( ( "Failed to allocated a buffer of length %lu", ulObjectLength ) );
                     xResult = CKR_HOST_MEMORY;
                 }
 
@@ -1485,7 +1489,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
     if( pReserved != NULL )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Received bad arguments. Parameters must be NULL.") );
+        LogError( ( "Received bad arguments. Parameters must be NULL." ) );
     }
 
     if( xResult == CKR_OK )
@@ -1936,7 +1940,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
          */
         pxSessionObj->ulState =
             ( 0UL != ( flags & CKF_RW_SESSION ) ) ? CKS_RW_PUBLIC_SESSION : CKS_RO_PUBLIC_SESSION;
-        LogDebug( ( "Assigned a %0x Type Session.", pxSessionObj->ulState ) ); 
+        LogDebug( ( "Assigned a %0x Type Session.", pxSessionObj->ulState ) );
     }
 
     /*
@@ -2280,9 +2284,9 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
         if( lMbedTLSResult != 0 )
         {
             LogError( ( "mbedTLS pk parse failed with error %s.",
-                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
             LogError( ( "%s.",
-                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             *pxPalHandle = CK_INVALID_HANDLE;
         }
 
@@ -2356,9 +2360,9 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
                 if( lMbedTLSResult != 0 )
                 {
                     LogError( ( "mbedTLS ECP curve load failed with error %s.",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                     LogError( ( "%s.",
-                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_FUNCTION_FAILED;
                 }
             }
@@ -2638,6 +2642,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE hSession,
     if( xResult == CKR_OK )
     {
         LogInfo( ( "Creating a %0X type object.", xClass ) );
+
         switch( xClass )
         {
             case CKO_CERTIFICATE:
@@ -2999,10 +3004,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                             }
                             else
                             {
-                                LogError( ( "mbedtls_ecp_tls_write_point failed with error %s.", 
-                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-                                LogError( ( "%s", 
-                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                LogError( ( "mbedtls_ecp_tls_write_point failed with error %s.",
+                                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                LogError( ( "%s",
+                                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                                 xResult = CKR_FUNCTION_FAILED;
                             }
                         }
@@ -3274,6 +3279,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     if( xResult != CKR_OK )
     {
         LogDebug( ( "Error occurred. Cleaning up memory." ) );
+
         if( pxSession != NULL )
         {
             vPortFree( pxSession->pxFindObjectLabel );
@@ -3394,11 +3400,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
     {
         mbedtls_sha256_init( &pxSession->xSHA256Context );
         lMbedTLSResult = mbedtls_sha256_starts_ret( &pxSession->xSHA256Context, 0 );
+
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_sha256_starts_ret failed with error %s", 
+            LogError( ( "mbedtls_sha256_starts_ret failed with error %s",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s", 
+            LogError( ( "%s",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -3461,9 +3468,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_pk_setup failed with error %s.", 
+            LogError( ( "mbedtls_pk_setup failed with error %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s.", 
+            LogError( ( "%s.",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         }
@@ -3553,11 +3560,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
             else
             {
                 lMbedTLSResult = mbedtls_sha256_finish_ret( &pxSession->xSHA256Context, pDigest );
+
                 if( 0 != lMbedTLSResult )
                 {
-                    LogError( ( "mbedtls_pk_setup failed with error %s.", 
+                    LogError( ( "mbedtls_pk_setup failed with error %s.",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-                    LogError( ( "%s.", 
+                    LogError( ( "%s.",
                                 mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_FUNCTION_FAILED;
                 }
@@ -3692,9 +3700,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
                 if( lMbedTLSResult != 0 )
                 {
                     LogError( ( "mbedTLS unable to parse private key for signing. %s",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                     LogError( ( "%s.",
-                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_KEY_HANDLE_INVALID;
                 }
                 else
@@ -3882,9 +3890,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
                     if( lMbedTLSResult != 0 )
                     {
                         LogError( ( "mbedTLS sign failed with error %s.",
-                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                         LogError( ( "%s.",
-                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
@@ -4039,18 +4047,20 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                 mbedtls_pk_init( &pxSession->xVerifyKey );
                 lMbedTLSResult = mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength );
                 LogError( ( "mbedtls_pk_parse_public_key failed with error %s.",
-                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                 LogError( ( "%s.",
-                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+
                 if( 0 != lMbedTLSResult )
                 {
                     lMbedTLSResult = mbedtls_pk_parse_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength, NULL, 0 );
+
                     if( 0 != lMbedTLSResult )
                     {
                         LogError( ( "mbedtls_pk_parse_key failed with error %s.",
-                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                         LogError( ( "%s.",
-                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_KEY_HANDLE_INVALID;
                     }
                     else
@@ -4159,6 +4169,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         if( pxSessionObj->xOperationVerifyMechanism == CKM_RSA_X_509 )
         {
             LogDebug( ( "CKM_RSA_X_509 verify mechanism." ) );
+
             if( ulDataLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
             {
                 LogError( ( "Data Length was too short for pkcs11RSA_2048_SIGNATURE_LENGTH." ) );
@@ -4207,17 +4218,18 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                 if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
                 {
                     lMbedTLSResult = mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
-                                                      MBEDTLS_MD_SHA256,
-                                                      pData,
-                                                      ulDataLen,
-                                                      pSignature,
-                                                      ulSignatureLen );
+                                                        MBEDTLS_MD_SHA256,
+                                                        pData,
+                                                        ulDataLen,
+                                                        pSignature,
+                                                        ulSignatureLen );
+
                     if( 0 != lMbedTLSResult )
                     {
-                        LogError( ( "mbedtls_pk_verify failed with error %s.", 
-                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-                        LogError( ( "%s.", 
-                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+                        LogError( ( "mbedtls_pk_verify failed with error %s.",
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                        LogError( ( "%s.",
+                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_SIGNATURE_INVALID;
                     }
                 }
@@ -4246,9 +4258,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
             {
                 xResult = CKR_SIGNATURE_INVALID;
                 LogError( ( "Failed to parse R in EC signature: %s.",
-                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                 LogError( ( "%s.",
-                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) ); 
+                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
             else
             {
@@ -4258,12 +4270,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                 {
                     xResult = CKR_SIGNATURE_INVALID;
                     LogError( ( "Failed to parse S in EC signature: %s.",
-                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                     LogError( ( "%s.",
-                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) ); 
+                                mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                 }
             }
-
 
             if( xResult == CKR_OK )
             {
@@ -4282,9 +4293,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                     {
                         xResult = CKR_SIGNATURE_INVALID;
                         LogError( ( "Failed to verify EC signature: %s.",
-                                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+                                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
                         LogError( ( "%s.",
-                                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) ) ;
+                                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     }
                 }
                 else
@@ -4453,6 +4464,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
                 LogError( ( "Only P-256 key generation is supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             LogDebug( ( "CKA_EC_PARAMS was in public key template." ) );
 
             *pulAttributeMap |= EC_PARAMS_IN_TEMPLATE;
@@ -4468,6 +4480,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
                 LogError( ( "Generating public keys that are false for attribute CKA_VERIFY is not supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
+
             LogDebug( ( "CKA_VERIFY was in public key template." ) );
 
             *pulAttributeMap |= VERIFY_IN_TEMPLATE;
@@ -4669,10 +4682,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "mbedtls_pk_setup failed with error %s.", 
-                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-        LogError( ( "%s.", 
-                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+        LogError( ( "mbedtls_pk_setup failed with error %s.",
+                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
+        LogError( ( "%s.",
+                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
         xResult = CKR_FUNCTION_FAILED;
     }
     else
@@ -4683,14 +4696,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
     if( xResult == CKR_OK )
     {
         lMbedTLSResult = mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
-                                         mbedtls_pk_ec( xCtx ),
-                                         mbedtls_ctr_drbg_random,
-                                         &xP11Context.xMbedDrbgCtx );
-         if( 0 != lMbedTLSResult )
+                                              mbedtls_pk_ec( xCtx ),
+                                              mbedtls_ctr_drbg_random,
+                                              &xP11Context.xMbedDrbgCtx );
+
+        if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_ecp_gen_key failed with error %s.", 
+            LogError( ( "mbedtls_ecp_gen_key failed with error %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s.", 
+            LogError( ( "%s.",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -4707,9 +4721,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "mbedtls_pk_write_pubkey_der failed with error %s.", 
+            LogError( ( "mbedtls_pk_write_pubkey_der failed with error %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s.", 
+            LogError( ( "%s.",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_GENERAL_ERROR;
         }
@@ -4726,9 +4740,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "mbedtls_pk_write_key_der failed with error %s.", 
+            LogError( ( "mbedtls_pk_write_key_der failed with error %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s.", 
+            LogError( ( "%s.",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_GENERAL_ERROR;
         }
@@ -4800,9 +4814,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE hSession,
 
         if( lMbedTLSResult != 0 )
         {
-            LogError( ( "mbed TLS DRBG failed to generate a random number. %s.", 
+            LogError( ( "mbed TLS DRBG failed to generate a random number. %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ) ) );
-            LogError( ( "%s.", 
+            LogError( ( "%s.",
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
