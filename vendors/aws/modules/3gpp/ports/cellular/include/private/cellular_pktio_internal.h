@@ -49,7 +49,8 @@ typedef enum _atRespType
  * @param[in] pBuf The input data buffer from packet IO.
  */
 typedef void ( * _pPktioHandlePacketCallback_t ) ( CellularContext_t * pContext,
-    _atRespType_t atRespType, const void * pBuffer );
+                                                   _atRespType_t atRespType,
+                                                   const void * pBuffer );
 
 /**
  * @brief Callback used to inform packet IO thread shutdown.
@@ -126,7 +127,7 @@ CellularPktStatus_t _Cellular_PktioSendAtCmd( CellularContext_t * pContext,
  *
  * @return The data actually send to the comm interface.
  */
-uint32_t _Cellular_PktioSendData( CellularContext_t * pContext, 
+uint32_t _Cellular_PktioSendData( CellularContext_t * pContext,
                                   const uint8_t * pData,
                                   uint32_t dataLen );
 

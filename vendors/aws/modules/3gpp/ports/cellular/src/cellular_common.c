@@ -22,7 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
- 
+
 /**
  * @brief cellular HAL common AT commnad library.
  */
@@ -49,16 +49,16 @@
 
 /*-----------------------------------------------------------*/
 
-#define SIGNAL_QUALITY_CSQ_UNKNOWN                  ( 99 )
-#define SIGNAL_QUALITY_CSQ_RSSI_MIN                 ( 0 )
-#define SIGNAL_QUALITY_CSQ_RSSI_MAX                 ( 31 )
-#define SIGNAL_QUALITY_CSQ_BER_MIN                  ( 0 )
-#define SIGNAL_QUALITY_CSQ_BER_MAX                  ( 7 )
-#define SIGNAL_QUALITY_CSQ_RSSI_BASE                ( -113 )
-#define SIGNAL_QUALITY_CSQ_RSSI_STEP                ( 2 )
+#define SIGNAL_QUALITY_CSQ_UNKNOWN      ( 99 )
+#define SIGNAL_QUALITY_CSQ_RSSI_MIN     ( 0 )
+#define SIGNAL_QUALITY_CSQ_RSSI_MAX     ( 31 )
+#define SIGNAL_QUALITY_CSQ_BER_MIN      ( 0 )
+#define SIGNAL_QUALITY_CSQ_BER_MAX      ( 7 )
+#define SIGNAL_QUALITY_CSQ_RSSI_BASE    ( -113 )
+#define SIGNAL_QUALITY_CSQ_RSSI_STEP    ( 2 )
 
 /* Only supports a single cellular instance. */
-#define CELLULAR_CONTEXT_MAX                        ( 1U )
+#define CELLULAR_CONTEXT_MAX            ( 1U )
 
 /*-----------------------------------------------------------*/
 
@@ -87,21 +87,22 @@ static void createSocketSetSocketData( uint8_t contextId,
                                        CellularSocketType_t socketType,
                                        CellularSocketProtocol_t socketProtocol,
                                        CellularSocketContext_t * pSocketData );
-static uint8_t _getSignalBars( int16_t compareValue, CellularRat_t rat );
+static uint8_t _getSignalBars( int16_t compareValue,
+                               CellularRat_t rat );
 static CellularError_t checkInitParameter( const CellularHandle_t * pCellularHandle,
                                            const CellularCommInterface_t * pCommInterface,
                                            const CellularTokenTable_t * pTokenTable );
 
 /*-----------------------------------------------------------*/
 
-#if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
-static CellularContext_t cellularStaticContextTable[ CELLULAR_CONTEXT_MAX ] = { 0 };
+#if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
+    static CellularContext_t cellularStaticContextTable[ CELLULAR_CONTEXT_MAX ] = { 0 };
 #endif
 
 static CellularContext_t * cellularContextTable[ CELLULAR_CONTEXT_MAX ] = { 0 };
 
-#if( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1 )
-static CellularSocketContext_t cellularStaticSocketDataTable[ CELLULAR_NUM_SOCKET_MAX ] = { 0 };
+#if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1 )
+    static CellularSocketContext_t cellularStaticSocketDataTable[ CELLULAR_NUM_SOCKET_MAX ] = { 0 };
 #endif
 
 /* Look up Table for Mapping Signal Bars with RSSI value in dBm of GSM Signal.
@@ -113,11 +114,11 @@ static CellularSocketContext_t cellularStaticSocketDataTable[ CELLULAR_NUM_SOCKE
 /* coverity[misra_c_2012_rule_8_9_violation] */
 static const signalBarsTable_t gsmSignalBarsTable[] =
 {
-    { -104,   1 },
-    {  -98,   2 },
-    {  -89,   3 },
-    {  -80,   4 },
-    {    0,   5 },
+    { -104, 1 },
+    { -98,  2 },
+    { -89,  3 },
+    { -80,  4 },
+    { 0,    5 },
 };
 
 /* Look up Table for Mapping Signal Bars with RSRP value in dBm of LTE CAT M1 Signal.
@@ -129,11 +130,11 @@ static const signalBarsTable_t gsmSignalBarsTable[] =
 /* coverity[misra_c_2012_rule_8_9_violation] */
 static const signalBarsTable_t lteCATMSignalBarsTable[] =
 {
-    { -115,   1 },
-    { -105,   2 },
-    {  -95,   3 },
-    {  -85,   4 },
-    {    0,   5 },
+    { -115, 1 },
+    { -105, 2 },
+    { -95,  3 },
+    { -85,  4 },
+    { 0,    5 },
 };
 
 /* Look up Table for Mapping Signal Bars with RSRP value in dBm of LTE CAT NB1 Signal.
@@ -145,11 +146,11 @@ static const signalBarsTable_t lteCATMSignalBarsTable[] =
 /* coverity[misra_c_2012_rule_8_9_violation] */
 static const signalBarsTable_t lteNBIotSignalBarsTable[] =
 {
-    { -115,   1 },
-    { -105,   2 },
-    {  -95,   3 },
-    {  -85,   4 },
-    {    0,   5 },
+    { -115, 1 },
+    { -105, 2 },
+    { -95,  3 },
+    { -85,  4 },
+    { 0,    5 },
 };
 
 /* Look up table is maintained here as global scope within this file instead of
@@ -157,9 +158,9 @@ static const signalBarsTable_t lteNBIotSignalBarsTable[] =
 /* coverity[misra_c_2012_rule_8_9_violation] */
 static const uint16_t rxqualValueToBerTable[] =
 {
-    14, /* Assumed value 0.14%. */
-    28, /* Assumed value 0.28%.*/
-    57, /* Assumed value 0.57%. */
+    14,  /* Assumed value 0.14%. */
+    28,  /* Assumed value 0.28%.*/
+    57,  /* Assumed value 0.57%. */
     113, /* Assumed value 1.13%. */
     226, /* Assumed value 2.26%. */
     453, /* Assumed value 4.53%. */
@@ -175,27 +176,31 @@ static CellularContext_t * _Cellular_AllocContext( void )
     uint8_t i = 0;
 
     taskENTER_CRITICAL();
+
     for( i = 0; i < CELLULAR_CONTEXT_MAX; i++ )
     {
         if( cellularContextTable[ i ] == NULL )
         {
-            #if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
-            {
-                pContext = & cellularStaticContextTable[ i ];
-            }
+            #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
+                {
+                    pContext = &cellularStaticContextTable[ i ];
+                }
             #else
-            {
-                pContext = ( CellularContext_t * ) pvPortMalloc( sizeof( CellularContext_t ) );
-            }
+                {
+                    pContext = ( CellularContext_t * ) pvPortMalloc( sizeof( CellularContext_t ) );
+                }
             #endif
+
             if( pContext != NULL )
             {
                 ( void ) memset( pContext, 0, sizeof( CellularContext_t ) );
                 cellularContextTable[ i ] = pContext;
             }
+
             break;
         }
     }
+
     taskEXIT_CRITICAL();
 
     return pContext;
@@ -208,6 +213,7 @@ static void _Cellular_FreeContext( CellularContext_t * pContext )
     uint8_t i = 0;
 
     taskENTER_CRITICAL();
+
     if( pContext != NULL )
     {
         for( i = 0; i < CELLULAR_CONTEXT_MAX; i++ )
@@ -215,15 +221,16 @@ static void _Cellular_FreeContext( CellularContext_t * pContext )
             if( cellularContextTable[ i ] == pContext )
             {
                 cellularContextTable[ i ] = NULL;
-                #if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 0 )
-                {
-                    vPortFree( pContext );
-                }
+                #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 0 )
+                    {
+                        vPortFree( pContext );
+                    }
                 #endif
                 break;
             }
         }
     }
+
     taskEXIT_CRITICAL();
 }
 
@@ -250,11 +257,13 @@ static CellularError_t libOpen( CellularContext_t * pContext )
     }
     else
     {
-        IotMutex_Lock( & pContext->libStatusMutex );
+        IotMutex_Lock( &pContext->libStatusMutex );
+
         if( ( pContext->bLibOpened == true ) || ( pContext->bLibClosing == true ) )
         {
             cellularStatus = CELLULAR_LIBRARY_ALREADY_OPEN;
         }
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             _Cellular_AtParseInit( pContext );
@@ -263,9 +272,11 @@ static CellularError_t libOpen( CellularContext_t * pContext )
             _Cellular_UnlockAtDataMutex( pContext );
             _Cellular_PktioSetShutdownCallback( pContext, _shutdownCallback );
             pktStatus = _Cellular_PktHandlerInit( pContext );
+
             if( pktStatus == CELLULAR_PKT_STATUS_OK )
             {
                 pktStatus = _Cellular_PktioInit( pContext, _Cellular_HandlePacket );
+
                 if( pktStatus != CELLULAR_PKT_STATUS_OK )
                 {
                     IotLogError( "pktio failed to initialize" );
@@ -273,18 +284,21 @@ static CellularError_t libOpen( CellularContext_t * pContext )
                     _Cellular_PktHandlerCleanup( pContext );
                 }
             }
+
             if( pktStatus != CELLULAR_PKT_STATUS_OK )
             {
                 cellularStatus = _Cellular_TranslatePktStatus( pktStatus );
             }
         }
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             /* CellularLib open finished. */
             pContext->bLibOpened = true;
             pContext->bLibShutdown = false;
         }
-        IotMutex_Unlock( & pContext->libStatusMutex );
+
+        IotMutex_Unlock( &pContext->libStatusMutex );
     }
 
     return cellularStatus;
@@ -299,19 +313,20 @@ static void libClose( CellularContext_t * pContext )
 
     if( pContext != NULL )
     {
-        IotMutex_Lock( & pContext->libStatusMutex );
+        IotMutex_Lock( &pContext->libStatusMutex );
         bOpened = pContext->bLibOpened;
 
         /* Indicate that CellularLib is in the process of closing. */
         pContext->bLibClosing = true;
-        IotMutex_Unlock( & pContext->libStatusMutex );
+        IotMutex_Unlock( &pContext->libStatusMutex );
 
         if( bOpened == true )
         {
             /* Shut down the utilities. */
             _Cellular_PktioShutdown( pContext );
         }
-        IotMutex_Lock( & pContext->libStatusMutex );
+
+        IotMutex_Lock( &pContext->libStatusMutex );
         pContext->bLibShutdown = false;
         pContext->bLibOpened = false;
         pContext->bLibClosing = false;
@@ -321,15 +336,16 @@ static void libClose( CellularContext_t * pContext )
         {
             if( pContext->pSocketData[ i ] != NULL )
             {
-                #if( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 0 )
-                {
-                    vPortFree( pContext->pSocketData[ i ] );
-                }
+                #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 0 )
+                    {
+                        vPortFree( pContext->pSocketData[ i ] );
+                    }
                 #endif
                 pContext->pSocketData[ i ] = NULL;
             }
         }
-        IotMutex_Unlock( & pContext->libStatusMutex );
+
+        IotMutex_Unlock( &pContext->libStatusMutex );
         IotLogDebug( "CELLULARLib closed" );
     }
 }
@@ -339,9 +355,10 @@ static void libClose( CellularContext_t * pContext )
 static bool _Cellular_CreateLibStatusMutex( CellularContext_t * pContext )
 {
     bool status = false;
+
     if( pContext != NULL )
     {
-        status = IotMutex_Create( & pContext->libStatusMutex, false );
+        status = IotMutex_Create( &pContext->libStatusMutex, false );
     }
 
     return status;
@@ -353,7 +370,7 @@ static void _Cellular_DestroyLibStatusMutex( CellularContext_t * pContext )
 {
     if( pContext != NULL )
     {
-        IotMutex_Destroy( & pContext->libStatusMutex );
+        IotMutex_Destroy( &pContext->libStatusMutex );
     }
 }
 
@@ -361,11 +378,11 @@ static void _Cellular_DestroyLibStatusMutex( CellularContext_t * pContext )
 
 /* Internal function of _Cellular_CreateSocket to reduce complexity. */
 static void createSocketSetSocketData( uint8_t contextId,
-                                        uint8_t socketId,
-                                        CellularSocketDomain_t socketDomain,
-                                        CellularSocketType_t socketType,
-                                        CellularSocketProtocol_t socketProtocol,
-                                        CellularSocketContext_t * pSocketData )
+                                       uint8_t socketId,
+                                       CellularSocketDomain_t socketDomain,
+                                       CellularSocketType_t socketType,
+                                       CellularSocketProtocol_t socketProtocol,
+                                       CellularSocketContext_t * pSocketData )
 {
     ( void ) memset( pSocketData, 0, sizeof( CellularSocketContext_t ) );
     pSocketData->socketState = SOCKETSTATE_ALLOCATED;
@@ -378,7 +395,8 @@ static void createSocketSetSocketData( uint8_t contextId,
 
 /*-----------------------------------------------------------*/
 
-static uint8_t _getSignalBars( int16_t compareValue, CellularRat_t rat )
+static uint8_t _getSignalBars( int16_t compareValue,
+                               CellularRat_t rat )
 {
     uint8_t i = 0, tableSize = 0, barsValue = CELLULAR_INVALID_SIGNAL_BAR_VALUE;
     const signalBarsTable_t * pSignalBarsTable = NULL;
@@ -407,9 +425,9 @@ static uint8_t _getSignalBars( int16_t compareValue, CellularRat_t rat )
     {
         for( i = 0; i < tableSize; i++ )
         {
-            if( compareValue <= pSignalBarsTable[i].upperThreshold )
+            if( compareValue <= pSignalBarsTable[ i ].upperThreshold )
             {
-                barsValue = pSignalBarsTable[i].bars;
+                barsValue = pSignalBarsTable[ i ].bars;
                 break;
             }
         }
@@ -432,23 +450,24 @@ static CellularError_t checkInitParameter( const CellularHandle_t * pCellularHan
         cellularStatus = CELLULAR_INVALID_HANDLE;
     }
     else if( ( pCommInterface == NULL ) || ( pCommInterface->open == NULL ) ||
-        ( pCommInterface->close == NULL ) || ( pCommInterface->send == NULL ) ||
-        ( pCommInterface->recv == NULL ) )
+             ( pCommInterface->close == NULL ) || ( pCommInterface->send == NULL ) ||
+             ( pCommInterface->recv == NULL ) )
     {
         IotLogError( "All the functions in the CellularCommInterface should be valid." );
         cellularStatus = CELLULAR_BAD_PARAMETER;
     }
     else
     {
-        if( ( pTokenTable == NULL ) || ( pTokenTable->pCellularUrcHandlerTable == NULL )
-            || ( pTokenTable->pCellularSrcTokenErrorTable == NULL )
-            || ( pTokenTable->pCellularSrcTokenSuccessTable == NULL )
-            || ( pTokenTable->pCellularUrcTokenWoPrefixTable == NULL ) )
+        if( ( pTokenTable == NULL ) || ( pTokenTable->pCellularUrcHandlerTable == NULL ) ||
+            ( pTokenTable->pCellularSrcTokenErrorTable == NULL ) ||
+            ( pTokenTable->pCellularSrcTokenSuccessTable == NULL ) ||
+            ( pTokenTable->pCellularUrcTokenWoPrefixTable == NULL ) )
         {
-                IotLogError( "All the token tables in the CellularTokenTable should be valid." );
+            IotLogError( "All the token tables in the CellularTokenTable should be valid." );
             cellularStatus = CELLULAR_BAD_PARAMETER;
         }
     }
+
     return cellularStatus;
 }
 
@@ -465,23 +484,27 @@ CellularError_t _Cellular_CheckLibraryStatus( CellularContext_t * pContext )
     }
     else
     {
-        IotMutex_Lock( & pContext->libStatusMutex );
+        IotMutex_Lock( &pContext->libStatusMutex );
+
         if( pContext->bLibOpened == false )
         {
             cellularStatus = CELLULAR_LIBRARY_NOT_OPEN;
         }
-        IotMutex_Unlock( & pContext->libStatusMutex );
+
+        IotMutex_Unlock( &pContext->libStatusMutex );
     }
 
     if( cellularStatus == CELLULAR_SUCCESS )
     {
-        IotMutex_Lock( & pContext->libStatusMutex );
+        IotMutex_Lock( &pContext->libStatusMutex );
+
         if( ( pContext->bLibShutdown == true ) || ( pContext->bLibClosing == true ) )
         {
             IotLogError( "Cellular Lib indicated a failure[%d][%d]", pContext->bLibShutdown, pContext->bLibClosing );
             cellularStatus = CELLULAR_INTERNAL_FAILURE;
         }
-        IotMutex_Unlock( & pContext->libStatusMutex );
+
+        IotMutex_Unlock( &pContext->libStatusMutex );
     }
 
     return cellularStatus;
@@ -548,7 +571,8 @@ CellularPktStatus_t _Cellular_TranslateAtCoreStatus( CellularATError_t status )
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_CreateSocketData( CellularContext_t * pContext, uint8_t contextId,
+CellularError_t _Cellular_CreateSocketData( CellularContext_t * pContext,
+                                            uint8_t contextId,
                                             CellularSocketDomain_t socketDomain,
                                             CellularSocketType_t socketType,
                                             CellularSocketProtocol_t socketProtocol,
@@ -557,36 +581,39 @@ CellularError_t _Cellular_CreateSocketData( CellularContext_t * pContext, uint8_
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     CellularSocketContext_t * pSocketData = NULL;
     uint8_t socketId = 0;
-    
+
     taskENTER_CRITICAL();
+
     for( socketId = 0; socketId < CELLULAR_NUM_SOCKET_MAX; socketId++ )
     {
         if( pContext->pSocketData[ socketId ] == NULL )
         {
-            #if( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1 )
-            {
-                pSocketData = & cellularStaticSocketDataTable[ socketId ];
-            }
+            #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1 )
+                {
+                    pSocketData = &cellularStaticSocketDataTable[ socketId ];
+                }
             #else
-            {
-                pSocketData = ( CellularSocketContext_t * ) pvPortMalloc( sizeof( CellularSocketContext_t ) );
-            }
+                {
+                    pSocketData = ( CellularSocketContext_t * ) pvPortMalloc( sizeof( CellularSocketContext_t ) );
+                }
             #endif
 
             if( pSocketData != NULL )
             {
                 createSocketSetSocketData( contextId, socketId, socketDomain,
-                    socketType, socketProtocol, pSocketData );
+                                           socketType, socketProtocol, pSocketData );
                 pContext->pSocketData[ socketId ] = pSocketData;
-                * pSocketHandle = ( CellularSocketHandle_t ) pSocketData;
+                *pSocketHandle = ( CellularSocketHandle_t ) pSocketData;
             }
             else
             {
                 cellularStatus = CELLULAR_NO_MEMORY;
             }
+
             break;
         }
     }
+
     taskEXIT_CRITICAL();
 
     if( cellularStatus == CELLULAR_NO_MEMORY )
@@ -608,7 +635,8 @@ CellularError_t _Cellular_CreateSocketData( CellularContext_t * pContext, uint8_
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext, CellularSocketHandle_t socketHandle )
+CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext,
+                                            CellularSocketHandle_t socketHandle )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     uint8_t socketId;
@@ -631,10 +659,11 @@ CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext, Cellul
             }
         }
     }
-    #if( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 0 )
-    {
-        vPortFree( socketHandle );
-    }
+
+    #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 0 )
+        {
+            vPortFree( socketHandle );
+        }
     #endif
 
     taskEXIT_CRITICAL();
@@ -646,7 +675,8 @@ CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext, Cellul
 
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext, uint32_t sockIndex )
+CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext,
+                                         uint32_t sockIndex )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
@@ -656,7 +686,7 @@ CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext, uin
     }
     else
     {
-        if ( ( sockIndex >= CELLULAR_NUM_SOCKET_MAX ) || ( pContext->pSocketData[ sockIndex ] == NULL ) )
+        if( ( sockIndex >= CELLULAR_NUM_SOCKET_MAX ) || ( pContext->pSocketData[ sockIndex ] == NULL ) )
         {
             IotLogError( "_Cellular_IsValidSocket, invalid socket handle %d", sockIndex );
             cellularStatus = CELLULAR_BAD_PARAMETER;
@@ -684,7 +714,8 @@ CellularError_t _Cellular_IsValidPdn( uint8_t contextId )
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi, int16_t *pRssiValue )
+CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi,
+                                                int16_t * pRssiValue )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     int16_t rssiValue = 0;
@@ -720,7 +751,8 @@ CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi, int16_t *pRssiV
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer, int16_t * pBerValue )
+CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer,
+                                               int16_t * pBerValue )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     int16_t berValue = 0;
@@ -742,13 +774,13 @@ CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer, int16_t * pBerVal
         }
         else
         {
-            berValue = ( int16_t ) rxqualValueToBerTable[csqBer];
+            berValue = ( int16_t ) rxqualValueToBerTable[ csqBer ];
         }
     }
 
     if( cellularStatus == CELLULAR_SUCCESS )
     {
-        * pBerValue = berValue;
+        *pBerValue = berValue;
     }
 
     return cellularStatus;
@@ -756,25 +788,30 @@ CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer, int16_t * pBerVal
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_GetModuleContext( const CellularContext_t * pContext, void ** ppModuleContext )
+CellularError_t _Cellular_GetModuleContext( const CellularContext_t * pContext,
+                                            void ** ppModuleContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
+
     if( pContext == NULL )
     {
         cellularStatus = CELLULAR_INVALID_HANDLE;
     }
     else
     {
-        * ppModuleContext = pContext->pModueContext;
+        *ppModuleContext = pContext->pModueContext;
     }
+
     return cellularStatus;
 }
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat, CellularSignalInfo_t * pSignalInfo )
+CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat,
+                                             CellularSignalInfo_t * pSignalInfo )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
+
     if( pSignalInfo == NULL )
     {
         cellularStatus = CELLULAR_BAD_PARAMETER;
@@ -797,16 +834,19 @@ CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat, CellularSignalIn
             pSignalInfo->bars = CELLULAR_INVALID_SIGNAL_BAR_VALUE;
         }
     }
+
     return cellularStatus;
 }
 
 /*-----------------------------------------------------------*/
 
-CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext, CellularRat_t * pRat )
+CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext,
+                                         CellularRat_t * pRat )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -818,7 +858,7 @@ CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext, CellularR
     else
     {
         _Cellular_LockAtDataMutex( pContext );
-        * pRat = pContext->libAtData.rat;
+        *pRat = pContext->libAtData.rat;
         _Cellular_UnlockAtDataMutex( pContext );
     }
 
@@ -830,7 +870,8 @@ CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext, CellularR
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 void _Cellular_NetworkRegistrationCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, const CellularServiceStatus_t * pServiceStatus )
+                                            CellularUrcEvent_t urcEvent,
+                                            const CellularServiceStatus_t * pServiceStatus )
 {
     if( ( pContext != NULL ) && ( pContext->cbEvents.networkRegistrationCallback != NULL ) )
     {
@@ -843,7 +884,8 @@ void _Cellular_NetworkRegistrationCallback( const CellularContext_t * pContext,
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 void _Cellular_PdnEventCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, uint8_t contextId )
+                                 CellularUrcEvent_t urcEvent,
+                                 uint8_t contextId )
 {
     if( ( pContext != NULL ) && ( pContext->cbEvents.pdnEventCallback != NULL ) )
     {
@@ -856,7 +898,8 @@ void _Cellular_PdnEventCallback( const CellularContext_t * pContext,
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 void _Cellular_SignalStrengthChangedCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, const CellularSignalInfo_t * pSignalInfo )
+                                              CellularUrcEvent_t urcEvent,
+                                              const CellularSignalInfo_t * pSignalInfo )
 {
     if( ( pContext != NULL ) && ( pContext->cbEvents.signalStrengthChangedCallback != NULL ) )
     {
@@ -868,7 +911,8 @@ void _Cellular_SignalStrengthChangedCallback( const CellularContext_t * pContext
 
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-void _Cellular_GenericCallback( const CellularContext_t * pContext, const char * pRawData )
+void _Cellular_GenericCallback( const CellularContext_t * pContext,
+                                const char * pRawData )
 {
     if( ( pContext != NULL ) && ( pContext->cbEvents.genericCallback != NULL ) )
     {
@@ -880,7 +924,8 @@ void _Cellular_GenericCallback( const CellularContext_t * pContext, const char *
 
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-void _Cellular_ModemEventCallback( const CellularContext_t * pContext, CellularModemEvent_t modemEvent )
+void _Cellular_ModemEventCallback( const CellularContext_t * pContext,
+                                   CellularModemEvent_t modemEvent )
 {
     if( ( pContext != NULL ) && ( pContext->cbEvents.modemEventCallback != NULL ) )
     {
@@ -892,16 +937,18 @@ void _Cellular_ModemEventCallback( const CellularContext_t * pContext, CellularM
 
 /* Cellular common API prototype. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularSocketContext_t * _Cellular_GetSocketData( const CellularContext_t * pContext, uint32_t sockIndex )
+CellularSocketContext_t * _Cellular_GetSocketData( const CellularContext_t * pContext,
+                                                   uint32_t sockIndex )
 {
     CellularSocketContext_t * pSocketData = NULL;
+
     if( pContext == NULL )
     {
         IotLogError( "Invalid context" );
     }
     else
     {
-        if ( ( sockIndex >= CELLULAR_NUM_SOCKET_MAX ) || ( pContext->pSocketData[ sockIndex ] == NULL ) )
+        if( ( sockIndex >= CELLULAR_NUM_SOCKET_MAX ) || ( pContext->pSocketData[ sockIndex ] == NULL ) )
         {
             IotLogError( "_Cellular_GetSocketData, invalid socket handle %d", sockIndex );
         }
@@ -910,14 +957,15 @@ CellularSocketContext_t * _Cellular_GetSocketData( const CellularContext_t * pCo
             pSocketData = pContext->pSocketData[ sockIndex ];
         }
     }
+
     return pSocketData;
 }
 
 /*-----------------------------------------------------------*/
 
 CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
-                                      const CellularCommInterface_t * pCommInterface,
-                                      const CellularTokenTable_t * pTokenTable )
+                                   const CellularCommInterface_t * pCommInterface,
+                                   const CellularTokenTable_t * pTokenTable )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     CellularContext_t * pContext = NULL;
@@ -927,6 +975,7 @@ CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
     bool bPktResponseMutexCreateSuccess = false;
 
     cellularStatus = checkInitParameter( pCellularHandle, pCommInterface, pTokenTable );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogError( "_Cellular_CommonInit checkInitParameter failed" );
@@ -934,6 +983,7 @@ CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
     else
     {
         pContext = _Cellular_AllocContext();
+
         if( pContext == NULL )
         {
             IotLogError( "CellularContext_t allocation failed" );
@@ -943,9 +993,9 @@ CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
         {
             /* Assign the comm interface to pContext. */
             pContext->pCommIntf = pCommInterface;
-            
+
             /* copy the token table. */
-            ( void ) memcpy( & pContext->tokenTable, pTokenTable, sizeof( CellularTokenTable_t ) );
+            ( void ) memcpy( &pContext->tokenTable, pTokenTable, sizeof( CellularTokenTable_t ) );
         }
     }
 
@@ -1037,7 +1087,7 @@ CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
     }
     else
     {
-        * pCellularHandle = pContext;
+        *pCellularHandle = pContext;
     }
 
     return cellularStatus;

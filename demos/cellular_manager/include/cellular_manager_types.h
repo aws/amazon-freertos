@@ -35,19 +35,20 @@
 
 
 #define CELLULAR_MAX_SIM_RETRY    ( 5U )
+
 /**
  * @brief Status code returns from APIs.
  */
 typedef enum
 {
-    CELLULAR_MANAGER_SUCCESS = 0,            /**< The operation was successful. */
-    CELLULAR_MANAGER_BAD_PARAMETER,          /**< One or more of the input parameters is not valid. */
-    CELLULAR_MANAGER_NO_MEMORY,              /**< Memory allocation failure. */
-    CELLULAR_MANAGER_TIMEOUT,                /**< The operation timed out. */
-    CELLULAR_MANAGER_HAL_ERROR,              /**< Error in the HAL layer. */
-    CELLULAR_MANAGER_LIB_NOT_OPENED,         /**< Cellular manager is not init properly. */
-    CELLULAR_MANAGER_UNSUPPORTED,            /**< The operation is not supported. */
-    CELLULAR_MANAGER_UNKNOWN                 /**< Any other error other than the above mentioned ones. */
+    CELLULAR_MANAGER_SUCCESS = 0,    /**< The operation was successful. */
+    CELLULAR_MANAGER_BAD_PARAMETER,  /**< One or more of the input parameters is not valid. */
+    CELLULAR_MANAGER_NO_MEMORY,      /**< Memory allocation failure. */
+    CELLULAR_MANAGER_TIMEOUT,        /**< The operation timed out. */
+    CELLULAR_MANAGER_HAL_ERROR,      /**< Error in the HAL layer. */
+    CELLULAR_MANAGER_LIB_NOT_OPENED, /**< Cellular manager is not init properly. */
+    CELLULAR_MANAGER_UNSUPPORTED,    /**< The operation is not supported. */
+    CELLULAR_MANAGER_UNKNOWN         /**< Any other error other than the above mentioned ones. */
 } CellularManagerError_t;
 
 /**
@@ -74,32 +75,33 @@ typedef enum
  */
 typedef enum
 {
-    CELLULAR_SM_OFF = 0,            /**< SateMachine: CELLULAR module is off */
-    CELLULAR_SM_ON,                 /**< SateMachine: CELLULAR module is on */
-    CELLULAR_SM_CONNECTED,          /**< SateMachine: CELLULAR module is connected */
-    CELLULAR_SM_REGISTERED,         /**< SateMachine: CELLULAR module is registered */
-    CELLULAR_SM_RFOFF,              /**< SateMachine: CELLULAR module is rfoff */
-    CELLULAR_SM_OTA,                /**< SateMachine: CELLULAR module is OTA mode */
-    CELLULAR_SM_UNKNOWN             /**< SateMachine: Unknown state */
+    CELLULAR_SM_OFF = 0,    /**< SateMachine: CELLULAR module is off */
+    CELLULAR_SM_ON,         /**< SateMachine: CELLULAR module is on */
+    CELLULAR_SM_CONNECTED,  /**< SateMachine: CELLULAR module is connected */
+    CELLULAR_SM_REGISTERED, /**< SateMachine: CELLULAR module is registered */
+    CELLULAR_SM_RFOFF,      /**< SateMachine: CELLULAR module is rfoff */
+    CELLULAR_SM_OTA,        /**< SateMachine: CELLULAR module is OTA mode */
+    CELLULAR_SM_UNKNOWN     /**< SateMachine: Unknown state */
 } cellularSmState_t;
 
 typedef enum
 {
-    CELLULAR_EVENT_PWR_ON = 0,       /**< trigger: an module is powered on */
-    CELLULAR_EVENT_PWR_OFF,          /**< trigger: cellular module is powered off */
-    CELLULAR_EVENT_RF_ON,            /**< trigger: airplane mode off */
-    CELLULAR_EVENT_RF_OFF,           /**< trigger: airplane mode on */
-    CELLULAR_EVENT_ATTACHED,         /**< trigger: attached to a network */
-    CELLULAR_EVENT_DETACHED,         /**< trigger: detached from a network */
-    CELLULAR_EVENT_DATA_ACTIVE,      /**< trigger: data connect is active */
-    CELLULAR_EVENT_DATA_INACTIVE,    /**< trigger: data connection is inactive */
-    CELLULAR_EVENT_OTA,              /**< trigger: OTA starts */
-    CELLULAR_EVENT_OTA_DONE,         /**< trigger: OTA finishes */
+    CELLULAR_EVENT_PWR_ON = 0,    /**< trigger: an module is powered on */
+    CELLULAR_EVENT_PWR_OFF,       /**< trigger: cellular module is powered off */
+    CELLULAR_EVENT_RF_ON,         /**< trigger: airplane mode off */
+    CELLULAR_EVENT_RF_OFF,        /**< trigger: airplane mode on */
+    CELLULAR_EVENT_ATTACHED,      /**< trigger: attached to a network */
+    CELLULAR_EVENT_DETACHED,      /**< trigger: detached from a network */
+    CELLULAR_EVENT_DATA_ACTIVE,   /**< trigger: data connect is active */
+    CELLULAR_EVENT_DATA_INACTIVE, /**< trigger: data connection is inactive */
+    CELLULAR_EVENT_OTA,           /**< trigger: OTA starts */
+    CELLULAR_EVENT_OTA_DONE,      /**< trigger: OTA finishes */
     CELLULAR_NUM_EVENT
 } cellularSmEvent_t;
 
-typedef struct enumStringMapStruct {
-    const char *str;
+typedef struct enumStringMapStruct
+{
+    const char * str;
     uint32_t num;
 } _enumStringMap_t;
 
@@ -110,7 +112,7 @@ typedef struct enumStringMapStruct {
  * @param[in] connectionState The new state of the CELLULAR connection.
  */
 typedef void ( * CellularManagerConnectionStateChangedCallback_t )( void * pUserData,
-                                                                  CellularManagerConnectionState_t connectionState );
+                                                                    CellularManagerConnectionState_t connectionState );
 
 /**
  * @brief Callback to be invoked whenever signal strength changes.
@@ -119,17 +121,18 @@ typedef void ( * CellularManagerConnectionStateChangedCallback_t )( void * pUser
  * @param[in] pSignalInfo The new signal information.
  */
 typedef void ( * CellularManagerSignalStrengthChangedCallback_t )( void * pUserData,
-                                                                 const CellularSignalInfo_t * pSignalInfo );
+                                                                   const CellularSignalInfo_t * pSignalInfo );
 
 typedef struct _cellularMgrCallbackEventsStruct
 {
     CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback;
-    void *connectionStateChangedCallbackData;
+    void * connectionStateChangedCallbackData;
     CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback;
-    void *signalStrengthChangedCallbackData;
+    void * signalStrengthChangedCallbackData;
 } _cellularMgrCallbackEvents_t;
 
-typedef struct CellularManagerContextStruct {
+typedef struct CellularManagerContextStruct
+{
     CellularHandle_t cellularHandle;
     IotMutex_t cellularSmMutex;
     bool cellularSmMutexCreated;

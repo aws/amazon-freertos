@@ -42,7 +42,8 @@
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext, void ** ppModuleContext );
+CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext,
+                                     void ** ppModuleContext );
 
 /**
  * @brief Cellular module cleanup function.
@@ -82,16 +83,16 @@ CellularError_t Cellular_ModuleEnableUrc( CellularContext_t * pContext );
 
 /*-----------------------------------------------------------*/
 
-extern const char * CellularSrcTokenErrorTable[];       /**< Solicited error token table. */
-extern uint32_t CellularSrcTokenErrorTableSize;         /**< Solicited error token table size. */
+extern const char * CellularSrcTokenErrorTable[];           /**< Solicited error token table. */
+extern uint32_t CellularSrcTokenErrorTableSize;             /**< Solicited error token table size. */
 
-extern const char * CellularSrcTokenSuccessTable[];     /**< Solicited success token table. */
-extern uint32_t CellularSrcTokenSuccessTableSize;       /**< Solicited success token table size. */
+extern const char * CellularSrcTokenSuccessTable[];         /**< Solicited success token table. */
+extern uint32_t CellularSrcTokenSuccessTableSize;           /**< Solicited success token table size. */
 
-extern const char * CellularUrcTokenWoPrefixTable[];    /**< URC token without prefix table. */
-extern uint32_t CellularUrcTokenWoPrefixTableSize;      /**< URC token without prefix table size. */
+extern const char * CellularUrcTokenWoPrefixTable[];        /**< URC token without prefix table. */
+extern uint32_t CellularUrcTokenWoPrefixTableSize;          /**< URC token without prefix table size. */
 
-extern CellularAtParseTokenMap_t CellularUrcHandlerTable[];       /**< URC handler table. */
-extern uint32_t CellularUrcHandlerTableSize;                      /**< URC handler table size. */
+extern CellularAtParseTokenMap_t CellularUrcHandlerTable[]; /**< URC handler table. */
+extern uint32_t CellularUrcHandlerTableSize;                /**< URC handler table size. */
 
 #endif /* End of __CELLULAR_COMMON_PORTABLE_H__. */

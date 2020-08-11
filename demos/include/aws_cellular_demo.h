@@ -30,23 +30,23 @@
  * @brief Access Point Name (APN) for your cellular network.
  * @todo set the corresponding APN according to your network provider.
  */
-#define configCELLULAR_APN                  ""
+#define configCELLULAR_APN                   ""
 
 /*
  * @brief PDN context id for cellular network.
  */
-#define configCELLULAR_PDN_CONTEXT_ID       ( CELLULAR_PDN_CONTEXT_ID_MIN )
+#define configCELLULAR_PDN_CONTEXT_ID        ( CELLULAR_PDN_CONTEXT_ID_MIN )
 
 /*
  * @brief PDN connect timeout.
  */
-#define confgCELLULAR_PDN_CONNECT_TIMEOUT   ( 20000UL )
+#define confgCELLULAR_PDN_CONNECT_TIMEOUT    ( 20000UL )
 
 /*
  * @brief DNS server address for cellular network socket service.
  * @todo Set the preferred DNS server address.
  */
-#define configCELLULAR_DNS_SERVER           ""
+#define configCELLULAR_DNS_SERVER            ""
 
 /**
  * @brief the default Cellular comm interface in system.

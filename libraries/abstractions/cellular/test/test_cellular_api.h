@@ -29,15 +29,15 @@
 /* Second set of valid CELLULAR credentials for testing the connection loop. */
 
 /* The number of times to loop in the CELLULARConnectionLoop test. */
-#define testCELLULARCONNECTION_LOOP_TIMES   3
+#define testCELLULARCONNECTION_LOOP_TIMES       3
 
 /* Retry until SIM is ready. */
-#define CELLULAR_MAX_SIM_RETRY    ( 5U )
+#define CELLULAR_MAX_SIM_RETRY                  ( 5U )
 
 /* APN for the test network. */
-#define testCELLULAR_APN     ""
-#define testINVALID_CELLULAR_APN     "VZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERN"
-#define testHotSpotENABLE_CONFIGURE_AP_TESTS         0
+#define testCELLULAR_APN                        ""
+#define testINVALID_CELLULAR_APN                "VZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERN"
+#define testHotSpotENABLE_CONFIGURE_AP_TESTS    0
 
 /**
  * @brief the default Cellular comm interface in system.

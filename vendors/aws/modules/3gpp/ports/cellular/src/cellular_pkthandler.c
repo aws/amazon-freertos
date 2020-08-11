@@ -22,7 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
- 
+
 /**
  * @brief cellular HAL common packet handler functions to dispatch packet.
  */
@@ -46,29 +46,37 @@
 
 /*-----------------------------------------------------------*/
 
-#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#define MAX( a, b )    ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 
 /* Windows simulator implementation. */
 #if defined( _WIN32 ) || defined( _WIN64 )
-    #define strtok_r    strtok_s
+    #define strtok_r             strtok_s
 #endif
 
-#define SORT_MODULE_TOKEN_MAP ( 0U )
+#define SORT_MODULE_TOKEN_MAP    ( 0U )
 
 /*-----------------------------------------------------------*/
 
-static void _convertAndQueueRespPacket( CellularContext_t * pContext, const void * pBuf );
-static CellularPktStatus_t urcParseToken( CellularContext_t * pContext, char * pInputLine );
-static void _processUrcPacket( CellularContext_t * pContext, const char * pBuf );
-static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw(
-    CellularContext_t * pContext, CellularAtReq_t atReq, uint32_t timeoutMS );
+static void _convertAndQueueRespPacket( CellularContext_t * pContext,
+                                        const void * pBuf );
+static CellularPktStatus_t urcParseToken( CellularContext_t * pContext,
+                                          char * pInputLine );
+static void _processUrcPacket( CellularContext_t * pContext,
+                               const char * pBuf );
+static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( CellularContext_t * pContext,
+                                                                         CellularAtReq_t atReq,
+                                                                         uint32_t timeoutMS );
 static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t * pContext,
-    CellularAtDataReq_t dataReq, uint32_t timeoutMs );
+                                                             CellularAtDataReq_t dataReq,
+                                                             uint32_t timeoutMs );
 static void _Cellular_PktHandlerAcquirePktRequestMutex( CellularContext_t * pContext );
 static void _Cellular_PktHandlerReleasePktRequestMutex( CellularContext_t * pContext );
-static int _searchCompareFunc( const void * pInputToken, const void * pBase );
-static int _sortCompareFunc( const void * pElem1Ptr, const void * pElem2Ptr );
-static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext, const char * pInputLine );
+static int _searchCompareFunc( const void * pInputToken,
+                               const void * pBase );
+static int _sortCompareFunc( const void * pElem1Ptr,
+                             const void * pElem2Ptr );
+static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext,
+                                         const char * pInputLine );
 static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
                                                const char * pInputLine,
                                                char * pTokenPtr,
@@ -76,7 +84,8 @@ static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
-static void _convertAndQueueRespPacket( CellularContext_t * pContext, const void * pBuf )
+static void _convertAndQueueRespPacket( CellularContext_t * pContext,
+                                        const void * pBuf )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     const CellularATCommandResponse_t * pAtResp = NULL;
@@ -84,33 +93,39 @@ static void _convertAndQueueRespPacket( CellularContext_t * pContext, const void
     if( ( pContext != NULL ) && ( pBuf != NULL ) )
     {
         pAtResp = ( const CellularATCommandResponse_t * ) pBuf;
-        IotMutex_Lock( & pContext->PktRespMutex );
+        IotMutex_Lock( &pContext->PktRespMutex );
+
         if( pAtResp->status == false )
         {
             IotLogError( "_convertAndQueueRespPacket: AT response contains error" );
             pktStatus = CELLULAR_PKT_STATUS_FAILURE;
         }
+
         if( ( pContext->pktRespCB != NULL ) && ( pktStatus == CELLULAR_PKT_STATUS_OK ) )
         {
             pktStatus = pContext->pktRespCB( pContext,
                                              ( const CellularATCommandResponse_t * ) pBuf,
                                              pContext->pPktUsrData,
-                                             pContext->PktUsrDataLen ) ;
+                                             pContext->PktUsrDataLen );
         }
+
         /* Notify calling thread, Not blocking immediately comes back if the queue is full. */
-        if( xQueueSend( pContext->pktRespQueue, ( void * ) & pktStatus, ( TickType_t ) 0 ) != pdPASS )
+        if( xQueueSend( pContext->pktRespQueue, ( void * ) &pktStatus, ( TickType_t ) 0 ) != pdPASS )
         {
             IotLogError( "_convertAndQueueRespPacket: Got a response when the Resp Q is full!!" );
         }
-        IotMutex_Unlock( & pContext->PktRespMutex );
+
+        IotMutex_Unlock( &pContext->PktRespMutex );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t urcParseToken( CellularContext_t * pContext, char * pInputLine )
+static CellularPktStatus_t urcParseToken( CellularContext_t * pContext,
+                                          char * pInputLine )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+
     /* pInputLine = "+" pTokenPtr + ":" + pSavePtr.
      * if string not start with "+", then pTokenPtr = pSavePtr = pInputPtr. */
     char * pSavePtr = pInputLine, * pTokenPtr = pInputLine;
@@ -135,6 +150,7 @@ static CellularPktStatus_t urcParseToken( CellularContext_t * pContext, char * p
         {
             pSavePtr++;
             pTokenPtr = strtok_r( pSavePtr, ":", &pSavePtr );
+
             if( pTokenPtr == NULL )
             {
                 IotLogError( "_Cellular_AtParse : input string error, start with \"+\" but no token %s", pInputLine );
@@ -157,13 +173,15 @@ static CellularPktStatus_t urcParseToken( CellularContext_t * pContext, char * p
 /**
  * @brief copy the URC log in the buffer to a heap memory and process it.
  */
-static void _processUrcPacket( CellularContext_t * pContext, const char * pBuf )
+static void _processUrcPacket( CellularContext_t * pContext,
+                               const char * pBuf )
 {
     char * payload = NULL;
 
     if( pBuf != NULL )
     {
-        ( void ) Cellular_ATStrDup( & payload, pBuf );
+        ( void ) Cellular_ATStrDup( &payload, pBuf );
+
         if( payload != NULL )
         {
             /* The payload is null terminated. */
@@ -179,8 +197,9 @@ static void _processUrcPacket( CellularContext_t * pContext, const char * pBuf )
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw(
-    CellularContext_t * pContext, CellularAtReq_t atReq, uint32_t timeoutMS )
+static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( CellularContext_t * pContext,
+                                                                         CellularAtReq_t atReq,
+                                                                         uint32_t timeoutMS )
 {
     CellularPktStatus_t respCode = CELLULAR_PKT_STATUS_OK;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -203,6 +222,7 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw(
         pContext->pPktUsrData = atReq.pData;
         pContext->PktUsrDataLen = ( uint16_t ) atReq.dataLen;
         pktStatus = _Cellular_PktioSendAtCmd( pContext, atReq.pAtCmd, atReq.atCmdType, atReq.pAtRspPrefix );
+
         if( pktStatus != CELLULAR_PKT_STATUS_OK )
         {
             IotLogError( "Can't send req packet" );
@@ -211,15 +231,16 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw(
         else
         {
             /* Wait for a response. */
-            qRet = xQueueReceive( pContext->pktRespQueue, & respCode, pdMS_TO_TICKS( timeoutMS ) );
+            qRet = xQueueReceive( pContext->pktRespQueue, &respCode, pdMS_TO_TICKS( timeoutMS ) );
+
             if( qRet == pdTRUE )
             {
                 pktStatus = ( CellularPktStatus_t ) respCode;
+
                 if( pktStatus != CELLULAR_PKT_STATUS_OK )
                 {
                     IotLogError( "pkt_recv status=%d, error in AT cmd %s resp", pktStatus, atReq.pAtCmd );
                 } /* Ignore errors from callbacks as they will be handled elsewhere. */
-
             }
             else
             {
@@ -240,7 +261,8 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw(
 /*-----------------------------------------------------------*/
 
 static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t * pContext,
-    CellularAtDataReq_t dataReq, uint32_t timeoutMs )
+                                                             CellularAtDataReq_t dataReq,
+                                                             uint32_t timeoutMs )
 {
     CellularPktStatus_t respCode = CELLULAR_PKT_STATUS_OK;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -261,8 +283,9 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
         IotLogDebug( ">>>>>Start sending Data <<<<<" );
         pContext->PktioAtCmdType = CELLULAR_AT_NO_RESULT;
         /* Send the packet. */
-        * dataReq.pSentDataLength = _Cellular_PktioSendData( pContext, dataReq.pData, dataReq.dataLen );
-        if( * dataReq.pSentDataLength != dataReq.dataLen )
+        *dataReq.pSentDataLength = _Cellular_PktioSendData( pContext, dataReq.pData, dataReq.dataLen );
+
+        if( *dataReq.pSentDataLength != dataReq.dataLen )
         {
             IotLogError( "_Cellular_DataSendWithTimeoutRaw, incomplete data transfer " );
             pktStatus = CELLULAR_PKT_STATUS_SEND_ERROR;
@@ -272,11 +295,12 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
     /* Wait for a response. */
     if( pktStatus == CELLULAR_PKT_STATUS_OK )
     {
-        qStatus = xQueueReceive( pContext->pktRespQueue, & respCode, pdMS_TO_TICKS( timeoutMs ) );
+        qStatus = xQueueReceive( pContext->pktRespQueue, &respCode, pdMS_TO_TICKS( timeoutMs ) );
 
         if( qStatus == pdTRUE )
         {
             pktStatus = ( CellularPktStatus_t ) respCode;
+
             if( pktStatus == CELLULAR_PKT_STATUS_OK )
             {
                 IotLogDebug( "Data Sent successfully!" );
@@ -291,9 +315,11 @@ static CellularPktStatus_t _Cellular_DataSendWithTimeoutRaw( CellularContext_t *
             pktStatus = CELLULAR_PKT_STATUS_TIMED_OUT;
             IotLogError( "pkt_recv status=%d, data sending timed out", pktStatus );
         }
+
         pContext->PktioAtCmdType = CELLULAR_AT_NO_COMMAND;
         IotLogDebug( "<<<<<Exit sending data ret[%d]>>>>>", pktStatus );
     }
+
     return pktStatus;
 }
 
@@ -303,7 +329,7 @@ static void _Cellular_PktHandlerAcquirePktRequestMutex( CellularContext_t * pCon
 {
     if( pContext != NULL )
     {
-        IotMutex_Lock( & pContext->pktRequestMutex );
+        IotMutex_Lock( &pContext->pktRequestMutex );
     }
 }
 
@@ -313,7 +339,7 @@ static void _Cellular_PktHandlerReleasePktRequestMutex( CellularContext_t * pCon
 {
     if( pContext != NULL )
     {
-        IotMutex_Unlock( & pContext->pktRequestMutex );
+        IotMutex_Unlock( &pContext->pktRequestMutex );
     }
 }
 
@@ -324,7 +350,8 @@ static void _Cellular_PktHandlerReleasePktRequestMutex( CellularContext_t * pCon
  * bsearch function syntax mandates the compare function should be of type int.
  * Hence int data type is used instead of typedef datatype. */
 /* coverity[misra_c_2012_directive_4_6_violation] */
-static int _searchCompareFunc( const void * pInputToken, const void * pBase )
+static int _searchCompareFunc( const void * pInputToken,
+                               const void * pBase )
 {
     /* _searchCompareFunc is returning a variable with "int" data type because
      * this is the Compare function used in bsearch() function.
@@ -336,9 +363,11 @@ static int _searchCompareFunc( const void * pInputToken, const void * pBase )
     const CellularAtParseTokenMap_t * pBasePtr = ( const CellularAtParseTokenMap_t * ) pBase;
     uint32_t tokenLen = strlen( pInputToken );
     uint32_t strLen = strlen( pBasePtr->pStrValue );
+
     compareValue = strncmp( pToken,
                             pBasePtr->pStrValue,
                             MAX( tokenLen, strLen ) );
+
     /* To avoid undefined behavior, the table should not contain duplicated item and
      * compareValue is 0 only if the string is exactly the same. */
     if( ( compareValue == 0 ) && ( tokenLen != strLen ) )
@@ -363,7 +392,8 @@ static int _searchCompareFunc( const void * pInputToken, const void * pBase )
  * qsort function syntax mandates the compare function should be of type int.
  * Hence int data type is used instead of typedef datatype. */
 /* coverity[misra_c_2012_directive_4_6_violation] */
-static int _sortCompareFunc( const void * pElem1Ptr, const void * pElem2Ptr )
+static int _sortCompareFunc( const void * pElem1Ptr,
+                             const void * pElem2Ptr )
 {
     /* _sortCompareFunc is returning a variable with "int" data type because
      * this is the Compare function used in qsort() function.
@@ -379,6 +409,7 @@ static int _sortCompareFunc( const void * pElem1Ptr, const void * pElem2Ptr )
     compareValue = strncmp( pElement1Ptr->pStrValue,
                             pElement2Ptr->pStrValue,
                             MAX( element1PtrLen, element2PtrLen ) );
+
     /* To avoid undefined behavior, the table should not contain duplicated item and
      * compareValue is 0 only if the string is exactly the same. */
     if( ( compareValue == 0 ) && ( element1PtrLen != element2PtrLen ) )
@@ -392,12 +423,14 @@ static int _sortCompareFunc( const void * pElem1Ptr, const void * pElem2Ptr )
             compareValue = -1;
         }
     }
+
     return compareValue;
 }
 
 /*-----------------------------------------------------------*/
 
-static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext, const char * pInputLine )
+static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext,
+                                         const char * pInputLine )
 {
     if( pContext == NULL )
     {
@@ -425,9 +458,9 @@ static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
     const CellularAtParseTokenMap_t * pTokenMap = pContext->tokenTable.pCellularUrcHandlerTable;
     uint32_t tokenMapSize = pContext->tokenTable.cellularPrefixToParserMapSize;
 
-    /* the unspecified behavior, which relates to the treatment of elements that compare as equal, 
+    /* the unspecified behavior, which relates to the treatment of elements that compare as equal,
      * can be avoided by ensuring that the comparison function never returns 0.
-     * When two elements are otherwise equal, the comparison function could 
+     * When two elements are otherwise equal, the comparison function could
      * return a value that indicates their relative order in the initial array.
      * This the token table must be checked without duplicated string. The return value
      * is 0 only if the string is exactly the same. */
@@ -437,6 +470,7 @@ static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
                                                            tokenMapSize,
                                                            sizeof( CellularAtParseTokenMap_t ),
                                                            _searchCompareFunc );
+
     if( pElementPtr != NULL )
     {
         if( pElementPtr->parserFunc != NULL )
@@ -475,7 +509,9 @@ void _Cellular_PktHandlerCleanup( CellularContext_t * pContext )
 
 /*-----------------------------------------------------------*/
 
-void _Cellular_HandlePacket( CellularContext_t * pContext, _atRespType_t atRespType, const void * pBuf )
+void _Cellular_HandlePacket( CellularContext_t * pContext,
+                             _atRespType_t atRespType,
+                             const void * pBuf )
 {
     switch( atRespType )
     {
@@ -495,7 +531,8 @@ void _Cellular_HandlePacket( CellularContext_t * pContext, _atRespType_t atRespT
 
 /*-----------------------------------------------------------*/
 
-CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pContext, CellularAtReq_t atReq )
+CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pContext,
+                                                        CellularAtReq_t atReq )
 {
     return _Cellular_TimeoutAtcmdRequestWithCallback( pContext, atReq, PACKET_REQ_TIMEOUT_MS );
 }
@@ -503,7 +540,8 @@ CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pCon
 /*-----------------------------------------------------------*/
 
 CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t * pContext,
-    CellularAtReq_t atReq, uint32_t timeoutMS )
+                                                               CellularAtReq_t atReq,
+                                                               uint32_t timeoutMS )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
@@ -515,9 +553,10 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallback( CellularContext_t
 
 /*-----------------------------------------------------------*/
 
-CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback(
-    CellularContext_t * pContext, CellularAtReq_t atReq, uint32_t timeoutMS,
-    CellularATCommandDataPrefixCallback_t pktDataPrefixCallback )
+CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback( CellularContext_t * pContext,
+                                                                       CellularAtReq_t atReq,
+                                                                       uint32_t timeoutMS,
+                                                                       CellularATCommandDataPrefixCallback_t pktDataPrefixCallback )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
@@ -532,17 +571,21 @@ CellularPktStatus_t _Cellular_TimeoutAtcmdDataRecvRequestWithCallback(
 /*-----------------------------------------------------------*/
 
 CellularPktStatus_t _Cellular_TimeoutAtcmdDataSendRequestWithCallback( CellularContext_t * pContext,
-    CellularAtReq_t atReq, CellularAtDataReq_t dataReq,
-    uint32_t atTimeoutMS, uint32_t dataTimeoutMS )
+                                                                       CellularAtReq_t atReq,
+                                                                       CellularAtDataReq_t dataReq,
+                                                                       uint32_t atTimeoutMS,
+                                                                       uint32_t dataTimeoutMS )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
     _Cellular_PktHandlerAcquirePktRequestMutex( pContext );
     pktStatus = _Cellular_TimeoutAtcmdRequestWithCallbackRaw( pContext, atReq, atTimeoutMS );
+
     if( pktStatus == CELLULAR_PKT_STATUS_OK )
     {
         pktStatus = _Cellular_DataSendWithTimeoutRaw( pContext, dataReq, dataTimeoutMS );
     }
+
     _Cellular_PktHandlerReleasePktRequestMutex( pContext );
     return pktStatus;
 }
@@ -557,6 +600,7 @@ CellularPktStatus_t _Cellular_PktHandlerInit( CellularContext_t * pContext )
     {
         /* Create the response queue which is used to post reponses to the sender. */
         pContext->pktRespQueue = xQueueCreate( 1, sizeof( CellularPktStatus_t ) );
+
         if( pContext->pktRespQueue == NULL )
         {
             pktStatus = CELLULAR_PKT_STATUS_FAILURE;
@@ -580,8 +624,8 @@ void _Cellular_AtParseInit( const CellularContext_t * pContext )
     uint32_t tokenMapSize = 0;
     int32_t result = 0;
 
-    if( ( pContext != NULL ) && ( pContext->tokenTable.pCellularUrcHandlerTable != NULL )
-        && ( pContext->tokenTable.cellularPrefixToParserMapSize > 0U ) )
+    if( ( pContext != NULL ) && ( pContext->tokenTable.pCellularUrcHandlerTable != NULL ) &&
+        ( pContext->tokenTable.cellularPrefixToParserMapSize > 0U ) )
     {
         pTokenMap = pContext->tokenTable.pCellularUrcHandlerTable;
         tokenMapSize = pContext->tokenTable.cellularPrefixToParserMapSize;
@@ -589,42 +633,45 @@ void _Cellular_AtParseInit( const CellularContext_t * pContext )
         /* Check order of the sorted Map. */
         for( i = 0; i < ( tokenMapSize - 1U ); i++ )
         {
-            result = _sortCompareFunc( & pTokenMap[i], & pTokenMap[i+1U] );
+            result = _sortCompareFunc( &pTokenMap[ i ], &pTokenMap[ i + 1U ] );
+
             if( result >= 0 )
             {
                 IotLogError( "AtParseFail for %u: %d %s %s", i, result,
-                    pTokenMap[i].pStrValue, pTokenMap[i + 1U].pStrValue );
+                             pTokenMap[ i ].pStrValue, pTokenMap[ i + 1U ].pStrValue );
                 finit = false;
             }
         }
-    
+
         /* The Prefix Map should be sorted. */
-#if( SORT_MODULE_TOKEN_MAP == 1U )
-        if( finit != true )
-        {
-            taskENTER_CRITICAL();
-            /* Ensure that the prefix to parse map is sorted
-               to rule out any manual insertion errors while introducing new AT elements. */
-            /* coverity[misra_c_2012_rule_10_4_violation]. */
-            qsort( pTokenMap,
-                   tokenMapSize,
-                   sizeof( CellularAtParseTokenMap_t ), _sortCompareFunc );
-            finit = true;
-            taskEXIT_CRITICAL();
-        }
-#else
-        if( finit != true )
-        {
-            IotLogError( "AtParseFail URC token table is not sorted" );
-        }
-        /* coverity[misra_c_2012_rule_10_4_violation] */
-        /* coverity[misra_c_2012_rule_10_5_violation] */
-        configASSERT( finit == true );
-#endif
+        #if ( SORT_MODULE_TOKEN_MAP == 1U )
+            if( finit != true )
+            {
+                taskENTER_CRITICAL();
+
+                /* Ensure that the prefix to parse map is sorted
+                 * to rule out any manual insertion errors while introducing new AT elements. */
+                /* coverity[misra_c_2012_rule_10_4_violation]. */
+                qsort( pTokenMap,
+                       tokenMapSize,
+                       sizeof( CellularAtParseTokenMap_t ), _sortCompareFunc );
+                finit = true;
+                taskEXIT_CRITICAL();
+            }
+        #else  /* if ( SORT_MODULE_TOKEN_MAP == 1U ) */
+            if( finit != true )
+            {
+                IotLogError( "AtParseFail URC token table is not sorted" );
+            }
+
+            /* coverity[misra_c_2012_rule_10_4_violation] */
+            /* coverity[misra_c_2012_rule_10_5_violation] */
+            configASSERT( finit == true );
+        #endif /* if ( SORT_MODULE_TOKEN_MAP == 1U ) */
 
         for( i = 0; i < tokenMapSize; i++ )
         {
-            IotLogDebug( "Callbacks setup for %u : %s", i, pTokenMap[i].pStrValue );
+            IotLogDebug( "Callbacks setup for %u : %s", i, pTokenMap[ i ].pStrValue );
         }
     }
 }
@@ -637,7 +684,7 @@ bool _Cellular_CreatePktRequestMutex( CellularContext_t * pContext )
 
     if( pContext != NULL )
     {
-        status = IotMutex_Create( & pContext->pktRequestMutex, false );
+        status = IotMutex_Create( &pContext->pktRequestMutex, false );
     }
 
     return status;
@@ -651,7 +698,7 @@ bool _Cellular_CreatePktResponseMutex( CellularContext_t * pContext )
 
     if( pContext != NULL )
     {
-        status = IotMutex_Create( & pContext->PktRespMutex, false );
+        status = IotMutex_Create( &pContext->PktRespMutex, false );
     }
 
     return status;
@@ -663,7 +710,7 @@ void _Cellular_DestroyPktRequestMutex( CellularContext_t * pContext )
 {
     if( pContext != NULL )
     {
-        IotMutex_Destroy( & pContext->pktRequestMutex );
+        IotMutex_Destroy( &pContext->pktRequestMutex );
     }
 }
 
@@ -673,7 +720,7 @@ void _Cellular_DestroyPktResponseMutex( CellularContext_t * pContext )
 {
     if( pContext != NULL )
     {
-        IotMutex_Destroy( & pContext->PktRespMutex );
+        IotMutex_Destroy( &pContext->PktRespMutex );
     }
 }
 

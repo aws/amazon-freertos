@@ -62,7 +62,7 @@ typedef struct CellularCommInterfaceContext * CellularCommInterfaceHandle_t;
  * @param[in] commInterfaceHandle Handle corresponding to the comm interface.
  */
 typedef void ( * CellularCommInterfaceReceiveCallback_t )( void * pUserData,
-                                                      CellularCommInterfaceHandle_t commInterfaceHandle );
+                                                           CellularCommInterfaceHandle_t commInterfaceHandle );
 
 /**
  * @brief Open a connection to the comm interface.
@@ -77,8 +77,8 @@ typedef void ( * CellularCommInterfaceReceiveCallback_t )( void * pUserData,
  * an error code indicating the cause of the error.
  */
 typedef CellularCommInterfaceError_t ( * CellularCommInterfaceOpen_t )( CellularCommInterfaceReceiveCallback_t receiveCallback,
-                                                              void * pUserData,
-                                                              CellularCommInterfaceHandle_t * pCommInterfaceHandle );
+                                                                        void * pUserData,
+                                                                        CellularCommInterfaceHandle_t * pCommInterfaceHandle );
 
 /**
  * @brief Send data to the comm interface.
@@ -96,10 +96,10 @@ typedef CellularCommInterfaceError_t ( * CellularCommInterfaceOpen_t )( Cellular
  * an error code indicating the cause of the error.
  */
 typedef CellularCommInterfaceError_t ( * CellularCommInterfaceSend_t )( CellularCommInterfaceHandle_t commInterfaceHandle,
-                                                              const uint8_t * pData,
-                                                              uint32_t dataLength,
-                                                              uint32_t timeoutMilliseconds,
-                                                              uint32_t * pDataSentLength );
+                                                                        const uint8_t * pData,
+                                                                        uint32_t dataLength,
+                                                                        uint32_t timeoutMilliseconds,
+                                                                        uint32_t * pDataSentLength );
 
 /**
  * @brief Receive data from the comm interface.
@@ -118,10 +118,10 @@ typedef CellularCommInterfaceError_t ( * CellularCommInterfaceSend_t )( Cellular
  * an error code indicating the cause of the error.
  */
 typedef CellularCommInterfaceError_t ( * CellularCommInterfaceRecv_t )( CellularCommInterfaceHandle_t commInterfaceHandle,
-                                                              uint8_t * pBuffer,
-                                                              uint32_t bufferLength,
-                                                              uint32_t timeoutMilliseconds,
-                                                              uint32_t * pDataReceivedLength );
+                                                                        uint8_t * pBuffer,
+                                                                        uint32_t bufferLength,
+                                                                        uint32_t timeoutMilliseconds,
+                                                                        uint32_t * pDataReceivedLength );
 
 /**
  * @brief Close the connection to the comm interface.

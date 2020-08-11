@@ -26,7 +26,7 @@
 /**
  * @brief cellular HAL APIs implementation without AT commands.
  */
- 
+
 /* The config header is always included first. */
 #include "iot_config.h"
 
@@ -70,7 +70,7 @@ static CellularError_t _socketSetSockOptLevelTransport( CellularSocketOption_t o
             /* The variable length is checked. */
             /* coverity[misra_c_2012_rule_11_3_violation] */
             pTimeoutMs = ( const uint32_t * ) pOptionValue;
-            socketHandle->sendTimeoutMs = * pTimeoutMs;
+            socketHandle->sendTimeoutMs = *pTimeoutMs;
         }
         else
         {
@@ -84,7 +84,7 @@ static CellularError_t _socketSetSockOptLevelTransport( CellularSocketOption_t o
             /* The variable length is checked. */
             /* coverity[misra_c_2012_rule_11_3_violation] */
             pTimeoutMs = ( const uint32_t * ) pOptionValue;
-            socketHandle->recvTimeoutMs = * pTimeoutMs;
+            socketHandle->recvTimeoutMs = *pTimeoutMs;
         }
         else
         {
@@ -95,7 +95,7 @@ static CellularError_t _socketSetSockOptLevelTransport( CellularSocketOption_t o
     {
         if( socketHandle->socketState == SOCKETSTATE_ALLOCATED )
         {
-            socketHandle->contextId = * pOptionValue;
+            socketHandle->contextId = *pOptionValue;
         }
         else
         {
@@ -116,38 +116,38 @@ static CellularError_t _socketSetSockOptLevelTransport( CellularSocketOption_t o
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonInit( CellularHandle_t * pCellularHandle,
-                                const CellularCommInterface_t * pCommInterface )
+                                     const CellularCommInterface_t * pCommInterface )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     CellularContext_t * pContext = NULL;
     CellularTokenTable_t tokenTable =
     {
-        .pCellularUrcHandlerTable = CellularUrcHandlerTable,
-        .cellularPrefixToParserMapSize = CellularUrcHandlerTableSize,
-        .pCellularSrcTokenErrorTable = CellularSrcTokenErrorTable,
-        .cellularSrcTokenErrorTableSize = CellularSrcTokenErrorTableSize,
-        .pCellularSrcTokenSuccessTable = CellularSrcTokenSuccessTable,
-        .cellularSrcTokenSuccessTableSize = CellularSrcTokenSuccessTableSize,
-        .pCellularUrcTokenWoPrefixTable = CellularUrcTokenWoPrefixTable,
+        .pCellularUrcHandlerTable          = CellularUrcHandlerTable,
+        .cellularPrefixToParserMapSize     = CellularUrcHandlerTableSize,
+        .pCellularSrcTokenErrorTable       = CellularSrcTokenErrorTable,
+        .cellularSrcTokenErrorTableSize    = CellularSrcTokenErrorTableSize,
+        .pCellularSrcTokenSuccessTable     = CellularSrcTokenSuccessTable,
+        .cellularSrcTokenSuccessTableSize  = CellularSrcTokenSuccessTableSize,
+        .pCellularUrcTokenWoPrefixTable    = CellularUrcTokenWoPrefixTable,
         .cellularUrcTokenWoPrefixTableSize = CellularUrcTokenWoPrefixTableSize
     };
 
     /* Init the Cellular HAL common. */
-    cellularStatus = _Cellular_LibInit( pCellularHandle, pCommInterface, & tokenTable );
-    
+    cellularStatus = _Cellular_LibInit( pCellularHandle, pCommInterface, &tokenTable );
+
     /* Init the module. */
     if( cellularStatus == CELLULAR_SUCCESS )
     {
-        pContext = * pCellularHandle;
-        cellularStatus = Cellular_ModuleInit( pContext, & pContext->pModueContext );
+        pContext = *pCellularHandle;
+        cellularStatus = Cellular_ModuleInit( pContext, &pContext->pModueContext );
     }
-    
+
     /* Setup UE, URC and query register status. */
     if( cellularStatus == CELLULAR_SUCCESS )
     {
         cellularStatus = Cellular_ModuleEnableUE( pContext );
     }
-    
+
     if( cellularStatus == CELLULAR_SUCCESS )
     {
         cellularStatus = Cellular_ModuleEnableUrc( pContext );
@@ -183,13 +183,14 @@ CellularError_t Cellular_CommonCleanup( CellularHandle_t cellularHandle )
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
+                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -205,13 +206,14 @@ CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( Cell
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcPdnEventCallback_t pdnEventCallback )
+                                                            CellularUrcPdnEventCallback_t pdnEventCallback )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -227,13 +229,14 @@ CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cel
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-    CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback )
+                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -249,13 +252,14 @@ CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( Cellula
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-                                                      CellularUrcGenericCallback_t genericCallback )
+                                                           CellularUrcGenericCallback_t genericCallback )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -271,13 +275,14 @@ CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cell
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonRegisterModemEventCallback( CellularHandle_t cellularHandle,
-                                                      CellularModemEventCallback_t modemEventCallback )
+                                                           CellularModemEventCallback_t modemEventCallback )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -307,6 +312,7 @@ CellularError_t Cellular_CommonATCommandRaw( CellularHandle_t cellularHandle,
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -334,17 +340,19 @@ CellularError_t Cellular_CommonATCommandRaw( CellularHandle_t cellularHandle,
 
 /*-----------------------------------------------------------*/
 
-CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle, uint8_t pdnContextId,
-                                        CellularSocketDomain_t socketDomain,
-                                        CellularSocketType_t socketType,
-                                        CellularSocketProtocol_t socketProtocol,
-                                        CellularSocketHandle_t * pSocketHandle )
+CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle,
+                                             uint8_t pdnContextId,
+                                             CellularSocketDomain_t socketDomain,
+                                             CellularSocketType_t socketType,
+                                             CellularSocketProtocol_t socketProtocol,
+                                             CellularSocketHandle_t * pSocketHandle )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -362,7 +370,7 @@ CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle, ui
     else
     {
         cellularStatus = _Cellular_CreateSocketData( pContext, pdnContextId,
-            socketDomain, socketType, socketProtocol, pSocketHandle );
+                                                     socketDomain, socketType, socketProtocol, pSocketHandle );
     }
 
     return cellularStatus;
@@ -371,17 +379,18 @@ CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle, ui
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonSocketSetSockOpt( CellularHandle_t cellularHandle,
-                                            CellularSocketHandle_t socketHandle,
-                                            CellularSocketOptionLevel_t optionLevel,
-                                            CellularSocketOption_t option,
-                                            const uint8_t * pOptionValue,
-                                            uint32_t optionValueLength )
+                                                 CellularSocketHandle_t socketHandle,
+                                                 CellularSocketOptionLevel_t optionLevel,
+                                                 CellularSocketOption_t option,
+                                                 const uint8_t * pOptionValue,
+                                                 uint32_t optionValueLength )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -401,7 +410,7 @@ CellularError_t Cellular_CommonSocketSetSockOpt( CellularHandle_t cellularHandle
         {
             if( option == CELLULAR_SOCKET_OPTION_MAX_IP_PACKET_SIZE )
             {
-                //TBD
+                /*TBD */
             }
             else
             {
@@ -421,15 +430,16 @@ CellularError_t Cellular_CommonSocketSetSockOpt( CellularHandle_t cellularHandle
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonSocketRegisterDataReadyCallback( CellularHandle_t cellularHandle,
-                                                           CellularSocketHandle_t socketHandle,
-                                                           CellularSocketDataReadyCallback_t dataReadyCallback,
-                                                           void * pCallbackContext )
+                                                                CellularSocketHandle_t socketHandle,
+                                                                CellularSocketDataReadyCallback_t dataReadyCallback,
+                                                                void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -450,15 +460,16 @@ CellularError_t Cellular_CommonSocketRegisterDataReadyCallback( CellularHandle_t
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonSocketRegisterSocketOpenCallback( CellularHandle_t cellularHandle,
-                                                            CellularSocketHandle_t socketHandle,
-                                                            CellularSocketOpenCallback_t socketOpenCallback,
-                                                            void * pCallbackContext )
+                                                                 CellularSocketHandle_t socketHandle,
+                                                                 CellularSocketOpenCallback_t socketOpenCallback,
+                                                                 void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
@@ -479,15 +490,16 @@ CellularError_t Cellular_CommonSocketRegisterSocketOpenCallback( CellularHandle_
 /*-----------------------------------------------------------*/
 
 CellularError_t Cellular_CommonSocketRegisterClosedCallback( CellularHandle_t cellularHandle,
-                                                        CellularSocketHandle_t socketHandle,
-                                                        CellularSocketClosedCallback_t closedCallback,
-                                                        void * pCallbackContext )
+                                                             CellularSocketHandle_t socketHandle,
+                                                             CellularSocketClosedCallback_t closedCallback,
+                                                             void * pCallbackContext )
 {
     CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
 
     /* pContext is checked in _Cellular_CheckLibraryStatus function. */
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
     if( cellularStatus != CELLULAR_SUCCESS )
     {
         IotLogDebug( "_Cellular_CheckLibraryStatus failed" );

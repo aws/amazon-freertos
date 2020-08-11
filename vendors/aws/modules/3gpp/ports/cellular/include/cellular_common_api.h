@@ -36,7 +36,7 @@
  * Reference Cellular_Init in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonInit( CellularHandle_t * pCellularHandle,
-    const CellularCommInterface_t * pCommInterface );
+                                     const CellularCommInterface_t * pCommInterface );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
@@ -49,95 +49,96 @@ CellularError_t Cellular_CommonCleanup( CellularHandle_t cellularHandle );
  * Reference Cellular_RegisterUrcNetworkRegistrationEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback );
+                                                                            CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcPdnEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcPdnEventCallback_t pdnEventCallback );
+                                                            CellularUrcPdnEventCallback_t pdnEventCallback );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcSignalStrengthChangedCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcSignalStrengthChangedCallback( CellularHandle_t cellularHandle,
-    CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback );
+                                                                         CellularUrcSignalStrengthChangedCallback_t signalStrengthChangedCallback );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterUrcGenericCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-    CellularUrcGenericCallback_t genericCallback );
+                                                           CellularUrcGenericCallback_t genericCallback );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_RegisterModemEventCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonRegisterModemEventCallback( CellularHandle_t cellularHandle,
-    CellularModemEventCallback_t modemEventCallback );
+                                                           CellularModemEventCallback_t modemEventCallback );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_ATCommandRaw in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonATCommandRaw( CellularHandle_t cellularHandle,
-                                       const char * pATCommandPrefix,
-                                       const char * pATCommandPayload,
-                                       CellularATCommandType_t atCommandType,
-                                       CellularATCommandResponseReceivedCallback_t responseReceivedCallback,
-                                       void * pData,
-                                       uint16_t dataLen );
+                                             const char * pATCommandPrefix,
+                                             const char * pATCommandPayload,
+                                             CellularATCommandType_t atCommandType,
+                                             CellularATCommandResponseReceivedCallback_t responseReceivedCallback,
+                                             void * pData,
+                                             uint16_t dataLen );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_CreateSocket in cellular_api.h for definition.
  */
-CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle, uint8_t pdnContextId,
-                                       CellularSocketDomain_t socketDomain,
-                                       CellularSocketType_t socketType,
-                                       CellularSocketProtocol_t socketProtocol,
-                                       CellularSocketHandle_t * pSocketHandle );
+CellularError_t Cellular_CommonCreateSocket( CellularHandle_t cellularHandle,
+                                             uint8_t pdnContextId,
+                                             CellularSocketDomain_t socketDomain,
+                                             CellularSocketType_t socketType,
+                                             CellularSocketProtocol_t socketProtocol,
+                                             CellularSocketHandle_t * pSocketHandle );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_SocketSetSockOpt in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonSocketSetSockOpt( CellularHandle_t cellularHandle,
-                                           CellularSocketHandle_t socketHandle,
-                                           CellularSocketOptionLevel_t optionLevel,
-                                           CellularSocketOption_t option,
-                                           const uint8_t * pOptionValue,
-                                           uint32_t optionValueLength );
+                                                 CellularSocketHandle_t socketHandle,
+                                                 CellularSocketOptionLevel_t optionLevel,
+                                                 CellularSocketOption_t option,
+                                                 const uint8_t * pOptionValue,
+                                                 uint32_t optionValueLength );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_SocketRegisterDataReadyCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonSocketRegisterDataReadyCallback( CellularHandle_t cellularHandle,
-                                                          CellularSocketHandle_t socketHandle,
-                                                          CellularSocketDataReadyCallback_t dataReadyCallback,
-                                                          void * pCallbackContext );
+                                                                CellularSocketHandle_t socketHandle,
+                                                                CellularSocketDataReadyCallback_t dataReadyCallback,
+                                                                void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_SocketRegisterSocketOpenCallback in cellular_api.h for definition.
  */
-CellularError_t Cellular_CommonSocketRegisterSocketOpenCallback(CellularHandle_t cellularHandle,
-                                                          CellularSocketHandle_t socketHandle,
-                                                          CellularSocketOpenCallback_t socketOpenCallback,
-                                                          void * pCallbackContext );
+CellularError_t Cellular_CommonSocketRegisterSocketOpenCallback( CellularHandle_t cellularHandle,
+                                                                 CellularSocketHandle_t socketHandle,
+                                                                 CellularSocketOpenCallback_t socketOpenCallback,
+                                                                 void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_SocketRegisterClosedCallback in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonSocketRegisterClosedCallback( CellularHandle_t cellularHandle,
-                                                       CellularSocketHandle_t socketHandle,
-                                                       CellularSocketClosedCallback_t closedCallback,
-                                                       void * pCallbackContext );
+                                                             CellularSocketHandle_t socketHandle,
+                                                             CellularSocketClosedCallback_t closedCallback,
+                                                             void * pCallbackContext );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
@@ -156,48 +157,51 @@ CellularError_t Cellular_CommonRfOff( CellularHandle_t cellularHandle );
  * Reference Cellular_GetIPAddress in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonGetIPAddress( CellularHandle_t cellularHandle,
-    uint8_t contextId, char * pBuffer, uint32_t bufferLength );
+                                             uint8_t contextId,
+                                             char * pBuffer,
+                                             uint32_t bufferLength );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_GetModemInfo in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonGetModemInfo( CellularHandle_t cellularHandle,
-    CellularModemInfo_t * pModemInfo );
+                                             CellularModemInfo_t * pModemInfo );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_GetEidrxSettings in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonGetEidrxSettings( CellularHandle_t cellularHandle,
-    CellularEidrxSettingsList_t * pEidrxSettingsList );
+                                                 CellularEidrxSettingsList_t * pEidrxSettingsList );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_SetEidrxSettings in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonSetEidrxSettings( CellularHandle_t cellularHandle,
-    const CellularEidrxSettings_t * pEidrxSettings );
+                                                 const CellularEidrxSettings_t * pEidrxSettings );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_GetRegisteredNetwork in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonGetRegisteredNetwork( CellularHandle_t cellularHandle,
-    CellularPlmnInfo_t * pNetworkInfo );
+                                                     CellularPlmnInfo_t * pNetworkInfo );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_GetNetworkTime in cellular_api.h for definition.
  */
-CellularError_t Cellular_CommonGetNetworkTime( CellularHandle_t cellularHandle, CellularTime_t * pNetworkTime );
+CellularError_t Cellular_CommonGetNetworkTime( CellularHandle_t cellularHandle,
+                                               CellularTime_t * pNetworkTime );
 
 /**
  * @brief This function is the implementationof cellular HAL API.
  * Reference Cellular_GetServiceStatus in cellular_api.h for definition.
  */
 CellularError_t Cellular_CommonGetServiceStatus( CellularHandle_t cellularHandle,
-    CellularServiceStatus_t * pServiceStatus );
+                                                 CellularServiceStatus_t * pServiceStatus );
 
 /**
  * @brief 3GPP URC AT+CEREG handler for cellular HAL common.
@@ -208,7 +212,8 @@ CellularError_t Cellular_CommonGetServiceStatus( CellularHandle_t cellularHandle
  * @param[in] pInputLine the input URC string.
  *
  */
-void Cellular_CommonUrcProcessCereg( CellularContext_t * pContext, char * pInputLine );
+void Cellular_CommonUrcProcessCereg( CellularContext_t * pContext,
+                                     char * pInputLine );
 
 /**
  * @brief 3GPP URC AT+CGREG handler for cellular HAL common.
@@ -219,7 +224,8 @@ void Cellular_CommonUrcProcessCereg( CellularContext_t * pContext, char * pInput
  * @param[in] pInputLine the input URC string.
  *
  */
-void Cellular_CommonUrcProcessCgreg( CellularContext_t * pContext, char * pInputLine );
+void Cellular_CommonUrcProcessCgreg( CellularContext_t * pContext,
+                                     char * pInputLine );
 
 /**
  * @brief 3GPP URC AT+CREG handler for cellular HAL common.
@@ -230,6 +236,7 @@ void Cellular_CommonUrcProcessCgreg( CellularContext_t * pContext, char * pInput
  * @param[in] pInputLine the input URC string.
  *
  */
-void Cellular_CommonUrcProcessCreg( CellularContext_t * pContext, char * pInputLine );
+void Cellular_CommonUrcProcessCreg( CellularContext_t * pContext,
+                                    char * pInputLine );
 
 #endif /* __CELLULAR_COMMON_API_H__ */

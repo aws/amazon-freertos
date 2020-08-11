@@ -34,7 +34,7 @@
 /*-----------------------------------------------------------*/
 
 /*  AT Command timeout for general AT commands. */
-#define PACKET_REQ_TIMEOUT_MS                     ( 5000UL )
+#define PACKET_REQ_TIMEOUT_MS    ( 5000UL )
 
 /*-----------------------------------------------------------*/
 
@@ -104,7 +104,9 @@ void _Cellular_PktHandlerCleanup( CellularContext_t * pContext );
  * @param[in] atRespType The AT response type from packet IO.
  * @param[in] pBuf The input data buffer from packet IO.
  */
-void _Cellular_HandlePacket( CellularContext_t * pContext, _atRespType_t atRespType, const void * pBuf );
+void _Cellular_HandlePacket( CellularContext_t * pContext,
+                             _atRespType_t atRespType,
+                             const void * pBuf );
 
 /**
  * @brief The URC handler init function.

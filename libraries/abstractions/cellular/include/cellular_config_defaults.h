@@ -27,95 +27,95 @@
 #define __CELLULAR_CONFIG_DEFAULTS_H__
 
 #ifndef CELLULAR_MCC_MAX_SIZE
-    #define CELLULAR_MCC_MAX_SIZE                   ( 3U )
+    #define CELLULAR_MCC_MAX_SIZE    ( 3U )
 #endif
 
 #ifndef CELLULAR_MNC_MAX_SIZE
-    #define CELLULAR_MNC_MAX_SIZE                   ( 3U )
+    #define CELLULAR_MNC_MAX_SIZE    ( 3U )
 #endif
 
 #ifndef CELLULAR_ICCID_MAX_SIZE
-    #define CELLULAR_ICCID_MAX_SIZE                 ( 20U )
+    #define CELLULAR_ICCID_MAX_SIZE    ( 20U )
 #endif
 
 #ifndef CELLULAR_IMSI_MAX_SIZE
-    #define CELLULAR_IMSI_MAX_SIZE                  ( 15U )
+    #define CELLULAR_IMSI_MAX_SIZE    ( 15U )
 #endif
 
 #ifndef CELLULAR_FW_VERSION_MAX_SIZE
-    #define CELLULAR_FW_VERSION_MAX_SIZE            ( 32U )
+    #define CELLULAR_FW_VERSION_MAX_SIZE    ( 32U )
 #endif
 
 #ifndef CELLULAR_HW_VERSION_MAX_SIZE
-    #define CELLULAR_HW_VERSION_MAX_SIZE            ( 12U )
+    #define CELLULAR_HW_VERSION_MAX_SIZE    ( 12U )
 #endif
 
 #ifndef CELLULAR_SERIAL_NUM_MAX_SIZE
-    #define CELLULAR_SERIAL_NUM_MAX_SIZE            ( 12U )
+    #define CELLULAR_SERIAL_NUM_MAX_SIZE    ( 12U )
 #endif
 
 #ifndef CELLULAR_IMEI_MAX_SIZE
-    #define CELLULAR_IMEI_MAX_SIZE                  ( 15U )
+    #define CELLULAR_IMEI_MAX_SIZE    ( 15U )
 #endif
 
 #ifndef CELLULAR_NETWORK_NAME_MAX_SIZE
-    #define CELLULAR_NETWORK_NAME_MAX_SIZE          ( 32U )
+    #define CELLULAR_NETWORK_NAME_MAX_SIZE    ( 32U )
 #endif
 
 #ifndef CELLULAR_APN_MAX_SIZE
-    #define CELLULAR_APN_MAX_SIZE                   ( 64U )
+    #define CELLULAR_APN_MAX_SIZE    ( 64U )
 #endif
 
 #ifndef CELLULAR_PDN_USERNAME_MAX_SIZE
-    #define CELLULAR_PDN_USERNAME_MAX_SIZE          ( 32U )
+    #define CELLULAR_PDN_USERNAME_MAX_SIZE    ( 32U )
 #endif
 
 #ifndef CELLULAR_PDN_PASSWORD_MAX_SIZE
-    #define CELLULAR_PDN_PASSWORD_MAX_SIZE          ( 32u )
+    #define CELLULAR_PDN_PASSWORD_MAX_SIZE    ( 32u )
 #endif
 
 #ifndef CELLULAR_IP_ADDRESS_MAX_SIZE
-    #define CELLULAR_IP_ADDRESS_MAX_SIZE            ( 40U )
+    #define CELLULAR_IP_ADDRESS_MAX_SIZE    ( 40U )
 #endif
 
 #ifndef CELLULAR_AT_CMD_MAX_SIZE
-    #define CELLULAR_AT_CMD_MAX_SIZE                ( 200U )
+    #define CELLULAR_AT_CMD_MAX_SIZE    ( 200U )
 #endif
 
 #ifndef CELLULAR_NUM_SOCKET_MAX
-    #define CELLULAR_NUM_SOCKET_MAX                 ( 12U )
+    #define CELLULAR_NUM_SOCKET_MAX    ( 12U )
 #endif
 
 #ifndef CELLULAR_MANUFACTURE_ID_MAX_SIZE
-    #define CELLULAR_MANUFACTURE_ID_MAX_SIZE        ( 20U )
+    #define CELLULAR_MANUFACTURE_ID_MAX_SIZE    ( 20U )
 #endif
 
 #ifndef CELLULAR_MODEL_ID_MAX_SIZE
-    #define CELLULAR_MODEL_ID_MAX_SIZE              ( 10U )
+    #define CELLULAR_MODEL_ID_MAX_SIZE    ( 10U )
 #endif
 
 #ifndef CELLULAR_EDRX_LIST_MAX_SIZE
-    #define CELLULAR_EDRX_LIST_MAX_SIZE             ( 4U )
+    #define CELLULAR_EDRX_LIST_MAX_SIZE    ( 4U )
 #endif
 
 #ifndef CELLULAR_PDN_CONTEXT_ID_MIN
-    #define CELLULAR_PDN_CONTEXT_ID_MIN             ( 1U )
+    #define CELLULAR_PDN_CONTEXT_ID_MIN    ( 1U )
 #endif
 
 #ifndef CELLULAR_PDN_CONTEXT_ID_MAX
-    #define CELLULAR_PDN_CONTEXT_ID_MAX             ( 16U )
+    #define CELLULAR_PDN_CONTEXT_ID_MAX    ( 16U )
 #endif
 
 #ifndef CELLULAR_MAX_RAT_PRIORITY_COUNT
-    #define CELLULAR_MAX_RAT_PRIORITY_COUNT         ( 3U )
+    #define CELLULAR_MAX_RAT_PRIORITY_COUNT    ( 3U )
 #endif
 
 #ifndef CELLULAR_MAX_SEND_DATA_LEN
-    #define CELLULAR_MAX_SEND_DATA_LEN              ( 1460U )
+    #define CELLULAR_MAX_SEND_DATA_LEN    ( 1460U )
 #endif
 
 #ifndef CELLULAR_MAX_RECV_DATA_LEN
-    #define CELLULAR_MAX_RECV_DATA_LEN              ( 1500U )
+    #define CELLULAR_MAX_RECV_DATA_LEN    ( 1500U )
 #endif
 
 #endif /* __CELLULAR_CONFIG_DEFAULTS_H__ */

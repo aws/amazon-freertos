@@ -65,17 +65,17 @@ typedef struct _callbackEvents
  */
 typedef struct cellularAtData
 {
-    CellularRat_t rat;                                            /* Device registered Radio Access Technology (Cat-M, Cat-NB, GPRS etc).  */
-    CellularNetworkRegistrationStatus_t csRegStatus;              /* CS (Circuit Switched) registration status (registered/searching/roaming etc.). */
-    CellularNetworkRegistrationStatus_t psRegStatus;              /* PS (Packet Switched) registration status (registered/searching/roaming etc.). */
-    uint8_t csRejectType;                                         /* CS Reject Type. 0 - 3GPP specific Reject Cause. 1 - Manufacture specific. */
-    uint8_t csRejCause;                                           /* Circuit Switch Reject cause. */
-    uint8_t psRejectType;                                         /* PS Reject Type. 0 - 3GPP specific Reject Cause. 1 - Manufacture specific. */
-    uint8_t psRejCause;                                           /* Packet Switch Reject cause. */
-    uint32_t cellId;                                              /* Registered network operator cell Id. */
-    uint16_t lac;                                                 /* Registered network operator Location Area Code. */
-    uint16_t rac;                                                 /* Registered network operator Routing Area Code. */
-    uint16_t tac;                                                 /* Registered network operator Tracking Area Code. */
+    CellularRat_t rat;                               /* Device registered Radio Access Technology (Cat-M, Cat-NB, GPRS etc).  */
+    CellularNetworkRegistrationStatus_t csRegStatus; /* CS (Circuit Switched) registration status (registered/searching/roaming etc.). */
+    CellularNetworkRegistrationStatus_t psRegStatus; /* PS (Packet Switched) registration status (registered/searching/roaming etc.). */
+    uint8_t csRejectType;                            /* CS Reject Type. 0 - 3GPP specific Reject Cause. 1 - Manufacture specific. */
+    uint8_t csRejCause;                              /* Circuit Switch Reject cause. */
+    uint8_t psRejectType;                            /* PS Reject Type. 0 - 3GPP specific Reject Cause. 1 - Manufacture specific. */
+    uint8_t psRejCause;                              /* Packet Switch Reject cause. */
+    uint32_t cellId;                                 /* Registered network operator cell Id. */
+    uint16_t lac;                                    /* Registered network operator Location Area Code. */
+    uint16_t rac;                                    /* Registered network operator Routing Area Code. */
+    uint16_t tac;                                    /* Registered network operator Tracking Area Code. */
 } cellularAtData_t;
 
 /**
@@ -87,13 +87,13 @@ typedef struct CellularContext
     const CellularCommInterface_t * pCommIntf;
 
     /* Common library. */
-    bool bLibOpened;                                            /* CellularLib is currently open */
-    bool bLibShutdown;                                          /* CellularLib prematurely shut down */
-    bool bLibClosing;                                           /* Graceful shutdown in progress */
+    bool bLibOpened;   /* CellularLib is currently open */
+    bool bLibShutdown; /* CellularLib prematurely shut down */
+    bool bLibClosing;  /* Graceful shutdown in progress */
     IotMutex_t libStatusMutex;
     IotMutex_t libAtDataMutex;
-    _callbackEvents_t cbEvents;                                 /* Call back functions registered to report events. */
-    cellularAtData_t libAtData;                                 /* Global variables. */
+    _callbackEvents_t cbEvents; /* Call back functions registered to report events. */
+    cellularAtData_t libAtData; /* Global variables. */
 
     /* Token table to config pkthandler and pktio. */
     CellularTokenTable_t tokenTable;
@@ -106,7 +106,7 @@ typedef struct CellularContext
     CellularATCommandDataPrefixCallback_t pktDataPrefixCB;
     void * pPktUsrData;
     uint16_t PktUsrDataLen;
-    
+
     /* Packet IO. */
     bool bPktioUp;
     CellularCommInterfaceHandle_t hPktioCommIntf;
@@ -119,14 +119,14 @@ typedef struct CellularContext
     const char * pRespPrefix;
     CellularATCommandType_t PktioAtCmdType;
     _atRespType_t recvdMsgType;
-    
+
     /* PktIo data handling. */
     uint32_t dataLength;
     uint32_t partialDataRcvdLen;
 
     /* Socket. */
-    CellularSocketContext_t * pSocketData[ CELLULAR_NUM_SOCKET_MAX ];      /* All socket related information. */
-    
+    CellularSocketContext_t * pSocketData[ CELLULAR_NUM_SOCKET_MAX ]; /* All socket related information. */
+
     /* Module Context. */
     void * pModueContext;
 
@@ -166,7 +166,8 @@ CellularPktStatus_t _Cellular_ParseRegStatus( CellularContext_t * pContext,
  * @param[in] mode Parameter that identifies which elements in Data Structure
  * to be initialized.
  */
-void _Cellular_InitAtData( CellularContext_t * pContext, uint32_t mode );
+void _Cellular_InitAtData( CellularContext_t * pContext,
+                           uint32_t mode );
 
 /**
  * @brief Create the AT data mutex.
@@ -206,4 +207,4 @@ void _Cellular_LockAtDataMutex( CellularContext_t * pContext );
  */
 void _Cellular_UnlockAtDataMutex( CellularContext_t * pContext );
 
-#endif
+#endif /* ifndef __CELLULAR_COMMON_INTERNAL_H__ */

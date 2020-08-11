@@ -37,7 +37,7 @@
     #endif
 #endif
 
-#define LIBRARY_LOG_NAME         ( "CELLULAR" )
+#define LIBRARY_LOG_NAME    ( "CELLULAR" )
 #include "iot_logging_setup.h"
 
 #endif /* __CELLULAR_INTERNAL_H__ */

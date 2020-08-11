@@ -22,7 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
- 
+
 /* The config header is always included first. */
 #include "iot_config.h"
 #include "aws_cellular_config.h"
@@ -42,7 +42,7 @@
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_Init( CellularHandle_t * pCellularHandle,
-                                const CellularCommInterface_t * pCommInterface )
+                               const CellularCommInterface_t * pCommInterface )
 {
     return Cellular_CommonInit( pCellularHandle, pCommInterface );
 }
@@ -61,7 +61,7 @@ CellularError_t Cellular_Cleanup( CellularHandle_t cellularHandle )
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
+                                                                      CellularUrcNetworkRegistrationCallback_t networkRegistrationCallback )
 {
     return Cellular_CommonRegisterUrcNetworkRegistrationEventCallback( cellularHandle, networkRegistrationCallback );
 }
@@ -71,7 +71,7 @@ CellularError_t Cellular_RegisterUrcNetworkRegistrationEventCallback( CellularHa
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularHandle,
-    CellularUrcPdnEventCallback_t pdnEventCallback )
+                                                      CellularUrcPdnEventCallback_t pdnEventCallback )
 {
     return Cellular_CommonRegisterUrcPdnEventCallback( cellularHandle, pdnEventCallback );
 }
@@ -81,7 +81,7 @@ CellularError_t Cellular_RegisterUrcPdnEventCallback( CellularHandle_t cellularH
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterUrcGenericCallback( CellularHandle_t cellularHandle,
-    CellularUrcGenericCallback_t genericCallback )
+                                                     CellularUrcGenericCallback_t genericCallback )
 {
     return Cellular_CommonRegisterUrcGenericCallback( cellularHandle, genericCallback );
 }
@@ -91,7 +91,7 @@ CellularError_t Cellular_RegisterUrcGenericCallback( CellularHandle_t cellularHa
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_RegisterModemEventCallback( CellularHandle_t cellularHandle,
-    CellularModemEventCallback_t modemEventCallback )
+                                                     CellularModemEventCallback_t modemEventCallback )
 {
     return Cellular_CommonRegisterModemEventCallback( cellularHandle, modemEventCallback );
 }
@@ -109,21 +109,22 @@ CellularError_t Cellular_ATCommandRaw( CellularHandle_t cellularHandle,
                                        uint16_t dataLen )
 {
     return Cellular_CommonATCommandRaw( cellularHandle, pATCommandPrefix, pATCommandPayload, atCommandType,
-        responseReceivedCallback, pData, dataLen );
+                                        responseReceivedCallback, pData, dataLen );
 }
 
 /*-----------------------------------------------------------*/
 
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularError_t Cellular_CreateSocket( CellularHandle_t cellularHandle, uint8_t pdnContextId,
+CellularError_t Cellular_CreateSocket( CellularHandle_t cellularHandle,
+                                       uint8_t pdnContextId,
                                        CellularSocketDomain_t socketDomain,
                                        CellularSocketType_t socketType,
                                        CellularSocketProtocol_t socketProtocol,
                                        CellularSocketHandle_t * pSocketHandle )
 {
     return Cellular_CommonCreateSocket( cellularHandle, pdnContextId, socketDomain, socketType,
-        socketProtocol, pSocketHandle );
+                                        socketProtocol, pSocketHandle );
 }
 
 /*-----------------------------------------------------------*/
@@ -138,7 +139,7 @@ CellularError_t Cellular_SocketSetSockOpt( CellularHandle_t cellularHandle,
                                            uint32_t optionValueLength )
 {
     return Cellular_CommonSocketSetSockOpt( cellularHandle, socketHandle, optionLevel, option,
-        pOptionValue, optionValueLength );
+                                            pOptionValue, optionValueLength );
 }
 
 /*-----------------------------------------------------------*/
@@ -151,20 +152,20 @@ CellularError_t Cellular_SocketRegisterDataReadyCallback( CellularHandle_t cellu
                                                           void * pCallbackContext )
 {
     return Cellular_CommonSocketRegisterDataReadyCallback( cellularHandle, socketHandle,
-        dataReadyCallback, pCallbackContext );
+                                                           dataReadyCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
 
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularError_t Cellular_SocketRegisterSocketOpenCallback(CellularHandle_t cellularHandle,
-                                                          CellularSocketHandle_t socketHandle,
-                                                          CellularSocketOpenCallback_t socketOpenCallback,
-                                                          void * pCallbackContext )
+CellularError_t Cellular_SocketRegisterSocketOpenCallback( CellularHandle_t cellularHandle,
+                                                           CellularSocketHandle_t socketHandle,
+                                                           CellularSocketOpenCallback_t socketOpenCallback,
+                                                           void * pCallbackContext )
 {
     return Cellular_CommonSocketRegisterSocketOpenCallback( cellularHandle, socketHandle,
-        socketOpenCallback, pCallbackContext );
+                                                            socketOpenCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
@@ -177,7 +178,7 @@ CellularError_t Cellular_SocketRegisterClosedCallback( CellularHandle_t cellular
                                                        void * pCallbackContext )
 {
     return Cellular_CommonSocketRegisterClosedCallback( cellularHandle, socketHandle,
-        closedCallback, pCallbackContext );
+                                                        closedCallback, pCallbackContext );
 }
 
 /*-----------------------------------------------------------*/
@@ -203,7 +204,9 @@ CellularError_t Cellular_RfOff( CellularHandle_t cellularHandle )
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_GetIPAddress( CellularHandle_t cellularHandle,
-    uint8_t contextId, char * pBuffer, uint32_t bufferLength )
+                                       uint8_t contextId,
+                                       char * pBuffer,
+                                       uint32_t bufferLength )
 {
     return Cellular_CommonGetIPAddress( cellularHandle, contextId, pBuffer, bufferLength );
 }
@@ -213,7 +216,7 @@ CellularError_t Cellular_GetIPAddress( CellularHandle_t cellularHandle,
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_GetModemInfo( CellularHandle_t cellularHandle,
-    CellularModemInfo_t * pModemInfo )
+                                       CellularModemInfo_t * pModemInfo )
 {
     return Cellular_CommonGetModemInfo( cellularHandle, pModemInfo );
 }
@@ -223,7 +226,7 @@ CellularError_t Cellular_GetModemInfo( CellularHandle_t cellularHandle,
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_GetEidrxSettings( CellularHandle_t cellularHandle,
-    CellularEidrxSettingsList_t * pEidrxSettingsList )
+                                           CellularEidrxSettingsList_t * pEidrxSettingsList )
 {
     return Cellular_CommonGetEidrxSettings( cellularHandle, pEidrxSettingsList );
 }
@@ -233,9 +236,9 @@ CellularError_t Cellular_GetEidrxSettings( CellularHandle_t cellularHandle,
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_SetEidrxSettings( CellularHandle_t cellularHandle,
-    const CellularEidrxSettings_t * pEidrxSettings )
+                                           const CellularEidrxSettings_t * pEidrxSettings )
 {
-    return Cellular_CommonSetEidrxSettings( cellularHandle, pEidrxSettings);
+    return Cellular_CommonSetEidrxSettings( cellularHandle, pEidrxSettings );
 }
 
 /*-----------------------------------------------------------*/
@@ -243,7 +246,7 @@ CellularError_t Cellular_SetEidrxSettings( CellularHandle_t cellularHandle,
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_GetRegisteredNetwork( CellularHandle_t cellularHandle,
-    CellularPlmnInfo_t * pNetworkInfo )
+                                               CellularPlmnInfo_t * pNetworkInfo )
 {
     return Cellular_CommonGetRegisteredNetwork( cellularHandle, pNetworkInfo );
 }
@@ -252,7 +255,8 @@ CellularError_t Cellular_GetRegisteredNetwork( CellularHandle_t cellularHandle,
 
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularError_t Cellular_GetNetworkTime( CellularHandle_t cellularHandle, CellularTime_t * pNetworkTime )
+CellularError_t Cellular_GetNetworkTime( CellularHandle_t cellularHandle,
+                                         CellularTime_t * pNetworkTime )
 {
     return Cellular_CommonGetNetworkTime( cellularHandle, pNetworkTime );
 }
@@ -262,7 +266,7 @@ CellularError_t Cellular_GetNetworkTime( CellularHandle_t cellularHandle, Cellul
 /* Cellular HAL API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularError_t Cellular_GetServiceStatus( CellularHandle_t cellularHandle,
-    CellularServiceStatus_t * pServiceStatus )
+                                           CellularServiceStatus_t * pServiceStatus )
 {
     return Cellular_CommonGetServiceStatus( cellularHandle, pServiceStatus );
 }

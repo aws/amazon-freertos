@@ -30,50 +30,51 @@
  * in cellular_config_defaults.h. */
 
 /* When enable CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT,
-   below the contexts have statically allocated,
-   and reserves 4,016 bytes.
-     _cellularManagerContext, _cellular_Context, _iotCommIntf
-
-   When disable CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT,
-   the contexts will be dynamically allocated when CELLULAR service is started.
-*/
-#define CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT        ( 0U )
+ * below the contexts have statically allocated,
+ * and reserves 4,016 bytes.
+ *   _cellularManagerContext, _cellular_Context, _iotCommIntf
+ *
+ * When disable CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT,
+ * the contexts will be dynamically allocated when CELLULAR service is started.
+ */
+#define CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT           ( 0U )
 
 /* When enable CELLULAR_CONFIG_STATIC_ALLOCATION_COMM_CONTEXT,
-   below the contexts have statically allocated,
-   and reserves 1,772 bytes.
-    _iotCommIntfCtx, _iotFifoBuffer, _iotCommIntfPhy
-
-   When disable CELLULAR_CONFIG_STATIC_ALLOCATION_COMM_CONTEXT,
-   the contexts will be dynamically allocated when CELLULAR module is turned on.
-*/
-#define CELLULAR_CONFIG_STATIC_ALLOCATION_COMM_CONTEXT   ( 0U )
+ * below the contexts have statically allocated,
+ * and reserves 1,772 bytes.
+ *  _iotCommIntfCtx, _iotFifoBuffer, _iotCommIntfPhy
+ *
+ * When disable CELLULAR_CONFIG_STATIC_ALLOCATION_COMM_CONTEXT,
+ * the contexts will be dynamically allocated when CELLULAR module is turned on.
+ */
+#define CELLULAR_CONFIG_STATIC_ALLOCATION_COMM_CONTEXT      ( 0U )
 
 /* When enable CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT,
-   below the context has statically allocated,
-   and reserves 232 (116x2) bytes if CELLULAR_NUM_SOCKET_MAX is '2'.
-    _socketData
-   Customers can adjust the value of CELLULAR_NUM_SOCKET_MAX
-   between 1 to 12 as per their use scenario.
-   When disable CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT,
-   the context will be dynamically allocated when a socket is opened.
-*/
-#define CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT ( 0U )
-#if( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1U )
+ * below the context has statically allocated,
+ * and reserves 232 (116x2) bytes if CELLULAR_NUM_SOCKET_MAX is '2'.
+ *  _socketData
+ * Customers can adjust the value of CELLULAR_NUM_SOCKET_MAX
+ * between 1 to 12 as per their use scenario.
+ * When disable CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT,
+ * the context will be dynamically allocated when a socket is opened.
+ */
+#define CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT    ( 0U )
+#if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1U )
     #ifdef CELLULAR_NUM_SOCKET_MAX
         #undef CELLULAR_NUM_SOCKET_MAX
-        #define CELLULAR_NUM_SOCKET_MAX  ( 2U )
+        #define CELLULAR_NUM_SOCKET_MAX    ( 2U )
     #endif
 #else
     #ifdef CELLULAR_NUM_SOCKET_MAX
+
 /* In order to save the memory in memory constraint devices,
  * the maximum number of Sockets are reduced from 12 to 4.
  * Hence, the number of active sockets are undefined and new
  * maximum number of sockets is redefined. */
 /* coverity[misra_c_2012_rule_20_5_violation] */
         #undef CELLULAR_NUM_SOCKET_MAX
-        #define CELLULAR_NUM_SOCKET_MAX  ( 4U )
+        #define CELLULAR_NUM_SOCKET_MAX    ( 4U )
     #endif
-#endif
+#endif /* if ( CELLULAR_CONFIG_STATIC_ALLOCATION_SOCKET_CONTEXT == 1U ) */
 
 #endif /* _AWS_CELLULAR_CONFIG_H_ */

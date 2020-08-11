@@ -40,12 +40,18 @@
 
 /*-----------------------------------------------------------*/
 
-static void _Cellular_ProcessPowerDown( CellularContext_t * pContext, char * pInputLine );
-static void _Cellular_ProcessModemRdy( CellularContext_t * pContext, char * pInputLine );
-static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pInputLine );
-static void _Cellular_ProcessSocketurc( CellularContext_t * pContext, char * pInputLine );
-static void _Cellular_ProcessSimstat( CellularContext_t * pContext, char * pInputLine );
-static void _Cellular_ProcessIndication( CellularContext_t * pContext, char * pInputLine );
+static void _Cellular_ProcessPowerDown( CellularContext_t * pContext,
+                                        char * pInputLine );
+static void _Cellular_ProcessModemRdy( CellularContext_t * pContext,
+                                       char * pInputLine );
+static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext,
+                                         char * pInputLine );
+static void _Cellular_ProcessSocketurc( CellularContext_t * pContext,
+                                        char * pInputLine );
+static void _Cellular_ProcessSimstat( CellularContext_t * pContext,
+                                      char * pInputLine );
+static void _Cellular_ProcessIndication( CellularContext_t * pContext,
+                                         char * pInputLine );
 
 /*-----------------------------------------------------------*/
 
@@ -54,15 +60,15 @@ static void _Cellular_ProcessIndication( CellularContext_t * pContext, char * pI
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularAtParseTokenMap_t CellularUrcHandlerTable[] =
 {
-    { "CEREG",         Cellular_CommonUrcProcessCereg },
-    { "CGREG",         Cellular_CommonUrcProcessCgreg },
-    { "CREG",          Cellular_CommonUrcProcessCreg },
-    { "POWERED DOWN",  _Cellular_ProcessPowerDown },
-    { "QIND",          _Cellular_ProcessIndication },
-    { "QIOPEN",        _Cellular_ProcessSocketOpen },
-    { "QIURC",         _Cellular_ProcessSocketurc },
-    { "QSIMSTAT",      _Cellular_ProcessSimstat },
-    { "RDY",           _Cellular_ProcessModemRdy }
+    { "CEREG",        Cellular_CommonUrcProcessCereg },
+    { "CGREG",        Cellular_CommonUrcProcessCgreg },
+    { "CREG",         Cellular_CommonUrcProcessCreg  },
+    { "POWERED DOWN", _Cellular_ProcessPowerDown     },
+    { "QIND",         _Cellular_ProcessIndication    },
+    { "QIOPEN",       _Cellular_ProcessSocketOpen    },
+    { "QIURC",        _Cellular_ProcessSocketurc     },
+    { "QSIMSTAT",     _Cellular_ProcessSimstat       },
+    { "RDY",          _Cellular_ProcessModemRdy      }
 };
 
 /* Cellular HAL common porting interface. */
@@ -80,7 +86,8 @@ static CellularPktStatus_t _parseSocketOpenNextTok( const char * pToken,
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    atCoreStatus = Cellular_ATStrtoi( pToken, 10, & sockStatus );
+    atCoreStatus = Cellular_ATStrtoi( pToken, 10, &sockStatus );
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         if( sockStatus != 0 )
@@ -122,7 +129,8 @@ static CellularPktStatus_t _parseSocketOpenNextTok( const char * pToken,
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext,
+                                         char * pInputLine )
 {
     char * pUrcStr = NULL, * pToken = NULL;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -143,14 +151,17 @@ static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pI
     {
         pUrcStr = pInputLine;
         atCoreStatus = Cellular_ATRemoveAllWhiteSpaces( pUrcStr );
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATGetNextTok( & pUrcStr, & pToken );
+            atCoreStatus = Cellular_ATGetNextTok( &pUrcStr, &pToken );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATStrtoi( pToken, 10, & tempValue );
+            atCoreStatus = Cellular_ATStrtoi( pToken, 10, &tempValue );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             if( ( tempValue >= 0 ) &&
@@ -164,12 +175,15 @@ static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pI
                 atCoreStatus = CELLULAR_AT_ERROR;
             }
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             pSocketData = _Cellular_GetSocketData( pContext, sockIndex );
+
             if( pSocketData != NULL )
             {
-                atCoreStatus = Cellular_ATGetNextTok( & pUrcStr, & pToken );
+                atCoreStatus = Cellular_ATGetNextTok( &pUrcStr, &pToken );
+
                 if( atCoreStatus == CELLULAR_AT_SUCCESS )
                 {
                     pktStatus = _parseSocketOpenNextTok( pToken, sockIndex, pSocketData );
@@ -180,6 +194,7 @@ static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pI
                 pktStatus = CELLULAR_PKT_STATUS_FAILURE;
             }
         }
+
         if( atCoreStatus != CELLULAR_AT_SUCCESS )
         {
             pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
@@ -194,7 +209,8 @@ static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext, char * pI
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pContext, char * pUrcStr )
+static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pContext,
+                                                   char * pUrcStr )
 {
     char * pToken = NULL;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
@@ -212,17 +228,20 @@ static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pCo
     else
     {
         /* Parse the RSSI index from string and convert it. */
-        atCoreStatus = Cellular_ATGetNextTok( & pLocalUrcStr, & pToken );
+        atCoreStatus = Cellular_ATGetNextTok( &pLocalUrcStr, &pToken );
     }
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATStrtoi( pToken, 10, & retStrtoi );
+        atCoreStatus = Cellular_ATStrtoi( pToken, 10, &retStrtoi );
     }
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         if( ( retStrtoi >= INT16_MIN ) && ( retStrtoi <= ( int32_t ) INT16_MAX ) )
         {
-            cellularStatus = _Cellular_ConvertCsqSignalRssi( ( int16_t ) retStrtoi, & csqRssi );
+            cellularStatus = _Cellular_ConvertCsqSignalRssi( ( int16_t ) retStrtoi, &csqRssi );
+
             if( cellularStatus != CELLULAR_SUCCESS )
             {
                 atCoreStatus = CELLULAR_AT_BAD_PARAMETER;
@@ -237,18 +256,21 @@ static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pCo
     /* Parse the BER index from string and convert it. */
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATGetNextTok( & pLocalUrcStr, & pToken );
+        atCoreStatus = Cellular_ATGetNextTok( &pLocalUrcStr, &pToken );
     }
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATStrtoi( pToken, 10, & retStrtoi );
+        atCoreStatus = Cellular_ATStrtoi( pToken, 10, &retStrtoi );
     }
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         if( ( retStrtoi >= INT16_MIN ) &&
             ( retStrtoi <= ( int32_t ) INT16_MAX ) )
         {
-            cellularStatus = _Cellular_ConvertCsqSignalBer( ( int16_t ) retStrtoi, & csqBer );
+            cellularStatus = _Cellular_ConvertCsqSignalBer( ( int16_t ) retStrtoi, &csqBer );
+
             if( cellularStatus != CELLULAR_SUCCESS )
             {
                 atCoreStatus = CELLULAR_AT_BAD_PARAMETER;
@@ -275,6 +297,7 @@ static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pCo
     {
         pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
     }
+
     return pktStatus;
 }
 
@@ -282,7 +305,8 @@ static CellularPktStatus_t _parseUrcIndicationCsq( const CellularContext_t * pCo
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessIndication( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessIndication( CellularContext_t * pContext,
+                                         char * pInputLine )
 {
     char * pUrcStr = NULL, * pToken = NULL;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -301,13 +325,15 @@ static void _Cellular_ProcessIndication( CellularContext_t * pContext, char * pI
     {
         pUrcStr = pInputLine;
         atCoreStatus = Cellular_ATRemoveAllDoubleQuote( pUrcStr );
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATRemoveLeadingWhiteSpaces( & pUrcStr );
+            atCoreStatus = Cellular_ATRemoveLeadingWhiteSpaces( &pUrcStr );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATGetNextTok( & pUrcStr, & pToken );
+            atCoreStatus = Cellular_ATGetNextTok( &pUrcStr, &pToken );
         }
 
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
@@ -347,7 +373,8 @@ static void _informDataReadyToUpperLayer( CellularSocketContext_t * pSocketData 
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _parseSocketUrcRecv( const CellularContext_t * pContext, char * pUrcStr )
+static CellularPktStatus_t _parseSocketUrcRecv( const CellularContext_t * pContext,
+                                                char * pUrcStr )
 {
     char * pToken = NULL;
     char * pLocalUrcStr = pUrcStr;
@@ -357,10 +384,12 @@ static CellularPktStatus_t _parseSocketUrcRecv( const CellularContext_t * pConte
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    atCoreStatus = Cellular_ATGetNextTok( & pLocalUrcStr, & pToken );
+    atCoreStatus = Cellular_ATGetNextTok( &pLocalUrcStr, &pToken );
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATStrtoi( pToken, 10, & tempValue );
+        atCoreStatus = Cellular_ATStrtoi( pToken, 10, &tempValue );
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             if( ( tempValue >= 0 ) && ( tempValue < ( int32_t ) CELLULAR_NUM_SOCKET_MAX ) )
@@ -378,9 +407,10 @@ static CellularPktStatus_t _parseSocketUrcRecv( const CellularContext_t * pConte
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         pSocketData = _Cellular_GetSocketData( pContext, sockIndex );
+
         if( pSocketData != NULL )
         {
-            if ( pSocketData->dataMode == CELLULAR_ACCESSMODE_BUFFER )
+            if( pSocketData->dataMode == CELLULAR_ACCESSMODE_BUFFER )
             {
                 /* Data received indication in buffer mode, need to fetch the data. */
                 IotLogDebug( "Data Received on socket Conn Id %d", sockIndex );
@@ -403,7 +433,8 @@ static CellularPktStatus_t _parseSocketUrcRecv( const CellularContext_t * pConte
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _parseSocketUrcClosed( const CellularContext_t * pContext, char * pUrcStr )
+static CellularPktStatus_t _parseSocketUrcClosed( const CellularContext_t * pContext,
+                                                  char * pUrcStr )
 {
     char * pToken = NULL;
     char * pLocalUrcStr = pUrcStr;
@@ -413,10 +444,11 @@ static CellularPktStatus_t _parseSocketUrcClosed( const CellularContext_t * pCon
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    atCoreStatus = Cellular_ATGetNextTok( & pLocalUrcStr, & pToken );
+    atCoreStatus = Cellular_ATGetNextTok( &pLocalUrcStr, &pToken );
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATStrtoi( pToken, 10, & tempValue );
+        atCoreStatus = Cellular_ATStrtoi( pToken, 10, &tempValue );
     }
 
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
@@ -435,6 +467,7 @@ static CellularPktStatus_t _parseSocketUrcClosed( const CellularContext_t * pCon
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         pSocketData = _Cellular_GetSocketData( pContext, sockIndex );
+
         if( pSocketData != NULL )
         {
             pSocketData->socketState = SOCKETSTATE_DISCONNECTED;
@@ -466,7 +499,8 @@ static CellularPktStatus_t _parseSocketUrcClosed( const CellularContext_t * pCon
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _parseSocketUrcAct( const CellularContext_t * pContext, char * pUrcStr )
+static CellularPktStatus_t _parseSocketUrcAct( const CellularContext_t * pContext,
+                                               char * pUrcStr )
 {
     int32_t tempValue = 0;
     char * pToken = NULL;
@@ -475,18 +509,20 @@ static CellularPktStatus_t _parseSocketUrcAct( const CellularContext_t * pContex
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
 
-    atCoreStatus = Cellular_ATGetNextTok( & pLocalUrcStr, & pToken );
+    atCoreStatus = Cellular_ATGetNextTok( &pLocalUrcStr, &pToken );
+
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
-        atCoreStatus = Cellular_ATStrtoi( pToken, 10, & tempValue );
+        atCoreStatus = Cellular_ATStrtoi( pToken, 10, &tempValue );
     }
 
     if( atCoreStatus == CELLULAR_AT_SUCCESS )
     {
         if( ( ( tempValue >= ( int32_t ) CELLULAR_PDN_CONTEXT_ID_MIN ) &&
-            ( tempValue <= ( int32_t ) CELLULAR_PDN_CONTEXT_ID_MAX ) ) )
+              ( tempValue <= ( int32_t ) CELLULAR_PDN_CONTEXT_ID_MAX ) ) )
         {
             contextId = ( uint8_t ) tempValue;
+
             if( _Cellular_IsValidPdn( contextId ) == CELLULAR_SUCCESS )
             {
                 IotLogDebug( "PDN deactivated. Context Id %d", contextId );
@@ -504,7 +540,7 @@ static CellularPktStatus_t _parseSocketUrcAct( const CellularContext_t * pContex
             IotLogError( "Error in processing Context Id. Token %s", pToken );
         }
     }
-    
+
     pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
 
     return pktStatus;
@@ -512,7 +548,8 @@ static CellularPktStatus_t _parseSocketUrcAct( const CellularContext_t * pContex
 
 /*-----------------------------------------------------------*/
 
-static CellularPktStatus_t _parseSocketUrcDns( const CellularContext_t * pContext, char * pUrcStr )
+static CellularPktStatus_t _parseSocketUrcDns( const CellularContext_t * pContext,
+                                               char * pUrcStr )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     cellularModuleContext_t * pModuleContext = NULL;
@@ -528,7 +565,8 @@ static CellularPktStatus_t _parseSocketUrcDns( const CellularContext_t * pContex
     }
     else
     {
-        cellularStatus = _Cellular_GetModuleContext( pContext, ( void ** ) & pModuleContext );
+        cellularStatus = _Cellular_GetModuleContext( pContext, ( void ** ) &pModuleContext );
+
         if( cellularStatus != CELLULAR_SUCCESS )
         {
             pktStatus = CELLULAR_PKT_STATUS_INVALID_HANDLE;
@@ -547,7 +585,7 @@ static CellularPktStatus_t _parseSocketUrcDns( const CellularContext_t * pContex
             pktStatus = CELLULAR_PKT_STATUS_INVALID_DATA;
         }
     }
-    
+
     return pktStatus;
 }
 
@@ -555,7 +593,8 @@ static CellularPktStatus_t _parseSocketUrcDns( const CellularContext_t * pContex
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessSocketurc( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessSocketurc( CellularContext_t * pContext,
+                                        char * pInputLine )
 {
     char * pUrcStr = NULL, * pToken = NULL;
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
@@ -573,18 +612,21 @@ static void _Cellular_ProcessSocketurc( CellularContext_t * pContext, char * pIn
     {
         pUrcStr = pInputLine;
         atCoreStatus = Cellular_ATRemoveAllDoubleQuote( pUrcStr );
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATRemoveLeadingWhiteSpaces( & pUrcStr );
+            atCoreStatus = Cellular_ATRemoveLeadingWhiteSpaces( &pUrcStr );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
-            atCoreStatus = Cellular_ATGetNextTok( & pUrcStr, & pToken );
+            atCoreStatus = Cellular_ATGetNextTok( &pUrcStr, &pToken );
         }
 
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             /* Check if this is a data receive indication. */
+
             /* this whole if as a function and return pktstatus
              * take iotat_getnexttok inside
              * convert atcore status to pktstatus. */
@@ -626,12 +668,14 @@ static void _Cellular_ProcessSocketurc( CellularContext_t * pContext, char * pIn
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessSimstat( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessSimstat( CellularContext_t * pContext,
+                                      char * pInputLine )
 {
     CellularSimCardState_t simCardState = CELLULAR_SIM_CARD_UNKNOWN;
+
     if( pContext != NULL )
     {
-        ( void ) _Cellular_ParseSimstat( pInputLine, & simCardState );
+        ( void ) _Cellular_ParseSimstat( pInputLine, &simCardState );
     }
 }
 
@@ -639,7 +683,8 @@ static void _Cellular_ProcessSimstat( CellularContext_t * pContext, char * pInpu
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessPowerDown( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessPowerDown( CellularContext_t * pContext,
+                                        char * pInputLine )
 {
     /* The token is the pInputLine. No need to process the pInputLine. */
     ( void ) pInputLine;
@@ -659,7 +704,8 @@ static void _Cellular_ProcessPowerDown( CellularContext_t * pContext, char * pIn
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-static void _Cellular_ProcessModemRdy( CellularContext_t * pContext, char * pInputLine )
+static void _Cellular_ProcessModemRdy( CellularContext_t * pContext,
+                                       char * pInputLine )
 {
     /* The token is the pInputLine. No need to process the pInputLine. */
     ( void ) pInputLine;
@@ -679,7 +725,8 @@ static void _Cellular_ProcessModemRdy( CellularContext_t * pContext, char * pInp
 
 /* Cellular common prototype. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
-CellularPktStatus_t _Cellular_ParseSimstat( char * pInputStr, CellularSimCardState_t * pSimState )
+CellularPktStatus_t _Cellular_ParseSimstat( char * pInputStr,
+                                            CellularSimCardState_t * pSimState )
 {
     CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
@@ -695,17 +742,20 @@ CellularPktStatus_t _Cellular_ParseSimstat( char * pInputStr, CellularSimCardSta
     }
     else
     {
-        atCoreStatus = Cellular_ATGetNextTok( & pLocalInputStr, & pToken );
+        atCoreStatus = Cellular_ATGetNextTok( &pLocalInputStr, &pToken );
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             IotLogDebug( "QSIMSTAT URC Enable: %s", pToken );
-            atCoreStatus = Cellular_ATGetNextTok( & pLocalInputStr, & pToken );
+            atCoreStatus = Cellular_ATGetNextTok( &pLocalInputStr, &pToken );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             IotLogDebug( " Sim insert status: %s", pToken );
-            atCoreStatus = Cellular_ATStrtoi( pToken, 10, & tempValue );
+            atCoreStatus = Cellular_ATStrtoi( pToken, 10, &tempValue );
         }
+
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             if( ( tempValue >= 0 ) &&
@@ -715,7 +765,7 @@ CellularPktStatus_t _Cellular_ParseSimstat( char * pInputStr, CellularSimCardSta
                  * a valid range. Hence, assigning the value at the  pointer of
                  * type cellular_SimCardState_t with an enum cast. */
                 /* coverity[misra_c_2012_rule_10_5_violation] */
-                * pSimState = ( CellularSimCardState_t ) tempValue;
+                *pSimState = ( CellularSimCardState_t ) tempValue;
             }
             else
             {
@@ -723,8 +773,10 @@ CellularPktStatus_t _Cellular_ParseSimstat( char * pInputStr, CellularSimCardSta
                 atCoreStatus = CELLULAR_AT_ERROR;
             }
         }
+
         pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
     }
+
     return pktStatus;
 }
 

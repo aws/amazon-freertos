@@ -35,13 +35,13 @@
 
 /*-----------------------------------------------------------*/
 
-#define ENBABLE_MODULE_UE_RETRY_COUNT       ( 3U )
-#define ENBABLE_MODULE_UE_RETRY_TIMEOUT     ( 5000U )
+#define ENBABLE_MODULE_UE_RETRY_COUNT      ( 3U )
+#define ENBABLE_MODULE_UE_RETRY_TIMEOUT    ( 5000U )
 
 /*-----------------------------------------------------------*/
 
 static CellularError_t sendAtCommandWithRetryTimeout( CellularContext_t * pContext,
-    const CellularAtReq_t * pAtReq );
+                                                      const CellularAtReq_t * pAtReq );
 
 /*-----------------------------------------------------------*/
 
@@ -50,7 +50,7 @@ static cellularModuleContext_t cellularBg96Context = { 0 };
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 const char * CellularSrcTokenErrorTable[] =
-    { "ERROR", "BUSY", "NO CARRIER", "NO ANSWER", "NO DIALTONE", "ABORTED", "+CMS ERROR", "+CME ERROR", "SEND FAIL" };
+{ "ERROR", "BUSY", "NO CARRIER", "NO ANSWER", "NO DIALTONE", "ABORTED", "+CMS ERROR", "+CME ERROR", "SEND FAIL" };
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 uint32_t CellularSrcTokenErrorTableSize = sizeof( CellularSrcTokenErrorTable ) / sizeof( char * );
@@ -58,7 +58,7 @@ uint32_t CellularSrcTokenErrorTableSize = sizeof( CellularSrcTokenErrorTable ) /
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 const char * CellularSrcTokenSuccessTable[] =
-    { "OK", "CONNECT", "SEND OK", ">" };
+{ "OK", "CONNECT", "SEND OK", ">" };
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 uint32_t CellularSrcTokenSuccessTableSize = sizeof( CellularSrcTokenSuccessTable ) / sizeof( char * );
@@ -66,7 +66,7 @@ uint32_t CellularSrcTokenSuccessTableSize = sizeof( CellularSrcTokenSuccessTable
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 const char * CellularUrcTokenWoPrefixTable[] =
-    { "POWERED DOWN", "RDY" };
+{ "POWERED DOWN", "RDY" };
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 uint32_t CellularUrcTokenWoPrefixTableSize = sizeof( CellularUrcTokenWoPrefixTable ) / sizeof( char * );
@@ -74,12 +74,12 @@ uint32_t CellularUrcTokenWoPrefixTableSize = sizeof( CellularUrcTokenWoPrefixTab
 /*-----------------------------------------------------------*/
 
 static CellularError_t sendAtCommandWithRetryTimeout( CellularContext_t * pContext,
-    const CellularAtReq_t * pAtReq )
+                                                      const CellularAtReq_t * pAtReq )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    CellularPktStatus_t pktStatus= CELLULAR_PKT_STATUS_OK;
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
     uint8_t tryCount = 0;
-    
+
     if( pAtReq == NULL )
     {
         cellularStatus = CELLULAR_BAD_PARAMETER;
@@ -88,14 +88,16 @@ static CellularError_t sendAtCommandWithRetryTimeout( CellularContext_t * pConte
     {
         for( ; tryCount < ENBABLE_MODULE_UE_RETRY_COUNT; tryCount++ )
         {
-            pktStatus = _Cellular_TimeoutAtcmdRequestWithCallback( pContext, * pAtReq, ENBABLE_MODULE_UE_RETRY_TIMEOUT );
+            pktStatus = _Cellular_TimeoutAtcmdRequestWithCallback( pContext, *pAtReq, ENBABLE_MODULE_UE_RETRY_TIMEOUT );
             cellularStatus = _Cellular_TranslatePktStatus( pktStatus );
+
             if( cellularStatus == CELLULAR_SUCCESS )
             {
                 break;
             }
         }
     }
+
     return cellularStatus;
 }
 
@@ -103,11 +105,12 @@ static CellularError_t sendAtCommandWithRetryTimeout( CellularContext_t * pConte
 
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext, void ** ppModuleContext )
+CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext,
+                                     void ** ppModuleContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
     bool status = false;
-    
+
     if( pContext == NULL )
     {
         cellularStatus = CELLULAR_INVALID_HANDLE;
@@ -120,9 +123,10 @@ CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext, void **
     {
         /* Initialize the module context. */
         ( void ) memset( &cellularBg96Context, 0, sizeof( cellularModuleContext_t ) );
-        
+
         /* Create the mutex for DNS. */
-        status = IotMutex_Create( & cellularBg96Context.dnsQueryMutex, false );
+        status = IotMutex_Create( &cellularBg96Context.dnsQueryMutex, false );
+
         if( status == false )
         {
             cellularStatus = CELLULAR_NO_MEMORY;
@@ -131,14 +135,15 @@ CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext, void **
         {
             /* Create the queue for DNS. */
             cellularBg96Context.pktDnsQueue = xQueueCreate( 1, sizeof( cellularDnsQueryResult_t ) );
+
             if( cellularBg96Context.pktDnsQueue == NULL )
             {
-                IotMutex_Destroy( & cellularBg96Context.dnsQueryMutex );
+                IotMutex_Destroy( &cellularBg96Context.dnsQueryMutex );
                 cellularStatus = CELLULAR_NO_MEMORY;
             }
             else
             {
-                * ppModuleContext = ( void * ) & cellularBg96Context;
+                *ppModuleContext = ( void * ) &cellularBg96Context;
             }
         }
     }
@@ -153,7 +158,7 @@ CellularError_t Cellular_ModuleInit( const CellularContext_t * pContext, void **
 CellularError_t Cellular_ModuleCleanUp( const CellularContext_t * pContext )
 {
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
-    
+
     if( pContext == NULL )
     {
         cellularStatus = CELLULAR_INVALID_HANDLE;
@@ -162,11 +167,11 @@ CellularError_t Cellular_ModuleCleanUp( const CellularContext_t * pContext )
     {
         /* Delete DNS queue. */
         vQueueDelete( cellularBg96Context.pktDnsQueue );
-        
+
         /* Delete the mutex for DNS. */
-        IotMutex_Destroy( & cellularBg96Context.dnsQueryMutex );
+        IotMutex_Destroy( &cellularBg96Context.dnsQueryMutex );
     }
-    
+
     return cellularStatus;
 }
 
@@ -200,22 +205,22 @@ CellularError_t Cellular_ModuleEnableUE( CellularContext_t * pContext )
     {
         /* Disable echo. */
         atReqGetWithResult.pAtCmd = "ATE0";
-        cellularStatus = sendAtCommandWithRetryTimeout( pContext, & atReqGetWithResult );
-        
+        cellularStatus = sendAtCommandWithRetryTimeout( pContext, &atReqGetWithResult );
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             /* Disable DTR function. */
             atReqGetNoResult.pAtCmd = "AT&D0";
-            cellularStatus = sendAtCommandWithRetryTimeout( pContext, & atReqGetNoResult );
+            cellularStatus = sendAtCommandWithRetryTimeout( pContext, &atReqGetNoResult );
         }
-        
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             /* Enable RTS/CTS hardware flow control. */
             atReqGetNoResult.pAtCmd = "AT+IFC=2,2";
-            cellularStatus = sendAtCommandWithRetryTimeout( pContext, & atReqGetNoResult );
+            cellularStatus = sendAtCommandWithRetryTimeout( pContext, &atReqGetNoResult );
         }
-        
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             /* Setting URC output port. */
@@ -223,16 +228,17 @@ CellularError_t Cellular_ModuleEnableUE( CellularContext_t * pContext )
                 atReqGetNoResult.pAtCmd = "AT+QURCCFG=\"urcport\",\"usbat\"";
             #else
                 atReqGetNoResult.pAtCmd = "AT+QURCCFG=\"urcport\",\"uart1\"";
-            #endif        
-            cellularStatus = sendAtCommandWithRetryTimeout( pContext, & atReqGetNoResult );
+            #endif
+            cellularStatus = sendAtCommandWithRetryTimeout( pContext, &atReqGetNoResult );
         }
-        
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             atReqGetNoResult.pAtCmd = "AT+CFUN=1";
-            cellularStatus = sendAtCommandWithRetryTimeout( pContext, & atReqGetNoResult );
+            cellularStatus = sendAtCommandWithRetryTimeout( pContext, &atReqGetNoResult );
         }
     }
+
     return cellularStatus;
 }
 
@@ -267,7 +273,7 @@ CellularError_t Cellular_ModuleEnableUrc( CellularContext_t * pContext )
 
     atReqGetNoResult.pAtCmd = "AT+CTZR=1";
     ( void ) _Cellular_AtcmdRequestWithCallback( pContext, atReqGetNoResult );
-    
+
     return cellularStatus;
 }
 

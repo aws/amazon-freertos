@@ -48,14 +48,16 @@ static CellularManagerContext_t * _cellularManagerAllocContext( void );
 static void _cellularManagerFreeContext( CellularManagerContext_t * pContext );
 static void _cellularManagerMutexLock( void );
 static void _cellularManagerMutexUnlock( void );
-static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent, const CellularServiceStatus_t * pServiceStatus );
-static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent, uint8_t contextId );
+static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                             const CellularServiceStatus_t * pServiceStatus );
+static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                      uint8_t contextId );
 static void _modemEventCallback( CellularModemEvent_t modemEvent );
 
 /*-----------------------------------------------------------*/
 
-#if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
-static CellularManagerContext_t _cellularManagerContext;
+#if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
+    static CellularManagerContext_t _cellularManagerContext;
 #endif
 static CellularManagerContext_t * _pCellularManagerContext;
 
@@ -67,15 +69,16 @@ static CellularManagerContext_t * _cellularManagerAllocContext( void )
 
     taskENTER_CRITICAL();
 
-    #if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
-    {
-        pContext = & _cellularManagerContext;
-    }
+    #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 1 )
+        {
+            pContext = &_cellularManagerContext;
+        }
     #else
-    {
-        pContext = ( CellularManagerContext_t * ) pvPortMalloc( sizeof( CellularManagerContext_t ) );
-    }
+        {
+            pContext = ( CellularManagerContext_t * ) pvPortMalloc( sizeof( CellularManagerContext_t ) );
+        }
     #endif
+
     if( pContext != NULL )
     {
         ( void ) memset( pContext, 0, sizeof( CellularManagerContext_t ) );
@@ -91,16 +94,15 @@ static CellularManagerContext_t * _cellularManagerAllocContext( void )
 
 static void _cellularManagerFreeContext( CellularManagerContext_t * pContext )
 {
-
     taskENTER_CRITICAL();
 
     if( pContext != NULL )
     {
         _pCellularManagerContext = NULL;
-        #if( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 0 )
-        {
-            vPortFree( pContext );
-        }
+        #if ( CELLULAR_CONFIG_STATIC_ALLOCATION_CONTEXT == 0 )
+            {
+                vPortFree( pContext );
+            }
         #endif
     }
 
@@ -111,10 +113,9 @@ static void _cellularManagerFreeContext( CellularManagerContext_t * pContext )
 
 static void _cellularManagerMutexLock( void )
 {
-
     if( _pCellularManagerContext != NULL )
     {
-        IotMutex_Lock( & _pCellularManagerContext->cellularSmMutex );
+        IotMutex_Lock( &_pCellularManagerContext->cellularSmMutex );
     }
 }
 
@@ -124,13 +125,14 @@ static void _cellularManagerMutexUnlock( void )
 {
     if( _pCellularManagerContext != NULL )
     {
-        IotMutex_Unlock( & _pCellularManagerContext->cellularSmMutex );
+        IotMutex_Unlock( &_pCellularManagerContext->cellularSmMutex );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-static void _cellularManagerInitCheckSIMStatus( CellularSimCardStatus_t * pSimStatus, const uint32_t waitInterval )
+static void _cellularManagerInitCheckSIMStatus( CellularSimCardStatus_t * pSimStatus,
+                                                const uint32_t waitInterval )
 {
     uint8_t retries = 0;
     CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -139,13 +141,15 @@ static void _cellularManagerInitCheckSIMStatus( CellularSimCardStatus_t * pSimSt
     {
         cellularStatus = Cellular_GetSimCardStatus( _pCellularManagerContext->cellularHandle, pSimStatus );
         IotLogDebug( "SIM card state = %d, SIM lock state = %d", pSimStatus->simCardState, pSimStatus->simCardLockState );
+
         if( ( cellularStatus == CELLULAR_SUCCESS ) &&
             ( pSimStatus->simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
-            ( pSimStatus->simCardLockState  == CELLULAR_SIM_CARD_READY ) )
+            ( pSimStatus->simCardLockState == CELLULAR_SIM_CARD_READY ) )
         {
             IotLogInfo( "SIM card is READY" );
             break;
         }
+
         vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
     }
 }
@@ -161,43 +165,46 @@ static CellularManagerError_t _getConnectionSateFromStatemachine( CellularManage
     {
         cellularMgrStatus = CELLULAR_MANAGER_BAD_PARAMETER;
     }
+
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         _cellularManagerMutexLock();
+
         if( _pCellularManagerContext != NULL )
         {
             smState = _pCellularManagerContext->cellularSmState;
         }
+
         _cellularManagerMutexUnlock();
 
         switch( smState )
         {
             case CELLULAR_SM_OFF:
-                * pConnectionState = CELLULAR_CONNECTION_OFF;
+                *pConnectionState = CELLULAR_CONNECTION_OFF;
                 break;
 
             case CELLULAR_SM_REGISTERED:
-                * pConnectionState = CELLULAR_CONNECTION_REGISTERED;
+                *pConnectionState = CELLULAR_CONNECTION_REGISTERED;
                 break;
 
             case CELLULAR_SM_CONNECTED:
-                * pConnectionState = CELLULAR_CONNECTION_CONNECTED;
+                *pConnectionState = CELLULAR_CONNECTION_CONNECTED;
                 break;
 
             case CELLULAR_SM_RFOFF:
-                * pConnectionState = CELLULAR_CONNECTION_RF_OFF;
+                *pConnectionState = CELLULAR_CONNECTION_RF_OFF;
                 break;
 
             case CELLULAR_SM_OTA:
-                * pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_FOTA_IN_PROGRESS;
+                *pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_FOTA_IN_PROGRESS;
                 break;
 
             case CELLULAR_SM_ON:
-                * pConnectionState = CELLULAR_CONNECTION_DISCONNECTED;
+                *pConnectionState = CELLULAR_CONNECTION_DISCONNECTED;
                 break;
 
             default:
-                * pConnectionState = CELLULAR_CONNECTION_UNKNOWN;
+                *pConnectionState = CELLULAR_CONNECTION_UNKNOWN;
                 break;
         }
     }
@@ -207,13 +214,14 @@ static CellularManagerError_t _getConnectionSateFromStatemachine( CellularManage
 
 /*-----------------------------------------------------------*/
 
-static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent, const CellularServiceStatus_t * pServiceStatus )
+static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                             const CellularServiceStatus_t * pServiceStatus )
 {
     CellularManagerConnectionState_t connectionState = CELLULAR_CONNECTION_UNKNOWN;
 
     if( ( pServiceStatus == NULL ) || ( ( urcEvent != CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION ) && ( urcEvent != CELLULAR_URC_EVENT_NETWORK_PS_REGISTRATION ) ) )
     {
-        IotLogError( "Invalid ConnectionState callback urcEvent %d", urcEvent);
+        IotLogError( "Invalid ConnectionState callback urcEvent %d", urcEvent );
     }
     else
     {
@@ -232,6 +240,7 @@ static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent, const 
                     break;
             }
         }
+
         if( urcEvent == CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION )
         {
             switch( pServiceStatus->csRegistrationStatus )
@@ -247,9 +256,11 @@ static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent, const 
                     break;
             }
         }
+
         /* query the correct value for connectionSate. */
-        ( void ) _getConnectionSateFromStatemachine( & connectionState );
+        ( void ) _getConnectionSateFromStatemachine( &connectionState );
         IotLogDebug( "connectionStateChangedCallback connection changed to  %d", connectionState );
+
         if( ( _pCellularManagerContext != NULL ) && ( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback != NULL ) )
         {
             _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData, connectionState );
@@ -259,7 +270,8 @@ static void _connectionStateChangedCallback( CellularUrcEvent_t urcEvent, const 
 
 /*-----------------------------------------------------------*/
 
-static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent, uint8_t contextId )
+static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent,
+                                      uint8_t contextId )
 {
     CellularManagerConnectionState_t connectionState = CELLULAR_CONNECTION_UNKNOWN;
 
@@ -268,6 +280,7 @@ static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent, uint8_t conte
         case CELLULAR_URC_EVENT_PDN_ACTIVATED:
             _cellularManagerSmTrigger( CELLULAR_EVENT_DATA_ACTIVE );
             break;
+
         case CELLULAR_URC_EVENT_PDN_DEACTIVATED:
             _cellularManagerSmTrigger( CELLULAR_EVENT_DATA_INACTIVE );
             break;
@@ -276,12 +289,13 @@ static void _pdnStateChangedCallback( CellularUrcEvent_t urcEvent, uint8_t conte
             IotLogWarn( "_pdnStateChangedCallback Wrong URC event %d", urcEvent );
             break;
     }
-    ( void ) _getConnectionSateFromStatemachine( & connectionState );
+
+    ( void ) _getConnectionSateFromStatemachine( &connectionState );
     IotLogDebug( "pdnStateChangedCallback connection changed to  %d", connectionState );
 
     if( ( _pCellularManagerContext != NULL ) && ( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback != NULL ) )
     {
-        _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback(_pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData, connectionState );
+        _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData, connectionState );
     }
 }
 
@@ -294,6 +308,7 @@ static void _modemEventCallback( CellularModemEvent_t modemEvent )
     switch( modemEvent )
     {
         case CELLULAR_MODEM_EVENT_BOOTUP_OR_REBOOT:
+
             /* this event is determined by receiving a "READY" URC, since "READY" URC appears under
              * 1. first time boot up
              * 2. modem crash (reboot)
@@ -310,6 +325,7 @@ static void _modemEventCallback( CellularModemEvent_t modemEvent )
                     _cellularManagerSmTrigger( CELLULAR_EVENT_PWR_OFF );
                     connectionState = CELLULAR_CONNECTION_REBOOTED;
                 }
+
                 /* if isFirstTimeBootUp is false, it's the first time we receive this CELLULAR_MODEM_EVENT_BOOTUP_OR_REBOOT,
                  * must be first time boot up instead of crash
                  */
@@ -318,9 +334,10 @@ static void _modemEventCallback( CellularModemEvent_t modemEvent )
                     _pCellularManagerContext->isFirstTimeBootUp = true;
                     /* no state change, no reporting to upper layer. */
                 }
-
             }
+
             break;
+
         case CELLULAR_MODEM_EVENT_POWERED_DOWN:
             _cellularManagerSmTrigger( CELLULAR_EVENT_PWR_OFF );
             connectionState = CELLULAR_CONNECTION_OFF;
@@ -330,12 +347,14 @@ static void _modemEventCallback( CellularModemEvent_t modemEvent )
             /* FOTA progress is not supported as of now. */
             break;
     }
+
     if( connectionState != CELLULAR_CONNECTION_UNKNOWN )
     {
         IotLogDebug( "ModemEventCallback connection changed to %d", connectionState );
+
         if( ( _pCellularManagerContext != NULL ) && ( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback != NULL ) )
         {
-            _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback(_pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData, connectionState );
+            _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback( _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData, connectionState );
         }
     }
 }
@@ -344,7 +363,7 @@ static void _modemEventCallback( CellularModemEvent_t modemEvent )
 
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmOff( cellularSmEvent_t event,
-                                                     cellularSmState_t oldState )
+                                                               cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -353,12 +372,14 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOff( cellularSmEvent_t
         case CELLULAR_EVENT_PWR_ON:
             newState = CELLULAR_SM_ON;
             break;
+
         /* In rare case, the registered urc may come earlier
          * than event CELLULAR_EVENT_PWR_ON
          */
         case CELLULAR_EVENT_ATTACHED:
             newState = CELLULAR_SM_REGISTERED;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmOff: Wrong event received: %s", event );
             break;
@@ -370,7 +391,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOff( cellularSmEvent_t
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmOn( cellularSmEvent_t event,
-                                                    cellularSmState_t oldState )
+                                                              cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -379,12 +400,15 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOn( cellularSmEvent_t 
         case CELLULAR_EVENT_PWR_OFF:
             newState = CELLULAR_SM_OFF;
             break;
+
         case CELLULAR_EVENT_RF_OFF:
             newState = CELLULAR_SM_RFOFF;
             break;
+
         case CELLULAR_EVENT_ATTACHED:
             newState = CELLULAR_SM_REGISTERED;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmOn: Wrong event received: %d", event );
             break;
@@ -396,7 +420,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOn( cellularSmEvent_t 
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmRegistered( cellularSmEvent_t event,
-                                                            cellularSmState_t oldState )
+                                                                      cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -405,15 +429,19 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmRegistered( cellularSm
         case CELLULAR_EVENT_PWR_OFF:
             newState = CELLULAR_SM_OFF;
             break;
+
         case CELLULAR_EVENT_RF_OFF:
             newState = CELLULAR_SM_RFOFF;
             break;
+
         case CELLULAR_EVENT_DETACHED:
             newState = CELLULAR_SM_ON;
             break;
+
         case CELLULAR_EVENT_DATA_ACTIVE:
             newState = CELLULAR_SM_CONNECTED;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmRegistered: Wrong event received: %d", event );
             break;
@@ -425,7 +453,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmRegistered( cellularSm
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmConnected( cellularSmEvent_t event,
-                                                           cellularSmState_t oldState )
+                                                                     cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -434,18 +462,23 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmConnected( cellularSmE
         case CELLULAR_EVENT_PWR_OFF:
             newState = CELLULAR_SM_OFF;
             break;
+
         case CELLULAR_EVENT_RF_OFF:
             newState = CELLULAR_SM_RFOFF;
             break;
+
         case CELLULAR_EVENT_DETACHED:
             newState = CELLULAR_SM_ON;
             break;
+
         case CELLULAR_EVENT_OTA:
             newState = CELLULAR_SM_OTA;
             break;
+
         case CELLULAR_EVENT_DATA_INACTIVE:
             newState = CELLULAR_SM_REGISTERED;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmConnected: Wrong event received: %d", event );
             break;
@@ -457,7 +490,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmConnected( cellularSmE
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmRfoff( cellularSmEvent_t event,
-                                                       cellularSmState_t oldState )
+                                                                 cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -466,12 +499,15 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmRfoff( cellularSmEvent
         case CELLULAR_EVENT_PWR_ON:
             newState = CELLULAR_SM_RFOFF;
             break;
+
         case CELLULAR_EVENT_PWR_OFF:
             newState = CELLULAR_SM_OFF;
             break;
+
         case CELLULAR_EVENT_RF_ON:
             newState = CELLULAR_SM_ON;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmRfoff: Wrong event received: %d", event );
             break;
@@ -483,7 +519,7 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmRfoff( cellularSmEvent
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchSmOta( cellularSmEvent_t event,
-                                                     cellularSmState_t oldState )
+                                                               cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -492,20 +528,23 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchSmOta( cellularSmEvent_t
         case CELLULAR_EVENT_OTA_DONE:
             newState = CELLULAR_SM_OFF;
             break;
+
         case CELLULAR_EVENT_PWR_OFF:
             newState = CELLULAR_SM_OFF;
             break;
+
         default:
             IotLogWarn( "_cellularManagerSmTriggerSwitchSmOta: Wrong event received: %d", event );
             break;
     }
+
     return newState;
 }
 
 /*-----------------------------------------------------------*/
 
 static cellularSmState_t _cellularManagerSmTriggerSwitchOldState( cellularSmEvent_t event,
-                                                    cellularSmState_t oldState )
+                                                                  cellularSmState_t oldState )
 {
     cellularSmState_t newState = CELLULAR_SM_UNKNOWN;
 
@@ -514,21 +553,27 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchOldState( cellularSmEven
         case CELLULAR_SM_OFF:
             newState = _cellularManagerSmTriggerSwitchSmOff( event, oldState );
             break;
+
         case CELLULAR_SM_ON:
             newState = _cellularManagerSmTriggerSwitchSmOn( event, oldState );
             break;
+
         case CELLULAR_SM_REGISTERED:
             newState = _cellularManagerSmTriggerSwitchSmRegistered( event, oldState );
             break;
+
         case CELLULAR_SM_CONNECTED:
             newState = _cellularManagerSmTriggerSwitchSmConnected( event, oldState );
             break;
+
         case CELLULAR_SM_RFOFF:
             newState = _cellularManagerSmTriggerSwitchSmRfoff( event, oldState );
             break;
+
         case CELLULAR_SM_OTA:
             newState = _cellularManagerSmTriggerSwitchSmOta( event, oldState );
             break;
+
         default:
             /* should never enter here. */
             IotLogError( "_cellularManagerSmTrigger: Wrong State: %d", oldState );
@@ -542,30 +587,32 @@ static cellularSmState_t _cellularManagerSmTriggerSwitchOldState( cellularSmEven
 
 static void _cellularManagerSmTrigger( cellularSmEvent_t event )
 {
-#if LIBRARY_LOG_LEVEL >= IOT_LOG_INFO 
-    static const _enumStringMap_t _cellularSmInfoMapping[] = {
-        { "OFF",            ( uint32_t ) CELLULAR_SM_OFF },
-        { "ON",             ( uint32_t ) CELLULAR_SM_ON },
-        { "CONNECTED",      ( uint32_t ) CELLULAR_SM_CONNECTED },
-        { "REGISTERED",     ( uint32_t ) CELLULAR_SM_REGISTERED },
-        { "RFOFF",          ( uint32_t ) CELLULAR_SM_RFOFF },
-        { "OTA",            ( uint32_t ) CELLULAR_SM_OTA },
-        { "UNKNOWN",        ( uint32_t ) CELLULAR_SM_UNKNOWN },
-    };
+    #if LIBRARY_LOG_LEVEL >= IOT_LOG_INFO
+        static const _enumStringMap_t _cellularSmInfoMapping[] =
+        {
+            { "OFF",        ( uint32_t ) CELLULAR_SM_OFF        },
+            { "ON",         ( uint32_t ) CELLULAR_SM_ON         },
+            { "CONNECTED",  ( uint32_t ) CELLULAR_SM_CONNECTED  },
+            { "REGISTERED", ( uint32_t ) CELLULAR_SM_REGISTERED },
+            { "RFOFF",      ( uint32_t ) CELLULAR_SM_RFOFF      },
+            { "OTA",        ( uint32_t ) CELLULAR_SM_OTA        },
+            { "UNKNOWN",    ( uint32_t ) CELLULAR_SM_UNKNOWN    },
+        };
 
-    static const _enumStringMap_t _cellularEventMapping[ ] = {
-        { "PWR_ON",         ( uint32_t ) CELLULAR_EVENT_PWR_ON },
-        { "PWR_OFF",        ( uint32_t ) CELLULAR_EVENT_PWR_OFF },
-        { "RF_ON",          ( uint32_t ) CELLULAR_EVENT_RF_ON },
-        { "RF_OFF",         ( uint32_t ) CELLULAR_EVENT_RF_OFF },
-        { "ATTACHED",       ( uint32_t ) CELLULAR_EVENT_ATTACHED },
-        { "DETACHED",       ( uint32_t ) CELLULAR_EVENT_DETACHED },
-        { "PDN_ACTIVE",     ( uint32_t ) CELLULAR_EVENT_DATA_ACTIVE },
-        { "PDN_INACTIVE",   ( uint32_t ) CELLULAR_EVENT_DATA_INACTIVE },
-        { "OTA",            ( uint32_t ) CELLULAR_EVENT_OTA },
-        { "OTA_DONE",       ( uint32_t ) CELLULAR_EVENT_OTA_DONE },
-    };
-#endif
+        static const _enumStringMap_t _cellularEventMapping[] =
+        {
+            { "PWR_ON",       ( uint32_t ) CELLULAR_EVENT_PWR_ON        },
+            { "PWR_OFF",      ( uint32_t ) CELLULAR_EVENT_PWR_OFF       },
+            { "RF_ON",        ( uint32_t ) CELLULAR_EVENT_RF_ON         },
+            { "RF_OFF",       ( uint32_t ) CELLULAR_EVENT_RF_OFF        },
+            { "ATTACHED",     ( uint32_t ) CELLULAR_EVENT_ATTACHED      },
+            { "DETACHED",     ( uint32_t ) CELLULAR_EVENT_DETACHED      },
+            { "PDN_ACTIVE",   ( uint32_t ) CELLULAR_EVENT_DATA_ACTIVE   },
+            { "PDN_INACTIVE", ( uint32_t ) CELLULAR_EVENT_DATA_INACTIVE },
+            { "OTA",          ( uint32_t ) CELLULAR_EVENT_OTA           },
+            { "OTA_DONE",     ( uint32_t ) CELLULAR_EVENT_OTA_DONE      },
+        };
+    #endif /* if LIBRARY_LOG_LEVEL >= IOT_LOG_INFO */
 
     cellularSmState_t oldState = CELLULAR_SM_UNKNOWN, newState = CELLULAR_SM_UNKNOWN;
 
@@ -576,6 +623,7 @@ static void _cellularManagerSmTrigger( cellularSmEvent_t event )
     else
     {
         _cellularManagerMutexLock();
+
         if( _pCellularManagerContext != NULL )
         {
             oldState = _pCellularManagerContext->cellularSmState;
@@ -585,16 +633,17 @@ static void _cellularManagerSmTrigger( cellularSmEvent_t event )
 
         newState = _cellularManagerSmTriggerSwitchOldState( event, oldState );
 
-        if( oldState != newState)
+        if( oldState != newState )
         {
             if( ( _pCellularManagerContext != NULL ) && ( newState != CELLULAR_SM_UNKNOWN ) )
             {
                 _pCellularManagerContext->cellularSmState = newState;
             }
         }
+
         _cellularManagerMutexUnlock();
         IotLogInfo( "State Machine Change oldState = %s, newState = %s ,trigger = %s",
-                    _cellularSmInfoMapping[oldState].str, _cellularSmInfoMapping[newState].str, _cellularEventMapping[event].str);
+                    _cellularSmInfoMapping[ oldState ].str, _cellularSmInfoMapping[ newState ].str, _cellularEventMapping[ event ].str );
     }
 
     return;
@@ -611,6 +660,7 @@ CellularManagerError_t CellularManager_Init( const CellularCommInterface_t * pCo
     CellularManagerContext_t * pContext = NULL;
 
     pContext = _cellularManagerAllocContext();
+
     if( pContext == NULL )
     {
         IotLogError( "CELLULAR manager context allocation failed" );
@@ -618,7 +668,7 @@ CellularManagerError_t CellularManager_Init( const CellularCommInterface_t * pCo
     }
     else
     {
-        if( IotMutex_Create( & pContext->cellularSmMutex, false ) )
+        if( IotMutex_Create( &pContext->cellularSmMutex, false ) )
         {
             pContext->cellularSmMutexCreated = true;
         }
@@ -633,7 +683,8 @@ CellularManagerError_t CellularManager_Init( const CellularCommInterface_t * pCo
     {
         pContext->cellularSmState = CELLULAR_SM_OFF;
         pContext->isFirstTimeBootUp = false;
-        cellularStatus = Cellular_Init( & pContext->cellularHandle, pCommInterface );
+        cellularStatus = Cellular_Init( &pContext->cellularHandle, pCommInterface );
+
         if( cellularStatus == CELLULAR_SUCCESS )
         {
             _cellularManagerSmTrigger( CELLULAR_EVENT_PWR_ON );
@@ -678,14 +729,17 @@ CellularManagerError_t CellularManager_Cleanup( void )
     {
         cellularMgrStatus = CELLULAR_MANAGER_UNKNOWN;
     }
+
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         if( _pCellularManagerContext->cellularSmMutexCreated )
         {
-            IotMutex_Destroy( & _pCellularManagerContext->cellularSmMutex );
+            IotMutex_Destroy( &_pCellularManagerContext->cellularSmMutex );
         }
-        cellularMgrStatus = CellularManager_RemoveSignalStrengthChangedCallback( );
-        cellularMgrStatus = CellularManager_RemoveConnectionStateChangedCallback( );
+
+        cellularMgrStatus = CellularManager_RemoveSignalStrengthChangedCallback();
+        cellularMgrStatus = CellularManager_RemoveConnectionStateChangedCallback();
+
         if( Cellular_Cleanup( _pCellularManagerContext->cellularHandle ) != CELLULAR_SUCCESS )
         {
             IotLogError( "Failed to close HAL layer library" );
@@ -694,6 +748,7 @@ CellularManagerError_t CellularManager_Cleanup( void )
         {
             _pCellularManagerContext->cellularHandle = NULL;
         }
+
         if( _pCellularManagerContext != NULL )
         {
             _cellularManagerFreeContext( _pCellularManagerContext );
@@ -708,8 +763,8 @@ CellularManagerError_t CellularManager_Cleanup( void )
 /*-----------------------------------------------------------*/
 
 CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
-                                                const CellularPdnConfig_t * pPdnConfig,
-                                                uint32_t timeoutMilliseconds)
+                                                    const CellularPdnConfig_t * pPdnConfig,
+                                                    uint32_t timeoutMilliseconds )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
     const uint32_t waitInterval = 1000UL;
@@ -722,16 +777,18 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
     {
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
+
     /* check registration status. */
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         while( timeoutCount < timeoutCountLimit )
         {
             cellularStatus = Cellular_GetServiceStatus( _pCellularManagerContext->cellularHandle, &serviceStatus );
+
             if( ( cellularStatus == CELLULAR_SUCCESS ) &&
                 ( serviceStatus.rat != CELLULAR_RAT_INVALID ) &&
                 ( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
-                ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) ) )
+                  ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) ) )
             {
                 IotLogDebug( "Registration is successful" );
                 _cellularManagerSmTrigger( CELLULAR_EVENT_ATTACHED );
@@ -739,19 +796,23 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
             }
             else
             {
-                timeoutCount ++;
+                timeoutCount++;
+
                 if( timeoutCount >= timeoutCountLimit )
                 {
                     cellularMgrStatus = CELLULAR_MANAGER_TIMEOUT;
                 }
+
                 vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
             }
         }
     }
+
     /* next setup PDN. */
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         cellularStatus = Cellular_SetPdnConfig( _pCellularManagerContext->cellularHandle, contextId, pPdnConfig );
+
         if( cellularStatus != CELLULAR_SUCCESS )
         {
             cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
@@ -762,12 +823,14 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         cellularStatus = Cellular_ActivatePdn( _pCellularManagerContext->cellularHandle, contextId );
+
         if( cellularStatus != CELLULAR_SUCCESS )
         {
             /* Try deactivate PDN then activate it again. */
             IotLogInfo( "Activate PDN failed. Deactivate the PDN and retry." );
             ( void ) Cellular_DeactivatePdn( _pCellularManagerContext->cellularHandle, contextId );
             cellularStatus = Cellular_ActivatePdn( _pCellularManagerContext->cellularHandle, contextId );
+
             if( cellularStatus != CELLULAR_SUCCESS )
             {
                 IotLogError( "Activate PDN failed after retry." );
@@ -787,8 +850,8 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
 /*-----------------------------------------------------------*/
 
 CellularManagerError_t CellularManager_ConnectASync( uint8_t contextId,
-                                                 const CellularPdnConfig_t * pPdnConfig,
-                                                 uint32_t timeoutMilliseconds )
+                                                     const CellularPdnConfig_t * pPdnConfig,
+                                                     uint32_t timeoutMilliseconds )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_UNSUPPORTED;
 
@@ -796,6 +859,7 @@ CellularManagerError_t CellularManager_ConnectASync( uint8_t contextId,
     {
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
+
     /* as of now. no need for async data setup. */
     return cellularMgrStatus;
 }
@@ -811,6 +875,7 @@ CellularManagerError_t CellularManager_Disconnect( uint8_t contextId )
     {
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
+
     cellularStatus = Cellular_DeactivatePdn( _pCellularManagerContext->cellularHandle, contextId );
 
     if( cellularStatus != CELLULAR_SUCCESS )
@@ -845,27 +910,31 @@ CellularManagerError_t CellularManager_GetConnectionState( CellularManagerConnec
             cellularMgrStatus = CELLULAR_MANAGER_BAD_PARAMETER;
         }
     }
+
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         cellularMgrStatus = _getConnectionSateFromStatemachine( pConnectionState );
+
         /* Need to specify disconnected reason. */
-        if( * pConnectionState == CELLULAR_CONNECTION_DISCONNECTED )
+        if( *pConnectionState == CELLULAR_CONNECTION_DISCONNECTED )
         {
-            cellularStatus = Cellular_GetSimCardStatus( _pCellularManagerContext->cellularHandle, & simCardStatus );
+            cellularStatus = Cellular_GetSimCardStatus( _pCellularManagerContext->cellularHandle, &simCardStatus );
+
             if( cellularStatus == CELLULAR_SUCCESS )
             {
                 if( ( simCardStatus.simCardLockState != CELLULAR_SIM_CARD_READY ) || ( simCardStatus.simCardState != CELLULAR_SIM_CARD_INSERTED ) )
                 {
-                    * pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_NO_SIM;
+                    *pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_NO_SIM;
                 }
             }
 
             cellularStatus = Cellular_GetServiceStatus( _pCellularManagerContext->cellularHandle, &serviceStatus );
+
             if( cellularStatus == CELLULAR_SUCCESS )
             {
                 if( ( serviceStatus.csRejectionCause == 0u ) || ( serviceStatus.psRejectionCause == 0u ) )
                 {
-                    * pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_REGISTRATION_REJECTED;
+                    *pConnectionState = CELLULAR_CONNECTION_DISCONNECTED_REGISTRATION_REJECTED;
                 }
             }
         }
@@ -885,12 +954,13 @@ CellularManagerError_t CellularManager_AirplaneModeOn( void )
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
 
-    if(cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
+    if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
-        if( Cellular_RfOff( _pCellularManagerContext->cellularHandle ) != CELLULAR_SUCCESS)
+        if( Cellular_RfOff( _pCellularManagerContext->cellularHandle ) != CELLULAR_SUCCESS )
         {
             cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
         }
+
         _cellularManagerSmTrigger( CELLULAR_EVENT_RF_OFF );
     }
 
@@ -908,12 +978,13 @@ CellularManagerError_t CellularManager_AirplaneModeOff( void )
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
 
-    if(cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
+    if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
-        if( Cellular_RfOn( _pCellularManagerContext->cellularHandle ) != CELLULAR_SUCCESS)
+        if( Cellular_RfOn( _pCellularManagerContext->cellularHandle ) != CELLULAR_SUCCESS )
         {
             cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
         }
+
         _cellularManagerSmTrigger( CELLULAR_EVENT_RF_ON );
     }
 
@@ -923,19 +994,21 @@ CellularManagerError_t CellularManager_AirplaneModeOff( void )
 /*-----------------------------------------------------------*/
 
 CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( void * pUserData,
-                                                                      CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback )
+                                                                          CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
 
     if( connectionStateChangedCallback == NULL )
     {
-        cellularMgrStatus =  CELLULAR_MANAGER_BAD_PARAMETER;
+        cellularMgrStatus = CELLULAR_MANAGER_BAD_PARAMETER;
     }
+
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
-        ( void ) Cellular_RegisterUrcNetworkRegistrationEventCallback( _pCellularManagerContext->cellularHandle, & _connectionStateChangedCallback );
-        ( void ) Cellular_RegisterUrcPdnEventCallback( _pCellularManagerContext->cellularHandle, & _pdnStateChangedCallback );
-        ( void ) Cellular_RegisterModemEventCallback( _pCellularManagerContext->cellularHandle, & _modemEventCallback );
+        ( void ) Cellular_RegisterUrcNetworkRegistrationEventCallback( _pCellularManagerContext->cellularHandle, &_connectionStateChangedCallback );
+        ( void ) Cellular_RegisterUrcPdnEventCallback( _pCellularManagerContext->cellularHandle, &_pdnStateChangedCallback );
+        ( void ) Cellular_RegisterModemEventCallback( _pCellularManagerContext->cellularHandle, &_modemEventCallback );
+
         if( _pCellularManagerContext != NULL )
         {
             _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback = connectionStateChangedCallback;
@@ -949,14 +1022,15 @@ CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( void *
 /*-----------------------------------------------------------*/
 
 CellularManagerError_t CellularManager_SetSignalStrengthChangedCallback( void * pUserData,
-                                                                     CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback )
+                                                                         CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback )
 {
     CellularManagerError_t cellularMgrStatus = CELLULAR_MANAGER_SUCCESS;
 
     if( signalStrengthChangedCallback == NULL )
     {
-        cellularMgrStatus =  CELLULAR_MANAGER_BAD_PARAMETER;
+        cellularMgrStatus = CELLULAR_MANAGER_BAD_PARAMETER;
     }
+
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
         /* currently no signal URC avail. */
@@ -994,11 +1068,12 @@ CellularManagerError_t CellularManager_RemoveConnectionStateChangedCallback( voi
         _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallback = NULL;
         _pCellularManagerContext->cellularMgrCallbackEvents.connectionStateChangedCallbackData = NULL;
     }
+
     ( void ) Cellular_RegisterUrcNetworkRegistrationEventCallback( _pCellularManagerContext->cellularHandle, NULL );
     ( void ) Cellular_RegisterUrcPdnEventCallback( _pCellularManagerContext->cellularHandle, NULL );
     ( void ) Cellular_RegisterModemEventCallback( _pCellularManagerContext->cellularHandle, NULL );
 
-     return CELLULAR_MANAGER_SUCCESS;
+    return CELLULAR_MANAGER_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -1013,7 +1088,7 @@ CellularManagerError_t CellularManager_GetCellularHandle( CellularHandle_t * pCe
     }
     else
     {
-        * pCellularHandle = _pCellularManagerContext->cellularHandle;
+        *pCellularHandle = _pCellularManagerContext->cellularHandle;
     }
 
     return cellularMgrStatus;

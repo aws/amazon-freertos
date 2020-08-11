@@ -38,15 +38,15 @@
 /**
  * @brief Maximum size of an AT string.
  */
-#define CELLULAR_AT_MAX_STRING_SIZE      ( 256U )
+#define CELLULAR_AT_MAX_STRING_SIZE    ( 256U )
 
 /**
  * @brief Maximum size of an AT prefix.
  */
-#define CELLULAR_AT_MAX_PREFIX_SIZE      ( 32 )
+#define CELLULAR_AT_MAX_PREFIX_SIZE    ( 32 )
 
 
-#define ARRY_SIZE( x ) ( sizeof( x ) / sizeof( x [ 0 ] ) )
+#define ARRY_SIZE( x )    ( sizeof( x ) / sizeof( x[ 0 ] ) )
 
 /*-----------------------------------------------------------*/
 
@@ -55,13 +55,13 @@
  */
 typedef enum CellularATError
 {
-    CELLULAR_AT_SUCCESS = 0,            /**< The operation was successful. */
-    CELLULAR_AT_BAD_PARAMETER,          /**< One or more of the input parameters is not valid. */
-    CELLULAR_AT_NO_MEMORY,              /**< Memory allocation failure. */
-    CELLULAR_AT_UNSUPPORTED,            /**< The operation is not supported. */
-    CELLULAR_AT_MODEM_ERROR,            /**< Error in modem response. */
-    CELLULAR_AT_ERROR,                  /**< Generic Error or boolean false. */
-    CELLULAR_AT_UNKNOWN                 /**< Any other error other than the above mentioned ones. */
+    CELLULAR_AT_SUCCESS = 0,   /**< The operation was successful. */
+    CELLULAR_AT_BAD_PARAMETER, /**< One or more of the input parameters is not valid. */
+    CELLULAR_AT_NO_MEMORY,     /**< Memory allocation failure. */
+    CELLULAR_AT_UNSUPPORTED,   /**< The operation is not supported. */
+    CELLULAR_AT_MODEM_ERROR,   /**< Error in modem response. */
+    CELLULAR_AT_ERROR,         /**< Generic Error or boolean false. */
+    CELLULAR_AT_UNKNOWN        /**< Any other error other than the above mentioned ones. */
 } CellularATError_t;
 
 /*-----------------------------------------------------------*/
@@ -245,7 +245,8 @@ CellularATError_t Cellular_ATRemoveAllDoubleQuote( char * pString );
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATGetNextTok( char ** ppString , char ** ppTokOutput);
+CellularATError_t Cellular_ATGetNextTok( char ** ppString,
+                                         char ** ppTokOutput );
 
 /**
  * @brief Extract the next token based on the provided delimiter.
@@ -265,7 +266,9 @@ CellularATError_t Cellular_ATGetNextTok( char ** ppString , char ** ppTokOutput)
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString , const char * pDelimiter, char ** ppTokOutput);
+CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString,
+                                                 const char * pDelimiter,
+                                                 char ** ppTokOutput );
 
 /**
  * @brief Convert HEX string to HEX.
@@ -297,7 +300,9 @@ CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString , const char *
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const * const ppHexData, uint16_t hexDataLen);
+CellularATError_t Cellular_ATHexStrToHex( const char * pString,
+                                          uint8_t * const * const ppHexData,
+                                          uint16_t hexDataLen );
 
 /**
  * @brief Check if a string is numeric.
@@ -312,7 +317,8 @@ CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult );
+CellularATError_t Cellular_ATIsStrDigit( const char * pString,
+                                         bool * pResult );
 
 /**
  * @brief check if a string as prefix present by determine present of ':'
@@ -323,7 +329,8 @@ CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult );
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATIsPrefixPresent( const char * pString, bool * result );
+CellularATError_t Cellular_ATIsPrefixPresent( const char * pString,
+                                              bool * result );
 
 /**
  * @brief duplicate string from pSrc to ppDst, malloc is use to allocate mem space for ppDst
@@ -334,7 +341,8 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char * pString, bool * resul
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATStrDup( char ** ppDst, const char * pSrc );
+CellularATError_t Cellular_ATStrDup( char ** ppDst,
+                                     const char * pSrc );
 
 /**
  * @brief Find the next EOL by searching \r \n
@@ -345,7 +353,8 @@ CellularATError_t Cellular_ATStrDup( char ** ppDst, const char * pSrc );
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString );
+CellularATError_t Cellular_ATFindNextEOL( char ** ppEol,
+                                          char * pString );
 
 /**
  * @brief check if a string starts with certain prefix
@@ -357,7 +366,9 @@ CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString );
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATStrStartWith( const char * pString, const char * pPrefix, bool * result);
+CellularATError_t Cellular_ATStrStartWith( const char * pString,
+                                           const char * pPrefix,
+                                           bool * result );
 
 /**
  * @brief check if certain success code/error code present in the input buffer
@@ -370,7 +381,10 @@ CellularATError_t Cellular_ATStrStartWith( const char * pString, const char * pP
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf, const char * const * const ppKeyList, size_t keyListLen, bool * result);
+CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf,
+                                             const char * const * const ppKeyList,
+                                             size_t keyListLen,
+                                             bool * result );
 
 /**
  * @brief Convert string to int32_t.
@@ -383,6 +397,8 @@ CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf, const char 
  * @return CELLULAR_AT_SUCCESS if the operation is successful, otherwise an
  * error code indicating the cause of the error.
  */
-CellularATError_t Cellular_ATStrtoi( const char * pStr, int32_t base, int32_t * pResult);
+CellularATError_t Cellular_ATStrtoi( const char * pStr,
+                                     int32_t base,
+                                     int32_t * pResult );
 
 #endif /* __CELLULAR_AT_CORE_H__ */

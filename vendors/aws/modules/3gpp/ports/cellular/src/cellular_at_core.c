@@ -26,7 +26,7 @@
 /**
  * @brief cellular HAL common AT command parsing functions.
  */
- 
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -45,7 +45,7 @@
     #endif
 #endif
 
-#define LIBRARY_LOG_NAME            ( "AT_CORE" )
+#define LIBRARY_LOG_NAME    ( "AT_CORE" )
 #include "iot_logging_setup.h"
 
 /*-----------------------------------------------------------*/
@@ -55,22 +55,22 @@
  */
 typedef enum CellularATStringValidationResult
 {
-    CELLULAR_AT_STRING_VALID,            /**< String is valid. */
-    CELLULAR_AT_STRING_EMPTY,            /**< String is empty. */
-    CELLULAR_AT_STRING_TOO_LARGE,        /**< String is too large. */
-    CELLULAR_AT_STRING_UNKNOWN           /**< Unknown String validation state. */
+    CELLULAR_AT_STRING_VALID,     /**< String is valid. */
+    CELLULAR_AT_STRING_EMPTY,     /**< String is empty. */
+    CELLULAR_AT_STRING_TOO_LARGE, /**< String is too large. */
+    CELLULAR_AT_STRING_UNKNOWN    /**< Unknown String validation state. */
 } CellularATStringValidationResult_t;
 
 /*-----------------------------------------------------------*/
 
 static CellularATError_t validateString( const char * pString,
-    CellularATStringValidationResult_t * pStringValidationResult );
+                                         CellularATStringValidationResult_t * pStringValidationResult );
 static uint8_t _charToNibble( char c );
 
 /*-----------------------------------------------------------*/
 
 static CellularATError_t validateString( const char * pString,
-    CellularATStringValidationResult_t * pStringValidationResult )
+                                         CellularATStringValidationResult_t * pStringValidationResult )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     size_t stringLength = 0U;
@@ -79,6 +79,7 @@ static CellularATError_t validateString( const char * pString,
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         /* The strnlen() function returns strlen(s), if that is less than maxlen,
@@ -92,15 +93,15 @@ static CellularATError_t validateString( const char * pString,
 
         if( stringLength == 0U )
         {
-            * pStringValidationResult = CELLULAR_AT_STRING_EMPTY;
+            *pStringValidationResult = CELLULAR_AT_STRING_EMPTY;
         }
         else if( stringLength > CELLULAR_AT_MAX_STRING_SIZE )
         {
-            * pStringValidationResult = CELLULAR_AT_STRING_TOO_LARGE;
+            *pStringValidationResult = CELLULAR_AT_STRING_TOO_LARGE;
         }
         else
         {
-            * pStringValidationResult = CELLULAR_AT_STRING_VALID;
+            *pStringValidationResult = CELLULAR_AT_STRING_VALID;
         }
     }
 
@@ -109,7 +110,8 @@ static CellularATError_t validateString( const char * pString,
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATIsPrefixPresent( const char *pString, bool * result )
+CellularATError_t Cellular_ATIsPrefixPresent( const char * pString,
+                                              bool * result )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
@@ -118,9 +120,11 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char *pString, bool * result
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        atStatus = validateString( pString, & stringValidationResult );
+        atStatus = validateString( pString, &stringValidationResult );
+
         if( atStatus == CELLULAR_AT_SUCCESS )
         {
             if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -129,13 +133,15 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char *pString, bool * result
             }
         }
     }
+
     /* Find location of first ':'. */
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        * result = true;
+        *result = true;
+
         if( strchr( pString, ( int32_t ) ':' ) == NULL )
         {
-            * result = false;
+            *result = false;
         }
     }
 
@@ -144,7 +150,9 @@ CellularATError_t Cellular_ATIsPrefixPresent( const char *pString, bool * result
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATStrStartWith( const char * pString, const char * pPrefix, bool * result )
+CellularATError_t Cellular_ATStrStartWith( const char * pString,
+                                           const char * pPrefix,
+                                           bool * result )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
@@ -155,20 +163,11 @@ CellularATError_t Cellular_ATStrStartWith( const char * pString, const char * pP
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        atStatus = validateString( pTempString, & stringValidationResult );
-        if( atStatus == CELLULAR_AT_SUCCESS )
-        {
-            if( stringValidationResult != CELLULAR_AT_STRING_VALID )
-            {
-                atStatus = CELLULAR_AT_BAD_PARAMETER;
-            }
-        }
-    }
-    if( atStatus == CELLULAR_AT_SUCCESS )
-    {
-        atStatus = validateString( pTempPrefix, & stringValidationResult );
+        atStatus = validateString( pTempString, &stringValidationResult );
+
         if( atStatus == CELLULAR_AT_SUCCESS )
         {
             if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -180,14 +179,29 @@ CellularATError_t Cellular_ATStrStartWith( const char * pString, const char * pP
 
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        * result = true;
-        while( * pTempPrefix != '\0' )
+        atStatus = validateString( pTempPrefix, &stringValidationResult );
+
+        if( atStatus == CELLULAR_AT_SUCCESS )
         {
-            if( * pTempPrefix != * pTempString )
+            if( stringValidationResult != CELLULAR_AT_STRING_VALID )
             {
-                * result = false;
+                atStatus = CELLULAR_AT_BAD_PARAMETER;
+            }
+        }
+    }
+
+    if( atStatus == CELLULAR_AT_SUCCESS )
+    {
+        *result = true;
+
+        while( *pTempPrefix != '\0' )
+        {
+            if( *pTempPrefix != *pTempString )
+            {
+                *result = false;
                 break;
             }
+
             pTempPrefix++;
             pTempString++;
         }
@@ -203,7 +217,8 @@ CellularATError_t Cellular_ATRemovePrefix( char ** ppString )
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
 
-    atStatus = validateString( * ppString, & stringValidationResult );
+    atStatus = validateString( *ppString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -211,21 +226,23 @@ CellularATError_t Cellular_ATRemovePrefix( char ** ppString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         /* The strchr() function returns a pointer to the first occurrence of
          * the character in the string or NULL if the character is not found.
          *
          * In case of AT response, prefix is always followed by a colon (':'). */
-        * ppString = strchr( *ppString, ( int32_t ) ':' );
-        if( * ppString == NULL )
+        *ppString = strchr( *ppString, ( int32_t ) ':' );
+
+        if( *ppString == NULL )
         {
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
         else
         {
             /* Note that we remove both the prefix and the colon. */
-            ( * ppString ) ++;
+            ( *ppString )++;
         }
     }
 
@@ -239,7 +256,8 @@ CellularATError_t Cellular_ATRemoveLeadingWhiteSpaces( char ** ppString )
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
 
-    atStatus = validateString( * ppString, & stringValidationResult );
+    atStatus = validateString( *ppString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -247,6 +265,7 @@ CellularATError_t Cellular_ATRemoveLeadingWhiteSpaces( char ** ppString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         /* isspace is a standard library function and we cannot control it. */
@@ -255,9 +274,9 @@ CellularATError_t Cellular_ATRemoveLeadingWhiteSpaces( char ** ppString )
         /* coverity[misra_c_2012_rule_10_4_violation] */
         /* coverity[misra_c_2012_rule_18_4_violation] */
         /* coverity[misra_c_2012_rule_21_13_violation] */
-        while( ( ** ppString != '\0' ) && ( isspace( ( ( int ) ( ** ppString ) ) ) != 0 ) )
+        while( ( **ppString != '\0' ) && ( isspace( ( ( int ) ( **ppString ) ) ) != 0 ) )
         {
-            ( * ppString )++;
+            ( *ppString )++;
         }
     }
 
@@ -272,7 +291,8 @@ CellularATError_t Cellular_ATRemoveTrailingWhiteSpaces( char * pString )
     char * p = NULL;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
 
-    atStatus = validateString( pString, & stringValidationResult );
+    atStatus = validateString( pString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -280,9 +300,11 @@ CellularATError_t Cellular_ATRemoveTrailingWhiteSpaces( char * pString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        p = & pString[ strlen( pString ) ];
+        p = &pString[ strlen( pString ) ];
+
         do
         {
             --p;
@@ -293,6 +315,7 @@ CellularATError_t Cellular_ATRemoveTrailingWhiteSpaces( char * pString )
             /* coverity[misra_c_2012_rule_18_4_violation] */
             /* coverity[misra_c_2012_rule_21_13_violation] */
         } while( ( p > pString ) && ( isspace( ( int ) ( *p ) ) != 0 ) );
+
         p[ 1 ] = '\0';
     }
 
@@ -309,7 +332,8 @@ CellularATError_t Cellular_ATRemoveAllWhiteSpaces( char * pString )
     uint16_t ind = 0;
     char * pTempString = pString;
 
-    atStatus = validateString( pTempString, & stringValidationResult );
+    atStatus = validateString( pTempString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -317,10 +341,12 @@ CellularATError_t Cellular_ATRemoveAllWhiteSpaces( char * pString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         p = pTempString;
-        while( ( * pTempString ) != '\0' )
+
+        while( ( *pTempString ) != '\0' )
         {
             /* isspace is a standard library function and we cannot control it. */
             /* coverity[misra_c_2012_directive_4_6_violation] */
@@ -328,13 +354,15 @@ CellularATError_t Cellular_ATRemoveAllWhiteSpaces( char * pString )
             /* coverity[misra_c_2012_rule_10_4_violation] */
             /* coverity[misra_c_2012_rule_18_4_violation] */
             /* coverity[misra_c_2012_rule_21_13_violation] */
-            if( isspace( ( ( int ) ( * pTempString ) ) ) == 0 )
+            if( isspace( ( ( int ) ( *pTempString ) ) ) == 0 )
             {
-                p[ ind ] = * pTempString;
+                p[ ind ] = *pTempString;
                 ind++;
             }
+
             pTempString++;
         }
+
         p[ ind ] = '\0';
     }
 
@@ -349,7 +377,8 @@ CellularATError_t Cellular_ATRemoveOutermostDoubleQuote( char ** ppString )
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
     char * p = NULL;
 
-    atStatus = validateString( * ppString, & stringValidationResult );
+    atStatus = validateString( *ppString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -357,20 +386,24 @@ CellularATError_t Cellular_ATRemoveOutermostDoubleQuote( char ** ppString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        if( ** ppString == '\"' )
+        if( **ppString == '\"' )
         {
-            ( * ppString )++;
+            ( *ppString )++;
         }
-        p = * ppString;
-        while( * p != '\0' )
+
+        p = *ppString;
+
+        while( *p != '\0' )
         {
             p++;
         }
-        if( * --p == '\"' )
+
+        if( *--p == '\"' )
         {
-            * p = '\0';
+            *p = '\0';
         }
     }
 
@@ -387,7 +420,8 @@ CellularATError_t Cellular_ATRemoveAllDoubleQuote( char * pString )
     uint16_t ind = 0;
     char * pTempString = pString;
 
-    atStatus = validateString( pTempString, & stringValidationResult );
+    atStatus = validateString( pTempString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -395,18 +429,22 @@ CellularATError_t Cellular_ATRemoveAllDoubleQuote( char * pString )
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         p = pTempString;
-        while( ( * pTempString ) != '\0' )
+
+        while( ( *pTempString ) != '\0' )
         {
-            if( * pTempString != '\"' )
+            if( *pTempString != '\"' )
             {
-                p[ ind ] = * pTempString;
+                p[ ind ] = *pTempString;
                 ind++;
             }
+
             pTempString++;
         }
+
         p[ ind ] = '\0';
     }
 
@@ -415,7 +453,8 @@ CellularATError_t Cellular_ATRemoveAllDoubleQuote( char * pString )
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATGetNextTok( char ** ppString , char ** ppTokOutput )
+CellularATError_t Cellular_ATGetNextTok( char ** ppString,
+                                         char ** ppTokOutput )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     const char * pDelimiter = ",";
@@ -427,14 +466,17 @@ CellularATError_t Cellular_ATGetNextTok( char ** ppString , char ** ppTokOutput 
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString , const char * pDelimiter, char ** ppTokOutput )
+CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString,
+                                                 const char * pDelimiter,
+                                                 char ** ppTokOutput )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
     uint16_t tokStrLen = 0, dataStrlen = 0;
     char * tok = NULL;
 
-    atStatus = validateString( * ppString, & stringValidationResult );
+    atStatus = validateString( *ppString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -442,27 +484,32 @@ CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString , const char *
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        dataStrlen = ( uint16_t ) strlen( * ppString );
-        tok = strtok( * ppString, pDelimiter );
+        dataStrlen = ( uint16_t ) strlen( *ppString );
+        tok = strtok( *ppString, pDelimiter );
+
         if( tok == NULL )
         {
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         tokStrLen = ( uint16_t ) strlen( tok );
-        if( ( tokStrLen < dataStrlen ) && ( ( * ppString )[ tokStrLen + 1U ] != '\0' ) )
+
+        if( ( tokStrLen < dataStrlen ) && ( ( *ppString )[ tokStrLen + 1U ] != '\0' ) )
         {
-            * ppString = & tok[ strlen( tok ) + 1U ];
+            *ppString = &tok[ strlen( tok ) + 1U ];
         }
         else
         {
-            * ppString = & tok[ strlen( tok ) ];
+            *ppString = &tok[ strlen( tok ) ];
         }
-        * ppTokOutput = tok;
+
+        *ppTokOutput = tok;
     }
 
     return atStatus;
@@ -473,6 +520,7 @@ CellularATError_t Cellular_ATGetSpecificNextTok( char ** ppString , const char *
 static uint8_t _charToNibble( char c )
 {
     uint8_t ret = 0xFF;
+
     if( ( c >= '0' ) && ( c <= '9' ) )
     {
         ret = ( uint8_t ) ( ( uint32_t ) c - ( uint32_t ) '0' );
@@ -496,7 +544,9 @@ static uint8_t _charToNibble( char c )
 
 /* AT core helper API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const * const ppHexData, uint16_t hexDataLen )
+CellularATError_t Cellular_ATHexStrToHex( const char * pString,
+                                          uint8_t * const * const ppHexData,
+                                          uint16_t hexDataLen )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
@@ -504,7 +554,8 @@ CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const
     const char * p;
     uint8_t firstNibble = 0, secondNibble = 0;
 
-    atStatus = validateString( pString, & stringValidationResult );
+    atStatus = validateString( pString, &stringValidationResult );
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -512,23 +563,27 @@ CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const
             atStatus = CELLULAR_AT_BAD_PARAMETER;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         strHexLen = ( uint16_t ) ( strlen( pString ) / 2U );
+
         if( strHexLen >= hexDataLen )
         {
             atStatus = CELLULAR_AT_NO_MEMORY;
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         p = pString;
+
         for( i = 0; i < strHexLen; i++ )
         {
-            firstNibble =  _charToNibble( * p ) << 4;
+            firstNibble = _charToNibble( *p ) << 4;
             secondNibble = _charToNibble( p[ 1 ] );
-            ( * ppHexData )[ i ] = firstNibble | secondNibble;
-            p = & p[ 2 ];
+            ( *ppHexData )[ i ] = firstNibble | secondNibble;
+            p = &p[ 2 ];
         }
     }
 
@@ -539,7 +594,8 @@ CellularATError_t Cellular_ATHexStrToHex( const char * pString , uint8_t * const
 
 /* AT core helper API. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
-CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult )
+CellularATError_t Cellular_ATIsStrDigit( const char * pString,
+                                         bool * pResult )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     CellularATStringValidationResult_t stringValidationResult = CELLULAR_AT_STRING_UNKNOWN;
@@ -549,9 +605,11 @@ CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult )
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        atStatus = validateString( pTempString, & stringValidationResult );
+        atStatus = validateString( pTempString, &stringValidationResult );
+
         if( atStatus == CELLULAR_AT_SUCCESS )
         {
             if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -560,10 +618,12 @@ CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult )
             }
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        * pResult = true;
-        while( ( pTempString != NULL ) && ( * pTempString != '\0' ) )
+        *pResult = true;
+
+        while( ( pTempString != NULL ) && ( *pTempString != '\0' ) )
         {
             /* isdigit is a standard library function and we cannot control it. */
             /* coverity[misra_c_2012_directive_4_6_violation] */
@@ -571,11 +631,12 @@ CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult )
             /* coverity[misra_c_2012_rule_10_4_violation] */
             /* coverity[misra_c_2012_rule_18_4_violation] */
             /* coverity[misra_c_2012_rule_21_13_violation] */
-            if( isdigit( ( ( int ) ( * pTempString ) ) ) == 0 )
+            if( isdigit( ( ( int ) ( *pTempString ) ) ) == 0 )
             {
-                * pResult = false;
+                *pResult = false;
             }
-            pTempString ++;
+
+            pTempString++;
         }
     }
 
@@ -585,7 +646,9 @@ CellularATError_t Cellular_ATIsStrDigit( const char * pString, bool * pResult )
 /*-----------------------------------------------------------*/
 
 CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf,
-    const char * const * const ppKeyList, size_t keyListLen, bool * result )
+                                             const char * const * const ppKeyList,
+                                             size_t keyListLen,
+                                             bool * result )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     uint8_t i = 0;
@@ -596,9 +659,11 @@ CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf,
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        atStatus = validateString( pInputBuf, & stringValidationResult );
+        atStatus = validateString( pInputBuf, &stringValidationResult );
+
         if( atStatus == CELLULAR_AT_SUCCESS )
         {
             if( stringValidationResult != CELLULAR_AT_STRING_VALID )
@@ -607,14 +672,16 @@ CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf,
             }
         }
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        * result = false;
-        for( i = 0; i < keyListLen; i ++ )
+        *result = false;
+
+        for( i = 0; i < keyListLen; i++ )
         {
-            if( ( Cellular_ATStrStartWith( pInputBuf, ppKeyList[ i ], & tmpResult ) == CELLULAR_AT_SUCCESS )  && tmpResult )
+            if( ( Cellular_ATStrStartWith( pInputBuf, ppKeyList[ i ], &tmpResult ) == CELLULAR_AT_SUCCESS ) && tmpResult )
             {
-                * result = true;
+                *result = true;
                 break;
             }
         }
@@ -625,7 +692,8 @@ CellularATError_t Cellular_ATcheckErrorCode( const char * pInputBuf,
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATStrDup( char ** ppDst, const char * pSrc )
+CellularATError_t Cellular_ATStrDup( char ** ppDst,
+                                     const char * pSrc )
 {
     char * p = NULL;
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
@@ -635,19 +703,23 @@ CellularATError_t Cellular_ATStrDup( char ** ppDst, const char * pSrc )
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
-        * ppDst = ( char * ) pvPortMalloc( sizeof( char ) * ( strlen( pTempSrc ) + 1U ) );
-        if( * ppDst != NULL )
+        *ppDst = ( char * ) pvPortMalloc( sizeof( char ) * ( strlen( pTempSrc ) + 1U ) );
+
+        if( *ppDst != NULL )
         {
-            p = * ppDst;
-            while( * pTempSrc != '\0' )
+            p = *ppDst;
+
+            while( *pTempSrc != '\0' )
             {
-                * p = * pTempSrc;
+                *p = *pTempSrc;
                 p++;
                 pTempSrc++;
             }
-            * p = '\0';
+
+            *p = '\0';
         }
     }
 
@@ -656,7 +728,8 @@ CellularATError_t Cellular_ATStrDup( char ** ppDst, const char * pSrc )
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString )
+CellularATError_t Cellular_ATFindNextEOL( char ** ppEol,
+                                          char * pString )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     char * pTempString = pString;
@@ -665,6 +738,7 @@ CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString )
     {
         atStatus = CELLULAR_AT_BAD_PARAMETER;
     }
+
     if( atStatus == CELLULAR_AT_SUCCESS )
     {
         /* Special handling for QISEND and CMGS commands.
@@ -674,17 +748,18 @@ CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString )
         if( strcmp( pTempString, "> " ) == 0 )
         {
             pTempString++;
-            * pTempString = '\r';
-            * ppEol = pTempString;
+            *pTempString = '\r';
+            *ppEol = pTempString;
         }
         else
         {
             /* Find next newline. */
-            while( ( * pTempString != '\0' ) && ( * pTempString != '\r' ) && ( * pTempString != '\n' ) )
+            while( ( *pTempString != '\0' ) && ( *pTempString != '\r' ) && ( *pTempString != '\n' ) )
             {
                 pTempString++;
             }
-            * ppEol = ( * pTempString == '\0' ) ? NULL : pTempString;
+
+            *ppEol = ( *pTempString == '\0' ) ? NULL : pTempString;
         }
     }
 
@@ -693,7 +768,9 @@ CellularATError_t Cellular_ATFindNextEOL( char ** ppEol, char * pString )
 
 /*-----------------------------------------------------------*/
 
-CellularATError_t Cellular_ATStrtoi( const char * pStr, int32_t base, int32_t * pResult )
+CellularATError_t Cellular_ATStrtoi( const char * pStr,
+                                     int32_t base,
+                                     int32_t * pResult )
 {
     CellularATError_t atStatus = CELLULAR_AT_SUCCESS;
     int32_t retStrtol = 0;
@@ -733,10 +810,11 @@ CellularATError_t Cellular_ATStrtoi( const char * pStr, int32_t base, int32_t * 
         /* coverity[misra_c_2012_directive_4_7_violation] */
         /* coverity[misra_c_2012_rule_22_8_violation] */
         /* coverity[misra_c_2012_rule_22_9_violation] */
-        retStrtol = strtol( pStr, & pEndStr, base );
-        if( * pEndStr == '\0' )
+        retStrtol = strtol( pStr, &pEndStr, base );
+
+        if( *pEndStr == '\0' )
         {
-            * pResult = retStrtol;
+            *pResult = retStrtol;
         }
         else
         {

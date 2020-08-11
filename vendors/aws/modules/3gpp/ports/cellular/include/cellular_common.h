@@ -43,8 +43,8 @@
 
 /*-----------------------------------------------------------*/
 
-#define PKTIO_READ_BUFFER_SIZE          ( 1600U ) /* This should be larger than TCP packet size. */
-#define PKTIO_WRITE_BUFFER_SIZE         ( 1600U ) /* This should be larger than TCP packet size. */
+#define PKTIO_READ_BUFFER_SIZE     ( 1600U )      /* This should be larger than TCP packet size. */
+#define PKTIO_WRITE_BUFFER_SIZE    ( 1600U )      /* This should be larger than TCP packet size. */
 
 /*-----------------------------------------------------------*/
 
@@ -74,7 +74,8 @@ typedef struct CellularAtDataReq
 /**
  * @brief URC handler function.
  */
-typedef void ( * CellularAtParseTokenHandler_t )( CellularContext_t * pContext, char * pInputStr );
+typedef void ( * CellularAtParseTokenHandler_t )( CellularContext_t * pContext,
+                                                  char * pInputStr );
 
 /**
  * @brief the URC token and URC handler mapping structure used by pkthanlder.
@@ -101,30 +102,30 @@ typedef enum CellularSocketState
  */
 typedef struct CellularSocketContext
 {
-    uint8_t contextId;                                    /* PDN context ID on which this socket exists. */
-    uint32_t socketId;                                    /* Socket ID of this socket. */
-    CellularSocketState_t socketState;                    /* State of the socket, Allocated, Free etc. */
-    CellularSocketType_t socketType;                      /* Type of socket, DGRAM or STREAM. */
-    CellularSocketDomain_t socketDomain;                  /* Socket domain, IPV4 or V6. */
-    CellularSocketProtocol_t socketProtocol;              /* Socket transport protocol, TCP or UDP. */
-    CellularIPAddress_t localIpAddress;                   /* IP address assigned to the device. */
-    uint16_t localPort;                                   /* Local Port. */
-    CellularSocketAccessMode_t dataMode;                  /* Data Access mode enabled for this socket. */
+    uint8_t contextId;                       /* PDN context ID on which this socket exists. */
+    uint32_t socketId;                       /* Socket ID of this socket. */
+    CellularSocketState_t socketState;       /* State of the socket, Allocated, Free etc. */
+    CellularSocketType_t socketType;         /* Type of socket, DGRAM or STREAM. */
+    CellularSocketDomain_t socketDomain;     /* Socket domain, IPV4 or V6. */
+    CellularSocketProtocol_t socketProtocol; /* Socket transport protocol, TCP or UDP. */
+    CellularIPAddress_t localIpAddress;      /* IP address assigned to the device. */
+    uint16_t localPort;                      /* Local Port. */
+    CellularSocketAccessMode_t dataMode;     /* Data Access mode enabled for this socket. */
 
     /* Set using socket options. */
-    uint32_t sendTimeoutMs;                               /* Send timeout value in milliseconds. */
-    uint32_t recvTimeoutMs;                               /* Receive timeout value in milliseconds. */
+    uint32_t sendTimeoutMs; /* Send timeout value in milliseconds. */
+    uint32_t recvTimeoutMs; /* Receive timeout value in milliseconds. */
 
     /* Set during socket connect. */
-    CellularSocketAddress_t remoteSocketAddress;          /* Remote IP address and port. */
+    CellularSocketAddress_t remoteSocketAddress; /* Remote IP address and port. */
 
     /* Callback functions. */
-    CellularSocketDataReadyCallback_t dataReadyCallback;  /* Informs data on this socket. */
-    void * pDataReadyCallbackContext;                     /* Data ready callback context. */
-    CellularSocketOpenCallback_t openCallback;            /* Informs the socket open status. */
-    void * pOpenCallbackContext;                          /* socket open callback context. */
-    CellularSocketClosedCallback_t closedCallback;        /* Informs the socket is closed. */
-    void * pClosedCallbackContext;                        /* socket closed callback context. */
+    CellularSocketDataReadyCallback_t dataReadyCallback; /* Informs data on this socket. */
+    void * pDataReadyCallbackContext;                    /* Data ready callback context. */
+    CellularSocketOpenCallback_t openCallback;           /* Informs the socket open status. */
+    void * pOpenCallbackContext;                         /* socket open callback context. */
+    CellularSocketClosedCallback_t closedCallback;       /* Informs the socket is closed. */
+    void * pClosedCallbackContext;                       /* socket closed callback context. */
 } CellularSocketContext_t;
 
 /**
@@ -158,7 +159,8 @@ typedef struct CellularTokenTable
  * code indicating the cause of the error.
  */
 typedef CellularPktStatus_t ( * CellularATCommandDataPrefixCallback_t ) ( const char * pLine,
-    char ** pDataStart, uint32_t * pDataLength );
+                                                                          char ** pDataStart,
+                                                                          uint32_t * pDataLength );
 
 /*-----------------------------------------------------------*/
 
@@ -176,8 +178,8 @@ typedef CellularPktStatus_t ( * CellularATCommandDataPrefixCallback_t ) ( const 
  * code indicating the cause of the error.
  */
 CellularError_t _Cellular_LibInit( CellularHandle_t * pCellularHandle,
-                                      const CellularCommInterface_t * pCommInterface,
-                                      const CellularTokenTable_t * pTokenTable );
+                                   const CellularCommInterface_t * pCommInterface,
+                                   const CellularTokenTable_t * pTokenTable );
 
 /**
  * @brief One time deinitialization function.
@@ -202,7 +204,8 @@ CellularError_t _Cellular_LibCleanup( CellularHandle_t cellularHandle );
  * @param[in] pServiceStatus The status of the network service.
  */
 void _Cellular_NetworkRegistrationCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, const CellularServiceStatus_t * pServiceStatus );
+                                            CellularUrcEvent_t urcEvent,
+                                            const CellularServiceStatus_t * pServiceStatus );
 
 /**
  * @brief Call the network registration callback if the callback is previously set by
@@ -213,7 +216,8 @@ void _Cellular_NetworkRegistrationCallback( const CellularContext_t * pContext,
  * @param[in] contextId Context ID of the PDN context.
  */
 void _Cellular_PdnEventCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, uint8_t contextId );
+                                 CellularUrcEvent_t urcEvent,
+                                 uint8_t contextId );
 
 /**
  * @brief Call the network registration callback if the callback is previously set by
@@ -224,7 +228,8 @@ void _Cellular_PdnEventCallback( const CellularContext_t * pContext,
  * @param[in] pSignalInfo The new signal information.
  */
 void _Cellular_SignalStrengthChangedCallback( const CellularContext_t * pContext,
-    CellularUrcEvent_t urcEvent, const CellularSignalInfo_t * pSignalInfo );
+                                              CellularUrcEvent_t urcEvent,
+                                              const CellularSignalInfo_t * pSignalInfo );
 
 /**
  * @brief Call the network registration callback if the callback is previously set by
@@ -233,7 +238,8 @@ void _Cellular_SignalStrengthChangedCallback( const CellularContext_t * pContext
  * @param[in] pContext The opaque cellular context pointer created by Cellular_Init.
  * @param[in] pRawData Raw data received in the URC event.
  */
-void _Cellular_GenericCallback( const CellularContext_t * pContext, const char * pRawData );
+void _Cellular_GenericCallback( const CellularContext_t * pContext,
+                                const char * pRawData );
 
 /**
  * @brief Call the network registration callback if the callback is previously set by
@@ -242,7 +248,8 @@ void _Cellular_GenericCallback( const CellularContext_t * pContext, const char *
  * @param[in] pContext The opaque cellular context pointer created by Cellular_Init.
  * @param[in] modemEvent The modem event.
  */
-void _Cellular_ModemEventCallback( const CellularContext_t * pContext, CellularModemEvent_t modemEvent );
+void _Cellular_ModemEventCallback( const CellularContext_t * pContext,
+                                   CellularModemEvent_t modemEvent );
 
 /**
  * @brief Check Library Status.
@@ -307,7 +314,8 @@ CellularError_t _Cellular_CreateSocketData( CellularContext_t * pContext,
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext, CellularSocketHandle_t socketHandle );
+CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext,
+                                            CellularSocketHandle_t socketHandle );
 
 /**
  * @brief Check socket index validity.
@@ -318,7 +326,8 @@ CellularError_t _Cellular_RemoveSocketData( CellularContext_t * pContext, Cellul
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext, uint32_t sockIndex );
+CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext,
+                                         uint32_t sockIndex );
 
 /**
  * @brief Get the socket data structure with socket index.
@@ -328,7 +337,8 @@ CellularError_t _Cellular_IsValidSocket( const CellularContext_t * pContext, uin
  *
  * @return The socket data pointer if the socket index is valid, otherwise NULL is returned.
  */
-CellularSocketContext_t * _Cellular_GetSocketData( const CellularContext_t * pContext, uint32_t sockIndex );
+CellularSocketContext_t * _Cellular_GetSocketData( const CellularContext_t * pContext,
+                                                   uint32_t sockIndex );
 
 /**
  * @brief Check PDN context index validity.
@@ -350,7 +360,8 @@ CellularError_t _Cellular_IsValidPdn( uint8_t contextId );
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi, int16_t *pRssiValue );
+CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi,
+                                                int16_t * pRssiValue );
 
 /**
  * @brief Convert CSQ command retruned BER value.
@@ -362,7 +373,8 @@ CellularError_t _Cellular_ConvertCsqSignalRssi( int16_t csqRssi, int16_t *pRssiV
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer, int16_t *pBerValue );
+CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer,
+                                               int16_t * pBerValue );
 
 /**
  * @brief Get the socket data structure with socket index.
@@ -373,7 +385,8 @@ CellularError_t _Cellular_ConvertCsqSignalBer( int16_t csqBer, int16_t *pBerValu
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_GetModuleContext( const CellularContext_t * pContext, void ** ppModuleContext );
+CellularError_t _Cellular_GetModuleContext( const CellularContext_t * pContext,
+                                            void ** ppModuleContext );
 
 /**
  * @brief Convert the signal to bar.
@@ -385,7 +398,8 @@ CellularError_t _Cellular_GetModuleContext( const CellularContext_t * pContext, 
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat, CellularSignalInfo_t * pSignalInfo );
+CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat,
+                                             CellularSignalInfo_t * pSignalInfo );
 
 /**
  * @brief Return the current RAT if previously received with 3GPP AT command.
@@ -396,7 +410,8 @@ CellularError_t _Cellular_ComputeSignalBars( CellularRat_t rat, CellularSignalIn
  * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
  * code indicating the cause of the error.
  */
-CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext, CellularRat_t * pRat );
+CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext,
+                                         CellularRat_t * pRat );
 
 /**
  * @brief Send the AT command to cellular modem with default timeout.
@@ -408,7 +423,7 @@ CellularError_t _Cellular_GetCurrentRat( CellularContext_t * pContext, CellularR
  * code indicating the cause of the error.
  */
 CellularPktStatus_t _Cellular_AtcmdRequestWithCallback( CellularContext_t * pContext,
-    CellularAtReq_t atReq );
+                                                        CellularAtReq_t atReq );
 
 /**
  * @brief Send the AT command to cellular modem.

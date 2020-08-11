@@ -66,8 +66,8 @@ CellularManagerError_t CellularManager_Cleanup( void );
  * error code indicating the cause of the error.
  */
 CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
-                                                const CellularPdnConfig_t * pPdnConfig,
-                                                uint32_t timeoutMilliseconds);
+                                                    const CellularPdnConfig_t * pPdnConfig,
+                                                    uint32_t timeoutMilliseconds );
 
 /**
  * @brief Disconnect the CELLULAR connection.
@@ -114,7 +114,7 @@ CellularManagerError_t CellularManager_AirplaneModeOff( void );
  * error code indicating the cause of the error.
  */
 CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( void * pUserData,
-                                                                      CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback );
+                                                                          CellularManagerConnectionStateChangedCallback_t connectionStateChangedCallback );
 
 /**
  * @brief Set the callback to be invoked whenever signal strength changes.
@@ -126,7 +126,7 @@ CellularManagerError_t CellularManager_SetConnectionStateChangedCallback( void *
  * error code indicating the cause of the error.
  */
 CellularManagerError_t CellularManager_SetSignalStrengthChangedCallback( void * pUserData,
-                                                                     CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback );
+                                                                         CellularManagerSignalStrengthChangedCallback_t signalStrengthChangedCallback );
 
 /**
  * @brief remove the Signal strength change callback
@@ -135,6 +135,7 @@ CellularManagerError_t CellularManager_SetSignalStrengthChangedCallback( void * 
  * error code indicating the cause of the error.
  */
 CellularManagerError_t CellularManager_RemoveSignalStrengthChangedCallback( void );
+
 /**
  * @brief remove the connection state change
  * @return CELLULAR_MANAGER_SUCCESS if the operation is successful, otherwise an
