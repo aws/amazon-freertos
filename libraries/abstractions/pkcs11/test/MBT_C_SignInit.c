@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.8
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,13 +36,13 @@
 
 CK_MECHANISM generateValidSigningMechanism()
 {
-    switch( xMechanismType )
+    switch( xGlobalMechanismType )
     {
         case CKM_RSA_PKCS:
         case CKM_ECDSA_SHA1:
         default:
             return ( CK_MECHANISM ) {
-                       xMechanismType, NULL_PTR, 0
+                       xGlobalMechanismType, NULL_PTR, 0
             };
     }
 }
@@ -69,15 +69,15 @@ void generateECDSAKeyPair( CK_OBJECT_HANDLE_PTR phPrivateKey,
 
 void generateValidSingingKeyPair()
 {
-    switch( xMechanismType )
+    switch( xGlobalMechanismType )
     {
         case CKM_RSA_PKCS:
-            generateRSAKeyPair( &xPrivateKey, xCkTrue, &xPublicKey, xCkTrue );
+            generateRSAKeyPair( &xGlobalPrivateKeyHandle, xGlobalCkTrue, &xGlobalPublicKeyHandle, xGlobalCkTrue );
             break;
 
         case CKM_ECDSA:
         default:
-            generateECDSAKeyPair( &xPrivateKey, xCkTrue, &xPublicKey, xCkTrue );
+            generateECDSAKeyPair( &xGlobalPrivateKeyHandle, xGlobalCkTrue, &xGlobalPublicKeyHandle, xGlobalCkTrue );
             break;
     }
 }
@@ -85,7 +85,7 @@ void generateValidSingingKeyPair()
 void C_SignInit_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
@@ -97,7 +97,7 @@ void C_SignInit_normal_behavior()
 void C_SignInit_exceptional_behavior_0()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
@@ -109,7 +109,7 @@ void C_SignInit_exceptional_behavior_0()
 void C_SignInit_exceptional_behavior_1()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
@@ -122,7 +122,7 @@ void C_SignInit_exceptional_behavior_2()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
     CK_MECHANISM_PTR pMechanism = NULL_PTR;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
 
     CK_RV rv = pxGlobalFunctionList->C_SignInit( hSession, pMechanism, hKey );
 
@@ -132,7 +132,7 @@ void C_SignInit_exceptional_behavior_2()
 void C_SignInit_exceptional_behavior_3()
 {
     CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
@@ -176,14 +176,14 @@ void C_SignInit_exceptional_behavior_6()
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         /* TODO: Not yet implemented */
         return;
     }
     else
     {
-        hKey = xPublicKey;
+        hKey = xGlobalPublicKeyHandle;
     }
 
     CK_RV rv = pxGlobalFunctionList->C_SignInit( hSession, pMechanism, hKey );
@@ -194,7 +194,7 @@ void C_SignInit_exceptional_behavior_6()
 void C_SignInit_exceptional_behavior_7()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = ( CK_MECHANISM ) {
         CKM_AES_CBC, NULL_PTR, 0
     };
@@ -208,7 +208,7 @@ void C_SignInit_exceptional_behavior_7()
 void C_SignInit_exceptional_behavior_8()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 
@@ -220,7 +220,7 @@ void C_SignInit_exceptional_behavior_8()
 void C_SignInit_exceptional_behavior_9()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hKey = xPrivateKey;
+    CK_OBJECT_HANDLE hKey = xGlobalPrivateKeyHandle;
     CK_MECHANISM pMechanism_val = generateValidSigningMechanism();
     CK_MECHANISM_PTR pMechanism = &pMechanism_val;
 

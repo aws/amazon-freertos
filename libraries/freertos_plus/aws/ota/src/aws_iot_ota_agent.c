@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1304,7 +1304,6 @@ static OTA_Err_t prvResumeHandler( OTA_EventData_t * pxEventData )
 static OTA_Err_t prvJobNotificationHandler( OTA_EventData_t * pxEventData )
 {
     ( void ) pxEventData;
-    OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_EventMsg_t xEventMsg = { 0 };
 
     /*  We receieved job notification so stop the data request timer. */
@@ -2651,7 +2650,13 @@ static void prvAgentShutdownCleanup( void )
         xOTA_Agent.xRequestTimer = NULL;
     }
 
-    /* Cleanup related to selected protocol. */
+    /* Control plane cleanup related to selected protocol. */
+    if( xOTA_ControlInterface.prvCleanup != NULL )
+    {
+        ( void ) xOTA_ControlInterface.prvCleanup( &xOTA_Agent );
+    }
+
+    /* Data plane cleanup related to selected protocol. */
     if( xOTA_DataInterface.prvCleanup != NULL )
     {
         ( void ) xOTA_DataInterface.prvCleanup( &xOTA_Agent );

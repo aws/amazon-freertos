@@ -25,6 +25,13 @@ if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
 
+if(DEFINED ENV{IDF_PATH})
+    message("WARNING: IDF_PATH environment variable is not cleared. 
+    If CMake is generating an error, consider clearing the IDF_PATH environment 
+    variable, and generating a clean build. This message can be ignored if 
+    CMake was successful.")
+endif()
+
 
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")

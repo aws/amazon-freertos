@@ -56,7 +56,7 @@ def red_print(s):
 def yellow_print(s):
     color_print(s, bcolors.YELLOW)
 
-def run_command(command):
+def run_command(command, timeout=500):
     try:
         # (master_fd, slave_fd) = pty.openpty()
         process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, close_fds=True, bufsize=0)
@@ -82,7 +82,7 @@ def run_command(command):
 
             curr = time.time()
             # timeout is treated as fail
-            if curr - start > 500:
+            if curr - start > timeout:
                 yellow_print("Timeout")
                 break
         # end the process
@@ -142,8 +142,8 @@ def main():
         default=500
     )
     parser.add_argument(
-        '--csv_off',
-        help='Turn off csv record',
+        '--csv', '-c',
+        help='Store to csv',
         action='store_true',
         default=False
     )
@@ -152,7 +152,7 @@ def main():
     src = args.src
     mutant_cnt = int(args.mutants)
     timeout = int(args.timeout)
-    csv_off = args.csv_off
+    csv = args.csv
 
     # MIGHT BE USEFUL FOR SERIAL INPUT BUT CANT FIGURE OUT HOW TO DO IT
     # serial_instance = serial.serial_for_url(get_default_serial_port(), os.environ.get('MONITOR_BAUD', 115200),
@@ -192,7 +192,7 @@ def main():
             yellow_print(cmd)
             fail = True
             try:
-                rc, fail = run_command(cmd)
+                rc, fail = run_command(cmd, timeout)
                 yellow_print("Return Code: {}".format(rc))
                 if rc == 2:
                     yellow_print("Cannot compile, discard and move on")
@@ -238,7 +238,7 @@ def main():
         if not os.path.exists(current_date):
             os.mkdir(current_date)
         csv_path = os.path.join(current_date, "{}_{}_mutants.csv".format(current_time, mutant_cnt))
-        if not csv_off:
+        if csv:
             with open(csv_path, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=headers)
                 writer.writeheader()

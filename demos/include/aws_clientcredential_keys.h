@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * FreeRTOS V201906.00 Major
+=======
+ * FreeRTOS V202007.00
+>>>>>>> 56a4020d6b23f2dfc7c51c89b9dd7efab4d3f4a4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

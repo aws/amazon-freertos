@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_smc_cgc.h
-* Version      : 1.1.2
+* Version      : 1.6.1
 * Device(s)    : R5F565NEDxFC
 * Description  : This file implements cgc setting.
-* Creation Date: 2018-11-17
+* Creation Date: 2020-04-10
 ***********************************************************************************************************************/
 
 #ifndef SMC_CGC_H
@@ -198,8 +198,6 @@ Macro definitions (Register bit)
 /* Count source select */
 #define _00_RTC_SOURCE_SELECT_SUB           (0x00U) /* Select sub-clock oscillator */
 #define _01_RTC_SOURCE_SELECT_MAIN_FORCED   (0x01U) /* Select main clock oscillator */
-#define _53_CGC_MOSCWTCR_VALUE              (0x53U) /* Main Clock Oscillator Wait Time */
-#define _21_CGC_SOSCWTCR_VALUE              (0x21U) /* Sub-Clock Oscillator Wait Time */
 
 /***********************************************************************************************************************
 Macro definitions
@@ -214,4 +212,6 @@ Global functions
 ***********************************************************************************************************************/
 void R_CGC_Create(void);
 void R_CGC_Create_UserInit();
+/* Start user code for function. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 #endif

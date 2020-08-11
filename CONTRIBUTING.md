@@ -46,6 +46,7 @@ To send us a pull request, please:
 1. Send us a pull request, answering any default questions in the pull request interface.    
    NOTE: Please make sure the default option (Allow edits from maintainers) is left checked.    
 1. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
+1. Pull requests should not be too large. This makes them difficult to meaningfully review. We recommend submitting changes in a series of smaller pull requests, each of which is thematically cohesive (i.e., focusing on a single set of related ideas/changes).
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).

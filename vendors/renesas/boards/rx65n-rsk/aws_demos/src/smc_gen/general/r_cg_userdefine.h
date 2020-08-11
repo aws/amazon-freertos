@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2016, 2017 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_cg_userdefine.h
-* Version      : 1.2.0
+* Version      : 1.2.7
 * Device(s)    : R5F565NEDxFC
 * Description  : User header file for code generation.
-* Creation Date: 2018-08-10
+* Creation Date: 2020-04-09
 ***********************************************************************************************************************/
 
 #ifndef CG_USER_DEF_H
