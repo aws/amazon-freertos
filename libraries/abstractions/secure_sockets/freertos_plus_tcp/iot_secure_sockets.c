@@ -88,6 +88,7 @@ static BaseType_t prvNetworkRecv( void * pvContext,
 }
 /*-----------------------------------------------------------*/
 
+#ifndef FREERTOS_PLUS_TCP_NO_SECURE_SOCKETS
 /*
  * Interface routines.
  */
@@ -532,6 +533,7 @@ BaseType_t SOCKETS_Init( void )
     return pdPASS;
 }
 /*-----------------------------------------------------------*/
+#endif /* FREERTOS_PLUS_TCP_NO_SECURE_SOCKETS. */
 
 /**
  * @brief Create a static PKCS #11 crypto session handle to share across socket

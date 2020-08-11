@@ -1,0 +1,585 @@
+/*
+ * Amazon FreeRTOS Cellular Preview Release
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
+
+
+/**
+ * @file comm_if_windows.c
+ * @brief Windows Simulator file for cellular comm interface
+ */
+
+/*-----------------------------------------------------------*/
+/* The config header is always included first. */
+#include "iot_config.h"
+
+/* Windows include file for COM port I/O. */
+#include <windows.h>
+
+/* Cellular comm interface include file. */
+#include "aws_cellular_config.h"
+#include "cellular_config_defaults.h"
+#include "cellular_comm_interface.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_INFO
+#endif
+
+#define LIBRARY_LOG_NAME        ( "CELLULAR_COMM" )
+#include "iot_logging_setup.h"
+
+/*-----------------------------------------------------------*/
+
+/* Define the COM port used as comm interface. */
+#define CELLULAR_COMM_PATH               "\\\\.\\"cellularconfigCOMM_INTERFACE_PORT
+
+/* Define the simulated UART interrupt number. */
+#define portINTERRUPT_UART              ( 2UL )
+
+/* Define the read write buffer size. */
+#define COMM_TX_BUFFER_SIZE             ( 8192 )
+#define COMM_RX_BUFFER_SIZE             ( 8192 )
+
+/* Receive thread timeout in ms. */
+#define COMM_RECV_THREAD_TIMEOUT        ( 5000 )
+
+/* Write operation timeout in ms. */
+#define COMM_WRITE_OPERATION_TIMEOUT    ( 500 )
+
+/* Comm status. */
+#define CELLULAR_COMM_OPEN_BIT          ( 0x01U )
+
+/*-----------------------------------------------------------*/
+
+typedef struct _cellularCommContext
+{
+    CellularCommInterfaceReceiveCallback_t commReceiveCallback;
+    HANDLE commReceiveCallbackThread;
+    uint8_t commStatus;
+    void * pUserData;
+    CellularCommInterfaceHandle_t commInterfaceHandle;
+    CellularCommInterface_t * pCommInterface;
+} _cellularCommContext_t;
+
+/*-----------------------------------------------------------*/
+
+static CellularCommInterfaceError_t _prvCommIntfOpen( CellularCommInterfaceReceiveCallback_t receiveCallback,
+                                                 void * pUserData,
+                                                 CellularCommInterfaceHandle_t * pCommInterfaceHandle );
+static CellularCommInterfaceError_t _prvCommIntfSend( CellularCommInterfaceHandle_t commInterfaceHandle,
+                                                 const uint8_t * pData,
+                                                 uint32_t dataLength,
+                                                 uint32_t timeoutMilliseconds,
+                                                 uint32_t * pDataSentLength );
+static CellularCommInterfaceError_t _prvCommIntfReceive( CellularCommInterfaceHandle_t commInterfaceHandle,
+                                                    uint8_t * pBuffer,
+                                                    uint32_t bufferLength,
+                                                    uint32_t timeoutMilliseconds,
+                                                    uint32_t * pDataReceivedLength );
+static CellularCommInterfaceError_t _prvCommIntfClose( CellularCommInterfaceHandle_t commInterfaceHandle );
+
+/*-----------------------------------------------------------*/
+
+CellularCommInterface_t CellularCommInterface =
+{
+    .open = _prvCommIntfOpen,
+    .send = _prvCommIntfSend,
+    .recv = _prvCommIntfReceive,
+    .close = _prvCommIntfClose
+};
+
+static _cellularCommContext_t _iotCellularCommContext =
+{
+    .commReceiveCallback = NULL,
+    .commReceiveCallbackThread = NULL,
+    .pCommInterface = & CellularCommInterface,
+    .commInterfaceHandle = NULL,
+    .pUserData = NULL,
+    .commStatus = 0U
+};
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Get Cellular comm interface context.
+ *
+ * @return pointer to _cellularCommContext_t instance.
+ */
+static _cellularCommContext_t * _getCellularCommContext( void )
+{
+    return &_iotCellularCommContext;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief UART interrupt handler.
+ *
+ * @return pdTRUE if the operation is successful, otherwise
+ * an error code indicating the cause of the error.
+ */
+static uint32_t prvProcessUartInt( void )
+{
+    _cellularCommContext_t * pCellularCommContext = _getCellularCommContext();
+
+    if( pCellularCommContext->commReceiveCallback != NULL )
+    {
+        pCellularCommContext->commReceiveCallback( pCellularCommContext->pUserData,
+            pCellularCommContext->commInterfaceHandle );
+    }
+    return pdTRUE;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Communication receiver thread function.
+ *
+ * @param[in] pArgument windows COM port handle.
+ * @return 0 if thread function exit.
+ */
+DWORD WINAPI _CellularCommReceiveCBThreadFunc( LPVOID pArgument )
+{
+    DWORD dwCommStatus = 0;
+    HANDLE hComm = ( HANDLE ) pArgument;
+    BOOL retWait = FALSE;
+
+    while( TRUE )
+    {
+        retWait = WaitCommEvent( hComm, &dwCommStatus, NULL );
+        if( ( retWait != FALSE ) && ( ( dwCommStatus & EV_RXCHAR ) != 0 ) )
+        {
+            if( ( dwCommStatus & EV_RXCHAR ) != 0 )
+            {
+                vPortGenerateSimulatedInterrupt( portINTERRUPT_UART );
+            }
+        }
+        else
+        {
+            if( ( GetLastError() == ERROR_INVALID_HANDLE ) || ( GetLastError() == ERROR_OPERATION_ABORTED ) )
+            {
+                /* COM port closed. */
+                IotLogInfo( "Cellular COM port %p closed", hComm );
+            }
+            else
+            {
+                IotLogInfo( "Cellular receiver thread wait comm error %p %d", hComm, GetLastError() );
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
+/*-----------------------------------------------------------*/
+
+static CellularCommInterfaceError_t _setupCommTimeout( HANDLE hComm )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    COMMTIMEOUTS xCommTimeouts = { 0 };
+    BOOL Status = TRUE;
+
+    /* Set ReadIntervalTimeout to MAXDWORD and zero values for both
+     * ReadTotalTimeoutConstant and ReadTotalTimeoutMultiplier to retrun
+     * immediatly with the bytes that already been received. */
+    xCommTimeouts.ReadIntervalTimeout = MAXDWORD;
+    xCommTimeouts.ReadTotalTimeoutConstant = 0;
+    xCommTimeouts.ReadTotalTimeoutMultiplier = 0;
+    xCommTimeouts.WriteTotalTimeoutConstant = COMM_WRITE_OPERATION_TIMEOUT;
+    xCommTimeouts.WriteTotalTimeoutMultiplier = 0;
+    Status = SetCommTimeouts( hComm, &xCommTimeouts );
+    if( Status == FALSE )
+    {
+        IotLogError( "Cellular SetCommTimeouts fail %d", GetLastError() );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    return commIntRet;
+}
+
+static CellularCommInterfaceError_t _setupCommSettings( HANDLE hComm )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    DCB dcbSerialParams = { 0 };
+    BOOL Status = TRUE;
+
+    ( void ) memset( &dcbSerialParams, 0, sizeof( dcbSerialParams ) );
+    dcbSerialParams.DCBlength = sizeof( dcbSerialParams );
+    dcbSerialParams.BaudRate = CBR_115200;
+    dcbSerialParams.fBinary = 1;
+    dcbSerialParams.ByteSize = 8;
+    dcbSerialParams.StopBits = ONESTOPBIT;
+    dcbSerialParams.Parity   = NOPARITY;
+    Status = SetCommState( hComm, &dcbSerialParams );
+    if( Status == FALSE )
+    {
+        IotLogError( "Cellular SetCommState fail %d", GetLastError() );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    return commIntRet;
+}
+
+static CellularCommInterfaceError_t _prvCommIntfOpen( CellularCommInterfaceReceiveCallback_t receiveCallback,
+                                                 void * pUserData,
+                                                 CellularCommInterfaceHandle_t * pCommInterfaceHandle )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    HANDLE hComm = ( HANDLE ) INVALID_HANDLE_VALUE;
+    BOOL Status = TRUE;
+    _cellularCommContext_t * pCellularCommContext = _getCellularCommContext();
+
+    if( pCellularCommContext == NULL )
+    {
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else if( ( pCellularCommContext->commStatus & CELLULAR_COMM_OPEN_BIT ) != 0 )
+    {
+        IotLogError( "Cellular comm interface opened already" );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else
+    {
+        /* Clear the context. */
+        memset( pCellularCommContext, 0, sizeof( _cellularCommContext_t ) );
+        pCellularCommContext->pCommInterface = & CellularCommInterface;
+
+        /* If CreateFile fails, the return value is INVALID_HANDLE_VALUE. */
+        hComm = CreateFile( TEXT(CELLULAR_COMM_PATH),
+                            GENERIC_READ | GENERIC_WRITE,
+                            0,
+                            NULL,
+                            OPEN_EXISTING,
+                            FILE_FLAG_OVERLAPPED,
+                            NULL );
+    }
+
+    if( hComm == ( HANDLE ) INVALID_HANDLE_VALUE )
+    {
+        IotLogError( "Cellular open COM port fail %d", GetLastError() );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else
+    {
+        Status = SetupComm( hComm, COMM_TX_BUFFER_SIZE, COMM_RX_BUFFER_SIZE );
+        if( Status == FALSE )
+        {
+            IotLogError( "Cellular setup COM port fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+    }
+
+    if( commIntRet == IOT_COMM_INTERFACE_SUCCESS )
+    {
+        commIntRet = _setupCommTimeout( hComm );
+    }
+
+    if( commIntRet == IOT_COMM_INTERFACE_SUCCESS )
+    {
+        commIntRet = _setupCommSettings( hComm );
+    }
+
+    if( ( commIntRet == IOT_COMM_INTERFACE_SUCCESS ) && ( receiveCallback != NULL ) )
+    {
+        pCellularCommContext->commReceiveCallback = receiveCallback;
+        Status = SetCommMask( hComm, EV_RXCHAR );
+        if( Status == FALSE )
+        {
+            IotLogError( "Cellular SetCommMask fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+        else
+        {
+            vPortSetInterruptHandler( portINTERRUPT_UART, prvProcessUartInt );
+            pCellularCommContext->commReceiveCallbackThread =
+                CreateThread( NULL, 0, _CellularCommReceiveCBThreadFunc, hComm, 0, NULL );
+            /* CreateThread return NULL for error. */
+            if( pCellularCommContext->commReceiveCallbackThread == NULL )
+            {
+                IotLogError( "Cellular CreateThread fail %d", GetLastError() );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+            }
+        }
+    }
+
+    if( commIntRet == IOT_COMM_INTERFACE_SUCCESS )
+    {
+        pCellularCommContext->pUserData = pUserData;
+        pCellularCommContext->commInterfaceHandle = ( CellularCommInterfaceHandle_t ) hComm;
+        *pCommInterfaceHandle = ( CellularCommInterfaceHandle_t ) pCellularCommContext;
+        pCellularCommContext->commStatus |= CELLULAR_COMM_OPEN_BIT;
+    }
+    else
+    {
+        /* Comm interface open fail. Clean the data. */
+        if( hComm != ( HANDLE ) INVALID_HANDLE_VALUE )
+        {
+            Status = CloseHandle( hComm );
+            if( Status == FALSE )
+            {
+                IotLogDebug( "Cellular open CloseHandle fail" );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+            }
+        }
+    }
+    return commIntRet;
+}
+
+/*-----------------------------------------------------------*/
+
+static CellularCommInterfaceError_t _prvCommIntfClose( CellularCommInterfaceHandle_t commInterfaceHandle )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    _cellularCommContext_t * pCellularCommContext = ( _cellularCommContext_t * ) commInterfaceHandle;
+    HANDLE hComm = NULL;
+    BOOL Status = TRUE;
+    DWORD dwRes = 0;
+
+    if( pCellularCommContext == NULL )
+    {
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else if( ( pCellularCommContext->commStatus & CELLULAR_COMM_OPEN_BIT ) == 0 )
+    {
+        IotLogError( "Cellular close comm interface is not opened before." );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else
+    {
+        /* clean the receive callback. */
+        pCellularCommContext->commReceiveCallback = NULL;
+
+        /* Close the COM port. */
+        hComm = pCellularCommContext->commInterfaceHandle;
+        if( hComm != ( HANDLE ) INVALID_HANDLE_VALUE )
+        {
+            Status = CloseHandle( hComm );
+            if( Status == FALSE )
+            {
+                IotLogDebug( "Cellular close CloseHandle %p fail", hComm );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+            }
+        }
+        else
+        {
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+        pCellularCommContext->commInterfaceHandle = NULL;
+
+        /* Wait for the thread exit. */
+        if( pCellularCommContext->commReceiveCallbackThread != NULL )
+        {
+            dwRes = WaitForSingleObject( pCellularCommContext->commReceiveCallbackThread, COMM_RECV_THREAD_TIMEOUT );
+            if( dwRes != WAIT_OBJECT_0 )
+            {
+                IotLogDebug( "Cellular close wait receiveCallbackThread %p fail %d",
+                    pCellularCommContext->commReceiveCallbackThread, dwRes );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+            }
+        }
+        pCellularCommContext->commReceiveCallbackThread = NULL;
+
+        /* clean the data structure. */
+        pCellularCommContext->commStatus &= ~( CELLULAR_COMM_OPEN_BIT );
+    }
+
+    return commIntRet;
+}
+
+/*-----------------------------------------------------------*/
+
+static CellularCommInterfaceError_t _prvCommIntfSend( CellularCommInterfaceHandle_t commInterfaceHandle,
+                                                 const uint8_t * pData,
+                                                 uint32_t dataLength,
+                                                 uint32_t timeoutMilliseconds,
+                                                 uint32_t * pDataSentLength )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    _cellularCommContext_t * pCellularCommContext = ( _cellularCommContext_t * ) commInterfaceHandle;
+    HANDLE hComm = NULL;
+    OVERLAPPED osWrite = { 0 };
+    DWORD dwRes = 0;
+    DWORD dwWritten = 0;
+    BOOL Status = TRUE;
+
+    if( pCellularCommContext == NULL )
+    {
+        commIntRet = IOT_COMM_INTERFACE_BAD_PARAMETER;
+    }
+    else if( ( pCellularCommContext->commStatus & CELLULAR_COMM_OPEN_BIT ) == 0 )
+    {
+        IotLogError( "Cellular send comm interface is not opened before." );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else
+    {
+        hComm = pCellularCommContext->commInterfaceHandle;
+        osWrite.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+        if ( osWrite.hEvent == NULL )
+        {
+            IotLogError( "Cellular CreateEvent fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+    }
+
+    if( commIntRet == IOT_COMM_INTERFACE_SUCCESS )
+    {
+        Status = WriteFile( hComm, pData, dataLength, &dwWritten, &osWrite );
+        /* WriteFile fail and error is not the ERROR_IO_PENDING. */
+        if( ( Status == FALSE ) && ( GetLastError() != ERROR_IO_PENDING ) )
+        {
+            IotLogError( "Cellular WriteFile fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+        if( Status == TRUE )
+        {
+            *pDataSentLength = ( uint32_t ) dwWritten;
+        }
+    }
+
+    /* Handle pending I/O. */
+    if( ( commIntRet == IOT_COMM_INTERFACE_SUCCESS ) && ( Status == FALSE ) )
+    {
+        dwRes = WaitForSingleObject( osWrite.hEvent, timeoutMilliseconds );
+        switch( dwRes )
+        {
+            case WAIT_OBJECT_0:
+                if ( GetOverlappedResult( hComm, &osWrite, &dwWritten, FALSE ) == FALSE )
+                {
+                    IotLogError( "Cellular GetOverlappedResult fail %d", GetLastError() );
+                    commIntRet = IOT_COMM_INTERFACE_FAILURE;
+                }
+                break;
+            case STATUS_TIMEOUT:
+                IotLogError( "Cellular WaitForSingleObject timeout" );
+                commIntRet = IOT_COMM_INTERFACE_TIMEOUT;
+                break;
+            default:
+                IotLogError( "Cellular WaitForSingleObject fail %d", dwRes );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+                break;
+        }
+        *pDataSentLength = ( uint32_t ) dwWritten;
+    }
+
+    if ( osWrite.hEvent != NULL )
+    {
+        Status = CloseHandle( osWrite.hEvent );
+        if( Status == FALSE )
+        {
+            IotLogDebug( "Cellular send CloseHandle fail" );
+        }
+    }
+
+    return commIntRet;
+}
+
+/*-----------------------------------------------------------*/
+
+static CellularCommInterfaceError_t _prvCommIntfReceive( CellularCommInterfaceHandle_t commInterfaceHandle,
+                                                    uint8_t * pBuffer,
+                                                    uint32_t bufferLength,
+                                                    uint32_t timeoutMilliseconds,
+                                                    uint32_t * pDataReceivedLength )
+{
+    CellularCommInterfaceError_t commIntRet = IOT_COMM_INTERFACE_SUCCESS;
+    _cellularCommContext_t * pCellularCommContext = ( _cellularCommContext_t * ) commInterfaceHandle;
+    HANDLE hComm = NULL;
+    OVERLAPPED osRead = { 0 };
+    BOOL Status = TRUE;
+    DWORD dwRes = 0;
+    DWORD dwRead = 0;
+
+    if( pCellularCommContext == NULL )
+    {
+        commIntRet = IOT_COMM_INTERFACE_BAD_PARAMETER;
+    }
+    else if( ( pCellularCommContext->commStatus & CELLULAR_COMM_OPEN_BIT ) == 0 )
+    {
+        IotLogError( "Cellular read comm interface is not opened before." );
+        commIntRet = IOT_COMM_INTERFACE_FAILURE;
+    }
+    else
+    {
+        hComm = pCellularCommContext->commInterfaceHandle;
+        osRead.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+        if ( osRead.hEvent == NULL )
+        {
+            IotLogError( "Cellular CreateEvent fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+    }
+
+    if( commIntRet == IOT_COMM_INTERFACE_SUCCESS )
+    {
+        Status = ReadFile( hComm, pBuffer, bufferLength, &dwRead, &osRead );
+        if( ( Status == FALSE ) && ( GetLastError() != ERROR_IO_PENDING ) )
+        {
+            IotLogError( "Cellular ReadFile fail %d", GetLastError() );
+            commIntRet = IOT_COMM_INTERFACE_FAILURE;
+        }
+        if( Status == TRUE)
+        {
+            *pDataReceivedLength = ( uint32_t ) dwRead;
+        }
+    }
+
+    /* Handle pending I/O. */
+    if( ( commIntRet == IOT_COMM_INTERFACE_SUCCESS ) && ( Status == FALSE ) )
+    {
+        dwRes = WaitForSingleObject( osRead.hEvent, timeoutMilliseconds );
+        switch( dwRes )
+        {
+            case WAIT_OBJECT_0:
+                if ( GetOverlappedResult( hComm, &osRead, &dwRead, FALSE ) == FALSE )
+                {
+                    IotLogError( "Cellular receive GetOverlappedResult fail %d", GetLastError() );
+                    commIntRet = IOT_COMM_INTERFACE_FAILURE;
+                }
+                break;
+            case STATUS_TIMEOUT:
+                IotLogError( "Cellular receive WaitForSingleObject timeout" );
+                commIntRet = IOT_COMM_INTERFACE_TIMEOUT;
+                break;
+            default:
+                IotLogError( "Cellular receive WaitForSingleObject fail %d", dwRes );
+                commIntRet = IOT_COMM_INTERFACE_FAILURE;
+                break;
+        }
+        *pDataReceivedLength = ( uint32_t ) dwRead;
+    }
+
+    if ( osRead.hEvent != NULL )
+    {
+        Status = CloseHandle( osRead.hEvent );
+        if( Status == FALSE )
+        {
+            IotLogDebug( "Cellular recv CloseHandle fail" );
+        }
+    }
+
+    return commIntRet;
+}
+
+/*-----------------------------------------------------------*/

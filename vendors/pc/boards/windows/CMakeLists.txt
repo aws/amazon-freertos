@@ -7,6 +7,10 @@ else()
     set(board_dir "${board_demos_dir}")
 endif()
 
+if(SECURE_SOCKETS_CELLULAR)
+    set(freertos_plus_tcp_secure_socket_define FREERTOS_PLUS_TCP_NO_SECURE_SOCKETS)
+endif()
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
@@ -38,6 +42,8 @@ target_compile_definitions(
         __free_rtos__
         _CONSOLE
         _CRT_SECURE_NO_WARNINGS
+        BG96_URC_PORT_USBAT
+        ${freertos_plus_tcp_secure_socket_define}
 )
 
 target_compile_options(
@@ -87,6 +93,16 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
+# Cellular
+afr_mcu_port(cellular)
+target_sources(
+    AFR::cellular::mcu_port
+    INTERFACE "${afr_ports_dir}/comm_if/comm_if_windows.c"
+)
+
+# Cellular module port
+include("${AFR_VENDORS_DIR}/quectel/modules/bg96/CMakeLists.txt")
+
 # PKCS11
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
@@ -114,11 +130,20 @@ target_link_libraries(
 )
 
 # Secure sockets
+if(SECURE_SOCKETS_CELLULAR)
+afr_mcu_port(secure_sockets)
+target_link_libraries(
+    AFR::secure_sockets::mcu_port
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
+              AFR::secure_sockets_cellular
+)
+else()
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
+endif()
 
 # OTA
 afr_mcu_port(ota)
@@ -171,6 +196,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         ${exe_target}
         PRIVATE
             AFR::freertos_plus_tcp
+            AFR::cellular
             AFR::utils
             AFR::dev_mode_key_provisioning
     )

@@ -55,6 +55,14 @@
     #include "iot_wifi.h"
 #endif
 
+#if CELLULAR_ENABLED
+    #include "aws_cellular_config.h"
+    #include "cellular_config_defaults.h"
+    #include "cellular_comm_interface.h"
+    #include "cellular_manager.h"
+    #include "cellular_api.h"
+#endif
+
 #if TCPIP_NETWORK_ENABLED
     #include "platform/iot_network_freertos.h"
 #endif
@@ -75,6 +83,9 @@
 
 #define _NM_WIFI_CONNECTION_RETRIES              ( 5 )
 
+#if CELLULAR_ENABLED
+    #include "aws_cellular_demo.h"
+#endif
 
 /**
  * @brief Structure holds information for each network and the runtime state of it.
@@ -245,6 +256,20 @@ static IotNetworkServerInfo_t tcpIPConnectionParams = { 0 };
         .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
         .pCredentials      = &tcpIPCredentials,
         .pConnectionParams = &tcpIPConnectionParams
+    };
+#endif
+
+#if CELLULAR_ENABLED
+    CellularHandle_t CellularHandle = NULL;
+    uint8_t CellularSocketPdnContextId = configCELLULAR_PDN_CONTEXT_ID;
+    static IotNMNetwork_t cellularNetwork =
+    {
+        .type              = AWSIOT_NETWORK_TYPE_CELLULAR,
+        .link              = IOT_LINK_INITIALIZER,
+        .state             = eNetworkStateUnknown,
+        .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
+        .pCredentials      = & tcpIPCredentials,
+        .pConnectionParams = & tcpIPConnectionParams
     };
 #endif
 
@@ -519,6 +544,127 @@ static IotNetworkManager_t networkManager =
 
 /*-----------------------------------------------------------*/
 
+#if CELLULAR_ENABLED
+
+    static void _cellularConnectionStateCB( void * pUserData, CellularManagerConnectionState_t connectionState )
+    {
+        IotLogDebug( "Cellular Manager connectionState Callback called %d\r\n", connectionState );
+    }
+
+    static bool _cellularEnable( void )
+    {
+        CellularError_t cellularHalStatus = CELLULAR_UNKNOWN;
+        CellularManagerError_t wmStatus = CELLULAR_MANAGER_SUCCESS;
+        CellularCommInterfaceError_t comIntfStatus = IOT_COMM_INTERFACE_SUCCESS;
+        CellularCommInterface_t * pCommIntf = & CellularCommInterface;
+        bool cellularStatus = true;
+
+        const CellularPdnConfig_t pdnConfig = { CELLULAR_PDN_CONTEXT_IPV4,
+                                              CELLULAR_PDN_AUTH_NONE,
+                                              configCELLULAR_APN, "", "" };
+        char localIP[ 32 ] = { '\0' };
+
+        /* Init communication interface. */
+        if( comIntfStatus != IOT_COMM_INTERFACE_SUCCESS )
+        {
+            IotLogError( "Cellular communication interface init failed %d", comIntfStatus );
+            cellularStatus = false;
+        }
+
+        /* Init cellular manager. */
+        if( cellularStatus == true )
+        {
+            wmStatus = CellularManager_Init( pCommIntf );
+            if( wmStatus != CELLULAR_MANAGER_SUCCESS )
+            {
+                IotLogError( "Cellular manger init failed %d", wmStatus );
+                cellularStatus = false;
+            }
+        }
+
+        /* get the Cellular handle from Cellular manager. */
+        if( cellularStatus == true )
+        {
+            wmStatus = CellularManager_GetCellularHandle( & CellularHandle );
+            if( wmStatus != CELLULAR_MANAGER_SUCCESS )
+            {
+                IotLogError( "Cellular manger get cellular handle failed %d", wmStatus );
+                cellularStatus = false;
+            }
+        }
+
+        /* Register connection state change callback. */
+        if( cellularStatus == true )
+        {
+            wmStatus = CellularManager_SetConnectionStateChangedCallback( NULL, & _cellularConnectionStateCB );
+            if( wmStatus != CELLULAR_MANAGER_SUCCESS )
+            {
+                IotLogError( "Cellular set connection callback failed %d", wmStatus );
+                cellularStatus = false;
+            }
+        }
+
+        /* Connect to cellular network PDN. */
+        if( cellularStatus == true )
+        {
+            wmStatus = CellularManager_ConnectSync( configCELLULAR_PDN_CONTEXT_ID,
+                & pdnConfig, confgCELLULAR_PDN_CONNECT_TIMEOUT );
+            if( wmStatus != CELLULAR_MANAGER_SUCCESS )
+            {
+                IotLogError( "Cellular data connection failed %d", wmStatus );
+                cellularStatus = false;
+            }
+        }
+
+        /* Get IP address. */
+        if( cellularStatus == true )
+        {
+            cellularHalStatus = Cellular_GetIPAddress( CellularHandle, configCELLULAR_PDN_CONTEXT_ID, localIP, sizeof( localIP ) );
+            if( cellularHalStatus != CELLULAR_SUCCESS )
+            {
+                IotLogError( "Cellular get IP failed %d", cellularHalStatus );
+                cellularStatus = false;
+            }
+            else
+            {
+                IotLogInfo( "Cellular IP address Assigned: %s\r\n", localIP );
+            }
+        }
+
+        /* Set DNS server address for cellular network. */
+        if( cellularStatus == true )
+        {
+            cellularHalStatus = Cellular_SetDns( CellularHandle, configCELLULAR_PDN_CONTEXT_ID, configCELLULAR_DNS_SERVER );
+            if( cellularHalStatus != CELLULAR_SUCCESS )
+            {
+                IotLogError( "Cellular set DNS failed %d", cellularHalStatus );
+                cellularStatus = false;
+            }
+        }
+
+        /* Clean up the cellular network. */
+        if( cellularStatus == false )
+        {
+            IotLogError( "Cellular network enable failed" );
+            if( pCommIntf != NULL )
+            {
+                if( wmStatus != CELLULAR_MANAGER_SUCCESS )
+                {
+                    /* Disconnect the PDN network. */
+                    ( void ) CellularManager_Disconnect( configCELLULAR_PDN_CONTEXT_ID );
+
+                    /* Cleanup the cellular manager. */
+                    ( void ) CellularManager_Cleanup();
+                }
+            }
+        }
+
+        return cellularStatus;
+    }
+
+#endif /* if CELLULAR_ENABLED */
+
+/*-----------------------------------------------------------*/
 
 static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool,
                                            IotTaskPoolJob_t job,
@@ -723,6 +869,10 @@ BaseType_t AwsIotNetworkManager_Init( void )
                 IotListDouble_InsertTail( &networkManager.networks, &ethNetwork.link );
             #endif
 
+            #if CELLULAR_ENABLED
+                IotListDouble_InsertTail( &networkManager.networks, &cellularNetwork.link );
+            #endif
+
             #if BLE_ENABLED
                 IotListDouble_InsertTail( &networkManager.networks, &bleNetwork.link );
                 /* Registration of network event callback for BLE is handled within _bleEnable() */
@@ -882,6 +1032,18 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t networkTypes )
         {
             enabled |= AWSIOT_NETWORK_TYPE_ETH;
             ethNetwork.state = eNetworkStateEnabled;
+        }
+    #endif
+
+    #if CELLULAR_ENABLED
+        if( ( ( networkTypes & AWSIOT_NETWORK_TYPE_CELLULAR ) == AWSIOT_NETWORK_TYPE_CELLULAR ) &&
+            ( cellularNetwork.state == eNetworkStateUnknown ) )
+        {
+            if( _cellularEnable() == true )
+            {
+                enabled |= AWSIOT_NETWORK_TYPE_CELLULAR;
+                cellularNetwork.state = eNetworkStateEnabled;
+            }
         }
     #endif
     return enabled;
