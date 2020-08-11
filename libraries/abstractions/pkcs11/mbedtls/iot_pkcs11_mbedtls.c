@@ -537,7 +537,7 @@ static CK_RV prvMbedTLS_Initialize( void )
 
     xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
         &xP11Context.xSessionMutexBuffer );
-    int lMbedTLSResult = 0;
+    uint32_t lMbedTLSResult = 0;
 
     if( ( xP11Context.xObjectList.xMutex == NULL ) ||
         ( xP11Context.xSessionMutex == NULL ) )
@@ -3365,7 +3365,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
 {
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
-    int lMbedTLSResult = 0;
+    uint32_t lMbedTLSResult = 0;
 
     if( pMechanism == NULL )
     {
@@ -3445,7 +3445,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
 {
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
-    int lMbedTLSResult = 0;
+    uint32_t lMbedTLSResult = 0;
 
     if( pPart == NULL )
     {
@@ -3523,7 +3523,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
 {
     P11Session_t * pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
-    int lMbedTLSResult = 0;
+    uint32_t lMbedTLSResult = 0;
 
 
     if( pulDigestLen == NULL )
@@ -3981,7 +3981,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     CK_BYTE_PTR pxLabel = NULL;
     CK_ULONG xLabelLength = 0;
-    int lMbedTLSResult = 0;
+    uint32_t lMbedTLSResult = 0;
 
     pxSession = prvSessionPointerFromHandle( hSession );
     CK_RV xResult = prvCheckValidSessionAndModule( pxSession );
