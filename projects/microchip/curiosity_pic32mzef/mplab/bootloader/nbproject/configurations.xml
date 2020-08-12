@@ -190,6 +190,8 @@
       <packs>
         <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.20"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
