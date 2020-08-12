@@ -47,4 +47,4 @@
  */
 #define RECV_TIMEOUT_MS             250U
 
-#endif
+#endif /* ifndef IOT_BLE_MQTT_TRANSPORT_CONFIG_H */

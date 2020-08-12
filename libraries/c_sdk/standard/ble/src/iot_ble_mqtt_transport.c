@@ -823,7 +823,8 @@ static MQTTStatus_t handleIncomingUnsuback( MQTTPacketInfo_t * packet,
 {
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
-    printf("here here\r\n");
+
+    printf( "here here\r\n" );
     LogDebug( ( "Processing incoming UNSUBACK from channel." ) );
     status = IotBleMqtt_DeserializeUnsuback( packet, &packetIdentifier );
 
