@@ -14,7 +14,6 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        .
         ${CMAKE_CURRENT_LIST_DIR}
         ${AFR_MODULES_C_SDK_DIR}/standard/logging_stack/
 )
