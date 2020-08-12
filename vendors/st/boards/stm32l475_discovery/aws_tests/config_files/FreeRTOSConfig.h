@@ -1,32 +1,33 @@
 /*
-FreeRTOS Kernel V1.1.4
-Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
+ * FreeRTOS Kernel V1.1.4
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 #include "unity_internals.h"
+
 /*-----------------------------------------------------------
 * Application specific definitions.
 *
@@ -94,6 +95,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define INCLUDE_vTaskDelay                           1
 #define INCLUDE_xTaskGetSchedulerState               1
 #define INCLUDE_xSemaphoreGetMutexHolder             1
+#define INCLUDE_xTimerPendFunctionCall               1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -125,8 +127,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */
-#define configASSERT( x )                                       \
-    if( ( x ) == 0 )  TEST_ABORT()
+#define configASSERT( x ) \
+    if( ( x ) == 0 ) TEST_ABORT()
 
 /* Logging task definitions. */
 extern void vMainUARTPrintString( char * pcString );
@@ -134,11 +136,11 @@ void vLoggingPrintf( const char * pcFormat,
                      ... );
 
 /* Map the FreeRTOS printf() to the logging task printf. */
-#define configPRINTF( X )          vLoggingPrintf X
+#define configPRINTF( X )    vLoggingPrintf X
 
 /* Non-format version print. */
 extern void vLoggingPrint( const char * pcMessage );
-#define configPRINT( X )     vLoggingPrint( X )
+#define configPRINT( X )           vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
 #define configPRINT_STRING( x )    vMainUARTPrintString( x );
@@ -238,6 +240,6 @@ extern int iMainRand32( void );
 #define configNET_MASK3               0
 
 /* The platform FreeRTOS is running on. */
-#define configPLATFORM_NAME    "STM32L475"
+#define configPLATFORM_NAME           "STM32L475"
 
 #endif /* FREERTOS_CONFIG_H */

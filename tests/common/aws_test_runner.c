@@ -71,6 +71,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( Quarantine_WiFi );
     #endif
 
+    #if ( testrunnerFULL_CELLULAR_API_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_CELLULAR_API );
+    #endif
+
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
         RUN_TEST_GROUP( Common_Unit_Task_Pool );
     #endif
