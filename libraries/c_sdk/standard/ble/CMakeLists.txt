@@ -30,7 +30,6 @@ afr_module_sources(
         "${inc_dir}/iot_ble_data_transfer.h"
         "${inc_dir}/iot_ble_device_information.h"
         "${inc_dir}/iot_ble_mqtt_serialize.h"
-        "${inc_dir}/iot_ble_mqtt_transport.h"
         "${inc_dir}/iot_ble_wifi_provisioning.h"
         "${inc_dir}/iot_ble.h"
 )
@@ -116,6 +115,7 @@ afr_module_include_dirs(
     PUBLIC
         "${inc_dir}"
         "${AFR_MODULES_DIR}/c_sdk/standard/mqtt_v2/include/"
+        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         "${test_dir}"

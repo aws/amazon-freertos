@@ -34,7 +34,16 @@
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
 #include "platform/iot_network.h"
+#include "types/iot_platform_types.h"
 
+
+struct NetworkContext
+{
+    IotBleDataTransferChannel_t * pChannel;
+    IotSemaphore_t isReady;
+    void * buf;
+    size_t bufSize;
+};
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data

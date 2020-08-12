@@ -25,10 +25,26 @@
 #define IOT_BLE_MQTT_TRANSPORT_CONFIG_H
 
 
-/* The maximum number of subscriptions one subscribe packet can hold
- * RECV_PACKET_BUFFER_SIZE will be reconfigured in testing, and MAX_SUBS_PER_PACKET
- * will be a some factor of the buffer size.
+#include "logging_levels.h"
+
+/* Configure name and log level for the MQTT library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME     "MQTT_BLE"
+#endif
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
+#include "logging_stack.h"
+
+/**
+ * @brief The maximum number of subscriptions one subscribe packet can hold
  */
 #define MQTT_MAX_SUBS_PER_PACKET    10U
+
+/**
+ * @brief The amount of time transport layer blocks on receiving new data from the server.
+ */
+#define RECV_TIMEOUT_MS             250U
 
 #endif

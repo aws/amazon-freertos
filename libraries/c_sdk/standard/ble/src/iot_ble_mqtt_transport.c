@@ -381,10 +381,10 @@ static uint16_t calculateNumSubs( const uint8_t * buf,
                                   uint8_t remainingLength,
                                   bool subscribe )
 {
-    uint16_t numSubs = 0, totalSize = 0;
+    uint16_t numSubs = 0U, totalSize = 0U;
 
     /* Loop through the rest of the packet. */
-    while( remainingLength - totalSize > 0U )
+    while( ( remainingLength - totalSize ) > 0U )
     {
         totalSize += ( getIntFromTwoBytes( &buf[ totalSize ] ) + 2U );
 
@@ -488,21 +488,21 @@ static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer,
         pBuffer->pBuffer[ packetSize - 2U ] = ( ( restOfTopicNameLength + 1U ) );
 
         /* Send the Fixed header + length + first character of topic into the buffer */
-        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pBuffer->pBuffer, packetSize, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pBuffer->pBuffer, packetSize, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 
         /* Send the rest of the topic into the buffer */
-        ( void ) xStreamBufferSend( streamBuffer, ( void * ) restOfTopicName, restOfTopicNameLength, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) restOfTopicName, restOfTopicNameLength, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 
         if( pPublishConfig->qos >= MQTTQoS1 )
         {
             /* Send the packet identifier to the buffer; need to represent as two seperate bytes to resolve endianness. */
             serializedArray[ 0 ] = ( uint8_t ) ( ( packetId & 0xFF00U ) >> 8 );
             serializedArray[ 1 ] = ( uint8_t ) ( packetId & 0x00FFU );
-            ( void ) xStreamBufferSend( streamBuffer, ( void * ) serializedArray, 2U, pdMS_TO_TICKS( 100 ) );
+            ( void ) xStreamBufferSend( streamBuffer, ( void * ) serializedArray, 2U, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
         }
 
         /* Send the payload itself into the buffer */
-        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pPayload, payloadLength, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, ( void * ) pPayload, payloadLength, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -748,7 +748,7 @@ static MQTTStatus_t handleIncomingConnack( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -770,7 +770,7 @@ static MQTTStatus_t handleIncomingPuback( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -812,7 +812,7 @@ static MQTTStatus_t handleIncomingSuback( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -823,7 +823,7 @@ static MQTTStatus_t handleIncomingUnsuback( MQTTPacketInfo_t * packet,
 {
     MQTTStatus_t status = MQTTSuccess;
     uint16_t packetIdentifier = 0;
-
+    printf("here here\r\n");
     LogDebug( ( "Processing incoming UNSUBACK from channel." ) );
     status = IotBleMqtt_DeserializeUnsuback( packet, &packetIdentifier );
 
@@ -834,7 +834,7 @@ static MQTTStatus_t handleIncomingUnsuback( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -856,7 +856,7 @@ static MQTTStatus_t handleIncomingPingresp( MQTTPacketInfo_t * packet,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_PING, pdMS_TO_TICKS( 100 ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_PING, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -1044,5 +1044,5 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
                                     size_t bytesToRead )
 {
     ( void ) pContext;
-    return ( int32_t ) xStreamBufferReceive( streamBuffer, buf, bytesToRead, pdMS_TO_TICKS( 100 ) );
+    return ( int32_t ) xStreamBufferReceive( streamBuffer, buf, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 }
