@@ -45,9 +45,6 @@
 #include <sys/types.h>
 
 
-
-/************ End of logging configuration ****************/
-
 /**
  * @brief The first characters in the client identifier. A timestamp is appended
  * to this prefix to create a unique client identifer.
@@ -249,7 +246,6 @@ static MQTTStatus_t demoInitChannel( void )
     if( status != MQTTSuccess )
     {
         LogError( ( "Something went wrong in initializing the demo" ) );
-        status = MQTTServerRefused;
     }
 
     return status;
