@@ -21,6 +21,8 @@ import re
 import sys
 import random
 
+import utils
+
 ### Mutation tricks ###
 
 NULL_STRING = " "
@@ -175,13 +177,15 @@ mutation_trick = {
 	"else": "// else",
 }
 
-def main (input_file, output_file = False ) :
+def main (input_file, output_file = False, seed=None) :
 #
-	random.seed()
+	if not seed:
+		seed = random.randrange(sys.maxsize)
+		random.seed(seed)
+	utils.yellow_print("Seed was: {}".format(seed))
 
 	source_code = open(input_file).read().split('\n')
 	number_of_lines_of_code = len(source_code) 
-
 	# try mutating a random line
 	random_line = random.randint(0,number_of_lines_of_code)
 
@@ -236,7 +240,7 @@ def main (input_file, output_file = False ) :
 					sys.stderr.write("\nOutput written to "+output_file+"\n")
 
 				sys.stderr.write("\n")
-				return source_code[i].strip(), mutated_line.strip(), i
+				return source_code[i].strip(), mutated_line.strip(), i, seed
 			#
 		#
 	#

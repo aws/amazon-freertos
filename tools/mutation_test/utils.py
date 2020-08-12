@@ -24,6 +24,25 @@ def raw_print(value):
     print(value, end='', flush=True)
     Log.log_file(value)
 
+class bcolors:
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+
+def color_print(message, color):
+    """ Print a message to stderr with colored highlighting """
+    sys.stderr.write("%s%s%s\n" % (color, message, bcolors.ENDC))
+
+def green_print(s):
+    color_print(s, bcolors.GREEN)
+
+def red_print(s):
+    color_print(s, bcolors.RED)
+
+def yellow_print(s):
+    color_print(s, bcolors.YELLOW)
+
 
 def to_json(obj):
     return json.dumps(obj, indent=4)

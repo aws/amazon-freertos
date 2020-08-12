@@ -8,11 +8,11 @@ import serial
 import csv
 import datetime
 import traceback
-import pty
 import time
 import argparse
 import re
 import signal
+import ast
 
 import comm
 import utils
@@ -21,6 +21,11 @@ import utils
 dir_path = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.join(dir_path, os.pardir)
 root_path = os.path.join(root_path, os.pardir)
+
+# test time
+current_time = datetime.datetime.now()
+current_date = current_time.strftime('%m%d%y')
+current_time = current_time.strftime('%H%M')
 
 # configs
 vendor = 'espressif'
@@ -41,75 +46,6 @@ NoConnectFlag                       = "WiFi failed to connect to AP SSSS."
 
 TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-def color_print(message, color):
-    """ Print a message to stderr with colored highlighting """
-    sys.stderr.write("%s%s%s\n" % (color, message, bcolors.ENDC))
-
-def green_print(s):
-    color_print(s, bcolors.OKGREEN)
-
-def red_print(s):
-    color_print(s, bcolors.RED)
-
-def yellow_print(s):
-    color_print(s, bcolors.YELLOW)
-
-def run_command(command, timeout=500):
-    try:
-        # (master_fd, slave_fd) = pty.openpty()
-        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, close_fds=True, bufsize=0)
-        start = time.time()
-        fail = True
-        while True:
-            # read line from serial pipe
-            output = process.stdout.readline()
-            
-            # if somehow the call ends early
-            if not output:
-                break
-            print(output.strip())
-
-            # check if all tests have passed then we have discovered a live mutant
-            if PassFlag in str(output):
-                fail = False
-            
-            # end the process since we know at least one test has failed
-            # if crash -> treat as fail
-            if any(flag in str(output) for flag in [EndFlag, RebootFlag, NoConnectFlag, FailFlag]):
-                break
-
-            curr = time.time()
-            # timeout is treated as fail
-            if curr - start > timeout:
-                yellow_print("Timeout")
-                break
-        # end the process
-        if process.poll() is None:
-            # idf_monitor is still running
-            process.kill()
-            rc = process.wait()
-        else:
-            rc = process.poll()
-        return rc, fail
-    except:
-        traceback.print_exc()
-        process.kill()
-    finally:
-        end = time.time()
-        yellow_print("Elapsed Time: {}s".format(str(format(end - start, '.2f'))))
-        # os.close(slave_fd)
-        # os.close(master_fd)
-
 def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None, start_timeout=360, exec_timeout):
     """
     Read output from a board. Will look for `start_flag`, or wait for output if not provided, until
@@ -127,12 +63,24 @@ def percentage(part, whole):
         return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
 
 def to_csv(csv_path, headers, dict):
+    """
+    Create a csv file at `csv_path` with `headers` using data in `dict` where each key in `dict` is
+    equal to one of the `headers` and `dict[key]` will be written.
+    """
     with open(csv_path, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
         for row in dict:
             writer.writerow(row)
-        yellow_print("Successfully wrote to CSV - {}".format(csv_path))
+        utils.yellow_print("Successfully wrote to CSV - {}".format(csv_path))
+
+def create_jobfile(path=os.path.join(dir_path, '{}-{}.jobfile'), **kwargs):
+    """
+    Creates a jobfile at `path`. Contains a dictionary string type. 
+    """
+    with open(path, 'w') as f:
+        f.write(kwargs)
+
 
 def get_default_serial_port():
     """ Return a default serial port. esptool can do this (smarter), but it can create
@@ -160,7 +108,7 @@ class MutationTestError(Exception):
 class SerialPortError(MutationTestError):
     pass
 
-class ExternalCommandFailed(MutationTestError):
+class CompileFlashFailed(MutationTestError):
     pass
 
 def main():
@@ -171,9 +119,14 @@ def main():
         default=10
     )
     parser.add_argument(
-        '--src', '-s',
+        '--src',
         help='Source file to mutate',
         default="iot_wifi.c"
+    )
+    parser.add_argument(
+        '--port', '-p',
+        help="Serial port to read from",
+        default=None
     )
     parser.add_argument(
         '--timeout', '-t',
@@ -186,13 +139,34 @@ def main():
         action='store_true',
         default=False
     )
+    parser.add_argument(
+        '--seed',
+        help='Random seed to generate mutants with',
+        default=None
+    )
+    parser.add_argument(
+        '--jobfile', '-j',
+        help='Specify path to a jobfile to repeat a test; will replace all arguments provided',
+        default=None
+    )
     args = parser.parse_args()
 
     src = args.src
+    port = args.port if args.port else get_default_serial_port()
     mutant_cnt = int(args.mutants)
     timeout = int(args.timeout)
     csv = args.csv
-
+    seed = args.seed if args.seed else None
+    if args.jobfile:
+        with open(args.jobfile, 'r') as f:
+            jobfile = ast.literal_eval(f.read())
+            src = jobfile['src']
+            port = jobfile['port']
+            mutant_cnt = int(jobfile['mutant_cnt'])
+            timeout = int(jobfile['timeout'])
+            csv = jobfile['csv']
+            seed = jobfile['seed']
+    
     # cd to source
     os.chdir(src_path)
 
@@ -208,29 +182,35 @@ def main():
             # create a copy of the original
             shutil.copyfile(src, '{}.old'.format(src))
             # create a mutant
-            original_line, mutated_line, line_number = mutate.main('{}.old'.format(src), src)
+            original_line, mutated_line, line_number, seed = mutate.main('{}.old'.format(src), src, seed)
             # cd to root
             os.chdir(root_path)
             # cmake the mutant
             # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
             cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
-            yellow_print(cmd)
+            utils.yellow_print(cmd)
             subprocess.check_call(shlex.split(cmd))
             # build and execute the mutant
             # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-            cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build"
-            yellow_print(cmd)
+            cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
+            utils.yellow_print(cmd)
             alive = False
             try:
+                # Flash to device
                 try: 
                     subprocess.check_call(shlex.split(cmd))
                 except subprocess.CalledProcessError as e:
                     print(e.output)
-                    raise ExternalCommandFailed('Flash command failed.')
-                yellow_print("Done Flashing")
-                output, alive = read_device_output(get_default_serial_port(), start_flag=None, end_flags=[EndFlag], pass_flag=PassFlag, exec_timeout=500)
+                    raise CompileFlashFailed('Flash command failed.')
+                utils.yellow_print("Done Flashing")
+                # Read device output through serial port
+                output, alive = read_device_output(port=port, 
+                                                   start_flag=None, 
+                                                   end_flags=[EndFlag], 
+                                                   pass_flag=PassFlag, 
+                                                   exec_timeout=timeout)
+                # Analyze the results
                 results = re.findall(TestRegEx, output)
-
                 for group, test, result in results:
                     if test not in test_to_group:
                         test_to_group[test] = group
@@ -241,18 +221,19 @@ def main():
                     if test not in test_to_kills:
                         test_to_kills[test] = 0
                     elif result == 'FAIL':
-                        test_to_kills[test] += 1 
+                        test_to_kills[test] += 1
                 total += 1
                 if not alive:
                     failures += 1
-                    green_print("Mutant is Killed")
+                    utils.green_print("Mutant is Killed")
                 else:
-                    red_print("Mutant is Alive")
+                    utils.red_print("Mutant is Alive")
+                # Add result to CSV queue
                 trials.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                                 'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
-                yellow_print("Successful Mutant Runs: {}".format(total))
-            except ExternalCommandFailed:
-                yellow_print("Cannot compile, discard and move on")
+                utils.yellow_print("Successful Mutant Runs: {}/{}".format(total, mutant_cnt))
+            except CompileFlashFailed:
+                utils.yellow_print("Cannot compile, discard and move on")
                 # Include no-compile in csv results?
                 # results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                 #                 'result':"No-Compile"})
@@ -261,18 +242,18 @@ def main():
                 # restore mutant
                 os.chdir(src_path)
                 shutil.copyfile('{}.old'.format(src), src)
-                yellow_print("Source code restored")
+                utils.yellow_print("Source code restored")
     except:
         traceback.print_exc()
         raise
     finally:
         # calculate mutant score
         score = percentage(failures, total)
-        yellow_print(score)
-        yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
+        utils.yellow_print(score)
+        utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(total - failures, failures, total, nc, total + nc))
-        trials.append({'line': "{} KILLS".format(failures) , 'original':"{} MUTANTS".format(total),
-                        'mutant':"SCORE", 'result':"{}%".format(score)})
+        trials.append({'line': "" , 'mutant':"SCORE", 
+                       'original':"{}/{}".format(failures, total),'result':"{}%".format(score)})
         
         # aggregate pass/fail counts
         aggregates = []
@@ -281,24 +262,25 @@ def main():
                                'Test': test,
                                'Kills': test_to_kills[test],
                                'Passes': test_to_total[test] - test_to_kills[test],
-                               'Total': test_to_total[test],
-                               'Score': percentage(test_to_kills[test], test_to_total[test])})
+                               'Total': test_to_total[test]})
 
         # log to csv
         if csv:
             os.chdir(dir_path)
-            current_time = datetime.datetime.now()
-            current_date = current_time.strftime('%m%d%y')
-            current_time = current_time.strftime('%m%d%y_%H%M')
             utils.mkdir(current_date)
             csv_path = os.path.join(current_date, current_time)
             utils.mkdir(csv_path)
             trials_csv = os.path.join(csv_path, "{}-{}_{}_mutants.csv".format(current_date, current_time, mutant_cnt))
             per_test_csv = os.path.join(csv_path, "{}-{}_tests.csv".format(current_date, current_time)) 
             to_csv(trials_csv, ['line', 'original', 'mutant', 'result'], trials)
-            to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total', 'Score'], aggregates)
+            to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
-            
+        create_jobfile(src=src,
+                       mutant_cnt=mutant_cnt,
+                       timeout=timeout,
+                       csv=csv,
+                       seed=seed)
+
         # cleanup
         os.chdir(src_path)
         os.remove('{}.old'.format(src))
