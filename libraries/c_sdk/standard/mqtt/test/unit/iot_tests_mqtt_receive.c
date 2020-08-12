@@ -519,7 +519,7 @@ static void _disconnectCallback( void * pCallbackContext,
 /**
  * @brief Setting the MQTT Context for the given MQTT Connection.
  */
-static void _setContext( IotMqttConnection_t pMqttConnection )
+static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
@@ -590,16 +590,8 @@ TEST_GROUP( MQTT_Unit_Receive );
  */
 TEST_SETUP( MQTT_Unit_Receive )
 {
-    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     static IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
-    bool subscriptionMutexCreated = false;
-    int8_t contextIndex = -1;
-    bool contextMutex = false;
-    TransportInterface_t transport;
-    MQTTFixedBuffer_t networkBuffer;
-    MQTTApplicationCallbacks_t callbacks;
-    MQTTStatus_t managedMqttStatus;
 
     /* Initialize SDK. */
     TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
@@ -629,8 +621,8 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
-    _setContext( _pMqttConnection );
-
+    /* Setting the MQTT Context for the given MQTT Connection. */
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection ) );
 
     /* Set the MQTT serializer overrides. */
     _pMqttConnection->pSerializer = &serializer;
@@ -651,8 +643,6 @@ TEST_SETUP( MQTT_Unit_Receive )
     _getRemainingLengthCalled = false;
     _networkCloseCalled = false;
     _disconnectCallbackCalled = false;
-
-    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/

@@ -51,6 +51,9 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /*-----------------------------------------------------------*/
 
 /* Using initialized connToContext variable. */
@@ -274,15 +277,15 @@ static void _blockingCallback( void * pArgument,
  * @brief Setting the MQTT Context for the given MQTT Connection.
  *
  */
-static void _setContext( IotMqttConnection_t pMqttConnection )
+static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     bool subscriptionMutexCreated = false;
     bool contextMutex = false;
     TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
     MQTTApplicationCallbacks_t callbacks;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
@@ -303,6 +306,7 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
         if( subscriptionMutexCreated == false )
         {
             IotLogError( "Failed to create subscription mutex for new connection." );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
         else
         {
@@ -316,6 +320,7 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
             IotLogError( "(MQTT connection %p) Failed to initialize context for "
                          "the MQTT connection.",
                          pMqttConnection );
+            IOT_GOTO_CLEANUP();
         }
     }
     else
@@ -323,7 +328,10 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
         IotLogError( "(MQTT connection %p) Failed to create mutex for "
                      "the MQTT context.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
+
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 static bool _isEmpty( _mqttSubscription_t * pSubscriptionArray )
@@ -376,7 +384,7 @@ TEST_SETUP( MQTT_Unit_Subscription )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Setting the MQTT Context for the MQTT Connection. */
-    _setContext( _pMqttConnection );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection ) );
 
     _connectionCreated = true;
 }
@@ -1043,7 +1051,5 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchFalse )
     /* Free the index occupied by this subscription. */
     pTopicFilter->topicFilterLength = 0;
 }
-
-
 
 /*-----------------------------------------------------------*/
