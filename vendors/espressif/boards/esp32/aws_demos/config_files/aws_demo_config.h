@@ -30,6 +30,7 @@
  * Only one demo can be configured at a time
  *
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_MQTT_TRANSPORT_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -53,6 +54,11 @@
 #if defined( CONFIG_MQTT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+#endif
+
+#if defined( CONFIG_MQTT_TRANSPORT_DEMO_ENABLED )
+    #undef democonfigNETWORK_TYPES
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
 #if defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )

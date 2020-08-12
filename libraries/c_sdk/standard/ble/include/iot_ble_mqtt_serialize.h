@@ -150,8 +150,7 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack );
 MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
                                           uint8_t ** const pPublishPacket,
                                           size_t * const pPacketSize,
-                                          uint16_t * const pPacketIdentifier,
-                                          uint8_t ** pPacketIdentifierHigh );
+                                          uint16_t * const pPacketIdentifier );
 
 /**
  * @brief Set the DUP flag to indicate its a duplicate QoS1/QoS2 message.

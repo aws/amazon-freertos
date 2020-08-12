@@ -99,3 +99,31 @@ afr_module_dependencies(
     INTERFACE
         AFR::ble_wifi_provisioning
 )
+
+#MQTT over BLE
+afr_module(NAME mqtt_ble)
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${src_dir}/iot_ble_mqtt_serialize.c"
+        "${src_dir}/iot_ble_mqtt_transport.c"
+)
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        "${inc_dir}"
+        "${AFR_MODULES_DIR}/c_sdk/standard/mqtt_v2/include/"
+        "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
+        "$<${AFR_IS_TESTING}:${src_dir}>"
+    PRIVATE
+        "${test_dir}"
+)
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::ble
+	    AFR::mqtt_v2
+)
