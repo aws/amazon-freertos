@@ -304,10 +304,12 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
         {
             IotLogError( "Failed to create subscription mutex for new connection." );
         }
-
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-        status = convertReturnCode( managedMqttStatus );
+        else
+        {
+            /* Initializing the MQTT context used in calling MQTT LTS API. */
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+            status = convertReturnCode( managedMqttStatus );
+        }
 
         if( status != IOT_MQTT_SUCCESS )
         {
@@ -446,7 +448,7 @@ TEST( MQTT_Unit_Subscription, ListInsertRemove )
     IotMqtt_RemoveSubscription( connToContext[ contextIndex ].subscriptionArray, index2 );
     IotMqtt_RemoveSubscription( connToContext[ contextIndex ].subscriptionArray, index3 );
 
-    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -510,14 +512,14 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
                                              i );
     }
 
-    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Remove all subscriptions for a packet one-shot. */
     _populateList();
     _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
                                          1,
                                          -1 );
-    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -555,11 +557,11 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     }
 
     /* List should be empty. */
-    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Refill the list. */
     _populateList();
-    TEST_ASSERT_EQUAL_INT( false, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_FALSE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Removal all at once. */
     for( i = 0; i < LIST_ITEM_COUNT; i++ )
@@ -576,7 +578,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
                                               LIST_ITEM_COUNT );
 
     /* List should be empty. */
-    TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+    TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 }
 
 /*-----------------------------------------------------------*/

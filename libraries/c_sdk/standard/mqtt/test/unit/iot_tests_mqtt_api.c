@@ -53,6 +53,9 @@
 /* MQTT mock include. */
 #include "iot_tests_mqtt_mock.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -547,6 +550,7 @@ static uint32_t getTimeMs( void )
  */
 static void _setContext( IotMqttConnection_t pMqttConnection )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     bool contextMutex = false;
@@ -554,7 +558,6 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
     MQTTFixedBuffer_t networkBuffer;
     MQTTApplicationCallbacks_t callbacks;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
-    IotMqttError_t status = IOT_MQTT_BAD_PARAMETER;
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
@@ -564,7 +567,6 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
     contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
 
     /* Create the subscription mutex for a new connection. */
-
     if( contextMutex == true )
     {
         /* Assigning the MQTT Connection. */
@@ -590,17 +592,21 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
         if( subscriptionMutexCreated == false )
         {
             IotLogError( "Failed to create subscription mutex for new connection." );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
-
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-        status = convertReturnCode( managedMqttStatus );
+        else
+        {
+            /* Initializing the MQTT context used in calling MQTT LTS API. */
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+            status = convertReturnCode( managedMqttStatus );
+        }
 
         if( status != IOT_MQTT_SUCCESS )
         {
             IotLogError( "(MQTT connection %p) Failed to initialize context for "
                          "the MQTT connection.",
                          pMqttConnection );
+            IOT_GOTO_CLEANUP();
         }
     }
     else
@@ -608,7 +614,10 @@ static void _setContext( IotMqttConnection_t pMqttConnection )
         IotLogError( "(MQTT connection %p) Failed to create mutex for "
                      "the MQTT context.",
                      pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
+
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 
@@ -763,9 +772,6 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
     /* Disconnect the MQTT connection, then call Wait to clean up the operation. */
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
     IotMqtt_Wait( pOperation, 0 );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1095,9 +1101,6 @@ TEST( MQTT_Unit_API, DisconnectMallocFail )
         _closeCount = 0;
         _disconnectCallbackCount = 0;
     }
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1145,8 +1148,6 @@ TEST( MQTT_Unit_API, PublishQoS0Parameters )
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1200,8 +1201,6 @@ TEST( MQTT_Unit_API, PublishQoS0MallocFail )
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1283,8 +1282,6 @@ TEST( MQTT_Unit_API, PublishQoS1 )
 
     /* Clean up MQTT connection. */
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1361,9 +1358,6 @@ TEST( MQTT_Unit_API, PublishDuplicates )
     {
         TEST_ASSERT_EQUAL_INT( true, _publishSetDupCalled );
     }
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1426,9 +1420,6 @@ TEST( MQTT_Unit_API, SubscribeUnsubscribeParameters )
     TEST_ASSERT_EQUAL( IOT_MQTT_BAD_PARAMETER, status );
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1490,13 +1481,10 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
             TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
         }
 
-        TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+        TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1560,13 +1548,10 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
 
         contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
         /* No lingering subscriptions should be in the MQTT connection. */
-        TEST_ASSERT_EQUAL_INT( true, _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
+        TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1623,9 +1608,6 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     /* Check that the disconnect callback was invoked once (with reason
      * "keep-alive timeout"). */
     TEST_ASSERT_EQUAL_INT32( 1, _disconnectCallbackCount );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1676,9 +1658,6 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
     }
 
     IotSemaphore_Destroy( &waitSem );
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/
@@ -1736,9 +1715,6 @@ TEST( MQTT_Unit_API, WaitAfterDisconnect )
             status = IotMqtt_Wait( pPublishOperation[ i ], 100 );
         }
     }
-
-    /* Remove the MQTT Context for the MQTT connection. */
-    _IotMqtt_removeContext( _pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/

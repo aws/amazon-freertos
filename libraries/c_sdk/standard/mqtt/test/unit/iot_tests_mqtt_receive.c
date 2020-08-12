@@ -49,6 +49,9 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /**
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
@@ -297,7 +300,6 @@ static void _operationResetAndPush( _mqttOperation_t * pOperation )
 {
     pOperation->u.operation.status = IOT_MQTT_STATUS_PENDING;
     pOperation->u.operation.jobReference = 1;
-    int contextIndex = _IotMqtt_getContextIndexFromConnection( pOperation->pMqttConnection );
 
     IotListDouble_InsertHead( &( _pMqttConnection->pendingResponse ), &( pOperation->link ) );
 }
@@ -526,6 +528,7 @@ TEST_GROUP( MQTT_Unit_Receive );
  */
 TEST_SETUP( MQTT_Unit_Receive )
 {
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     static IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     bool subscriptionMutexCreated = false;
@@ -568,13 +571,6 @@ TEST_SETUP( MQTT_Unit_Receive )
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
-    if( contextIndex == -1 )
-    {
-        /* Making space for other tests. */
-        connToContext[ 0 ].mqttConnection = NULL;
-        contextIndex = 0;
-    }
-
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
     contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
@@ -590,10 +586,29 @@ TEST_SETUP( MQTT_Unit_Receive )
         if( subscriptionMutexCreated == false )
         {
             IotLogError( "Failed to create subscription mutex for new connection." );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+        else
+        {
+            /* Initializing the MQTT context used in calling MQTT LTS API. */
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+            status = convertReturnCode( managedMqttStatus );
         }
 
-        /* Initializing the MQTT context used in calling MQTT LTS API. */
-        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "(MQTT connection %p) Failed to initialize context for "
+                         "the MQTT connection.",
+                         _pMqttConnection );
+            IOT_GOTO_CLEANUP();
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to create mutex for "
+                     "the MQTT context.",
+                     _pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
     /* Set the MQTT serializer overrides. */
@@ -611,11 +626,16 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                                     1 ) );
 
     /* Clear functions called flags. */
+
+    /* Using new deserializers for deserializing the packets, setting this variable to true
+     * as it is being set when old serializers are called. */
     _deserializeOverrideCalled = true;
     _getPacketTypeCalled = false;
     _getRemainingLengthCalled = false;
     _networkCloseCalled = false;
     _disconnectCallbackCalled = false;
+
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
