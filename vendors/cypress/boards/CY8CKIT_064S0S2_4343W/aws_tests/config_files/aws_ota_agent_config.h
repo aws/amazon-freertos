@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
-#define otaconfigSTACK_SIZE                     6144U
+#define otaconfigSTACK_SIZE                     8192U
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).

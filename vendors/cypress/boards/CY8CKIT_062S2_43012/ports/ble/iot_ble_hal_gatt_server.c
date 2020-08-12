@@ -543,7 +543,6 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
 }
 
 /*-----------------------------------------------------------*/
-
 BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
                                     uint16_t usServiceHandle,
                                     uint16_t usIncludedHandle )

@@ -31,6 +31,10 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#include "flash_qspi.h"
+#include "cy_smif_psoc6.h"
+#endif
 
 #ifdef CY_USE_LWIP
 #include "lwip/tcpip.h"
@@ -51,12 +55,22 @@
 #include "cybsp.h"
 #include "cy_retarget_io.h"
 
+#ifdef CY_TFM_PSA_SUPPORTED
+#include "tfm_multi_core_api.h"
+#include "tfm_ns_interface.h"
+#include "tfm_ns_mailbox.h"
+#if ( testrunnerFULL_TFM_ENABLED == 1 )
+#include "test_framework_integ_test.h"
+#include "tfm_secure_client_service_api.h"
+#endif
+#endif
+
 #if (BLE_SUPPORTED == 1)
 #include "bt_hal_manager_types.h"
 #endif
 
 /* Logging Task Defines. */
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 30 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Unit test defines. */
@@ -65,7 +79,7 @@
 #if (testrunnerFULL_BLE_ENABLED == 1)
 #define mainTEST_RUNNER_TASK_PRIORITY     ( tskIDLE_PRIORITY + 6 )
 #else
-#define mainTEST_RUNNER_TASK_PRIORITY     ( tskIDLE_PRIORITY )
+#define mainTEST_RUNNER_TASK_PRIORITY     ( 2 )
 #endif
 
 /* The task delay for allowing the lower priority logging task to print out Wi-Fi
@@ -73,7 +87,7 @@
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME				"cypress_tests" /* FIX ME.*/
 
 #ifdef CY_USE_FREERTOS_TCP
 /* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
@@ -130,6 +144,11 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 };
 #endif /* CY_USE_FREERTOS_TCP */
 
+#if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) )
+void tfm_test_task( void * arg );
+void test_crypto_random(void);
+#endif
+
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -156,6 +175,30 @@ static void prvWifiConnect( void );
  */
 static void prvMiscInitialization( void );
 
+#ifdef CY_TFM_PSA_SUPPORTED
+static struct ns_mailbox_queue_t ns_mailbox_queue;
+
+static void tfm_ns_multi_core_boot(void)
+{
+    int32_t ret;
+    if (tfm_ns_wait_for_s_cpu_ready()) {
+        /* Error sync'ing with secure core */
+        /* Avoid undefined behavior after multi-core sync-up failed */
+        for (;;) {
+        }
+    }
+
+    ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
+    if (ret != MAILBOX_SUCCESS) {
+        /* Non-secure mailbox initialization failed. */
+        /* Avoid undefined behavior after NS mailbox initialization failed */
+        for (;;) {
+        }
+    }
+}
+#endif
+
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -169,10 +212,19 @@ int main( void )
 
     prvMiscInitialization();
 
+#ifdef CY_TFM_PSA_SUPPORTED
+    tfm_ns_multi_core_boot();
+#endif
+
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xReturnMessage = xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                                              tskIDLE_PRIORITY,
                                              mainLOGGING_MESSAGE_QUEUE_LENGTH );
+
+#ifdef CY_TFM_PSA_SUPPORTED
+    /* Initialize TFM interface */
+    tfm_ns_interface_init();
+#endif
 
 #ifdef CY_USE_FREERTOS_TCP
     if (pdPASS == xReturnMessage)
@@ -223,8 +275,24 @@ void vApplicationDaemonTaskStartupHook( void )
     cy_rslt_t result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
     if (result != CY_RSLT_SUCCESS)
     {
-        configPRINTF( ( "Retarget IO initializatoin failed \r\n" ) );
+        printf( "Retarget IO initialization failed \r\n" );
     }
+
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#ifdef PDL_CODE
+    if (qspi_init_sfdp(1) < 0)
+    {
+        printf("QSPI Init failed\r\n");
+        while (1);
+    }
+#else   /* PDL_CODE */
+    if (psoc6_qspi_init() != 0)
+    {
+       printf("psoc6_qspi_init() FAILED!!\r\n");
+    }
+
+#endif /* PDL_CODE */
+#endif /* CY_BOOT_USE_EXTERNAL_FLASH */
 
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
@@ -242,6 +310,15 @@ void vApplicationDaemonTaskStartupHook( void )
         tcpip_init(NULL, NULL);
 #endif
 
+#if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) )
+        /* Create the task to run TFM tests. */
+        xTaskCreate( tfm_test_task,
+                        "RunTests_task",
+                        mainTEST_RUNNER_TASK_STACK_SIZE,
+                        NULL,
+                        mainTEST_RUNNER_TASK_PRIORITY,
+                        NULL );
+#else /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
@@ -258,6 +335,7 @@ void vApplicationDaemonTaskStartupHook( void )
                         mainTEST_RUNNER_TASK_PRIORITY,
                         NULL );
         }
+#endif /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
     }
 }
 /*-----------------------------------------------------------*/
@@ -301,7 +379,7 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
     }
     else
     {
@@ -556,3 +634,86 @@ void vAssertCalled(const char * pcFile,
     }
 
 #endif
+
+#if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) )
+void test_crypto_random(void)
+{
+    static const unsigned char trail[] = "don't overwrite me";
+    unsigned char changed[256] = { 0 };
+    unsigned char output[sizeof(changed) + sizeof(trail)];
+    size_t i, bytes = sizeof(changed);
+    unsigned int run;
+    int ret;
+
+    printf("\r\n*** Execute CRYPTO RANDOM TEST ***\r\n");
+    memcpy(output + bytes, trail, sizeof(trail));
+    /* Run several times, to ensure that every output byte will be
+     * nonzero at least once with overwhelming probability
+     * (2^(-8*number_of_runs)). */
+    for (run = 0; run < 10; run++) {
+        memset(output, 0, bytes);
+        ret = psa_generate_random(output, bytes);
+        if ( PSA_SUCCESS != ret ) {
+            printf(" !!! CRYPTO RANDOM TEST FAILED as psa_generate_random() returns error(%x) !!!\r\n", ret);
+            return;
+        }
+
+        /* Check that no more than 'bytes' have been overwritten */
+        for (i = 0; i < sizeof(trail); i++) {
+            if (output[bytes + i] != trail[i]) {
+                printf(" !!! CRYPTO RANDOM TEST FAILED as psa_generate_random() overwriting the buffer !!!\r\n");
+                return;
+            }
+        }
+
+        for (i = 0; i < bytes; i++) {
+            if (0 != output[i]) {
+                ++changed[i];
+            }
+        }
+    }
+
+    /* Check that every byte was changed to nonzero at least once. This
+     * validates that psa_generate_random is overwriting every byte of
+     * the output buffer. */
+    for (i = 0; i < bytes; i++) {
+        if (0 == changed[i]) {
+            printf(" !!! CRYPTO RANDOM TEST FAILED as one of byte is zero !!!\r\n");
+            return;
+        }
+    }
+    printf("*** CRYPTO RANDOM TEST has PASSED ***\r\n");
+}
+
+/*******************************************************************************
+* Function Name: tfm_test_task
+********************************************************************************
+* Summary:
+* This is the FreeRTOS task callback function. It does...
+*    1. TFM Regression test
+*
+* Parameters:
+*  void * context passed from main function
+*
+* Return:
+*  void
+*
+*******************************************************************************/
+void tfm_test_task( void * arg )
+{
+    (void)arg;
+
+    printf(("Start TFM Regression test in AFR ...\n\n"));
+
+    tfm_secure_client_run_tests();
+
+    tfm_non_secure_client_run_tests();
+
+    printf(("===============================\n"));
+    printf(("End of TFM Regression test in AFR\n"));
+    printf(("===============================\n"));
+
+    test_crypto_random();
+}
+#endif
+

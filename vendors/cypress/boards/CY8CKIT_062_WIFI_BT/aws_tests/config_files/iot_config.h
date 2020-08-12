@@ -24,6 +24,8 @@
 #ifndef IOT_CONFIG_H_
 #define IOT_CONFIG_H_
 
+#include <stdbool.h>
+
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
@@ -46,14 +48,29 @@
 #define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_NONE
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_NONE
 
+
+/* Provide additional serializer initialization functions. */
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
+#define BLE_SUPPORTED      ( 1 )
+#define WIFI_SUPPORTED     ( 1 )
 
 /* Network type configuration for this board. */
 #ifndef DEFAULT_NETWORK
 #define DEFAULT_NETWORK    AWSIOT_NETWORK_TYPE_WIFI
 #endif
+
+/* Increasing MQTT and shadow timeout for the board, as there is a delay in sending large payload over BLE for the board. */
+#define IOT_TEST_MQTT_TIMEOUT_MS   ( 30000 )
+#define AWS_IOT_TEST_SHADOW_TIMEOUT ( 30000 )
+
+
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

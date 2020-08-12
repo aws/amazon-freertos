@@ -31,6 +31,10 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#include "flash_qspi.h"
+#include "cy_smif_psoc6.h"
+#endif
 
 #ifdef CY_USE_LWIP
 #include "lwip/tcpip.h"
@@ -67,6 +71,12 @@
 
     #define INPUT_MSG_ALLOC_SIZE             (50u)
     #define DELAY_BETWEEN_GETC_IN_TICKS      (1500u)
+#endif
+
+#ifdef CY_TFM_PSA_SUPPORTED
+#include "tfm_multi_core_api.h"
+#include "tfm_ns_interface.h"
+#include "tfm_ns_mailbox.h"
 #endif
 
 /* Logging Task Defines. */
@@ -157,6 +167,29 @@ static void prvWifiConnect( void );
  */
 static void prvMiscInitialization( void );
 
+#ifdef CY_TFM_PSA_SUPPORTED
+static struct ns_mailbox_queue_t ns_mailbox_queue;
+
+static void tfm_ns_multi_core_boot(void)
+{
+    int32_t ret;
+    if (tfm_ns_wait_for_s_cpu_ready()) {
+        /* Error sync'ing with secure core */
+        /* Avoid undefined behavior after multi-core sync-up failed */
+        for (;;) {
+        }
+    }
+
+    ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
+    if (ret != MAILBOX_SUCCESS) {
+        /* Non-secure mailbox initialization failed. */
+        /* Avoid undefined behavior after NS mailbox initialization failed */
+        for (;;) {
+        }
+    }
+}
+#endif
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -170,10 +203,19 @@ int main( void )
 
     prvMiscInitialization();
 
+#ifdef CY_TFM_PSA_SUPPORTED
+    tfm_ns_multi_core_boot();
+#endif
+
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xReturnMessage = xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                                              tskIDLE_PRIORITY,
                                              mainLOGGING_MESSAGE_QUEUE_LENGTH );
+
+#ifdef CY_TFM_PSA_SUPPORTED
+    /* Initialize TFM interface */
+    tfm_ns_interface_init();
+#endif
 
 #ifdef CY_USE_FREERTOS_TCP
     if (pdPASS == xReturnMessage)
@@ -213,15 +255,30 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 void vApplicationDaemonTaskStartupHook( void )
 {
-    cy_rslt_t result =  cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+    cy_rslt_t result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
     if (result != CY_RSLT_SUCCESS)
     {
-        configPRINTF( ( "Retarget IO initializatoin failed \r\n" ) );
+        printf( "Retarget IO initialization failed \r\n" );
     }
 
     #if BLE_ENABLED
         NumericComparisonInit();
     #endif
+
+#ifdef CY_BOOT_USE_EXTERNAL_FLASH
+#ifdef PDL_CODE
+    if (qspi_init_sfdp(1) < 0)
+    {
+        printf("QSPI Init failed\r\n");
+        while (1);
+    }
+#else   /* PDL_CODE */
+    if (psoc6_qspi_init() != 0)
+    {
+       printf("psoc6_qspi_init() FAILED!!\r\n");
+    }
+#endif /* PDL_CODE */
+#endif /* CY_BOOT_USE_EXTERNAL_FLASH */
 
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
@@ -232,7 +289,7 @@ void vApplicationDaemonTaskStartupHook( void )
     if( SYSTEM_Init() == pdPASS )
     {
 #ifdef CY_USE_LWIP
-        /* Initialize lwIP stack. This needs the RTOS to be up since this function will spawn 
+        /* Initialize lwIP stack. This needs the RTOS to be up since this function will spawn
          * the tcp_ip thread.
          */
         tcpip_init(NULL, NULL);
@@ -240,8 +297,10 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
+#if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
         xResult = vDevModeKeyProvisioning();
+#endif
 
         /* Start the demo tasks. */
         if (xResult == CKR_OK)
@@ -263,7 +322,7 @@ void prvWifiConnect( void )
     if( xWifiStatus == eWiFiSuccess )
     {
 
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
     }
     else
     {
@@ -290,7 +349,7 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+        configPRINTF( ( "Wi-Fi Connected to AP %s. Creating tasks which use network...\r\n", clientcredentialWIFI_SSID) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
         if ( eWiFiSuccess == xWifiStatus )
@@ -438,11 +497,11 @@ void vAssertCalled(const char * pcFile,
 
 #if BLE_ENABLED
     /**
-     * @brief "Function to receive user input from a UART terminal. This function reads until a line feed or 
+     * @brief "Function to receive user input from a UART terminal. This function reads until a line feed or
      * carriage return character is received and returns a null terminated string through a pointer to INPUTMessage_t.
-     * 
+     *
      * @note The line feed and carriage return characters are removed from the returned string.
-     * 
+     *
      * @param pxINPUTmessage Message structure using which the user input and the message size are returned.
      * @param xAuthTimeout Time in ticks to be waited for the user input.
      * @returns pdTrue if the user input was successfully captured, else pdFalse.
@@ -457,10 +516,10 @@ void vAssertCalled(const char * pcFile,
         cy_rslt_t result = CY_RSLT_SUCCESS;
 
         /* Dynamically allocate memory to store user input. */
-        pxINPUTmessage->pcData = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) * INPUT_MSG_ALLOC_SIZE ); 
+        pxINPUTmessage->pcData = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) * INPUT_MSG_ALLOC_SIZE );
 
         /* ptr points to the memory location where the next character is to be stored. */
-        ptr = pxINPUTmessage->pcData;   
+        ptr = pxINPUTmessage->pcData;
 
         /* Store the current tick value to implement a timeout. */
         xTimeOnEntering = xTaskGetTickCount();
@@ -515,9 +574,9 @@ void vAssertCalled(const char * pcFile,
         else
         {
             configPRINTF( ( "Timeout period elapsed !!\n" ) );
-        }       
+        }
 
         return xReturnMessage;
     }
 
-#endif /* if BLE_ENABLED */  
+#endif /* if BLE_ENABLED */

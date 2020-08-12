@@ -227,7 +227,7 @@ int main( void )
 #endif
 
 #ifdef CY_USE_FREERTOS_TCP
-    if (pdPASS == xReturn)
+    if (pdPASS == xReturnMessage)
     {
         xReturnMessage = FreeRTOS_IPInit( ucIPAddress,
                                           ucNetMask,

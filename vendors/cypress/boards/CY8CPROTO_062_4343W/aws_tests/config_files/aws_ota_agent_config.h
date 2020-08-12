@@ -70,7 +70,7 @@
  * initializing the OTA agent. The agent uses this size to allocate static storage for the
  * Thing name used in all OTA base topics. Namely $aws/things/<thingName>
  */
-#define otaconfigMAX_THINGNAME_LEN              64
+#define otaconfigMAX_THINGNAME_LEN              64U
 
 /**
  * @brief The maximum number of data blocks requested from OTA streaming service.
@@ -147,6 +147,6 @@
  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
  */
 
-#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
+#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_HTTP )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */

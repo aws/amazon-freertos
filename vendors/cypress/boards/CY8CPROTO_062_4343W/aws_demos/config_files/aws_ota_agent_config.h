@@ -147,6 +147,6 @@
  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol.
  */
 
-#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
+#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_HTTP )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */

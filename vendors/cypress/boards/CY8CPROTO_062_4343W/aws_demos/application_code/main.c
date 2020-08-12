@@ -73,6 +73,12 @@
     #define DELAY_BETWEEN_GETC_IN_TICKS      (1500u)
 #endif
 
+#ifdef CY_TFM_PSA_SUPPORTED
+#include "tfm_multi_core_api.h"
+#include "tfm_ns_interface.h"
+#include "tfm_ns_mailbox.h"
+#endif
+
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
@@ -161,7 +167,28 @@ static void prvWifiConnect( void );
  */
 static void prvMiscInitialization( void );
 
-extern int uxTopUsedPriority;
+#ifdef CY_TFM_PSA_SUPPORTED
+static struct ns_mailbox_queue_t ns_mailbox_queue;
+
+static void tfm_ns_multi_core_boot(void)
+{
+    int32_t ret;
+    if (tfm_ns_wait_for_s_cpu_ready()) {
+        /* Error sync'ing with secure core */
+        /* Avoid undefined behavior after multi-core sync-up failed */
+        for (;;) {
+        }
+    }
+
+    ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
+    if (ret != MAILBOX_SUCCESS) {
+        /* Non-secure mailbox initialization failed. */
+        /* Avoid undefined behavior after NS mailbox initialization failed */
+        for (;;) {
+        }
+    }
+}
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -176,10 +203,19 @@ int main( void )
 
     prvMiscInitialization();
 
+#ifdef CY_TFM_PSA_SUPPORTED
+    tfm_ns_multi_core_boot();
+#endif
+
     /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xReturnMessage = xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                                              tskIDLE_PRIORITY,
                                              mainLOGGING_MESSAGE_QUEUE_LENGTH );
+
+#ifdef CY_TFM_PSA_SUPPORTED
+    /* Initialize TFM interface */
+    tfm_ns_interface_init();
+#endif
 
 #ifdef CY_USE_FREERTOS_TCP
     if (pdPASS == xReturnMessage)
@@ -219,13 +255,10 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 void vApplicationDaemonTaskStartupHook( void )
 {
-    /* Need to export this var to elf so that debugger can work properly */
-    (void)uxTopUsedPriority;
-
     cy_rslt_t result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
     if (result != CY_RSLT_SUCCESS)
     {
-        printf( "Retarget IO initializatoin failed \r\n" );
+        printf( "Retarget IO initialization failed \r\n" );
     }
 
     #if BLE_ENABLED
@@ -243,10 +276,9 @@ void vApplicationDaemonTaskStartupHook( void )
     if (psoc6_qspi_init() != 0)
     {
        printf("psoc6_qspi_init() FAILED!!\r\n");
-       while (1);
     }
-#endif
-#endif
+#endif /* PDL_CODE */
+#endif /* CY_BOOT_USE_EXTERNAL_FLASH */
 
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
@@ -265,8 +297,10 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
+#if ( pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED == 0 )
         /* Provision the device with AWS certificate and private key. */
         xResult = vDevModeKeyProvisioning();
+#endif
 
         /* Start the demo tasks. */
         if (xResult == CKR_OK)
@@ -288,7 +322,7 @@ void prvWifiConnect( void )
     if( xWifiStatus == eWiFiSuccess )
     {
 
-        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
     }
     else
     {
@@ -315,7 +349,7 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+        configPRINTF( ( "Wi-Fi Connected to AP %s. Creating tasks which use network...\r\n", clientcredentialWIFI_SSID) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
         if ( eWiFiSuccess == xWifiStatus )

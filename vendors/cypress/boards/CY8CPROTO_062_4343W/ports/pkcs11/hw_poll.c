@@ -43,17 +43,21 @@
  */
 
 /* C runtime includes. */
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "cyhal_trng.h"
 
+#ifdef CY_TFM_PSA_SUPPORTED
+#include <psa/crypto.h>
+#else
+#include "cyhal_trng.h"
+#endif
 
 int mbedtls_hardware_poll( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen )
 {
+#ifndef CY_TFM_PSA_SUPPORTED
     static bool trng_initialized = false;
     static cyhal_trng_t obj;
     if (!trng_initialized)
@@ -70,8 +74,27 @@ int mbedtls_hardware_poll( void * data,
     }
     uint32_t rand_num = cyhal_trng_generate(&obj);
     memcpy( ( void* ) output, (void*) &rand_num, *olen);
+
+#else /* CY_TFM_PSA_SUPPORTED */
+    ((void)(data));
+
+    if (output == NULL || olen == NULL){
+        return -1;
+    }
+
+    psa_status_t status = psa_crypto_init();
+    if(status != PSA_SUCCESS) {
+        return -1;
+    }
+
+    status = psa_generate_random(output, len);
+    if (status != PSA_SUCCESS) {
+        return -1;
+    }
+
+    *olen = len;
+#endif /* CY_TFM_PSA_SUPPORTED */
     return 0;
 }
-
 
 
