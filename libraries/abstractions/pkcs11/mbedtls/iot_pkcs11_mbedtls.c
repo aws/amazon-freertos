@@ -321,12 +321,12 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
     {
-        LogDebug( ( "PKCS #11 was not initialized." ) );
+        LogDebug( ( "Could not get a valid session, PKCS #11 was not initialized as xP11Context.xIsInitialized was CK_FALSE." ) );
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
     }
     else if( pxSession == NULL )
     {
-        LogDebug( ( "PKCS #11 session handle was NULL." ) );
+        LogDebug( ( "Could not get a valid session, PKCS #11 session handle pSession was NULL." ) );
         xResult = CKR_SESSION_HANDLE_INVALID;
     }
     /* coverity[misra_c_2012_rule_10_5_violation] */
@@ -685,9 +685,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
     CK_RV xResult = CKR_OK;
     int32_t lMbedTLSResult = 0;
     CK_BBOOL xBool;
-    mbedtls_rsa_context * pxRsaContext = ( mbedtls_rsa_context * ) pxMbedContext->pk_ctx;
 
-    configASSERT( pxRsaContext != NULL );
+    configASSERT( ( mbedtls_rsa_context * ) pxMbedContext->pk_ctx != NULL );
+    mbedtls_rsa_context * pxRsaContext = ( mbedtls_rsa_context * ) pxMbedContext->pk_ctx;
 
     switch( pxAttribute->type )
     {
@@ -798,9 +798,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
-        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
-        configASSERT( pxKeyPair != NULL );
+        configASSERT( ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx != NULL );
+        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
         if( pxAttribute->type == CKA_SIGN )
         {
@@ -846,9 +846,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         CK_BBOOL xBool = ( CK_BBOOL ) CK_FALSE;
         int32_t lMbedTLSResult = 0;
         CK_RV xResult = CKR_OK;
-        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
-        configASSERT( pxKeyPair != NULL );
+        configASSERT( ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx != NULL );
+        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
         if( pxAttribute->type == CKA_VERIFY )
         {
