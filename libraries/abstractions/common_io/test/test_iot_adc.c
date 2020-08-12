@@ -551,8 +551,8 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcIoctlSetConfigFuzzy )
 
         lRetVal = iot_adc_ioctl( xAdcHandle, eGetAdcConfig, &xAdcConfig );
         TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
-        TEST_ASSERT_EQUAL( 3, xAdcConfig.ulAdcSampleTime );
-        TEST_ASSERT_EQUAL( 12, xAdcConfig.ucAdcResolution );
+        TEST_ASSERT_TRUE( xAdcConfig.ulAdcSampleTime >= 3 );
+        TEST_ASSERT_TRUE( xAdcConfig.ucAdcResolution >= 12 );
     }
 
     lRetVal = iot_adc_close( xAdcHandle );
