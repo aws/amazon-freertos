@@ -517,6 +517,68 @@ static void _disconnectCallback( void * pCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Setting the MQTT Context for the given MQTT Connection.
+ */
+static void _setContext( IotMqttConnection_t pMqttConnection )
+{
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
+    int8_t contextIndex = -1;
+    bool subscriptionMutexCreated = false;
+    bool contextMutex = false;
+    TransportInterface_t transport;
+    MQTTFixedBuffer_t networkBuffer;
+    MQTTApplicationCallbacks_t callbacks;
+    MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+
+    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
+    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+
+    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
+     * on the network using MQTT LTS API. */
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+
+    /* Create the subscription mutex for a new connection. */
+    if( contextMutex == true )
+    {
+        /* Assigning the MQTT Connection. */
+        connToContext[ contextIndex ].mqttConnection = pMqttConnection;
+
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+
+        if( subscriptionMutexCreated == false )
+        {
+            IotLogError( "Failed to create subscription mutex for new connection." );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+        }
+        else
+        {
+            /* Initializing the MQTT context used in calling MQTT LTS API. */
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+            status = convertReturnCode( managedMqttStatus );
+        }
+
+        if( status != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "(MQTT connection %p) Failed to initialize context for "
+                         "the MQTT connection.",
+                         pMqttConnection );
+            IOT_GOTO_CLEANUP();
+        }
+    }
+    else
+    {
+        IotLogError( "(MQTT connection %p) Failed to create mutex for "
+                     "the MQTT context.",
+                     pMqttConnection );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+    }
+
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for MQTT Receive tests.
  */
 TEST_GROUP( MQTT_Unit_Receive );
@@ -567,49 +629,8 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
+    _setContext( _pMqttConnection );
 
-    /* Getting the free index from the MQTT connection to MQTT context mapping array. */
-    contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
-
-    /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
-     * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
-
-    if( contextMutex == true )
-    {
-        /* Assigning the MQTT Connection. */
-        connToContext[ contextIndex ].mqttConnection = _pMqttConnection;
-
-        /* Create the subscription mutex for a new connection. */
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
-
-        if( subscriptionMutexCreated == false )
-        {
-            IotLogError( "Failed to create subscription mutex for new connection." );
-            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
-        }
-        else
-        {
-            /* Initializing the MQTT context used in calling MQTT LTS API. */
-            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-            status = convertReturnCode( managedMqttStatus );
-        }
-
-        if( status != IOT_MQTT_SUCCESS )
-        {
-            IotLogError( "(MQTT connection %p) Failed to initialize context for "
-                         "the MQTT connection.",
-                         _pMqttConnection );
-            IOT_GOTO_CLEANUP();
-        }
-    }
-    else
-    {
-        IotLogError( "(MQTT connection %p) Failed to create mutex for "
-                     "the MQTT context.",
-                     _pMqttConnection );
-        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
-    }
 
     /* Set the MQTT serializer overrides. */
     _pMqttConnection->pSerializer = &serializer;
@@ -626,10 +647,6 @@ TEST_SETUP( MQTT_Unit_Receive )
                                                                     1 ) );
 
     /* Clear functions called flags. */
-
-    /* Using new deserializers for deserializing the packets, setting this variable to true
-     * as it is being set when old serializers are called. */
-    _deserializeOverrideCalled = true;
     _getPacketTypeCalled = false;
     _getRemainingLengthCalled = false;
     _networkCloseCalled = false;
@@ -650,8 +667,6 @@ TEST_TEAR_DOWN( MQTT_Unit_Receive )
     IotMqtt_Cleanup();
     IotSdk_Cleanup();
 
-    /* Check that the tests used a deserializer override. */
-    TEST_ASSERT_EQUAL_INT( true, _deserializeOverrideCalled );
     TEST_ASSERT_EQUAL_INT( true, _getPacketTypeCalled );
     TEST_ASSERT_EQUAL_INT( true, _getRemainingLengthCalled );
 }
@@ -774,7 +789,6 @@ TEST( MQTT_Unit_Receive, DecodeRemainingLength )
     /* Test tear down for this test group checks that deserializer overrides
      * were called. However, this test does not use any deserializer overrides;
      * set these values to true so that the checks pass. */
-    _deserializeOverrideCalled = true;
     _getPacketTypeCalled = true;
     _getRemainingLengthCalled = true;
 }
@@ -804,7 +818,6 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
 
     /* This test should not have called any deserializer. Set the deserialize
      * override called flag to true so that the check for it passes. */
-    _deserializeOverrideCalled = true;
     TEST_ASSERT_EQUAL_INT( false, _getRemainingLengthCalled );
     _getRemainingLengthCalled = true;
 }

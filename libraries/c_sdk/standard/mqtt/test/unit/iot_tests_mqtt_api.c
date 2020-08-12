@@ -548,7 +548,10 @@ static uint32_t getTimeMs( void )
 /**
  * @brief Setting the MQTT Context for the given MQTT Connection.
  */
-static void _setContext( IotMqttConnection_t pMqttConnection )
+static void _setContext( IotMqttConnection_t pMqttConnection,
+                         int32_t ( * transportSend )( NetworkContext_t *,
+                                                      const void *,
+                                                      size_t ) )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
@@ -727,7 +730,7 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Adjustment to reference count based on keep-alive status. */
     const int32_t keepAliveReference = 1 + ( ( _pMqttConnection->keepAliveMs != 0 ) ? 1 : 0 );
@@ -809,31 +812,8 @@ TEST( MQTT_Unit_API, OperationWaitTimeout )
                                                              0 );
         TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
-
-        /* Getting the free index from the MQTT connection to MQTT context mapping array. */
-        contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
-
-        /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
-         * on the network using MQTT LTS API. */
-        contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
-
-        /* Create the subscription mutex for a new connection. */
-
-        if( contextMutex == true )
-        {
-            /* Assigning the MQTT Connection. */
-            connToContext[ contextIndex ].mqttConnection = _pMqttConnection;
-
-            subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
-
-            if( subscriptionMutexCreated == false )
-            {
-                IotLogError( "Failed to create subscription mutex for new connection." );
-            }
-
-            /* Initializing the MQTT context used in calling MQTT LTS API. */
-            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
-        }
+        /* Set the MQTT Context for the new MQTT Connection*/
+        _setContext( _pMqttConnection, _sendDelay );
 
         /* Set parameter to network send function. */
         _pMqttConnection->pNetworkConnection = &waitSem;
@@ -1088,7 +1068,7 @@ TEST( MQTT_Unit_API, DisconnectMallocFail )
         TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
         /* Set the MQTT Context for the new MQTT Connection*/
-        _setContext( _pMqttConnection );
+        _setContext( _pMqttConnection, transportSend );
 
         /* Set malloc to eventually fail. */
         UnityMalloc_MakeMallocFailAfterCount( i );
@@ -1126,7 +1106,7 @@ TEST( MQTT_Unit_API, PublishQoS0Parameters )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     if( TEST_PROTECT() )
     {
@@ -1172,7 +1152,7 @@ TEST( MQTT_Unit_API, PublishQoS0MallocFail )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set the necessary members of publish info. */
     publishInfo.pTopicName = TEST_TOPIC_NAME;
@@ -1228,7 +1208,7 @@ TEST( MQTT_Unit_API, PublishQoS1 )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set the publish info. */
     publishInfo.qos = IOT_MQTT_QOS_1;
@@ -1311,7 +1291,7 @@ TEST( MQTT_Unit_API, PublishDuplicates )
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set the serializers and parameter to the send function. */
     _pMqttConnection->pNetworkConnection = &dupCheckResult;
@@ -1379,7 +1359,7 @@ TEST( MQTT_Unit_API, SubscribeUnsubscribeParameters )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Check that subscription info is validated. */
     status = IotMqtt_Subscribe( _pMqttConnection,
@@ -1446,7 +1426,7 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set the necessary members of the subscription. */
     subscription.pTopicFilter = TEST_TOPIC_NAME;
@@ -1511,7 +1491,7 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set the necessary members of the subscription. */
     subscription.pTopicFilter = TEST_TOPIC_NAME;
@@ -1583,7 +1563,7 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
                                                          1 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     /* Set a short keep-alive interval so this test runs faster. */
     _pMqttConnection->keepAliveMs = SHORT_KEEP_ALIVE_MS;
@@ -1640,7 +1620,7 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
         _pMqttConnection->nextKeepAliveMs = SHORT_KEEP_ALIVE_MS;
 
         /* Set the MQTT Context for the new MQTT Connection*/
-        _setContext( _pMqttConnection );
+        _setContext( _pMqttConnection, transportSend );
 
 
 
@@ -1686,7 +1666,7 @@ TEST( MQTT_Unit_API, WaitAfterDisconnect )
 
 
     /* Set the MQTT Context for the new MQTT Connection*/
-    _setContext( _pMqttConnection );
+    _setContext( _pMqttConnection, transportSend );
 
     if( TEST_PROTECT() )
     {
