@@ -301,8 +301,6 @@ void vApplicationDaemonTaskStartupHook( void )
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
      * have been imported into the project. If you are not using Wi-Fi, see the
      * vApplicationIPNetworkEventHook function. */
-    CK_RV xResult;
-
     if( SYSTEM_Init() == pdPASS )
     {
 
@@ -325,19 +323,21 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
 
-        /* Provision the device with AWS certificate and private key. */
-        xResult = vDevModeKeyProvisioning();
+        /* Provision the device with AWS certificate and private key.
+         * In some test groups such as FullWiFi and PKCS related groups the device certificate is
+         * not set and hence the provisioning is expected to fail. Hence we do not check the return
+         * code for this function call.
+         */
+        vDevModeKeyProvisioning();
 
         /* Create the task to run unit tests. */
-        if (xResult == CKR_OK)
-        {
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                        "RunTests_task",
-                        mainTEST_RUNNER_TASK_STACK_SIZE,
-                        NULL,
-                        mainTEST_RUNNER_TASK_PRIORITY,
-                        NULL );
-        }
+        xTaskCreate( TEST_RUNNER_RunTests_task,
+                    "RunTests_task",
+                    mainTEST_RUNNER_TASK_STACK_SIZE,
+                    NULL,
+                    mainTEST_RUNNER_TASK_PRIORITY,
+                    NULL );
+
 #endif /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
     }
 }
