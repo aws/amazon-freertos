@@ -99,9 +99,10 @@ def _read_until_complete(target, stop_flags, pass_flag, timeout):
                 continue
             utils.raw_print(c)
             final_output += c
-            if stop_flags is not None and any(final_output.endswith(flag) for flag in stop_flags):
+            if stop_flags is not None and any(flag in final_output for flag in stop_flags):
+                utils.raw_print('\n')
                 break
-            if pass_flag is not None and final_output.endswith(pass_flag):
+            if pass_flag is not None and pass_flag in final_output:
                 alive = True
 
     return final_output, alive
@@ -113,7 +114,7 @@ def _subproc_read(subproc):
 
 
 def _serial_read(serial_port):
-    return serial_port.read(1)
+    return serial_port.read_until()
 
 
 # ----------------------------------------------------------------------------------------

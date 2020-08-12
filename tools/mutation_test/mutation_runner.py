@@ -5,7 +5,6 @@ import shlex
 import os
 import sys
 import serial
-import errno
 import csv
 import datetime
 import traceback
@@ -13,8 +12,10 @@ import pty
 import time
 import argparse
 import re
+import signal
 
 import comm
+import utils
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -100,8 +101,6 @@ def run_command(command, timeout=500):
         else:
             rc = process.poll()
         return rc, fail
-    except KeyboardInterrupt:
-        raise KeyboardInterrupt
     except:
         traceback.print_exc()
         process.kill()
@@ -126,6 +125,14 @@ def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None,
 
 def percentage(part, whole):
         return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
+
+def to_csv(csv_path, headers, dict):
+    with open(csv_path, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=headers)
+        writer.writeheader()
+        for row in dict:
+            writer.writerow(row)
+        yellow_print("Successfully wrote to CSV - {}".format(csv_path))
 
 def get_default_serial_port():
     """ Return a default serial port. esptool can do this (smarter), but it can create
@@ -186,32 +193,22 @@ def main():
     timeout = int(args.timeout)
     csv = args.csv
 
-    # MIGHT BE USEFUL FOR SERIAL INPUT BUT CANT FIGURE OUT HOW TO DO IT
-    # serial_instance = serial.serial_for_url(get_default_serial_port(), os.environ.get('MONITOR_BAUD', 115200),
-    #                                         do_not_open=True)
-    # serial_instance.dtr = False
-    # serial_instance.rts = False
-
     # cd to source
     os.chdir(src_path)
-
-    # TEMPORARY: COPY ORIGINAL SOURCE
-    # shutil.copyfile('iot_wifi_original.c', src)
-
 
     total = 0
     failures = 0
     nc = 0
-    # CSV GENERATION
-    # results should be collected in a way that matches the headers
-    headers = ['line', 'original', 'mutant', 'result']
-    results = []
+    trials = []
+    test_to_group = {}
+    test_to_kills = {}
+    test_to_total = {}
     try:
         while total < mutant_cnt:
             # create a copy of the original
-            shutil.copyfile(src, 'original')
+            shutil.copyfile(src, '{}.old'.format(src))
             # create a mutant
-            original_line, mutated_line, line_number = mutate.main('original', src)
+            original_line, mutated_line, line_number = mutate.main('{}.old'.format(src), src)
             # cd to root
             os.chdir(root_path)
             # cmake the mutant
@@ -225,36 +222,46 @@ def main():
             yellow_print(cmd)
             alive = False
             try:
-                # rc, fail = run_command(cmd, timeout)
-                if comm.subproc_run(cmd) != 0:
+                try: 
+                    subprocess.check_call(shlex.split(cmd))
+                except subprocess.CalledProcessError as e:
+                    print(e.output)
                     raise ExternalCommandFailed('Flash command failed.')
                 yellow_print("Done Flashing")
                 output, alive = read_device_output(get_default_serial_port(), start_flag=None, end_flags=[EndFlag], pass_flag=PassFlag, exec_timeout=500)
-                with open(os.path.join(dir_path, "output.txt"), 'w'):
-                    f.write(output)
+                results = re.findall(TestRegEx, output)
+
+                for group, test, result in results:
+                    if test not in test_to_group:
+                        test_to_group[test] = group
+                    if test not in test_to_total:
+                        test_to_total[test] = 1
+                    else:
+                        test_to_total[test] += 1
+                    if test not in test_to_kills:
+                        test_to_kills[test] = 0
+                    elif result == 'FAIL':
+                        test_to_kills[test] += 1 
                 total += 1
                 if not alive:
                     failures += 1
                     green_print("Mutant is Killed")
                 else:
                     red_print("Mutant is Alive")
-                results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
+                trials.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                                 'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
                 yellow_print("Successful Mutant Runs: {}".format(total))
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
             except ExternalCommandFailed:
                 yellow_print("Cannot compile, discard and move on")
-                    # Include no-compile in csv results?
-                    # results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
-                    #                 'result':"No-Compile"})
+                # Include no-compile in csv results?
+                # results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
+                #                 'result':"No-Compile"})
                 nc += 1
-            except:
-                traceback.print_exc()
             finally:
                 # restore mutant
                 os.chdir(src_path)
-                shutil.copyfile('original', src)
+                shutil.copyfile('{}.old'.format(src), src)
+                yellow_print("Source code restored")
     except:
         traceback.print_exc()
         raise
@@ -264,29 +271,43 @@ def main():
         yellow_print(score)
         yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(total - failures, failures, total, nc, total + nc))
-        results.append({'line': "{} KILLS".format(failures) , 'original':"{} MUTANTS".format(total),
+        trials.append({'line': "{} KILLS".format(failures) , 'original':"{} MUTANTS".format(total),
                         'mutant':"SCORE", 'result':"{}%".format(score)})
+        
+        # aggregate pass/fail counts
+        aggregates = []
+        for test in test_to_group:
+            aggregates.append({'Group': test_to_group[test],
+                               'Test': test,
+                               'Kills': test_to_kills[test],
+                               'Passes': test_to_total[test] - test_to_kills[test],
+                               'Total': test_to_total[test],
+                               'Score': percentage(test_to_kills[test], test_to_total[test])})
 
         # log to csv
-        os.chdir(dir_path)
-        current_time = datetime.datetime.now()
-        current_date = current_time.strftime('%m%d%y')
-        current_time = current_time.strftime('%m%d%y_%H%M')
-        if not os.path.exists(current_date):
-            os.mkdir(current_date)
-        csv_path = os.path.join(current_date, "{}_{}_mutants.csv".format(current_time, mutant_cnt))
         if csv:
-            with open(csv_path, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=headers)
-                writer.writeheader()
-                for row in results:
-                    writer.writerow(row)
-                yellow_print("Successfully wrote to CSV")
+            os.chdir(dir_path)
+            current_time = datetime.datetime.now()
+            current_date = current_time.strftime('%m%d%y')
+            current_time = current_time.strftime('%m%d%y_%H%M')
+            utils.mkdir(current_date)
+            csv_path = os.path.join(current_date, current_time)
+            utils.mkdir(csv_path)
+            trials_csv = os.path.join(csv_path, "{}-{}_{}_mutants.csv".format(current_date, current_time, mutant_cnt))
+            per_test_csv = os.path.join(csv_path, "{}-{}_tests.csv".format(current_date, current_time)) 
+            to_csv(trials_csv, ['line', 'original', 'mutant', 'result'], trials)
+            to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total', 'Score'], aggregates)
+
+            
         # cleanup
         os.chdir(src_path)
-        os.remove('original')
+        os.remove('{}.old'.format(src))
         print('Done')
         sys.exit()
+
+# Capture SIGINT (usually Ctrl+C is pressed) and SIGTERM, and exit gracefully.
+for s in (signal.SIGINT, signal.SIGTERM):
+    signal.signal(s, lambda sig, frame: sys.exit())
 
 if __name__ == "__main__":
     main()
