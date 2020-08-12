@@ -778,15 +778,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
     if (ota_is_tar_archive == 1)
     {
         /* Do the final check for signature */
-        if (prvPAL_FileSignatureCheckFinal(C) == kOTA_Err_None)
-        {
-            /* Mark this new OTA image as pending, it will be the permanent
-            * bootable image going forward.
-            */
-            configPRINTF( ("%s() TAR prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
-            cy_ota_untar_set_pending();
-        }
-        else
+        if (prvPAL_FileSignatureCheckFinal(C) != kOTA_Err_None)
         {
             configPRINTF( ( "%s() TAR prvPAL_FileSignatureCheckFinal() failed\n", __func__) );
             eraseSlotTwo();
@@ -833,16 +825,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
 
                 addr += toread;
             }
-            if (prvPAL_FileSignatureCheckFinal(C) == kOTA_Err_None)
-            {
-                /* Mark this new OTA image as pending, it will be the permanent
-                * bootable image going forward.
-                */
-                configPRINTF( ("%s() BIN prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
-                /* Non-tar only has type 0 (NSPE) update */
-                boot_set_pending(0, 0);
-            }
-            else
+            if (prvPAL_FileSignatureCheckFinal(C) != kOTA_Err_None)
             {
                 configPRINTF( ( "%s() BIN prvPAL_FileSignatureCheckFinal() failed\n", __func__) );
                 eraseSlotTwo();
@@ -1025,6 +1008,23 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
 OTA_Err_t prvPAL_ActivateNewImage( void )
 {
     configPRINTF( ("%s() \n", __func__) );
+    /* Mark this new OTA image as pending, it will be the permanent
+    * bootable image going forward.
+    */
+    if ( (ota_is_tar_archive != 0) && (ota_untar_context.magic == CY_UNTAR_CONTEXT_MAGIC) )
+    {
+        configPRINTF( ("%s() TAR prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
+        cy_ota_untar_set_pending();
+    }
+    else
+    {
+        /* Mark this new OTA image as pending, it will be the permanent
+        * bootable image going forward.
+        */
+        configPRINTF( ("%s() BIN prvPAL_FileSignatureCheckFinal() GOOD\n", __func__) );
+        /* Non-tar only has type 0 (NSPE) update */
+        boot_set_pending(0, 0);
+    }
     prvPAL_ResetDevice();
     return kOTA_Err_None;
 }
@@ -1105,6 +1105,7 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
             if (last_signature_check == kOTA_Err_None)
             {
                 boot_set_confirmed();
+                configPRINTF( ("%s() Set confirmed()\n", __func__) );
             }
             else
             {

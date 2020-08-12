@@ -404,9 +404,6 @@ boot_write_magic(const struct flash_area *fap)
 
     off = boot_magic_off(fap);
 
-    printf("writing magic; fa_id=%d off=0x%lx (0x%lx)\r\n",
-                 fap->fa_id, (unsigned long)off,
-                 (unsigned long)(fap->fa_off + off));
     rc = flash_area_write(fap, off, boot_img_magic, BOOT_MAGIC_SZ);
     if (rc != 0) {
         return BOOT_EFLASH;
@@ -462,9 +459,6 @@ boot_write_copy_done(const struct flash_area *fap)
     uint32_t off;
 
     off = boot_copy_done_off(fap);
-    printf("writing copy_done; fa_id=%d off=0x%lx (0x%lx)\r\n",
-                 fap->fa_id, (unsigned long)off,
-                 (unsigned long)(fap->fa_off + off));
     return boot_write_trailer_flag(fap, off, BOOT_FLAG_SET);
 }
 
@@ -474,9 +468,6 @@ boot_write_image_ok(const struct flash_area *fap)
     uint32_t off;
 
     off = boot_image_ok_off(fap);
-    printf("writing image_ok; fa_id=%d off=0x%lx (0x%lx)\r\n",
-                 fap->fa_id, (unsigned long)off,
-                 (unsigned long)(fap->fa_off + off));
     return boot_write_trailer_flag(fap, off, BOOT_FLAG_SET);
 }
 
@@ -494,12 +485,6 @@ boot_write_swap_info(const struct flash_area *fap, uint8_t swap_type,
 
     BOOT_SET_SWAP_INFO(swap_info, image_num, swap_type);
     off = boot_swap_info_off(fap);
-    printf("writing swap_info; fa_id=%d off=0x%lx (0x%lx), swap_type=0x%x\r\n"
-                 " image_num=0x%x",
-                 fap->fa_id, (unsigned long)off,
-                 (unsigned long)(fap->fa_off + off), swap_type, image_num);
-    printf("CY_BOOT_BOOTLOADER_SIZE:0x%x\r\n", CY_BOOT_BOOTLOADER_SIZE);
-    printf("CY_BOOT_PRIMARY_1_SIZE:0x%x\r\n", CY_BOOT_PRIMARY_1_SIZE);
     return boot_write_trailer(fap, off, (const uint8_t *) &swap_info, 1);
 }
 
@@ -509,9 +494,6 @@ boot_write_swap_size(const struct flash_area *fap, uint32_t swap_size)
     uint32_t off;
 
     off = boot_swap_size_off(fap);
-    printf("writing swap_size; fa_id=%d off=0x%lx (0x%lx)",
-                 fap->fa_id, (unsigned long)off,
-                 (unsigned long)fap->fa_off + off);
     return boot_write_trailer(fap, off, (const uint8_t *) &swap_size, 4);
 }
 
