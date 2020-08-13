@@ -845,7 +845,6 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 
     if( strlen( pcHostName ) <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
-/*        WIFI_GetHostIP( ( char * ) pcHostName, ( uint8_t * ) &addr ); */
         xLwipError = dns_gethostbyname_addrtype( pcHostName, &xLwipIpv4Address,
                                                  lwip_dns_found_callback, ( void * ) &addr,
                                                  LWIP_DNS_ADDRTYPE_IPV4 );
