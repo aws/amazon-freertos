@@ -13,6 +13,7 @@ import argparse
 import re
 import signal
 import ast
+import random
 
 import comm
 import utils
@@ -36,13 +37,11 @@ src_path = 'vendors/espressif/boards/esp32/ports/wifi'
 src_path = os.path.join(root_path, src_path)
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
-# TEST REGEX
+# TEST REGEX WIFI
 EndFlag                             = "-------ALL TESTS FINISHED-------"
 StartFlag                           = "---------STARTING TESTS---------"
 PassFlag                            = "OK"
 FailFlag                            = "FAIL"
-RebootFlag                          = "Rebooting..."
-NoConnectFlag                       = "WiFi failed to connect to AP SSSS."
 
 TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
 
@@ -74,12 +73,12 @@ def to_csv(csv_path, headers, dict):
             writer.writerow(row)
         utils.yellow_print("Successfully wrote to CSV - {}".format(csv_path))
 
-def create_jobfile(path=os.path.join(dir_path, '{}-{}.jobfile'), **kwargs):
+def create_jobfile(path=os.path.join(dir_path, 'jobfile'), **kwargs):
     """
     Creates a jobfile at `path`. Contains a dictionary string type. 
     """
     with open(path, 'w') as f:
-        f.write(kwargs)
+        f.write(str(kwargs))
 
 
 def get_default_serial_port():
@@ -177,12 +176,16 @@ def main():
     test_to_group = {}
     test_to_kills = {}
     test_to_total = {}
+    # create a rng for this run
+    if not seed:
+        seed = random.randrange(sys.maxsize)
+    rng = random.Random(seed)
     try:
         while total < mutant_cnt:
             # create a copy of the original
             shutil.copyfile(src, '{}.old'.format(src))
             # create a mutant
-            original_line, mutated_line, line_number, seed = mutate.main('{}.old'.format(src), src, seed)
+            original_line, mutated_line, line_number = mutate.main('{}.old'.format(src), src, rng)
             # cd to root
             os.chdir(root_path)
             # cmake the mutant
@@ -253,7 +256,7 @@ def main():
         utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(total - failures, failures, total, nc, total + nc))
         trials.append({'line': "" , 'mutant':"SCORE", 
-                       'original':"{}/{}".format(failures, total),'result':"{}%".format(score)})
+                       'original':"{} KILLED/{} MUTANTS".format(failures, total),'result':"{}%".format(score)})
         
         # aggregate pass/fail counts
         aggregates = []
@@ -277,6 +280,7 @@ def main():
 
         create_jobfile(src=src,
                        mutant_cnt=mutant_cnt,
+                       port=port,
                        timeout=timeout,
                        csv=csv,
                        seed=seed)

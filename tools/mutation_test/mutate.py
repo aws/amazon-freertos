@@ -177,21 +177,16 @@ mutation_trick = {
 	"else": "// else",
 }
 
-def main (input_file, output_file = False, seed=None) :
+def main (input_file, output_file = False, rng=None) :
 #
-	if not seed:
-		seed = random.randrange(sys.maxsize)
-		random.seed(seed)
-	utils.yellow_print("Seed was: {}".format(seed))
-
 	source_code = open(input_file).read().split('\n')
 	number_of_lines_of_code = len(source_code) 
 	# try mutating a random line
-	random_line = random.randint(0,number_of_lines_of_code)
+	random_line = rng.randint(0,number_of_lines_of_code)
 
 	# shuffle mutant operators
 	mutant_operators = list(mutation_trick.keys())
-	random.shuffle(mutant_operators)
+	rng.shuffle(mutant_operators)
 
 	mutated_line = "" 
 	for i in list(range(random_line,number_of_lines_of_code)) + list(range(0,random_line)) :
@@ -212,7 +207,7 @@ def main (input_file, output_file = False, seed=None) :
 				# if more than one substrings are found
 				# then : choose any one randomly
 
-				random_substring = random.randint(1,number_of_substrings_found)
+				random_substring = rng.randint(1,number_of_substrings_found)
 				for r in range(1,random_substring+1) :
 				#
 					if mutate_at_index == 0 :
@@ -226,7 +221,7 @@ def main (input_file, output_file = False, seed=None) :
 				if type(mutation_trick[m]) == str :
 					mutate_with = mutation_trick[m]
 				else :	
-					mutate_with = mutation_trick[m][random.randint(0,len(mutation_trick[m])-1)]
+					mutate_with = mutation_trick[m][rng.randint(0,len(mutation_trick[m])-1)]
 
 				sys.stderr.write("\n==> @ Line: "+str(i+1)+"\n\n")
 				sys.stderr.write("Original Line  : "+source_code[i].strip()+"\n")
@@ -240,7 +235,7 @@ def main (input_file, output_file = False, seed=None) :
 					sys.stderr.write("\nOutput written to "+output_file+"\n")
 
 				sys.stderr.write("\n")
-				return source_code[i].strip(), mutated_line.strip(), i, seed
+				return source_code[i].strip(), mutated_line.strip(), i
 			#
 		#
 	#
