@@ -58,21 +58,22 @@
  * to complete.
  */
 
-#define lwip_dns_resolver_DELAY_MS    ( 250 )
-#define lwip_dns_resolver_LOOP_DELAY  ( ( TickType_t ) lwip_dns_resolver_DELAY_MS / portTICK_PERIOD_MS )
+#define lwip_dns_resolver_DELAY_MS            ( 250 )
+#define lwip_dns_resolver_LOOP_DELAY          ( ( TickType_t ) lwip_dns_resolver_DELAY_MS / portTICK_PERIOD_MS )
 
 /*
  * The maximum time to wait for DNS resolution
  * to complete.
  */
-#define lwip_dns_resolver_MAX_WAIT_SECONDS   ( 20 )
+#define lwip_dns_resolver_MAX_WAIT_SECONDS    ( 20 )
 
 /*
  * The maximum number of loop iterations to wait for DNS
  * resolution to complete.
  */
-#define lwip_dns_resolver_MAX_WAIT_CYCLES     ( ( ( lwip_dns_resolver_MAX_WAIT_SECONDS ) * 1000 ) / \
-                ( lwip_dns_resolver_DELAY_MS ) )
+#define lwip_dns_resolver_MAX_WAIT_CYCLES                 \
+    ( ( ( lwip_dns_resolver_MAX_WAIT_SECONDS ) * 1000 ) / \
+      ( lwip_dns_resolver_DELAY_MS ) )
 
 /*-----------------------------------------------------------*/
 
@@ -816,6 +817,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 }
 
 /*-----------------------------------------------------------*/
+
 /*
  * Lwip DNS Found callback, compatible with type "dns_found_callback"
  * declared in lwip/dns.h.
@@ -823,35 +825,39 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
  * NOTE: this resolves only ipv4 addresses; calls to dns_gethostbyname_addrtype()
  * must specify dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4
  */
-static void lwip_dns_found_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
+static void lwip_dns_found_callback( const char * name,
+                                     const ip_addr_t * ipaddr,
+                                     void * callback_arg )
 {
-   uint32_t *addr = (uint32_t *)callback_arg;
+    uint32_t * addr = ( uint32_t * ) callback_arg;
 
-   *addr = *((uint32_t *)ipaddr);  /* NOTE: IPv4 addresses only */
+    *addr = *( ( uint32_t * ) ipaddr ); /* NOTE: IPv4 addresses only */
 }
 
 /*-----------------------------------------------------------*/
 
 uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 {
-    uint32_t addr = 0;     /* 0 indicates failure to caller */
+    uint32_t addr = 0; /* 0 indicates failure to caller */
     err_t xLwipError = ERR_OK;
     ip_addr_t xLwipIpv4Address;
     uint32_t ulDnsResolutionWaitCycles = 0;
 
     if( strlen( pcHostName ) <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
-//        WIFI_GetHostIP( ( char * ) pcHostName, ( uint8_t * ) &addr );
+/*        WIFI_GetHostIP( ( char * ) pcHostName, ( uint8_t * ) &addr ); */
         xLwipError = dns_gethostbyname_addrtype( pcHostName, &xLwipIpv4Address,
-                                   lwip_dns_found_callback, (void *)&addr,
-                                   LWIP_DNS_ADDRTYPE_IPV4 );
+                                                 lwip_dns_found_callback, ( void * ) &addr,
+                                                 LWIP_DNS_ADDRTYPE_IPV4 );
 
-		switch( xLwipError )
-		{
+        switch( xLwipError )
+        {
             case ERR_OK:
-                addr = *((uint32_t *)xLwipIpv4Address);  /* NOTE: IPv4 addresses only */
+                addr = *( ( uint32_t * ) xLwipIpv4Address ); /* NOTE: IPv4 addresses only */
                 break;
+
             case ERR_INPROGRESS:
+
                 /*
                  * The DNS resolver is working the request.  Wait for it to complete
                  * or time out; print a timeout error message if configured for debug
@@ -860,19 +866,21 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
                 do
                 {
                     vTaskDelay( lwip_dns_resolver_LOOP_DELAY );
-                }   while(( ulDnsResolutionWaitCycles++ < lwip_dns_resolver_MAX_WAIT_CYCLES ) && addr == 0 );
+                }   while( ( ulDnsResolutionWaitCycles++ < lwip_dns_resolver_MAX_WAIT_CYCLES ) && addr == 0 );
+
                 if( addr == 0 )
                 {
                     configPRINTF( ( "Unable to resolve (%s) within (%ul) seconds",
-                        pcHostName, lwip_dns_resolver_MAX_WAIT_SECONDS ) );
+                                    pcHostName, lwip_dns_resolver_MAX_WAIT_SECONDS ) );
                 }
+
                 break;
+
             default:
                 configPRINTF( ( "Unexpected error (%lu) from dns_gethostbyname_addrtype() while resolving (%s)!",
-                    (uint32_t)xLwipError, pcHostName ) );
+                                ( uint32_t ) xLwipError, pcHostName ) );
                 break;
-		}
-
+        }
     }
     else
     {
