@@ -853,7 +853,7 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
         switch( xLwipError )
         {
             case ERR_OK:
-                addr = *( ( uint32_t * ) xLwipIpv4Address ); /* NOTE: IPv4 addresses only */
+                addr = *( ( uint32_t * ) &xLwipIpv4Address ); /* NOTE: IPv4 addresses only */
                 break;
 
             case ERR_INPROGRESS:
