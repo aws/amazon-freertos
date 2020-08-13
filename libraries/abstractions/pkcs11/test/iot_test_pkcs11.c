@@ -1834,9 +1834,9 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     /* mbedTLS structures for verification. */
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
 
-    /* TODO: We should be destroying credentials first, just in case. Currently a port cannot do this, but once that is complete this will need to be updated. 
+    /* TODO: We should be destroying credentials first, just in case. Currently a port cannot do this, but once that is complete this will need to be updated.
      * xResult = prvDestroyTestCredentials();
-     * TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" ); 
+     * TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
      * */
     xCurrentCredentials = eNone;
 
