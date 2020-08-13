@@ -1,0 +1,33 @@
+@startuml
+skinparam classFontSize 8
+skinparam classFontName Helvetica
+autonumber
+
+participant "Application" as app
+participant "PKCS #11" as pkcs
+
+box "PKCS #11 - Importing A Crypto Object" #LightBlue
+    participant app
+    participant pkcs
+end box
+
+app -> pkcs: Acquire function list with C_GetFunctionList
+pkcs -> app: Return CK_FUNCTION_LIST_PTR with supported functions
+
+app -> pkcs: Initialize with C_Initialize
+
+app -> pkcs: Query for a slot with C_GetSlotList
+pkcs -> app: Return an array of CK_SLOT_IDs
+
+app -> pkcs: Open a new session with a slot using C_OpenSession
+pkcs -> app: Return a CK_SESSION_HANDLE
+
+app -> pkcs: Log in to current session with C_Login
+
+app -> pkcs: Pass Attribute template to C_CreateObject
+pkcs -> app: Return CK_OBJECT_HANDLE associated with the new object
+
+app -> pkcs: Close session with C_CloseSession
+app -> pkcs: Uninitialize with C_Finalize
+
+@enduml
