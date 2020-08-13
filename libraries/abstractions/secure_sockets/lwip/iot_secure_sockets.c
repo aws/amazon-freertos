@@ -58,8 +58,8 @@
  * to complete.
  */
 
-#define lwip_dns_resolver_DELAY_MS            ( 250 )
-#define lwip_dns_resolver_LOOP_DELAY          ( ( TickType_t ) lwip_dns_resolver_DELAY_MS / portTICK_PERIOD_MS )
+#define lwip_dns_resolver_LOOP_DELAY_MS       ( 250 )
+#define lwip_dns_resolver_LOOP_DELAY_TICKS    ( ( TickType_t ) lwip_dns_resolver_LOOP_DELAY_MS / portTICK_PERIOD_MS )
 
 /*
  * The maximum time to wait for DNS resolution
@@ -73,7 +73,7 @@
  */
 #define lwip_dns_resolver_MAX_WAIT_CYCLES                 \
     ( ( ( lwip_dns_resolver_MAX_WAIT_SECONDS ) * 1000 ) / \
-      ( lwip_dns_resolver_DELAY_MS ) )
+      ( lwip_dns_resolver_LOOP_DELAY_MS ) )
 
 /*-----------------------------------------------------------*/
 
@@ -823,7 +823,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
  * declared in lwip/dns.h.
  *
  * NOTE: this resolves only ipv4 addresses; calls to dns_gethostbyname_addrtype()
- * must specify dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4
+ * must specify dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4.
  */
 static void lwip_dns_found_callback( const char * name,
                                      const ip_addr_t * ipaddr,
@@ -864,7 +864,7 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
                  */
                 do
                 {
-                    vTaskDelay( lwip_dns_resolver_LOOP_DELAY );
+                    vTaskDelay( lwip_dns_resolver_LOOP_DELAY_TICKS );
                 }   while( ( ulDnsResolutionWaitCycles++ < lwip_dns_resolver_MAX_WAIT_CYCLES ) && addr == 0 );
 
                 if( addr == 0 )
