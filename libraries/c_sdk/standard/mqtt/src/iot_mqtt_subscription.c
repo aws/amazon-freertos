@@ -307,6 +307,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
     int8_t contextIndex = -1;
     int8_t matchedIndex = -1;
     int8_t index = -1;
+    char* pTopicFilter = NULL;
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
@@ -350,7 +351,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
                     connToContext[ contextIndex ].subscriptionArray[ index ].callback = pSubscriptionList[ i ].callback;
                     connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = pSubscriptionList[ i ].topicFilterLength;
-                    char * pTopicFilter = IotMqtt_MallocMessage( pSubscriptionList[ i ].topicFilterLength );
+                    pTopicFilter= IotMqtt_MallocMessage( pSubscriptionList[ i ].topicFilterLength );
 
                     if( pTopicFilter != NULL )
                     {
