@@ -2,5 +2,6 @@
 *.csv
 # ignore all jobfiles
 *jobfile
+jobfile
 # ignore DS_Store
 .DS_Store
