@@ -1289,6 +1289,9 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
         _networkCloseCalled = false;
         _disconnectCallbackCalled = false;
     }
+
+    /* Deserializing the PUBACK packet using the lightweight API doesnot serialize the packet id if the packet type
+     * is not valid and as a result operation cannot be deleted from the pendingResponse list. So removing it explicitily. */
     IotListDouble_RemoveHead( &( _pMqttConnection->pendingResponse ) );
     _operationResetAndPush( &publish );
 
@@ -1653,6 +1656,9 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
         _networkCloseCalled = false;
         _disconnectCallbackCalled = false;
     }
+
+    /* Deserializing the UNSUBACK packet using the lightweight API doesnot serialize the packet id if the packet type
+     * is not valid and as a result operation cannot be deleted from the pendingResponse list. So removing it explicitily. */
     IotListDouble_RemoveHead( &( _pMqttConnection->pendingResponse ) );
     _operationResetAndPush( &unsubscribe );
 

@@ -518,23 +518,23 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
-    int32_t bytesSend = 0;
+    int32_t bytesSent = 0;
 
     IotMqtt_Assert( pNetworkContext != NULL );
     IotMqtt_Assert( pMessage != NULL );
 
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
-    if( bytesSend < 0 )
+    if(bytesSent < 0 )
     {
         /* Network Send Interface return negative value in case of any socket error,
          * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
          */
-        bytesSend = -1;
+        bytesSent = -1;
     }
 
-    return bytesSend;
+    return bytesSent;
 }
 
 /**
