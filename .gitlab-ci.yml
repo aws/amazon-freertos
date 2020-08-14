@@ -124,6 +124,13 @@ test_coverity_CY8CKIT_064S0S2_4343W:
     paths:
       - cov-analyze-errorlist-afr_ota_CY8CKIT_064S0S2_4343W.txt
 
+test_afr-check_board_sync:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash cypress_internal_test/board_sync/check_board_sync.sh
+
 ###############################################################################
 #####################  Amazon-FREERtos device tester tests  ###################
 ###############################################################################
