@@ -14,6 +14,7 @@ import re
 import signal
 import ast
 import random
+import json
 
 import comm
 import utils
@@ -29,12 +30,15 @@ current_date = current_time.strftime('%m%d%y')
 current_time = current_time.strftime('%H%M')
 
 # configs
-vendor = 'espressif'
-board = 'esp32_wrover_kit'
-compiler = 'xtensa-esp32'
-src_path = 'vendors/espressif/boards/esp32/ports/wifi'
+with open(os.path.join(dir_path, 'config.json')) as f:
+    config = json.load(f)
 
-src_path = os.path.join(root_path, src_path)
+src = config['src']
+vendor = config['vendor']
+compiler = config['compiler']
+board = config['board']
+
+src = os.path.join(root_path, src)
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
 # TEST REGEX WIFI
@@ -42,6 +46,7 @@ EndFlag                             = "-------ALL TESTS FINISHED-------"
 StartFlag                           = "---------STARTING TESTS---------"
 PassFlag                            = "OK"
 FailFlag                            = "FAIL"
+CrashFlag                           = "Rebooting..."
 
 TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
 
@@ -118,11 +123,6 @@ def main():
         default=10
     )
     parser.add_argument(
-        '--src',
-        help='Source file to mutate',
-        default="iot_wifi.c"
-    )
-    parser.add_argument(
         '--port', '-p',
         help="Serial port to read from",
         default=None
@@ -150,7 +150,6 @@ def main():
     )
     args = parser.parse_args()
 
-    src = args.src
     port = args.port if args.port else get_default_serial_port()
     mutant_cnt = int(args.mutants)
     timeout = int(args.timeout)
@@ -159,6 +158,7 @@ def main():
     if args.jobfile:
         with open(args.jobfile, 'r') as f:
             jobfile = ast.literal_eval(f.read())
+            global src
             src = jobfile['src']
             port = jobfile['port']
             mutant_cnt = int(jobfile['mutant_cnt'])
@@ -167,7 +167,7 @@ def main():
             seed = jobfile['seed']
     
     # cd to source
-    os.chdir(src_path)
+    # os.chdir(src_path)
 
     total = 0
     failures = 0
@@ -209,7 +209,7 @@ def main():
                 # Read device output through serial port
                 output, alive = read_device_output(port=port, 
                                                    start_flag=None, 
-                                                   end_flags=[EndFlag], 
+                                                   end_flags=[EndFlag, CrashFlag], 
                                                    pass_flag=PassFlag, 
                                                    exec_timeout=timeout)
                 # Analyze the results
@@ -243,7 +243,7 @@ def main():
                 nc += 1
             finally:
                 # restore mutant
-                os.chdir(src_path)
+                # os.chdir(src_path)
                 shutil.copyfile('{}.old'.format(src), src)
                 utils.yellow_print("Source code restored")
     except:
@@ -255,7 +255,7 @@ def main():
         utils.yellow_print(score)
         utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(total - failures, failures, total, nc, total + nc))
-        trials.append({'line': "" , 'mutant':"SCORE", 
+        trials.append({'line': "No-Compiles: {}".format(nc) , 'mutant':"SCORE", 
                        'original':"{} KILLED/{} MUTANTS".format(failures, total),'result':"{}%".format(score)})
         
         # aggregate pass/fail counts
@@ -286,7 +286,7 @@ def main():
                        seed=seed)
 
         # cleanup
-        os.chdir(src_path)
+        # os.chdir(src_path)
         os.remove('{}.old'.format(src))
         print('Done')
         sys.exit()
