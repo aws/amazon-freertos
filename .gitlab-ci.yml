@@ -324,6 +324,7 @@ afr_demo_test_auto_CY8CPROTO-062-4343W:
       - $AFR_TEST_CY8CPROTO_062_4343W
   script:
     # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
     - bash cypress_internal_test/demo_test/run_test.sh CY8CPROTO_062_4343W
 
 # Run AFR demo test when $AFR_DEMO_TEST is specified
@@ -339,6 +340,7 @@ afr_demo_test_auto_CY8CKIT-062-WIFI-BT:
       - $AFR_TEST_CY8CKIT_062_WIFI_BT
   script:
     # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
     - bash cypress_internal_test/demo_test/run_test.sh CY8CKIT_062_WIFI_BT
 
 # Run AFR demo test when $AFR_DEMO_TEST is specified
@@ -354,6 +356,7 @@ afr_demo_test_auto_CY8CKIT-062S2-43012:
       - $AFR_TEST_CY8CKIT_062S2_43012
   script:
     # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
     - bash cypress_internal_test/demo_test/run_test.sh CY8CKIT_062S2_43012
 
 # Run AFR demo test when $AFR_DEMO_TEST is specified
@@ -369,5 +372,6 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W:
       - $AFR_TEST_OTA_CY8CKIT_064S0S2_4343W
   script:
     # NOTE the board name below use '_' instead of '-'
+    - source /home/tester/venv/afr/bin/activate
     - bash cypress_internal_test/demo_test/run_test.sh CY8CKIT_064S0S2_4343W
   allow_failure: true
