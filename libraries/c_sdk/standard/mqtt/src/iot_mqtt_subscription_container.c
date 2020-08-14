@@ -51,7 +51,7 @@
  * otherwise.
  */
 static bool _packetMatch( _mqttSubscription_t * pSubscription,
-                          void * pMatch );
+                          const void * pMatch );
 
 /**
  * @brief Matches a topic name (from a publish) with a topic filter (from a
@@ -69,7 +69,7 @@ static bool _topicMatch( _mqttSubscription_t * pSubscription,
 /*-----------------------------------------------------------*/
 
 static bool _packetMatch( _mqttSubscription_t * pSubscription,
-                          void * pMatch )
+                          const void * pMatch )
 {
     bool match = false;
 
@@ -283,7 +283,7 @@ bool IotMqtt_RemoveSubscription( _mqttSubscription_t * pSubscriptionArray,
 /*-----------------------------------------------------------*/
 
 void IotMqtt_RemoveAllMatches( _mqttSubscription_t * pSubscriptionArray,
-                               _packetMatchParams_t * pMatch )
+                               const _packetMatchParams_t * pMatch )
 {
     size_t index = 0;
     bool status = false;
