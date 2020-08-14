@@ -1,4 +1,6 @@
 # ignore all logs
 *.csv
+# ignore all jobfiles
+*jobfile
 # ignore DS_Store
 .DS_Store
