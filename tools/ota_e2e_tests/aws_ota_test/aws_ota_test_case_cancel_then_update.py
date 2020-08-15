@@ -60,7 +60,7 @@ class OtaTestCancelThenUpdate(OtaTestCase):
         self._otaProject.buildProject()
         # Make a copy of the firmware.
         firmware = Path(self._otaConfig['ota_firmware_file_path'])
-        first_firmware = firmware.with_name('first' + firmware.suffix)
+        first_firmware = Path(self._otaProject._projectRootDir) / firmware.name
         shutil.copy(firmware, first_firmware)
         # Prepare another image to be updated later
         self._otaProject.setApplicationVersion(0, 9, 2)
