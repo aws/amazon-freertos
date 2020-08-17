@@ -114,6 +114,8 @@ static whd_security_t whd_fromsecurity(WIFISecurity_t sec)
             return WHD_SECURITY_WPA_MIXED_PSK;
         case eWiFiSecurityWPA2:
             return WHD_SECURITY_WPA2_MIXED_PSK;
+        case eWiFiSecurityWPA3:
+            return WHD_SECURITY_WPA3_SAE;
         default:
             return WHD_SECURITY_UNKNOWN;
     }
@@ -136,6 +138,8 @@ static WIFISecurity_t whd_tosecurity(whd_security_t sec)
         case WHD_SECURITY_WPA2_FBT_PSK:
         case WHD_SECURITY_WPA2_FBT_ENT:
             return eWiFiSecurityWPA2;
+        case WHD_SECURITY_WPA3_SAE:
+            return eWiFiSecurityWPA3;
         default:
             return eWiFiSecurityNotSupported;
     }
