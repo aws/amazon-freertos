@@ -168,6 +168,10 @@ typedef struct xSOCKET * Socket_t; /**< @brief Socket handle data type. */
 #define SOCKETS_SO_NONBLOCK                      ( 9 )  /**< Socket is nonblocking. */
 #define SOCKETS_SO_ALPN_PROTOCOLS                ( 10 ) /**< Application protocol list to be included in TLS ClientHello. */
 #define SOCKETS_SO_WAKEUP_CALLBACK               ( 17 ) /**< Set the callback to be called whenever there is data available on the socket for reading. */
+#define SOCKETS_SO_TCPKEEPALIVE                  ( 18 ) /**< Enable/Disable TCP keep-alive. */
+#define SOCKETS_SO_TCPKEEPALIVE_INTERVAL         ( 19 ) /**< Set the interval in seconds between TCP keep-alive probes. */
+#define SOCKETS_SO_TCPKEEPALIVE_COUNT            ( 20 ) /**< Set the maximum number of TCP keep-alive probes to be sent */
+#define SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME        ( 21 ) /**< Set the duration in seconds for which the connection needs to be idle before TCP sends out keep-alive probes. */
 
 /**@} */
 
@@ -253,6 +257,33 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lProtocol );
 /* @[declare_secure_sockets_socket] */
 
+/**
+ * @brief Bind a TCP socket.
+ *
+ * See the [FreeRTOS+TCP networking tutorial]
+ * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html)
+ * for more information on TCP sockets.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
+ *
+ * @sa SOCKETS_Bind()
+ *
+ * @param[in] xSocket The handle of the socket to which specified address to be bound.
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains
+ * the address and port to be bound to the socket.
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ * @return
+ * * If the bind was successful then SOCKETS_ERROR_NONE is returned.
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
+ */
+/* @[declare_secure_sockets_bind] */
+int32_t SOCKETS_Bind( Socket_t xSocket,
+                      SocketsSockaddr_t *pxAddress,
+                      Socklen_t xAddressLength );
+/* @[declare_secure_sockets_bind] */
 
 /**
  * @brief Connects the socket to the specified IP address and port.
@@ -472,6 +503,21 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *      - The ALPN list is expressed as an array of NULL-terminated ANSI
  *        strings.
  *      - xOptionLength is the number of items in the array.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE
+ *      - Enable or disable the Keepalive functionality for specific
+ *        socket.
+ *      - pvOptionValue is the value to enable/disable Keepalive.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_INTERVAL
+ *      - Set the time between each probe request to check socket
+ *        connection status.
+ *      - pvOptionValue is the time in seconds.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_COUNT
+ *      - Set number of probe requests to be sent between each idle time.
+ *      - pvOptionValue is the number of probe requests.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME
+ *      - Set the time for connection to remain idle before initiating keep alive
+ *        packets.
+ *      - pvOptionValue is the time in seconds.
  *
  * @return
  * * On success, 0 is returned.
