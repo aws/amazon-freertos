@@ -15,6 +15,7 @@ import signal
 import ast
 import random
 import json
+import collections
 
 import comm
 import utils
@@ -39,11 +40,9 @@ vendor = config['vendor']
 compiler = config['compiler']
 board = config['board']
 
-for i in range(len(src)):
-    src[i] = os.path.join(root_path, src[i])
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
-# TEST REGEX WIFI
+# TEST REGEX
 EndFlag                             = "-------ALL TESTS FINISHED-------"
 StartFlag                           = "---------STARTING TESTS---------"
 PassFlag                            = "OK"
@@ -66,7 +65,32 @@ def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None,
     return output, alive
 
 def percentage(part, whole):
-        return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
+    """
+    Returns percentage with 2 decimals. If `whole` is 0, `whole` is set to 1.
+    """
+    return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
+
+def _merge(intervals):
+    """
+    Turns `intervals` [[0,2],[1,5],[7,8]] to [[0,5],[7,8]].
+    """
+    out = []
+    for i in sorted(intervals, key=lambda i: i[0]):
+        if out and i[0] <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], i[1])
+        else:
+            out += i,
+    return out
+
+def _flatten(intervals):
+    """
+    Turns `intervals` [[0,5], [8,10]] to [0, 1, 2, 3, 4, 5, 8, 9, 10].
+    Note that it is inclusive of the second value.
+    """
+    out = []
+    for i in intervals:
+        out += list(range(i[0], i[1] + 1))
+    return out
 
 def to_csv(csv_path, headers, dict):
     """
@@ -115,6 +139,9 @@ class SerialPortError(MutationTestError):
     pass
 
 class CompileFlashFailed(MutationTestError):
+    pass
+
+class LineOutOfRange(MutationTestError):
     pass
 
 def main():
@@ -171,31 +198,34 @@ def main():
     # cd to source
     # os.chdir(src_path)
 
-    total = 0
+    run_cnt = 0
     failures = 0
     nc = 0
     trials = []
-    test_to_group = {}
     test_to_kills = {}
-    test_to_total = {}
     # create a rng for this run
     if not seed:
         seed = random.randrange(sys.maxsize)
     rng = random.Random(seed)
     try:
-        while total < mutant_cnt:
+        while run_cnt < mutant_cnt:
             try:
-                # create copies of the original
+                os.chdir(root_path)
+                lines_to_mutate = {}
                 olds = []
+                modified = []
                 for f in src:
+                    # create copies of the original
                     old = '{}.old'.format(f)
                     shutil.copyfile(f, old)
                     olds.append(old)
+                    modified.append(f)
+                    # process the line intervals into a list of line numbers
+                    lines_to_mutate[old] = _flatten(_merge(src[f]))
                 # create a mutant
-                src_index, original_line, mutated_line, line_number = mutate.main(olds, src, rng)
-                file_changed = os.path.basename(os.path.normpath(src[src_index]))
-                # cd to root
-                os.chdir(root_path)
+                src_index, original_line, mutated_line, line_number = mutate.main(
+                                                            olds, modified, lines_to_mutate, rng)
+                file_changed = os.path.basename(os.path.normpath(modified[src_index]))
                 # cmake the mutant
                 # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
                 cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
@@ -222,17 +252,13 @@ def main():
                 # Analyze the results
                 results = re.findall(TestRegEx, output)
                 for group, test, result in results:
-                    if test not in test_to_group:
-                        test_to_group[test] = group
-                    if test not in test_to_total:
-                        test_to_total[test] = 1
+                    if (group, test) not in test_to_kills:
+                        test_to_kills[(group, test)] = (1, 1) if result == 'FAIL' else (0, 1)
                     else:
-                        test_to_total[test] += 1
-                    if test not in test_to_kills:
-                        test_to_kills[test] = 0
-                    elif result == 'FAIL':
-                        test_to_kills[test] += 1
-                total += 1
+                        kills, total = test_to_kills[(group, test)]
+                        test_to_kills[(group, test)] = ((kills + 1, total + 1) if result == 'FAIL' 
+                                                        else (kills, total + 1))
+                run_cnt += 1
                 if not alive:
                     failures += 1
                     utils.green_print("Mutant is Killed")
@@ -241,7 +267,7 @@ def main():
                 # Add result to CSV queue
                 trials.append({'file': file_changed,'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                                 'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
-                utils.yellow_print("Successful Mutant Runs: {}/{}".format(total, mutant_cnt))
+                utils.yellow_print("Successful Mutant Runs: {}/{}".format(run_cnt, mutant_cnt))
             except CompileFlashFailed:
                 utils.yellow_print("Cannot compile, discard and move on")
                 # Include no-compile in csv results?
@@ -252,28 +278,30 @@ def main():
                 # restore mutant
                 # os.chdir(src_path)
                 # create a copies of the original
-                shutil.copyfile(olds[src_index], src[src_index])
+                shutil.copyfile(olds[src_index], modified[src_index])
+                os.remove(olds[src_index])
                 utils.yellow_print("Source code restored")
     except:
         traceback.print_exc()
         raise
     finally:
         # calculate mutant score
-        score = percentage(failures, total)
+        score = percentage(failures, run_cnt)
         utils.yellow_print(score)
         utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
-                .format(total - failures, failures, total, nc, total + nc))
-        trials.append({'line': "No-Compiles: {}".format(nc) , 'mutant':"SCORE", 
-                       'original':"{} KILLED/{} MUTANTS".format(failures, total),'result':"{}%".format(score)})
+                .format(run_cnt - failures, failures, run_cnt, nc, run_cnt + nc))
+        trials.append({'file': "RESULTS:", 'line': "{} NO-COMPILE".format(nc) , 'mutant':"SCORE", 
+                       'original':"{} KILLED/{} MUTANTS".format(failures, run_cnt),'result':"{}%".format(score)})
         
         # aggregate pass/fail counts
         aggregates = []
-        for test in test_to_group:
-            aggregates.append({'Group': test_to_group[test],
+        for group, test in test_to_kills:
+            kills, total = test_to_kills[(group, test)]
+            aggregates.append({'Group': group,
                                'Test': test,
-                               'Kills': test_to_kills[test],
-                               'Passes': test_to_total[test] - test_to_kills[test],
-                               'Total': test_to_total[test]})
+                               'Kills': kills,
+                               'Passes': total - kills,
+                               'Total': total})
 
         # log to csv
         if csv:
@@ -292,10 +320,6 @@ def main():
                        timeout=timeout,
                        csv=csv,
                        seed=seed)
-
-        # cleanup
-        # os.chdir(src_path)
-        os.remove(olds[src_index])
         print('Done')
         sys.exit()
 

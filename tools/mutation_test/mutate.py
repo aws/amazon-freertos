@@ -23,6 +23,8 @@ import random
 
 import utils
 
+from mutation_runner import LineOutOfRange
+
 ### Mutation tricks ###
 
 NULL_STRING = " "
@@ -177,12 +179,14 @@ mutation_trick = {
 	"else": "// else",
 }
 
-def main (input_files, output_files = False, rng=None) :
+def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 #
 	# pick a random file
 	src_index = rng.randint(0, len(input_files) - 1)
-	source_code = open(input_files[src_index]).read().split('\n')
-	number_of_lines_of_code = len(source_code) 
+	source_file = input_files[src_index]
+	source_code = open(source_file).read().split('\n')
+	number_of_lines_of_code = (len(lines_to_mutate[source_file]) if 
+								lines_to_mutate[source_file] else len(source_code))
 	# try mutating a random line
 	random_line = rng.randint(0,number_of_lines_of_code)
 
@@ -193,14 +197,18 @@ def main (input_files, output_files = False, rng=None) :
 	mutated_line = "" 
 	for i in list(range(random_line,number_of_lines_of_code)) + list(range(0,random_line)) :
 	#
+		line = (lines_to_mutate[source_file][i] if 
+					lines_to_mutate[source_file] else i)
+		if lines_to_mutate[source_file] and max(lines_to_mutate[source_file]) >= len(source_code):
+			raise LineOutOfRange("Line is out of range of source")
 		# do not mutate preprocessor or assert statements
-		if source_code[i].strip().startswith("#") or source_code[i].strip().startswith("assert") :
+		if source_code[line].strip().startswith("#") or source_code[line].strip().startswith("assert") :
 			continue
 
 		for m in mutant_operators :
 		#
 			# search for substrings we can mutate
-			number_of_substrings_found = source_code[i].count(m)
+			number_of_substrings_found = source_code[line].count(m)
 
 			if number_of_substrings_found > 0 :
 			#
@@ -213,9 +221,9 @@ def main (input_files, output_files = False, rng=None) :
 				for r in range(1,random_substring+1) :
 				#
 					if mutate_at_index == 0 :
-						mutate_at_index = source_code[i].index(m)
+						mutate_at_index = source_code[line].index(m)
 					else :
-						mutate_at_index = source_code[i].index(m,mutate_at_index+1)
+						mutate_at_index = source_code[line].index(m,mutate_at_index+1)
 				#
 
 				# if there is more than one way of mutating a substring
@@ -225,19 +233,19 @@ def main (input_files, output_files = False, rng=None) :
 				else :	
 					mutate_with = mutation_trick[m][rng.randint(0,len(mutation_trick[m])-1)]
 
-				sys.stderr.write("\n==> @ Line: "+str(i+1)+"\n\n")
-				sys.stderr.write("Original Line  : "+source_code[i].strip()+"\n")
+				sys.stderr.write("\n==> @ Line: "+str(line)+"\n\n")
+				sys.stderr.write("Original Line  : "+source_code[line].strip()+"\n")
 
-				mutated_line = source_code[i][0:mutate_at_index] + source_code[i][mutate_at_index:].replace(m,mutate_with,1)
+				mutated_line = source_code[line][0:mutate_at_index] + source_code[line][mutate_at_index:].replace(m,mutate_with,1)
 
 				sys.stderr.write("After Mutation : "+mutated_line.strip()+"\n")
 
 				if output_files:
-					write_to_file (output_files[src_index], source_code, i, mutated_line)
+					write_to_file (output_files[src_index], source_code, line, mutated_line)
 					sys.stderr.write("\nOutput written to "+output_files[src_index]+"\n")
 
 				sys.stderr.write("\n")
-				return src_index, source_code[i].strip(), mutated_line.strip(), i
+				return src_index, source_code[line].strip(), mutated_line.strip(), line
 			#
 		#
 	#

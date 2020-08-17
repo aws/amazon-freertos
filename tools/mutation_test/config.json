@@ -1,7 +1,5 @@
 {
-    "src": ["vendors/espressif/boards/esp32/ports/pkcs11/iot_pkcs11_pal.c",
-            "libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c",
-            "libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c"],
+    "src": {"vendors/espressif/boards/esp32/ports/pkcs11/iot_pkcs11_pal.c":[]},
     "vendor": "espressif",
     "board": "esp32_wrover_kit",
     "compiler": "xtensa-esp32"
