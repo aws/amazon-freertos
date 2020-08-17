@@ -165,23 +165,28 @@ else ifeq ($(TOOLCHAIN),ARM)
 
 endif
 
-# Set default version to match aws_application_version.h
-ifeq ($(APP_VERSION_MAJOR),)
-    APP_VERSION_MAJOR=0
-endif
-ifeq ($(APP_VERSION_MINOR),)
-    APP_VERSION_MINOR=6
-endif
-ifeq ($(APP_VERSION_BUILD),)
-    APP_VERSION_BUILD=2
-endif
-
+# Define CY_TEST_APP_VERSION_IN_TAR in Application Makefile
+# to test application version in TAR archive at start of OTA image download.
+# NOTE: This requires that the user set the version numbers in the Makefile and
+#          in aws_application_version.h and that they MATCH.
+# NOTE: This will create compile warnings such as 
+#		'warning: "APP_VERSION_MAJOR" redefined'
+#
+ifneq ($(CY_TEST_APP_VERSION_IN_TAR),)
 DEFINES+=\
+	CY_TEST_APP_VERSION_IN_TAR=1\
 	APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)\
 	APP_VERSION_MINOR=$(APP_VERSION_MINOR)\
 	APP_VERSION_BUILD=$(APP_VERSION_BUILD)
-
+	
 CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
+
+else
+
+# Default value for scripts if CY_TEST_APP_VERSION_IN_TAR not defined
+CY_BUILD_VERSION=0.9.0
+
+endif
 
 # Hex file to BIN conversion
 # Toolchain path will always point to MTB toolchain

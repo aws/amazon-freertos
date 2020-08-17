@@ -457,19 +457,16 @@ function(cy_add_link_libraries)
         afr_mcu_port(ota)
 
         # Define these environment variables to override default settings
+        # "export CY_TEST_APP_VERSION_IN_TAR=1"
         # "export APP_VERSION_MAJOR=x"
         # "export APP_VERSION_MINOR=y"
         # "export APP_VERSION_BUILD=z"
 
-        if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "amazon-freertos")
-            if("$ENV{APP_VERSION_MAJOR}" STREQUAL "")
-                set(ENV{APP_VERSION_MAJOR} 0)
-            endif()
-            if("$ENV{APP_VERSION_MINOR}" STREQUAL "")
-                set(ENV{APP_VERSION_MINOR} 9)
-            endif()
-            if("$ENV{APP_VERSION_BUILD}" STREQUAL "")
-                set(ENV{APP_VERSION_BUILD} 0)
+        if(NOT "${CY_TEST_APP_VERSION_IN_TAR}" STREQUAL "")
+            if ( ("$ENV{APP_VERSION_MAJOR}" STREQUAL "") OR
+                 ("$ENV{APP_VERSION_MINOR}" STREQUAL "") OR
+                 ("$ENV{APP_VERSION_BUILD}" STREQUAL "") )
+                message(FATAL "Define APP_VERSION_MAJOR, APP_VERSION_MINOR, and APP_VERSION_BUILD when using CY_TEST_APP_VERSION_IN_TAR.")
             endif()
             target_compile_definitions(AFR::ota::mcu_port INTERFACE
                 "-DAPP_VERSION_MAJOR=$ENV{APP_VERSION_MAJOR}"

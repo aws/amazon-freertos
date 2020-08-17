@@ -190,7 +190,7 @@ tar -cf $CY_CM4_CM0_UPGRADE_TAR $CY_COMPONENTS_JSON_NAME $CY_OUTPUT_FILE_CM0_UPG
 
 echo ""
 echo "Application Name                         : $CY_OUTPUT_NAME"
-echo "Application Version                      : $CY_BUILD_VERSION"
+# echo "Application Version                      : $CY_BUILD_VERSION"
 echo "Primary 1 Slot Start                     : $CY_BOOT_PRIMARY_1_START"
 echo "Primary 1 Slot Size                      : $CY_BOOT_PRIMARY_1_SIZE"
 echo "Primary 2 slot size                      : $CY_BOOT_PRIMARY_2_SIZE"

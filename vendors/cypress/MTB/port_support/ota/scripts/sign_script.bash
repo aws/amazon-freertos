@@ -134,7 +134,7 @@ tar -cf $CY_OUTPUT_FILE_NAME_TAR $CY_COMPONENTS_JSON_NAME $CY_OUTPUT_FILE_NAME_B
 
 echo ""
 echo "Application Name                         : $CY_OUTPUT_NAME"
-echo "Application Version                      : $CY_BUILD_VERSION"
+# echo "Application Version                      : $CY_BUILD_VERSION"
 echo "Primary 1 Slot Start                     : $CY_BOOT_PRIMARY_1_START"
 echo "Primary 1 Slot Size                      : $CY_BOOT_PRIMARY_1_SIZE"
 echo "FLASH ERASE Value (NOTE: Empty for 0xff) : $FLASH_ERASE_VALUE"

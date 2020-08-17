@@ -65,12 +65,6 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# OTA_SUPPORT needed for some AWS Demos
-OTA_SUPPORT=0
-
-# Are we using external FLASH?
-OTA_USE_EXTERNAL_FLASH:=1
-
 ################################################################################
 # Advanced Configuration
 ################################################################################
@@ -104,12 +98,6 @@ SOURCES=
 # directories (without a leading -I).
 INCLUDES=
 
-# Set App version here. Using the project-level include directory rather than the demos/include
-# directory, we remove the warnings and allow us to set the version in just one place.
-APP_VERSION_MAJOR=1
-APP_VERSION_MINOR=0
-APP_VERSION_BUILD=0
-
 # Add additional defines to the build process (without a leading -D).
 DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USING_HAL
 
@@ -129,9 +117,6 @@ ifneq ($(BLE_SUPPORT),)
 DEFINES+=CY_BLE_SUPPORTED
 endif
 
-#ifeq ($(OTA_SUPPORT),1)
-#DEFINES+=OTA_SUPPORT
-#endif
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
 
@@ -168,6 +153,28 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
+################################################################################
+# OTA Configuration
+################################################################################
+
+# Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
+# NOTE: Extra code must be called from your app to initialize AFR OTA Agent
+OTA_SUPPORT=0
+
+# Turn on when using External FLASH for Secondary slot
+OTA_USE_EXTERNAL_FLASH:=1
+
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version 
+#        in TAR archive at start of OTA image download.
+# NOTE: This requires that the version numbers here and in the header file match.
+# NOTE: This will create compile warnings such as 
+#		'warning: "APP_VERSION_MAJOR" redefined'
+#
+# CY_TEST_APP_VERSION_IN_TAR=1
+#
+# APP_VERSION_MAJOR:=1
+# APP_VERSION_MINOR:=0
+# APP_VERSION_BUILD:=0
 
 ################################################################################
 # Paths

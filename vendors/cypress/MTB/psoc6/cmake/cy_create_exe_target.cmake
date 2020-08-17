@@ -7,12 +7,23 @@ function(cy_config_ota_exe_target)
     ""
     )
 
-    if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "amazon-freertos")
+    # Define these environment variables to override default settings
+    # "export CY_TEST_APP_VERSION_IN_TAR=1"
+    # "export APP_VERSION_MAJOR=x"
+    # "export APP_VERSION_MINOR=y"
+    # "export APP_VERSION_BUILD=z"
+    if(NOT "${CY_TEST_APP_VERSION_IN_TAR}" STREQUAL "")
+        if ( ("$ENV{APP_VERSION_MAJOR}" STREQUAL "") OR
+             ("$ENV{APP_VERSION_MINOR}" STREQUAL "") OR
+             ("$ENV{APP_VERSION_BUILD}" STREQUAL "") )
+            message(FATAL "Define APP_VERSION_MAJOR, APP_VERSION_MINOR, and APP_VERSION_BUILD when using CY_TEST_APP_VERSION_IN_TAR.")
+        endif()
         target_compile_definitions(${ARG_EXE_APP_NAME} PUBLIC
             "-DAPP_VERSION_MAJOR=$ENV{APP_VERSION_MAJOR}"
             "-DAPP_VERSION_MINOR=$ENV{APP_VERSION_MINOR}"
             "-DAPP_VERSION_BUILD=$ENV{APP_VERSION_BUILD}"
         )
+        set(CY_BUILD_VERSION "$ENV{APP_VERSION_MAJOR}.$ENV{APP_VERSION_MINOR}.$ENV{APP_VERSION_BUILD}")
     endif()
 
     if ("$ENV{MCUBOOT_IMAGE_NUMBER}" STREQUAL "")
@@ -144,11 +155,9 @@ function(config_cy_mcuboot_sign_script)
         message(FATAL_ERROR "You must define MCUBOOT_MAX_IMG_SECTORS in your board CMakeLists.txt for OTA_SUPPORT")
     endif()
 
-    # Create version for sign_script.sh
-    if( "$ENV{APP_VERSION_MAJOR}" STREQUAL "")
+    # Default version for sign_script.sh
+    if( "${CY_BUILD_VERSION}" STREQUAL "")
         set(CY_BUILD_VERSION "0.9.0")
-    else()
-        set(CY_BUILD_VERSION "$ENV{APP_VERSION_MAJOR}.$ENV{APP_VERSION_MINOR}.$ENV{APP_VERSION_BUILD}")
     endif()
 
 
@@ -374,11 +383,9 @@ function(cy_sign_boot_image)
 
             set(CY_COMPONENTS_JSON_NAME         "components.json")
 
-            # Create version for tar_XXXX.sh
-            if( "$ENV{APP_VERSION_MAJOR}" STREQUAL "")
+            # Default version for sign_script.sh
+            if( "${CY_BUILD_VERSION}" STREQUAL "")
                 set(CY_BUILD_VERSION "0.9.0")
-            else()
-                set(CY_BUILD_VERSION "$ENV{APP_VERSION_MAJOR}.$ENV{APP_VERSION_MINOR}.$ENV{APP_VERSION_BUILD}")
             endif()
 
             set(CY_CM4_ONLY_TAR   "cm4_only_signed.tar")
@@ -455,11 +462,11 @@ function(cy_create_exe_target)
     #      Application directory needs to have a CMakeLists.txt file
     # We include the file here to get some app-specific sources and settings
     #
-    # Define these on the cmake command line if you wish something different from 1.0.0
-    # "-DAPP_VERSION_MAJOR=x"
-    # "-DAPP_VERSION_MINOR=y"
-    # "-DAPP_VERSION_BUILD=z"
-    # So that the version # will be x.y.z
+    # Define these environment variables to override default settings
+    # "export CY_TEST_APP_VERSION_IN_TAR=1"
+    # "export APP_VERSION_MAJOR=x"
+    # "export APP_VERSION_MINOR=y"
+    # "export APP_VERSION_BUILD=z"
 
     # -------------------------------------------------------------------------------------------------
     # Amazon FreeRTOS demos and tests
