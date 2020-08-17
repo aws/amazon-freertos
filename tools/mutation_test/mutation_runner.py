@@ -21,8 +21,9 @@ import utils
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
-root_path = os.path.join(dir_path, os.pardir)
-root_path = os.path.join(root_path, os.pardir)
+os.chdir('../..')
+root_path = os.getcwd()
+os.chdir(dir_path)
 
 # test time
 current_time = datetime.datetime.now()
@@ -38,7 +39,8 @@ vendor = config['vendor']
 compiler = config['compiler']
 board = config['board']
 
-src = os.path.join(root_path, src)
+for i in range(len(src)):
+    src[i] = os.path.join(root_path, src[i])
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
 # TEST REGEX WIFI
@@ -182,23 +184,28 @@ def main():
     rng = random.Random(seed)
     try:
         while total < mutant_cnt:
-            # create a copy of the original
-            shutil.copyfile(src, '{}.old'.format(src))
-            # create a mutant
-            original_line, mutated_line, line_number = mutate.main('{}.old'.format(src), src, rng)
-            # cd to root
-            os.chdir(root_path)
-            # cmake the mutant
-            # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
-            cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
-            utils.yellow_print(cmd)
-            subprocess.check_call(shlex.split(cmd))
-            # build and execute the mutant
-            # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-            cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
-            utils.yellow_print(cmd)
-            alive = False
             try:
+                # create copies of the original
+                olds = []
+                for f in src:
+                    old = '{}.old'.format(f)
+                    shutil.copyfile(f, old)
+                    olds.append(old)
+                # create a mutant
+                src_index, original_line, mutated_line, line_number = mutate.main(olds, src, rng)
+                file_changed = os.path.basename(os.path.normpath(src[src_index]))
+                # cd to root
+                os.chdir(root_path)
+                # cmake the mutant
+                # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
+                cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
+                utils.yellow_print(cmd)
+                subprocess.check_call(shlex.split(cmd))
+                # build and execute the mutant
+                # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
+                cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
+                utils.yellow_print(cmd)
+                alive = False
                 # Flash to device
                 try: 
                     subprocess.check_call(shlex.split(cmd))
@@ -232,7 +239,7 @@ def main():
                 else:
                     utils.red_print("Mutant is Alive")
                 # Add result to CSV queue
-                trials.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
+                trials.append({'file': file_changed,'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                                 'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
                 utils.yellow_print("Successful Mutant Runs: {}/{}".format(total, mutant_cnt))
             except CompileFlashFailed:
@@ -244,7 +251,8 @@ def main():
             finally:
                 # restore mutant
                 # os.chdir(src_path)
-                shutil.copyfile('{}.old'.format(src), src)
+                # create a copies of the original
+                shutil.copyfile(olds[src_index], src[src_index])
                 utils.yellow_print("Source code restored")
     except:
         traceback.print_exc()
@@ -275,7 +283,7 @@ def main():
             utils.mkdir(csv_path)
             trials_csv = os.path.join(csv_path, "{}-{}_{}_mutants.csv".format(current_date, current_time, mutant_cnt))
             per_test_csv = os.path.join(csv_path, "{}-{}_tests.csv".format(current_date, current_time)) 
-            to_csv(trials_csv, ['line', 'original', 'mutant', 'result'], trials)
+            to_csv(trials_csv, ['file', 'line', 'original', 'mutant', 'result'], trials)
             to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
         create_jobfile(src=src,
@@ -287,7 +295,7 @@ def main():
 
         # cleanup
         # os.chdir(src_path)
-        os.remove('{}.old'.format(src))
+        os.remove(olds[src_index])
         print('Done')
         sys.exit()
 

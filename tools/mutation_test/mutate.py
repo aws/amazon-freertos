@@ -177,9 +177,11 @@ mutation_trick = {
 	"else": "// else",
 }
 
-def main (input_file, output_file = False, rng=None) :
+def main (input_files, output_files = False, rng=None) :
 #
-	source_code = open(input_file).read().split('\n')
+	# pick a random file
+	src_index = rng.randint(0, len(input_files) - 1)
+	source_code = open(input_files[src_index]).read().split('\n')
 	number_of_lines_of_code = len(source_code) 
 	# try mutating a random line
 	random_line = rng.randint(0,number_of_lines_of_code)
@@ -230,12 +232,12 @@ def main (input_file, output_file = False, rng=None) :
 
 				sys.stderr.write("After Mutation : "+mutated_line.strip()+"\n")
 
-				if output_file :
-					write_to_file (output_file, source_code, i, mutated_line)
-					sys.stderr.write("\nOutput written to "+output_file+"\n")
+				if output_files:
+					write_to_file (output_files[src_index], source_code, i, mutated_line)
+					sys.stderr.write("\nOutput written to "+output_files[src_index]+"\n")
 
 				sys.stderr.write("\n")
-				return source_code[i].strip(), mutated_line.strip(), i
+				return src_index, source_code[i].strip(), mutated_line.strip(), i
 			#
 		#
 	#
