@@ -40,6 +40,7 @@ devicer_tester_folder_name = user_home_dir + '/device_tester/devicetester_freert
 config_dir = devicer_tester_folder_name + '/configs'
 results_dir = devicer_tester_folder_name + '/results'
 test_result_dir = 'test_results'
+userdata_schema_dir = devicer_tester_folder_name + '/tests/FRQ_1.1.0/suite'
 
 board = sys.argv[1]
 compiler = sys.argv[2]
@@ -67,6 +68,8 @@ def setup_device_tester_dir():
     subprocess.run(['rm', '-rf', results_dir])
     subprocess.run(['rm', '-rf', config_dir])
     subprocess.run(['cp', '-rf', 'configs', config_dir])
+    if (idt_ver == '3.1.0'):
+        subprocess.run(['cp', '-rf', 'userdata_schema.json', userdata_schema_dir])
 
     if (ota_enb == 'OTA_YES'):
         shutil.move(os.path.join(config_dir, 'device_ota.json'), os.path.join(config_dir, 'device.json'))
