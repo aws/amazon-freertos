@@ -21,7 +21,7 @@ for project_name in ${project_list[@]}; do
                 eval "file_path=${sync_list[i]}"
                 ref_path=$boards_dir/$ref_board/$file_path
                 path=$boards_dir/$board/$file_path
-                if ! diff -r $ref_path $path $exclude; then
+                if ! diff -r --strip-trailing-cr $ref_path $path $exclude; then
                     echo "Contents of $file_path did not match between $board and $ref_board. $sync_script_msg"
                     retval=1
                 fi
@@ -32,7 +32,7 @@ done
 
 ref_path=$boards_dir/$ref_board/ports/ota
 path=$secure_ota_port_dir
-if ! diff -r $ref_path $path; then
+if ! diff -r --strip-trailing-cr $ref_path $path; then
     echo "Contents of the OTA port folder did not match between and $ref_board. $sync_script_msg"
     retval=1
 fi

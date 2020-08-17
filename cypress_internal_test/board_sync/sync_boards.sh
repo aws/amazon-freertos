@@ -21,7 +21,7 @@ function sync_boards()
             if [[ $stale_board != $updated_board ]]; then
                 for item in "${sync_list[@]}"; do
                     eval "file_path=$item"
-                    cp -fr $boards_dir/$updated_board/$file_path $boards_dir/$stale_board/$file_path
+                    cp -fr $boards_dir/$updated_board/$file_path* $boards_dir/$stale_board/$file_path
                 done
             fi
         done
