@@ -321,18 +321,18 @@ static CK_RV prvCheckValidSessionAndModule( const P11Session_t * pxSession )
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
     {
-        LogDebug( ( "Could not get a valid session, PKCS #11 was not initialized as xP11Context.xIsInitialized was CK_FALSE." ) );
+        LogDebug( ( "Could not get a valid session. PKCS #11 was not initialized since xP11Context.xIsInitialized was CK_FALSE." ) );
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
     }
     else if( pxSession == NULL )
     {
-        LogDebug( ( "Could not get a valid session, PKCS #11 session handle pSession was NULL." ) );
+        LogDebug( ( "Could not get a valid session. PKCS #11 session handle pSession was NULL." ) );
         xResult = CKR_SESSION_HANDLE_INVALID;
     }
     /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( pxSession->xOpened == ( CK_BBOOL ) CK_FALSE )
     {
-        LogDebug( ( "PKCS #11 session handle was not opened." ) );
+        LogDebug( ( "Could not get a valid session. PKCS #11 session handle was not initialized with a previous call to C_OpenSession." ) );
         xResult = CKR_SESSION_HANDLE_INVALID;
     }
     else
@@ -357,7 +357,7 @@ static P11Session_t * prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
     }
     else
     {
-        LogDebug( ( "Session handle was out of the valid range." ) );
+        LogDebug( ( "Could not convert from CK_SESSION_HANDLE to P11Session_t pointer. Session handle was out of the valid range. Session handle was: %lu.", xSession ) );
     }
 
     return pxSession;
@@ -542,7 +542,7 @@ static CK_RV prvMbedTLS_Initialize( void )
     if( ( xP11Context.xObjectList.xMutex == NULL ) ||
         ( xP11Context.xSessionMutex == NULL ) )
     {
-        LogError( ( "Failed to initialize PKCS #11 Object and Session Mutexes." ) );
+        LogError( ( "Could not initialize PKCS #11. Failed to initialize PKCS #11 Object and Session Mutexes." ) );
         xResult = CKR_HOST_MEMORY;
     }
 
@@ -561,7 +561,7 @@ static CK_RV prvMbedTLS_Initialize( void )
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "Failed to seed the mbed TLS DRBG for the PKCS #11 module with mbed TLS error = %s : %s.",
+            LogError( ( "Could not initialize PKCS #11. Failed to seed the mbed TLS DRBG for the PKCS #11 module with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
@@ -571,7 +571,7 @@ static CK_RV prvMbedTLS_Initialize( void )
             /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             xP11Context.xIsInitialized = ( CK_BBOOL ) CK_TRUE;
-            LogDebug( ( "Module successfully initialized." ) );
+            LogDebug( ( "PKCS #11 module was successfully initialized." ) );
         }
     }
 
@@ -595,6 +595,7 @@ static CK_RV prvGetObjectClass( const CK_ATTRIBUTE * pxTemplate,
 
         if( xAttribute.type == CKA_CLASS )
         {
+            LogDebug( ( "Successfully found object class attribute." ) );
             ( void ) memcpy( pxClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
             xResult = CKR_OK;
             break;
@@ -623,9 +624,11 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
         case ( CKA_VALUE ):
             *ppxCertificateValue = pxAttribute->pValue;
             *pxCertificateLength = pxAttribute->ulValueLen;
+            LogDebug( ( "Found CKA_VALUE attribute. Certificate value length was: %lu.", pxAttribute->ulValueLen ) );
             break;
 
         case ( CKA_LABEL ):
+            LogDebug( ( "Found CKA_LABEL attribute." ) );
 
             if( pxAttribute->ulValueLen <= pkcs11configMAX_LABEL_LENGTH )
             {
@@ -633,30 +636,35 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
             }
             else
             {
-                LogError( ( "Label length was not in the valid range. Please check the value of pkcs11configMAX_LABEL_LENGTH" ) );
+                LogError( ( "Failed parsing certificate template. Label length"       \
+                            "was not in the valid range. Found %lu and expected %lu." \
+                            "Consider updating pkcs11configMAX_LABEL_LENGTH.", pxAttribute->ulValueLen, pkcs11configMAX_LABEL_LENGTH ) );
                 xResult = CKR_DATA_LEN_RANGE;
             }
 
             break;
 
         case ( CKA_CERTIFICATE_TYPE ):
+            LogDebug( ( "Found CKA_CERTIFICATE_TYPE." ) );
             ( void ) memcpy( pxCertificateType, pxAttribute->pValue, sizeof( CK_CERTIFICATE_TYPE ) );
 
             if( *pxCertificateType != CKC_X_509 )
             {
+                LogError( ( "Failed parsing certificate template. Certificate type was invalid. Expected CKC_X_509, but found %0X.", *pxCertificateType ) );
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
 
             break;
 
         case ( CKA_TOKEN ):
+            LogDebug( ( "Found CKA_TOKEN." ) );
             ( void ) memcpy( &xBool, pxAttribute->pValue, sizeof( CK_BBOOL ) );
 
             /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Only token key object is supported." ) );
+                LogError( ( "Failed parsing certificate template. Only token key object types are supported. Consider making the CKA_TOKEN type CK_TRUE." ) );
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
 
@@ -664,11 +672,13 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
 
         case ( CKA_CLASS ):
         case ( CKA_SUBJECT ):
+            LogDebug( ( "Received attribute type %0X and ignored it.", pxAttribute->type ) );
 
             /* Do nothing.  This was already parsed out of the template previously. */
             break;
 
         default:
+            LogError( ( "Failed parsing certificate template. Received an unknown template type with value %0X.", pxAttribute->type ) );
             xResult = CKR_ATTRIBUTE_TYPE_INVALID;
             break;
     }
@@ -694,24 +704,27 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         case ( CKA_CLASS ):
         case ( CKA_KEY_TYPE ):
         case ( CKA_LABEL ):
+            LogDebug( ( "Received attribute type %0X and ignored it.", pxAttribute->type ) );
             /* Do nothing. These values were parsed previously. */
             break;
 
         case ( CKA_SIGN ):
         case ( CKA_TOKEN ):
+            LogDebug( ( "Found CKA_TOKEN or CKA_SIGN." ) );
             ( void ) memcpy( &xBool, pxAttribute->pValue, pxAttribute->ulValueLen );
 
             /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Only RSA private keys with signing permissions supported." ) );
+                LogError( ( "Failed to parse RSA private key template. Expected signing permissions to be supported or for the object to be a token type." ) );
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
 
             break;
 
         case ( CKA_MODULUS ):
+            LogDebug( ( "Found CKA_MODULUS." ) );
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
                                                      pxAttribute->pValue, pxAttribute->ulValueLen, /* N */
                                                      NULL, 0,                                      /* P */
@@ -721,6 +734,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_PUBLIC_EXPONENT ):
+            LogDebug( ( "Found CKA_PUBLIC_EXPONENT." ) );
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
                                                      NULL, 0,                                        /* N */
                                                      NULL, 0,                                        /* P */
@@ -730,6 +744,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_PRIME_1 ):
+            LogDebug( ( "Found CKA_PRIME_1." ) );
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
                                                      NULL, 0,                                      /* N */
                                                      pxAttribute->pValue, pxAttribute->ulValueLen, /* P */
@@ -739,6 +754,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_PRIME_2 ):
+            LogDebug( ( "Found CKA_PRIME_2." ) );
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
                                                      NULL, 0,                                      /* N */
                                                      NULL, 0,                                      /* P */
@@ -748,6 +764,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_PRIVATE_EXPONENT ):
+            LogDebug( ( "Found CKA_PRIVATE_EXPONENT." ) );
             lMbedTLSResult = mbedtls_rsa_import_raw( pxRsaContext,
                                                      NULL, 0,                                      /* N */
                                                      NULL, 0,                                      /* P */
@@ -757,26 +774,29 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             break;
 
         case ( CKA_EXPONENT_1 ):
+            LogDebug( ( "Found CKA_EXPONENT_1." ) );
             lMbedTLSResult = mbedtls_mpi_read_binary( &pxRsaContext->DP, pxAttribute->pValue, pxAttribute->ulValueLen );
             break;
 
         case ( CKA_EXPONENT_2 ):
+            LogDebug( ( "Found CKA_EXPONENT_2." ) );
             lMbedTLSResult = mbedtls_mpi_read_binary( &pxRsaContext->DQ, pxAttribute->pValue, pxAttribute->ulValueLen );
             break;
 
         case ( CKA_COEFFICIENT ):
+            LogDebug( ( "Found CKA_COEFFICIENT." ) );
             lMbedTLSResult = mbedtls_mpi_read_binary( &pxRsaContext->QP, pxAttribute->pValue, pxAttribute->ulValueLen );
             break;
 
         default:
-            LogError( ( "Unknown attribute type %0X found for RSA private key.", pxAttribute->type ) );
+            LogError( ( "Failed to parse RSA private key template. Unknown attribute type %0X found for RSA private key.", pxAttribute->type ) );
             xResult = CKR_ATTRIBUTE_TYPE_INVALID;
             break;
     }
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "mbedTLS create private RSA key failed with mbed TLS error = %s : %s.",
+        LogError( ( "Failed to parse RSA private key template. mbed TLS failed with mbed TLS error = %s : %s.",
                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
         xResult = CKR_FUNCTION_FAILED;
@@ -810,7 +830,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             if( xBool == ( CK_BBOOL ) CK_FALSE )
             {
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                LogError( ( "Only EC private keys with signing privileges are supported." ) );
+                LogError( ( "Failed to parse EC private key. Expected signing privileges to be supported." ) );
             }
         }
         else
@@ -822,7 +842,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_FUNCTION_FAILED;
-                LogError( ( "mbedTLS mpi read binary failed with mbed TLS error = %s : %s.",
+                LogError( ( "Failed to parse EC private key. mbedTLS mpi read binary failed with mbed TLS error = %s : %s.",
                             mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                             mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
@@ -857,7 +877,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             if( xBool == ( CK_BBOOL ) CK_FALSE )
             {
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                LogError( ( "Only EC public keys with verify permissions supported." ) );
+                LogError( ( "Failed to parse EC public key. Expected verify permissions to be supported." ) );
             }
         }
         else
@@ -870,7 +890,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_FUNCTION_FAILED;
-                LogError( ( "mbedTLS ecp point read binary failed with mbed TLS error = %s : %s.",
+                LogError( ( "Failed to parse EC public key. mbedTLS ecp point read binary failed with mbed TLS error = %s : %s.",
                             mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                             mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
@@ -902,10 +922,12 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
             case ( CKA_LABEL ):
+                LogDebug( ( "Received attribute type %0X and ignored it.", pxAttribute->type ) );
                 /* Do nothing. These attribute types were checked previously. */
                 break;
 
             case ( CKA_TOKEN ):
+                LogDebug( ( "Found CKA_TOKEN." ) );
                 pxEcBoolAtt = ( CK_BBOOL * ) pxAttribute->pValue;
                 ( void ) memcpy( &xBool, pxEcBoolAtt, sizeof( CK_BBOOL ) );
 
@@ -913,25 +935,27 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 /* coverity[misra_c_2012_rule_10_5_violation] */
                 if( xBool != ( CK_BBOOL ) CK_TRUE )
                 {
-                    LogError( ( "Only token key creation is supported." ) );
+                    LogError( ( "Failed parsing EC key template. Expected token type to be true, but it was false." ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
                 break;
 
             case ( CKA_EC_PARAMS ):
+                LogDebug( ( "Found CKA_EC_PARAMS." ) );
                 pxEcAttVal = ( CK_BYTE * ) pxAttribute->pValue;
 
                 if( memcmp( pxEcCurve, pxEcAttVal, pxAttribute->ulValueLen ) != 0 )
                 {
                     xResult = CKR_TEMPLATE_INCONSISTENT;
-                    LogError( ( "Only elliptic curve P-256 is supported." ) );
+                    LogError( ( "Failed parsing EC key template. The elliptic curve was wrong. Expected elliptic curve P-256." ) );
                 }
 
                 break;
 
             case ( CKA_VERIFY ):
             case ( CKA_EC_POINT ):
+                LogDebug( ( "Found CKA_EC_POINT or CKA_VERIFY." ) );
 
                 /* See explanation in prvCheckValidSessionAndModule for this exception. */
                 /* coverity[misra_c_2012_rule_10_5_violation] */
@@ -941,7 +965,9 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 }
                 else
                 {
-                    LogError( ( "Expected a public key for CKA_VERIFY or CKA_EC_POINT." ) );
+                    LogError( ( "Failed parsing EC key template. The key type"    \
+                                "did not match the template parameters. Expected" \
+                                "a public key for CKA_VERIFY or CKA_EC_POINT." ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
@@ -949,6 +975,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
 
             case ( CKA_SIGN ):
             case ( CKA_VALUE ):
+                LogDebug( ( "Found CKA_SIGN or CKA_VALUE." ) );
 
                 /* See explanation in prvCheckValidSessionAndModule for this exception. */
                 /* coverity[misra_c_2012_rule_10_5_violation] */
@@ -958,14 +985,16 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 }
                 else
                 {
-                    LogError( ( "Expected a private key for CKA_SIGN or CKA_VALUE." ) );
+                    LogError( ( "Failed parsing EC key template. The key type"    \
+                                "did not match the template parameters. Expected" \
+                                "a private key for CKA_SIGN or CKA_VALUE." ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
                 break;
 
             default:
-                LogError( ( "Unknown attribute %0X found for an EC key.", pxAttribute->type ) );
+                LogError( ( "Failed parsing EC key template. Unknown attribute %0X found for an EC key.", pxAttribute->type ) );
                 xResult = CKR_ATTRIBUTE_TYPE_INVALID;
                 break;
         }
@@ -1003,6 +1032,7 @@ static void prvFindObjectInListByLabel( const CK_BYTE_PTR pcLabel,
     {
         if( 0 == memcmp( pcLabel, xP11Context.xObjectList.xObjects[ ulIndex ].xLabel, xLabelLength ) )
         {
+            LogDebug( ( "Found object in object list matching label." ) );
             *pxPalHandle = xP11Context.xObjectList.xObjects[ ulIndex ].xHandle;
             *pxAppHandle = ulIndex + 1UL; /* Zero is not a valid handle, so let's offset by 1. */
             break;
@@ -1073,7 +1103,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
         }
         else
         {
-            LogError( ( "Tried to delete an invalid object." ) );
+            LogError( ( "Failed to remove an object from internal object list. Tried to delete an invalid object. The object handle was likely no longer valid." ) );
             xResult = CKR_OBJECT_HANDLE_INVALID;
         }
 
@@ -1081,7 +1111,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
     }
     else
     {
-        LogError( ( "Could not take the xObjectList mutex." ) );
+        LogError( ( "Failed to remove an object from internal object list. Could not take the xObjectList mutex." ) );
         xResult = CKR_CANT_LOCK;
     }
 
@@ -1118,7 +1148,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         {
             if( xResult == CKR_OK )
             {
-                LogDebug( ( "Added object handle to list." ) );
+                LogDebug( ( "Successfully added object handle to list." ) );
                 break;
             }
 
@@ -1153,7 +1183,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             }
             else
             {
-                LogError( ( "The label length was out of range. Consider changing the pkcs11configMAX_LABEL_LENGTH value." ) );
+                LogError( ( "Failed to add object to internal object list. The label length was out of range. Received %lu but expected <= %lu.", xLabelLength, pkcs11configMAX_LABEL_LENGTH ) );
                 xResult = CKR_DATA_LEN_RANGE;
             }
         }
@@ -1162,7 +1192,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     }
     else
     {
-        LogError( ( "Could not take xObjectList mutex." ) );
+        LogError( ( "Failed to add object to internal object list. Could not take xObjectList mutex." ) );
         xResult = CKR_CANT_LOCK;
     }
 
@@ -1188,77 +1218,71 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
-    if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
+    if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
     {
-        ulDerBufSize = pkcs11_MAX_EC_PRIVATE_KEY_DER_SIZE;
-    }
-    /* See explanation in prvCheckValidSessionAndModule for this exception. */
-    /* coverity[misra_c_2012_rule_10_5_violation] */
-    else if( ( xKeyType == CKK_EC ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
-    {
-        ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
-    }
-    /* See explanation in prvCheckValidSessionAndModule for this exception. */
-    /* coverity[misra_c_2012_rule_10_5_violation] */
-    else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
-    {
-        ulDerBufSize = pkcs11_MAX_PRIVATE_KEY_DER_SIZE;
-    }
-    /* See explanation in prvCheckValidSessionAndModule for this exception. */
-    /* coverity[misra_c_2012_rule_10_5_violation] */
-    else if( ( xKeyType == CKK_RSA ) && ( xIsPrivate == ( CK_BBOOL ) CK_FALSE ) )
-    {
-        ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
-    }
-    else
-    {
-        LogError( ( "Did not receive a valid key type." ) );
-        xResult = CKR_ARGUMENTS_BAD;
-    }
+        LogDebug( ( "Key was private type." ) );
 
-    if( xResult == CKR_OK )
-    {
-        LogDebug( ( "Allocating a %lu sized buffer to write the key to.", ulDerBufSize ) );
-        pxDerKey = pvPortMalloc( ulDerBufSize );
-    }
-
-    if( pxDerKey == NULL )
-    {
-        LogError( ( "Failed to malloc a buffer to write the key to." ) );
-        xResult = CKR_HOST_MEMORY;
-    }
-
-    /* See explanation in prvCheckValidSessionAndModule for this exception. */
-    /* coverity[misra_c_2012_rule_10_5_violation] */
-    if( ( xResult == CKR_OK ) && ( xIsPrivate == ( CK_BBOOL ) CK_TRUE ) )
-    {
-        lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, ulDerBufSize );
-    }
-    /* See explanation in prvCheckValidSessionAndModule for this exception. */
-    /* coverity[misra_c_2012_rule_10_5_violation] */
-    else if( ( xResult == CKR_OK ) )
-    {
-        lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, ulDerBufSize );
-    }
-    else
-    {
-        /* This function should only be called for a private or public key. */
-    }
-
-    if( xResult == CKR_OK )
-    {
-        if( lDerKeyLength < 0 )
+        if( xKeyType == CKK_EC )
         {
-            LogError( ( "mbedTLS sign failed with mbed TLS error = %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lDerKeyLength ),
-                        mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
-            xResult = CKR_FUNCTION_FAILED;
+            LogDebug( ( "Received EC key type." ) );
+            ulDerBufSize = pkcs11_MAX_EC_PRIVATE_KEY_DER_SIZE;
         }
         else
         {
-            /* Cast to unsigned int as the result was not negative. */
-            ulActualKeyLength = ( uint32_t ) lDerKeyLength;
+            LogDebug( ( "Received RSA key type." ) );
+            /* RSA key type. */
+            ulDerBufSize = pkcs11_MAX_PRIVATE_KEY_DER_SIZE;
         }
+    }
+    else
+    {
+        LogDebug( ( "Key was public type." ) );
+
+        if( xKeyType == CKK_EC )
+        {
+            LogDebug( ( "Received EC key type." ) );
+            ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
+        }
+        else
+        {
+            LogDebug( ( "Received RSA key type." ) );
+            ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
+        }
+    }
+
+    LogDebug( ( "Allocating a %lu sized buffer to write the key to.", ulDerBufSize ) );
+    pxDerKey = pvPortMalloc( ulDerBufSize );
+
+    if( pxDerKey == NULL )
+    {
+        LogError( ( "Failed saving DER formatted key to flash. Failed to malloc a buffer to contain the key for the mbed TLS context." ) );
+        xResult = CKR_HOST_MEMORY;
+    }
+    else
+    {
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
+        {
+            lDerKeyLength = mbedtls_pk_write_key_der( pxMbedContext, pxDerKey, ulDerBufSize );
+        }
+        else
+        {
+            lDerKeyLength = mbedtls_pk_write_pubkey_der( pxMbedContext, pxDerKey, ulDerBufSize );
+        }
+    }
+
+    if( lDerKeyLength < 0 )
+    {
+        LogError( ( "Failed saving DER formatted key to flash. mbed TLS pk_write failed with mbed TLS error = %s : %s.",
+                    mbedtlsHighLevelCodeOrDefault( lDerKeyLength ),
+                    mbedtlsLowLevelCodeOrDefault( lDerKeyLength ) ) );
+        xResult = CKR_FUNCTION_FAILED;
+    }
+    else
+    {
+        /* Cast to unsigned int as the result was not negative. */
+        ulActualKeyLength = ( uint32_t ) lDerKeyLength;
     }
 
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
@@ -1297,7 +1321,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
         if( xPalHandle == CK_INVALID_HANDLE )
         {
-            LogError( ( "Failed to write DER formatted key to the PKCS #11 PAL." ) );
+            LogError( ( "Failed saving DER formatted key to flash. Failed to write DER formatted key to the PKCS #11 PAL." ) );
             xResult = CKR_DEVICE_MEMORY;
         }
     }
@@ -1356,13 +1380,13 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 
                     if( xPalHandle2 != xPalHandle )
                     {
-                        LogError( ( "Received a different handle from the PAL when writing to the same label." ) );
+                        LogError( ( "Failed destroying object. Received a different handle from the PAL when writing to the same label." ) );
                         xResult = CKR_GENERAL_ERROR;
                     }
                 }
                 else
                 {
-                    LogError( ( "Failed to allocated a buffer of length %lu", ulObjectLength ) );
+                    LogError( ( "Failed destroying object. Failed to allocated a buffer of length %lu.", ulObjectLength ) );
                     xResult = CKR_HOST_MEMORY;
                 }
 
@@ -1370,12 +1394,12 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
             }
             else
             {
-                LogError( ( "Failed to get object from the PKCS #11 PAL." ) );
+                LogError( ( "Failed destroying object. Could not get object from the PKCS #11 PAL." ) );
             }
         }
         else
         {
-            LogError( ( "Label was NULL." ) );
+            LogError( ( "Failed destroying object. Could not found the object label." ) );
             xResult = CKR_ATTRIBUTE_VALUE_INVALID;
         }
 
@@ -1456,13 +1480,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pInitArgs )
         }
         else
         {
-            LogError( ( "Failed to initialize PAL with error code: %0X", xResult ) );
+            LogError( ( "Failed to initialize PKCS #11. PAL failed with error code: %0X", xResult ) );
         }
     }
     else
     {
         xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
-        LogWarn( ( "PKCS #11 stack was already initialized." ) );
+        LogWarn( ( "Failed to initialize PKCS #11. PKCS #11 was already initialized." ) );
     }
 
     if( xResult == CKR_OK )
@@ -1485,7 +1509,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
     if( pReserved != NULL )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Received bad arguments. Parameters must be NULL." ) );
+        LogError( ( "Failed to un-initialize PKCS #11. Received bad arguments. Parameters must be NULL, but were not." ) );
     }
 
     if( xResult == CKR_OK )
@@ -1616,7 +1640,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppFunc
     if( NULL == ppFunctionList )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Argument was NULL, so the function list pointer cannot be returned." ) );
+        LogError( ( "Failed to return function pointer list. Expected a valid pointer to a CK_FUNCTION_LIST, but the pointer was NULL." ) );
     }
     else
     {
@@ -1659,13 +1683,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL tokenPresent,
     if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
-        LogError( ( "PKCS #11 must be initialized before any operations." ) );
+        LogError( ( "Failed to get slot list. PKCS #11 must be initialized before any operations." ) );
     }
 
     if( NULL == pulCount )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Count pointer was NULL." ) );
+        LogError( ( "Failed to get slot list. Count pointer was NULL." ) );
     }
 
     if( xResult == CKR_OK )
@@ -1685,7 +1709,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL tokenPresent,
             {
                 pSlotList[ 0 ] = pkcs11SLOT_ID;
                 *pulCount = 1;
-                LogDebug( ( "Returned a PKCS #11 slot." ) );
+                LogDebug( ( "Successfully Returned a PKCS #11 slot at index %lu with a count of %lu.", 0, 1 ) );
             }
         }
     }
@@ -1746,7 +1770,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     if( pInfo == NULL )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "pInfo was NULL. Expected a pointer to a valid CK_MECHANISM_INFO struct." ) );
+        LogError( ( "Failed to get mechanism info. pInfo was NULL. Expected a pointer to a valid CK_MECHANISM_INFO struct." ) );
     }
 
     struct CryptoMechanisms
@@ -1777,7 +1801,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
                  * out of the loop. */
                 ( void ) memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
                 xResult = CKR_OK;
-                LogDebug( ( "Found the correct mechanism." ) );
                 break;
             }
         }
@@ -1858,21 +1881,21 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     if( xP11Context.xIsInitialized != ( CK_BBOOL ) CK_TRUE )
     {
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
-        LogError( ( "PKCS #11 must be initialized before any operations." ) );
+        LogError( ( "Could not open a session. PKCS #11 must be initialized before any operations." ) );
     }
 
     /* Check arguments. */
     if( NULL == phSession )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "phSession cannot be a NULL pointer." ) );
+        LogError( ( "Could not open a session. phSession cannot be a NULL pointer." ) );
     }
 
     /* For legacy reasons, the CKF_SERIAL_SESSION bit MUST always be set. */
     if( ( CKR_OK == xResult ) && ( 0UL == ( CKF_SERIAL_SESSION & flags ) ) )
     {
         xResult = CKR_SESSION_PARALLEL_NOT_SUPPORTED;
-        LogError( ( "CKR_SESSION_PARALLEL_NOT_SUPPORTED must always be a set flag." ) );
+        LogError( ( "Could not open a session. CKR_SESSION_PARALLEL_NOT_SUPPORTED must always be a set flag." ) );
     }
 
     /*
@@ -1897,6 +1920,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
                 else
                 {
                     /* No available session. */
+                    LogError( ( "Could not open a session. All sessions have been taken. Consider increasing value of pkcs11configMAX_SESSIONS." ) );
                     xResult = CKR_SESSION_COUNT;
                 }
             }
@@ -1906,7 +1930,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
         else
         {
             xResult = CKR_FUNCTION_FAILED;
-            LogError( ( "Could not take xSessionMutex" ) );
+            LogError( ( "Could not open a session. Unsuccessful in taking xSessionMutex." ) );
         }
 
         if( CKR_OK == xResult )
@@ -1915,7 +1939,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 
             if( NULL == pxSessionObj->xSignMutex )
             {
-                LogError( ( "Unable to initialize xSignMutex. Consider increasing heap size." ) );
+                LogError( ( "Could not open a session. Unable to initialize xSignMutex. Consider increasing heap size." ) );
                 xResult = CKR_HOST_MEMORY;
             }
 
@@ -1923,7 +1947,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 
             if( NULL == pxSessionObj->xVerifyMutex )
             {
-                LogError( ( "Unable to initialize xVerifyMutex. Consider increasing heap size." ) );
+                LogError( ( "Could not open a session. Unable to initialize xVerifyMutex. Consider increasing heap size." ) );
                 xResult = CKR_HOST_MEMORY;
             }
         }
@@ -1952,8 +1976,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 
     if( CKR_OK != xResult )
     {
-        LogError( ( "Failed to open a new session with error %d \r\n", xResult ) );
-
         if( pxSessionObj != NULL )
         {
             if( pxSessionObj->xSignMutex != NULL )
@@ -2002,12 +2024,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
     if( xP11Context.xIsInitialized == ( CK_BBOOL ) CK_FALSE )
     {
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
-        LogError( ( "PKCS #11 must be initialized before any operations." ) );
+        LogError( ( "Could not close a session. PKCS #11 must be initialized before any operations." ) );
     }
     else if( pxSession == NULL )
     {
         xResult = CKR_SESSION_HANDLE_INVALID;
-        LogError( ( "The PKCS #11 session handle was invalid." ) );
+        LogError( ( "Could not close a session. The PKCS #11 session handle was invalid." ) );
     }
     /* coverity[misra_c_2012_rule_10_5_violation] */
     else if( pxSession->xOpened == ( CK_BBOOL ) CK_TRUE )
@@ -2036,7 +2058,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
 
         /* memset clears the open flag, so there is no need to set it to CK_FALSE */
         ( void ) memset( pxSession, 0, sizeof( P11Session_t ) );
-        LogInfo( ( "Successfully closed session." ) );
+        LogInfo( ( "Successfully closed PKCS #11 session." ) );
     }
     else
     {
@@ -2113,7 +2135,7 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
 
     if( ( xResult == CKR_OK ) && ( ( pxCertificateValue == NULL ) || ( pxLabel == NULL ) ) )
     {
-        LogError( ( "Could not parse the certificate value or label form the template." ) );
+        LogError( ( "Failed to create certificate. Could not parse the certificate value or label from the template." ) );
         xResult = CKR_TEMPLATE_INCOMPLETE;
     }
 
@@ -2123,7 +2145,7 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
 
         if( xPalHandle == 0UL ) /*Invalid handle. */
         {
-            LogError( ( "Could not save the certificate to the PKCS #11 PAL." ) );
+            LogError( ( "Failed to create certificate. Could not save the certificate to the PKCS #11 PAL." ) );
             xResult = CKR_DEVICE_MEMORY;
         }
     }
@@ -2135,7 +2157,6 @@ static CK_RV prvCreateCertificate( CK_ATTRIBUTE * pxTemplate,
 
     if( xResult != CKR_OK )
     {
-        LogDebug( ( "Cleaning up after failing to create certificate." ) );
         xResult = PKCS11_PAL_DestroyObject( *pxObject );
     }
 
@@ -2165,7 +2186,7 @@ static void prvGetKeyType( CK_KEY_TYPE * pxKeyType,
 
         if( xAttribute.type == CKA_KEY_TYPE )
         {
-            LogDebug( ( "Found the key type." ) );
+            LogDebug( ( "Successfully found the key type in the template." ) );
             ( void ) memcpy( pxKeyType, xAttribute.pValue, sizeof( CK_KEY_TYPE ) );
             break;
         }
@@ -2194,7 +2215,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
         if( xAttribute.type == CKA_LABEL )
         {
-            LogDebug( ( "Found the label." ) );
+            LogDebug( ( "Successfully found the label in the template." ) );
             *ppxLabel = &pxTemplate[ ulIndex ];
             break;
         }
@@ -2274,12 +2295,12 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
         }
         else
         {
-            LogError( ( "Could not get object value from PKCS #11 PAL." ) );
+            LogError( ( "Failed to get existing object value. Could not get object value from PKCS #11 PAL." ) );
         }
 
         if( lMbedTLSResult != 0 )
         {
-            LogError( ( "mbedTLS pk parse failed with mbed TLS error = %s : %s.",
+            LogError( ( "Failed to get existing object value. mbedTLS pk parse failed with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             *pxPalHandle = CK_INVALID_HANDLE;
@@ -2319,7 +2340,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
         if( pxLabel == NULL )
         {
-            LogError( ( "Received a NULL label pointer." ) );
+            LogError( ( "Failed to create an EC key. Received a NULL label pointer." ) );
             xResult = CKR_ARGUMENTS_BAD;
         }
         else
@@ -2354,7 +2375,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
                 if( lMbedTLSResult != 0 )
                 {
-                    LogError( ( "mbedTLS ECP curve load failed with mbed TLS error = %s : %s.",
+                    LogError( ( "Failed creating an EC key. mbedTLS ECP curve load failed with mbed TLS error = %s : %s.",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                 mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_FUNCTION_FAILED;
@@ -2362,7 +2383,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
             }
             else
             {
-                LogError( ( "Could not allocate a mbedtls_ecp_keypair struct." ) );
+                LogError( ( "Failed creating an EC key. Could not allocate a mbedtls_ecp_keypair struct." ) );
                 xResult = CKR_HOST_MEMORY;
             }
         }
@@ -2421,7 +2442,7 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
 
     if( pxLabel == NULL )
     {
-        LogError( ( "Label was a NULL pointer." ) );
+        LogError( ( "Failed creating an RSA key. Label was a NULL pointer." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -2434,7 +2455,7 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
     }
     else
     {
-        LogError( ( "Could not malloc a mbedtls_rsa_context struct." ) );
+        LogError( ( "Failed creating an RSA key. Could not malloc a mbedtls_rsa_context struct." ) );
         xResult = CKR_HOST_MEMORY;
     }
 
@@ -2506,7 +2527,7 @@ static CK_RV prvCreatePrivateKey( CK_ATTRIBUTE * pxTemplate,
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
-        LogError( ( "Tried to create a key with an invalid mechanism." ) );
+        LogError( ( "Failed to create a key. Tried to create a key with an invalid or unknown mechanism." ) );
         xResult = CKR_MECHANISM_INVALID;
     }
 
@@ -2537,7 +2558,7 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
 
     if( xKeyType == CKK_RSA )
     {
-        LogError( ( "Currently this stack cannot create RSA keys." ) );
+        LogError( ( "Failed to create public key. Currently this stack cannot create RSA keys." ) );
         xResult = CKR_ATTRIBUTE_TYPE_INVALID;
     }
 
@@ -2551,7 +2572,7 @@ static CK_RV prvCreatePublicKey( CK_ATTRIBUTE * pxTemplate,
     #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
-        LogError( ( "Invalid key type %0X", xKeyType ) );
+        LogError( ( "Failed to create public key. Received an invalid mechanism. Invalid key type %0X", xKeyType ) );
         xResult = CKR_MECHANISM_INVALID;
     }
 
@@ -2624,7 +2645,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE hSession,
     if( ( NULL == pTemplate ) ||
         ( NULL == phObject ) )
     {
-        LogError( ( "Received an invalid template or object pointer." ) );
+        LogError( ( "Failed to create object. Received an invalid template or object pointer." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -2690,7 +2711,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE hSession,
     }
     else
     {
-        LogError( ( "The session handle was invalid." ) );
+        LogError( ( "Failed to destroy object. The session was invalid." ) );
     }
 
     return xResult;
@@ -2766,13 +2787,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
     if( ( CKR_OK == xResult ) && ( ( ( NULL == pTemplate ) ) || ( 0UL == ulCount ) ) )
     {
-        LogError( ( "The template was a NULL pointer or the attribute count was 0." ) );
+        LogError( ( "Failed to get attribute. The template was a NULL pointer or the attribute count was 0." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
     if( ( CKR_OK == xResult ) && ( CK_INVALID_HANDLE == hObject ) )
     {
-        LogError( ( "The object handle was invalid." ) );
+        LogError( ( "Failed to get attribute. The object handle was invalid." ) );
         xResult = CKR_OBJECT_HANDLE_INVALID;
     }
 
@@ -2781,7 +2802,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         /*
          * Copy the object into a buffer.
          */
-
         prvFindObjectInListByHandle( hObject, &xPalHandle, &pcLabel, &xSize ); /*pcLabel and xSize are ignored. */
 
         if( xPalHandle != CK_INVALID_HANDLE )
@@ -2790,7 +2810,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Could not find a valid PKCS #11 PAL handle." ) );
+            LogError( ( "Failed to get attribute. Could not find a valid PKCS #11 PAL handle." ) );
             xResult = CKR_OBJECT_HANDLE_INVALID;
         }
     }
@@ -2861,7 +2881,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                         }
                         else
                         {
-                            LogError( ( "Received a buffer smaller than CK_OBJECT_CLASS." ) );
+                            LogError( ( "Failed to parse attribute template. Received a buffer smaller than CK_OBJECT_CLASS." ) );
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                     }
@@ -2876,7 +2896,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                     if( xIsPrivate == ( CK_BBOOL ) CK_TRUE )
                     {
                         pTemplate[ iAttrib ].ulValueLen = CK_UNAVAILABLE_INFORMATION;
-                        LogError( ( "This data is sensitive and the value will not be returned." ) );
+                        LogError( ( "Failed to parse attribute. This data is sensitive and the value will not be returned." ) );
                         xResult = CKR_ATTRIBUTE_SENSITIVE;
                     }
                     else
@@ -2887,7 +2907,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                         }
                         else if( pTemplate[ iAttrib ].ulValueLen < ulLength )
                         {
-                            LogError( ( "Buffer was too small to contain data. Expected %lu but got %lu.", ulLength, pTemplate[ iAttrib ].ulValueLen ) );
+                            LogError( ( "Failed to parse attribute. Buffer was too small to contain data. Expected %lu but got %lu.", ulLength, pTemplate[ iAttrib ].ulValueLen ) );
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                         else
@@ -2906,7 +2926,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                     }
                     else if( pTemplate[ iAttrib ].ulValueLen < sizeof( CK_KEY_TYPE ) )
                     {
-                        LogError( ( "Expected buffer of size CK_KEY_TYPE." ) );
+                        LogError( ( "Failed to parse attribute. Expected buffer of size CK_KEY_TYPE." ) );
                         xResult = CKR_BUFFER_TOO_SMALL;
                     }
                     else
@@ -2931,7 +2951,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                                 break;
 
                             default:
-                                LogError( ( "Could not parse key type." ) );
+                                LogError( ( "Failed to parse attribute. Could not parse key type." ) );
                                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                                 break;
                         }
@@ -2943,7 +2963,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
 
                 case CKA_PRIVATE_EXPONENT:
 
-                    LogError( ( "CKA_PRIVATE_EXPONENT is private data." ) );
+                    LogError( ( "Failed to parse attribute. CKA_PRIVATE_EXPONENT is private data." ) );
                     xResult = CKR_ATTRIBUTE_SENSITIVE;
 
                     break;
@@ -2956,7 +2976,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                     {
                         if( pTemplate[ iAttrib ].ulValueLen < sizeof( ucP256Oid ) )
                         {
-                            LogError( ( "CKA_EC_PARAMS buffer too small." ) );
+                            LogError( ( "Failed to parse attribute. CKA_EC_PARAMS buffer too small." ) );
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                         else
@@ -2993,12 +3013,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                         {
                             if( lMbedTLSResult == MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL )
                             {
-                                LogError( ( "CKA_EC_POINT buffer was too small." ) );
+                                LogError( ( "Failed to extract EC point. CKA_EC_POINT buffer was too small." ) );
                                 xResult = CKR_BUFFER_TOO_SMALL;
                             }
                             else
                             {
-                                LogError( ( "mbedtls_ecp_tls_write_point failed with mbed TLS error = %s : %s.",
+                                LogError( ( "Failed to extract EC point. mbedtls_ecp_tls_write_point failed with mbed TLS error = %s : %s.",
                                             mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                             mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                                 xResult = CKR_FUNCTION_FAILED;
@@ -3013,7 +3033,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE hSession,
                     break;
 
                 default:
-                    LogError( ( "Received unknown attribute type." ) );
+                    LogError( ( "Failed to parse attribute. Received unknown attribute type." ) );
                     xResult = CKR_ATTRIBUTE_TYPE_INVALID;
                     break;
             }
@@ -3074,7 +3094,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     if( ( ulCount != 1UL ) && ( ulCount != 2UL ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Find objects does not support searching by %lu attributes.", ulCount ) );
+        LogError( ( "Failed to initialize find object operation. Find objects does not support searching by %lu attributes. Expected to search with 1 or 2 attributes.", ulCount ) );
     }
 
     if( xResult == CKR_OK )
@@ -3084,7 +3104,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
         if( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE )
         {
             xResult = CKR_OPERATION_ACTIVE;
-            LogError( ( "Find object operation already in progress." ) );
+            LogError( ( "Failed to initialize find object operation. Find object operation was already in progress." ) );
         }
     }
 
@@ -3104,7 +3124,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Failed to allocated %lu bytes.", pTemplate->ulValueLen + 1UL ) );
+            LogError( ( "Failed to initialize find object operation.Failed to allocate %lu bytes.", pTemplate->ulValueLen + 1UL ) );
             xResult = CKR_HOST_MEMORY;
         }
     }
@@ -3133,7 +3153,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     }
 
     /* Clean up memory if there was an error parsing the template. */
-    if( ( pxSession != NULL ) && ( xResult != CKR_OK ) )
+    if( ( pxSession != NULL ) && ( xResult != CKR_OK ) && ( xResult != CKR_OPERATION_ACTIVE ) )
     {
         vPortFree( pxFindObjectLabel );
         pxSession->pxFindObjectLabel = NULL;
@@ -3197,7 +3217,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     if( ( NULL == phObject ) ||
         ( NULL == pulObjectCount ) )
     {
-        LogError( ( "The object handle or the object count pointer was NULL." ) );
+        LogError( ( "Failed to find objects. The object handle or the object count pointer was NULL." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3205,14 +3225,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     {
         if( pxSession->pxFindObjectLabel == NULL )
         {
-            LogError( ( "The PKCS #11 stack must be initialized before any operations." ) );
+            LogError( ( "Failed to find objects. The PKCS #11 stack must be initialized before any operations." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
 
         if( 1u != ulMaxObjectCount )
         {
             xResult = CKR_ARGUMENTS_BAD;
-            LogError( ( "Searching for anything other than 1 object not supported." ) );
+            LogError( ( "Failed to find objects. Searching for anything other than 1 object is not supported." ) );
         }
     }
 
@@ -3264,15 +3284,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
             /* Note: Objects living in header files are not destroyed. */
             /* According to the PKCS #11 standard, not finding an object results in a CKR_OK return value with an object count of 0. */
             *pulObjectCount = 0;
-            LogWarn( ( "Object with label '%s' not found.", ( char * ) pxSession->pxFindObjectLabel ) );
         }
     }
 
     /* Clean up memory if there was an error finding the object. */
     if( xResult != CKR_OK )
     {
-        LogDebug( ( "Error occurred. Cleaning up memory." ) );
-
         if( pxSession != NULL )
         {
             vPortFree( pxSession->pxFindObjectLabel );
@@ -3315,7 +3332,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE hSession )
     {
         if( pxSession->pxFindObjectLabel == NULL )
         {
-            LogError( ( "Find operation must be initialized." ) );
+            LogError( ( "Failed to end find objects operation. Find operation must be initialized." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
     }
@@ -3362,7 +3379,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
 
     if( pMechanism == NULL )
     {
-        LogError( ( "Mechanism pointer was NULL." ) );
+        LogError( ( "Failed to initialize digest operation. Mechanism pointer was NULL." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3372,7 +3389,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE )
         {
-            LogError( ( "An operation was already active." ) );
+            LogError( ( "Failed to initialize digest operation. An operation was already active." ) );
             xResult = CKR_OPERATION_ACTIVE;
         }
     }
@@ -3381,7 +3398,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
     {
         if( pMechanism->mechanism != CKM_SHA256 )
         {
-            LogError( ( "Currently only the CKM_SHA256 mechanism is supported." ) );
+            LogError( ( "Failed to initialize digest operation. Currently only the CKM_SHA256 mechanism is supported." ) );
             xResult = CKR_MECHANISM_INVALID;
         }
     }
@@ -3396,7 +3413,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE hSession,
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_sha256_starts_ret failed with error mbed TLS error = %s : %s.",
+            LogError( ( "Failed to initialize digest operation. mbedtls_sha256_starts_ret failed with error mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
@@ -3441,7 +3458,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
 
     if( pPart == NULL )
     {
-        LogError( ( "Null digest mechanism provided." ) );
+        LogError( ( "Failed to start digest operation. Received a NULL pointer in digest request." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3449,7 +3466,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
     {
         if( pxSession->xOperationDigestMechanism != CKM_SHA256 )
         {
-            LogError( ( "CKM_SHA256 is the expected digest mechanism." ) );
+            LogError( ( "Failed to start digest operation. CKM_SHA256 is the expected digest mechanism." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
     }
@@ -3460,7 +3477,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE hSession,
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_pk_setup failed with mbed TLS error = %s : %s.",
+            LogError( ( "Failed to perform digest operation. mbedtls_sha256_update_ret failed with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
@@ -3519,7 +3536,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
 
     if( pulDigestLen == NULL )
     {
-        LogError( ( "Digest Length pointer was NULL." ) );
+        LogError( ( "Failed to finish digest operation. Digest Length pointer was NULL." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3527,7 +3544,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
     {
         if( pxSession->xOperationDigestMechanism != CKM_SHA256 )
         {
-            LogError( ( "Digest operation was not initialized." ) );
+            LogError( ( "Failed to finish digest operation. Digest operation was not initialized." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
             pxSession->xOperationDigestMechanism = pkcs11NO_OPERATION;
         }
@@ -3544,8 +3561,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
         {
             if( *pulDigestLen < ( CK_ULONG ) pkcs11SHA256_DIGEST_LENGTH )
             {
-                LogError( ( "Received a too small of a buffer." ) );
-                LogDebug( ( "Expected %lu and received %lu.", pkcs11SHA256_DIGEST_LENGTH, *pulDigestLen ) );
+                LogError( ( "Failed to finish digest operation. Received a too small of a buffer. Expected %lu and received %lu.", pkcs11SHA256_DIGEST_LENGTH, *pulDigestLen ) );
                 xResult = CKR_BUFFER_TOO_SMALL;
             }
             else
@@ -3554,7 +3570,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE hSession,
 
                 if( 0 != lMbedTLSResult )
                 {
-                    LogError( ( "mbedtls_pk_setup failed with mbed TLS error = %s : %s.",
+                    LogError( ( "Failed to finish digest operation. mbedtls_sha256_finish_ret failed with mbed TLS error = %s : %s.",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                 mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_FUNCTION_FAILED;
@@ -3624,7 +3640,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
 
     if( NULL == pMechanism )
     {
-        LogError( ( "Null signing mechanism provided." ) );
+        LogError( ( "Failed to initialize sign operation. NULL pointer to signing mechanism provided." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3632,7 +3648,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE ) )
     {
-        LogError( ( "Operation already active." ) );
+        LogError( ( "Failed to initialize sign operation. Operation already active." ) );
         xResult = CKR_OPERATION_ACTIVE;
     }
 
@@ -3650,7 +3666,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
 
             if( xResult != CKR_OK )
             {
-                LogError( ( "Unable to retrieve value of private key for signing %0X.", xResult ) );
+                LogError( ( "Failed to initialize sign operation. Unable to retrieve value of private key for signing %0X.", xResult ) );
                 xResult = CKR_KEY_HANDLE_INVALID;
             }
         }
@@ -3667,7 +3683,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xIsPrivate != ( CK_BBOOL ) CK_TRUE )
         {
-            LogError( ( "Sign operation attempted with public key." ) );
+            LogError( ( "Failed to initialize sign operation. Sign operation attempted with public key." ) );
             xResult = CKR_KEY_TYPE_INCONSISTENT;
         }
     }
@@ -3689,7 +3705,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
 
                 if( lMbedTLSResult != 0 )
                 {
-                    LogError( ( "mbedTLS unable to parse private key for signing. mbed TLS error = %s : %s.",
+                    LogError( ( "Failed to initialize sign operation. mbedTLS unable to parse private key for signing. mbed TLS error = %s : %s.",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                 mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     xResult = CKR_KEY_HANDLE_INVALID;
@@ -3708,7 +3724,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Could not take xSignMutex." ) );
+            LogError( ( "Failed to initialize sign operation. Could not take xSignMutex." ) );
             xResult = CKR_CANT_LOCK;
         }
     }
@@ -3722,7 +3738,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         {
             if( xKeyType != MBEDTLS_PK_RSA )
             {
-                LogError( ( "Signing key type (%0X) does not match RSA mechanism.", xKeyType ) );
+                LogError( ( "Failed to initialize sign operation. Signing key type (%0X) does not match RSA mechanism.", xKeyType ) );
                 xResult = CKR_KEY_TYPE_INCONSISTENT;
             }
         }
@@ -3730,13 +3746,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
         {
             if( ( xKeyType != MBEDTLS_PK_ECDSA ) && ( xKeyType != MBEDTLS_PK_ECKEY ) )
             {
-                LogError( ( "Signing key type (%0X) does not match ECDSA mechanism.", xKeyType ) );
+                LogError( ( "Failed to initialize sign operation. Signing key type (%0X) does not match ECDSA mechanism.", xKeyType ) );
                 xResult = CKR_KEY_TYPE_INCONSISTENT;
             }
         }
         else
         {
-            LogError( ( "Unsupported mechanism type (%0X).", pMechanism->mechanism ) );
+            LogError( ( "Failed to initialize sign operation. Unsupported mechanism type (%0X).", pMechanism->mechanism ) );
             xResult = CKR_MECHANISM_INVALID;
         }
     }
@@ -3807,7 +3823,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
 
     if( ( NULL == pulSignatureLen ) || ( NULL == pData ) )
     {
-        LogError( ( "Received a NULL pointer." ) );
+        LogError( ( "Failed sign operation. Received a NULL pointer." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3828,7 +3844,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "The sign operation was not initialized with a call to C_SignInit." ) );
+            LogError( ( "Failed sign operation. The sign operation was not initialized with a call to C_SignInit." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
     }
@@ -3841,8 +3857,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             /* Check that the signature buffer is long enough. */
             if( *pulSignatureLen < xSignatureLength )
             {
-                LogError( ( "The signature buffer was too small." ) );
-                LogDebug( ( "Expected: %lu bytes and received %lu bytes.", xSignatureLength, pulSignatureLen ) );
+                LogError( ( "Failed sign operation. The signature buffer was too small. Expected: %lu bytes and received %lu bytes.", xSignatureLength, pulSignatureLen ) );
                 xResult = CKR_BUFFER_TOO_SMALL;
             }
 
@@ -3851,8 +3866,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             {
                 if( xExpectedInputLength != ulDataLen )
                 {
-                    LogError( ( "The data buffer was too small." ) );
-                    LogDebug( ( "Expected: %lu bytes and received %lu bytes.", xSignatureLength, pulSignatureLen ) );
+                    LogError( ( "Failed sign operation. The data buffer was too small. Expected: %lu bytes and received %lu bytes.", xSignatureLength, pulSignatureLen ) );
                     xResult = CKR_DATA_LEN_RANGE;
                 }
             }
@@ -3878,7 +3892,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
 
                     if( lMbedTLSResult != 0 )
                     {
-                        LogError( ( "mbedTLS sign failed with mbed TLS error = %s : %s.",
+                        LogError( ( "Failed sign operation. mbedTLS sign failed with mbed TLS error = %s : %s.",
                                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_FUNCTION_FAILED;
@@ -3891,7 +3905,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
                 }
                 else
                 {
-                    LogError( ( "Could not take xSignMutex." ) );
+                    LogError( ( "Failed sign operation. Could not take xSignMutex." ) );
                     xResult = CKR_CANT_LOCK;
                 }
             }
@@ -3909,7 +3923,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
 
             if( lMbedTLSResult != 0 )
             {
-                LogError( ( "Failed to convert from ASN.1 encoding to 64 byte R & S components." ) );
+                LogError( ( "Failed sign operation. Failed to convert from ASN.1 encoding to 64 byte R & S components." ) );
                 xResult = CKR_FUNCTION_FAILED;
             }
         }
@@ -3976,7 +3990,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
 
     if( NULL == pMechanism )
     {
-        LogError( ( "Null verification mechanism provided." ) );
+        LogError( ( "Failed to initialize verify operation. Null verification mechanism provided." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3984,7 +3998,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
     /* coverity[misra_c_2012_rule_10_5_violation] */
     if( ( xResult == CKR_OK ) && ( prvOperationActive( pxSession ) == ( CK_BBOOL ) CK_TRUE ) )
     {
-        LogError( ( "An operation was already active." ) );
+        LogError( ( "Failed to initialize verify operation. An operation was already active." ) );
         xResult = CKR_OPERATION_ACTIVE;
     }
 
@@ -4002,12 +4016,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
 
             if( xResult != CKR_OK )
             {
-                LogError( ( "Unable to retrieve value of private key for signing %0X.", xResult ) );
+                LogError( ( "Failed to initialize verify operation. Unable to retrieve value of private key for signing %0X.", xResult ) );
             }
         }
         else
         {
-            LogError( ( "Couldn't find a valid PKCS #11 PAL Handle." ) );
+            LogError( ( "Failed to initialize verify operation. Couldn't find a valid PKCS #11 PAL Handle." ) );
             xResult = CKR_KEY_HANDLE_INVALID;
         }
     }
@@ -4019,7 +4033,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         /* coverity[misra_c_2012_rule_10_5_violation] */
         if( xIsPrivate != ( CK_BBOOL ) CK_FALSE )
         {
-            LogError( ( "Verify operation attempted with private key." ) );
+            LogError( ( "Failed to initialize verify operation. Verify operation attempted with private key." ) );
             xResult = CKR_KEY_TYPE_INCONSISTENT;
         }
     }
@@ -4034,7 +4048,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                 mbedtls_pk_free( &pxSession->xVerifyKey );
                 mbedtls_pk_init( &pxSession->xVerifyKey );
                 lMbedTLSResult = mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength );
-                LogError( ( "mbedtls_pk_parse_public_key failed mbed TLS error = %s : %s.",
+                LogError( ( "Failed to initialize verify operation. mbedtls_pk_parse_public_key failed mbed TLS error = %s : %s.",
                             mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                             mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
 
@@ -4044,7 +4058,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
 
                     if( 0 != lMbedTLSResult )
                     {
-                        LogError( ( "mbedtls_pk_parse_key failed with mbed TLS error = %s : %s.",
+                        LogError( ( "Failed to initialize verify operation. mbedtls_pk_parse_key failed with mbed TLS error = %s : %s.",
                                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_KEY_HANDLE_INVALID;
@@ -4062,7 +4076,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Could not take xVerifyMutex." ) );
+            LogError( ( "Failed to initialize verify operation. Could not take xVerifyMutex." ) );
             xResult = CKR_CANT_LOCK;
         }
     }
@@ -4076,7 +4090,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         {
             if( xKeyType != MBEDTLS_PK_RSA )
             {
-                LogError( ( "Verification key type (%0X) does not match RSA mechanism.", xKeyType ) );
+                LogError( ( "Failed to initialize verify operation. Verification key type (%0X) does not match RSA mechanism.", xKeyType ) );
                 xResult = CKR_KEY_TYPE_INCONSISTENT;
             }
         }
@@ -4084,13 +4098,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
         {
             if( ( xKeyType != MBEDTLS_PK_ECDSA ) && ( xKeyType != MBEDTLS_PK_ECKEY ) )
             {
-                LogError( ( "Verification key type (%0X) does not match ECDSA mechanism.", xKeyType ) );
+                LogError( ( "Failed to initialize verify operation. Verification key type (%0X) does not match ECDSA mechanism.", xKeyType ) );
                 xResult = CKR_KEY_TYPE_INCONSISTENT;
             }
         }
         else
         {
-            LogError( ( "Unsupported mechanism type %0X", pMechanism->mechanism ) );
+            LogError( ( "Failed to initialize verify operation. Unsupported mechanism type %0X", pMechanism->mechanism ) );
             xResult = CKR_MECHANISM_INVALID;
         }
     }
@@ -4144,7 +4158,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
     if( ( NULL == pData ) ||
         ( NULL == pSignature ) )
     {
-        LogError( ( "Received a NULL pointer." ) );
+        LogError( ( "Failed verify operation. Received a NULL pointer." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -4158,13 +4172,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
 
             if( ulDataLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
             {
-                LogError( ( "Data Length was too short for pkcs11RSA_2048_SIGNATURE_LENGTH." ) );
+                LogError( ( "Failed verify operation. Data Length was too short for pkcs11RSA_2048_SIGNATURE_LENGTH." ) );
                 xResult = CKR_DATA_LEN_RANGE;
             }
 
             if( ulSignatureLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
             {
-                LogError( ( "Signature Length was too short for pkcs11RSA_2048_SIGNATURE_LENGTH." ) );
+                LogError( ( "Failed verify operation. Signature Length was too short for pkcs11RSA_2048_SIGNATURE_LENGTH." ) );
                 xResult = CKR_SIGNATURE_LEN_RANGE;
             }
         }
@@ -4174,19 +4188,19 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
 
             if( ulDataLen != pkcs11SHA256_DIGEST_LENGTH )
             {
-                LogError( ( "Data Length was too short for pkcs11SHA256_DIGEST_LENGTH." ) );
+                LogError( ( "Failed verify operation. Data Length was too short for pkcs11SHA256_DIGEST_LENGTH." ) );
                 xResult = CKR_DATA_LEN_RANGE;
             }
 
             if( ulSignatureLen != pkcs11ECDSA_P256_SIGNATURE_LENGTH )
             {
-                LogError( ( "Data Length was too short for pkcs11ECDSA_P256_SIGNATURE_LENGTH." ) );
+                LogError( ( "Failed verify operation. Data Length was too short for pkcs11ECDSA_P256_SIGNATURE_LENGTH." ) );
                 xResult = CKR_SIGNATURE_LEN_RANGE;
             }
         }
         else
         {
-            LogError( ( "A C_Verify operation must be initialized by a preceding call to C_VerifyInit." \
+            LogError( ( "Failed verify operation. A C_Verify operation must be initialized by a preceding call to C_VerifyInit." \
                         " This must happen before every call to C_Verify." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
@@ -4212,7 +4226,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
 
                     if( 0 != lMbedTLSResult )
                     {
-                        LogError( ( "mbedtls_pk_verify failed with mbed TLS error = %s : %s.",
+                        LogError( ( "Failed verify operation. mbedtls_pk_verify failed with mbed TLS error = %s : %s.",
                                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                         xResult = CKR_SIGNATURE_INVALID;
@@ -4223,7 +4237,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
             }
             else
             {
-                LogError( ( "Could not take verify mutex." ) );
+                LogError( ( "Failed verify operation. Could not take verify mutex." ) );
                 xResult = CKR_CANT_LOCK;
             }
         }
@@ -4242,7 +4256,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
             if( lMbedTLSResult != 0 )
             {
                 xResult = CKR_SIGNATURE_INVALID;
-                LogError( ( "Failed to parse R in EC signature mbed TLS error = %s : %s.",
+                LogError( ( "Failed verify operation. Failed to parse R in EC signature mbed TLS error = %s : %s.",
                             mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                             mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             }
@@ -4253,7 +4267,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                 if( lMbedTLSResult != 0 )
                 {
                     xResult = CKR_SIGNATURE_INVALID;
-                    LogError( ( "Failed to parse S in EC signature mbed TLS error = %s : %s.",
+                    LogError( ( "Failed verify operation. Failed to parse S in EC signature mbed TLS error = %s : %s.",
                                 mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                 mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                 }
@@ -4275,14 +4289,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                     if( lMbedTLSResult != 0 )
                     {
                         xResult = CKR_SIGNATURE_INVALID;
-                        LogError( ( "Failed to verify EC signature with mbed TLS error = %s : %s.",
+                        LogError( ( "Failed verify operation. mbedtls_ecdsa_verify failed with mbed TLS error = %s : %s.",
                                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
                     }
                 }
                 else
                 {
-                    LogError( ( "Could not take verify mutex." ) );
+                    LogError( ( "Failed verify operation. Could not take verify mutex." ) );
                 }
             }
 
@@ -4291,7 +4305,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Received an unexpected mechanism." ) );
+            LogError( ( "Failed verify operation. Received an unexpected mechanism." ) );
             xResult = CKR_TEMPLATE_INCONSISTENT;
         }
     }
@@ -4339,7 +4353,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
 
             if( xTemp != CKK_EC )
             {
-                LogError( ( "Only EC key pair generation is supported." ) );
+                LogError( ( "Failed parsing private key template. Only EC key pair generation is supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4352,7 +4366,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Generating private keys that cannot sign is not supported." ) );
+                LogError( ( "Failed parsing private key template. Generating private keys that cannot sign is not supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4367,7 +4381,7 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Private must be set to true in order to generate a private key." ) );
+                LogError( ( "Failed parsing private key template. Private must be set to true in order to generate a private key." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4382,14 +4396,14 @@ static CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Generating private keys that are false for attribute CKA_TOKEN is not supported." ) );
+                LogError( ( "Failed parsing private key template. Generating private keys that are false for attribute CKA_TOKEN is not supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
             break;
 
         default:
-            LogError( ( "Found an unknown attribute type." ) );
+            LogError( ( "Failed parsing private key template. Found an unknown attribute type." ) );
             xResult = CKR_ATTRIBUTE_TYPE_INVALID;
             break;
     }
@@ -4432,7 +4446,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
 
             if( xKeyType != CKK_EC )
             {
-                LogError( ( "Only EC key pair generation is supported." ) );
+                LogError( ( "Failed parsing public key template. Only EC key pair generation is supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4443,7 +4457,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
 
             if( memcmp( pxEcParams, pxEcAttVal, sizeof( pxEcParams ) ) != 0 )
             {
-                LogError( ( "Only P-256 key generation is supported." ) );
+                LogError( ( "Failed parsing public key template. Only P-256 key generation is supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4459,7 +4473,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Generating public keys that are false for attribute CKA_VERIFY is not supported. \r\n" ) );
+                LogError( ( "Failed parsing public key template. Generating public keys that are false for attribute CKA_VERIFY is not supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4475,7 +4489,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Generating public keys that are false for attribute CKA_TOKEN is not supported. \r\n" ) );
+                LogError( ( "Failed parsing public key template. Generating public keys that are false for attribute CKA_TOKEN is not supported. \r\n" ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4483,7 +4497,7 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
 
         default:
             xResult = CKR_TEMPLATE_INCONSISTENT;
-            LogError( ( "Found an unknown attribute type." ) );
+            LogError( ( "Failed parsing public key template. Found an unknown attribute type." ) );
             break;
     }
 
@@ -4589,7 +4603,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
             ( phPrivateKey == NULL ) ||
             ( pMechanism == NULL ) )
         {
-            LogError( ( "One of the arguments was NULL." ) );
+            LogError( ( "Failed generating a key pair. One of the arguments was NULL." ) );
             xResult = CKR_ARGUMENTS_BAD;
         }
     }
@@ -4598,7 +4612,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
     {
         if( pucDerFile == NULL )
         {
-            LogError( ( "Could not allocated a buffer of size %lu", pkcs11KEY_GEN_MAX_DER_SIZE ) );
+            LogError( ( "Failed generating a key pair. Could not allocated a buffer of size %lu", pkcs11KEY_GEN_MAX_DER_SIZE ) );
             xResult = CKR_HOST_MEMORY;
         }
     }
@@ -4607,7 +4621,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
     {
         if( CKM_EC_KEY_PAIR_GEN != pMechanism->mechanism )
         {
-            LogError( ( "CKM_EC_KEY_PAIR_GEN is the only valid key generation mechanism currently." ) );
+            LogError( ( "Failed generating a key pair. CKM_EC_KEY_PAIR_GEN is the only valid key generation mechanism currently." ) );
             xResult = CKR_MECHANISM_INVALID;
         }
     }
@@ -4628,7 +4642,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
         if( ( xResult == CKR_OK ) && ( ( xAttributeMap & xPrivateRequiredAttributeMap ) != xPrivateRequiredAttributeMap ) )
         {
-            LogError( ( "Attributes were missing in the private key template" ) );
+            LogError( ( "Failed generating a key pair. Attributes were missing in the private key template." ) );
             xResult = CKR_TEMPLATE_INCOMPLETE;
         }
     }
@@ -4651,7 +4665,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
         if( ( xResult == CKR_OK ) && ( ( xAttributeMap & xPublicRequiredAttributeMap ) != xPublicRequiredAttributeMap ) )
         {
-            LogError( ( "Attributes were missing in the public key template" ) );
+            LogError( ( "Failed generating a key pair. Attributes were missing in the public key template." ) );
             xResult = CKR_TEMPLATE_INCOMPLETE;
         }
     }
@@ -4664,7 +4678,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
     if( lMbedTLSResult != 0 )
     {
-        LogError( ( "mbedtls_pk_setup failed with mbed TLS error = %s : %s.",
+        LogError( ( "Failed generating a key pair. mbedtls_pk_setup failed with mbed TLS error = %s : %s.",
                     mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                     mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
         xResult = CKR_FUNCTION_FAILED;
@@ -4683,7 +4697,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "mbedtls_ecp_gen_key failed with mbed TLS error = %s : %s.",
+            LogError( ( "Failed generating a key pair. mbedtls_ecp_gen_key failed with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
@@ -4701,7 +4715,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "mbedtls_pk_write_pubkey_der failed with mbed TLS error = %s : %s.",
+            LogError( ( "Failed generating a key pair. mbedtls_pk_write_pubkey_der failed with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_GENERAL_ERROR;
@@ -4719,7 +4733,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "mbedtls_pk_write_key_der failed with mbed TLS error = %s : %s.",
+            LogError( ( "Failed generating a key pair. mbedtls_pk_write_key_der failed with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_GENERAL_ERROR;
@@ -4782,7 +4796,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE hSession,
     if( ( NULL == RandomData ) ||
         ( ulRandomLen == 0UL ) )
     {
-        LogError( ( "The buffer to store random numbers in was NULL or the length of the buffer was 0." ) );
+        LogError( ( "Failed to generate random bytes. The buffer to store random numbers in was NULL or the length of the buffer was 0." ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -4792,14 +4806,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE hSession,
 
         if( lMbedTLSResult != 0 )
         {
-            LogError( ( "mbed TLS DRBG failed to generate a random number with mbed TLS error = %s : %s.",
+            LogError( ( "Failed to generate random bytes. mbed TLS DRBG failed to generate a random number with mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
         }
         else
         {
-            LogDebug( ( "Successfully generated a random number of length: %lu", ulRandomLen ) );
+            LogDebug( ( "Successfully generated %lu random bytes.", ulRandomLen ) );
         }
     }
 
