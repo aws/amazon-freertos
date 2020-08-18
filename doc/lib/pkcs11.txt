@@ -15,8 +15,12 @@ This PKCS #11 library implements a subset of the PKCS #11 API required to establ
 
 @section PKCS11_Wrapper PKCS #11 Wrapper Dependencies
 
-Currently, the PKCS #11 wrapper library has a dependency on FreeRTOS, the C standard library stdint and PKCS #11. This file, "iot_pkcs11.h" should always be included first as it
-defines the macros that are needed by the standard PKCS #11 header files.
+Currently, the PKCS #11 wrapper library has a dependency on:
+- FreeRTOS 
+- The C standard library stdint
+- PKCS #11. 
+
+Note: "iot_pkcs11.h" should always be included first as it defines the macros that are needed by the standard PKCS #11 header files.
 
 @dot "PKCS #11 wrapper direct dependencies"
 digraph pkcs11_wrapper_dependencies
@@ -78,12 +82,12 @@ digraph pkcs11_software_implementation_dependencies
 }
 @enddot
 
-@section PKCS11_utilities PKCS #11 Utilities
+@section PKCS11_utilities PKCS #11 Utilities Dependencies
 
 The PKI utils module is a forked version of the PKI utilities provided by mbed TLS. They are used to convert from
 Currently, the module has the following dependencies:
-The standard C library
-FreeRTOS
+- The standard C library
+- FreeRTOS
 
 @dot "PKCS #11 Utilities Dependencies"
 digraph pkcs11_utils_dependencies
@@ -107,9 +111,26 @@ digraph pkcs11_utils_dependencies
 }
 @enddot
 
-@constants_page{pkcs11}
-@constants_brief{PKCS #11 library}
-@section pkcs11_pal_constants PKCS #11 PAL File Names
+
+@page pkcs11_rng_seq PKCS #11 RNG Sequence Diagram
+@brief Sequence diagram illustrating how to generate random bytes from PKCS #11.
+@image html pkcs11_rng.png "PKCS #11 RNG Sequence" width=80%
+
+@page pkcs11_dig_seq PKCS #11 Digest Sequence Diagram
+@brief Sequence diagram illustrating how to create a message digest with PKCS #11.
+@image html pkcs11_digest.png "PKCS #11 Digest Sequence" width=80%
+
+@page pkcs11_obj_imp_seq PKCS #11 Object Import Sequence Diagram
+@brief Sequence diagram illustrating how to import an object with PKCS #11.
+@image html pkcs11_object_import.png "PKCS #11 Object Import Sequence" width=80%
+
+@page pkcs11_obj_gen_seq PKCS #11 Generate Key Pair Sequence Diagram
+@brief Sequence diagram illustrating how to generate a key pair with PKCS #11.
+@image html pkcs11_object_generate.png "PKCS #11 Generate Key Pair Sequence" width=80%
+
+@page pkcs11_sign_verify_seq PKCS #11 Sign and Verify Sequence Diagram
+@brief Sequence diagram illustrating how to sign a hash and verify a signature with PKCS #11.
+@image html pkcs11_sign_verify.png "PKCS #11 Sign and Verify Sequence" width=80%
 
 @constants_page{pkcs11}
 @constants_brief{PKCS #11 library constants}

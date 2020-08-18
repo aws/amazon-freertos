@@ -1,0 +1,49 @@
+@startuml
+skinparam classFontSize 8
+skinparam classFontName Helvetica
+autonumber
+
+participant "Application" as app
+participant "PKCS #11" as pkcs
+
+box "PKCS #11 - Signing And Verifying A Signature" #LightBlue
+    participant app
+    participant pkcs
+end box
+
+app -> pkcs: Acquire function list with C_GetFunctionList
+pkcs -> app: Return CK_FUNCTION_LIST_PTR with supported functions
+
+app -> pkcs: Initialize with C_Initialize
+
+app -> pkcs: Query for a slot with C_GetSlotList
+pkcs -> app: Return an array of CK_SLOT_IDs
+
+app -> pkcs: Open a new session with a slot using C_OpenSession
+pkcs -> app: Return a CK_SESSION_HANDLE
+
+app -> pkcs: Log in to current session with C_Login
+
+app -> pkcs: Initiate a find operation by passing a CK_ATTRIBUTEs template to C_FindObjectsInit
+app -> pkcs: Request a CK_OBJECT_HANDLE
+pkcs -> app: Return CK_OBJECT_HANDLE for the appropriate object
+app -> pkcs: Clean up find operation with C_FindObjectsFinal
+
+app -> pkcs: Start a digest operation using SHA-256 by passing CKM_SHA256 C_DigestInit 
+app -> pkcs: Provide bytes buffer of message to hash with C_DigestUpdate
+app -> pkcs: Provide bytes buffer to store digest in with C_DigestFinal
+pkcs -> app: Fill buffer with digest bytes
+
+app -> pkcs: Start a sign operation by passing the signature mechanism and private key handle to C_SignInit 
+app -> pkcs: Provide bytes buffer of message hash and bytes buffer to store the signature to C_Sign
+pkcs -> app: Fill signature buffer with signature bytes of hash buffer
+
+app -> pkcs: Start a verify operation by passing the verify mechanism and public key handle to C_VerifyInit 
+app -> pkcs: Provide bytes buffer of message hash and bytes buffer of the signature to C_Verify
+pkcs -> app: Return OK if public key could verify signature
+
+app -> pkcs: Close session with C_CloseSession
+app -> pkcs: Uninitialize with C_Finalize
+
+@endumla
+
