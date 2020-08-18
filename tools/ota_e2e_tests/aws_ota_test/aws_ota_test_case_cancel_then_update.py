@@ -24,6 +24,7 @@ http://www.FreeRTOS.org
 
 """
 import time
+import shutil
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
@@ -57,11 +58,16 @@ class OtaTestCancelThenUpdate(OtaTestCase):
         self._otaProject.setApplicationVersion(0, 9, 1)
         # Build the OTA image.
         self._otaProject.buildProject()
-        # Start an OTA Update.
-        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
+        # Make a copy of the firmware.
+        firmware = Path(self._otaConfig['ota_firmware_file_path'])
+        first_firmware = Path(self._otaProject._projectRootDir) / firmware.name
+        shutil.copy(firmware, first_firmware)
         # Prepare another image to be updated later
         self._otaProject.setApplicationVersion(0, 9, 2)
         self._otaProject.buildProject()
+        # Start first OTA Update.
+        self._otaConfig['ota_firmware_file_path'] = str(first_firmware)
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
 
         # Wait until the job is in progress.
         thing_name = self._otaAwsAgent._iotThing.thing_name
@@ -73,11 +79,16 @@ class OtaTestCancelThenUpdate(OtaTestCase):
         if exec_status == 'QUEUED':
             return OtaTestResult(testName=self._name, result=OtaTestResult.ERROR,
                                  summary='Timeout waiting for OTA job status.')
+        if exec_status == 'SUCCEEDED':
+            return OtaTestResult(testName=self._name, result=OtaTestResult.ERROR,
+                                 summary='OTA update complete too fast before we can cancel the job.')
 
         # Force cancel the job that's in progress.
         iot_client = boto3.client('iot')
         iot_client.cancel_job_execution(jobId=f'AFR_OTA-{otaUpdateId}', thingName=thing_name, force=True)
-        # Do another OTA update, this should succeed.
+
+        # Do another OTA update with second build, this should succeed.
+        self._otaConfig['ota_firmware_file_path'] = str(firmware)
         otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
 
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)

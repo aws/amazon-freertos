@@ -30,7 +30,8 @@ import argparse
 from threading import Thread
 from functools import reduce
 from operator import add
-from junit_xml import TestSuite, TestCase
+
+import junitparser as junit
 from .aws_ota_test_runner import *
 from .aws_ota_test_result import OtaTestResult
 
@@ -154,20 +155,20 @@ def createJunitTestResults(boardToResults, fileName):
         boardToResults(dict[str:obj(OtaTestResult)]): Dictionary of the board name to it's OtaTestResult.
         fileName: The name of the junit test file to create.
     """
-    testSuites = []
+    report = junit.JUnitXml()
     for board in boardToResults.keys():
-        testCases = []
+        group_suite = junit.TestSuite(board + '.OTAEndToEndTests')
         for otaTestResult in boardToResults[board]:
-            testCase = TestCase(otaTestResult.testName, classname=board + '.OTAEndToEndTests')
-            testCases.append(testCase)
+            test_case = junit.TestCase(otaTestResult.testName)
             if otaTestResult.result == OtaTestResult.FAIL:
-                testCases[-1].add_failure_info(message=otaTestResult.summary)
+                test_case.result = junit.Failure(otaTestResult.summary)
             elif otaTestResult.result == OtaTestResult.ERROR:
-                testCases[-1].add_skipped_info(message=otaTestResult.summary)
-        testSuites.append(TestSuite(board, test_cases=testCases, package=board))
+                test_case.result = junit.Skipped(otaTestResult.summary)
+            group_suite.add_testcase(test_case)
+        report.add_testsuite(group_suite)
 
-    with open(fileName, 'w') as f:
-        TestSuite.to_file(f, testSuites)
+    report.update_statistics()
+    report.write(fileName, pretty=True)
 
 def getStageParameters(args):
     stageParams = {}
