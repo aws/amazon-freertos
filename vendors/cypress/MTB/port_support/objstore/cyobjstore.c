@@ -227,6 +227,11 @@ cy_rslt_t cy_objstore_format()
     if (!is_initialized)
         return CY_OBJSTORE_NOT_INITIALIZED ;
 
+    /* Erase flash before format it */
+    res = cy_objstore_erase();
+    if (res != CY_RSLT_SUCCESS)
+        return res ;
+
     *((uint32_t *)&buffer[0]) = CY_EEPROM_STATE_MAGIC_NUMBER ;
     buffer[sizeof(uint32_t)] = CY_INVALID_KEY ;
 
@@ -236,8 +241,7 @@ cy_rslt_t cy_objstore_format()
     if (res != CY_RSLT_SUCCESS)
         return res ;
 
-    is_valid = true ;
-    return CY_RSLT_SUCCESS ;
+    return chk_is_valid();
 }
 
 cy_rslt_t cy_objstore_erase()
@@ -286,9 +290,11 @@ cy_rslt_t cy_objstore_initialize(bool redundant, int wearlevel)
     is_initialized = true ;
 
     res = chk_is_valid() ;
-    if (res == CY_OBJSTORE_STORE_UNFORMATTED)
-        res = cy_objstore_format() ;
-
+    if (res != CY_EM_EEPROM_SUCCESS)
+    {
+        res = cy_objstore_format();
+        assert(res == CY_EM_EEPROM_SUCCESS);
+    }
     return res ;
 }
 
