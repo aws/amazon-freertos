@@ -561,7 +561,7 @@ static CK_RV prvMbedTLS_Initialize( void )
 
         if( 0 != lMbedTLSResult )
         {
-            LogError( ( "Could not initialize PKCS #11. Failed to seed the mbed TLS DRBG for the PKCS #11 module with mbed TLS error = %s : %s.",
+            LogError( ( "Could not initialize PKCS #11. Failed to seed the mbed TLS DRBG: mbed TLS error = %s : %s.",
                         mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
                         mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
             xResult = CKR_FUNCTION_FAILED;
@@ -636,8 +636,8 @@ static CK_RV prvCertAttParse( CK_ATTRIBUTE * pxAttribute,
             }
             else
             {
-                LogError( ( "Failed parsing certificate template. Label length"       \
-                            "was not in the valid range. Found %lu and expected %lu." \
+                LogError( ( "Failed parsing certificate template. Label length"       
+                            "was not in the valid range. Found %lu and expected %lu."
                             "Consider updating pkcs11configMAX_LABEL_LENGTH.", pxAttribute->ulValueLen, pkcs11configMAX_LABEL_LENGTH ) );
                 xResult = CKR_DATA_LEN_RANGE;
             }
@@ -965,8 +965,8 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 }
                 else
                 {
-                    LogError( ( "Failed parsing EC key template. The key type"    \
-                                "did not match the template parameters. Expected" \
+                    LogError( ( "Failed parsing EC key template. The key type"    
+                                "did not match the template parameters. Expected" 
                                 "a public key for CKA_VERIFY or CKA_EC_POINT." ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
@@ -985,8 +985,8 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
                 }
                 else
                 {
-                    LogError( ( "Failed parsing EC key template. The key type"    \
-                                "did not match the template parameters. Expected" \
+                    LogError( ( "Failed parsing EC key template. The key type"    
+                                "did not match the template parameters. Expected" 
                                 "a private key for CKA_SIGN or CKA_VALUE." ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
@@ -4200,7 +4200,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         }
         else
         {
-            LogError( ( "Failed verify operation. A C_Verify operation must be initialized by a preceding call to C_VerifyInit." \
+            LogError( ( "Failed verify operation. A C_Verify operation must be initialized by a preceding call to C_VerifyInit."
                         " This must happen before every call to C_Verify." ) );
             xResult = CKR_OPERATION_NOT_INITIALIZED;
         }
@@ -4473,7 +4473,8 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Failed parsing public key template. Generating public keys that are false for attribute CKA_VERIFY is not supported. \r\n" ) );
+                LogError( ( "Failed parsing public key template. Generating public "
+                            "keys that are false for attribute CKA_VERIFY is not supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
@@ -4489,7 +4490,8 @@ static CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE ** ppxLabel,
             /* coverity[misra_c_2012_rule_10_5_violation] */
             if( xBool != ( CK_BBOOL ) CK_TRUE )
             {
-                LogError( ( "Failed parsing public key template. Generating public keys that are false for attribute CKA_TOKEN is not supported. \r\n" ) );
+                LogError( ( "Failed parsing public key template. Generating "
+                            "public keys that are false for attribute CKA_TOKEN is not supported." ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
             }
 
