@@ -551,6 +551,10 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     memcpy(cy_connected_ap_details.SSID.value, ssid.value, cy_connected_ap_details.SSID.length+1);
     cy_sta_link_up = true;
 
+    if (userCb != NULL)
+    {
+        userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled);
+    }
     return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
@@ -600,6 +604,11 @@ WIFIReturnCode_t WIFI_Disconnect( void )
 
     /* clear the saved ap credentials */
     memset(&cy_connected_ap_details, 0, sizeof(cy_connected_ap_details));
+
+    if (userCb != NULL)
+    {
+        userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled);
+    }
     return eWiFiSuccess;
 }
 

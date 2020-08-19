@@ -41,6 +41,7 @@ extern WIFIDeviceMode_t devMode;
 extern bool isConnected;
 extern bool isPoweredUp;
 extern bool isMutexInitialized;
+extern IotNetworkStateChangeEventCallback_t userCb;
 
 typedef void (*cy_network_activity_event_callback_t)(bool callback_arg);
 

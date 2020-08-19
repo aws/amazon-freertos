@@ -76,6 +76,7 @@ WIFIDeviceMode_t devMode = eWiFiModeNotSupported;
 bool isConnected = false;
 bool isPoweredUp = false;
 bool isMutexInitialized = false;
+IotNetworkStateChangeEventCallback_t userCb = NULL;
 
 static whd_scan_userdata_t internalScanData;
 static whd_scan_result_t internalScanResult;
@@ -687,7 +688,7 @@ BaseType_t WIFI_IsConnected( const WIFINetworkParams_t * pxNetworkParams )
 
 WIFIReturnCode_t WIFI_RegisterEvent( WIFIEventType_t xEventType, WIFIEventHandler_t xHandler )
 {
-    /* FIX ME. */
-    return eWiFiNotSupported;
+    userCb = xCallback;
+    return eWiFiSuccess;
 }
 

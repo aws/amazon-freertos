@@ -83,8 +83,8 @@ static cy_network_event_callback_t cy_network_event_handler[CY_NETWORK_MAXIMUM_C
 /*-----------------------------------------------------------*/
 static void cy_network_invoke_app_callbacks(cy_network_event_t event_type);
 static void *cy_link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data);
-static void cy_lwip_link_up(void);
-static void cy_lwip_link_down(void);
+static void cy_net_link_up(void);
+static void cy_net_link_down(void);
 static void cy_handshake_error_callback(void);
 void cy_handshake_timeout_handler(cy_timer_callback_arg_t arg);
 void cy_handshake_retry_timer(cy_timer_callback_arg_t arg);
@@ -145,7 +145,7 @@ static void cy_link_up_renew_handler(void* arg)
     }
 }
 
-static void cy_lwip_link_up( void )
+static void cy_net_link_up( void )
 {
     cy_rslt_t res = CY_RSLT_SUCCESS;
 
@@ -162,6 +162,11 @@ static void cy_lwip_link_up( void )
             return;
         }
         cy_sta_link_up = true;
+
+        if (userCb != NULL)
+        {
+            userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled);
+        }
     }
     else
     {
@@ -179,7 +184,7 @@ static void cy_lwip_link_up( void )
 
 }
 
-static void cy_lwip_link_down(void)
+static void cy_net_link_down(void)
 {
     if (cy_sta_link_up)
     {
@@ -192,6 +197,11 @@ static void cy_lwip_link_down(void)
         configPRINTF(("Notify application that network is disconnected!\n"));
         cy_network_invoke_app_callbacks(CY_NETWORK_EVENT_DISCONNECTED);
         cy_sta_link_up = false;
+
+        if (userCb != NULL)
+        {
+            userCb(AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled);
+        }
     }
 }
 
@@ -251,7 +261,7 @@ static void cy_handshake_error_callback(void)
 
         if(join_result == CY_RSLT_SUCCESS)
         {
-            cy_lwip_link_up();
+            cy_net_link_up();
             cy_sta_security_type = cy_connected_ap_details.security;
 
             /* Register for Link events*/
@@ -290,7 +300,7 @@ static void* cy_link_events_handler(whd_interface_t ifp, const whd_event_header_
                     case WHD_SECURITY_WEP_SHARED:
                     {
                         /* Advertise link-up immediately as no EAPOL is required */
-                        cy_lwip_link_up();
+                        cy_net_link_up();
                         break;
                     }
                     case WHD_SECURITY_WPA_TKIP_PSK:
@@ -357,14 +367,14 @@ static void* cy_link_events_handler(whd_interface_t ifp, const whd_event_header_
                     }
                     cy_retry_backoff_timeout = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
 
-                    cy_lwip_link_down();
+                    cy_net_link_down();
                 }
             }
             break;
 
         case WLC_E_DEAUTH_IND:
         case WLC_E_DISASSOC_IND:
-            cy_lwip_link_down();
+            cy_net_link_down();
             break;
 
         case WLC_E_PSK_SUP:
@@ -391,7 +401,7 @@ static void* cy_link_events_handler(whd_interface_t ifp, const whd_event_header_
 
                     cy_retry_backoff_timeout = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
 
-                    cy_lwip_link_up();
+                    cy_net_link_up();
                     cy_link_up_event_received = WHD_FALSE;
                 }
                 else if ( event_header->reason == WLC_E_SUP_MSG3_TOO_MANY_IE )
@@ -517,7 +527,7 @@ cy_rslt_t cy_wifi_worker_thread_create( void )
     params.stack = NULL;
     params.stack_size = WORKER_THREAD_STACK_SIZE;
     params.num_entries = 0;
-    
+
     if (cy_rtos_init_timer(&cy_sta_handshake_timer, CY_TIMER_TYPE_ONCE, (cy_timer_callback_t)cy_handshake_timeout_handler, 0) != CY_RSLT_SUCCESS)
     {
         configPRINTF((" cy_rtos_init_timer failed for handshake_timeout_handler \r\n"));
