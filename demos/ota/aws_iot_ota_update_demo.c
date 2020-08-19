@@ -202,6 +202,32 @@ static const char * pcStateStr[ eOTA_AgentState_All ] =
     "ShuttingDown",
     "Stopped"
 };
+/*
+ * Publish a message to the specified client/topic at the given QOS.
+ */
+static IotMqttError_t prvPublishMessage( const IotMqttConnection_t xMqttConnection,
+                                         const char * const pacTopic,
+                                         uint16_t usTopicLen,
+                                         const char * pcMsg,
+                                         uint32_t ulMsgSize,
+                                         IotMqttQos_t eQOS )
+{
+    IotMqttError_t eResult;
+    IotMqttPublishInfo_t xPublishParams;
+
+    xPublishParams.pTopicName = pacTopic;
+    xPublishParams.topicNameLength = usTopicLen;
+    xPublishParams.qos = eQOS;
+    xPublishParams.pPayload = pcMsg;
+    xPublishParams.payloadLength = ulMsgSize;
+    xPublishParams.retryLimit = 3;
+    xPublishParams.retryMs = 1000;
+    xPublishParams.retain = false;
+
+    eResult = IotMqtt_TimedPublish( xMqttConnection, &xPublishParams, 0, 2000 );
+
+    return eResult;
+}
 
 void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
                         void * pNetworkCredentialInfo )
@@ -209,14 +235,18 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
     OTA_ConnectionContext_t xOTAConnectionCtx = { 0 };
+    
+   /* Topics used as both topic filters and topic names in this demo. */
+    const char * pTopics = "otamqttdemo/topic1";
+
+    
+    const char * pcMsg = "Hello OTA + MQTT";
 
     configPRINTF( ( "OTA demo version %u.%u.%u\r\n",
                     xAppFirmwareVersion.u.x.ucMajor,
                     xAppFirmwareVersion.u.x.ucMinor,
                     xAppFirmwareVersion.u.x.usBuild ) );
     configPRINTF( ( "Creating MQTT Client...\r\n" ) );
-
-    /* Create the MQTT Client. */
 
     for( ; ; )
     {
@@ -256,6 +286,9 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
 
                 while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped )
                 {
+                    /* Publish message every second to example topic otamqttdemo/topic1 you can read from the queue here and publish the message.*/
+                    prvPublishMessage(xConnection.xMqttConnection, pTopics ,strlen(pTopics), pcMsg, strlen(pcMsg), IOT_MQTT_QOS_1 );
+
                     /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
                     vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
                     configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[ eState ],
