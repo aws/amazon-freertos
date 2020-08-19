@@ -15,6 +15,7 @@ run_setenv
 [ -d $BUILD_DIR ] && rm -r $BUILD_DIR
 mkdir -p $BUILD_DIR
 
+support_args=""
 if [ $OTA = "OTA_YES" ]; then
     support_args="-DOTA_SUPPORT=1"
 fi
