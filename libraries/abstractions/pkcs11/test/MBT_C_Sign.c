@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.8
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,7 +44,7 @@ void C_Sign_normal_behavior()
     CK_BYTE_PTR pSignature;
     CK_ULONG_PTR pulSignatureLen;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
@@ -74,7 +74,7 @@ void C_Sign_exceptional_behavior_0()
     CK_BYTE_PTR pSignature;
     CK_ULONG_PTR pulSignatureLen;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
@@ -104,7 +104,7 @@ void C_Sign_exceptional_behavior_1()
     CK_BYTE_PTR pSignature;
     CK_ULONG_PTR pulSignatureLen;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
@@ -134,7 +134,7 @@ void C_Sign_exceptional_behavior_2()
     CK_BYTE_PTR pSignature;
     CK_ULONG_PTR pulSignatureLen;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;
@@ -177,7 +177,7 @@ void C_Sign_exceptional_behavior_4()
     CK_BYTE_PTR pSignature;
     CK_ULONG_PTR pulSignatureLen;
 
-    if( xMechanismType == CKM_RSA_PKCS )
+    if( xGlobalMechanismType == CKM_RSA_PKCS )
     {
         vAppendSHA256AlgorithmIdentifierSequence( rsaHashedMessage, rsaHashPlusOid );
         pData = rsaHashPlusOid;

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Error Code Stringification utilies for mbed TLS v2.16.0
+ * FreeRTOS mbed TLS V0.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

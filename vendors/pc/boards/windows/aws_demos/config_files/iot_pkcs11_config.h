@@ -24,13 +24,13 @@
  */
 
 /**
- * @file aws_pkcs11_config.h
+ * @file iot_pkcs11_config.h
  * @brief PCKS#11 config options.
  */
 
 
-#ifndef _AWS_PKCS11_CONFIG_H_
-#define _AWS_PKCS11_CONFIG_H_
+#ifndef _IOT_PKCS11_CONFIG_H_
+#define _IOT_PKCS11_CONFIG_H_
 
 /**
 * @brief PKCS #11 default user PIN.

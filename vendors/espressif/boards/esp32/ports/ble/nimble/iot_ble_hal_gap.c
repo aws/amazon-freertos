@@ -570,8 +570,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
      *     o Discoverability in forthcoming advertisement (general)
      *     o BLE-only (BR/EDR unsupported).
      */
-    fields.flags = BLE_HS_ADV_F_DISC_GEN |
-                   BLE_HS_ADV_F_BREDR_UNSUP;
+    if ( !pxParams->bSetScanRsp )
+    {
+        fields.flags = BLE_HS_ADV_F_DISC_GEN |
+                       BLE_HS_ADV_F_BREDR_UNSUP;
+    }
 
     if( pxParams->ulAppearance )
     {

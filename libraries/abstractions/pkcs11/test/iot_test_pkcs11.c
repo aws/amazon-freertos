@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V2.0.3
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,10 +48,9 @@
     #error "RSA or Elliptic curve keys (or both) must be supported."
 #endif
 
-#if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 0 ) && ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 0 )
-    #error "Either key pair import or key pair generation must be supported."
+#if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 0 ) && ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 0 ) && ( pkcs11testPREPROVISIONED_SUPPORT == 0 )
+    #error "The device must have some mechanism configured to provision the PKCS #11 stack."
 #endif
-
 
 #include "iot_test_pkcs11_globals.h"
 #include "iot_pkcs11_config.h"
@@ -63,9 +62,11 @@
 /* mbedTLS includes. */
 #include "mbedtls/sha256.h"
 #include "mbedtls/pk.h"
+#include "mbedtls/pk_internal.h"
 #include "mbedtls/oid.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy_poll.h"
 
 typedef enum
 {
@@ -85,12 +86,13 @@ typedef enum
 CK_SESSION_HANDLE xGlobalSession = 0;
 CK_FUNCTION_LIST_PTR pxGlobalFunctionList = NULL_PTR;
 CK_SLOT_ID xGlobalSlotId = 0;
-CK_MECHANISM_TYPE xMechanismType = 0;
-CK_OBJECT_HANDLE xPublicKey = 0;
-CK_OBJECT_HANDLE xPrivateKey = 0;
-CK_OBJECT_HANDLE xKey = 0;
-CK_BBOOL xCkTrue = CK_TRUE;
-CK_BBOOL xCkFalse = CK_FALSE;
+CK_MECHANISM_TYPE xGlobalMechanismType = 0;
+
+/* Model Based Tests (MBT) test group variables. */
+CK_OBJECT_HANDLE xGlobalPublicKeyHandle = 0;
+CK_OBJECT_HANDLE xGlobalPrivateKeyHandle = 0;
+CK_BBOOL xGlobalCkTrue = CK_TRUE;
+CK_BBOOL xGlobalCkFalse = CK_FALSE;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
 /* PKCS #11 Global Data Containers. */
@@ -279,15 +281,37 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 {
     #if ( pkcs11testRSA_KEY_SUPPORT == 1 )
         prvBeforeRunningTests();
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+            RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObject );
+        #endif
 
-        /* RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair ); */ /* Generating RSA keys is not supported. */
-        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectFindObject );
+        /* Generating RSA keys is not currently supported.
+         #if ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 1 )
+         *   RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair );
+         #endif
+         */
+
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_FindObject );
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_FindObjectMultiThread );
-        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GetAttributeValue );
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_Sign );
 
-        prvAfterRunningTests_Object();
-    #endif
+        #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+            /* Always destroy objects last. */
+            RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_DestroyObject );
+        #endif
+
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+
+            /* This will re-import credentials if supported, it is expected that
+             * secure elements do not destroy the "real" credentials and the test
+             * suite will not try to re-provision a secure element if they are
+             * destroyed, so it is best to use a separate slot for throwaway test
+             * credentials.
+             */
+            prvAfterRunningTests_Object();
+        #endif
+    #endif /* if ( pkcs11testRSA_KEY_SUPPORT == 1 ) */
 }
 
 
@@ -330,21 +354,41 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
     #if ( pkcs11testEC_KEY_SUPPORT == 1 )
         prvBeforeRunningTests();
 
-        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
+        #if ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 1 )
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
         #endif
 
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
+        /* Always run AFQP_CreateObject after AFQP_GenerateKeyPair if the port
+         * supports both. Ports that support object importing have extra checks
+         * as the contents of the private key and public key are well known.
+         */
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObject );
+        #endif
+
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
+
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
-        prvAfterRunningTests_Object();
+        #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_DestroyObject );
+        #endif
+
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+
+            /* This will re-import credentials if supported, it is expected that
+             * secure elements do not destroy the "real" credentials and the test
+             * suite will not try to re-provision a secure element if they are
+             * destroyed, so it is best to use a separate slot for throwaway test
+             * credentials.
+             */
+            prvAfterRunningTests_Object();
+        #endif
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */
 }
 
@@ -380,6 +424,9 @@ static MultithreadTaskParams_t xGlobalTaskParams[ pkcs11testMULTI_THREAD_TASK_CO
 static CK_RV prvDestroyTestCredentials( void )
 {
     CK_RV xResult = CKR_OK;
+    CK_RV xDestroyResult = CKR_OK;
+    CK_OBJECT_HANDLE xObject = CK_INVALID_HANDLE;
+    CK_ULONG ulLabelCount = 0;
 
     CK_BYTE * pxPkcsLabels[] =
     {
@@ -404,12 +451,25 @@ static CK_RV prvDestroyTestCredentials( void )
         #endif
     };
 
-    xResult = xDestroyProvidedObjects( xGlobalSession,
-                                       pxPkcsLabels,
-                                       xClass,
-                                       sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
+    xDestroyResult = xDestroyProvidedObjects( xGlobalSession,
+                                              pxPkcsLabels,
+                                              xClass,
+                                              sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials." );
 
-    return xResult;
+    for( ulLabelCount = 0;
+         ulLabelCount < sizeof( xClass ) / sizeof( CK_OBJECT_CLASS );
+         ulLabelCount++ )
+    {
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                                ( char * ) pxPkcsLabels[ ulLabelCount ],
+                                                xClass[ ulLabelCount ],
+                                                &xObject );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Found an object after deleting it.\r\n" );
+        TEST_ASSERT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xObject, "Object found after it was destroyed.\r\n" );
+    }
+
+    return xDestroyResult;
 }
 
 CK_RV prvBeforeRunningTests( void )
@@ -524,40 +584,38 @@ static void prvMultiThreadHelper( void * pvTaskFxnPtr )
     }
 }
 
-
 /* Assumes that device is already provisioned at time of calling. */
-void prvFindObjectTest( void )
+static void prvFindObjectTest( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                               CK_OBJECT_HANDLE_PTR pxCertificateHandle,
+                               CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
 {
     CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKeyHandle;
-    CK_OBJECT_HANDLE xPublicKeyHandle;
-    CK_OBJECT_HANDLE xCertificateHandle;
-    CK_OBJECT_HANDLE xTestObjectHandle;
+    CK_OBJECT_HANDLE xTestObjectHandle = CK_INVALID_HANDLE;
 
     /* Happy Path - Find a previously created object. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
                                             pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                             CKO_PRIVATE_KEY,
-                                            &xPrivateKeyHandle );
+                                            pxPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find private key after closing and reopening a session." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle found for  private key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, *pxPrivateKeyHandle, "Invalid object handle found for  private key." );
 
-    /*         TODO: Add the code sign key and root ca. */
+    /* TODO: Add the code sign key and root ca. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
                                             pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                             CKO_PUBLIC_KEY,
-                                            &xPublicKeyHandle );
+                                            pxPublicKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find public key after closing and reopening a session." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPublicKeyHandle, "Invalid object handle found for public key key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, *pxPublicKeyHandle, "Invalid object handle found for public key key." );
 
 
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
                                             pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                                             CKO_CERTIFICATE,
-                                            &xCertificateHandle );
+                                            pxCertificateHandle );
 
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find certificate after closing and reopening a session." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, *pxCertificateHandle, "Invalid object handle found for certificate." );
 
     /* Try to find an object that has never been created. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
@@ -566,34 +624,6 @@ void prvFindObjectTest( void )
                                             &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
     TEST_ASSERT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xTestObjectHandle, "Incorrect error code finding object that doesn't exist" );
-
-    /* Destroy the private key and try to find it. */
-    xCurrentCredentials = eStateUnknown;
-    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error destroying private key" );
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &xPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failure searching for destroyed object." );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Object found after it was destroyed." );
-
-    /* Make sure the certificate can still be found. */
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                            CKO_CERTIFICATE,
-                                            &xCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find certificate after destroying private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for certificate." );
-
-    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error destroying public key" );
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                            CKO_CERTIFICATE,
-                                            &xPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failure searching for destroyed object." );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Object found after it was destroyed." );
 }
 
 
@@ -841,20 +871,37 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
         configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
     }
 
-    /* Check for elliptic-curve key generation support. */
-    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
-    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+    #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+        /* Check for elliptic-curve key generation support. */
+        xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
+        TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
 
-    if( CKR_OK == xResult )
-    {
-        TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
+        if( CKR_OK == xResult )
+        {
+            TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
 
-        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
-                          MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+            TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
+                              MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
 
-        xSupportsKeyGen = CK_TRUE;
-        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
-    }
+            xSupportsKeyGen = CK_TRUE;
+            configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
+        }
+
+        /* Check for consistency between static configuration and runtime key
+         * generation settings. */
+        if( CK_TRUE == xSupportsKeyGen )
+        {
+            #if ( 0 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
+                TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+            #endif
+        }
+        else
+        {
+            #if ( 1 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
+                TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+            #endif
+        }
+    #endif /* if ( pkcs11testPREPROVISIONED_SUPPORT != 1 ) */
 
     /* SHA-256 support is required. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
@@ -862,21 +909,6 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
 
     vPortFree( pxSlotId );
-
-    /* Check for consistency between static configuration and runtime key
-     * generation settings. */
-    if( CK_TRUE == xSupportsKeyGen )
-    {
-        #if ( 0 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
-            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
-        #endif
-    }
-    else
-    {
-        #if ( 1 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
-            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
-        #endif
-    }
 
     /* Report on static configuration for key import support. */
     #if ( 1 == pkcs11testIMPORT_PRIVATE_KEY_SUPPORT )
@@ -1222,15 +1254,11 @@ void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
     }
 }
 
-/* Note: This tests that objects can be created and found successfully.
- * It does not check the correctness or usability of objects stored. */
-TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
+TEST( Full_PKCS11_RSA, AFQP_CreateObject )
 {
     CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKeyHandle;
-    CK_OBJECT_HANDLE xCertificateHandle;
-    CK_OBJECT_HANDLE xFoundPrivateKeyHandle;
-    CK_OBJECT_HANDLE xFoundCertificateHandle;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
 
     if( xCurrentCredentials != eNone )
     {
@@ -1240,77 +1268,44 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
     }
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
-
-    /* Find the newly created private key. */
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &xFoundPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
-    TEST_ASSERT_EQUAL_MESSAGE( xPrivateKeyHandle, xFoundPrivateKeyHandle, "Private key handle found does not match private key handle created." );
-
-    /* Find the newly created certificate. */
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                            CKO_CERTIFICATE,
-                                            &xFoundCertificateHandle );
-
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for RSA certificate." );
-    TEST_ASSERT_EQUAL_MESSAGE( xCertificateHandle, xFoundCertificateHandle, "Certificate handle found does not match certificate handle created." );
-
-    /* Close and reopen a new session.  Make sure that the private key and certificate can still be found. */
-    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
-    xResult = xInitializePkcs11Session( &xGlobalSession );
-
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &xFoundPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key after closing and reopening a session." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
-
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                            CKO_CERTIFICATE,
-                                            &xFoundCertificateHandle );
-
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate after closing and reopening a session." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for RSA certificate." );
 }
-
-
 
 TEST( Full_PKCS11_RSA, AFQP_FindObject )
 {
-    CK_OBJECT_HANDLE xPrivateKey;
-    CK_OBJECT_HANDLE xCertificate;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
 
-    prvProvisionRsaTestCredentials( &xPrivateKey, &xCertificate );
-    prvFindObjectTest();
+    prvFindObjectTest( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
 }
 
 TEST( Full_PKCS11_RSA, AFQP_FindObjectMultithread )
 {
 }
 
-TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
+TEST( Full_PKCS11_RSA, AFQP_GetAttributeValue )
 {
 #define MODULUS_LENGTH              256
 #define PUB_EXP_LENGTH              3
 #define CERTIFICATE_VALUE_LENGTH    949
     CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKeyHandle;
-    CK_OBJECT_HANDLE xCertificateHandle;
     CK_ATTRIBUTE xTemplate;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+
+
     CK_BYTE xCertificateValue[ CERTIFICATE_VALUE_LENGTH ];
     CK_BYTE xKeyComponent[ ( pkcs11RSA_2048_MODULUS_BITS / 8 ) + 1 ] = { 0 };
 
-    prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xPrivateKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xPrivateKeyHandle, "Invalid object handle found for RSA private key." );
+
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, &xCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xCertificateHandle, "Invalid object handle found for RSA certificate." );
 
     /* TODO: Add RSA key component GetAttributeValue checks. */
-
     /* Get the certificate value. */
     xTemplate.type = CKA_VALUE;
     xTemplate.pValue = NULL;
@@ -1478,6 +1473,14 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     mbedtls_rsa_free( &xRsaContext );
 }
 
+TEST( Full_PKCS11_RSA, AFQP_DestroyObject )
+{
+    CK_RV xResult = CKR_OK;
+
+    xResult = prvDestroyTestCredentials();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy RSA credentials." );
+}
+
 
 /* Valid ECDSA private key. */
 static const char cValidECDSAPrivateKey[] =
@@ -1512,8 +1515,6 @@ static const char cValidECDSACertificate[] =
     "IhxppLKnUggV42SAMpSneQIgdufH9clHZgrd9HVpRlIumy3sIMNEu9fzC9XZsSu8\n"
     "yQ8=\n"
     "-----END CERTIFICATE-----";
-
-
 
 void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                            CK_OBJECT_HANDLE_PTR pxCertificateHandle,
@@ -1551,7 +1552,7 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
                                          ( uint8_t * ) pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                                          pxCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPrivateKeyHandle, "Invalid object handle returned for EC certificate." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxCertificateHandle, "Invalid object handle returned for EC certificate." );
 
         xCurrentCredentials = eEllipticCurveTest;
     }
@@ -1640,53 +1641,35 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
     #endif
 }
 
-TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
+TEST( Full_PKCS11_EC, AFQP_DestroyObject )
 {
     CK_RV xResult;
+
+    xResult = prvDestroyTestCredentials();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK,
+                               xResult,
+                               "Failed to destroy credentials in test setup." );
+}
+
+TEST( Full_PKCS11_EC, AFQP_CreateObject )
+{
     CK_OBJECT_HANDLE xPrivateKeyHandle;
+    CK_OBJECT_HANDLE xCertificateHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
 
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+        CK_RV xResult;
         CK_OBJECT_HANDLE xRootCertificateHandle;
         CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
         CK_OBJECT_HANDLE xJITPCertificateHandle;
     #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
+    /* Ignore result as this might fail if the credentials did not exist. */
+    prvDestroyTestCredentials();
 
-    xResult = prvDestroyTestCredentials();
-    xCurrentCredentials = eNone;
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
-
-    xResult = xProvisionPrivateKey( xGlobalSession,
-                                    ( uint8_t * ) cValidECDSAPrivateKey,
-                                    sizeof( cValidECDSAPrivateKey ),
-                                    ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &xPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC private key." );
-
-    xResult = xProvisionPublicKey( xGlobalSession,
-                                   ( uint8_t * ) cValidECDSAPublicKey,
-                                   sizeof( cValidECDSAPublicKey ),
-                                   CKK_EC,
-                                   ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                   &xPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC public key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC public key." );
-}
-
-TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
-{
-    CK_RV xResult;
-    CK_OBJECT_HANDLE xClientCertificateHandle;
-
-    xResult = xProvisionCertificate( xGlobalSession,
-                                     ( uint8_t * ) cValidECDSACertificate,
-                                     sizeof( cValidECDSACertificate ),
-                                     ( uint8_t * ) pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                     &xClientCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xClientCertificateHandle, "Invalid object handle returned for EC certificate." );
+    prvProvisionCredentialsWithKeyImport( &xPrivateKeyHandle,
+                                          &xCertificateHandle,
+                                          &xPublicKeyHandle );
 
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         xResult = xProvisionCertificate( xGlobalSession,
@@ -1695,7 +1678,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
                                          pkcs11configLABEL_ROOT_CERTIFICATE,
                                          &xRootCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
 
         xResult = xProvisionCertificate( xGlobalSession,
                                          ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
@@ -1703,7 +1686,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
                                          pkcs11configLABEL_JITP_CERTIFICATE,
                                          &xJITPCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
 
         xResult = xProvisionPublicKey( xGlobalSession,
                                        ( uint8_t * ) cValidECDSAPublicKey,
@@ -1712,32 +1695,28 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
                                        pkcs11configLABEL_CODE_VERIFICATION_KEY,
                                        &xCodeSignPublicKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC code sign public key." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
-
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
-
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
-
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
     #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 }
 
 TEST( Full_PKCS11_EC, AFQP_Sign )
 {
-    CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKeyHandle;
-    CK_OBJECT_HANDLE xPublicKeyHandle;
-    CK_OBJECT_HANDLE xCertificateHandle;
+    CK_RV xResult = CKR_OK;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
+
     /* Note that ECDSA operations on a signature of all 0's is not permitted. */
     CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_ULONG xSignatureLength;
+    int lMbedTLSResult;
 
-    prvProvisionCredentialsWithKeyImport( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
+    /* Find objects that were previously created. This test case should be run if
+     * there are objects that exists under known labels. This test case is not
+     * responsible for creating the objects used for signing. */
+    prvFindObjectTest( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
 
     xMechanism.mechanism = CKM_ECDSA;
     xMechanism.pParameter = NULL;
@@ -1757,34 +1736,71 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
     TEST_ASSERT_EQUAL_MESSAGE( pkcs11ECDSA_P256_SIGNATURE_LENGTH, xSignatureLength, "ECDSA Sign should return needed signature buffer length when pucSignature is NULL." );
 
-
-    /* Verify the signature with mbedTLS */
-    int lMbedTLSResult;
-
+    /* Now extract the EC public key point so we can reconstruct it in mbed TLS. */
     mbedtls_pk_context xEcdsaContext;
-    mbedtls_pk_init( &xEcdsaContext );
+    mbedtls_pk_context * pxEcdsaContext = &xEcdsaContext;
+    CK_ATTRIBUTE xPubKeyQuery = { CKA_EC_POINT, NULL, 0 };
+    CK_BYTE * pxPublicKey = NULL;
+    mbedtls_pk_init( pxEcdsaContext );
+
+    /* Reconstruct public key from EC Params. */
+    mbedtls_ecp_keypair * pxKeyPair;
+    pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+    /* Initialize the info. */
+    pxEcdsaContext->pk_info = &mbedtls_eckey_info;
+    mbedtls_ecp_keypair_init( pxKeyPair );
+    mbedtls_ecp_group_init( &pxKeyPair->grp );
+
+    /* Might want to make the ECP group configurable in the future. */
+    lMbedTLSResult = mbedtls_ecp_group_load( &pxKeyPair->grp,
+                                             MBEDTLS_ECP_DP_SECP256R1 );
+    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "Failed to load EC group." );
+
+    /* Initialize the context. */
+    pxEcdsaContext->pk_ctx = pxKeyPair;
+
+    /* Get EC point from PKCS #11 stack. */
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xPubKeyQuery, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to query for public key length" );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPubKeyQuery.ulValueLen, "The size of the public key was an unexpected value." );
+
+    pxPublicKey = pvPortMalloc( xPubKeyQuery.ulValueLen );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxPublicKey, "Failed to allocate space for public key." );
+
+    xPubKeyQuery.pValue = pxPublicKey;
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xPubKeyQuery, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to query for public key length" );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPubKeyQuery.ulValueLen, "The size of the public key was an unexpected value." );
+
+    /* Strip the ANS.1 Encoding of type and length. Otherwise mbed TLS won't be
+     * able to parse the binary EC point. */
+    lMbedTLSResult = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
+                                                    &pxKeyPair->Q,
+                                                    ( uint8_t * ) ( xPubKeyQuery.pValue ) + 2,
+                                                    xPubKeyQuery.ulValueLen - 2 );
+    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to read binary point." );
 
     if( TEST_PROTECT() )
     {
-        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext,
-                                               ( const unsigned char * ) cValidECDSAPrivateKey,
-                                               sizeof( cValidECDSAPrivateKey ),
-                                               NULL,
-                                               0 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
-
         mbedtls_ecp_keypair * pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
         /* An ECDSA signature is comprised of 2 components - R & S. */
         mbedtls_mpi xR;
         mbedtls_mpi xS;
         mbedtls_mpi_init( &xR );
         mbedtls_mpi_init( &xS );
+
         lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to read R binary in ECDSA signature." );
+
         lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to read S binary in ECDSA signature." );
+
         lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+
         mbedtls_mpi_free( &xR );
         mbedtls_mpi_free( &xS );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
     }
 
     mbedtls_pk_free( &xEcdsaContext );
@@ -1804,31 +1820,19 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_RV xResult;
     CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
-    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
-    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
-    CK_MECHANISM xMechanism;
-    CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
+
     CK_BYTE xEcPoint[ 256 ] = { 0 };
     CK_BYTE xPrivateKeyBuffer[ 32 ] = { 0 };
     CK_BYTE xEcParams[ 11 ] = { 0 };
     CK_KEY_TYPE xKeyType;
-    CK_ULONG xSignatureLength;
     CK_ATTRIBUTE xTemplate;
     CK_OBJECT_CLASS xClass;
+
     /* mbedTLS structures for verification. */
-    int lMbedTLSResult;
-    mbedtls_ecdsa_context xEcdsaContext;
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
-
-    /* An ECDSA signature is comprised of 2 components - R & S. */
-    mbedtls_mpi xR;
-    mbedtls_mpi xS;
-
-    xResult = prvDestroyTestCredentials();
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
-    xCurrentCredentials = eNone;
 
     xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
                                            ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
@@ -1840,8 +1844,17 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xPrivateKeyHandle, "Invalid private key handle generated by GenerateKeyPair" );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xPublicKeyHandle, "Invalid public key handle generated by GenerateKeyPair" );
 
-    /* Call GetAttributeValue to retrieve information about the keypair stored. */
+    /* We will try to provision the certificate as well, as it is needed for the tests that are not responsible for creating objects. */
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) cValidECDSACertificate,
+                                     sizeof( cValidECDSACertificate ),
+                                     ( uint8_t * ) pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                     &xCertificateHandle );
 
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xCertificateHandle, "Invalid object handle returned for EC certificate." );
+
+    /* Call GetAttributeValue to retrieve information about the keypair stored. */
     /* Check that correct object class retrieved. */
     xTemplate.type = CKA_CLASS;
     xTemplate.pValue = NULL;
@@ -1897,164 +1910,94 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     xTemplate.ulValueLen = sizeof( xEcPoint );
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to retrieve EC Point." );
-
-    /* Perform a sign with the generated private key. */
-    xMechanism.mechanism = CKM_ECDSA;
-    xMechanism.pParameter = NULL;
-    xMechanism.ulParameterLen = 0;
-    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit ECDSA." );
-
-    xSignatureLength = sizeof( xSignature );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
-
-    /* Verify the signature with mbedTLS */
-    mbedtls_ecdsa_init( &xEcdsaContext );
-    mbedtls_ecp_group_init( &xEcdsaContext.grp );
-
-    if( TEST_PROTECT() )
-    {
-        lMbedTLSResult = mbedtls_ecp_group_load( &xEcdsaContext.grp, MBEDTLS_ECP_DP_SECP256R1 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-        /* The first 2 bytes are for ASN1 type/length encoding. */
-        lMbedTLSResult = mbedtls_ecp_point_read_binary( &xEcdsaContext.grp, &xEcdsaContext.Q, &xEcPoint[ 2 ], xTemplate.ulValueLen - 2 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-
-        /* C_Sign returns the R & S components one after another- import these into a format that mbedTLS can work with. */
-        mbedtls_mpi_init( &xR );
-        mbedtls_mpi_init( &xS );
-        lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-        lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-
-        /* Verify using mbedTLS & exported public key. */
-        lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
-
-        /* Verify the signature with the generated public key. */
-        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
-        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, xSignatureLength );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
-    }
-
-    mbedtls_mpi_free( &xR );
-    mbedtls_mpi_free( &xS );
-    mbedtls_ecp_group_free( &xEcdsaContext.grp );
-    mbedtls_ecdsa_free( &xEcdsaContext );
-
-
-    /* Check that FindObject works on Generated Key Pairs. */
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
-
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
-
-    /* Close & reopen the session.  Make sure you can still find the keys. */
-    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error closing session after generating key pair." );
-    xResult = xInitializePkcs11Session( &xGlobalSession );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error re-opening session after generating key pair." );
-
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
-
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
 }
 
-#include "mbedtls/entropy_poll.h"
 TEST( Full_PKCS11_EC, AFQP_Verify )
 {
     CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKey;
-    CK_OBJECT_HANDLE xPublicKey;
-    CK_OBJECT_HANDLE xCertificate;
+    CK_OBJECT_HANDLE xPrivateKeyHandle;
+    CK_OBJECT_HANDLE xPublicKeyHandle;
+    CK_OBJECT_HANDLE xCertificateHandle;
     CK_MECHANISM xMechanism;
     CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xbe };
     CK_BYTE xSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 10 ] = { 0 };
     CK_BYTE xSignaturePKCS[ 64 ] = { 0 };
     size_t xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
-    mbedtls_pk_context xPkContext;
-    /* TODO: Consider switching this out for a C_GenerateRandom dependent function for ports not implementing mbedTLS. */
-    mbedtls_entropy_context xEntropyContext;
-    mbedtls_ctr_drbg_context xDrbgContext;
-    int lMbedResult;
 
-    prvProvisionCredentialsWithKeyImport( &xPrivateKey, &xCertificate, &xPublicKey );
+    /* TODO: Consider switching this out for a C_GenerateRandom dependent function for ports not implementing mbedTLS. */
+
+    /* Find objects that were previously created. This test case should be run if
+     * there are objects that exists under known labels. This test case is not
+     * responsible for creating the objects used for signing. */
+    prvFindObjectTest( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
 
     /* Sign data w/ PKCS. */
     xMechanism.mechanism = CKM_ECDSA;
     xMechanism.pParameter = NULL;
     xMechanism.ulParameterLen = 0;
-    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKey );
+    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "SignInit failed." );
     xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, sizeof( xHashedMessage ), xSignature, ( CK_ULONG * ) &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Sign failed." );
 
-    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );
+    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
 
     xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, sizeof( xSignaturePKCS ) );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
-    /* Sign data with mbedTLS. */
 
-    /* Initialize the private key. */
-    mbedtls_pk_init( &xPkContext );
-    lMbedResult = mbedtls_pk_parse_key( &xPkContext,
-                                        ( const unsigned char * ) cValidECDSAPrivateKey,
-                                        sizeof( cValidECDSAPrivateKey ),
-                                        NULL,
-                                        0 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to parse valid ECDSA key." );
-    /* Initialize the RNG. */
-    mbedtls_entropy_init( &xEntropyContext );
-    mbedtls_ctr_drbg_init( &xDrbgContext );
-    lMbedResult = mbedtls_ctr_drbg_seed( &xDrbgContext, mbedtls_entropy_func, &xEntropyContext, NULL, 0 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to initialize DRBG" );
+    #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+        mbedtls_pk_context xPkContext;
+        mbedtls_entropy_context xEntropyContext;
+        mbedtls_ctr_drbg_context xDrbgContext;
+        int lMbedResult;
 
-    lMbedResult = mbedtls_pk_sign( &xPkContext, MBEDTLS_MD_SHA256, xHashedMessage, sizeof( xHashedMessage ), xSignature, &xSignatureLength, mbedtls_ctr_drbg_random, &xDrbgContext );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to perform ECDSA signature." );
+        /* Initialize the private key. */
+        mbedtls_pk_init( &xPkContext );
+        lMbedResult = mbedtls_pk_parse_key( &xPkContext,
+                                            ( const unsigned char * ) cValidECDSAPrivateKey,
+                                            sizeof( cValidECDSAPrivateKey ),
+                                            NULL,
+                                            0 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to parse valid ECDSA key." );
+        /* Initialize the RNG. */
+        mbedtls_entropy_init( &xEntropyContext );
+        mbedtls_ctr_drbg_init( &xDrbgContext );
+        lMbedResult = mbedtls_ctr_drbg_seed( &xDrbgContext, mbedtls_entropy_func, &xEntropyContext, NULL, 0 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to initialize DRBG" );
 
-    mbedtls_pk_free( &xPkContext );
-    mbedtls_ctr_drbg_free( &xDrbgContext );
-    mbedtls_entropy_free( &xEntropyContext );
+        lMbedResult = mbedtls_pk_sign( &xPkContext, MBEDTLS_MD_SHA256, xHashedMessage, sizeof( xHashedMessage ), xSignature, &xSignatureLength, mbedtls_ctr_drbg_random, &xDrbgContext );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to perform ECDSA signature." );
 
-    /* Reconstruct the signature in PKCS #11 format. */
-    lMbedResult = PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
-                                                         xSignature );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Null buffers." );
+        mbedtls_pk_free( &xPkContext );
+        mbedtls_ctr_drbg_free( &xDrbgContext );
+        mbedtls_entropy_free( &xEntropyContext );
 
-    /* Verify with PKCS #11. */
-    xMechanism.mechanism = CKM_ECDSA;
-    xMechanism.pParameter = NULL;
-    xMechanism.ulParameterLen = 0;
-    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
+        /* Reconstruct the signature in PKCS #11 format. */
+        lMbedResult = PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
+                                                             xSignature );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Null buffers." );
 
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignaturePKCS, sizeof( xSignaturePKCS ) );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
+        /* Verify with PKCS #11. */
+        xMechanism.mechanism = CKM_ECDSA;
+        xMechanism.pParameter = NULL;
+        xMechanism.ulParameterLen = 0;
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
 
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignaturePKCS, sizeof( xSignaturePKCS ) );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
+    #endif /* if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 ) */
     /* Modify signature value and make sure verification fails. */
 }
 
 TEST( Full_PKCS11_EC, AFQP_FindObject )
 {
-    CK_OBJECT_HANDLE xPrivateKey;
-    CK_OBJECT_HANDLE xPublicKey;
-    CK_OBJECT_HANDLE xCertificate;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
 
-    prvProvisionCredentialsWithKeyImport( &xPrivateKey, &xCertificate, &xPublicKey );
-
-    /* Provision a device public key as well. */
-    prvFindObjectTest();
+    prvFindObjectTest( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
 }
 
 extern int convert_pem_to_der( const unsigned char * pucInput,
@@ -2065,9 +2008,9 @@ extern int convert_pem_to_der( const unsigned char * pucInput,
 TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
 {
     CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKey;
-    CK_OBJECT_HANDLE xPublicKey;
-    CK_OBJECT_HANDLE xCertificate;
+    CK_OBJECT_HANDLE xPrivateKey = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xPublicKey = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xCertificate = CK_INVALID_HANDLE;
     CK_ATTRIBUTE xTemplate;
     CK_KEY_TYPE xKeyType = 0;
     uint8_t ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
@@ -2097,7 +2040,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
         configPRINTF( ( "Failed to convert the EC certificate from PEM to DER. Error code %d \r\n", lConversionReturn ) );
     }
 
-    prvProvisionCredentialsWithKeyImport( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     /* The PKCS #11 standard expects that calling GetAttributeValue with a null pointer to the value
      * will yield a success with the value length updated to the size of the buffer needed to contain
@@ -2186,17 +2129,25 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     xTemplate.pValue = xEcPoint;
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKey, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for EC point failed." );
-    TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( xEcPointExpected, xEcPoint, sizeof( xEcPointExpected ), "Incorrect EC Point returned from GetAttributeValue" );
+    #if pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1
+
+        /* The EC point can only be known for a public key that was previously created
+         * therefore this check is only done for implementations that support importing
+         * a private key, as the credentials that are on the device are all known.
+         */
+        TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( xEcPointExpected, xEcPoint, sizeof( xEcPointExpected ), "Incorrect EC Point returned from GetAttributeValue" );
+    #endif
 
     /****** Certificate check. *******/
     /* Object class. */
-
     xTemplate.type = CKA_CLASS;
     xTemplate.pValue = NULL;
     xTemplate.ulValueLen = 0;
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of EC certificate class failed." );
-    TEST_ASSERT_EQUAL_MESSAGE( sizeof( CK_OBJECT_CLASS ), xTemplate.ulValueLen, "Incorrect object class length returned from GetAttributeValue." );
+    #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+        TEST_ASSERT_EQUAL_MESSAGE( sizeof( CK_OBJECT_CLASS ), xTemplate.ulValueLen, "Incorrect object class length returned from GetAttributeValue." );
+    #endif
 
     xTemplate.pValue = &xClass;
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
@@ -2209,12 +2160,16 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     xTemplate.ulValueLen = 0;
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of certificate value failed." );
-    TEST_ASSERT_EQUAL_MESSAGE( sizeof( xCertificateValueExpected ), xTemplate.ulValueLen, "Incorrect certificate value length" );
+    #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+        TEST_ASSERT_EQUAL_MESSAGE( sizeof( xCertificateValueExpected ), xTemplate.ulValueLen, "Incorrect certificate value length" );
+    #endif
 
     xTemplate.pValue = xCertificateValue;
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for certificate value failed." );
-    TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( xCertificateValueExpected, xCertificateValue, sizeof( xCertificateValueExpected ), "Incorrect certificate value returned." );
+    #if ( pkcs11testPREPROVISIONED_SUPPORT != 1 )
+        TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( xCertificateValueExpected, xCertificateValue, sizeof( xCertificateValueExpected ), "Incorrect certificate value returned." );
+    #endif
 }
 
 /* TODO: Power cycle tests for key persistance. */
@@ -2328,7 +2283,7 @@ TEST( Full_PKCS11_EC, AFQP_FindObjectMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSessionHandle[ xTaskNumber ];
     }
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     prvMultiThreadHelper( ( void * ) prvFindObjectMultiThreadTask );
 
@@ -2455,7 +2410,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSessionHandle[ xTaskNumber ];
     }
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     prvMultiThreadHelper( ( void * ) prvECGetAttributeValueMultiThreadTask );
 
@@ -2548,7 +2503,7 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
     CK_OBJECT_HANDLE xCertificate;
     CK_OBJECT_HANDLE xPublicKey;
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {

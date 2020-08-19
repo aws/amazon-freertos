@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -204,7 +204,8 @@ static int _initialize( demoContext_t * pContext )
     bool commonLibrariesInitialized = false;
     bool semaphoreCreated = false;
 
-    /* Initialize common libraries required by network manager and demo. */
+    /* Initialize the C-SDK common libraries. This function must be called
+     * once (and only once) before calling any other C-SDK function. */
     if( IotSdk_Init() == true )
     {
         commonLibrariesInitialized = true;

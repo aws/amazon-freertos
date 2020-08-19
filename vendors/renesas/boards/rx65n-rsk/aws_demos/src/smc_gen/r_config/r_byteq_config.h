@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /***********************************************************************************************************************
 * DISCLAIMER
 * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No 
@@ -14,7 +15,7 @@
 * following link:
 * http://www.renesas.com/disclaimer 
 *
-* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.    
+* Copyright (C) 2013 Renesas Electronics Corporation. All rights reserved.    
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name     : r_byteq_config.h
@@ -24,6 +25,8 @@
 *         : 24.07.2013 1.00     Initial Release
 *         : 11.21.2014 1.20     Removed dependency to BSP
 *         : 30.09.2015 1.50     Added dependency to BSP
+*         : 01.06.2018 1.70     Changed the default value of the following macro definition.
+*                                - BYTEQ_CFG_MAX_CTRL_BLKS - Changed the default value from 4 to 32.
 ***********************************************************************************************************************/
 #ifndef BYTEQ_CONFIG_H
 #define BYTEQ_CONFIG_H
@@ -53,7 +56,7 @@ Configuration Options
 
 /* SPECIFY NUMBER OF STATIC QUEUE CONTROL BLOCKS TO SUPPORT */
 /* valid only when BYTEQ_USE_HEAP_FOR_CTRL_BLKS is set to 0 */
-#define BYTEQ_CFG_MAX_CTRL_BLKS             (4)
+#define BYTEQ_CFG_MAX_CTRL_BLKS             (32)
 
 
 #endif /* BYTEQ_CONFIG_H */

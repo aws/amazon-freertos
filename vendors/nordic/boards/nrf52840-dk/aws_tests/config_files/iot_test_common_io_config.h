@@ -26,31 +26,38 @@
 #ifndef _TEST_IOT_CONFIG_H_
 #define _TEST_IOT_CONFIG_H_
 
+/* GPIO includes */
+#include "iot_gpio_config.h"
 
 /* SPI includes */
 #include "iot_spi.h"
 #include "nrf_drv_spi.h"
 
+/*------------------------FLASH-------------------------------*/
+#define IOT_TEST_COMMON_IO_FLASH_SUPPORTED    0
+
+/*------------------------GPIO-------------------------------*/
+#define IOT_TEST_COMMON_IO_GPIO_SUPPORTED     0
 
 /*------------------------UART-------------------------------*/
-
-/* UART is supported. */
-/*#define IOT_TEST_COMMON_IO_UART_SUPPORTED                    1 */
+#define IOT_TEST_COMMON_IO_UART_SUPPORTED     0
 
 /*------------------------I2C-------------------------------*/
-
-/* I2C is supported. */
-/*#define IOT_TEST_COMMON_IO_I2C_SUPPORTED                     1 */
+#define IOT_TEST_COMMON_IO_I2C_SUPPORTED      0
 
 /*------------------------SPI-------------------------------*/
-#define IOT_TEST_COMMON_IO_SPI_SUPPORTED    1
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED      0
 
-/* #define IOT_TEST_COMMON_IO_SPI_LOOPBACK        1 */
+/* Enables loop-back tests where a single SPI instance's MOSI --> MISO,
+ * with no other connections. Without the looping connection, these tests
+ * will fail.
+ */
 #ifndef IOT_TEST_COMMON_IO_SPI_LOOPBACK
     #define IOT_TEST_COMMON_IO_SPI_LOOPBACK    0
 #endif
 
-#define SPI_TEST_SET                           1
+/* The number of supported SPI instances to be tested */
+#define SPI_TEST_SET    1
 
 static const uint8_t spiTestPort[ SPI_TEST_SET ] = { 0 };
 static const uint32_t spiIotMode[ SPI_TEST_SET ] = { eSPIMode0 };

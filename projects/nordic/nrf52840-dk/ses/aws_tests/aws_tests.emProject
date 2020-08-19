@@ -64,6 +64,8 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/sdk_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/unity_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_gpio_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_flash_config.h" />
       </folder>
       <folder Name="src">
         <file file_name="../../../../../tests/common/aws_test.c" />
@@ -475,11 +477,15 @@
           <file file_name="../../../../../libraries/abstractions/common_io/CMakeLists.txt" />
           <folder Name="include">
             <file file_name="../../../../../libraries/abstractions/common_io/include/iot_spi.h" />
+            <file file_name="../../../../../libraries/abstractions/common_io/include/iot_gpio.h" />
+            <file file_name="../../../../../libraries/abstractions/common_io/include/iot_flash.h" />
           </folder>
           <folder Name="test">
             <file file_name="../../../../../libraries/abstractions/common_io/test/iot_test_common_io.c" />
             <file file_name="../../../../../libraries/abstractions/common_io/test/test_iot_spi.c" />
             <file file_name="../../../../../libraries/abstractions/common_io/test/iot_test_common_io_internal.h" />
+            <file file_name="../../../../../libraries/abstractions/common_io/test/test_iot_gpio.c" />
+            <file file_name="../../../../../libraries/abstractions/common_io/test/test_iot_flash.c" />
           </folder>
         </folder>
       </folder>
@@ -508,7 +514,11 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_test_common_io_internal.c" />
         <folder Name="config">
           <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/config/iot_spi_config.h" />
+          <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/config/iot_gpio_config_defaults.h" />
+          <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/config/iot_flash_config_defaults.h" />
         </folder>
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_gpio.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/common_io/iot_flash.c" />
       </folder>
     </folder>
     <folder Name="nRF5_SDK_15.2.0">
@@ -728,6 +738,8 @@
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage.h" />
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage_sd.c" />
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage_sd.h" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage_nvmc.c" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage_nvmc.h" />
           </folder>
           <folder Name="log">
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/log/nrf_log.h" />
@@ -963,4 +975,3 @@
     project_directory=""
     project_type="Executable" />
 </solution>
-

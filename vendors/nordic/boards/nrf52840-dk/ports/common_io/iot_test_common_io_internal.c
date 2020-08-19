@@ -29,17 +29,39 @@
 
 #include "iot_test_common_io_internal.h"
 
-#if defined( IOT_TEST_COMMON_IO_UART_SUPPORTED ) && ( IOT_TEST_COMMON_IO_UART_SUPPORTED >= 1 )
+/* FLASH */
+#if defined( IOT_TEST_COMMON_IO_FLASH_SUPPORTED ) && ( IOT_TEST_COMMON_IO_FLASH_SUPPORTED >= 1 )
+    void SET_TEST_IOT_FLASH_CONFIG( int testSet )
+    {
+        /* This value depends on linked flash usage. At time of writing, test project ended @ 0x49bc3
+         * Some tests require this to be page-aligned
+         */
+        ultestIotFlashStartOffset = 0x75000;
+    }
+#endif
+
+/* GPIO */
+#if defined( IOT_TEST_COMMON_IO_GPIO_SUPPORTED ) && ( IOT_TEST_COMMON_IO_GPIO_SUPPORTED >= 2 )
+    void SET_TEST_IOT_GPIO_CONFIG( int testSet )
+    {
+        /* Test loop calls this for pin i=1 to i=N-1, as the loopback tests need two pins! */
+        ltestIotGpioPortA = testSet - 1;
+        ltestIotGpioPortB = testSet;
+
+        ustestIotGpioConfig = 1u << 8; /* TEST_DIR_MASK */
+    }
+#endif
+
 /* UART */
+#if defined( IOT_TEST_COMMON_IO_UART_SUPPORTED ) && ( IOT_TEST_COMMON_IO_UART_SUPPORTED >= 1 )
     void SET_TEST_IOT_UART_CONFIG( int testSet )
     {
         uctestIotUartPort = uartTestPort[ testSet ];
     }
 #endif
 
-#if defined( IOT_TEST_COMMON_IO_I2C_SUPPORTED ) && ( IOT_TEST_COMMON_IO_I2C_SUPPORTED >= 1 )
-
 /* I2C */
+#if defined( IOT_TEST_COMMON_IO_I2C_SUPPORTED ) && ( IOT_TEST_COMMON_IO_I2C_SUPPORTED >= 1 )
     void SET_TEST_IOT_I2C_CONFIG( int testSet )
     {
         uctestIotI2CSlaveAddr = i2cTestSlaveAddr[ testSet ];
@@ -48,11 +70,10 @@
         uctestIotI2CInstanceIdx = i2cTestInstanceIdx[ testSet ];
         uctestIotI2CInstanceNum = i2cTestInstanceNum[ testSet ];
     }
+#endif
 
-#endif /* if defined( IOT_TEST_COMMON_IO_I2C_SUPPORTED ) && ( IOT_TEST_COMMON_IO_I2C_SUPPORTED >= 1 ) */
-
-#if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 )
 /* SPI */
+#if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 )
     void SET_TEST_IOT_SPI_CONFIG( int testSet )
     {
         ultestIotSpiInstance = spiTestPort[ testSet ];
@@ -61,5 +82,4 @@
         ultestIotSPIFrequency = spiIotFrequency[ testSet ];
         ultestIotSPIDummyValue = spiIotDummyValue[ testSet ];
     }
-
-#endif /* if defined( IOT_TEST_COMMON_IO_SPI_SUPPORTED ) && ( IOT_TEST_COMMON_IO_SPI_SUPPORTED >= 1 ) */
+#endif

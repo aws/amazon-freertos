@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V2.0.3
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1661,12 +1661,9 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
 
 
     /* EC Params Case */
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     mbedtls_pk_init_CMockIgnore();
     mbedtls_x509_crt_init_CMockIgnore();
-    mbedtls_pk_parse_key_IgnoreAndReturn( 1 );
-    mbedtls_pk_parse_public_key_IgnoreAndReturn( 1 );
-    mbedtls_x509_crt_parse_IgnoreAndReturn( 1 );
+    mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
     PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
     mbedtls_pk_free_CMockIgnore();
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
@@ -1679,7 +1676,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     xTemplate.pValue = NULL;
     xTemplate.ulValueLen = 0;
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -1690,7 +1686,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     xTemplate.pValue = &ulPoint;
     xTemplate.ulValueLen = sizeof( ulPoint );
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( ulKnownPoint, ulPoint );
@@ -1699,7 +1694,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     xTemplate.ulValueLen = sizeof( ulPoint );
 
     mbedtls_ecp_tls_write_point_IgnoreAndReturn( MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL );
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, xResult );
 
@@ -1707,7 +1701,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     xTemplate.pValue = &ulPoint;
     xTemplate.ulValueLen = sizeof( ulPoint );
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_FUNCTION_FAILED, xResult );
 
@@ -1716,7 +1709,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     /* Unknown attribute. */
     xTemplate.type = CKA_MODULUS;
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_ATTRIBUTE_TYPE_INVALID, xResult );
 
@@ -1725,7 +1717,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     xTemplate.pValue = NULL;
     xTemplate.ulValueLen = 0;
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -1734,7 +1725,6 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
 
     xTemplate.pValue = &xPrivateKeyClass;
 
-    PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
     xResult = C_GetAttributeValue( xSession, xObject, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( sizeof( xPrivateKeyClass ), xTemplate.ulValueLen );
@@ -1749,7 +1739,7 @@ void test_pkcs11_C_GetAttributeValueAttParsing( void )
     PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
     PKCS11_PAL_GetObjectValue_ReturnThruPtr_pulDataSize( &ulLength );
     mbedtls_pk_parse_key_IgnoreAndReturn( 1 );
-    mbedtls_pk_parse_public_key_IgnoreAndReturn( 0 );
+    mbedtls_pk_parse_public_key_ExpectAnyArgsAndReturn( 0 );
     xResult = C_GetAttributeValue( xSession, xObjectPub, ( CK_ATTRIBUTE_PTR ) &xTemplate, ulCount );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     TEST_ASSERT_EQUAL( 1, xTemplate.ulValueLen );
