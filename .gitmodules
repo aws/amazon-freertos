@@ -30,3 +30,6 @@
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
+[submodule "tools/cbmc/litani"]
+	path = tools/cbmc/litani
+	url = https://github.com/awslabs/aws-build-accumulator
