@@ -404,13 +404,13 @@ static MQTTStatus_t parseSubscribe( size_t * subscriptionCount,
 
     *subscriptionCount = calculateNumSubs( &buf[ 4 ], remainingLength, subscribe );
 
-    if ( *subscriptionCount == 0U )
+    if( *subscriptionCount == 0U )
     {
         LogError( ( "Topic filters must exist in a subscribe packet.  See [MQTT-3.8.3-3]." ) );
         status = MQTTBadParameter;
     }
 
-    if ( status == MQTTSuccess)
+    if( status == MQTTSuccess )
     {
         bufferIndex = 4U;
 
@@ -500,9 +500,9 @@ static MQTTStatus_t transportSerializePublish( MQTTFixedBuffer_t * pBuffer,
 static MQTTStatus_t transportSerializePingresp( MQTTFixedBuffer_t * pBuffer )
 {
     MQTTStatus_t status = MQTTSuccess;
-    
+
     IotBle_Assert( pBuffer != NULL );
-    IotBle_Assert( pBuffer->size >= SIZE_OF_PING);
+    IotBle_Assert( pBuffer->size >= SIZE_OF_PING );
 
     pBuffer->pBuffer[ 0 ] = MQTT_PACKET_TYPE_PINGRESP;
     pBuffer->pBuffer[ 1 ] = 0;
@@ -517,7 +517,7 @@ static MQTTStatus_t transportSerializeAck( MQTTFixedBuffer_t * pBuffer,
     MQTTStatus_t status = MQTTSuccess;
 
     IotBle_Assert( pBuffer != NULL );
-    IotBle_Assert( pBuffer->size >= SIZE_OF_SIMPLE_ACK);
+    IotBle_Assert( pBuffer->size >= SIZE_OF_SIMPLE_ACK );
 
     if( ( packetId == 0U ) && ( packetType == MQTT_PACKET_TYPE_PUBACK ) )
     {
@@ -543,7 +543,7 @@ static MQTTStatus_t transportSerializeSuback( MQTTFixedBuffer_t * pBuffer,
     MQTTStatus_t status = MQTTSuccess;
 
     IotBle_Assert( pBuffer != NULL );
-    IotBle_Assert( pBuffer->size >= SIZE_OF_SUB_ACK);
+    IotBle_Assert( pBuffer->size >= SIZE_OF_SUB_ACK );
 
     if( packetId == 0U )
     {
@@ -1013,4 +1013,3 @@ int32_t IotBleMqttTransportReceive( NetworkContext_t * pContext,
     ( void ) pContext;
     return ( int32_t ) xStreamBufferReceive( streamBuffer, buf, bytesToRead, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
 }
-
