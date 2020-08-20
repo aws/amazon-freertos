@@ -1,4 +1,4 @@
-project ("c_sdk ble cmock unit test")
+project ("c_sdk ble transfer cmock unit test")
 cmake_minimum_required (VERSION 3.13)
 
 # ====================  Define your project name (edit) ========================
@@ -35,12 +35,12 @@ cmake_minimum_required (VERSION 3.13)
 
 # list the files you would like to test here
     list(APPEND real_source_files
-                "../src/services/mqtt_ble/iot_ble_data_transfer.c"
+                "../../src/services/mqtt_ble/iot_ble_data_transfer.c"
             )
 # list the directories the module under test includes
     list(APPEND real_include_directories
             .
-            ../include
+            ../../include
             ${abstraction_dir}/ble_hal/include
             ${abstraction_dir}/platform/include
             ${abstraction_dir}/platform/freertos/include
@@ -53,7 +53,7 @@ cmake_minimum_required (VERSION 3.13)
 
 # list the directories your test needs to include
     list(APPEND test_include_directories
-                ../include
+                ../../include
                 ${CMAKE_CURRENT_BINARY_DIR}/mocks
                 ${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include
                 ${abstraction_dir}/ble_hal/include
