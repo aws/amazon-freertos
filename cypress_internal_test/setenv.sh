@@ -57,9 +57,14 @@ function run_setenv()
 
             # Set path to GCC toolchain root directory
             export GCC_DIR="$(cygpath --mixed "${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-windows}")"
-            export IAR_DIR="$(cygpath --mixed "${HOST_IAR_PATH_8504}")"
+            export ARMCC_DIR="${ARMCC_DIR:-$CY_DEP_DIR/arm-compiler-6.12-windows-x86_64}"
+            export PATH="${ARMCC_DIR}/bin:$PATH"
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_win_$IDT_VER/devicetester_freertos_win}"
-
+            if [[ -z "${HOST_IAR_PATH_8504+x}" ]]; then
+                export IAR_DIR="$(cygpath --mixed "${IAR_DIR:-C:/Program Files (x86)/IAR Systems/Embedded Workbench 8.2/arm}")"
+            else
+                export IAR_DIR="$(cygpath --mixed "${HOST_IAR_PATH_8504}")"
+            fi       
             # Assume "python" points to Python3 executable
             export PYTHON="${PYTHON:-"python3"}"
             ;;
@@ -125,20 +130,6 @@ function run_setenv()
         sh "downloaddeps.sh" "$deps_file"
         save_timestamp "$timestamp_file"
     fi
-
-    case "$KERNEL" in
-        CYGWIN*|MINGW*|MSYS*)
-            pushd $CY_DEP_DIR
-            _arm_compiler=Win64
-            git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git
-            devops_scripts/install_tool.sh git@git-ore.aus.cypress.com:devops/tools/ARM_Compiler.git arm_compiler_612 ${_arm_compiler}
-
-            export ARMCC_DIR=$(pwd)/ARM_Compiler/${_arm_compiler}
-            export PATH=${ARMCC_DIR}/bin:$PATH
-            popd
-        ;;
-    esac
-
 }
 
 # This function configures Python environment

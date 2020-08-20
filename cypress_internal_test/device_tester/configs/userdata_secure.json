@@ -13,14 +13,14 @@
     }
   },
   "flashTool": {
-    "name": "flash.sh",
-    "version": "1.0",
+    "name": "pyocd",
+    "version": "0.27.0",
     "command": [
-      "bash {cy_afr_path}/cypress_internal_test/device_tester/flash_secure.sh {cy_afr_path} {{device.identifiers[?(@.name == 'serialNo')].value}} {{buildImageName}}"
+      "bash {cy_afr_path}/cypress_internal_test/device_tester/flash_secure.sh {cy_afr_path} {{device.identifiers[?(@.name == 'serialNo')].value}} {cy_board_name} {{buildImageName}}"
     ],
     "buildImageInfo" : {
-      "testsImageName": "{cy_afr_path}/build/aws_tests.elf",
-      "demosImageName": "{cy_afr_path}/build/aws_demos.elf"
+      "testsImageName": "{cy_afr_path}/build/aws_tests",
+      "demosImageName": "{cy_afr_path}/build/aws_demos"
     }
   },
   "clientWifiConfig": {

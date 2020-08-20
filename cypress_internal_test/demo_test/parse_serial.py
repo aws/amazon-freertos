@@ -10,6 +10,9 @@ import time
 import subprocess
 
 def detect_serial_port(board):
+    # workaround for BSP-2213
+    if (board == 'CY8CKIT_064S0S2_4343W'):
+        board='CY8CKIT064S0S2_4343W'
     mbedls_rslt = subprocess.run(['mbedls', '--simple'], encoding='utf-8', capture_output=True)
     print("mbedls output (stdout): %s\n", mbedls_rslt.stdout)
     print("mbedls output (stderr): %s\n", mbedls_rslt.stderr)

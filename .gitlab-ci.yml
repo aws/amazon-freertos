@@ -370,7 +370,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_GCC:
       - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_GCC
   script:
     # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W GCC_ARM $deviceID
+    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W GCC_ARM 
   resource_group: afr_test
 
 # Run AFR Device tester when $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM is specified
@@ -383,33 +383,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
       - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM
   script:
     # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W ARM $deviceID
-  resource_group: afr_test
-
-# Run AFR Device tester when $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_GCC is specified
-.afr_jitp_test_auto_CY8CKIT_064S0S2_4343W_GCC:
-  stage: test
-  tags:
-    - tfm-idt-afr
-  only:
-    variables:
-      - $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_GCC
-  script:
-    # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_jitp.sh  CY8CKIT_064S0S2_4343W GCC_ARM $deviceID
-  resource_group: afr_test
-
-# Run AFR Device tester when $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_GCC is specified
-afr_jitp_test_auto_CY8CKIT_064S0S2_4343W_ARM:
-  stage: test
-  tags:
-    - tfm-idt-afr
-  only:
-    variables:
-      - $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_ARM
-  script:
-    # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_jitp.sh  CY8CKIT_064S0S2_4343W ARM $deviceID
+    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W ARM 
   resource_group: afr_test
 
 ###############################################################################

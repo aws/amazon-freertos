@@ -55,27 +55,6 @@ function run_obj_copy()
     return $test_error
 }
 
-flash_hex_secure()
-{
-    hexs_folder=$1
-
-    board_name='CY8CKIT_064S2_4343W' #workaround, mbedls returns incorrect board name
-    device_id=$($python_cmd get_device_id.py $board_name)
-    echo $device_id
-
-    # ToDO: find out how to pass device ID
-    pushd $hexs_folder
-
-    pyocd erase -t cy8c64xA_cm0 -s 0x101c0000+0x10000
-    pyocd flash -t cy8c64xa_cm4_full_flash cm4.hex
-    pyocd flash -t cy8c64xA_cm0 cm0.hex
-
-    popd
-
-    test_error=$?
-    return $test_error
-}
-
 flash_hex()
 {
     file_name=$1
@@ -106,16 +85,8 @@ function check_uart_result()
     ACCEPT_MESSAGE="${ACCEPT_MESSAGE:-Demo completed successfully.}"
     FAIL_MESSAGE="${FAIL_MESSAGE:-Error running demo.}"
 
-    # workaround, mbedls returns incorrect board name
-    if [[ $board == "CY8CKIT_064S0S2_4343W" ]];
-    then
-        board_name='CY8CKIT_064S2_4343W'
-    else
-        board_name=$board
-    fi
-
     pushd $current_dir
-    $python_cmd parse_serial.py $board_name "$TEST_TIMEOUT" "$ACCEPT_MESSAGE" "$FAIL_MESSAGE"
+    $python_cmd parse_serial.py $board "$TEST_TIMEOUT" "$ACCEPT_MESSAGE" "$FAIL_MESSAGE"
 
     test_error=$?
     if [ $test_error -eq 0 ]; then
@@ -143,24 +114,12 @@ function run_cmake_test()
     apply_common_changes
 
     compile_cmake $board
-
-    board_name=$(echo $board | sed s/_/-/g)
-    if [[ $board_name != "CY8CKIT-064S0S2-4343W" ]];
-    then
-        if [ $test_error -eq 0 ]
-        then
+ 
+    if [ $test_error -eq 0 ]; then
         run_obj_copy "$AFR_DIR/build/aws_demos"
-        fi
-    else
-        test_error=0
     fi
-    if [ $test_error -eq 0 ]
-    then
-        board_name=$(echo $board | sed s/_/-/g)
-    if [[ $board_name == "CY8CKIT-064S0S2-4343W" ]];
-    then
-        flash_hex_secure "$AFR_DIR/build/"
-    else
+ 
+    if [ $test_error -eq 0 ]; then
         flash_hex "$AFR_DIR/build/aws_demos.hex"
     fi
 
@@ -194,17 +153,11 @@ function run_make_test()
 
     compile_make
 
-    if [ $test_error -eq 0 ]
-    then
+    if [ $test_error -eq 0 ]; then
         board_name=$(echo $board | sed s/_/-/g)
-
-        if [[ $board_name == "CY8CKIT-064S0S2-4343W" ]];
-        then
-            flash_hex_secure "$AFR_DIR/build/cy/aws_demos/$board_name/Debug"
-        else
-            flash_hex "$AFR_DIR/build/cy/aws_demos/$board_name/Debug/aws_demos.hex"
-        fi
+        flash_hex "$AFR_DIR/build/cy/aws_demos/$board_name/Debug/aws_demos.hex"
     fi
+    
     if [ $test_error -eq 0 ]
     then
         check_uart_result "make $test"

@@ -189,7 +189,7 @@ function clean_up()
     git checkout "$AFR_DIR/vendors"
     git checkout "$AFR_DIR/demos"
     git checkout "$AFR_DIR/projects"
-    #rm -rf "$AFR_DIR/build"
+    rm -rf "$AFR_DIR/build"
 
     popd
 }

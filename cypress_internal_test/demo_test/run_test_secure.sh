@@ -7,6 +7,7 @@ python3.7 -m venv env
 source env/bin/activate
 pip3 --no-cache-dir install --upgrade pip
 pip3 install cysecuretools==2.0.0 
+pip3 install pyocd==0.27.0
 pip3 install -r cypress_internal_test/demo_test/ota/scripts/requirements.txt
 
 current_dir="$PWD/$(dirname "${BASH_SOURCE[0]}")"
@@ -24,15 +25,11 @@ ERRORS=0
 test_err=0
 board=$1
 toolchain=$2
-device_id=$3
 
 if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin" ]]; then   # linux or Mac OSX
     python_cmd="python3.7"
-    #serial_port="/dev/ttyACM2"
-    serial_port="/dev/serial/by-id/usb-Cypress_Semiconductor_KitProg3_CMSIS-DAP_122317F302098400-if02"
-elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then # Windows
+elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then # Winodws
     python_cmd="python"
-    serial_port="COM3"
 fi
 
 
@@ -42,18 +39,19 @@ echo "Tests results:" > $result_file
 
 function compile_cmake()
 {
+    local ota_en=${1:-0}
     pushd $AFR_DIR
 
     # builds the project    
     case "$toolchain" in 
         GCC_ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc -DOTA_SUPPORT=$ota_en -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -S . -B build -G Ninja
             ;;
         ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang -DOTA_SUPPORT=$ota_en -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -S . -B build -G Ninja
             ;;
         IAR*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar -DOTA_SUPPORT=$ota_en -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -S . -B build -G Ninja
             ;;
     esac
        
@@ -65,17 +63,18 @@ function compile_cmake()
 
 function compile_make()
 {
+    local ota_en=${1:-0}
     pushd $AFR_DIR/projects/cypress/$board/mtb/aws_demos
         
     case "$toolchain" in 
         GCC_ARM*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$GCC_DIR TOOLCHAIN=$toolchain -j8
+        make build OTA_SUPPORT=$ota_en CY_COMPILER_PATH=$GCC_DIR TOOLCHAIN=$toolchain -j8
         ;;
         ARM*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$ARMCC_DIR TOOLCHAIN=$toolchain -j8
+        make build OTA_SUPPORT=$ota_en CY_COMPILER_PATH=$ARMCC_DIR TOOLCHAIN=$toolchain -j8
         ;;
         IAR*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$IAR_DIR TOOLCHAIN=$toolchain -j8
+        make build OTA_SUPPORT=$ota_en CY_COMPILER_PATH=$IAR_DIR TOOLCHAIN=$toolchain -j8
         ;;
     esac
     
@@ -96,28 +95,70 @@ function run_obj_copy()
 flash_hex_secure()
 {
     hexs_folder=$1
+            
+    # workaround for BSP-2213
+    local board_name=""
+    if [[ ${board}  == "CY8CKIT_064S0S2_4343W" ]]; then
+        board_name="CY8CKIT064S0S2_4343W"
+    fi
     
-    pushd $hexs_folder
-
-    echo " "
-    echo "######### Erasing eeprom from 0x14000000 to 0x14008000  #########"
-    echo "######### Erasing SST are and flashing CM0 and CM4 cores #########"
-    echo " "
-    ${OPENOCD_DIR}/bin/openocd \
-        -s ${OPENOCD_DIR}/scripts \
-        -f interface/kitprog3.cfg \
-        -f target/psoc6_2m_secure.cfg \
-        -c "cmsis_dap_serial ${device_id}" \
-        -c "adapter speed 1000" \
-        -c "init; reset init" \
-        -c "flash erase_address 0x14000000 0x8000" \
-        -c "flash erase_address 0x101c0000 0x10000" \
-        -c "flash write_image erase cm0.hex" \
-        -c "flash write_image erase cm4.hex" \
-        -c "resume; reset; exit"
+    local DEVICE_ID=""
+    DEVICE_ID=$($python_cmd get_device_id.py $board_name)
     
+    for i in 1 2 3 4 5:
+    do
+        echo -e "programming attempt: $i"
+    
+        echo "Erasing chip"
+        pyocd erase -c -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd chip erasing failed with error code $pyocd_result"
+            continue
+        fi
+        
+        echo "######### Erasing eeprom from 0x14000000 to 0x14008000  #########"
+        #pyocd erase -t cy8c64xA_cm0 -s 0x14000000+0x8000 -u $DEVICE_ID
+        pyocd erase -s 0x14000000+0x8000 -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd erasing EEPROM failed with error code $pyocd_result?"
+            continue
+        fi
+        
+        echo "######### Erasing SST #########"
+        #pyocd erase -t cy8c64xA_cm0 -s 0x101c0000+0x10000 -u $DEVICE_ID
+        pyocd erase -s 0x101c0000+0x10000 -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd erasing SST failed with error code $pyocd_result"
+            continue
+        fi
+         
+        echo "######### Flashing CM4 core #########"
+        pyocd flash cm4.hex -u $DEVICE_ID
+        #pyocd flash -t cy8c64xA_cm0 cm4.hex -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd flashing $hexs_folder/cm4.hex failed with error code $pyocd_result"
+            continue
+        fi
+        
+        echo "######### Flashing CM0 core #########"
+        pyocd flash cm0.hex -u $DEVICE_ID
+        #pyocd flash -t cy8c64xA_cm0 cm0.hex -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd flashing $hexs_folder/cm0.hex failed with error code $pyocd_result"
+            continue
+        fi
+        
+        if [ $pyocd_result == 0 ]; then
+            break
+        fi
+    done
     popd
-    
+
     test_error=$?
     return $test_error
 }
@@ -141,9 +182,9 @@ function check_uart_result()
     TEST_TIMEOUT="${TEST_TIMEOUT:-400}"
     ACCEPT_MESSAGE="${ACCEPT_MESSAGE:-Demo completed successfully.}"
     FAIL_MESSAGE="${FAIL_MESSAGE:-Error running demo.}"
-            
+                
     pushd $current_dir
-    $python_cmd parse_serial_secure.py $serial_port "$TEST_TIMEOUT" "$ACCEPT_MESSAGE" "$FAIL_MESSAGE"
+    $python_cmd parse_serial.py $board "$TEST_TIMEOUT" "$ACCEPT_MESSAGE" "$FAIL_MESSAGE"
     
     test_error=$?
     if [ $test_error -eq 0 ]; then
@@ -197,7 +238,7 @@ function run_cmake_test()
 {
     local test=$1
     local ota_protocol=${2:-'MQTT'}
-
+    local ota_en=0 
     test_error=0
     
     echo -e  "******************** " "Cmake " $test " demo test started" " ********************"
@@ -208,8 +249,12 @@ function run_cmake_test()
 
     setup_test $board
     apply_common_changes
+        
+    if [[ ${test}  == "ota" ]]; then
+        ota_en=1
+    fi
     
-    compile_cmake $board
+    compile_cmake $ota_en
     
     if [ $test_error -eq 0 ]
     then        
@@ -224,7 +269,7 @@ function run_cmake_test()
             update_img_ver
             
             rm -rf $AFR_DIR/build
-            compile_cmake $board
+            compile_cmake $ota_en
             create_ota_job "$AFR_DIR/build" "cm4_upgrade.bin" $ota_protocol
         fi
     fi
@@ -253,6 +298,7 @@ function run_make_test()
 {
     local test=$1
     local ota_protocol=${2:-'MQTT'}
+    local ota_en=0
     test_error=0
     
     echo -e  "******************** " "Make " $test " demo test started" " ********************"
@@ -264,7 +310,10 @@ function run_make_test()
     setup_test $board
     apply_common_changes
     
-    compile_make
+    if [[ ${test}  == "ota" ]]; then
+        ota_en=1
+    fi
+    compile_make $ota_en
     
     if [ $test_error -eq 0 ]
     then
@@ -279,7 +328,7 @@ function run_make_test()
             update_img_ver
             
             rm -rf $AFR_DIR/build
-            compile_make $board
+            compile_make $ota_en
             create_ota_job "$AFR_DIR/build/cy/aws_demos/$board/Debug" "cm4.bin" $ota_protocol
         fi
     fi

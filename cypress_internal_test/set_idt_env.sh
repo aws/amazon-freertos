@@ -6,8 +6,12 @@ setup_idt()
     pushd ..
     python3 -m venv env
     source env/bin/activate
-    pip --no-cache-dir install --upgrade pip
-    pip install cysecuretools==2.0.0 
+    pip3 --no-cache-dir install --upgrade pip
+    pip3 install cysecuretools==2.0.0
+    pip3 install pyocd==0.27.0
+    pyocd --version
+    pip3 install pyserial
+    
     popd
 }
 
