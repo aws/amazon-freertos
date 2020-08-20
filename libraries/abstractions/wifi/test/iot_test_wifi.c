@@ -631,7 +631,7 @@ TEST_GROUP( Full_WiFi );
 
 TEST_SETUP( Full_WiFi )
 {
-    prvSetupWiFiTests();
+    /* prvSetupWiFiTests(); */
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
@@ -640,6 +640,7 @@ TEST_TEAR_DOWN( Full_WiFi )
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
+    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan );
     /* Null parameter tests. */
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetMode_NullParameters );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetIP_NullParameters );
@@ -818,6 +819,39 @@ TEST( Quarantine_WiFi, AFQP_WiFiMode )
     {
         TEST_FAIL();
     }
+}
+
+/**
+ * @brief Call WIFI_GetMode() with Null parameterrs and verify failure.
+ */
+TEST( Full_WiFi, AFQP_WIFI_Scan )
+{
+    int32_t lI = 0;
+    int8_t cScanSize = 10;
+    WIFIReturnCode_t xWiFiStatus;
+    WIFIScanResult_t xScanResults[ 10 ] = { 0 };
+
+    /* Disconnect first before running any Wi-Fi test. */
+    xWiFiStatus = WIFI_Disconnect();
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    configPRINTF(
+        ( "WiFi Networks and strength: \r\n" ) );
+
+    for( lI = 0; lI < cScanSize; lI++ )
+    {
+        configPRINTF( ( "    %s: %d\r\n",
+                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
+    }
+
+    configPRINTF(
+        ( "End of WiFi Networks\r\n" ) );
+
+    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 /**
