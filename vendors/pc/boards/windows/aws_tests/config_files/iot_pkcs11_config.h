@@ -51,7 +51,7 @@
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_NONE
+    #define LIBRARY_LOG_LEVEL    LOG_NONE /* PKCS #11 MBT tests will generate a lot of logs and causes parsing errors, that is why this is defaulted to NONE. */
 #endif
 
 #include "logging_stack.h"
