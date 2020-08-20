@@ -2,3 +2,5 @@ cbmc.txt
 property.xml
 coverage.xml
 *.goto
+
+.litani_cache_dir
