@@ -178,6 +178,8 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
                           IotBleDataTransferChannel_t * pChannel,
                           void * context )
 {
+    MQTTStatus_t acceptCode;
+
     /* Unused parameters. */
     ( void ) pChannel;
     ( void ) context;
@@ -191,7 +193,8 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event for when data is received over the channel. */
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
-        IotBleMqttTransportAcceptData( &xContext );
+        acceptCode = IotBleMqttTransportAcceptData( &xContext );
+        assert( acceptCode == MQTTSuccess );
     }
 
     /* Event for when channel is closed. */
