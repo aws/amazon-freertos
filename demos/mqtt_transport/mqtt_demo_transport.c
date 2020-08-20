@@ -39,7 +39,7 @@
 /* POSIX socket includes. */
 #include <netdb.h>
 #include <unistd.h>
-#include <assert.h>
+#include <configASSERT.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -194,7 +194,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         acceptCode = IotBleMqttTransportAcceptData( &xContext );
-        assert( acceptCode == MQTTSuccess );
+        configconfigASSERT( acceptCode == MQTTSuccess );
     }
 
     /* Event for when channel is closed. */
@@ -285,8 +285,8 @@ static MQTTStatus_t getNewData( const MQTTFixedBuffer_t * buf,
         receiveAttempts++;
     } while( ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) && ( result != MQTTSuccess ) );
 
-    assert( result == MQTTSuccess );
-    assert( incomingPacket->remainingLength < SINGLE_INCOMING_PACKET_MAX_SIZE );
+    configASSERT( result == MQTTSuccess );
+    configASSERT( incomingPacket->remainingLength < SINGLE_INCOMING_PACKET_MAX_SIZE );
 
     receiveAttempts = 0;
     bytesToRead = incomingPacket->remainingLength;
@@ -362,11 +362,11 @@ static MQTTStatus_t createMQTTConnectionWithBroker( const MQTTFixedBuffer_t * bu
 
     /* Serialize MQTT connect packet into the provided buffer. */
     result = MQTT_SerializeConnect( &mqttConnectInfo, NULL, packetSize, buf );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Send the serialized connect packet to the broker */
     status = ( size_t ) IotBleMqttTransportSend( &xContext, ( void * ) buf->pBuffer, packetSize );
-    assert( status == packetSize );
+    configASSERT( status == packetSize );
 
     LogInfo( ( "Successfully sent a connect packet to the broker" ) );
     LogInfo( ( "Waiting for a connection acknowledgement from the broker" ) );
@@ -407,7 +407,7 @@ static void mqttSubscribeToTopics( const MQTTFixedBuffer_t * buf )
 
     /***
      * For readability, error handling in this function is restricted to the use of
-     * asserts().
+     * configASSERTs().
      ***/
 
     /* Some fields not used by this demo so start with everything as 0. */
@@ -424,7 +424,7 @@ static void mqttSubscribeToTopics( const MQTTFixedBuffer_t * buf )
                                           sizeof( mqttSubscription ) / sizeof( MQTTSubscribeInfo_t ),
                                           &remainingLength, &packetSize );
 
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     subscribePacketIdentifier = getNextPacketIdentifier();
 
@@ -434,12 +434,12 @@ static void mqttSubscribeToTopics( const MQTTFixedBuffer_t * buf )
                                       subscribePacketIdentifier,
                                       remainingLength,
                                       buf );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Send Subscribe request to the broker. */
     status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
 
-    assert( status == packetSize );
+    configASSERT( status == packetSize );
 
     LogInfo( ( "Successfully sent subscribe packet to the broker" ) );
 }
@@ -469,7 +469,7 @@ static void mqttUnsubscribeFromTopic( const MQTTFixedBuffer_t * buf )
                                             sizeof( mqttUnsubscription ) / sizeof( MQTTSubscribeInfo_t ),
                                             &remainingLength,
                                             &packetSize );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Get next unique packet identifier */
     unsubscribePacketIdentifier = getNextPacketIdentifier();
@@ -479,11 +479,11 @@ static void mqttUnsubscribeFromTopic( const MQTTFixedBuffer_t * buf )
                                         unsubscribePacketIdentifier,
                                         remainingLength,
                                         buf );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Send Unsubscribe request to the broker. */
     status = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
-    assert( status == packetSize );
+    configASSERT( status == packetSize );
 
     LogInfo( ( "Successfully sent an unsubscribe packet to the broker" ) );
 }
@@ -500,14 +500,14 @@ static void mqttKeepAlive( const MQTTFixedBuffer_t * buf )
     /* Calculate PING request size. */
     result = MQTT_GetPingreqPacketSize( &packetSize );
 
-    assert( packetSize > 0U );
+    configASSERT( packetSize > 0U );
 
     result = MQTT_SerializePingreq( buf );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Send Ping Request to the broker. */
     status = IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
-    assert( status == ( int32_t ) packetSize );
+    configASSERT( status == ( int32_t ) packetSize );
 
     LogInfo( ( "Successfully sent a ping request packet to the broker" ) );
 }
@@ -523,14 +523,14 @@ static void mqttDisconnect( const MQTTFixedBuffer_t * buf )
 
     result = MQTT_GetDisconnectPacketSize( &packetSize );
 
-    assert( packetSize > 0U );
+    configASSERT( packetSize > 0U );
 
     result = MQTT_SerializeDisconnect( buf );
-    assert( result == MQTTSuccess );
+    configASSERT( result == MQTTSuccess );
 
     /* Send disconnect packet to the broker */
     status = IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
-    assert( status == ( int32_t ) packetSize );
+    configASSERT( status == ( int32_t ) packetSize );
 
     LogInfo( ( "Successfully sent a disconnect packet to the broker" ) );
 }
@@ -547,7 +547,7 @@ static void mqttPublishToTopic( const MQTTFixedBuffer_t * buf )
 
     /***
      * For readability, error handling in this function is restricted to the use of
-     * asserts().
+     * configASSERTs().
      ***/
 
     LogInfo( ( "Trying to send a publish packet to the broker" ) );
@@ -568,7 +568,7 @@ static void mqttPublishToTopic( const MQTTFixedBuffer_t * buf )
 
         /* Find out length of Publish packet size. */
         result = MQTT_GetPublishPacketSize( &mqttPublishInfo, &remainingLength, &packetSize );
-        assert( result == MQTTSuccess );
+        configASSERT( result == MQTTSuccess );
 
         subPacketId = getNextPacketIdentifier();
 
@@ -579,11 +579,11 @@ static void mqttPublishToTopic( const MQTTFixedBuffer_t * buf )
                                         subPacketId,
                                         remainingLength,
                                         buf );
-        assert( result == MQTTSuccess );
+        configASSERT( result == MQTTSuccess );
 
         bytesSent = ( size_t ) IotBleMqttTransportSend( &xContext, buf->pBuffer, packetSize );
 
-        assert( bytesSent == ( size_t ) packetSize );
+        configASSERT( bytesSent == ( size_t ) packetSize );
 
         LogInfo( ( "Successfully published to %s", mqttPublishInfo.pTopicName ) );
     }
@@ -598,13 +598,13 @@ static void mqttProcessResponse( const MQTTPacketInfo_t * pIncomingPacket,
         case MQTT_PACKET_TYPE_SUBACK:
             LogInfo( ( "Successfully subscribed to an MQTT topic (received SUBACK)" ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
-            assert( subscribePacketIdentifier == packetId );
+            configASSERT( subscribePacketIdentifier == packetId );
             break;
 
         case MQTT_PACKET_TYPE_UNSUBACK:
             LogInfo( ( "Successfully unsubscribed to an MQTT topic (recieved UNSUBACK)" ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
-            assert( unsubscribePacketIdentifier == packetId );
+            configASSERT( unsubscribePacketIdentifier == packetId );
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
@@ -623,7 +623,7 @@ static void mqttProcessResponse( const MQTTPacketInfo_t * pIncomingPacket,
 static void mqttProcessIncomingPublish( const MQTTPublishInfo_t * pPubInfo,
                                         const uint16_t packetId )
 {
-    assert( pPubInfo != NULL );
+    configASSERT( pPubInfo != NULL );
     bool matchedSubscription = false;
 
     /* Since this example does not make use of QOS1 or QOS2,
@@ -667,7 +667,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
 
     /***
      * For readability, error handling in this function is restricted to the use of
-     * asserts().
+     * configASSERTs().
      ***/
 
     ( void ) memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
@@ -677,7 +677,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
     if( ( incomingPacket.type & HIGH_BYTE_MASK ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         result = MQTT_DeserializePublish( &incomingPacket, &responsePacketId, &publishInfo );
-        assert( result == MQTTSuccess );
+        configASSERT( result == MQTTSuccess );
         LogInfo( ( "Incoming publish packet received successfully." ) );
 
         /* Process incoming Publish message. */
@@ -690,7 +690,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
          * packet. Since CONNACK is already processed, session present parameter is
          * to NULL */
         result = MQTT_DeserializeAck( &incomingPacket, &responsePacketId, &sessionPresent );
-        assert( result == MQTTSuccess );
+        configASSERT( result == MQTTSuccess );
 
         /* Process the response. */
         mqttProcessResponse( &incomingPacket, responsePacketId );
@@ -734,7 +734,7 @@ MQTTStatus_t RunMQTTTransportDemo( void )
     if( status != MQTTSuccess )
     {
         LogError( ( "There was a problem initializing the data channel" ) );
-        assert( false );
+        configASSERT( false );
     }
 
     for( demoIterations = 0; demoIterations < maxDemoIterations; demoIterations++ )
