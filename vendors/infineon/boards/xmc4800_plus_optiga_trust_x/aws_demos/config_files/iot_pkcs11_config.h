@@ -32,10 +32,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/**************************************************/
-/******* DO NOT CHANGE the following order ********/
-/**************************************************/
-
 /**
  * @brief PKCS #11 default user PIN.
  *
