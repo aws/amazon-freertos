@@ -33,10 +33,10 @@ from cysecuretools.execute.programmer.pyocd_wrapper import ResetType
 
 # Examples
 # minimal parameters for default values:
-# ./reprov_helper.py -f <path to fw-loader>
+# ./reprov_helper.py
 #
 # non-interactive:
-# ./reprov_helper.py -f <path to fw-loader> -d cys06xxa \
+# ./reprov_helper.py -d cys06xxa \
 #                    -p policy/policy_multi_CM0_CM4_jitp.json \
 #                    -[existing-keys|new-keys] -s <serial number> -y
 
@@ -61,13 +61,6 @@ def myargs(argv):
                         type=str,
                         help="Device manufacturing part number",
                         required=False)
-
-    parser.add_argument('-f', '--fw-loader',
-                        dest='fw_path',
-                        action='store',
-                        type=str,
-                        help="Path to FW loader tool",
-                        required=True)
 
     parser.add_argument('-s', '--serial',
                         dest='serial_number',
@@ -207,43 +200,12 @@ def exec_shell_command(cmd):
     return ret, ''.join(output)
 
 
-def switch_kitprog3_mode(fwloader_path, mode):
-    # Supported modes are:
-    # 'kp3-hid', 'kp3-bulk', 'kp3-bootloader', 'kp3-daplink'
-
-    if platform.system() == "Windows":
-        fwloader_bin = 'bin/fw-loader.exe'
-    else:
-        fwloader_bin = 'bin/fw-loader'
-
-    fwloader = os.path.join(fwloader_path,
-                              fwloader_bin)
-    if os.path.isfile(fwloader):
-        print("fw-loader location: {}".format(fwloader))
-    else:
-        print("Failed to find fw-loader at {}".format(fwloader))
-        return 1
-
-    ret, output = exec_shell_command([
-        fwloader,
-        '--mode', mode])
-
-    if ret != 0:
-        print("Error: {}".format(output))
-
-    return ret
-
-
 def main(argv):
 
     create_signing_keys = False
 
     options = myargs(argv)
     print("options: {}\r\n".format(options))
-
-    if not options.fw_path:
-        print("Please provide path to fw-loader")
-        exit(1)
 
     if not options.policy_file:
         options.policy_file = 'policy_multi_CM0_CM4_jitp.json'
@@ -306,6 +268,8 @@ def main(argv):
     print("Create new signing keys: {}".format(create_signing_keys))
     print("##################################################################")
     print("\r\n")
+    print("!!! Make sure the board is in the DAPLink mode (Mode LED blinks at 2Hz) !!!")
+    print("\r\n")
 
     if not options.force_reprov:
         answer = input('Reprovision the device. Are you sure? (y/N): ')
@@ -316,13 +280,6 @@ def main(argv):
     if create_signing_keys == True:
         print('Creating new signing keys.')
         create_app_keys(overwrite=True)
-
-    ret = switch_kitprog3_mode(options.fw_path, 'kp3-daplink')
-    if ret != 0:
-        exit(1)
-
-    print("Wait for 10 seconds while device is being enumerated...")
-    sleep(10)
 
     # invalidate SPE image in Flash so it won't run.
     ret = erase_flash(0x10000000, 0x1000)
@@ -340,10 +297,6 @@ def main(argv):
     create_provisioning_packet()
 
     re_provision_device(options.device, options.policy_file)
-
-    ret = switch_kitprog3_mode(options.fw_path, 'kp3-bulk')
-    if ret != 0:
-        exit(1)
 
     exit(0)
 
