@@ -59,8 +59,9 @@ void IotBleMqttTransportCleanup( void );
  * @brief Function to accept data from the channel
  *
  * @param[in] pContext An opaque used by transport interface.
+ * @return the status of the accept
  */
-void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
+MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
 
 /**
  * @brief Transport interface write function.
