@@ -197,6 +197,10 @@
     #undef __PASTE
 #endif
 
+#ifdef CreateMutex
+    #undef CreateMutex /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+#endif
+
 #include "pkcs11.h"
 
 /**
