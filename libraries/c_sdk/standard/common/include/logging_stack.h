@@ -38,6 +38,7 @@
 #include <stdint.h>
 
 /* Metadata information to prepend to every log message. */
+
 /* Macro to extract only the file name from file path to use for metadata in
  * log messages. */
 #define FILENAME               ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
