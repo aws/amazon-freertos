@@ -39,7 +39,6 @@
 /* POSIX socket includes. */
 #include <netdb.h>
 #include <unistd.h>
-#include <configASSERT.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
