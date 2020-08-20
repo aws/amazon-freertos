@@ -928,7 +928,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     return MQTTBytesWritten;
 }
 
-void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
+MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
 {
     MQTTStatus_t status = MQTTSuccess;
     MQTTPacketInfo_t packet;
@@ -996,6 +996,7 @@ void IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
         /* Flush the data from the channel */
         ( void ) IotBleDataTransfer_Receive( pContext->pChannel, NULL, packet.remainingLength );
     }
+    return status;
 }
 
 
