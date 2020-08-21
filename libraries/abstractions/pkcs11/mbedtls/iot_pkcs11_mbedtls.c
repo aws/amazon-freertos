@@ -874,7 +874,7 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         }
         else
         {
-            /* Strip the ANS.1 Encoding of type and length. Otherwise mbed TLS 
+            /* Strip the ANS.1 Encoding of type and length. Otherwise mbed TLS
              * won't be able to parse the binary EC point. */
             lMbedTLSResult = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
                                                             &pxKeyPair->Q,
