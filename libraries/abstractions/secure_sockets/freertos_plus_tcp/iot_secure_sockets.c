@@ -211,16 +211,6 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
     return FreeRTOS_gethostbyname( pcHostName );
 }
 
-
-/*-----------------------------------------------------------*/
-
-int32_t SOCKETS_Bind( Socket_t xSocket,
-                      SocketsSockaddr_t *pxAddress,
-                      Socklen_t xAddressLength )
-{
-   return SOCKETS_SOCKET_ERROR;
-}
-
 /*-----------------------------------------------------------*/
 
 int32_t SOCKETS_Recv( Socket_t xSocket,
