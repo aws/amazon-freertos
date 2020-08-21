@@ -596,50 +596,21 @@ static void prvFinishWiFiTesting( void )
     }
 }
 
-static void prvSetupWiFiTests( void )
-{
-    int32_t lI = 0;
-    int8_t cScanSize = 10;
-    WIFIReturnCode_t xWiFiStatus;
-    WIFIScanResult_t xScanResults[ 10 ] = { 0 };
-
-    /* Disconnect first before running any Wi-Fi test. */
-    xWiFiStatus = WIFI_Disconnect();
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
-
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    configPRINTF(
-        ( "WiFi Networks and strength: \r\n" ) );
-
-    for( lI = 0; lI < cScanSize; lI++ )
-    {
-        configPRINTF( ( "    %s: %d\r\n",
-                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
-    }
-
-    configPRINTF(
-        ( "End of WiFi Networks\r\n" ) );
-
-    vTaskDelay( testwifiCONNECTION_DELAY );
-}
-
 /* Unity TEST initializations. */
 TEST_GROUP( Full_WiFi );
 
 TEST_SETUP( Full_WiFi )
 {
-    prvSetupWiFiTests();
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
 {
+    WIFI_Disconnect();
 }
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
+    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan );
     /* Null parameter tests. */
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetMode_NullParameters );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetIP_NullParameters );
@@ -685,7 +656,6 @@ TEST_GROUP( Quarantine_WiFi );
 
 TEST_SETUP( Quarantine_WiFi )
 {
-    prvSetupWiFiTests();
 }
 
 TEST_TEAR_DOWN( Quarantine_WiFi )
@@ -818,6 +788,39 @@ TEST( Quarantine_WiFi, AFQP_WiFiMode )
     {
         TEST_FAIL();
     }
+}
+
+/**
+ * @brief Call WIFI_GetMode() with Null parameterrs and verify failure.
+ */
+TEST( Full_WiFi, AFQP_WIFI_Scan )
+{
+    int32_t lI = 0;
+    int8_t cScanSize = 10;
+    WIFIReturnCode_t xWiFiStatus;
+    WIFIScanResult_t xScanResults[ 10 ] = { 0 };
+
+    /* Disconnect first before running any Wi-Fi test. */
+    xWiFiStatus = WIFI_Disconnect();
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    configPRINTF(
+        ( "WiFi Networks and strength: \r\n" ) );
+
+    for( lI = 0; lI < cScanSize; lI++ )
+    {
+        configPRINTF( ( "    %s: %d\r\n",
+                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
+    }
+
+    configPRINTF(
+        ( "End of WiFi Networks\r\n" ) );
+
+    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 /**
@@ -1705,7 +1708,7 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
 
 /**
  * @brief Test WIFI_IsConnected() after calling WIFI_ConnectAP() and
- * WIFI_DisconnectAP() and verify success.
+ * WIFI_DisconnectP() and verify success.
  */
 TEST( Quarantine_WiFi, AFQP_WiFiIsConnected )
 {
