@@ -61,6 +61,9 @@
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 
+#include "ota_os_interface.h"
+#include "ota_os_freertos.h"
+
 /**
  * @brief Timeout for MQTT connection, if the MQTT connection is not established within
  * this time, the connect function returns #IOT_MQTT_TIMEOUT
@@ -402,6 +405,27 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
                 xAppFirmwareVersion.u.x.ucMinor,
                 xAppFirmwareVersion.u.x.usBuild );
 
+	/* OTA OS context. */
+	OtaTimerContext_t RetryTimerCtx = { 0 };
+	OtaTimerContext_t SelftestTimerCtx = { 0 };
+	OtaEventContext_t EventCtx = { 0 };
+
+	/* Initialize OTA OS interface. */
+	OtaOsInterface_t OtaOSInterface;
+
+	OtaOSInterface.event.init = ota_InitEvent;
+	OtaOSInterface.event.send = ota_SendEvent;
+	OtaOSInterface.event.recv = ota_ReceiveEvent;
+	OtaOSInterface.event.deinit = ota_DeinitEvent;
+	OtaOSInterface.event.pEventCtx = &EventCtx;
+
+	/* Initialize OTA OS interface. */
+	OtaOSInterface.timer.start = ota_StartTimer;
+	OtaOSInterface.timer.stop = ota_StopTimer;
+	OtaOSInterface.timer.delete = ota_DeleteTimer;
+	OtaOSInterface.timer.PTimerCtx[0] = &SelftestTimerCtx;
+	OtaOSInterface.timer.PTimerCtx[1] = &RetryTimerCtx;
+
     for( ; ; )
     {
         IotLogInfo( "Connecting to broker...\r\n" );
@@ -432,10 +456,11 @@ void vRunOTAUpdateDemo( bool awsIotMqttMode,
             }
 
             /* Initialize the OTA Agent , if it is resuming the OTA statistics will be cleared for new connection.*/
-            OTA_AgentInit( ( void * ) ( &xOTAConnectionCtx ),
-                           ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ),
-                           App_OTACompleteCallback,
-                           ( TickType_t ) ~0 );
+			OTA_AgentInit(  (void * )( &xOTAConnectionCtx ),
+				            &OtaOSInterface,
+                            ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ),
+                            App_OTACompleteCallback,
+                            ( TickType_t ) ~0 );
 
             while( ( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped ) && _networkConnected )
             {

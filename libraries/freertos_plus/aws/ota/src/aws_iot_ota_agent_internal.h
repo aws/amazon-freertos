@@ -41,6 +41,9 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "ota_os_interface.h"
+
+
 /* General constants. */
 #define LOG2_BITS_PER_BYTE           3UL                                               /* Log base 2 of bits per byte. */
 #define BITS_PER_BYTE                ( 1UL << LOG2_BITS_PER_BYTE )                     /* Number of bits in a byte. This is used by the block bitmap implementation. */
@@ -260,6 +263,7 @@ typedef struct ota_agent_context
     OTA_AgentStatistics_t xStatistics;                      /* The OTA agent statistics block. */
     SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety while managing data buffers. */
     uint32_t ulRequestMomentum;                             /* The number of requests sent before a response was received. */
+	OtaOsInterface_t * pOTAOSCtx;
 } OTA_AgentContext_t;
 
 /* The OTA Agent event and data structures. */

@@ -59,6 +59,9 @@
 /* OTA interface includes. */
 #include "aws_iot_ota_interface.h"
 
+#include "ota_os_interface.h"
+#include "ota_os_freeRTOS.h"
+
 /* OTA event handler definiton. */
 
 typedef OTA_Err_t ( * OTAEventHandler_t )( OTA_EventData_t * pxEventMsg );
@@ -120,25 +123,10 @@ static bool JSON_IsCStringEqual( const char * pcJSONString,
 
 static void prvOTAAgentTask( void * pvUnused );
 
-/* Start a timer used for sending data requests. */
-
-static void prvStartRequestTimer( uint32_t xPeriodMS );
-
-/* Stop the data request timer. */
-
-static void prvStopRequestTimer( void );
-
 /* Data request timer callback. */
 
 static void prvRequestTimer_Callback( TimerHandle_t T );
 
-/* Start the self test timer if in self-test mode. */
-
-static BaseType_t prvStartSelfTestTimer( void );
-
-/* Stop the OTA self test timer if it is running. */
-
-static void prvStopSelfTestTimer( void );
 
 /* Self-test timer callback, reset the device if this timer expires. */
 
@@ -384,34 +372,18 @@ static BaseType_t prvStartSelfTestTimer( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvStartSelfTestTimer" );
     static const char pcTimerName[] = "OTA_SelfTest";
-    BaseType_t xTimerStarted = pdFALSE;
+    int32_t xTimerStarted = 0;
     static StaticTimer_t xTimerBuffer;
 
     if( prvInSelftest() == true )
     {
-        if( xOTA_Agent.pvSelfTestTimer == NULL )
-        {
-            xOTA_Agent.pvSelfTestTimer = xTimerCreateStatic( pcTimerName,
-                                                             pdMS_TO_TICKS( otaconfigSELF_TEST_RESPONSE_WAIT_MS ),
-                                                             pdFALSE, NULL, prvSelfTestTimer_Callback,
-                                                             &xTimerBuffer );
-
-            if( xOTA_Agent.pvSelfTestTimer != NULL )
-            {
-                xTimerStarted = xTimerStart( xOTA_Agent.pvSelfTestTimer, portMAX_DELAY );
-            }
-            else
-            {
-                /* Static timers are guaranteed to be created unless we pass in a NULL buffer. */
-            }
-        }
-        else
-        {
-            xTimerStarted = xTimerReset( xOTA_Agent.pvSelfTestTimer, portMAX_DELAY );
-        }
+		xTimerStarted = xOTA_Agent.pOTAOSCtx->timer.start( xOTA_Agent.pOTAOSCtx->timer.PTimerCtx[0],
+			                                               pcTimerName, 
+			                                               otaconfigSELF_TEST_RESPONSE_WAIT_MS , 
+			                                               prvSelfTestTimer_Callback);
 
         /* Common check for whether the timer was started or not. It should be impossible to not start. */
-        if( xTimerStarted == pdTRUE )
+        if( xTimerStarted == 0 )
         {
             OTA_LOG_L1( "[%s] Starting %s timer.\r\n", OTA_METHOD_NAME, pcTimerName );
         }
@@ -441,11 +413,7 @@ static void prvStopSelfTestTimer( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvStopSelfTestTimer" );
 
-    if( xOTA_Agent.pvSelfTestTimer != NULL )
-    {
-        ( void ) xTimerStop( xOTA_Agent.pvSelfTestTimer, portMAX_DELAY );
-        OTA_LOG_L1( "[%s] Stopping the self test timer.\r\n", OTA_METHOD_NAME );
-    }
+	xOTA_Agent.pOTAOSCtx->timer.stop(xOTA_Agent.pOTAOSCtx->timer.PTimerCtx[0]);
 }
 
 /*
@@ -473,27 +441,14 @@ static void prvStartRequestTimer( uint32_t xPeriodMS )
     DEFINE_OTA_METHOD_NAME( "prvStartRequestTimer" );
     static const char pcTimerName[] = "OTA_FileRequest";
 
-    BaseType_t xTimerStarted = pdFALSE;
+    int32_t xTimerStarted;
 
-    if( xOTA_Agent.xRequestTimer == NULL )
-    {
-        xOTA_Agent.xRequestTimer = xTimerCreate( pcTimerName,
-                                                 pdMS_TO_TICKS( xPeriodMS ),
-                                                 pdFALSE,
-                                                 NULL,
-                                                 prvRequestTimer_Callback );
+	xTimerStarted = xOTA_Agent.pOTAOSCtx->timer.start(xOTA_Agent.pOTAOSCtx->timer.PTimerCtx[1],
+		pcTimerName,
+		xPeriodMS,
+		prvRequestTimer_Callback);
 
-        if( xOTA_Agent.xRequestTimer != NULL )
-        {
-            xTimerStarted = xTimerStart( xOTA_Agent.xRequestTimer, 0 );
-        }
-    }
-    else
-    {
-        xTimerStarted = xTimerReset( xOTA_Agent.xRequestTimer, portMAX_DELAY );
-    }
-
-    if( xTimerStarted == pdTRUE )
+    if( xTimerStarted == 0 )
     {
         OTA_LOG_L2( "[%s] Starting %s timer.\r\n", OTA_METHOD_NAME, pcTimerName );
     }
@@ -509,11 +464,7 @@ static void prvStopRequestTimer( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvStopRequestTimer" );
 
-    if( xOTA_Agent.xRequestTimer != NULL )
-    {
-        ( void ) xTimerStop( xOTA_Agent.xRequestTimer, 0 );
-        OTA_LOG_L1( "[%s] Stopping request timer.\r\n", OTA_METHOD_NAME );
-    }
+	xOTA_Agent.pOTAOSCtx->timer.stop( xOTA_Agent.pOTAOSCtx->timer.PTimerCtx[1] );
 }
 
 static OTA_Err_t prvUpdateJobStatusFromImageState( OTA_ImageState_t eState,
@@ -2680,9 +2631,9 @@ static void prvAgentShutdownCleanup( void )
     }
 
     /* Delete the OTA Agent Queue.*/
-    if( xOTA_Agent.xOTA_EventQueue != NULL )
+    //if( xOTA_Agent.xOTA_EventQueue != NULL )
     {
-        vQueueDelete( xOTA_Agent.xOTA_EventQueue );
+       // vQueueDelete( xOTA_Agent.xOTA_EventQueue );//q
     }
 
     /*
@@ -2796,7 +2747,8 @@ static void prvOTAAgentTask( void * pvUnused )
         /*
          * Receive the next event form the OTA event queue to process.
          */
-        if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
+       // if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
+        if( xOTA_Agent.pOTAOSCtx->event.recv(xOTA_Agent.pOTAOSCtx->event.pEventCtx, &xEventMsg , 0))
         {
             /*
              * Search for the state and event from the table.
@@ -2832,16 +2784,18 @@ static void prvOTAAgentTask( void * pvUnused )
 }
 
 static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
+	                                    void *  pOTAOSCtx,
                                         TickType_t xTicksToWait )
 {
     BaseType_t xReturn = 0;
     uint32_t ulIndex = 0;
 
+
     /*
      * The actual OTA Task and queue control structure. Only created once.
      */
     static TaskHandle_t pxOTA_TaskHandle;
-    static StaticQueue_t xStaticQueue;
+    //static StaticQueue_t xStaticQueue;  //q
 
     portENTER_CRITICAL();
 
@@ -2855,11 +2809,15 @@ static BaseType_t prvStartOTAAgentTask( void * pvConnectionContext,
      */
     xOTA_Agent.pvConnectionContext = pvConnectionContext;
 
+	xOTA_Agent.pOTAOSCtx = (OtaOsInterface_t *)pOTAOSCtx;
+
     /*
      * Create the queue used to pass event messages to the OTA task.
      */
-    xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_EventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
-    configASSERT( xOTA_Agent.xOTA_EventQueue != NULL );
+    //xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_EventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
+    //configASSERT( xOTA_Agent.xOTA_EventQueue != NULL ); //q
+
+	xOTA_Agent.pOTAOSCtx->event.init(xOTA_Agent.pOTAOSCtx->event.pEventCtx);
 
     /*
      * Create the queue used to pass event messages to the OTA task.
@@ -2912,10 +2870,11 @@ bool OTA_SignalEvent( const OTA_EventMsg_t * const pxEventMsg )
     /*
      * Send event to back of the queue.
      */
-    if( xOTA_Agent.xOTA_EventQueue != NULL )
-    {
-        xErr = xQueueSendToBack( xOTA_Agent.xOTA_EventQueue, pxEventMsg, ( TickType_t ) 0 );
-    }
+	//if (xOTA_Agent.xOTA_EventQueue != NULL)
+	{
+		//xErr = xQueueSendToBack( xOTA_Agent.xOTA_EventQueue, pxEventMsg, ( TickType_t ) 0 ); //q
+		xErr = xOTA_Agent.pOTAOSCtx->event.send(xOTA_Agent.pOTAOSCtx->event.pEventCtx, pxEventMsg, 0);
+	}
 
     if( xErr == pdTRUE )
     {
@@ -2939,7 +2898,8 @@ bool OTA_SignalEvent( const OTA_EventMsg_t * const pxEventMsg )
  * modify the existing OTA agent context. You must first call OTA_AgentShutdown()
  * successfully.
  */
-OTA_State_t OTA_AgentInit( void * pvConnectionContext,
+OTA_State_t OTA_AgentInit( void* pvConnectionContext,
+	                       void * pOtaOSCtx,
                            const uint8_t * pucThingName,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
@@ -2954,7 +2914,7 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
         /* Set the OTA complete callback. */
         xPALCallbacks.xCompleteCallback = xFunc;
 
-        xState = OTA_AgentInit_internal( pvConnectionContext, pucThingName, &xPALCallbacks, xTicksToWait );
+        xState = OTA_AgentInit_internal( pvConnectionContext, pOtaOSCtx, pucThingName, &xPALCallbacks, xTicksToWait );
     }
     /* If OTA agent is already running, just update the CompleteCallback and reset the statistics. */
     else
@@ -2972,6 +2932,7 @@ OTA_State_t OTA_AgentInit( void * pvConnectionContext,
 }
 
 OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
+	                                void * pOtaOSCtx,
                                     const uint8_t * pucThingName,
                                     const OTA_PAL_Callbacks_t * pxCallbacks,
                                     TickType_t xTicksToWait )
@@ -3023,7 +2984,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
             ( void ) memcpy( xOTA_Agent.pcThingName, pucThingName, ulStrLen + 1UL ); /* Include zero terminator when saving the Thing name. */
         }
 
-        xReturn = prvStartOTAAgentTask( pvConnectionContext, xTicksToWait );
+        xReturn = prvStartOTAAgentTask( pvConnectionContext, pOtaOSCtx, xTicksToWait );
     }
 
     if( xOTA_Agent.eState == eOTA_AgentState_Ready )
