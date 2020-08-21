@@ -1357,7 +1357,8 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
 /**
  * @brief Given a label delete the corresponding private or public key.
  */
-    static CK_RV prvOverwritePalObject( CK_OBJECT_HANDLE xPalHandle, CK_ATTRIBUTE_PTR pxLabel )
+    static CK_RV prvOverwritePalObject( CK_OBJECT_HANDLE xPalHandle,
+                                        CK_ATTRIBUTE_PTR pxLabel )
     {
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
