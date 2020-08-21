@@ -874,6 +874,8 @@ static CK_RV prvRsaKeyAttParse( const CK_ATTRIBUTE * pxAttribute,
         }
         else
         {
+            /* Strip the ANS.1 Encoding of type and length. Otherwise mbed TLS 
+             * won't be able to parse the binary EC point. */
             lMbedTLSResult = mbedtls_ecp_point_read_binary( &pxKeyPair->grp,
                                                             &pxKeyPair->Q,
                                                             ( ( uint8_t * ) ( pxAttribute->pValue ) + 2U ),
@@ -1799,13 +1801,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
 
     CK_RV xResult = CKR_MECHANISM_INVALID;
 
-    if( pInfo == NULL )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-        LogError( ( "Failed to get mechanism info. pInfo was NULL. Expected a "
-                    "pointer to a valid CK_MECHANISM_INFO struct." ) );
-    }
-
     struct CryptoMechanisms
     {
         CK_MECHANISM_TYPE xType;
@@ -1823,7 +1818,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     };
     uint32_t ulMech = 0;
 
-    if( xResult == CKR_MECHANISM_INVALID )
+    if( pInfo == NULL )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+        LogError( ( "Failed to get mechanism info. pInfo was NULL. Expected a "
+                    "pointer to a valid CK_MECHANISM_INFO struct." ) );
+    }
+    else
     {
         /* Look for the requested mechanism in the above table. */
         for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
