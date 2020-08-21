@@ -210,7 +210,6 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 {
     return FreeRTOS_gethostbyname( pcHostName );
 }
-
 /*-----------------------------------------------------------*/
 
 int32_t SOCKETS_Recv( Socket_t xSocket,

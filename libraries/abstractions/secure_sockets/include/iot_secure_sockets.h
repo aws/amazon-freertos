@@ -257,6 +257,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lProtocol );
 /* @[declare_secure_sockets_socket] */
 
+
 /**
  * @brief Connects the socket to the specified IP address and port.
  *

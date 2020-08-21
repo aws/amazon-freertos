@@ -809,7 +809,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
             break;
 			
-			case SOCKETS_SO_TCPKEEPALIVE:
+            case SOCKETS_SO_TCPKEEPALIVE:
             {
                 int keep_alive = *((int *)pvOptionValue);
 
