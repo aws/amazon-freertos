@@ -605,6 +605,7 @@ TEST_SETUP( Full_WiFi )
 
 TEST_TEAR_DOWN( Full_WiFi )
 {
+    WIFI_Disconnect();
 }
 
 TEST_GROUP_RUNNER( Full_WiFi )
@@ -1707,7 +1708,7 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
 
 /**
  * @brief Test WIFI_IsConnected() after calling WIFI_ConnectAP() and
- * WIFI_DisconnectAP() and verify success.
+ * WIFI_DisconnectP() and verify success.
  */
 TEST( Quarantine_WiFi, AFQP_WiFiIsConnected )
 {
