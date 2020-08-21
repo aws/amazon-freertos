@@ -207,14 +207,6 @@ wiced_result_t wiced_bt_stack_deinit( void )
 {
     cybt_platform_task_deinit();
 
-    host_stack_platform_interface_deinit();
-
-    if(cybt_main_cb.p_app_management_callback)
-    {
-        cybt_main_cb.p_app_management_callback(BTM_DISABLED_EVT, NULL);
-    }
-    cybt_main_cb.p_app_management_callback = NULL;
-
     cybt_platform_deinit();
 
     return WICED_BT_SUCCESS;

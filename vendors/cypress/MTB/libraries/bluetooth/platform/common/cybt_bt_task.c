@@ -172,6 +172,8 @@ void cybt_bt_task(cy_thread_arg_t arg)
 
         cybt_platform_task_mempool_free(p_bt_msg);
     }
+
+    host_stack_platform_interface_deinit();
     cy_rtos_exit_thread();
 }
 
