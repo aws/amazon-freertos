@@ -481,6 +481,7 @@ function(cy_add_link_libraries)
             "-DMCUBOOT_KEY_FILE=${MCUBOOT_KEY_FILE}"
             "-DCY_FLASH_ERASE_VALUE=$ENV{CY_FLASH_ERASE_VALUE}"
             "-DMCUBOOT_HEADER_SIZE=$ENV{MCUBOOT_HEADER_SIZE}"
+            "-DMCUBOOT_IMAGE_NUMBER=$ENV{MCUBOOT_IMAGE_NUMBER}"
             "-DCY_BOOT_SCRATCH_SIZE=$ENV{CY_BOOT_SCRATCH_SIZE}"
             "-DCY_BOOT_BOOTLOADER_SIZE=$ENV{MCUBOOT_BOOTLOADER_SIZE}"
             "-DMCUBOOT_BOOTLOADER_SIZE=$ENV{MCUBOOT_BOOTLOADER_SIZE}"
@@ -496,6 +497,15 @@ function(cy_add_link_libraries)
         # is CY_BOOT_USE_EXTERNAL_FLASH supported?
         if ("$ENV{CY_BOOT_USE_EXTERNAL_FLASH}" STREQUAL "1")
             target_compile_definitions(AFR::ota::mcu_port INTERFACE "-DCY_BOOT_USE_EXTERNAL_FLASH=$ENV{CY_BOOT_USE_EXTERNAL_FLASH}" )
+        endif()
+
+        if("$ENV{MCUBOOT_IMAGE_NUMBER}" STREQUAL "2" )
+            target_compile_definitions(AFR::ota::mcu_port INTERFACE
+                "-DCY_BOOT_PRIMARY_2_START=$ENV{CY_BOOT_PRIMARY_2_START}"
+                "-DCCY_BOOT_PRIMARY_2_SIZE=$ENV{CY_BOOT_PRIMARY_2_SIZE}"
+                "-DCCY_BOOT_SECONDARY_2_SIZE=$ENV{CY_BOOT_PRIMARY_2_SIZE}"
+                "-DCCY_BOOT_SECONDARY_2_START=$ENV{CY_BOOT_SECONDARY_2_START}"
+            )
         endif()
 
         # common ota sources

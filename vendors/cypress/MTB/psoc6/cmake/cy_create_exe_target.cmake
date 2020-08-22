@@ -53,12 +53,12 @@ function(cy_config_ota_exe_target)
     endif()
 
     # are using Multi-image mcuboot?
-    if("${CY_MCUBOOT_IMAGE_NUMBER}" STREQUAL "2" )
+    if("$ENV{MCUBOOT_IMAGE_NUMBER}" STREQUAL "2" )
         target_compile_definitions(${ARG_EXE_APP_NAME} PUBLIC
-            "-DCY_BOOT_PRIMARY_2_START=${CY_BOOT_PRIMARY_2_START}"
-            "-DCCY_BOOT_PRIMARY_2_SIZE=${CY_BOOT_PRIMARY_2_SIZE}"
-            "-DCCY_BOOT_SECONDARY_2_SIZE=${CY_BOOT_PRIMARY_2_SIZE}"
-            "-DCCY_BOOT_SECONDARY_2_START=${CY_BOOT_SECONDARY_2_START}"
+            "-DCY_BOOT_PRIMARY_2_START=$ENV{CY_BOOT_PRIMARY_2_START}"
+            "-DCCY_BOOT_PRIMARY_2_SIZE=$ENV{CY_BOOT_PRIMARY_2_SIZE}"
+            "-DCCY_BOOT_SECONDARY_2_SIZE=$ENV{CY_BOOT_PRIMARY_2_SIZE}"
+            "-DCCY_BOOT_SECONDARY_2_START=$ENV{CY_BOOT_SECONDARY_2_START}"
         )
     endif()
     #----------------------------------------------------------------
