@@ -14,10 +14,10 @@ set(cy_port_support_dir         "${cy_mtb_dir}/port_support")
 
 set(cy_libraries_dir            "${cy_mtb_dir}/libraries")
 set(cy_libraries_clib_dir       "${cy_libraries_dir}/clib-support")
-set(cy_libraries_whd_dir        "${cy_libraries_dir}/whd")
+set(cy_libraries_whd_dir        "${cy_libraries_dir}/wifi-host-driver")
+set(cy_libraries_capsense_dir       "${cy_libraries_dir}/capsense")
 
 set(cy_psoc6_dir                "${cy_mtb_dir}/psoc6")
-set(cy_psoc6_capsense_dir       "${cy_psoc6_dir}/mw/capsense")
 set(cy_psoc6_cmake_dir          "${cy_psoc6_dir}/cmake")
 
 set(cy_board_dir                "${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/boards/${AFR_BOARD_NAME}")

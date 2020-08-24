@@ -163,12 +163,26 @@ function(cy_add_link_libraries)
         TOOLCHAIN     "${AFR_TOOLCHAIN}"
     )
 
+    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS}")
+    set(CY_ARCH_DIR 
+        "${cy_libraries_clib_dir}"
+        "${cy_psoc6_dir}"
+        "${cy_libraries_whd_dir}/WiFi_Host_Driver"
+        "${cy_libraries_capsense_dir}"
+        "${cy_libraries_dir}/abstraction-rtos"
+        "${cy_libraries_dir}/core-lib"
+        "${cy_libraries_dir}/retarget-io"
+        "${cy_libraries_dir}/rgb-led"
+        "${cy_libraries_dir}/serial-flash"
+        "${cy_libraries_dir}/whd-bsp-integration")
+
+    if(COMPONENTS)
+        set(ENV{CY_COMPONENTS} "$ENV{CY_COMPONENTS};${COMPONENTS}")
+    endif()
+
     if(BLE_SUPPORTED)
-        set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS};WICED_BLE")
-        set(CY_ARCH_DIR     "${cy_libraries_clib_dir};${cy_psoc6_dir};${cy_libraries_whd_dir};${cy_psoc6_capsense_dir};${cy_bt_dir}")
-    else()
-        set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS}")
-        set(CY_ARCH_DIR     "${cy_libraries_clib_dir};${cy_psoc6_dir};${cy_libraries_whd_dir};${cy_psoc6_capsense_dir}")
+        set(ENV{CY_COMPONENTS} "$ENV{CY_COMPONENTS};WICED_BLE")
+        list(APPEND CY_ARCH_DIR ${cy_bt_dir})
     endif()
 
     # Find MTB files
@@ -181,6 +195,7 @@ function(cy_add_link_libraries)
     target_sources(psoc6_core INTERFACE "${mtb_src}")
     cy_get_libs(mtb_libs ITEMS "${mtb_files}")
     target_link_libraries(psoc6_core INTERFACE "${mtb_libs}")
+    target_sources(psoc6_core INTERFACE "${cy_port_support_dir}/FreeRTOS-openocd.c")
 
     # -------------------------------------------------------------------------------------------------
     # Compiler settings
@@ -267,13 +282,13 @@ function(cy_add_link_libraries)
 
     add_library(CyObjStore INTERFACE)
     target_sources(CyObjStore INTERFACE
-        "${cy_psoc6_dir}/mw/objstore/cyobjstore.c"
-        "${cy_psoc6_dir}/mw/emeeprom/cy_em_eeprom.c"
+        "${cy_port_support_dir}/objstore/cyobjstore.c"
+        "${cy_libraries_dir}/emeeprom/cy_em_eeprom.c"
     )
     target_include_directories(CyObjStore INTERFACE
-        "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include/COMPONENT_FREERTOS"
-        "${cy_psoc6_dir}/mw/emeeprom"
-        "${cy_psoc6_dir}/mw/objstore"
+        "${cy_libraries_dir}/abstraction-rtos/include/COMPONENT_FREERTOS"
+        "${cy_libraries_dir}/emeeprom"
+        "${cy_port_support_dir}/objstore"
     )
 
     # WiFi
@@ -287,10 +302,11 @@ function(cy_add_link_libraries)
     )
     target_include_directories(AFR::wifi::mcu_port INTERFACE
         "${afr_ports_dir}/wifi"
-        "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include/COMPONENT_FREERTOS"
-        "${cy_psoc6_dir}/common"
-        "${cy_psoc6_dir}/mw/objstore"
-        "${cy_libraries_whd_dir}/src/include"
+        "${cy_libraries_dir}/abstraction-rtos/include"
+        "${cy_port_support_dir}/objstore"
+        "${cy_libraries_whd_dir}"
+        "${cy_libraries_dir}/whd-bsp-integration"
+        "${cy_libraries_whd_dir}/WiFi_Host_Driver/src/include"
         "${cy_port_support_dir}/wifi"
     )
     target_link_libraries(
@@ -349,7 +365,7 @@ function(cy_add_link_libraries)
     afr_mcu_port(pkcs11_implementation DEPENDS CyObjStore)
 
     target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
-        "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
+        "${cy_libraries_dir}/abstraction-rtos/include"
     )
 
     if(CY_TFM_PSA_SUPPORTED)
@@ -391,12 +407,12 @@ function(cy_add_link_libraries)
         "${afr_ports_dir}/pkcs11/hw_poll.c"
     )
     target_include_directories(afr_3rdparty_mbedtls INTERFACE
-        "${cy_psoc6_dir}/psoc6csp/hal/include"
-        "${cy_psoc6_dir}/psoc6csp/core_lib/include"
+        "${cy_psoc6_dir}/psoc6hal/include"
+        "${cy_libraries_dir}/core-lib/include"
         "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
         "${cy_psoc6_dir}/psoc6pdl/devices/include"
         "${cy_psoc6_dir}/psoc6pdl/drivers/include"
-        "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
+        "${cy_libraries_dir}/abstraction-rtos/include"
         "${ARG_BSP_DIR}"
     )
 
@@ -407,14 +423,14 @@ function(cy_add_link_libraries)
     endif()
 
     target_include_directories(afr_3rdparty_lwip PUBLIC
-        "${cy_psoc6_dir}/psoc6csp/hal/include"
-        "${cy_psoc6_dir}/psoc6csp/core_lib/include"
+        "${cy_psoc6_dir}/psoc6hal/include"
+        "${cy_libraries_dir}/core-lib/include"
         "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
         "${cy_psoc6_dir}/psoc6pdl/devices/include"
         "${cy_psoc6_dir}/psoc6pdl/drivers/include"
-        "${cy_libraries_whd_dir}/inc"
+        "${cy_libraries_whd_dir}/WiFi_Host_Driver/inc"
         "${ARG_BSP_DIR}"
-        "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
+        "${cy_libraries_dir}/abstraction-rtos/include"
     )
 
     #----------------------------------------------------------------
@@ -516,7 +532,7 @@ function(cy_add_link_libraries)
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi/flash_qspi.c"
             "${MCUBOOT_CYFLASH_PAL_DIR}/cy_smif_psoc6.c"
             "${MCUBOOT_DIR}/bootutil/src/bootutil_misc.c"
-            "${cy_libraries_dir}/utilities/JSON_parser/cy_json_parser.c"
+            "${cy_libraries_dir}/connectivity-utilities/JSON_parser/cy_json_parser.c"
             "${cy_port_support_dir}/untar/untar.c"
         )
 
@@ -538,10 +554,10 @@ function(cy_add_link_libraries)
             "${MCUBOOT_CYFLASH_PAL_DIR}"
             "${MCUBOOT_CYFLASH_PAL_DIR}/include"
             "${MCUBOOT_CYFLASH_PAL_DIR}/flash_qspi"
-            "${cy_libraries_dir}/utilities"
-            "${cy_libraries_dir}/utilities/JSON_parser"
+            "${cy_libraries_dir}/connectivity-utilities"
+            "${cy_libraries_dir}/connectivity-utilities/JSON_parser"
             "${cy_port_support_dir}/untar"
-            "${cy_psoc6_dir}/psoc6csp/abstraction/rtos/include"
+            "${cy_libraries_dir}/abstraction-rtos/include"
             "${cy_psoc6_dir}/psoc6pdl/cmsis/include"
             "${cy_psoc6_dir}/psoc6pdl/devices/include"
             "${cy_psoc6_dir}/psoc6pdl/drivers/include"

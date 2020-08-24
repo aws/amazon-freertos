@@ -220,7 +220,7 @@ SOURCES+=\
 	$(CY_AFR_MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(CY_AFR_MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
     $(CY_AFR_MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
-	$(CY_EXTAPP_PATH)/libraries/utilities/JSON_parser/cy_json_parser.c\
+	$(CY_EXTAPP_PATH)/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c\
 	$(CY_EXTAPP_PATH)/port_support/untar/untar.c\
 
 ifeq ($(CY_TFM_PSA_SUPPORTED),)
@@ -247,9 +247,9 @@ INCLUDES+=\
     $(CY_AFR_MCUBOOT_CYFLASH_PAL_DIR)/include\
     $(CY_AFR_MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
     $(CY_AFR_MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/libraries/utilities/JSON_parser\
+    $(CY_EXTAPP_PATH)/libraries/connectivity-utilities/JSON_parser\
     $(CY_EXTAPP_PATH)/port_support/untar\
-    $(CY_EXTAPP_PATH)/libraries/utilities\
+    $(CY_EXTAPP_PATH)/libraries/connectivity-utilities\
 	$(CY_AFR_BOARD_PATH)/ports/ota\
     $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
     $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\

@@ -90,7 +90,8 @@ SOURCES=
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES=
+# TODO remove this once whd is update to new version
+INCLUDES=$(CY_AFR_ROOT)/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W
 
 # Add additional defines to the build process (without a leading -D).
 DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config_afr.h\" MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\"

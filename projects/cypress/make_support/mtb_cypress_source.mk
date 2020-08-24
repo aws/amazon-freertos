@@ -10,9 +10,9 @@ CY_IGNORE+=\
 	$(CY_AFR_BOARD_PATH)\
 	$(CY_EXTAPP_PATH)/port_support/ota\
 	$(CY_EXTAPP_PATH)/port_support/untar\
-	$(CY_EXTAPP_PATH)/libraries/lpa\
-	$(CY_EXTAPP_PATH)/libraries/enterprise-security\
-	$(CY_EXTAPP_PATH)/libraries/utilities\
+	$(CY_EXTAPP_PATH)/libraries/connectivity-utilities\
+	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/docs\
+	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/External\
 
 ifeq ($(BLE_SUPPORT),)
 CY_IGNORE+=\

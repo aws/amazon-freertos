@@ -28,6 +28,11 @@
 	<linkedResources>
 
 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W</locationURI>
+		</link>
+ 		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_tests/application_code</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_tests/application_code</locationURI>
@@ -482,136 +487,46 @@
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/test</locationURI>
 		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/config</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/config</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/mcuboot_header</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/mcuboot_header</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/include</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/sysflash</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/sysflash</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include/flash_map_backend</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include/flash_map_backend</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/utilities/JSON_parser</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/utilities/JSON_parser</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/untar</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/untar</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/utilities</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/utilities</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/ota</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/ota</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/standard/crypto/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/crypto/include</locationURI>
-		</link>
- 		<link>
-			<name>libraries/3rdparty/jsmn</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/jsmn</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/include</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/http</locationURI>
-		</link>
- 		<link>
-			<name>libraries/abstractions/wifi/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/wifi/include</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/test</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/test</locationURI>
-		</link>
 
 		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/include</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/include</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/include/stackHeaders</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/include/COMPONENT_FREERTOS</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/include/stackHeaders</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/include/COMPONENT_FREERTOS</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/include</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/include/Template</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/include/Template</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/common</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/common</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/include</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/include</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/wiced_include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/wiced_include</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/libraries/clib-support</name>
@@ -624,34 +539,59 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/TOOLCHAIN_GCC_ARM</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/inc</name>
+			<name>vendors/cypress/MTB/libraries/core-lib/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/inc</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/core-lib/include</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W</name>
+			<name>vendors/cypress/MTB/libraries/emeeprom</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/emeeprom</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/nvram/TARGET_CY8CKIT_064S0S2_4343W</name>
+			<name>vendors/cypress/MTB/libraries/retarget-io</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/nvram/TARGET_CY8CKIT_064S0S2_4343W</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/retarget-io</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/resource_imp</name>
+			<name>vendors/cypress/MTB/libraries/rgb-led</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/resource_imp</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/rgb-led</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols</name>
+			<name>vendors/cypress/MTB/libraries/serial-flash</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/serial-flash</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/include</name>
+			<name>vendors/cypress/MTB/libraries/whd-bsp-integration</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/inc</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/inc</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/include</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support</name>
@@ -659,29 +599,14 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support</locationURI>
 		</link>
  		<link>
+			<name>vendors/cypress/MTB/port_support/objstore</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore</locationURI>
+		</link>
+ 		<link>
 			<name>vendors/cypress/MTB/port_support/wifi</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/wifi</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/emeeprom</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/emeeprom</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/objstore</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/objstore</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include/os_wrapper</name>
@@ -699,44 +624,24 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include/psa_manifest</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/include</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/include</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include/pin_packages</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/include/COMPONENT_FREERTOS</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include/triggers</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/include/COMPONENT_FREERTOS</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/include/triggers</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/core_lib/include</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/core_lib/include</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include/pin_packages</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include/pin_packages</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include/triggers</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/include/triggers</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/include</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/cmsis/include</name>
@@ -1181,6 +1086,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/ccp.c</locationURI>
 		</link>
  		<link>
+			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</locationURI>
@@ -1189,11 +1099,6 @@
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/demand.c</name>
@@ -1496,6 +1401,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md.c</locationURI>
 		</link>
  		<link>
+			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/3rdparty/mbedtls/library/md2.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
@@ -1509,11 +1419,6 @@
 			<name>libraries/3rdparty/mbedtls/library/md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
@@ -1821,6 +1726,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
  		<link>
+			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/abstractions/pkcs11/test/MBT_C_CloseSession.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/MBT_C_CloseSession.c</locationURI>
@@ -1934,11 +1844,6 @@
 			<name>libraries/abstractions/pkcs11/test/MBT_VerifyMachine.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/MBT_VerifyMachine.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/abstractions/secure_sockets/test/iot_test_tcp.c</name>
@@ -2435,141 +2340,131 @@
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</locationURI>
 		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/3rdparty/jsmn/jsmn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/jsmn/jsmn.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/utilities/JSON_parser/cy_json_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/utilities/JSON_parser/cy_json_parser.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/untar/untar.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/untar/untar.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</locationURI>
-		</link>
- 		<link>
-			<name>libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</locationURI>
-		</link>
 
 		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bluetooth.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/cy_worker_thread.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bluetooth.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/cy_worker_thread.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/common/platform_bt_nvram.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/common/platform_bt_nvram.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_clock.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/common/wiced_bt_dynamic_gattdb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_clock.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/common/wiced_bt_dynamic_gattdb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_gpio.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/firmware/COMPONENT_4343W/w_bt_firmware_controller.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_gpio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/firmware/COMPONENT_4343W/w_bt_firmware_controller.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_uart.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_bt_task.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_uart.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_bt_task.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/ring_buffer.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_hci_task.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/ring_buffer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_hci_task.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_host_stack_platform_interface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_host_stack_platform_interface.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/wiced_time_common.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_patchram_download.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/wiced_time_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_patchram_download.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_main.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_main.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_task.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_trace.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_trace.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_prm.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_prm.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/freertos/cybt_platform_freertos.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/freertos/cybt_platform_freertos.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_centroid.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_centroid.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_control.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_control.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_csd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_csd.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_csx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_csx.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_filter.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_filter.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_processing.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_processing.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_selftest.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_selftest.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_sensing.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_sensing.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_structure.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_structure.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_tuner.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_tuner.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/libraries/clib-support/TOOLCHAIN_GCC_ARM/cy_newlib_freertos.c</name>
@@ -2582,239 +2477,189 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/cy_mutex_pool.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</name>
+			<name>vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</name>
+			<name>vendors/cypress/MTB/libraries/retarget-io/cy_retarget_io.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/retarget-io/cy_retarget_io.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</name>
+			<name>vendors/cypress/MTB/libraries/rgb-led/cy_rgb_led.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/rgb-led/cy_rgb_led.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</name>
+			<name>vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_prog.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_prog.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/resource_imp/whd_resources.c</name>
+			<name>vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_qspi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/resource_imp/whd_resources.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_qspi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus.c</name>
+			<name>vendors/cypress/MTB/libraries/whd-bsp-integration/cy_network_buffer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration/cy_network_buffer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_common.c</name>
+			<name>vendors/cypress/MTB/libraries/whd-bsp-integration/cybsp_wifi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration/cybsp_wifi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_sdio_protocol.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_sdio_protocol.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_spi_protocol.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_spi_protocol.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_ap.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_ap.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_buffer_api.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_buffer_api.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_cdc_bdc.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp/whd_resources.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_cdc_bdc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp/whd_resources.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_chip.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_chip.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_chip_constants.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_chip_constants.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_clm.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_sdio_protocol.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_clm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_sdio_protocol.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_debug.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_spi_protocol.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_debug.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_spi_protocol.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_events.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_ap.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_events.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_ap.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_logging.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_buffer_api.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_logging.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_buffer_api.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_management.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_cdc_bdc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_management.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_cdc_bdc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_network_if.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_network_if.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_resource_if.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip_constants.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_resource_if.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip_constants.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_sdpcm.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_clm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_sdpcm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_clm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_thread.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_debug.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_thread.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_debug.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_utils.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_events.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_utils.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_events.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_logging.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_logging.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi_api.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_management.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi_api.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_management.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi_p2p.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_network_if.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi_p2p.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_network_if.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_resource_if.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_resource_if.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_sdpcm.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_sdpcm.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_thread.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_thread.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_utils.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_utils.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_api.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_api.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/port_support/objstore/cyobjstore.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore/cyobjstore.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/FreeRTOS-openocd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/FreeRTOS-openocd.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_network_buffer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_network_buffer.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_retarget_io.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_retarget_io.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_rgb_led.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_rgb_led.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_serial_flash_prog.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_serial_flash_prog.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_serial_flash_qspi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_serial_flash_qspi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cybsp_rgb_led.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cybsp_rgb_led.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cybsp_wifi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cybsp_wifi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_centroid.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_centroid.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_control.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_control.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csd.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csx.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csx.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_filter.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_filter.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_processing.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_processing.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_sensing.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_sensing.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_structure.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_structure.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_tuner.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_tuner.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/emeeprom/cy_em_eeprom.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/emeeprom/cy_em_eeprom.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/objstore/cyobjstore.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/objstore/cyobjstore.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_FREERTOS_WRAPPER/os_wrapper_freertos.c</name>
@@ -2872,319 +2717,319 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/src/tfm_sst_ipc_api.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/source/cyabs_resource.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/source/cyabs_resource.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/cy_worker_thread.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/cy_worker_thread.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_ctb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_ctb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_lp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_lp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_opamp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_opamp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/TOOLCHAIN_GCC_ARM/cy_syslib_gcc.S</name>
@@ -3579,54 +3424,129 @@
 
 
 		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/bt_firmware_controller.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bluetooth.c</name>
+			<name>vendors/cypress/MTB/libraries/abstraction-rtos/source/cy_worker_thread.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bluetooth.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/abstraction-rtos/source/cy_worker_thread.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/common/platform_bt_nvram.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_bt_nvram.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/common/platform_bt_nvram.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_clock.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/common/wiced_bt_dynamic_gattdb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_clock.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/common/wiced_bt_dynamic_gattdb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_gpio.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/firmware/COMPONENT_4343W/w_bt_firmware_controller.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_gpio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/firmware/COMPONENT_4343W/w_bt_firmware_controller.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_uart.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_bt_task.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/platform_uart.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_bt_task.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/ring_buffer.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_hci_task.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyhal/src/ring_buffer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_hci_task.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_host_stack_platform_interface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/cybt_osal_amzn_freertos.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_host_stack_platform_interface.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/wiced_time_common.c</name>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_patchram_download.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/psoc6/cyosal/src/wiced_time_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_patchram_download.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_main.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_main.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_task.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_task.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_trace.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_platform_trace.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_prm.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/common/cybt_prm.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/bluetooth/platform/freertos/cybt_platform_freertos.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/bluetooth/platform/freertos/cybt_platform_freertos.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_centroid.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_centroid.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_control.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_control.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_csd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_csd.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_csx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_csx.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_filter.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_filter.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_processing.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_processing.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_selftest.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_selftest.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_sensing.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_sensing.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_structure.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_structure.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/capsense/cy_capsense_tuner.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/capsense/cy_capsense_tuner.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/libraries/clib-support/TOOLCHAIN_GCC_ARM/cy_newlib_freertos.c</name>
@@ -3639,239 +3559,189 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/cy_mutex_pool.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</name>
+			<name>vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</name>
+			<name>vendors/cypress/MTB/libraries/retarget-io/cy_retarget_io.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/retarget-io/cy_retarget_io.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</name>
+			<name>vendors/cypress/MTB/libraries/rgb-led/cy_rgb_led.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/rgb-led/cy_rgb_led.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</name>
+			<name>vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_prog.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_prog.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/resources/resource_imp/whd_resources.c</name>
+			<name>vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_qspi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/resources/resource_imp/whd_resources.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/serial-flash/cy_serial_flash_qspi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus.c</name>
+			<name>vendors/cypress/MTB/libraries/whd-bsp-integration/cy_network_buffer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration/cy_network_buffer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_common.c</name>
+			<name>vendors/cypress/MTB/libraries/whd-bsp-integration/cybsp_wifi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration/cybsp_wifi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_sdio_protocol.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_sdio_protocol.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_bin.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_spi_protocol.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/bus_protocols/whd_bus_spi_protocol.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1-mfgtest_clm_blob.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_ap.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_ap.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_bin.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_buffer_api.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_buffer_api.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/firmware/COMPONENT_4343W/4343WA1_clm_blob.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_cdc_bdc.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp/whd_resources.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_cdc_bdc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/resource_imp/whd_resources.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_chip.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_chip.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_chip_constants.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_chip_constants.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_clm.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_sdio_protocol.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_clm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_sdio_protocol.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_debug.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_spi_protocol.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_debug.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/bus_protocols/whd_bus_spi_protocol.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_events.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_ap.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_events.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_ap.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_logging.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_buffer_api.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_logging.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_buffer_api.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_management.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_cdc_bdc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_management.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_cdc_bdc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_network_if.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_network_if.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_resource_if.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip_constants.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_resource_if.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_chip_constants.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_sdpcm.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_clm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_sdpcm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_clm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_thread.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_debug.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_thread.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_debug.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_utils.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_events.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_utils.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_events.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_logging.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_logging.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi_api.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_management.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi_api.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_management.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/whd/src/whd_wifi_p2p.c</name>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_network_if.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd/src/whd_wifi_p2p.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_network_if.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_resource_if.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_resource_if.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_sdpcm.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_sdpcm.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_thread.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_thread.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_utils.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_utils.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_api.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_api.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/port_support/objstore/cyobjstore.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore/cyobjstore.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/FreeRTOS-openocd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/FreeRTOS-openocd.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_network_buffer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_network_buffer.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_retarget_io.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_retarget_io.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_rgb_led.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_rgb_led.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_serial_flash_prog.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_serial_flash_prog.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cy_serial_flash_qspi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cy_serial_flash_qspi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cybsp_rgb_led.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cybsp_rgb_led.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/common/cybsp_wifi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/common/cybsp_wifi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_centroid.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_centroid.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_control.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_control.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csd.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csx.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_csx.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_filter.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_filter.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_processing.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_processing.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_sensing.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_sensing.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_structure.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_structure.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_tuner.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/capsense/cy_capsense_tuner.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/emeeprom/cy_em_eeprom.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/emeeprom/cy_em_eeprom.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/psoc6/mw/objstore/cyobjstore.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/mw/objstore/cyobjstore.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_FREERTOS_WRAPPER/os_wrapper_freertos.c</name>
@@ -3929,319 +3799,319 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/src/tfm_sst_ipc_api.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/source/cyabs_resource.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/resource/source/cyabs_resource.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_freertos_helpers.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/COMPONENT_FREERTOS/cyabs_rtos_freertos.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/cy_worker_thread.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/abstraction/rtos/source/cy_worker_thread.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_ctb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_adc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_ctb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_lp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_analog_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_comp_lp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_clock.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_crypto_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dac.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_deprecated.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dmac.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_dma_dw.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_ezi2c.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_flash.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_gpio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_hwmgr.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2c.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_i2s.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_interconnect.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_lptimer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_opamp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_not_implemented.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_opamp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pdmpcm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_pwm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_qspi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_rtc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_scb_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_sdhc.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_spi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_syspm.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_system.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_tcpwm_common.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_timer.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_trng.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_uart.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_udb_sdio.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_usb_dev.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_utils.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/cyhal_wdt.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_104_m_csp_ble_usb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_116_bga_usb.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_124_bga_sip.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_43_smt.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_68_qfn_ble.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_01_80_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_100_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_124_bga.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_128_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_02_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_100_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_49_wlcsp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_03_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_64_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_68_qfn.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/pin_packages/cyhal_psoc6_04_80_tqfp.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_01.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_02.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_03.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</name>
+			<name>vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6csp/hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6hal/COMPONENT_PSOC6HAL/source/triggers/cyhal_triggers_psoc6_04.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/TOOLCHAIN_GCC_ARM/cy_syslib_gcc.S</name>

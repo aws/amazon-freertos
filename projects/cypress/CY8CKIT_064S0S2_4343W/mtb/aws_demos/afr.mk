@@ -57,15 +57,9 @@ CY_AFR_TARGET=$(subst -,_,$(TARGET))
 # Explicitly add the BSP makefile
 CY_EXTRA_INCLUDES=$(CY_AFR_BOARD_APP_PATH)/$(TARGET).mk
 
-# Explicitly set the linker script
-LINKER_SCRIPT=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
-
-# Use auto-discovery for cypress files and set the paths
-CY_AFR_VENDOR_PATH=$(CY_AFR_ROOT)/vendors/cypress
-CY_EXTAPP_PATH=$(CY_AFR_VENDOR_PATH)/MTB
-CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
-CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/cy_code
-MCUBOOT_DIR=$(CY_EXTAPP_PATH)/ota/mcuboot
+# Non-OTA support builds
+# Linker Script
+LINKER_SCRIPT_ABSOLUTE:=$(wildcard $(CY_AFR_BOARD_APP_PATH)/COMPONENT_$(CORE)/TOOLCHAIN_$(TOOLCHAIN)/*.$(CY_AFR_TOOLCHAIN_LS_EXT))
 
 # project directory
 CY_PROJECT_DIR:=.
@@ -91,8 +85,11 @@ endif
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-	$(CY_EXTAPP_PATH)/ota\
-	$(CY_EXTAPP_PATH)/common\
+	$(CY_EXTAPP_PATH)/port_support/ota\
+	$(CY_EXTAPP_PATH)/port_support/untar\
+	$(CY_EXTAPP_PATH)/libraries/connectivity-utilities\
+	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/docs\
+	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/External\
 	$(CY_EXTAPP_PATH)/bluetooth\
 	$(CY_AFR_VENDOR_PATH)/boards\
 	$(CY_AFR_VENDOR_PATH)/lwip\

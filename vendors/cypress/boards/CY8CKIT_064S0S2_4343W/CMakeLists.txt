@@ -140,6 +140,9 @@ cy_add_link_libraries(
     DEFINES "CY_USE_LWIP;CY_TFM_PSA_SUPPORTED;TFM_MULTI_CORE_MULTI_CLIENT_CALL"
 )
 
+# TODO: remove this once whd is updated to new version
+target_include_directories(psoc6_core INTERFACE "${cy_libraries_whd_dir}/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W")
+
 if (NOT DEFINED LIB_MODE)
     cy_create_exe_target(
         EXE_APP_NAME ""

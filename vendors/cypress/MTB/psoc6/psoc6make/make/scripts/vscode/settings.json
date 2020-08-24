@@ -1,5 +1,0 @@
-{
-    // Added by build system's vscode target
-    "cortex-debug.armToolchainPath": "&&GDBPATH&&/bin",
-    "cortex-debug.openocdPath": "&&MODUSOPENOCD&&/bin/openocd"
-}
