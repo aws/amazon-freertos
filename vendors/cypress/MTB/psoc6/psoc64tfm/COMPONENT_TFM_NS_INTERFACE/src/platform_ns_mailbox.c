@@ -16,7 +16,6 @@
 
 #include "ns_ipc_config.h"
 #include "os_wrapper/thread.h"
-#include "os_wrapper/semaphore.h"
 #include "tfm_ns_mailbox.h"
 #include "platform_multicore.h"
 
@@ -99,27 +98,15 @@ int32_t tfm_ns_mailbox_hal_init(struct ns_mailbox_queue_t *queue)
     return MAILBOX_SUCCESS;
 }
 
-void * tfm_ns_mailbox_hal_create_semaphore(void)
+const void *tfm_ns_mailbox_get_task_handle(void)
 {
-    return os_wrapper_semaphore_create(1, 0, NULL);
+    return os_wrapper_thread_get_handle();
 }
 
 void tfm_ns_mailbox_hal_wait_reply(mailbox_msg_handle_t handle)
 {
-    void *sem = tfm_ns_mailbox_get_msg_semaphore(handle);
-    if (sem != NULL) {
-        os_wrapper_semaphore_acquire(sem, OS_WRAPPER_WAIT_FOREVER);
-    }
+    os_wrapper_thread_wait_flag((uint32_t)handle, OS_WRAPPER_WAIT_FOREVER);
 }
-
-void tfm_ns_mailbox_hal_delete_semaphore(mailbox_msg_handle_t handle)
-{
-    void *sem = tfm_ns_mailbox_get_msg_semaphore(handle);
-    if (sem != NULL) {
-        os_wrapper_semaphore_delete(sem);
-    }
-}
-
 
 void tfm_ns_mailbox_hal_enter_critical(void)
 {
@@ -176,8 +163,7 @@ void cpuss_interrupts_ipc_8_IRQHandler(void)
 {
     uint32_t magic;
     mailbox_msg_handle_t handle;
-    void *sem;
-    uint32_t yield = 0;
+    void *task_handle;
 
     if (!mailbox_clear_intr())
         return;
@@ -191,11 +177,10 @@ void cpuss_interrupts_ipc_8_IRQHandler(void)
                 break;
             }
 
-            sem = (void *)tfm_ns_mailbox_get_msg_semaphore(handle);
-            if (sem) {
-                yield |= os_wrapper_semaphore_release_isr(sem);
+            task_handle = (void *)tfm_ns_mailbox_get_msg_owner(handle);
+            if (task_handle) {
+                os_wrapper_thread_set_flag_isr(task_handle, (uint32_t)handle);
             }
         }
-        os_wrapper_isr_yield(yield);
     }
 }

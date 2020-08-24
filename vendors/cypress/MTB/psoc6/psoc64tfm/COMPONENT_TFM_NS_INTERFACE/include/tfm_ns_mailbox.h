@@ -84,28 +84,25 @@ bool tfm_ns_mailbox_is_msg_replied(mailbox_msg_handle_t handle);
  */
 int32_t tfm_ns_mailbox_init(struct ns_mailbox_queue_t *queue);
 
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
 /**
- * \brief Create a binary semaphore for mailbox
+ * \brief Get the handle of the current non-secure task executing mailbox
+ *        functionalities
  *
  * \note This function should be implemented according to platform, NS OS
  *       and actual use scenario.
  *       This function can be ignored or return NULL if sleep/wake-up mechanism
  *       is not required in PSA Client API implementation.
  *
- * \return Return the handle of semaphore. or NULL if failed
+ * \return Return the handle of task.
  */
-void * tfm_ns_mailbox_hal_create_semaphore(void);
-
-
-/**
- * \briefi Delete the semaphore assoicated with mailbox hanlde
- *
- * \note This function should be implemented according to platform, NS OS
- *       and actual use scenario.
- *
- * \return No
- */
-void tfm_ns_mailbox_hal_delete_semaphore(mailbox_msg_handle_t handle);
+const void *tfm_ns_mailbox_get_task_handle(void);
+#else
+static inline const void *tfm_ns_mailbox_get_task_handle(void)
+{
+    return NULL;
+}
+#endif
 
 /**
  * \brief Fetch the handle to the first replied mailbox message in the NSPE
@@ -124,15 +121,16 @@ void tfm_ns_mailbox_hal_delete_semaphore(mailbox_msg_handle_t handle);
 mailbox_msg_handle_t tfm_ns_mailbox_fetch_reply_msg_isr(void);
 
 /**
- * \brief Return the handle of semaphore of a mailbox message according to the
+ * \brief Return the handle of owner task of a mailbox message according to the
  *        \ref mailbox_msg_handle_t
  *
  * \param[in] handle            The handle of mailbox message.
  *
- * \return Return the handle value of the seamphore.
+ * \return Return the handle value of the owner task.
  */
-void *tfm_ns_mailbox_get_msg_semaphore(mailbox_msg_handle_t handle);
+const void *tfm_ns_mailbox_get_msg_owner(mailbox_msg_handle_t handle);
 
+#ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL
 /**
  * \brief Wait for the reply returned from SPE to the mailbox message specified
  *        by handle
@@ -143,6 +141,7 @@ void *tfm_ns_mailbox_get_msg_semaphore(mailbox_msg_handle_t handle);
  * \retval Other return code    Failed to wait with an error code.
  */
 int32_t tfm_ns_mailbox_wait_reply(mailbox_msg_handle_t handle);
+#endif
 
 /**
  * \brief Platform specific NSPE mailbox initialization.
