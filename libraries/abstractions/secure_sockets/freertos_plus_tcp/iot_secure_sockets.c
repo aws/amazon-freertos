@@ -218,7 +218,11 @@ int32_t SOCKETS_Bind( Socket_t xSocket,
                       SocketsSockaddr_t *pxAddress,
                       Socklen_t xAddressLength )
 {
-   return SOCKETS_SOCKET_ERROR;
+	( void ) xSocket;
+	( void ) pxAddress;
+	( void ) xAddressLength;
+
+	return SOCKETS_SOCKET_ERROR;
 }
 
 /*-----------------------------------------------------------*/
