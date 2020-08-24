@@ -101,7 +101,7 @@ typedef struct _ss_ctx_t
     int recv_flag;
 
     TaskHandle_t rx_handle;
-    void ( * rx_callback )( Socket_t pxSocket );
+    void ( *rx_callback )( Socket_t pxSocket );
 
     bool enforce_tls;
     void * tls_ctx;
@@ -808,18 +808,19 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             }
 
             break;
-			
-            case SOCKETS_SO_TCPKEEPALIVE:
-            {
-                int keep_alive = *((int *)pvOptionValue);
 
-                if( keep_alive == 0 || keep_alive == 1 )
-                {
+        case SOCKETS_SO_TCPKEEPALIVE:
+           {
+               int keep_alive = *( ( int * ) pvOptionValue );
+
+               if( ( keep_alive == 0 ) || ( keep_alive == 1 ) )
+               {
                    ret = lwip_setsockopt( ctx->ip_socket,
                                           SOL_SOCKET,
                                           SO_KEEPALIVE,
                                           &keep_alive,
                                           sizeof( keep_alive ) );
+
                    if( 0 > ret )
                    {
                        return SOCKETS_SOCKET_ERROR;
@@ -827,51 +828,57 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                }
                else
                {
-                  return SOCKETS_EINVAL;
+                   return SOCKETS_EINVAL;
                }
+
                break;
-            }
+           }
 
-#if LWIP_TCP_KEEPALIVE
-            case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
+            #if LWIP_TCP_KEEPALIVE
+                case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
 
-                ret = lwip_setsockopt( ctx->ip_socket,
-                                       IPPROTO_TCP,
-                                       TCP_KEEPINTVL,
-                                       pvOptionValue,
-                                       sizeof( int ) );
-                if( 0 > ret )
-                {
-                	return SOCKETS_SOCKET_ERROR;
-                }
-                break;
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPINTVL,
+                                           pvOptionValue,
+                                           sizeof( int ) );
 
-            case SOCKETS_SO_TCPKEEPALIVE_COUNT:
+                    if( 0 > ret )
+                    {
+                        return SOCKETS_SOCKET_ERROR;
+                    }
 
-                ret = lwip_setsockopt( ctx->ip_socket,
-                                       IPPROTO_TCP,
-                                       TCP_KEEPCNT,
-                                       pvOptionValue,
-                                       sizeof( int ) );
-                if( 0 > ret )
-                {
-                   return SOCKETS_SOCKET_ERROR;
-                }
-                break;
+                    break;
 
-            case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
+                case SOCKETS_SO_TCPKEEPALIVE_COUNT:
 
-                ret = lwip_setsockopt( ctx->ip_socket,
-                                       IPPROTO_TCP,
-                                       TCP_KEEPIDLE,
-                                       pvOptionValue,
-                                      sizeof( int ) );
-                if( 0 > ret )
-                {
-                    return SOCKETS_SOCKET_ERROR;
-                }
-                break;
-#endif
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPCNT,
+                                           pvOptionValue,
+                                           sizeof( int ) );
+
+                    if( 0 > ret )
+                    {
+                        return SOCKETS_SOCKET_ERROR;
+                    }
+
+                    break;
+
+                case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
+
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPIDLE,
+                                           pvOptionValue,
+                                           sizeof( int ) );
+
+                    if( 0 > ret )
+                    {
+                        return SOCKETS_SOCKET_ERROR;
+                    }
+                    break;
+            #endif /* if LWIP_TCP_KEEPALIVE */
 
         default:
             return SOCKETS_ENOPROTOOPT;
