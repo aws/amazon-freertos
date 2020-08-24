@@ -277,7 +277,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  */
 /* @[declare_secure_sockets_bind] */
 int32_t SOCKETS_Bind( Socket_t xSocket,
-                      SocketsSockaddr_t *pxAddress,
+                      SocketsSockaddr_t * pxAddress,
                       Socklen_t xAddressLength );
 /* @[declare_secure_sockets_bind] */
 

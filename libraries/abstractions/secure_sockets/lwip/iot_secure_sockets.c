@@ -389,7 +389,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 /*-----------------------------------------------------------*/
 
 int32_t SOCKETS_Bind( Socket_t xSocket,
-                      SocketsSockaddr_t *pxAddress,
+                      SocketsSockaddr_t * pxAddress,
                       Socklen_t xAddressLength )
 {
     ss_ctx_t * ctx;
@@ -419,28 +419,28 @@ int32_t SOCKETS_Bind( Socket_t xSocket,
      * Setting SO_REUSEADDR socket option in order to be able to bind to the same ip:port again
      * without netconn_bind failing.
      */
-#if SO_REUSE
-    ret = lwip_setsockopt( ctx->ip_socket, SOL_SOCKET, SO_REUSEADDR, &(uint32_t){1}, sizeof(uint32_t));
+    #if SO_REUSE
+        ret = lwip_setsockopt( ctx->ip_socket, SOL_SOCKET, SO_REUSEADDR, &( uint32_t ) { 1 }, sizeof( uint32_t ) );
 
-    if( 0 > ret )
-    {
-        return SOCKETS_SOCKET_ERROR;
-    }
-#endif /* SO_REUSE */
+        if( 0 > ret )
+        {
+            return SOCKETS_SOCKET_ERROR;
+        }
+    #endif /* SO_REUSE */
 
     sa_addr.sin_family = pxAddress->ucSocketDomain ? pxAddress->ucSocketDomain : AF_INET;
     sa_addr.sin_addr.s_addr = pxAddress->ulAddress;
     sa_addr.sin_port = pxAddress->usPort;
 
-    ret = lwip_bind(ctx->ip_socket, ( struct sockaddr * ) &sa_addr, sizeof( sa_addr ));
+    ret = lwip_bind( ctx->ip_socket, ( struct sockaddr * ) &sa_addr, sizeof( sa_addr ) );
+
     if( 0 > ret )
     {
-        configPRINTF(( "lwip_bind fail :%d\n",ret ) );
+        configPRINTF( ( "lwip_bind fail :%d\n", ret ) );
         return SOCKETS_SOCKET_ERROR;
     }
 
     return SOCKETS_ERROR_NONE;
-
 }
 
 /*-----------------------------------------------------------*/
