@@ -8,87 +8,16 @@ variables:
   CY_DEP_DIR: $CI_PROJECT_DIR/cydep
 
 ###############################################################################
-#############################        TEST        ##############################
+#############################  Acceptance Tests  ##############################
 ###############################################################################
+# This covers the following
+# - GCC_ARM compiler build for all boards. make (All demos) + CMake (MQTT + OTA demo)
+# - ARM and IAR compiler build for secure and one non-secure board. make (MQTT + OTA demo) + CMake (MQTT + OTA demo)
+# - CMake unit tests
+# - Board files in sync test.
+# - Coverity tests for secure and one non-secure board.
 
-test_afr-CY8CKIT_062_WIFI_BT:
-  stage: smoke
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CKIT_062_WIFI_BT GCC_ARM
-
-test_afr-CY8CKIT-064S0S2-4343W:
-  stage: smoke
-  tags:
-    - devops-linux
-    - U18.04
-  script:
-    - bash cypress_internal_test/test_afr_cysecure.sh ubuntu CY8CKIT_064S0S2_4343W GCC_ARM --no-cmake
-  allow_failure: true
-
-test_afr-CY8CPROTO_062_4343W:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CPROTO_062_4343W GCC_ARM
-
-test_afr-CY8CKIT_062S2_43012:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CKIT_062S2_43012 GCC_ARM
-
-test_afr-CY8CKIT_064S0S2_4343W:
-  stage: smoke
-  tags:
-    - devops-linux
-    - U18.04
-  script:
-    - bash cypress_internal_test/test_afr_cysecure.sh ubuntu CY8CKIT_064S0S2_4343W GCC_ARM --no-p6make
-  allow_failure: true
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - build/cmake/aws_demos.tgz
-
-test_afr-ARM:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CPROTO_062_4343W ARM --no-p6make
-
-# Currently does not compile successfully with psoc6make
-test_afr-ARM-p6make:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CPROTO_062_4343W ARM --no-cmake
-  allow_failure: true
-
-test_afr-IAR:
-  stage: test
-  tags:
-    - devops-win
-    #- IAR_8.32.1
-    - IAR_8.50.4
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CPROTO_062_4343W IAR --no-p6make
-
-# Currently does not compile successfully with psoc6make
-test_afr-IAR-p6make:
-  stage: test
-  tags:
-    - devops-win
-    #- IAR_8.32.1
-    - IAR_8.50.4
-  script:
-    - bash cypress_internal_test/test_afr.sh CY8CPROTO_062_4343W IAR --no-cmake
-
+############################### Smoke Jobs ####################################
 test_cmake:
   stage: smoke
   tags:
@@ -99,7 +28,79 @@ test_cmake:
     - bash cypress_internal_test/cmake-test/include_test.sh
     - bash cypress_internal_test/cmake-test/file_type_test.sh
 
-# Run coverity static analysis test
+test_afr-check_board_sync:
+  stage: smoke
+  tags:
+    - devops-linux
+  script:
+    - bash cypress_internal_test/board_sync/check_board_sync.sh
+
+############################### Test Jobs ####################################
+# GCC_ARM
+test_afr_build-CY8CKIT_064S0S2_4343W-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W GCC_ARM
+
+test_afr_build-CY8CPROTO_062_4343W-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W GCC_ARM
+
+# Temporarily allow failure due to OTA test failing on this device due to lack of internal flash
+# because nano-specs was removed in latest p6make.
+test_afr_build-CY8CKIT_062S2_43012-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 GCC_ARM
+  allow_failure: true
+
+test_afr_build-CY8CKIT_062_WIFI_BT-GCC_ARM:
+  stage: test
+  tags:
+    - devops-mac
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT GCC_ARM
+
+# ARMC6
+test_afr_build-CY8CKIT_064S0S2_4343W-ARM:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W ARM
+
+test_afr_build-CY8CKIT_062S2_43012-ARM:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 ARM
+
+# IAR
+test_afr_build-CY8CKIT_064S0S2_4343W-IAR:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W IAR
+
+test_afr_build-CY8CKIT_062S2_43012-IAR:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 IAR
+
+# Coverity
 test_coverity_CY8CPROTO_062_4343W:
   stage: test
   tags:
@@ -125,13 +126,6 @@ test_coverity_CY8CKIT_064S0S2_4343W:
   artifacts:
     paths:
       - cov-analyze-errorlist-afr_ota_CY8CKIT_064S0S2_4343W.txt
-
-test_afr-check_board_sync:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash cypress_internal_test/board_sync/check_board_sync.sh
 
 ###############################################################################
 #####################  Amazon-FREERtos device tester tests  ###################
@@ -221,7 +215,7 @@ afr_device_tester_auto_CY8CKIT-064S0S2-4343W:
       - cypress_internal_test/device_tester/test_results
   resource_group: afr_test
   allow_failure: true
-      
+
 # Run AFR Device tester when AFR_TEST_OTA_CY8CKIT_064S0S2_4343W is specified
 afr_device_tester_auto_CY8CKIT-064S0S2-4343W_OTA:
   stage: test
@@ -385,7 +379,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
     # NOTE the board name below use '_' instead of '-'
     - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W ARM $deviceID
   resource_group: afr_test
-  
+
 # Run AFR Device tester when $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_GCC is specified
 .afr_jitp_test_auto_CY8CKIT_064S0S2_4343W_GCC:
   stage: test
@@ -398,7 +392,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
     # NOTE the board name below use '_' instead of '-'
     - bash -e cypress_internal_test/demo_test/run_test_jitp.sh  CY8CKIT_064S0S2_4343W GCC_ARM $deviceID
   resource_group: afr_test
-  
+
 # Run AFR Device tester when $AFR_JITP_TEST_CY8CKIT_064S0S2_4343W_GCC is specified
 afr_jitp_test_auto_CY8CKIT_064S0S2_4343W_ARM:
   stage: test
@@ -411,53 +405,37 @@ afr_jitp_test_auto_CY8CKIT_064S0S2_4343W_ARM:
     # NOTE the board name below use '_' instead of '-'
     - bash -e cypress_internal_test/demo_test/run_test_jitp.sh  CY8CKIT_064S0S2_4343W ARM $deviceID
   resource_group: afr_test
- 
-###############################################################################
-############################  Amazon-FREERtos demo build tests  ###############
-###############################################################################
- 
 
-    
-test_afr_build-CY8CKIT-064S0S2-4343W-WIN:
+###############################################################################
+###############  Amazon-FREERtos demo build tests (Regression)  ###############
+###############################################################################
+
+.test_afr_build-CY8CPROTO_062_4343W-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W ARM
+
+.test_afr_build-CY8CPROTO-062-4343W-WIN:
   stage: test
   tags:
     - devops-win
     - IAR_8.50.4
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh win CY8CKIT_064S0S2_4343W
-    
-test_afr_build-CY8CKIT-064S0S2-4343W-MAC:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W IAR
+
+.test_afr_build-CY8CKIT-062-WIFI-BT-WIN:
   stage: test
-  tags:
-    - devops-mac
-  script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh mac CY8CKIT_064S0S2_4343W
-    
-test_afr_build-CY8CKIT-064S0S2-4343W-LIN:
-  stage: test
-  tags:
-    - devops-linux
-  script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh ubuntu CY8CKIT_064S0S2_4343W
- 
-.afr_jitp_test_build_CY8CKIT_064S0S2_4343W_WIN:
-  stage: smoke
   tags:
     - devops-win
     - IAR_8.50.4
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_jitp_build.sh win CY8CKIT_064S0S2_4343W 
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT IAR
 
-.afr_jitp_test_build_CY8CKIT_064S0S2_4343W_LIN:
+.test_afr_build-CY8CKIT-062-WIFI-BT-LIN:
   stage: test
   tags:
     - devops-linux
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_jitp_build.sh ubuntu CY8CKIT_064S0S2_4343W 
-    
-.afr_jitp_test_build_CY8CKIT_064S0S2_4343W_MAC:
-  stage: test
-  tags:
-    - devops-mac
-  script:
-    - bash -e cypress_internal_test/demo_test/run_test_jitp_build.sh mac CY8CKIT_064S0S2_4343W
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT ARM

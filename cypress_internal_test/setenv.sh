@@ -37,7 +37,7 @@ function save_timestamp()
 function run_setenv()
 {
     local IDT_VER=${1:-'3.1.0'}
-    
+
     # Set OS-specific directories
     KERNEL="$($(which uname) -s)"
     case "$KERNEL" in
@@ -50,15 +50,18 @@ function run_setenv()
             export CY_DEP_MANIFEST="dependencies-windows.txt"
             export PATH="$(cygpath --unix "$CY_DEP_DIR/cmake-3.15.3-win64-x64/bin"):$PATH"
             export PATH="$(cygpath --unix "$CY_DEP_DIR/ninja-1.9.0-win"):$PATH"
-            export PATH="$(cygpath --unix "$CY_DEP_DIR/openocd-4.0.0.820-windows/openocd/bin"):$PATH"  
+            export PATH="$(cygpath --unix "$CY_DEP_DIR/openocd-4.0.0.820-windows/openocd/bin"):$PATH"
             export CMAKE_DIR="$CY_DEP_DIR/cmake-3.15.3-win64-x64/bin"
             export NINJA_DIR="$CY_DEP_DIR/ninja-1.9.0-win"
             export OPENOCD_DIR="$CY_DEP_DIR/openocd-4.0.0.820-windows/openocd"
-            
+
             # Set path to GCC toolchain root directory
             export GCC_DIR="$(cygpath --mixed "${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-windows}")"
             export IAR_DIR="$(cygpath --mixed "${HOST_IAR_PATH_8504}")"
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_win_$IDT_VER/devicetester_freertos_win}"
+
+            # Assume "python" points to Python3 executable
+            export PYTHON="${PYTHON:-"python3"}"
             ;;
         Linux*)
             # Download Linux dependencies
@@ -67,7 +70,7 @@ function run_setenv()
             export CY_DEP_MANIFEST="dependencies-linux.txt"
             export PATH="$CY_DEP_DIR/cmake-3.15.3-Linux-x86_64/bin:$PATH"
             export PATH="$CY_DEP_DIR/ninja-1.9.0-linux:$PATH"
-            export PATH="$CY_DEP_DIR/openocd-4.0.0.820-linux/openocd/bin:$PATH" 
+            export PATH="$CY_DEP_DIR/openocd-4.0.0.820-linux/openocd/bin:$PATH"
             export CMAKE_DIR="$CY_DEP_DIR/cmake-3.15.3-Linux-x86_64/bin"
             export NINJA_DIR="$CY_DEP_DIR/ninja-1.9.0-linux"
             export OPENOCD_DIR="$CY_DEP_DIR/openocd-4.0.0.820-linux/openocd"
@@ -78,6 +81,9 @@ function run_setenv()
             export PATH="${ARMCC_DIR}/bin:$PATH"
 
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_linux_$IDT_VER/devicetester_freertos_linux}"
+
+            # Use "python3" to find Python3 executable ("python" is Python2)
+            export PYTHON="${PYTHON:-"python3"}"
             ;;
         Darwin*)
             # Download MacOS dependencies
@@ -93,8 +99,11 @@ function run_setenv()
 
             # Set path to GCC toolchain root directory
             export GCC_DIR="${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-macos}"
-            
+
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_mac_$IDT_VER/devicetester_freertos_mac}"
+
+            # Use "python3" to find Python3 executable ("python" is Python2)
+            export PYTHON="${PYTHON:-"python3"}"
             ;;
         *)
             echo >&2 "[ERROR]: unsupported OS: $KERNEL"
@@ -116,18 +125,107 @@ function run_setenv()
         sh "downloaddeps.sh" "$deps_file"
         save_timestamp "$timestamp_file"
     fi
-    
+
     case "$KERNEL" in
         CYGWIN*|MINGW*|MSYS*)
             pushd $CY_DEP_DIR
             _arm_compiler=Win64
             git clone git@git-ore.aus.cypress.com:devops/devops_scripts.git
             devops_scripts/install_tool.sh git@git-ore.aus.cypress.com:devops/tools/ARM_Compiler.git arm_compiler_612 ${_arm_compiler}
-            
+
             export ARMCC_DIR=$(pwd)/ARM_Compiler/${_arm_compiler}
             export PATH=${ARMCC_DIR}/bin:$PATH
-            popd 
+            popd
         ;;
     esac
-    
+
+}
+
+# This function configures Python environment
+function setup_python_env()
+{
+    # Set path to the python environment
+    local env_dir=${1:-env}
+
+    # Check if 'pip install' is needed
+    # Skip on consecutive invocations to speedup local build
+    # Can be overridden by FORCE_PIP_INSTALL=1 !!
+    local need_pip_install=${FORCE_PIP_INSTALL:=0}
+
+    # Create and activate the environment
+    # Note: under Windows use virtualenv, under UNIX - venv
+    case "$KERNEL" in
+        CYGWIN*|MINGW*|MSYS*)
+            if ! [[ -d "${env_dir}" ]]; then
+                echo "Creating python virtual environment in ${env_dir}"
+                "$PYTHON" -m virtualenv "${env_dir}"
+                need_pip_install=1
+            fi
+            source "${env_dir}/Scripts/activate"
+            ;;
+        Linux*|Darwin*)
+            if ! [[ -d "${env_dir}" ]]; then
+                echo "Creating python virtual environment in ${env_dir}"
+                "$PYTHON" -m venv "${env_dir}"
+                need_pip_install=1
+            fi
+            set +u # activate script uses unreferenced variables
+            source "${env_dir}/bin/activate"
+            set -u
+            ;;
+        *)
+            echo >&2 "ERROR: unsupported OS: $KERNEL"
+            exit 1
+            ;;
+    esac
+
+    if [[ ${need_pip_install} -eq 1 ]]; then
+        # Populate pip install arguments
+        local pip_install_args=
+
+        # Install required python modules.
+        # Pip version 20.0.1 doesn't include general "py3-none-platform" tags when evaluating wheel validity,
+        # which prevents pip from installing cmsis-pack-manager.
+        # https://github.com/pypa/pip/issues/7629
+        python -m pip install $pip_install_args --upgrade pip
+        #python -m pip install $pip_install_args --upgrade -r "$SCRIPTS_DIR/requirements.txt"
+    fi
+
+    # Once the environment is activated, the 'python' binary always points to env_dir
+    export PYTHON=python
+    "$PYTHON" --version
+}
+
+# This function installs cysecuretools into the python environment
+function setup_cysecuretools()
+{
+    # Check the python virtual environment is loaded to avoid system-wide install
+    [[ -n ${VIRTUAL_ENV} ]] || { echo "ERROR: setup_python_env was never called"; return 1; }
+
+    # Define the package version as seen reported by "pip freeze"
+    local cysecuretools_version=2.0.0
+
+    # Install cysecuretools module, in case the correct version is not yet installed
+    # Checking the package version by grepping "pip show" output
+    if ! pip show cysecuretools 2>/dev/null | grep "^Version:" | grep -q "$cysecuretools_version"; then
+        # true: install official package from pypi.org
+        # false: install directly from gitlab development repo
+        local use_pypi=true
+
+        if [[ $use_pypi == true ]]; then
+            echo "Installing cysecuretools-$cysecuretools_version from pypi.org"
+            pip install --upgrade "cysecuretools==$cysecuretools_version"
+        else
+            # Use fixed tag to avoid sudden breakage of bsp_csp CI due to incompatible cysecuretools changes
+            # Lookup the recent tags: http://git-ore.aus.cypress.com/repo/cysecuretools/-/tags
+            local cysecuretools_url=http://git-ore.aus.cypress.com/repo/cysecuretools.git
+            local cysecuretools_tag=AnyCloudSDK1_1_ES100_TC1 # 2.0.0 ES100 test candidate
+
+            # cysecuretools dev package require new setuptools/pip
+            python -m pip install --upgrade setuptools pip
+
+            echo "Installing cysecuretools#$cysecuretools_tag from $cysecuretools_url"
+            pip install --upgrade git+$cysecuretools_url@$cysecuretools_tag
+        fi
+    fi
 }

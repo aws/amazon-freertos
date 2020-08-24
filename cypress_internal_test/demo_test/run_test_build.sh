@@ -5,69 +5,56 @@ set -e
 
 ERRORS=0
 test_error=0
-host=$1
-board=$2
+board=$1
+toolchain=${2:-GCC_ARM}
 
-# Prepare python virtual enviromental 
+nightly=${NIGHTLY:-0}
+
+# Prepare python virtual enviroment
 bash --version
-python --version
 
 restore_nounset=""
 test -o nounset && restore_nounset="set -u"
 
-# install virtualenv
-[[ ${host} = mac ]]     && python3 -m venv env
-[[ ${host} = ubuntu ]]  && python3 -m venv env
-[[ ${host} = win ]]     && python3 -m venv env
-
-# activate virtualenv
-set +u
-[[ ${host} = mac ]]     && source env/bin/activate
-[[ ${host} = ubuntu ]]  && source env/bin/activate
-[[ ${host} = win ]]     && source env/Scripts/activate
-${restore_nounset}
-
-if [[ ${host} != win ]]; then
-    pip --no-cache-dir install --upgrade pip
-else
-    python -m pip --no-cache-dir install --upgrade pip
-fi
-
-pip install --upgrade --force-reinstall cysecuretools==2.0.0 
+#********************************************************************************************
 
 current_dir="$PWD/$(dirname "${BASH_SOURCE[0]}")"
 pushd "$current_dir/.."
 
 source setenv.sh
 run_setenv
+
+source downloadtools.sh
+download_tools
+
 popd
 
-declare -a supported_toolchains=()
+export CY_TOOLS_PATHS="$PWD/cypress_internal_test/tools"
+mkdir -p $CY_TOOLS_PATHS/gcc-7.2.1 && cp -r $GCC_DIR/* $CY_TOOLS_PATHS/gcc-7.2.1
 
 #********************************************************************************************
-echo "MTB Tools tests install start"
+# Setup virtual environment
+AFR_DIR="$PWD"
 
-mtb_gcc_url="http://iot-webserver.aus.cypress.com/projects/iot_release/ASSETS/repo/sdk_toolchains/develop/1/deploy"
-mt_gcg_ver=gcc-7.2.1-1.0.0.1
+setup_python_env $AFR_DIR/env
+setup_cysecuretools
+
+#********************************************************************************************
+declare -a supported_toolchains=()
 KERNEL="$($(which uname) -s)"
 case "$KERNEL" in
     CYGWIN*|MINGW*|MSYS*)
-    export IAR_DIR="$(cygpath -u -a "${HOST_IAR_PATH_8504}")"
-    export PATH="${IAR_DIR}/bin:$PATH"
-    mtb_gcc_link=$mtb_gcc_url/$mt_gcg_ver-windows.zip
-    mtb_gcc_arhive=$mt_gcg_ver-windows.zip
-    supported_toolchains=("GCC_ARM" "ARM" "IAR")    
+    export PATH="$(cygpath -u -a "${IAR_DIR}/bin"):$PATH"
+    supported_toolchains=("GCC_ARM" "ARM" "IAR")
+    host=win
     ;;
     Linux*)
-    # change this link linux
-    mtb_gcc_link=$mtb_gcc_url/$mt_gcg_ver-linux.zip
-    mtb_gcc_arhive=$mt_gcg_ver-linux.zip
     supported_toolchains=("GCC_ARM" "ARM")
+    host=linux
     ;;
     Darwin*)
-    mtb_gcc_link=$mtb_gcc_url/$mt_gcg_ver-macos.zip
-    mtb_gcc_arhive=$mt_gcg_ver-macos.zip
     supported_toolchains=("GCC_ARM")
+    host=mac
     ;;
     *)
     echo >&2 "[ERROR]: unsupported OS: $KERNEL"
@@ -75,73 +62,69 @@ case "$KERNEL" in
     ;;
 esac
 
-mtb_make_link="http://iot-webserver.aus.cypress.com/projects/iot_release/ASSETS/repo/bsp_csp/develop/7927/deploy/tools-make-1.0.0.7927.zip"
-mtb_tools_folder=mt_tools_2.1
-
-mkdir -p $CY_DEP_DIR/$mtb_tools_folder
-pushd $CY_DEP_DIR/$mtb_tools_folder
-
-curl -O $mtb_make_link 
-curl -O $mtb_gcc_link
-
-unzip $mtb_gcc_arhive 
-unzip tools-make-1.0.0.7927.zip
-
-export CY_TOOLS_PATHS="$CY_DEP_DIR/$mtb_tools_folder"
-
-popd
-
-echo "MTB Tools tests install finish"
 #********************************************************************************************
 
-AFR_DIR="$PWD"
-             
 # create a tmp file to accumulate test result
 result_file=$(mktemp)
 echo "Tests results:" > $result_file
 
 function compile_cmake()
 {
+    local board=$1
+    local additional_flags=${2:-}
+
     pushd $AFR_DIR
-    
-    # builds the project    
-    case "$toolchain" in 
+
+    # builds the project
+    case "$toolchain" in
         GCC_ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc $additional_flags -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -S . -B build -G Ninja
             ;;
         ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang $additional_flags -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -S . -B build -G Ninja
             ;;
         IAR*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar -DOTA_SUPPORT=1 -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar $additional_flags -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -S . -B build -G Ninja
             ;;
     esac
-       
+
     $NINJA_DIR/ninja -C build
     test_error=$?
+
     popd
     return $test_error
 }
 
 function compile_make()
 {
+    local board=$1
+    local additional_flags=${2:-}
+    local build_dir="$PWD/build/make"
+
+    # git set timestamp of files on clone
+    # This update the timestamps files so that generated_source will not get re-generated.
+    echo "find $AFR_DIR -type f -name \"*.timestamp\" -exec touch {} +"
+    find $AFR_DIR -type f -name "*.timestamp" -exec touch {} +
+
     pushd $AFR_DIR/projects/cypress/$board/mtb/aws_demos
-    
-    case "$toolchain" in 
+
+    # Extra quotes are added to the CY_COMPILER_PATH argument since the make build system will take off the first set of quotes
+    # when the variable is initially resolved.
+    # The CY_BUILD_LOCATION needs to be provided otherwise the devops machines get a wrong build location for some reason.
+    case "$toolchain" in
         GCC_ARM*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$GCC_DIR TOOLCHAIN=$toolchain -j8
+        make build $additional_flags CY_COMPILER_PATH="\"$GCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
         ARM*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$ARMCC_DIR TOOLCHAIN=$toolchain -j8
+        make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
         IAR*)
-        make build OTA_SUPPORT=1 CY_COMPILER_PATH=$IAR_DIR TOOLCHAIN=$toolchain -j8
+        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
     esac
-    
     test_error=$?
+
     popd
-    
     return $test_error
 }
 
@@ -156,7 +139,7 @@ function check_build_status()
         echo "$demo_name: ($toolchain) failed." >>$result_file
     fi
 
-    return $test_error    
+    return $test_error
 }
 
 function clean_up()
@@ -166,66 +149,66 @@ function clean_up()
     git checkout "$AFR_DIR/vendors"
     git checkout "$AFR_DIR/demos"
     git checkout "$AFR_DIR/projects"
-    rm -rf "$AFR_DIR/build"
-    
+    #rm -rf "$AFR_DIR/build"
+
     popd
 }
 
 function run_cmake_test()
 {
     local test=$1
+    local additional_flags=${2:-}
+
     test_error=0
-    
+
     echo -e  "******************** " "Cmake build " $test " demo test started" " ********************"
-    
+
     source "$current_dir/$test/setup_test.sh"
 
     pushd $current_dir
 
     setup_test $board
-    
-    compile_cmake $board
-    
+    compile_cmake $board $additional_flags
+    test_error=$?
     check_build_status "cmake $test" $test_error
-    
+
     if [ $test_error -ne 0 ]
     then
         ((ERRORS++))
         echo "Test $test failed."
     fi
-        
+
     clean_up
-    
+
     echo -e  "******************** " "Cmake build " $test " demo test finished" " ********************"
 }
 
 function run_make_test()
 {
     local test=$1
+    local additional_flags=${2:-}
+
     test_error=0
-    
+
     echo -e  "******************** " "Make build " $test " demo test started" " ********************"
-    
+
     source "$current_dir/$test/setup_test.sh"
 
     pushd $current_dir
 
     setup_test $board
-    echo $test_error
-    compile_make
+    compile_make $board $additional_flags
     test_error=$?
-    echo $test_error
-    
     check_build_status "make $test" $test_error
-    
+
     if [ $test_error -ne 0 ]
     then
         ((ERRORS++))
         echo "Test $test failed."
     fi
-        
+
     clean_up
-    
+
     echo -e  "******************** " "Make build " $test " demo test finished" " ********************"
 }
 
@@ -235,7 +218,7 @@ function replace_define()
     local file=$1
     local define=$2
     local value=$3
-    
+
     sed -i "s/#define $define .*/#define $define $value/" $file
 }
 
@@ -243,36 +226,68 @@ set +e
 
 rm -rf $AFR_DIR/build
 
-for val in ${supported_toolchains[@]}; do
-    toolchain=$val
-        
-    run_cmake_test tcp_secure_echo
+if [[ $nightly -eq 0 ]]; then
+    # Acceptance pipeline
+    echo "Running acceptance job: MQTT + OTA demo CMake and all demos Make"
+
     run_cmake_test mqtt
-    run_cmake_test shadow
-    run_cmake_test defender
-    run_cmake_test ota
-    run_cmake_test green_grass    
-    
-    # There is issue with cygwin, cysecuretools and make
-    if [[ ${host} != win ]]; then
-        run_make_test tcp_secure_echo
+    # OTA feature is not supported on the WIFI_BT board.
+    # Remove toolchain GCC_ARM condition after MIDDLEWARE-3718 and MIDDLEWARE-3719 are resolved.
+    if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
+        run_cmake_test ota -DOTA_SUPPORT=1
+    fi
+
+    if [[ ${host} != win ]] || [[ $board != "CY8CKIT_064S0S2_4343W" ]]; then
         run_make_test mqtt
+        if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
+            run_make_test ota OTA_SUPPORT=1
+        fi
+
+        # All demos are only run on GCC_ARM since the source changes between demos are not owned by
+        # cypress hence is unlikely to be changed by use and cause failures. The source files inclusion
+        # for these demos is in a common file shared accross all demos so any changes to should caught in
+        # tests for GCC.
+        if [[ $toolchain == GCC_ARM ]]; then
+            run_make_test tcp_secure_echo
+            run_make_test shadow
+            run_make_test defender
+            run_make_test green_grass
+        fi
+    fi
+else
+    # Nightly pipeline
+    echo "Running nightly job: All demos build make and CMake"
+    for val in ${supported_toolchains[@]}; do
+        toolchain=$val
+
+        run_cmake_test mqtt
+        if [[ $board != "CY8CKIT_062_WIFI_BT" ]]; then
+            run_cmake_test ota -DOTA_SUPPORT=1
+        fi
+        run_cmake_test tcp_secure_echo
+        run_cmake_test shadow
+        run_cmake_test defender
+        run_cmake_test green_grass
+
+        run_make_test mqtt
+        if [[ $board != "CY8CKIT_062_WIFI_BT" ]]; then
+            run_make_test ota OTA_SUPPORT=1
+        fi
+        run_make_test tcp_secure_echo
         run_make_test shadow
         run_make_test defender
-        run_make_test ota 
         run_make_test green_grass
-    fi
-done
+    done
+fi
 
 echo "----------------"
 cat $result_file
 rm -f $result_file
 
-# uninstall virtualenv 
+# uninstall virtualenv
 set +u
-[[ ${host} = mac ]]     && deactivate
-[[ ${host} = ubuntu ]]  && deactivate
-[[ ${host} = win ]]     && deactivate
+deactivate
+rm -rf $AFR_DIR/env
 ${restore_nounset}
 
 exit $ERRORS
