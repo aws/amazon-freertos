@@ -101,7 +101,7 @@ typedef struct _ss_ctx_t
     int recv_flag;
 
     TaskHandle_t rx_handle;
-    void ( *rx_callback )( Socket_t pxSocket );
+    void ( * rx_callback )( Socket_t pxSocket );
 
     bool enforce_tls;
     void * tls_ctx;
