@@ -90,7 +90,7 @@ These values are used when the Secondary Slot is located in **internal** flash. 
 
 1. Edit *mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk*
 
-   `Change at line 54:`
+   `Change at line 31:`
 
    `USE_EXTERNAL_FLASH ?= 0`
 
@@ -108,7 +108,7 @@ These values are used when the Secondary Slot is located in **external** flash. 
 
 1. Edit *mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk*
 
-   `Change at line 54:`
+   `Change at line 31:`
 
    `USE_EXTERNAL_FLASH ?= 1`
 
