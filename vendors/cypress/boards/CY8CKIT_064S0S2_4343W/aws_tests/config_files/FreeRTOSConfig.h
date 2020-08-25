@@ -167,6 +167,23 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 
 #define configPRINT_STRING( X )    fputs((X), stdout)
 
+/* Tickless idle configuration */
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP) || (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
+#define portSUPPRESS_TICKS_AND_SLEEP(xIdleTime)     vApplicationSleep(xIdleTime)
+#define configUSE_TICKLESS_IDLE                     2
+#endif
+
+/* The interrupt latency of TF-M image running on CM0 */
+#define configTFM_INTERRUPT_LATENCY                 (15UL)
+/* Allow CPU to go into deepsleep only if idle time is longer than TF-M interrupt latency */
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       (configTFM_INTERRUPT_LATENCY + 1)
+/* Subtract the TF-M interrupt latency to make sure actual sleep time is shorter than the expected idle time. */
+#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING( xExpectedIdleTime )                                    \
+                                                    do {                                                      \
+                                                        if (xExpectedIdleTime > configTFM_INTERRUPT_LATENCY)  \
+                                                            xExpectedIdleTime -= configTFM_INTERRUPT_LATENCY; \
+                                                    } while (0)
+
 /* The address of an echo server that will be used by the two demo echo client
  * tasks:
  * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Echo_Clients.html,

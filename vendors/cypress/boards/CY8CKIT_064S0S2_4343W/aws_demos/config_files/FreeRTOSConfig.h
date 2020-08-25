@@ -116,14 +116,21 @@ extern void vAssertCalled(const char * pcFile,
 #define configHEAP_ALLOCATION_SCHEME                (HEAP_ALLOCATION_TYPE3)
 
 /* Tickless idle configuration */
-//#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP) || (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
-//#define portSUPPRESS_TICKS_AND_SLEEP(xIdleTime)     vApplicationSleep(xIdleTime)
-//#define configUSE_TICKLESS_IDLE                     2
-//#endif
-
-#if CY_CFG_PWR_DEEPSLEEP_LATENCY > 0
-#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       (CY_CFG_PWR_DEEPSLEEP_LATENCY)
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP) || (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
+#define portSUPPRESS_TICKS_AND_SLEEP(xIdleTime)     vApplicationSleep(xIdleTime)
+#define configUSE_TICKLESS_IDLE                     2
 #endif
+
+/* The interrupt latency of TF-M image running on CM0 */
+#define configTFM_INTERRUPT_LATENCY                 (15UL)
+/* Allow CPU to go into deepsleep only if idle time is longer than TF-M interrupt latency */
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       (configTFM_INTERRUPT_LATENCY + 1)
+/* Subtract the TF-M interrupt latency to make sure actual sleep time is shorter than the expected idle time. */
+#define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING( xExpectedIdleTime )                                    \
+                                                    do {                                                      \
+                                                        if (xExpectedIdleTime > configTFM_INTERRUPT_LATENCY)  \
+                                                            xExpectedIdleTime -= configTFM_INTERRUPT_LATENCY; \
+                                                    } while (0)
 
 /* Software timer definitions. */
 #define configUSE_TIMERS                            1
