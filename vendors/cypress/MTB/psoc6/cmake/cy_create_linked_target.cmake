@@ -491,6 +491,10 @@ function(cy_add_link_libraries)
             )
         endif()
 
+        if ("$ENV{MCUBOOT_IMAGE_NUMBER}" STREQUAL "")
+            set(ENV{MCUBOOT_IMAGE_NUMBER} "1" )
+        endif()
+
         # need these here for the mcu_port
         target_compile_definitions(AFR::ota::mcu_port INTERFACE
             "-DOTA_SUPPORT=1"
