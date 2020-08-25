@@ -157,7 +157,7 @@ def run_build(litani, jobs):
 
 
 def get_litani_path(proof_root):
-    return proof_root.parent / "litani" / "litani"
+    return proof_root.parent.parent / "litani" / "litani"
 
 
 def add_proof_jobs(proof_directory, litani):
