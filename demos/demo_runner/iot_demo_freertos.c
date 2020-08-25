@@ -361,6 +361,11 @@ void runDemoTask( void * pArgument )
             IotLogInfo( "memory_metrics::demo_task_stack::after::bytes::%u", xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
+        /* Give a chance to drain the logging queue to increase the probability
+         * of the following messages used by the test framework not getting
+         * dropped. */
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )
         {
