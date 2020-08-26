@@ -1,4 +1,8 @@
 
+# Set default for core
+# Used in the linker script path below
+CORE?=CM4
+
 # Resolve toolchain name and add linker flag for Freertos OpenOCD debug
 ifeq ($(TOOLCHAIN),GCC_ARM)
 

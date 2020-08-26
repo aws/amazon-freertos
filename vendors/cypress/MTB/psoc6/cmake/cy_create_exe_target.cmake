@@ -227,19 +227,20 @@ function(cy_sign_boot_image)
         set(CY_COMPONENTS_JSON_NAME         "components.json")
         set(CY_OUTPUT_FILE_NAME_TAR         "${ARG_EXE_APP_NAME}.tar")
 
-        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-            find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
-            if(NOT GCC_OBJCOPY )
-                message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-            endif()
+        # We can use objcopy for .hex to .bin for all toolchains
+        find_program(GCC_OBJCOPY arm-none-eabi-objcopy HINT "$ENV{GCC_DIR}")
+        if(NOT GCC_OBJCOPY )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
 
+        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
             # Generate HEX file
             add_custom_command(
                 TARGET "${ARG_EXE_APP_NAME}" POST_BUILD
                 COMMAND "${GCC_OBJCOPY}" -O ihex "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.hex"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-            find_program(FROMELF_TOOL fromelf)
+            find_program(FROMELF_TOOL fromelf HINT "$ENV{GCC_DIR}")
             if(NOT FROMELF_TOOL )
                 message(FATAL_ERROR "Cannot find fromelf tool")
             endif()
@@ -250,7 +251,7 @@ function(cy_sign_boot_image)
                 COMMAND ${FROMELF_TOOL} --i32 --output="${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.hex" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-        find_program(FROMELF_TOOL ielftool)
+        find_program(FROMELF_TOOL ielftool HINT "$ENV{GCC_DIR}")
             if(NOT FROMELF_TOOL )
                 message(FATAL_ERROR "Cannot find ielftool tool")
             endif()
@@ -298,12 +299,13 @@ function(cy_sign_boot_image)
             message(FATAL_ERROR "You must define CY_DEVICE_NAME in your board CMakeLists.txt for CY_TFM_PSA_SUPPORTED")
         endif()
 
-        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-            find_program(GCC_OBJCOPY arm-none-eabi-objcopy)
-            if(NOT GCC_OBJCOPY )
-                message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-            endif()
+        # We can use objcopy for .hex to .bin for all toolchains
+        find_program(GCC_OBJCOPY arm-none-eabi-objcopy HINT "$ENV{GCC_DIR}")
+        if(NOT GCC_OBJCOPY )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
 
+        if("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
             # Workaround the signing issue by removing the sFlash sections
             add_custom_command(
             TARGET "${ARG_EXE_APP_NAME}" POST_BUILD
@@ -315,7 +317,7 @@ function(cy_sign_boot_image)
                 COMMAND "${GCC_OBJCOPY}" -O ihex "${CY_AWS_ELF}" "${CY_CM4_IMG}"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
-            find_program(FROMELF_TOOL fromelf)
+            find_program(FROMELF_TOOL fromelf HINT "$ENV{GCC_DIR}")
             if(NOT FROMELF_TOOL )
                 message(FATAL_ERROR "Cannot find fromelf tool")
             endif()
@@ -326,7 +328,7 @@ function(cy_sign_boot_image)
                 COMMAND ${FROMELF_TOOL} --i32 --output="${CY_CM4_IMG}" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
-        find_program(FROMELF_TOOL ielftool)
+        find_program(FROMELF_TOOL ielftool HINT "$ENV{GCC_DIR}")
             if(NOT FROMELF_TOOL )
                 message(FATAL_ERROR "Cannot find ielftool tool")
             endif()
@@ -341,7 +343,7 @@ function(cy_sign_boot_image)
         endif()
 
         # Sign both TFM and AFR images
-        find_program(CY_SIGN_SCRIPT cysecuretools)
+        find_program(CY_SIGN_SCRIPT cysecuretools HINT "$ENV{GCC_DIR}")
         if(NOT CY_SIGN_SCRIPT )
             message(FATAL_ERROR "Cannot find cysecuretools.")
         endif()
@@ -358,15 +360,8 @@ function(cy_sign_boot_image)
             COMMAND "${CY_SIGN_SCRIPT}" --policy "$ENV{CY_TFM_POLICY_FILE}" --target "$ENV{CY_DEVICE_NAME}" sign-image --hex "${CY_CM0_IMG}" --image-type BOOT --image-id 1
             COMMAND "${CY_SIGN_SCRIPT}" --policy "$ENV{CY_TFM_POLICY_FILE}" --target "$ENV{CY_DEVICE_NAME}" sign-image --hex "${CY_CM4_IMG}" --image-type BOOT --image-id 16
         )
-        #convert signed hex files to binary format
-        #CLANG and IAR do not provide a tool, search for a generic objcopy
-        if(NOT GCC_OBJCOPY )
-            find_program(GCC_OBJCOPY objcopy arm-none-eabi-objcopy)
-            if(NOT GCC_OBJCOPY )
-                message(FATAL_ERROR "Cannot find objcopy.")
-            endif()
-        endif()
 
+        # Prepare vars for script to create TAR archives
         if(OTA_SUPPORT)
             #------------------------------------------------------------
             # Create our build_tar script
