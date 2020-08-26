@@ -45,15 +45,17 @@ void harness() {
   IotHttpsRequestHandle_t reqHandle = allocate_IotRequestHandle();
   if (reqHandle)
     __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
-  uint32_t nameLen;
-  uint32_t valueLen;
+
+  size_t nameLen;
+  size_t valueLen;
   __CPROVER_assume(nameLen < CBMC_MAX_OBJECT_SIZE);
   __CPROVER_assume(valueLen < CBMC_MAX_OBJECT_SIZE);
-  char * pName = safeMalloc(nameLen+1);
-  char * pValue = safeMalloc(valueLen+1);
+  char *pName = safeMalloc(nameLen+1);
+  char *pValue = safeMalloc(valueLen+1);
   if (pName)
     pName[nameLen] = 0;
   if (pValue)
     pValue[valueLen] = 0;
+
   IotHttpsClient_AddHeader(reqHandle, pName, nameLen, pValue, valueLen);
 }
