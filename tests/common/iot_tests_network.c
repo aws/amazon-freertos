@@ -34,49 +34,16 @@
 #include "private/iot_error.h"
 #include "stdbool.h"
 
-static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-
-/*-----------------------------------------------------------*/
-
-
-
 #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
     #include "platform/iot_network_freertos.h"
-    #include "private/iot_mqtt_internal.h"
-    static const IotMqttSerializer_t _mqttSerializer =
-    {
-        .getPacketType      = _IotMqtt_GetPacketType,
-        .getRemainingLength = _IotMqtt_GetRemainingLength,
-        .freePacket         = _IotMqtt_FreePacket,
-        .serialize          =
-        {
-            .connect        = _IotMqtt_connectSerializeWrapper,
-            .publish        = _IotMqtt_publishSerializeWrapper,
-            .publishSetDup  = _IotMqtt_PublishSetDup,
-            .puback         = _IotMqtt_pubackSerializeWrapper,
-            .subscribe      = _IotMqtt_subscribeSerializeWrapper,
-            .unsubscribe    = _IotMqtt_unsubscribeSerializeWrapper,
-            .pingreq        = _IotMqtt_pingreqSerializeWrapper,
-            .disconnect     = _IotMqtt_disconnectSerializeWrapper
-        },
-        .deserialize        =
-        {
-            .connack        = _IotMqtt_deserializeConnackWrapper,
-            .publish        = _IotMqtt_deserializePublishWrapper,
-            .puback         = _IotMqtt_deserializePubackWrapper,
-            .suback         = _IotMqtt_deserializeSubackWrapper,
-            .unsuback       = _IotMqtt_deserializeUnsubackWrapper,
-            .pingresp       = _IotMqtt_deserializePingrespWrapper
-        }
-    };
-#endif /* if ( WIFI_SUPPORTED == 1 ) */
+#endif
 
 #if ( BLE_SUPPORTED == 1 )
     #include "platform/iot_network_ble.h"
-    #include "iot_mqtt.h"
-    extern const IotMqttSerializer_t IotBleMqttSerializer;
-
 #endif /* if ( BLE_SUPPORTED == 1 ) */
+
+
+static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 
 /*-----------------------------------------------------------*/
@@ -112,27 +79,3 @@ bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
     return true;
 }
 
-/*-----------------------------------------------------------*/
-
-const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
-{
-    const IotMqttSerializer_t * pSerializer = NULL;
-
-    switch( _IotTestNetworkType )
-    {
-        #if ( BLE_SUPPORTED == 1 )
-            case AWSIOT_NETWORK_TYPE_BLE:
-                pSerializer = &IotBleMqttSerializer;
-                break;
-        #endif
-        #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-            case AWSIOT_NETWORK_TYPE_WIFI:
-                pSerializer = &_mqttSerializer;
-                break;
-        #endif
-        default:
-            break;
-    }
-
-    return ( IotMqttSerializer_t * ) pSerializer;
-}

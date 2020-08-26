@@ -35,7 +35,7 @@
 
 # list the files you would like to test here
     list(APPEND real_source_files
-                "../../src/iot_ble_mqtt_transport.c"
+                "../../src/services/mqtt_ble/iot_ble_mqtt_transport.c"
             )
 # list the directories the module under test includes
     list(APPEND real_include_directories

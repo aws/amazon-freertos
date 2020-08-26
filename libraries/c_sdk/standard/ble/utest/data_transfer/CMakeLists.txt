@@ -35,7 +35,7 @@ cmake_minimum_required (VERSION 3.13)
 
 # list the files you would like to test here
     list(APPEND real_source_files
-                "../../src/services/mqtt_ble/iot_ble_data_transfer.c"
+                "../../src/services/data_transfer/iot_ble_data_transfer.c"
             )
 # list the directories the module under test includes
     list(APPEND real_include_directories
