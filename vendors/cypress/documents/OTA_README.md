@@ -29,7 +29,9 @@ Once the application starts the OTA agent, the OTA agent will contact the MQTT B
 
 ## Supported Toolchains
 
-- GCC ARM
+- GCC ARM Compiler
+- ARM C Compiler
+- IAR Compiler
 
 ## Supported RTOS
 

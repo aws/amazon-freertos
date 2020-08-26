@@ -1,6 +1,6 @@
 # AWS IoT and FreeRTOS: Over-the-Air Update
 
-Current revision: OTA V3.0.0
+Current revision: OTA V2.1.1
 
 ## What's Included?
 
