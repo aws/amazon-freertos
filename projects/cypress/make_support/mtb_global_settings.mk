@@ -62,6 +62,10 @@ DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
 DEFINES+=static_assert=_Static_assert
 endif
 
+ifneq ($(BLE_SUPPORT),)
+DEFINES+=BLE_SUPPORTED
+endif
+
 ifeq ($(CY_AFR_BUILD), aws_tests)
 CY_AFR_IS_TESTING=1
 else

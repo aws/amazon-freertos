@@ -57,7 +57,7 @@
 
 #include "iot_network_manager_private.h"
 
-#if BLE_ENABLED
+#if BLE_SUPPORTED
     #include "bt_hal_manager_adapter_ble.h"
     #include "bt_hal_manager.h"
     #include "bt_hal_gatt_server.h"
@@ -579,7 +579,7 @@ void vAssertCalled(const char * pcFile,
 
 #endif
 
-#if BLE_ENABLED
+#if BLE_SUPPORTED
     /**
      * @brief "Function to receive user input from a UART terminal. This function reads until a line feed or
      * carriage return character is received and returns a null terminated string through a pointer to INPUTMessage_t.

@@ -156,7 +156,7 @@ function compile_make()
         make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
         ;;
         IAR*)
-        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j VERBOSE=1
+        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
         ;;
     esac
     test_error=$?
