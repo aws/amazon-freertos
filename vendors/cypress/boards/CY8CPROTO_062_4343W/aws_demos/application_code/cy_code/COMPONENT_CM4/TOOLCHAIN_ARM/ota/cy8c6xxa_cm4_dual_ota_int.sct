@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xxa_cm4_dual.sct
-;* \version 2.60
+;* \version 2.70.1
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -26,7 +26,7 @@
 ;*
 ;*******************************************************************************
 ;* \copyright
-;* Copyright 2016-2019 Cypress Semiconductor Corporation
+;* Copyright 2016-2020 Cypress Semiconductor Corporation
 ;* SPDX-License-Identifier: Apache-2.0
 ;*
 ;* Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,13 +46,14 @@
 ; Use these defines to specify the memory regions available for allocation.
 
 ; Size of the Cortex-M0+ application image at the start of FLASH - passed in as argument to ld.exe
-; MCUBOOT_BOOTLOADER_SIZE  = 0x12000;
+; MCUBOOT_BOOTLOADER_SIZE  = 0x18000;
 
 ; MCUBoot Header Size passed in as argument to ld.exe
 ; MCUBOOT_HEADER_SIZE = 0x400;
 
 ; CY_BOOT_PRIMARY_1_SIZE Slot 1 size passed in as argument to ld.exe
-; CY_BOOT_PRIMARY_1_SIZE = 0xEE000
+; CY_BOOT_PRIMARY_1_SIZE = 0x0EE000 (internal FLASH)
+; CY_BOOT_PRIMARY_1_SIZE = 0x1C0000 (external FLASH)
 
 ; The following defines control RAM and flash memory allocation for the CM4 core.
 ; You can change the memory allocation by editing RAM and Flash defines.
@@ -61,8 +62,8 @@
 ; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
 ; where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.scat'.
 ; RAM
-#define RAM_START               0x08002000
-#define RAM_SIZE                0x000FD800
+#define RAM_START               0x08020000
+#define RAM_SIZE                0x000DF800
 ; Flash
 #define FLASH_START             (0x10000000 + MCUBOOT_BOOTLOADER_SIZE + MCUBOOT_HEADER_SIZE)
 #define FLASH_SIZE              (CY_BOOT_PRIMARY_1_SIZE - MCUBOOT_HEADER_SIZE) ; Our code must fit into a single slot - header
