@@ -1,6 +1,0 @@
-{
-    "src": {"vendors/espressif/boards/esp32/ports/pkcs11/iot_pkcs11_pal.c":[]},
-    "vendor": "espressif",
-    "board": "esp32_wrover_kit",
-    "compiler": "xtensa-esp32"
-}

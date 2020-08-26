@@ -22,8 +22,7 @@ import sys
 import random
 
 import utils
-
-from mutation_runner import LineOutOfRange
+import mutation_runner
 
 ### Mutation tricks ###
 
@@ -198,9 +197,9 @@ def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 	for i in list(range(random_line,number_of_lines_of_code)) + list(range(0,random_line)) :
 	#
 		line = (lines_to_mutate[source_file][i] if 
-					lines_to_mutate[source_file] else i)
+					lines_to_mutate[source_file] else i) - 1
 		if lines_to_mutate[source_file] and max(lines_to_mutate[source_file]) >= len(source_code):
-			raise LineOutOfRange("Line is out of range of source")
+			raise mutation_runner.LineOutOfRange("Line is out of range of source")
 		# do not mutate preprocessor or assert statements
 		if source_code[line].strip().startswith("#") or source_code[line].strip().startswith("assert") :
 			continue
@@ -233,7 +232,7 @@ def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 				else :	
 					mutate_with = mutation_trick[m][rng.randint(0,len(mutation_trick[m])-1)]
 
-				sys.stderr.write("\n==> @ Line: "+str(line)+"\n\n")
+				sys.stderr.write("\n==> @ Line: "+str(line + 1)+"\n\n")
 				sys.stderr.write("Original Line  : "+source_code[line].strip()+"\n")
 
 				mutated_line = source_code[line][0:mutate_at_index] + source_code[line][mutate_at_index:].replace(m,mutate_with,1)
@@ -245,12 +244,13 @@ def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 					sys.stderr.write("\nOutput written to "+output_files[src_index]+"\n")
 
 				sys.stderr.write("\n")
-				return src_index, source_code[line].strip(), mutated_line.strip(), line
+				return src_index, source_code[line].strip(), mutated_line.strip(), line + 1
 			#
 		#
 	#
 	sys.stderr.write("Could not create a mutant. Please make sure it is a C file.\n")
 	sys.stderr.write("You may need to indent your C file.\n")
+	return src_index, "", "", -1
 #
 
 def write_to_file ( mutant_file_name, source_code, mutated_line_number, mutated_line ) :

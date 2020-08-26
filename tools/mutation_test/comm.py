@@ -89,7 +89,10 @@ def _read_until_complete(target, stop_flags, pass_flag, timeout):
     alive = False
     timeout_end = time.time() + timeout
     # Read until timeout or stop_flag is detected.
-    while time.time() < timeout_end and not target_terminated():
+    while not target_terminated():
+        if time.time() >= timeout_end:
+            utils.yellow_print("TIMEOUT")
+            break
         try:
             c = target_read(target).decode()
         except (UnicodeDecodeError, asyncio.TimeoutError, serial.SerialException):

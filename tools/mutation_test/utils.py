@@ -170,6 +170,21 @@ def add_to_env_path(files, search_path):
 
     return True
 
+def get_default_serial_port():
+    """ 
+    Return a default serial port.
+    """
+    # Import is done here in order to move it after the check_environment() ensured that pyserial has been installed
+    import serial.tools.list_ports
+
+    ports = list(reversed(sorted(
+        p.device for p in serial.tools.list_ports.comports())))
+    try:
+        print("Choosing default port %s (use '-p PORT' option to set a specific serial port)" % ports[0].encode('ascii', 'ignore'))
+        return ports[0]
+    except IndexError:
+        raise RuntimeError("No serial ports found. Connect a device, or use '-p PORT' option to set a specific port.")
+
 
 class CLIParser():
     class Formatter(argparse.HelpFormatter):

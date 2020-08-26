@@ -1,4 +1,3 @@
-import mutate
 import shutil
 import subprocess
 import shlex
@@ -16,9 +15,12 @@ import ast
 import random
 import json
 import collections
+import fileinput
+from pathlib import Path
 
 import comm
 import utils
+import mutate
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -31,25 +33,50 @@ current_time = datetime.datetime.now()
 current_date = current_time.strftime('%m%d%y')
 current_time = current_time.strftime('%H%M')
 
-# configs
-with open(os.path.join(dir_path, 'config.json')) as f:
-    config = json.load(f)
-
-src = config['src']
-vendor = config['vendor']
-compiler = config['compiler']
-board = config['board']
-
 idf_path = os.path.join(root_path, 'vendors/espressif/esp-idf/tools/idf.py')
 
 # TEST REGEX
-EndFlag                             = "-------ALL TESTS FINISHED-------"
-StartFlag                           = "---------STARTING TESTS---------"
-PassFlag                            = "OK"
-FailFlag                            = "FAIL"
-CrashFlag                           = "Rebooting..."
+class FLAGS:
+    EndFlag                             = "-------ALL TESTS FINISHED-------"
+    StartFlag                           = "---------STARTING TESTS---------"
+    PassFlag                            = "OK"
+    FailFlag                            = "FAIL"
+    CrashFlag                           = "Rebooting..."
 
 TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
+
+def cmake(vendor, board, compiler):
+    # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
+    cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
+    utils.yellow_print(cmd)
+    subprocess.check_call(shlex.split(cmd))
+
+def build():
+    """
+    Compiles freeRTOS from free-rtos/build dir
+    """
+    old_path = os.getcwd()
+    os.chdir(os.path.join(root_path, "build"))
+    try:
+        subprocess.check_call(["make", "-j", "14", "all"])
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        raise CompileFailed('Compile Command Failed')
+    finally:
+        os.chdir(old_path)
+
+def flash(port):
+    # build and execute the mutant
+    # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
+    cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
+    utils.yellow_print(cmd)
+    # Flash to device
+    try: 
+        subprocess.check_call(shlex.split(cmd))
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        raise CompileFailed('Flash command failed.')
+    utils.yellow_print("Done Flashing")
 
 def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None, start_timeout=360, exec_timeout):
     """
@@ -92,6 +119,39 @@ def _flatten(intervals):
         out += list(range(i[0], i[1] + 1))
     return out
 
+
+
+def _process_file(file_path):
+    p = Path(file_path)
+    backup = p.with_suffix(p.suffix + '.old')
+    shutil.copy(p, backup)
+    return fileinput.input(files=file_path, inplace=True), backup
+
+def generate_test_runner(test_groups):
+    """
+    Given `test_groups`, e.g., ['Full_MQTT', 'Full_TCP'], generate function body
+    of void RunTests() from aws_test_runner.c file. Note that values in `test_groups`
+    must match the exact UNITY test group names.
+    """
+    indent = ' ' * 4
+    is_generating = False
+    test_runner_path = os.path.join(root_path, 'tests/common/aws_test_runner.c')
+    fi, backup = _process_file(test_runner_path)
+    for line in fi:
+        if is_generating:
+            if line.startswith('}'):
+                sys.stdout.write('{\n')
+                for test_group in test_groups:
+                    sys.stdout.write(f'{indent}RUN_TEST_GROUP( {test_group} );\n')
+                sys.stdout.write(line)
+                is_generating = False
+        else:
+            sys.stdout.write(line)
+            if line.startswith('static void RunTests'):
+                is_generating = True
+    return backup
+    
+
 def to_csv(csv_path, headers, dict):
     """
     Create a csv file at `csv_path` with `headers` using data in `dict` where each key in `dict` is
@@ -111,24 +171,6 @@ def create_jobfile(path=os.path.join(dir_path, 'jobfile'), **kwargs):
     with open(path, 'w') as f:
         f.write(str(kwargs))
 
-
-def get_default_serial_port():
-    """ Return a default serial port. esptool can do this (smarter), but it can create
-    inconsistencies where esptool.py uses one port and idf_monitor uses another.
-
-    Same logic as esptool.py search order, reverse sort by name and choose the first port.
-    """
-    # Import is done here in order to move it after the check_environment() ensured that pyserial has been installed
-    import serial.tools.list_ports
-
-    ports = list(reversed(sorted(
-        p.device for p in serial.tools.list_ports.comports())))
-    try:
-        print("Choosing default port %s (use '-p PORT' option to set a specific serial port)" % ports[0].encode('ascii', 'ignore'))
-        return ports[0]
-    except IndexError:
-        raise RuntimeError("No serial ports found. Connect a device, or use '-p PORT' option to set a specific port.")
-
 class MutationTestError(Exception):
     def __init__(self, message):
         self.message = message
@@ -138,7 +180,7 @@ class MutationTestError(Exception):
 class SerialPortError(MutationTestError):
     pass
 
-class CompileFlashFailed(MutationTestError):
+class CompileFailed(MutationTestError):
     pass
 
 class LineOutOfRange(MutationTestError):
@@ -146,6 +188,11 @@ class LineOutOfRange(MutationTestError):
 
 def main():
     parser = argparse.ArgumentParser('Mutation Testing')
+    parser.add_argument(
+        '--src_config', '-s',
+        help='Select the test config file to use eg. -s wifi',
+        required=True
+    )
     parser.add_argument(
         '--mutants', '-m',
         help='Number of mutants',
@@ -179,7 +226,17 @@ def main():
     )
     args = parser.parse_args()
 
-    port = args.port if args.port else get_default_serial_port()
+    # configs
+    with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
+        config = json.load(f)
+
+    src = config['src']
+    vendor = config['vendor']
+    compiler = config['compiler']
+    board = config['board']
+    test_groups = config['test_groups']
+
+    port = args.port if args.port else utils.get_default_serial_port()
     mutant_cnt = int(args.mutants)
     timeout = int(args.timeout)
     csv = args.csv
@@ -187,17 +244,23 @@ def main():
     if args.jobfile:
         with open(args.jobfile, 'r') as f:
             jobfile = ast.literal_eval(f.read())
-            global src
             src = jobfile['src']
+            vendor = jobfile['vendor']
+            compiler = jobfile['compiler']
+            board = jobfile['board']
+            test_groups = jobfile['test_groups']
             port = jobfile['port']
             mutant_cnt = int(jobfile['mutant_cnt'])
             timeout = int(jobfile['timeout'])
             csv = jobfile['csv']
             seed = jobfile['seed']
-    
-    # cd to source
-    # os.chdir(src_path)
 
+    # Generate test runner to run only on those test groups
+    backup = generate_test_runner(test_groups)
+
+    os.chdir(root_path)
+
+    ### BEGIN MUTATION TESTING ###
     run_cnt = 0
     failures = 0
     nc = 0
@@ -206,6 +269,7 @@ def main():
     # create a rng for this run
     if not seed:
         seed = random.randrange(sys.maxsize)
+    utils.yellow_print("Current test seed is: {}".format(seed))
     rng = random.Random(seed)
     try:
         while run_cnt < mutant_cnt:
@@ -222,32 +286,22 @@ def main():
                     modified.append(f)
                     # process the line intervals into a list of line numbers
                     lines_to_mutate[old] = _flatten(_merge(src[f]))
+                print(lines_to_mutate)
                 # create a mutant
                 src_index, original_line, mutated_line, line_number = mutate.main(
                                                             olds, modified, lines_to_mutate, rng)
                 file_changed = os.path.basename(os.path.normpath(modified[src_index]))
                 # cmake the mutant
-                # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
-                cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
-                utils.yellow_print(cmd)
-                subprocess.check_call(shlex.split(cmd))
-                # build and execute the mutant
-                # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-                cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
-                utils.yellow_print(cmd)
+                cmake(vendor, board, compiler)
+                # build and flash
+                build()
+                flash(port)
                 alive = False
-                # Flash to device
-                try: 
-                    subprocess.check_call(shlex.split(cmd))
-                except subprocess.CalledProcessError as e:
-                    print(e.output)
-                    raise CompileFlashFailed('Flash command failed.')
-                utils.yellow_print("Done Flashing")
                 # Read device output through serial port
                 output, alive = read_device_output(port=port, 
                                                    start_flag=None, 
-                                                   end_flags=[EndFlag, CrashFlag], 
-                                                   pass_flag=PassFlag, 
+                                                   end_flags=[FLAGS.EndFlag, FLAGS.CrashFlag], 
+                                                   pass_flag=FLAGS.PassFlag, 
                                                    exec_timeout=timeout)
                 # Analyze the results
                 results = re.findall(TestRegEx, output)
@@ -268,11 +322,11 @@ def main():
                 trials.append({'file': file_changed,'line':line_number, 'original':original_line, 'mutant':mutated_line, 
                                 'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
                 utils.yellow_print("Successful Mutant Runs: {}/{}".format(run_cnt, mutant_cnt))
-            except CompileFlashFailed:
+            except CompileFailed:
                 utils.yellow_print("Cannot compile, discard and move on")
                 # Include no-compile in csv results?
-                # results.append({'line':line_number, 'original':original_line, 'mutant':mutated_line, 
-                #                 'result':"No-Compile"})
+                # results.append({'file': file_changed, 'line':line_number, 'original':original_line, 
+                #                   'mutant':mutated_line, 'result':"No-Compile"})
                 nc += 1
             finally:
                 # restore mutant
@@ -285,6 +339,9 @@ def main():
         traceback.print_exc()
         raise
     finally:
+        # restore aws_test_runner.c
+        shutil.copy(backup, os.path.splitext(backup)[0])
+
         # calculate mutant score
         score = percentage(failures, run_cnt)
         utils.yellow_print(score)
@@ -306,8 +363,9 @@ def main():
         # log to csv
         if csv:
             os.chdir(dir_path)
-            utils.mkdir(current_date)
-            csv_path = os.path.join(current_date, current_time)
+            csv_path = os.path.join('csvs', current_date)
+            utils.mkdir(csv_path)
+            csv_path = os.path.join(csv_path, current_time)
             utils.mkdir(csv_path)
             trials_csv = os.path.join(csv_path, "{}-{}_{}_mutants.csv".format(current_date, current_time, mutant_cnt))
             per_test_csv = os.path.join(csv_path, "{}-{}_tests.csv".format(current_date, current_time)) 
@@ -315,6 +373,10 @@ def main():
             to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
         create_jobfile(src=src,
+                       vendor=vendor,
+                       board=board,
+                       compiler=compiler,
+                       test_groups=test_groups,
                        mutant_cnt=mutant_cnt,
                        port=port,
                        timeout=timeout,

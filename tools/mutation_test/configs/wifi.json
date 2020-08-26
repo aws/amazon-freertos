@@ -1,0 +1,7 @@
+{
+    "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c": []},
+    "test_groups": ["Full_WiFi"],
+    "vendor": "espressif",
+    "board": "esp32_wrover_kit",
+    "compiler": "xtensa-esp32"
+}
