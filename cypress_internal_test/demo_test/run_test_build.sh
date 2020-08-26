@@ -17,7 +17,6 @@ restore_nounset=""
 test -o nounset && restore_nounset="set -u"
 
 #********************************************************************************************
-
 current_dir="$PWD/$(dirname "${BASH_SOURCE[0]}")"
 pushd "$current_dir/.."
 
@@ -62,6 +61,44 @@ case "$KERNEL" in
     ;;
 esac
 
+# Find drive letter to mount mbed/mbed-os on windows to work around path length issues.
+win_drive_letter="A:"
+if [ ${host} == win ]; then
+    # Determine gitlab-runner instance ID from path
+    folder_path=`pwd`
+    # Assign different path for each gitlab-runner instance, to enable concurrent CI jobs
+    if echo "$folder_path" | grep -q "/1/"; then
+    win_drive_letter="B:" # use drive B: for 2nd instance
+    elif echo "$folder_path" | grep -q "/2/"; then
+    win_drive_letter="I:" # use drive I: for 3rd instance
+    elif echo "$folder_path" | grep -q "/3/"; then
+    win_drive_letter="J:" # use drive I: for 4th instance
+    fi
+fi
+
+# Unmount virtual drive
+function unmount_win_drive()
+{
+    # Check if the drive is mounted
+    if [[ -d "$(cygpath $win_drive_letter)" ]]; then
+        # Cygwin and MSYS interpret /D differently..
+        KERNEL="$($(which uname) -s)"
+        case "$KERNEL" in
+            CYGWIN*)
+                subst $win_drive_letter /D && echo "Unmounted virtual drive $win_drive_letter"
+                ;;
+            MINGW*|MSYS*)
+                subst $win_drive_letter //D && echo "Unmounted virtual drive $win_drive_letter"
+                ;;
+            *)
+                echo "Unsupported OS: $KERNEL"
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+
 #********************************************************************************************
 
 # create a tmp file to accumulate test result
@@ -78,13 +115,13 @@ function compile_cmake()
     # builds the project
     case "$toolchain" in
         GCC_ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc $additional_flags -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-gcc $additional_flags -DAFR_TOOLCHAIN_PATH="$GCC_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
             ;;
         ARM*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang $additional_flags -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-armclang $additional_flags -DAFR_TOOLCHAIN_PATH="$ARMCC_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
             ;;
         IAR*)
-            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar $additional_flags -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -S . -B build -G Ninja
+            $CMAKE_DIR/cmake -DVENDOR=cypress -DBOARD=$board -DCOMPILER=arm-iar $additional_flags -DAFR_TOOLCHAIN_PATH="$IAR_DIR/bin" -DBLE_SUPPORTED=1 -S . -B build -G Ninja
             ;;
     esac
 
@@ -99,7 +136,7 @@ function compile_make()
 {
     local board=$1
     local additional_flags=${2:-}
-    local build_dir="$PWD/build/make"
+    local build_dir="$AFR_DIR/build/make"
 
     # git set timestamp of files on clone
     # This update the timestamps files so that generated_source will not get re-generated.
@@ -113,13 +150,13 @@ function compile_make()
     # The CY_BUILD_LOCATION needs to be provided otherwise the devops machines get a wrong build location for some reason.
     case "$toolchain" in
         GCC_ARM*)
-        make build $additional_flags CY_COMPILER_PATH="\"$GCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$GCC_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
         ;;
         ARM*)
-        make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
         ;;
         IAR*)
-        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j VERBOSE=1
         ;;
     esac
     test_error=$?
@@ -165,8 +202,6 @@ function run_cmake_test()
 
     source "$current_dir/$test/setup_test.sh"
 
-    pushd $current_dir
-
     setup_test $board
     compile_cmake $board $additional_flags
     test_error=$?
@@ -193,8 +228,6 @@ function run_make_test()
     echo -e  "******************** " "Make build " $test " demo test started" " ********************"
 
     source "$current_dir/$test/setup_test.sh"
-
-    pushd $current_dir
 
     setup_test $board
     compile_make $board $additional_flags
@@ -237,22 +270,31 @@ if [[ $nightly -eq 0 ]]; then
         run_cmake_test ota -DOTA_SUPPORT=1
     fi
 
-    if [[ ${host} != win ]] || [[ $board != "CY8CKIT_064S0S2_4343W" ]]; then
-        run_make_test mqtt
-        if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
-            run_make_test ota OTA_SUPPORT=1
-        fi
+    if [ ${host} == win ]; then
+        unmount_win_drive
+        WIN_AFR_DIR="$(cygpath --windows "${AFR_DIR}")"
+        subst $win_drive_letter $WIN_AFR_DIR
+        echo "Mounted $AFR_DIR as virtual drive $win_drive_letter"
+        trap unmount_win_drive EXIT
+        pushd $win_drive_letter >/dev/null
+        # Update AFR_DIR with the substituted drive letter.
+        AFR_DIR="$PWD"
+    fi
 
-        # All demos are only run on GCC_ARM since the source changes between demos are not owned by
-        # cypress hence is unlikely to be changed by use and cause failures. The source files inclusion
-        # for these demos is in a common file shared accross all demos so any changes to should caught in
-        # tests for GCC.
-        if [[ $toolchain == GCC_ARM ]]; then
-            run_make_test tcp_secure_echo
-            run_make_test shadow
-            run_make_test defender
-            run_make_test green_grass
-        fi
+    run_make_test mqtt
+    if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
+        run_make_test ota OTA_SUPPORT=1
+    fi
+
+    # All demos are only run on GCC_ARM since the source changes between demos are not owned by
+    # cypress hence is unlikely to be changed by use and cause failures. The source files inclusion
+    # for these demos is in a common file shared accross all demos so any changes to should caught in
+    # tests for GCC.
+    if [[ $toolchain == GCC_ARM ]]; then
+        run_make_test tcp_secure_echo
+        run_make_test shadow
+        run_make_test defender
+        run_make_test green_grass
     fi
 else
     # Nightly pipeline
