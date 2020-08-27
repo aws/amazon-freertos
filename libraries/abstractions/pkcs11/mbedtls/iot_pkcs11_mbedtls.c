@@ -105,6 +105,12 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 
 /**
  * @ingroup pkcs11_macros
+ * @brief Delay to wait on acquiring a mutex, in ms.
+ */
+#define pkcs11MUTEX_WAIT_MS                     ( pdMS_TO_TICKS( 5000U ) )
+
+/**
+ * @ingroup pkcs11_macros
  * @brief Indicates that no PKCS #11 operation is underway for given session.
  */
 #define pkcs11NO_OPERATION                      ( ( CK_MECHANISM_TYPE ) -1 )
@@ -1087,7 +1093,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
     if( xResult == CKR_OK )
     {
-        xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+        xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, pkcs11MUTEX_WAIT_MS );
     }
 
     if( xGotSemaphore == pdTRUE )
@@ -1145,7 +1151,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     "but expected <= %lu.", xLabelLength, pkcs11configMAX_LABEL_LENGTH ) );
         xResult = CKR_DATA_LEN_RANGE;
     }
-    else if( pdTRUE == xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY ) )
+    else if( pdTRUE == xSemaphoreTake( xP11Context.xObjectList.xMutex, pkcs11MUTEX_WAIT_MS ) )
     {
         for( ulSearchIndex = 0; ulSearchIndex < pkcs11configMAX_NUM_OBJECTS; ulSearchIndex++ )
         {
@@ -1940,7 +1946,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     if( CKR_OK == xResult )
     {
         /* Get next open session slot. */
-        if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) == pdTRUE )
+        if( xSemaphoreTake( xP11Context.xSessionMutex, pkcs11MUTEX_WAIT_MS ) == pdTRUE )
         {
             for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS; ++ulSessionCount )
             {
@@ -3791,7 +3797,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     {
         /* Grab the sign mutex.  This ensures that no signing operation
          * is underway on another thread where modification of key would lead to hard fault.*/
-        if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
+        if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, pkcs11MUTEX_WAIT_MS ) )
         {
             if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
             {
@@ -3982,7 +3988,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             /* Sign the data.*/
             if( CKR_OK == xResult )
             {
-                if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
+                if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, pkcs11MUTEX_WAIT_MS ) )
                 {
                     /* Per mbed TLS documentation, if using RSA, md_alg should
                      * be MBEDTLS_MD_NONE. If ECDSA, md_alg should never be
@@ -4155,7 +4161,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
+        if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, pkcs11MUTEX_WAIT_MS ) )
         {
             if( ( pxSession->xVerifyKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xVerifyKeyHandle != hKey ) )
             {
@@ -4342,7 +4348,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         /* Perform an RSA verification. */
         if( pxSessionObj->xOperationVerifyMechanism == CKM_RSA_X_509 )
         {
-            if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+            if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, pkcs11MUTEX_WAIT_MS ) )
             {
                 /* Verify the signature. If a public key is present, use it. */
                 if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
@@ -4408,7 +4414,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
 
             if( xResult == CKR_OK )
             {
-                if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+                if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, pkcs11MUTEX_WAIT_MS ) )
                 {
                     /* Verify the signature. If a public key is present, use it. */
                     if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
