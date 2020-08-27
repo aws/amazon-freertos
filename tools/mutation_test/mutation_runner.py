@@ -72,24 +72,44 @@ def flash(port):
     utils.yellow_print(cmd)
     # Flash to device
     try: 
-        subprocess.check_call(shlex.split(cmd))
+        utils.yellow_print("Flashing to device...")
+        subprocess.check_output(shlex.split(cmd))
     except subprocess.CalledProcessError as e:
         print(e.output)
         raise CompileFailed('Flash command failed.')
     utils.yellow_print("Done Flashing")
 
-def read_device_output(port, *, start_flag=None, end_flags=None, pass_flag=None, start_timeout=360, exec_timeout):
+def read_device_output(port, *, start_flag=None, end_flag=None, crash_flag=None, 
+                        pass_flag=None, start_timeout=360, exec_timeout):
     """
     Read output from a board. Will look for `start_flag`, or wait for output if not provided, until
     `start_timeout` expires. If success, continue to read output until `exec_timeout` expires or
     end_flag is detected if provided.
     """
     try:
+        utils.yellow_print("Monitoring...")
         with serial.Serial(port, 115200, timeout=comm.SERIAL_TIMEOUT) as port:
-            output, alive = comm.read_target_output(port, start_flag, end_flags, pass_flag, start_timeout, exec_timeout)
+            output, final_flag = comm.read_target_output(port, start_flag, crash_flag, end_flag, 
+                                                pass_flag, start_timeout, exec_timeout)
     except serial.SerialException as e:
         raise SerialPortError(str(e))
-    return output, alive
+    return output, final_flag
+
+def flash_and_read(vendor, board, compiler, port, timeout):
+    # cmake the mutant
+    cmake(vendor, board, compiler)
+    # build and flash
+    build()
+    flash(port)
+    final_flag = FLAGS.EndFlag
+    # Read device output through serial port
+    output, final_flag = read_device_output(port=port, 
+                                        start_flag=None,
+                                        crash_flag=FLAGS.CrashFlag,
+                                        end_flag=FLAGS.EndFlag,
+                                        pass_flag=FLAGS.PassFlag,
+                                        exec_timeout=timeout)
+    return output, final_flag         
 
 def percentage(part, whole):
     """
@@ -118,8 +138,6 @@ def _flatten(intervals):
     for i in intervals:
         out += list(range(i[0], i[1] + 1))
     return out
-
-
 
 def _process_file(file_path):
     p = Path(file_path)
@@ -256,6 +274,7 @@ def main():
             seed = jobfile['seed']
 
     # Generate test runner to run only on those test groups
+    utils.yellow_print("Generating test runner based on supplied test groups...")
     backup = generate_test_runner(test_groups)
 
     os.chdir(root_path)
@@ -286,23 +305,14 @@ def main():
                     modified.append(f)
                     # process the line intervals into a list of line numbers
                     lines_to_mutate[old] = _flatten(_merge(src[f]))
-                print(lines_to_mutate)
                 # create a mutant
                 src_index, original_line, mutated_line, line_number = mutate.main(
                                                             olds, modified, lines_to_mutate, rng)
                 file_changed = os.path.basename(os.path.normpath(modified[src_index]))
-                # cmake the mutant
-                cmake(vendor, board, compiler)
-                # build and flash
-                build()
-                flash(port)
-                alive = False
-                # Read device output through serial port
-                output, alive = read_device_output(port=port, 
-                                                   start_flag=None, 
-                                                   end_flags=[FLAGS.EndFlag, FLAGS.CrashFlag], 
-                                                   pass_flag=FLAGS.PassFlag, 
-                                                   exec_timeout=timeout)
+
+                # cmake, build, flash, and read
+                output, final_flag = flash_and_read(vendor, board, compiler, port, timeout)
+
                 # Analyze the results
                 results = re.findall(TestRegEx, output)
                 for group, test, result in results:
@@ -313,14 +323,23 @@ def main():
                         test_to_kills[(group, test)] = ((kills + 1, total + 1) if result == 'FAIL' 
                                                         else (kills, total + 1))
                 run_cnt += 1
-                if not alive:
+
+                # mutant_status can either be "FAIL", "PASS", "CRASH", "TIMEOUT"
+                mutant_status = "FAIL"
+                if final_flag == FLAGS.PassFlag:
+                    utils.red_print("Mutant is Alive")
+                    mutant_status = "PASS"
+                else:
                     failures += 1
                     utils.green_print("Mutant is Killed")
-                else:
-                    utils.red_print("Mutant is Alive")
+                    
+                if final_flag == FLAGS.CrashFlag:
+                    mutant_status = "CRASH"
+                elif final_flag == "TIMEOUT":
+                    mutant_status = "TIMEOUT"
                 # Add result to CSV queue
                 trials.append({'file': file_changed,'line':line_number, 'original':original_line, 'mutant':mutated_line, 
-                                'result':"FAIL/KILLED" if not alive else "PASS/LIVE"})
+                                'result':"{}/KILLED".format(mutant_status) if mutant_status != "PASS" else "PASS/LIVE"})
                 utils.yellow_print("Successful Mutant Runs: {}/{}".format(run_cnt, mutant_cnt))
             except CompileFailed:
                 utils.yellow_print("Cannot compile, discard and move on")

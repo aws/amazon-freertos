@@ -32,30 +32,30 @@ def subproc_run(command, timeout=300):
     from asyncio.subprocess import PIPE
 
     proc = wait_for(asyncio.create_subprocess_shell(command, stdout=PIPE, stderr=PIPE))
-    _read_until_complete(proc, None, None, timeout)
+    _read_until_complete(proc, None, None, None, timeout)
     return wait_for(proc.wait())
 
 
-def read_target_output(target, start_flag, stop_flags, pass_flag, start_timeout, exec_timeout):
+def read_target_output(target, start_flag, crash_flag, stop_flag, pass_flag, start_timeout, exec_timeout):
     """
     Read output from a serial port or a subprocess. Output is printed at real time.
     """
     is_serial = isinstance(target, serial.Serial)
     wait_for_output = _wait_for_serial_output if is_serial else _wait_for_subproc_output
     final_output = ''
-    alive = False
+    final_flag = stop_flag
     if start_flag is None:
         final_output = wait_for_output(target, start_timeout)
         if final_output:
-            output, alive = _read_until_complete(target, stop_flags, pass_flag, exec_timeout)
+            output, final_flag = _read_until_complete(target, crash_flag, stop_flag, pass_flag, exec_timeout)
             final_output += output
     else:
-        output, alive = _read_until_complete(target, start_flag, None, start_timeout)
+        output, final_flag = _read_until_complete(target, crash_flag, start_flag, None, start_timeout)
         if output.endswith(start_flag):
-            curr_output, alive = _read_until_complete(target, stop_flags, pass_flag, exec_timeout)
+            curr_output, final_flag = _read_until_complete(target, crash_flag, stop_flag, pass_flag, exec_timeout)
             final_output = output + curr_output
 
-    return final_output, alive
+    return final_output, final_flag
 
 
 # ----------------------------------------------------------------------------------------
@@ -80,18 +80,19 @@ def _wait_for_serial_output(serial_port, timeout):
     return c
 
 
-def _read_until_complete(target, stop_flags, pass_flag, timeout):
+def _read_until_complete(target, stop_flag, crash_flag, pass_flag, timeout):
     is_serial = isinstance(target, serial.Serial)
     target_read = _serial_read if is_serial else _subproc_read
     target_terminated = (lambda: False) if is_serial else target.stdout.at_eof
 
     final_output = ''
-    alive = False
+    final_flag = stop_flag
     timeout_end = time.time() + timeout
     # Read until timeout or stop_flag is detected.
     while not target_terminated():
         if time.time() >= timeout_end:
             utils.yellow_print("TIMEOUT")
+            final_flag = "TIMEOUT"
             break
         try:
             c = target_read(target).decode()
@@ -102,13 +103,17 @@ def _read_until_complete(target, stop_flags, pass_flag, timeout):
                 continue
             utils.raw_print(c)
             final_output += c
-            if stop_flags is not None and any(flag in final_output for flag in stop_flags):
+            if crash_flag is not None and crash_flag in final_output:
+                utils.raw_print('\n')
+                final_flag = crash_flag
+                break
+            if stop_flag is not None and stop_flag in final_output:
                 utils.raw_print('\n')
                 break
             if pass_flag is not None and pass_flag in final_output:
-                alive = True
+                final_flag = pass_flag
 
-    return final_output, alive
+    return final_output, final_flag
 
 
 def _subproc_read(subproc):

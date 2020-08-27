@@ -90,15 +90,7 @@ def main():
                 funcs = re.findall(FuncRegEx, text, re.MULTILINE)
                 write_line_prints(s, text, funcs)
         # run once
-        mutation_runner.cmake(vendor, board, compiler)
-        mutation_runner.build()
-        mutation_runner.flash(port)
-        output, _ = mutation_runner.read_device_output(port=port, 
-                                        start_flag=None, 
-                                        end_flags=[mutation_runner.FLAGS.EndFlag, 
-                                                    mutation_runner.FLAGS.CrashFlag], 
-                                        pass_flag=mutation_runner.FLAGS.PassFlag, 
-                                        exec_timeout=timeout)
+        output, _ = mutation_runner.flash_and_read(vendor, board, compiler, port, timeout)
 
         # TODO : Process the output which should contain FUNCTION and LINE macro output
         
