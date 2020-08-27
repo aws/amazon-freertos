@@ -31,7 +31,9 @@ Once the application starts the OTA agent, the OTA agent will contact the MQTT B
 
 - GCC ARM Compiler
 - ARM C Compiler
+  - NOTE: When using the ARM Compiler, add the GCC compiler directory to your system PATH.
 - IAR Compiler
+  - NOTE: When using the IAR Compiler, add the GCC compiler directory to your system PATH.
 
 ## Supported RTOS
 
@@ -214,6 +216,7 @@ For PSoC 6 MCU devices, see [How to Design with PSoC 6 MCU - KBA223067](https://
 
 | Document Version | Description of Change                                      |
 | ---------------- | ---------------------------------------------------------- |
+| 1.1.1            | Added info for ARM and IAR builds                          |
 | 1.1.0            | Updated for external FLASH support and CY8CKIT_062S2_43012 |
 | 1.0.0            | New Document                                               |
 
