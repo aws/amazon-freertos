@@ -14,7 +14,7 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/docs\
 	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/External\
 
-ifeq ($(BLE_SUPPORT),)
+ifneq ($(BLE_SUPPORT),1)
 CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/libraries/bluetooth
 endif
@@ -40,7 +40,7 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11\
 	$(CY_AFR_BOARD_PATH)/ports/wifi\
 
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED), 1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
 

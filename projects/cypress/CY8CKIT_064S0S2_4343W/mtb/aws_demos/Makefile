@@ -62,16 +62,10 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# BLE_SUPPORT needed for enable BLE
-BLE_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration
 ################################################################################
-
-# Security configuration
-CY_TFM_PSA_SUPPORTED=1
-CY_TFM_ENABLED=true
 
 # Enable optional code that is ordinarily disabled by default.
 #
@@ -83,7 +77,7 @@ CY_TFM_ENABLED=true
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CKIT_064S0S2_4343W TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE WICED_BLE
+COMPONENTS=
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -100,7 +94,7 @@ SOURCES=
 INCLUDES=$(CY_AFR_ROOT)/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP CY_TFM_PSA_SUPPORTED CONFIG_MEDTLS_USE_AFR_MEMORY MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\" TFM_MULTI_CORE_MULTI_CLIENT_CALL CY_TFM_VERSION_1_0
+DEFINES=
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
@@ -138,9 +132,12 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
+
 ################################################################################
-# OTA Configuration
+# Feature Configuration
 ################################################################################
+# Enable or disable BLE module
+BLE_SUPPORT=1
 
 # Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
 # NOTE: Extra code must be called from your app to initialize AFR OTA Agent
@@ -149,10 +146,10 @@ OTA_SUPPORT=0
 # This platform always uses EXTERNAL_FLASH
 OTA_USE_EXTERNAL_FLASH:=1
 
-# Define CY_TEST_APP_VERSION_IN_TAR here to test application version 
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
 #        in TAR archive at start of OTA image download.
 # NOTE: This requires that the version numbers here and in the header file match.
-# NOTE: This will create compile warnings such as 
+# NOTE: This will create compile warnings such as
 #		'warning: "APP_VERSION_MAJOR" redefined'
 #
 # CY_TEST_APP_VERSION_IN_TAR=1
@@ -160,6 +157,10 @@ OTA_USE_EXTERNAL_FLASH:=1
 # APP_VERSION_MAJOR:=1
 # APP_VERSION_MINOR:=0
 # APP_VERSION_BUILD:=0
+
+# CY_TFM_PSA_SUPPORTED feature cannot be disabled on this platform.
+CY_TFM_PSA_SUPPORTED=1
+
 
 ################################################################################
 # Paths
@@ -182,6 +183,7 @@ CY_COMPILER_PATH=
 
 # Include aFR configuration make file
 include $(CY_AFR_ROOT)/projects/cypress/make_support/afr.mk
+
 
 ################################################################################
 # Tools path

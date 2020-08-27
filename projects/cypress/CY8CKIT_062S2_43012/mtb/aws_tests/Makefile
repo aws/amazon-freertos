@@ -76,7 +76,7 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 43012 CY8CKIT_062S2_43012
+COMPONENTS=
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -92,9 +92,7 @@ SOURCES=
 INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config_afr.h\" MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\"
-
-DEFINES+=AMAZON_FREERTOS_ENABLE_UNIT_TESTS IOT_BUILD_TESTS=1 UNITY_INCLUDE_CONFIG_H
+DEFINES=
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
@@ -133,20 +131,22 @@ PREBUILD=
 POSTBUILD=
 
 ################################################################################
-# OTA Configuration
+# Feature Configuration
 ################################################################################
+# Enable or disable BLE module
+BLE_SUPPORT=1
 
 # Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
 # NOTE: Extra code must be called from your app to initialize AFR OTA Agent
 OTA_SUPPORT=0
 
 # Turn on when using External FLASH for Secondary slot
-OTA_USE_EXTERNAL_FLASH:=1
+OTA_USE_EXTERNAL_FLASH:=0
 
-# Define CY_TEST_APP_VERSION_IN_TAR here to test application version 
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
 #        in TAR archive at start of OTA image download.
 # NOTE: This requires that the version numbers here and in the header file match.
-# NOTE: This will create compile warnings such as 
+# NOTE: This will create compile warnings such as
 #		'warning: "APP_VERSION_MAJOR" redefined'
 #
 # CY_TEST_APP_VERSION_IN_TAR=1

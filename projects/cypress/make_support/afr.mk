@@ -71,17 +71,13 @@ endif
 ################################################################################
 # Additional Source files and includes needed for BLE support
 ################################################################################
-ifneq ($(BLE_SUPPORT),)
-ifneq ($(BLE_SUPPORT),0)
+ifeq ($(BLE_SUPPORT),1)
 include $(CY_AFR_MAKE_SUPPORT_PATH)/mtb_feature_ble.mk
-endif
 endif
 
 ################################################################################
 # Additional Source files and includes needed for OTA support
 ################################################################################
-ifneq ($(OTA_SUPPORT),)
-ifneq ($(OTA_SUPPORT),0)
+ifeq ($(OTA_SUPPORT),1)
 include $(CY_AFR_MAKE_SUPPORT_PATH)/mtb_feature_ota.mk
-endif
 endif

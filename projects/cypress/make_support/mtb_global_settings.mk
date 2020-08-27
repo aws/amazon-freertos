@@ -1,7 +1,33 @@
 
-# Set default for core
-# Used in the linker script path below
-CORE?=CM4
+# General configuration
+COMPONENTS+=FREERTOS
+DEFINES+=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\"
+
+# Configuration specific to TFM
+ifeq ($(CY_TFM_PSA_SUPPORTED),1)
+# Additional defines
+CY_TFM_ENABLED=true
+
+COMPONENTS+=TFM_NS_FREERTOS_WRAPPER TFM_NS_INTERFACE
+# Add Mbedtls defines
+DEFINES+=CONFIG_MEDTLS_USE_AFR_MEMORY
+# Add TFM defines
+DEFINES+=CY_TFM_PSA_SUPPORTED TFM_MULTI_CORE_MULTI_CLIENT_CALL
+endif
+
+# Configuration specific to BLE
+ifeq ($(BLE_SUPPORT),1)
+DEFINES+=BLE_SUPPORTED
+COMPONENTS+=WICED_BLE
+endif
+
+# Configuration specific to aws_tests project
+ifeq ($(CY_AFR_BUILD), aws_tests)
+DEFINES+=AMAZON_FREERTOS_ENABLE_UNIT_TESTS IOT_BUILD_TESTS=1 UNITY_INCLUDE_CONFIG_H
+CY_AFR_IS_TESTING=1
+else
+CY_AFR_IS_TESTING=0
+endif
 
 # Resolve toolchain name and add linker flag for Freertos OpenOCD debug
 ifeq ($(TOOLCHAIN),GCC_ARM)
@@ -64,14 +90,4 @@ DEFINES+=LWIP_ERRNO_INCLUDE=\"cy_lwip_errno_armcc.h\"
 # As of ARM Compiler 6.12, <assert.h> does not define static_assert (ISO/IEC 9899:2011).
 # This define may interfere with <cassert> or future versions of the ARM C library.
 DEFINES+=static_assert=_Static_assert
-endif
-
-ifneq ($(BLE_SUPPORT),)
-DEFINES+=BLE_SUPPORTED
-endif
-
-ifeq ($(CY_AFR_BUILD), aws_tests)
-CY_AFR_IS_TESTING=1
-else
-CY_AFR_IS_TESTING=0
 endif

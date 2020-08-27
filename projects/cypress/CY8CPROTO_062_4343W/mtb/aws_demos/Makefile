@@ -33,6 +33,7 @@ CY_AFR_ROOT=../../../../..
 CY_BUILD_RELATIVE_LOCATION=$(CY_AFR_ROOT)/build/cy
 CY_BUILD_LOCATION=$(abspath $(CY_BUILD_RELATIVE_LOCATION))
 
+
 ################################################################################
 # Basic Configuration
 ################################################################################
@@ -61,8 +62,6 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# BLE_SUPPORT needed for enable BLE
-BLE_SUPPORT=0
 
 ################################################################################
 # Advanced Configuration
@@ -78,7 +77,7 @@ BLE_SUPPORT=0
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=FREERTOS 4343W CY8CPROTO_062_4343W WICED_BLE
+COMPONENTS=
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -94,7 +93,7 @@ SOURCES=
 INCLUDES=
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CYBSP_WIFI_CAPABLE CY_RTOS_AWARE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_USE_LWIP MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config_afr.h\" MBEDTLS_CONFIG_FILE=\"aws_mbedtls_config.h\"
+DEFINES=
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
@@ -129,20 +128,23 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
+
 ################################################################################
-# OTA Configuration
+# Feature Configuration
 ################################################################################
+# Enable or disable BLE module
+BLE_SUPPORT=1
 
 # OTA_SUPPORT needed for some AWS Demos
 OTA_SUPPORT=0
 
 # Are we using external FLASH?
-OTA_USE_EXTERNAL_FLASH:=1
+OTA_USE_EXTERNAL_FLASH:=0
 
-# Define CY_TEST_APP_VERSION_IN_TAR here to test application version 
+# Define CY_TEST_APP_VERSION_IN_TAR here to test application version
 #        in TAR archive at start of OTA image download.
 # NOTE: This requires that the version numbers here and in the header file match.
-# NOTE: This will create compile warnings such as 
+# NOTE: This will create compile warnings such as
 #		'warning: "APP_VERSION_MAJOR" redefined'
 #
 # CY_TEST_APP_VERSION_IN_TAR=1

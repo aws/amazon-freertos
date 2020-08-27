@@ -125,7 +125,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi\
 	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
 
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
 endif

@@ -12,7 +12,7 @@
 #                 mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk
 #
 # Must be a multiple of 1024 (must leave __vectors on a 1k boundary)
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 	# Non secure flow
 	MCUBOOT_HEADER_SIZE=0x400
 	MCUBOOT_IMAGE_NUMBER=1
@@ -128,7 +128,7 @@ IMGTOOL_SCRIPT_NAME=./imgtool.py
 # 37: //#define MCUBOOT_SIGN_EC256
 # 38: //#define NUM_ECC_BYTES (256 / 8)   // P-256 curve size in bytes, rnok: to make compilable
 # 77: //#define MCUBOOT_VALIDATE_PRIMARY_SLOT
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 CY_AFR_MCUBOOT_SCRIPT_FILE_DIR=$(CY_AFR_OTA_DIR)/scripts
 CY_AFR_MCUBOOT_KEY_DIR=$(CY_AFR_MCUBOOT_DIR)/keys
 CY_AFR_SIGN_SCRIPT_FILE_PATH=$(CY_AFR_MCUBOOT_SCRIPT_FILE_DIR)/sign_script.bash
@@ -169,7 +169,7 @@ endif
 # to test application version in TAR archive at start of OTA image download.
 # NOTE: This requires that the user set the version numbers in the Makefile and
 #          in aws_application_version.h and that they MATCH.
-# NOTE: This will create compile warnings such as 
+# NOTE: This will create compile warnings such as
 #		'warning: "APP_VERSION_MAJOR" redefined'
 #
 ifneq ($(CY_TEST_APP_VERSION_IN_TAR),)
@@ -178,7 +178,7 @@ DEFINES+=\
 	APP_VERSION_MAJOR=$(APP_VERSION_MAJOR)\
 	APP_VERSION_MINOR=$(APP_VERSION_MINOR)\
 	APP_VERSION_BUILD=$(APP_VERSION_BUILD)
-	
+
 CY_BUILD_VERSION=$(APP_VERSION_MAJOR).$(APP_VERSION_MINOR).$(APP_VERSION_BUILD)
 
 else
@@ -193,7 +193,7 @@ endif
 # Once we have a HEX file, we can make a bin - compiler option not important
 CY_OBJ_COPY=$(CY_COMPILER_GCC_ARM_DIR)/bin/arm-none-eabi-objcopy
 
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 POSTBUILD+=$(CY_AFR_SIGN_SCRIPT_FILE_PATH) $(CY_OUTPUT_FILE_PATH) $(CY_AFR_BUILD)\
 	$(CY_ELF_TO_HEX) $(CY_ELF_TO_HEX_OPTIONS) $(CY_ELF_TO_HEX_FILE_ORDER)\
 	$(CY_AFR_MCUBOOT_SCRIPT_FILE_DIR) $(IMGTOOL_SCRIPT_NAME) $(IMGTOOL_COMMAND_ARG) $(CY_FLASH_ERASE_VALUE) $(MCUBOOT_HEADER_SIZE)\
@@ -223,7 +223,7 @@ SOURCES+=\
 	$(CY_EXTAPP_PATH)/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c\
 	$(CY_EXTAPP_PATH)/port_support/untar/untar.c\
 
-ifeq ($(CY_TFM_PSA_SUPPORTED),)
+ifneq ($(CY_TFM_PSA_SUPPORTED),1)
 SOURCES+=\
 	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
 else
