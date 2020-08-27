@@ -42,6 +42,8 @@
 #include "NetworkBufferManagement.h"
 #include "NetworkInterface.h"
 
+#include "FreeRTOSIPConfigDefaults.h"
+
 /* Exclude the entire file if DNS is not enabled. */
 #if( ipconfigUSE_DNS != 0 )
 
@@ -124,7 +126,7 @@ static Socket_t prvCreateDNSSocket( void );
 /*
  * Create the DNS message in the zero copy buffer passed in the first parameter.
  */
-static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
+_static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
 								   const char *pcHostName,
 								   TickType_t uxIdentifier );
 
@@ -132,7 +134,7 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
  * Simple routine that jumps over the NAME field of a resource record.
  * It returns the number of bytes read.
  */
-static size_t prvSkipNameField( const uint8_t *pucByte,
+_static size_t prvSkipNameField( const uint8_t *pucByte,
 								size_t uxLength );
 
 /*
@@ -140,7 +142,7 @@ static size_t prvSkipNameField( const uint8_t *pucByte,
  * The parameter 'xExpected' indicates whether the identifier in the reply
  * was expected, and thus if the DNS cache may be updated with the reply.
  */
-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
+_static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
 								  size_t uxBufferLength,
 								  BaseType_t xExpected );
 
@@ -194,7 +196,7 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
-	static size_t prvReadNameField( const uint8_t *pucByte,
+	_static size_t prvReadNameField( const uint8_t *pucByte,
 									size_t uxRemainingBytes,
 									char *pcName,
 									size_t uxDestLen );
@@ -537,7 +539,7 @@ TickType_t uxIdentifier = 0U;
 	{
 		if( pcHostName != NULL )
 		{
-		size_t xLength = strlen( pcHostName ) + 1;
+		size_t xLength = strlen( pcHostName ) + 1U;
 
 			if( xLength <= ipconfigDNS_CACHE_NAME_LENGTH )
 			{
@@ -790,7 +792,7 @@ TickType_t uxWriteTimeOut_ticks = ipconfigDNS_SEND_BLOCK_TIME_TICKS;
 }
 /*-----------------------------------------------------------*/
 
-static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
+_static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
 								   const char *pcHostName,
 								   TickType_t uxIdentifier )
 {
@@ -871,7 +873,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 
-	static size_t prvReadNameField( const uint8_t *pucByte,
+	_static size_t prvReadNameField( const uint8_t *pucByte,
 									size_t uxRemainingBytes,
 									char *pcName,
 									size_t uxDestLen )
@@ -966,7 +968,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 #endif	/* ipconfigUSE_DNS_CACHE || ipconfigDNS_USE_CALLBACKS */
 /*-----------------------------------------------------------*/
 
-static size_t prvSkipNameField( const uint8_t *pucByte,
+_static size_t prvSkipNameField( const uint8_t *pucByte,
 								size_t uxLength )
 {
 size_t uxChunkLength;
@@ -1081,7 +1083,7 @@ size_t uxPayloadSize;
 #endif /* ipconfigUSE_NBNS */
 /*-----------------------------------------------------------*/
 
-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
+_static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
 								  size_t uxBufferLength,
 								  BaseType_t xExpected )
 {
@@ -1212,16 +1214,16 @@ BaseType_t xReturn = pdTRUE;
 
 			if( ( pxDNSMessageHeader->usFlags & dnsRX_FLAGS_MASK ) == dnsEXPECTED_RX_FLAGS )
 			{
-				const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
-			  	uint16_t usNumARecordsStored = 0;
-
-        			for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
-        			{
-          				BaseType_t xDoAccept;
-
-          				uxResult = prvSkipNameField( pucByte,
-                         				uxSourceBytesRemaining );
-
+			const uint16_t usCount = ( uint16_t ) ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY;
+			uint16_t usNumARecordsStored = 0;
+	
+				for( x = 0U; ( x < pxDNSMessageHeader->usAnswers ) && ( usNumARecordsStored < usCount ); x++ )
+				{
+				BaseType_t xDoAccept;
+	
+					uxResult = prvSkipNameField( pucByte,
+												 uxSourceBytesRemaining );
+	
 					/* Check for a malformed response. */
 					if( uxResult == 0U )
 					{
@@ -1295,18 +1297,18 @@ BaseType_t xReturn = pdTRUE;
 								if( xDoStore != pdFALSE )
 								{
 									( void ) prvProcessDNSCache( pcName, &ulIPAddress, pxDNSAnswerRecord->ulTTL, pdFALSE );
-                  usNumARecordsStored++;    /* Track # of A records stored */
+									usNumARecordsStored++;    /* Track # of A records stored */
 								}
 
-								FreeRTOS_inet_ntop( FREERTOS_AF_INET, ( const void * ) &( ulIPAddress ), cBuffer, sizeof( cBuffer ) );
+								( void ) FreeRTOS_inet_ntop( FREERTOS_AF_INET, ( const void * ) &( ulIPAddress ), cBuffer, sizeof( cBuffer ) );
 								/* Show what has happened. */
 								FreeRTOS_printf( ( "DNS[0x%04lX]: The answer to '%s' (%s) will%s be stored\n",
 												   ( UBaseType_t ) pxDNSMessageHeader->usIdentifier,
 												   pcName,
 												   cBuffer,
 												   ( xDoStore != 0 ) ? "" : " NOT" ) );
-							 }
-							 #endif /* ipconfigUSE_DNS_CACHE */
+							}
+							#endif /* ipconfigUSE_DNS_CACHE */
 						}
 
 						pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t ) ] );

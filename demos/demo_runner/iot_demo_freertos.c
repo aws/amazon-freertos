@@ -204,7 +204,8 @@ static int _initialize( demoContext_t * pContext )
     bool commonLibrariesInitialized = false;
     bool semaphoreCreated = false;
 
-    /* Initialize common libraries required by network manager and demo. */
+    /* Initialize the C-SDK common libraries. This function must be called
+     * once (and only once) before calling any other C-SDK function. */
     if( IotSdk_Init() == true )
     {
         commonLibrariesInitialized = true;
@@ -359,6 +360,11 @@ void runDemoTask( void * pArgument )
             IotLogInfo( "memory_metrics::demo_task_stack::before::bytes::%u", xBeforeDemoTaskWaterMark );
             IotLogInfo( "memory_metrics::demo_task_stack::after::bytes::%u", xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
+
+        /* Give a chance to drain the logging queue to increase the probability
+         * of the following messages used by the test framework not getting
+         * dropped. */
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
 
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )

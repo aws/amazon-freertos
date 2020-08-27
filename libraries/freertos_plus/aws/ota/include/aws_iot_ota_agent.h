@@ -620,7 +620,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
  * returned to the caller.
  *
  * @return One of the OTA agent states from the OTA_State_t enum.
- * A normal shutdown will return eOTA_AgentState_NotReady. Otherwise, refer to the OTA_State_t enum for details.
+ * A normal shutdown will return eOTA_AgentState_Stopped. Otherwise, refer to the OTA_State_t enum for details.
  */
 OTA_State_t OTA_AgentShutdown( TickType_t xTicksToWait );
 

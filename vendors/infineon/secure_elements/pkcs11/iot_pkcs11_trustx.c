@@ -2240,8 +2240,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else if( ( xPalHandle == eAwsDevicePrivateKey ) || ( xPalHandle == eAwsTestPrivateKey ) )
         {
+            xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
             *pulObjectCount = 1;
-            xResult = CKR_OK;
         }
         else
         {
