@@ -44,14 +44,17 @@ KERNEL="$($(which uname) -s)"
 case "$KERNEL" in
     CYGWIN*|MINGW*|MSYS*)
     export PATH="$(cygpath -u -a "${IAR_DIR}/bin"):$PATH"
+    export PATH="$(cygpath -u -a "${GCC_DIR}/bin"):$PATH"
     supported_toolchains=("GCC_ARM" "ARM" "IAR")
     host=win
     ;;
     Linux*)
+    export PATH="$GCC_DIR/bin:$PATH"
     supported_toolchains=("GCC_ARM" "ARM")
     host=linux
     ;;
     Darwin*)
+    export PATH="$GCC_DIR/bin:$PATH"
     supported_toolchains=("GCC_ARM")
     host=mac
     ;;
@@ -266,7 +269,7 @@ if [[ $nightly -eq 0 ]]; then
     run_cmake_test mqtt
     # OTA feature is not supported on the WIFI_BT board.
     # Remove toolchain GCC_ARM condition after MIDDLEWARE-3718 and MIDDLEWARE-3719 are resolved.
-    if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
+    if [[ ($board != "CY8CKIT_062_WIFI_BT") ]]; then
         run_cmake_test ota -DOTA_SUPPORT=1
     fi
 
@@ -282,7 +285,7 @@ if [[ $nightly -eq 0 ]]; then
     fi
 
     run_make_test mqtt
-    if [[ ($board == "CY8CKIT_064S0S2_4343W") || ($board != "CY8CKIT_062_WIFI_BT" && $toolchain == GCC_ARM) ]]; then
+    if [[ ($board != "CY8CKIT_062_WIFI_BT") ]]; then
         run_make_test ota OTA_SUPPORT=1
     fi
 
