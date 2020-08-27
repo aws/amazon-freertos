@@ -953,6 +953,16 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1378,6 +1388,141 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/fcntl.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/fcntl.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/mqueue.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/mqueue.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/pthread.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/pthread.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/sched.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/sched.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/semaphore.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/semaphore.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/signal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/signal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/time.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/time.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/unistd.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/unistd.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/posix/FreeRTOS_POSIX_portable.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/posix/FreeRTOS_POSIX_portable.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</locationURI>
@@ -1521,6 +1666,46 @@
 			<name>libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_mqueue.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_mqueue.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_pthread.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_pthread.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_semaphore.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_semaphore.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_stress.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_stress.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_timer.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_timer.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_unistd.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_unistd.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/test/iot_test_tls.c</name>
