@@ -141,7 +141,7 @@ BLE_SUPPORT=1
 OTA_SUPPORT=0
 
 # Turn on when using External FLASH for Secondary slot
-OTA_USE_EXTERNAL_FLASH:=0
+OTA_USE_EXTERNAL_FLASH:=1
 
 # Define CY_TEST_APP_VERSION_IN_TAR here to test application version
 #        in TAR archive at start of OTA image download.

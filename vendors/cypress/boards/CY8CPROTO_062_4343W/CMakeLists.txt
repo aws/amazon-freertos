@@ -57,6 +57,11 @@ if(OTA_SUPPORT)
     #
     set(ENV{MCUBOOT_HEADER_SIZE}        "0x400"      )       # Must be a multiple of 1024
 
+    # Set to external flash if not set by the environment
+    if(NOT DEFINED ENV{OTA_USE_EXTERNAL_FLASH})
+        set(ENV{OTA_USE_EXTERNAL_FLASH}     "1")
+    endif()
+
     if ("$ENV{OTA_USE_EXTERNAL_FLASH}" STREQUAL "0")
         message("Using internal flash for Secondary Slot")
         set(ENV{CY_FLASH_ERASE_VALUE}       "0x00" )
