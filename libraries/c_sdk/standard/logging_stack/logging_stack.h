@@ -28,6 +28,9 @@
 #ifndef LOGGING_STACK_H_
 #define LOGGING_STACK_H_
 
+/* Include FreeRTOS header for configPRINTF. */
+#include "FreeRTOS.h"
+
 /* Include header for logging level macros. */
 #include "logging_levels.h"
 
@@ -41,7 +44,7 @@
 
 /* Common macro for all logging interface macros. */
 #if !defined( DISABLE_LOGGING )
-    #define SdkLog( string )    printf string
+    #define SdkLog( string )    configPRINTF( string )
 #else
     #define SdkLog( string )
 #endif

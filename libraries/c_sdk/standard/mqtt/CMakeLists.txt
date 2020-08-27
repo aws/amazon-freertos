@@ -12,11 +12,6 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
-# Compile BLE MQTT serializers on supported platforms.
-if(${BLE_SUPPORTED})
-    set(extra_mqtt_sources "${src_dir}/../../ble/src/iot_ble_mqtt_serialize.c")
-    set(extra_mqtt_dependencies AFR::serializer AFR::ble)
-endif()
 
 # Enable test access and mocks if building tests.
 if(${AFR_IS_TESTING})
@@ -71,11 +66,6 @@ afr_module_dependencies(
 
 # MQTT test
 afr_test_module()
-
-# Enable tests for BLE-over-MQTT serializers on supported boards.
-if(BLE_SUPPORTED)
-    set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
-endif()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}

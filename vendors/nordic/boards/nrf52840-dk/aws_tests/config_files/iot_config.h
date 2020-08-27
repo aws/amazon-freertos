@@ -33,12 +33,6 @@
 #define IOT_THREAD_DEFAULT_STACK_SIZE    ( 4 * configMINIMAL_STACK_SIZE )
 #define IOT_THREAD_DEFAULT_PRIORITY      ( tskIDLE_PRIORITY )
 
-/* Provide additional serializer initialization functions. */
-extern bool IotBleMqtt_InitSerialize( void );
-extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
-
 /* Network type configuration for this board. */
 #define DEFAULT_NETWORK AWSIOT_NETWORK_TYPE_BLE
 #define BLE_SUPPORTED 1
