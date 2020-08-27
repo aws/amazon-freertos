@@ -15,6 +15,8 @@ def get_board_info(board):
         serial_id = '190A1301f3180a'
     else:
         mbedls_rslt = subprocess.run(['mbedls', '--simple'], encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print("mbedls output (stdout): %s\n", mbedls_rslt.stdout)
+        print("mbedls output (stderr): %s\n", mbedls_rslt.stderr)
         for line in mbedls_rslt.stdout.split('\n'):
             if board in line:
                 array = line.split()

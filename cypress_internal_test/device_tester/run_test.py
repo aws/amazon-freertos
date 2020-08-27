@@ -29,7 +29,7 @@ elif platform.system() == 'Darwin':
     device_tester_os = 'mac'
 else:
     print('unknown os')
-    system.exit(1)
+    sys.exit(1)
 
 # The device tester directory cannot be contained in the afr directroy.
 # Device tester create a copy of amazon-freertos and put in the device tester directory.
@@ -51,6 +51,11 @@ additional_args = sys.argv[5:]
 def generate_replace_dict():
     afr_path = os.path.normpath(os.path.join(os.getcwd(), '../..')).replace('\\', '/')
     com_port, serial_id = get_board_info(board)
+
+    if not com_port or not serial_id:
+        print("COM port or Serial id could not be detected. Please make sure you have pyocd and mbedls modules installed and the device is in daplink mode (fast blinky)")
+        sys.exit(1)
+
     return {
         '{cy_home_dir}' : user_home_dir,
         '{cy_wifi_ssid}' : wifi_ssid,

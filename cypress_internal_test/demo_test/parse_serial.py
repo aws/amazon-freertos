@@ -10,8 +10,9 @@ import time
 import subprocess
 
 def detect_serial_port(board):
-    com_port = ''
     mbedls_rslt = subprocess.run(['mbedls', '--simple'], encoding='utf-8', capture_output=True)
+    print("mbedls output (stdout): %s\n", mbedls_rslt.stdout)
+    print("mbedls output (stderr): %s\n", mbedls_rslt.stderr)
     for line in mbedls_rslt.stdout.split('\n'):
         if board in line:
             array = line.split()
@@ -42,7 +43,7 @@ with serial.Serial(com_port, baudrate=baud, timeout=10) as port:
 
             if line != '':
                 print(line)
-                
+
                 if pass_msg in line:
                     sys.exit(0)
                 elif fail_msg in line:
