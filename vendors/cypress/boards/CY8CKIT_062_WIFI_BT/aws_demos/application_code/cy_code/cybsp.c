@@ -87,6 +87,14 @@ cy_rslt_t cybsp_init(void)
     {
         result = cyhal_syspm_init();
     }
+
+#ifdef CY_CFG_PWR_VDDA_MV
+    if(CY_RSLT_SUCCESS == result)
+    {
+        cyhal_syspm_set_supply_voltage(CYHAL_VOLTAGE_SUPPLY_VDDA, CY_CFG_PWR_VDDA_MV);
+    }
+#endif
+
 #else
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif

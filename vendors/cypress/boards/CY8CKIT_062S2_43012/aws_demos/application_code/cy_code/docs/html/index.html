@@ -29,7 +29,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="cypress_logo.png"/></a></td>
+  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="logo.png"/></a></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">CY8CKIT-062S2-43012 BSP</div>
   </td>
@@ -91,7 +91,8 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h2>Overview</h2>
-<p>The CY8CKIT-062S2-43012 PSoC 6S2 Wi-Fi BT Pioneer Kit is a low-cost hardware platform that enables design and debug of PSoC 6 MCUs. It comes with a Murata 1LV Module (CYW43012 Wi-Fi + Bluetooth Combo Chip), industry-leading CapSense for touch buttons and slider, on-board debugger/programmer with KitProg3, microSD card interface, 512-Mb Quad-SPI NOR flash, PDM-PCM microphone, and a thermistor. </p><div class="image">
+<p>The CY8CKIT-062S2-43012 PSoC 6S2 Wi-Fi BT Pioneer Kit is a low-cost hardware platform that enables design and debug of PSoC 6 MCUs. It comes with a Murata 1LV Module (CYW43012 Wi-Fi + Bluetooth Combo Chip), industry-leading CapSense for touch buttons and slider, on-board debugger/programmer with KitProg3, microSD card interface, 512-Mb Quad-SPI NOR flash, PDM-PCM microphone interface.</p>
+<div class="image">
 <img src="board.png" alt="board.png"/>
 </div>
 <p>To use code from the BSP, simply include a reference to <code>cybsp.h</code>.</p>
@@ -115,17 +116,21 @@ $(document).ready(function(){initNavTree('index.html','');});
 <p>The BSP has a few hooks that allow its behavior to be configured. Some of these items are enabled by default while others must be explicitly enabled. Items enabled by default are specified in the CY8CKIT-062S2-43012.mk file. The items that are enabled can be changed by creating a custom BSP or by editing the application makefile.</p>
 <p>Components:</p><ul>
 <li>Device specific HAL reference (e.g.: PSOC6HAL) - This component, enabled by default, pulls in the version of the HAL that is applicable for this board.</li>
-<li>CYBSP_WIFI_CAPABLE - This component, disabled by default, causes the BSP to initialize the interface to an onboard wireless chip.</li>
 <li>BSP_DESIGN_MODUS - This component, enabled by default, causes the Configurator generated code for this specific BSP to be included. This should not be used at the same time as the CUSTOM_DESIGN_MODUS component.</li>
 <li>CUSTOM_DESIGN_MODUS - This component, disabled by default, causes the Configurator generated code from the application to be included. This assumes that the application provides configurator generated code. This should not be used at the same time as the BSP_DESIGN_MODUS component.</li>
 </ul>
 <p>Defines:</p><ul>
+<li>CYBSP_WIFI_CAPABLE - This define, disabled by default, causes the BSP to initialize the interface to an onboard wireless chip.</li>
 <li>CY_USING_HAL - This define, enabled by default, specifies that the HAL is intended to be used by the application. This will cause the BSP to include the applicable header file and to initialize the system level drivers.</li>
 </ul>
 <h3>Clock Configuration</h3>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Clock  </th><th class="markdownTableHeadNone">Source  </th><th class="markdownTableHeadNone">Output Frequency   </th></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">FLL  </td><td class="markdownTableBodyNone">IMO  </td><td class="markdownTableBodyNone">100.0 MHz   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyNone">PLL  </td><td class="markdownTableBodyNone">IMO  </td><td class="markdownTableBodyNone">144.0 MHz   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">CLK_HF0  </td><td class="markdownTableBodyNone">CLK_PATH1  </td><td class="markdownTableBodyNone">144 MHz   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowEven">
@@ -149,7 +154,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <ul>
 <li><a href="modules.html">CY8CKIT-062S2-43012 BSP API Reference Manual</a></li>
 <li><a href="http://www.cypress.com/CY8CKIT-062S2-43012">CY8CKIT-062S2-43012 Documentation</a></li>
-<li><a href="http://www.cypress.com">Cypress Semiconductor</a></li>
+<li><a href="http://www.cypress.com">Cypress Semiconductor, an Infineon Technologies Company</a></li>
 <li><a href="https://github.com/cypresssemiconductorco">Cypress Semiconductor GitHub</a></li>
 <li><a href="https://www.cypress.com/products/modustoolbox-software-environment">ModusToolbox</a></li>
 </ul>

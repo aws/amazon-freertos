@@ -4,13 +4,11 @@
 * Description:
 * Establishes all necessary connections between hardware elements.
 * This file was automatically generated and should not be modified.
-* Tools Package 2.2.0.1522
-* psoc6pdl 1.4.1.2240
-* personalities 1.0.0.0
-* udd 1.1.3.98
+* cfg-backend-cli: 1.2.0.1483
+* Device Support Library (libs/psoc6pdl): 1.6.0.4266
 *
 ********************************************************************************
-* Copyright 2020 Cypress Semiconductor Corporation
+* Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

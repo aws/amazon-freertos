@@ -434,22 +434,6 @@ function(cy_add_link_libraries)
     )
 
     #----------------------------------------------------------------
-    # is SDIO supported?
-    if(CYHAL_UDB_SDIO)
-        target_include_directories(AFR::kernel::mcu_port INTERFACE
-            "${ARG_BSP_DIR}/SDIO_HOST"
-        )
-
-        target_include_directories( AFR::secure_sockets::mcu_port INTERFACE
-            "${ARG_BSP_DIR}/SDIO_HOST"
-            )
-
-        target_include_directories(afr_3rdparty_mbedtls PUBLIC
-            "${ARG_BSP_DIR}/SDIO_HOST"
-            )
-    endif()
-
-    #----------------------------------------------------------------
     # Remove unwanted modules from the build
     # Create a list in your <application_dir>/CMakeLists.txt file
     #

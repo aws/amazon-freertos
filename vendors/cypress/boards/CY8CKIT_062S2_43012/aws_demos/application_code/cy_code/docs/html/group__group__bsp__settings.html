@@ -29,7 +29,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="cypress_logo.png"/></a></td>
+  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="logo.png"/></a></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">CY8CKIT-062S2-43012 BSP</div>
   </td>
@@ -115,9 +115,19 @@ $(document).ready(function(){initNavTree('group__group__bsp__settings.html','');
 <td class="markdownTableBodyCenter">Data rate  </td><td class="markdownTableBodyCenter">100 kbps  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">Drive mode of SCL &amp; SDA pins  </td><td class="markdownTableBodyCenter">Open Drain (drives low)  </td><td class="markdownTableBodyLeft">External pull-up resistors are required   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">LpTimer  </td><td class="markdownTableBodyCenter" colspan="3">Uses WCO (32.768 kHz) as clock source &amp; MCWDT as counter; 1 count = 1/32768 second or 32768 counts = 1 second   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter" rowspan="2">SPI  </td><td class="markdownTableBodyCenter">Data rate  </td><td class="markdownTableBodyCenter">100 kpbs  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Slave select polarity  </td><td class="markdownTableBodyCenter">Active low  </td><td class="markdownTableBodyLeft"></td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter" rowspan="3">UART  </td><td class="markdownTableBodyCenter">Flow control  </td><td class="markdownTableBodyCenter">No flow control  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Data format  </td><td class="markdownTableBodyCenter">8N1  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">Baud rate  </td><td class="markdownTableBodyCenter">115200  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
 </table>
-<p>| LpTimer | Uses WCO (32.768 kHz) as clock source &amp; MCWDT as counter. </p>
-<p>1 count = 1/32768 second or 32768 counts = 1 second. ||| | SPI | Data rate | 100 kpbs | Configurable through HAL function | | ^ | Slave select polarity | Active low | | | UART | Flow control | No flow control | Configurable through HAL function | | ^ | Data format | 8N1 | Configurable through HAL function | | ^ | Baud rate | 115200 | Configurable through HAL function | </p>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part

@@ -15,11 +15,20 @@ The CY8CKIT-062-WIFI-BT library includes the following:
 * API documentation
 
 ### What Changed?
+#### v1.3.0
+* Minor update for documentation & branding
+* Updated design files to use latest personality files
+* Initialize VDDA voltage if set in configurator
+NOTE: This requires psoc6hal 1.3.0 or later
+#### v1.2.1
+* Added 43012/4343W/43438 component to appropriate BSPs
+* Added multi-image policy for secure (064) BSPs
 #### v1.2.0
 * Standardize version numbering for all boards in a family
 * Moved UDB SDIO implementation into its own library udb-sdio-whd library
 * Added call to setup HAL SysPM driver (requires HAL 1.2.0 or later)
 * Updated documentation
+NOTE: This requires psoc6hal 1.2.0 or later
 #### v1.1.0
 * Updated linker scripts and startup code for the CM0+ and CM4 cores. The files are now in core specific directories.
 * Minor updates to avoid potential warnings on some toolchains
@@ -41,7 +50,7 @@ This version of the CY8CKIT-062-WIFI-BT BSP was validated for compatibility with
 ### More information
 * [CY8CKIT-062-WIFI-BT BSP API Reference Manual][api]
 * [CY8CKIT-062-WIFI-BT Documentation](http://www.cypress.com/documentation/development-kitsboards/psoc-6-wifi-bt-pioneer-kit)
-* [Cypress Semiconductor](http://www.cypress.com)
+* [Cypress Semiconductor, an Infineon Technologies Company](http://www.cypress.com)
 * [Cypress Semiconductor GitHub](https://github.com/cypresssemiconductorco)
 * [ModusToolbox](https://www.cypress.com/products/modustoolbox-software-environment)
 

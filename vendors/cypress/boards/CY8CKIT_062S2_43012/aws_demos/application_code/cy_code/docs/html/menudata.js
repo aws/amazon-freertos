@@ -23,5 +23,5 @@ for the JavaScript code in this file
 */
 var menudata={children:[
 {text:"Home",url:"index.html"},
-{text:"BSP User Guide",url:"md_bsp_boards_mt_bsp_user_guide.html"},
+{text:"BSP Overview",url:"md_bsp_boards_mt_bsp_user_guide.html"},
 {text:"BSP API Reference",url:"modules.html"}]}

@@ -135,15 +135,6 @@ INCLUDES+=\
 	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
 
-# SDIO_HOST sources and includes
-ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_APP_PATH)/SDIO_HOST/*.c)
-
-INCLUDES+=\
-	$(CY_AFR_BOARD_APP_PATH)/SDIO_HOST
-endif
-
 # enable TFM
 CY_TFM_ENABLED=true
 

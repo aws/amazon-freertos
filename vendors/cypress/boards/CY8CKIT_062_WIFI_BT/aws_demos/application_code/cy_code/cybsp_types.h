@@ -41,25 +41,28 @@ extern "C" {
 * \{
 *
 * <div class="category">Peripheral Default HAL Settings:</div>
-* | Resource | Parameter | Value | Remarks |
-* | :------: | :-------: | :---: | :------ |
-* | ADC      | VREF      | 1.2 V | |
-* | ^        | Measurement type | Single Ended | |
-* | ^        | Input voltage range | 0 to 2.4 V (0 to 2*VREF) | |
-* | ^        | Output range | 0x000 to 0x7FF | |
-* | DAC      | Reference source | VDDA | |
-* | ^        | Input range | 0x000 to 0xFFF | |
-* | ^        | Output range | 0 to VDDA | |
-* | ^        | Output type | Unbuffered output | |
-* | I2C      | Role | Master | Configurable to slave mode through HAL function |
-* | ^        | Data rate | 100 kbps | Configurable through HAL function |
-* | ^        | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
-* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter. 1 count = 1/32768 second or 32768 counts = 1 second. |||
-* | SPI      | Data rate | 100 kpbs | Configurable through HAL function |
-* | ^        | Slave select polarity | Active low | |
-* | UART     | Flow control | No flow control | Configurable through HAL function |
-* | ^        | Data format | 8N1 | Configurable through HAL function |
-* | ^        | Baud rate | 115200 | Configurable through HAL function |
+* | Resource   | Parameter | Value | Remarks |
+* | :------:   | :-------: | :---: | :------ |
+* | ADC        | VREF      | 1.2 V | |
+* | ^          | Measurement type | Single Ended | |
+* | ^          | Input voltage range | 0 to 2.4 V (0 to 2*VREF) | |
+* | ^          | Output range | 0x000 to 0x7FF | |
+* | DAC        | Reference source | VDDA | |
+* | ^          | Input range | 0x000 to 0xFFF | |
+* | ^          | Output range | 0 to VDDA | |
+* | ^          | Output type | Unbuffered output | |
+* | I2C        | Role | Master | Configurable to slave mode through HAL function |
+* | ^          | Data rate | 100 kbps | Configurable through HAL function |
+* | ^          | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
+* | LpTimer    | Uses WCO (32.768 kHz) as clock source & MCWDT as counter; 1 count = 1/32768 second or 32768 counts = 1 second |||
+* | SPI        | Data rate | 100 kpbs | Configurable through HAL function |
+* | ^          | Slave select polarity | Active low | |
+* | UART       | Flow control | No flow control | Configurable through HAL function |
+* | ^          | Data format | 8N1 | Configurable through HAL function |
+* | ^          | Baud rate | 115200 | Configurable through HAL function |
+* | OPAMP,COMP | Pin (P9_3)      | Always 0 V  | R162 is not soldered by default |
+* | LPCOMP     | Pins (P8_2, P8_3)      | Always 0 V  | R153, R166 are not soldered by default |
+
 */
 /** \} group_bsp_settings */
 
@@ -309,7 +312,7 @@ extern "C" {
 #endif
 /** Pin: SPI CS */
 #ifndef CYBSP_SPI_CS
-#define CYBSP_SPI_CS                (P12_4)
+#define CYBSP_SPI_CS                (P12_3)
 #endif
 
 /** Host-wake GPIO drive mode */

@@ -68,11 +68,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_062_WIFI_BT/ports/pkcs11</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST</locationURI>
-		</link>
- 		<link>
 			<name>freertos_kernel</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/freertos_kernel</locationURI>
@@ -588,6 +583,16 @@
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/include</locationURI>
 		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2</locationURI>
+		</link>
 
 
 		<link>
@@ -669,16 +674,6 @@
 			<name>vendors/cypress/boards/CY8CKIT_062_WIFI_BT/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_062_WIFI_BT/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST/SDIO_HOST.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST/SDIO_HOST.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST/SDIO_HOST_cfg.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_062_WIFI_BT/aws_tests/application_code/cy_code/SDIO_HOST/SDIO_HOST_cfg.c</locationURI>
 		</link>
  		<link>
 			<name>freertos_kernel/croutine.c</name>
@@ -1006,11 +1001,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/ccp.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
-		</link>
- 		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</locationURI>
@@ -1019,6 +1009,11 @@
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/demand.c</name>
@@ -1321,11 +1316,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
-		</link>
- 		<link>
 			<name>libraries/3rdparty/mbedtls/library/md2.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
@@ -1339,6 +1329,11 @@
 			<name>libraries/3rdparty/mbedtls/library/md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
@@ -1651,11 +1646,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
-		</link>
- 		<link>
 			<name>libraries/abstractions/pkcs11/test/MBT_C_CloseSession.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/MBT_C_CloseSession.c</locationURI>
@@ -1769,6 +1759,11 @@
 			<name>libraries/abstractions/pkcs11/test/MBT_VerifyMachine.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/MBT_VerifyMachine.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/abstractions/secure_sockets/test/iot_test_tcp.c</name>
@@ -3121,6 +3116,16 @@
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</locationURI>
 		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</locationURI>
+		</link>
 
 
 		<link>
@@ -4107,6 +4112,16 @@
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/COMPONENT_UDB_SDIO_P2/SDIO_HOST_cfg.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</locationURI>
 		</link>
 
 	</linkedResources>

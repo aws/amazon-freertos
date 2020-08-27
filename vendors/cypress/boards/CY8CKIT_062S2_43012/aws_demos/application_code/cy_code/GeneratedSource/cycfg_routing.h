@@ -4,13 +4,11 @@
 * Description:
 * Establishes all necessary connections between hardware elements.
 * This file was automatically generated and should not be modified.
-* Tools Package 2.2.0.1522
-* psoc6pdl 1.4.1.2240
-* personalities 1.0.0.0
-* udd 1.1.3.98
+* cfg-backend-cli: 1.2.0.1483
+* Device Support Library (libs/psoc6pdl): 1.6.0.4266
 *
 ********************************************************************************
-* Copyright 2020 Cypress Semiconductor Corporation
+* Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,20 +36,20 @@ void init_cycfg_routing(void);
 #define init_cycfg_connectivity() init_cycfg_routing()
 #define ioss_0_port_0_pin_0_ANALOG P0_0_SRSS_WCO_IN
 #define ioss_0_port_0_pin_1_ANALOG P0_1_SRSS_WCO_OUT
-#define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_6_pin_4_HSIOM P6_4_CPUSS_SWJ_SWO_TDO
 #define ioss_0_port_6_pin_6_HSIOM P6_6_CPUSS_SWJ_SWDIO_TMS
 #define ioss_0_port_6_pin_7_HSIOM P6_7_CPUSS_SWJ_SWCLK_TCLK
-#define ioss_0_port_7_pin_1_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_7_pin_1_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_3_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_6_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_8_pin_7_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_8_pin_7_HSIOM HSIOM_SEL_AMUXB
 
 #if defined(__cplusplus)
 }

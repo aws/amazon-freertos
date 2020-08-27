@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['functions',['Functions',['../group__group__bsp__functions.html',1,'']]],
-  ['functions',['Functions',['../group__group__udb__sdio__functions.html',1,'']]]
+  ['j2_20header_20pins',['J2 Header Pins',['../group__group__bsp__pins__j2.html',1,'']]]
 ];

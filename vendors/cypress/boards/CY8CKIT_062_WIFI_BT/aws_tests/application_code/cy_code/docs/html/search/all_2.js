@@ -1,9 +1,5 @@
 var searchData=
 [
-  ['cmdtimeout',['CMDTimeout',['../group__group__udb__sdio__data__structures.html#gga19f4a94e6ce5cb94b5dca629741c2b38afd18daa3d0b40e98d6d41eaa54921c50',1,'SDIO_HOST.h']]],
-  ['commandcrcerror',['CommandCrcError',['../group__group__udb__sdio__data__structures.html#gga19f4a94e6ce5cb94b5dca629741c2b38aaa770a934bfefc60d322abab65bfe8a6',1,'SDIO_HOST.h']]],
-  ['commandenderror',['CommandEndError',['../group__group__udb__sdio__data__structures.html#gga19f4a94e6ce5cb94b5dca629741c2b38a0197ae65a422cf329c567e100c25eccb',1,'SDIO_HOST.h']]],
-  ['commandidxerror',['CommandIdxError',['../group__group__udb__sdio__data__structures.html#gga19f4a94e6ce5cb94b5dca629741c2b38aa52a72ff13b657535c822f36d5ad0c4c',1,'SDIO_HOST.h']]],
   ['cybsp_5fa0',['CYBSP_A0',['../group__group__bsp__pins__arduino.html#gae4c804044ed1e8745433efc32f1e3de5',1,'cybsp_types.h']]],
   ['cybsp_5fa1',['CYBSP_A1',['../group__group__bsp__pins__arduino.html#gaeb5533ea084a75773bd3f2aaf3363ac9',1,'cybsp_types.h']]],
   ['cybsp_5fa2',['CYBSP_A2',['../group__group__bsp__pins__arduino.html#ga3e497e03e8e9d8bd597f01426bc4b70a',1,'cybsp_types.h']]],
@@ -101,7 +97,5 @@ var searchData=
   ['cybsp_5fwifi_5fsdio_5fd3',['CYBSP_WIFI_SDIO_D3',['../group__group__bsp__pins__comm.html#gae0984157f595e2626f420c2f504602b0',1,'cybsp_types.h']]],
   ['cybsp_5fwifi_5fwl_5freg_5fon',['CYBSP_WIFI_WL_REG_ON',['../group__group__bsp__pins__comm.html#gad1f1366c88d967f6856c6b89154d9403',1,'cybsp_types.h']]],
   ['communication_20pins',['Communication Pins',['../group__group__bsp__pins__comm.html',1,'']]],
-  ['constants_20for_20the_20command_20channel',['Constants for the command channel',['../group__group__sdio__cmd__constants.html',1,'']]],
-  ['constants_20for_207bit_20crc_20for_20command',['Constants for 7bit CRC for command',['../group__group__sdio__crc.html',1,'']]],
   ['cy8ckit_2d062_2dwifi_2dbt_20bsp',['CY8CKIT-062-WIFI-BT BSP',['../index.html',1,'']]]
 ];

@@ -28,6 +28,11 @@
 	<linkedResources>
 
 		<link>
+			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/resources/nvram/TARGET_CY8CKIT_064B0S2_4343W</locationURI>
+		</link>
+ 		<link>
 			<name>C:/repo/amazon-freertos/projects/cypress/CY8CKIT_064S0S2_4343W/mtb/wifi_scanner/</name>
 			<type>2</type>
 			<locationURI>C:/repo/amazon-freertos/projects/cypress/CY8CKIT_064S0S2_4343W/mtb/wifi_scanner/</locationURI>
@@ -504,36 +509,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/TOOLCHAIN_GCC_ARM</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_log</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_log</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_string</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_string</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/linked_list</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/linked_list</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/network</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/network</locationURI>
-		</link>
- 		<link>
 			<name>vendors/cypress/MTB/libraries/core-lib/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/core-lib/include</locationURI>
@@ -562,16 +537,6 @@
 			<name>vendors/cypress/MTB/libraries/whd-bsp-integration</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/whd-bsp-integration</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/External/hal</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/External/hal</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/External/rtos</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/External/rtos</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/inc</name>
@@ -607,51 +572,6 @@
 			<name>vendors/cypress/MTB/port_support/objstore</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/include/bootutil</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/include/bootutil</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include/flash_map_backend</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/include/flash_map_backend</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/mcuboot_header/mcuboot_config</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/mcuboot_header/mcuboot_config</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/os</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/os</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/sysflash</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/sysflash</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/untar</name>
-			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/untar</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support/wifi</name>
@@ -712,6 +632,11 @@
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/include</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd</locationURI>
 		</link>
  		<link>
 			<name>./config_files</name>
@@ -1146,11 +1071,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/ccp.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
-		</link>
- 		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-md5.c</locationURI>
@@ -1159,6 +1079,11 @@
 			<name>libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap-new.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ppp/chap_ms.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ppp/demand.c</name>
@@ -1461,11 +1386,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
-		</link>
- 		<link>
 			<name>libraries/3rdparty/mbedtls/library/md2.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
@@ -1479,6 +1399,11 @@
 			<name>libraries/3rdparty/mbedtls/library/md5.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
@@ -2077,26 +2002,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/cy_mutex_pool.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_log/cy_log.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_log/cy_log.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_string/cy_string_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_string/cy_string_utils.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/linked_list/cy_linked_list.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/linked_list/cy_linked_list.c</locationURI>
-		</link>
- 		<link>
 			<name>vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</locationURI>
@@ -2267,31 +2172,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cy_network_buffer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cy_network_buffer.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cyhal_sdhc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cyhal_sdhc.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_network.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_network.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_resources.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_resources.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_rtos.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_rtos.c</locationURI>
-		</link>
- 		<link>
 			<name>vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</locationURI>
@@ -2300,86 +2180,6 @@
 			<name>vendors/cypress/MTB/port_support/objstore/cyobjstore.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore/cyobjstore.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/caps.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/caps.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/encrypted.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/encrypted.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec256.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec256.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ed25519.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ed25519.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_rsa.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_rsa.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_validate.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_validate.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/loader.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/loader.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/tlv.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/tlv.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/untar/untar.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/untar/untar.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</name>
@@ -3145,6 +2945,11 @@
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</locationURI>
 		</link>
  		<link>
 			<name>./main.c</name>
@@ -3289,26 +3094,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/clib-support/cy_mutex_pool.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/JSON_parser/cy_json_parser.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_log/cy_log.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_log/cy_log.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/cy_string/cy_string_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/cy_string/cy_string_utils.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/connectivity-utilities/linked_list/cy_linked_list.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/connectivity-utilities/linked_list/cy_linked_list.c</locationURI>
-		</link>
- 		<link>
 			<name>vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/emeeprom/cy_em_eeprom.c</locationURI>
@@ -3479,31 +3264,6 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/WiFi_Host_Driver/src/whd_wifi_p2p.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cy_network_buffer.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cy_network_buffer.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cyhal_sdhc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/cyhal_sdhc.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_network.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_network.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_resources.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_resources.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_rtos.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/libraries/wifi-host-driver/docs/API/whd_rtos.c</locationURI>
-		</link>
- 		<link>
 			<name>vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/FreeRTOS-openocd.c</locationURI>
@@ -3512,86 +3272,6 @@
 			<name>vendors/cypress/MTB/port_support/objstore/cyobjstore.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/objstore/cyobjstore.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/bootutil_misc.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/caps.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/caps.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/encrypted.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/encrypted.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec256.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ec256.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ed25519.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_ed25519.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_rsa.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_rsa.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_validate.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/image_validate.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/loader.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/loader.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/tlv.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/bootutil/src/tlv.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_map.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_flash_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/cy_smif_psoc6.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/mcuboot/cy_flash_pal/flash_qspi/flash_qspi.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/ota/ports/CY8CKIT_064S0S2_4343W/aws_ota_pal.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/MTB/port_support/untar/untar.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/port_support/untar/untar.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/port_support/wifi/cy_wifi_notify.c</name>
@@ -4357,6 +4037,11 @@
 			<name>vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/psoc6pdl/drivers/source/cy_wdt.c</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/psoc6/udb-sdio-whd/SDIO_HOST.c</locationURI>
 		</link>
  		<link>
 			<name>./main.c</name>

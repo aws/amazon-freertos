@@ -1488,7 +1488,7 @@ tr.heading h2 {
 */
 
 /* cypress logo */
-img[src="cypress_logo.png"]{
+img[src="logo.png"]{
     height:75px;
     /*float: right;*/
 }

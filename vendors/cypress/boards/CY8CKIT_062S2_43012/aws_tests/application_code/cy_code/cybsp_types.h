@@ -54,7 +54,7 @@ extern "C" {
 * | I2C      | Role | Master | Configurable to slave mode through HAL function |
 * | ^        | Data rate | 100 kbps | Configurable through HAL function |
 * | ^        | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
-* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter. 1 count = 1/32768 second or 32768 counts = 1 second. |||
+* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter; 1 count = 1/32768 second or 32768 counts = 1 second |||
 * | SPI      | Data rate | 100 kpbs | Configurable through HAL function |
 * | ^        | Slave select polarity | Active low | |
 * | UART     | Flow control | No flow control | Configurable through HAL function |
@@ -330,7 +330,7 @@ extern "C" {
 #endif
 /** Pin: SPI CS */
 #ifndef CYBSP_SPI_CS
-#define CYBSP_SPI_CS                (P12_4)
+#define CYBSP_SPI_CS                (P12_3)
 #endif
 
 /** \} group_bsp_pins_comm */

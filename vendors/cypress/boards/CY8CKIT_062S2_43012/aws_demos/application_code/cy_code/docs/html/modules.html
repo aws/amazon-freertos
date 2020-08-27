@@ -29,7 +29,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
-  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="cypress_logo.png"/></a></td>
+  <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="logo.png"/></a></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">CY8CKIT-062S2-43012 BSP</div>
   </td>
@@ -117,8 +117,20 @@ $(document).ready(function(){initNavTree('modules.html','');});
 <td class="markdownTableBodyCenter">Data rate  </td><td class="markdownTableBodyCenter">100 kbps  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
 <tr class="markdownTableBody" class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">Drive mode of SCL &amp; SDA pins  </td><td class="markdownTableBodyCenter">Open Drain (drives low)  </td><td class="markdownTableBodyLeft">External pull-up resistors are required   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">LpTimer  </td><td class="markdownTableBodyCenter" colspan="3">Uses WCO (32.768 kHz) as clock source &amp; MCWDT as counter; 1 count = 1/32768 second or 32768 counts = 1 second   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter" rowspan="2">SPI  </td><td class="markdownTableBodyCenter">Data rate  </td><td class="markdownTableBodyCenter">100 kpbs  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Slave select polarity  </td><td class="markdownTableBodyCenter">Active low  </td><td class="markdownTableBodyLeft"></td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter" rowspan="3">UART  </td><td class="markdownTableBodyCenter">Flow control  </td><td class="markdownTableBodyCenter">No flow control  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">Data format  </td><td class="markdownTableBodyCenter">8N1  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
+<tr class="markdownTableBody" class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">Baud rate  </td><td class="markdownTableBodyCenter">115200  </td><td class="markdownTableBodyLeft">Configurable through HAL function   </td></tr>
 </table>
-<p>| LpTimer | Uses WCO (32.768 kHz) as clock source &amp; MCWDT as counter </td></tr>
+</td></tr>
 <tr id="row_1_"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><a class="el" href="group__group__bsp__pin__state.html" target="_self">Pin States</a></td><td class="desc"></td></tr>
 <tr id="row_2_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_2_" class="arrow" onclick="toggleFolder('2_')">&#9660;</span><a class="el" href="group__group__bsp__pins.html" target="_self">Pin Mappings</a></td><td class="desc"></td></tr>
 <tr id="row_2_0_"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><a class="el" href="group__group__bsp__pins__led.html" target="_self">LED Pins</a></td><td class="desc"></td></tr>

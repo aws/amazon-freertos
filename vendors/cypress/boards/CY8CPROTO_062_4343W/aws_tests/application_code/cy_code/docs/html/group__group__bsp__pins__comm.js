@@ -28,6 +28,15 @@ var group__group__bsp__pins__comm =
     [ "CYBSP_QSPI_D1", "group__group__bsp__pins__comm.html#ga432faefd95828b8d45709aa8302a9433", null ],
     [ "CYBSP_QSPI_D0", "group__group__bsp__pins__comm.html#gaaea1a4ddc9aa57c45c4d6695b78ee878", null ],
     [ "CYBSP_QSPI_SCK", "group__group__bsp__pins__comm.html#ga2bae07a55adc9f31e828312bc8fbdd82", null ],
+    [ "CYBSP_PDM_CLK", "group__group__bsp__pins__comm.html#gaee3607f958046ea444d57a2263c4b9a3", null ],
+    [ "CYBSP_PDM_DATA", "group__group__bsp__pins__comm.html#gaaf4f4f826f24c43f2b6985837f5b77ac", null ],
+    [ "CYBSP_I2S_MCLK", "group__group__bsp__pins__comm.html#ga55ba75f2e287ef4c76b5879c22b85d4f", null ],
+    [ "CYBSP_I2S_TX_SCK", "group__group__bsp__pins__comm.html#gac5ac1d6c083c88489951ca2150d54c99", null ],
+    [ "CYBSP_I2S_TX_WS", "group__group__bsp__pins__comm.html#ga4750b82c1bdf2631b8821b59f8bb5ec1", null ],
+    [ "CYBSP_I2S_TX_DATA", "group__group__bsp__pins__comm.html#ga3a76646ef77c7f47e9ae2b95f44c5476", null ],
+    [ "CYBSP_I2S_RX_SCK", "group__group__bsp__pins__comm.html#gac41fe5118faaf3f15c619bcf507b5376", null ],
+    [ "CYBSP_I2S_RX_WS", "group__group__bsp__pins__comm.html#ga1331c6c2b81526e01ce4c769dbd3922f", null ],
+    [ "CYBSP_I2S_RX_DATA", "group__group__bsp__pins__comm.html#ga032d99defb167e0a50b5e320df7a7176", null ],
     [ "CYBSP_WIFI_HOST_WAKE_GPIO_DM", "group__group__bsp__pins__comm.html#ga8643a26f39112d7f87aa8b6ebcdcd1b0", null ],
     [ "CYBSP_WIFI_HOST_WAKE_IRQ_EVENT", "group__group__bsp__pins__comm.html#gae4668c08493082ab2d7dca34eb8a9777", null ]
 ];

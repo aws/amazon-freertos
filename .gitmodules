@@ -98,3 +98,6 @@
 [submodule "vendors/cypress/MTB/psoc6/psoc6pdl"]
 	path = vendors/cypress/MTB/psoc6/psoc6pdl
 	url = https://github.com/cypresssemiconductorco/psoc6pdl.git
+[submodule "vendors/cypress/MTB/psoc6/udb-sdio-whd"]
+	path = vendors/cypress/MTB/psoc6/udb-sdio-whd
+	url = https://github.com/cypresssemiconductorco/udb-sdio-whd.git

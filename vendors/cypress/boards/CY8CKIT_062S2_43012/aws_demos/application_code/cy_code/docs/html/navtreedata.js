@@ -24,7 +24,7 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "CY8CKIT-062S2-43012 BSP", "index.html", [
-    [ "BSP User Guide", "md_bsp_boards_mt_bsp_user_guide.html", null ],
+    [ "BSP Overview", "md_bsp_boards_mt_bsp_user_guide.html", null ],
     [ "BSP API Reference", "modules.html", "modules" ]
   ] ]
 ];
