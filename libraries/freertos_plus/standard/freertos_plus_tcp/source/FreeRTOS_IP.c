@@ -1640,11 +1640,11 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 				if( pxIPPacket->xIPHeader.ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
 				{
 				ProtocolPacket_t *pxProtPack;
-				uint16_t *pusChecksum;
+				const uint16_t *pusChecksum;
 
 					/* pxProtPack will point to the offset were the protocols begin. */
 					pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pxNetworkBuffer->pucEthernetBuffer[ uxHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
-					pusChecksum = ( uint16_t * ) ( &( pxProtPack->xUDPPacket.xUDPHeader.usChecksum ) );
+					pusChecksum = ( const uint16_t * ) ( &( pxProtPack->xUDPPacket.xUDPHeader.usChecksum ) );
 					if( *pusChecksum == ( uint16_t ) 0U )
 					{
 						#if( ipconfigHAS_PRINTF != 0 )
@@ -2127,7 +2127,7 @@ BaseType_t location = 0;
 		/* Check for minimum packet size. */
 		if( uxBufferLength < sizeof( IPPacket_t ) )
 		{
-	 		usChecksum = ipINVALID_LENGTH;
+			usChecksum = ipINVALID_LENGTH;
 			location = 1;
 			break;
 		}
@@ -2144,7 +2144,7 @@ BaseType_t location = 0;
 		/* Check for minimum packet size. */
 		if( uxBufferLength < ( sizeof( IPPacket_t ) + ( uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ) ) )
 		{
-	 		usChecksum = ipINVALID_LENGTH;
+			usChecksum = ipINVALID_LENGTH;
 			location = 2;
 			break;
 		}
@@ -2152,7 +2152,7 @@ BaseType_t location = 0;
 		usLength = FreeRTOS_ntohs( usLength );
 		if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + ( size_t ) usLength ) )
 		{
-	 		usChecksum = ipINVALID_LENGTH;
+			usChecksum = ipINVALID_LENGTH;
 			location = 3;
 			break;
 		}

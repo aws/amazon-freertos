@@ -57,22 +57,22 @@
  * the usage of dynamic memory allocation.
  */
 #ifndef IotThreads_Malloc
-    #include <stdlib.h>
+    #include "FreeRTOS.h"
 
 /**
  * @brief Memory allocation. This function should have the same signature
  * as [malloc](http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #define IotThreads_Malloc    malloc
+    #define IotThreads_Malloc    pvPortMalloc
 #endif
 #ifndef IotThreads_Free
-    #include <stdlib.h>
+    #include "FreeRTOS.h"
 
 /**
  * @brief Free memory. This function should have the same signature as
  * [free](http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #define IotThreads_Free    free
+    #define IotThreads_Free    pvPortFree
 #endif
 
 /*-----------------------------------------------------------*/

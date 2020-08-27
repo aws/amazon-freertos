@@ -18,6 +18,8 @@ afr_module_sources(
         "${inc_dir}/iot_appversion32.h"
         "${inc_dir}/iot_init.h"
         "${inc_dir}/iot_linear_containers.h"
+        "${inc_dir}/logging_levels.h"
+        "${inc_dir}/logging_stack.h"
 
         # Logging
         "${aws_logging_task}"

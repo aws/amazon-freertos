@@ -1834,10 +1834,6 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     /* mbedTLS structures for verification. */
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
 
-    xResult = prvDestroyTestCredentials();
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
-    xCurrentCredentials = eNone;
-
     xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
                                            ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                            ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
@@ -2287,7 +2283,7 @@ TEST( Full_PKCS11_EC, AFQP_FindObjectMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSessionHandle[ xTaskNumber ];
     }
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     prvMultiThreadHelper( ( void * ) prvFindObjectMultiThreadTask );
 
@@ -2414,7 +2410,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSessionHandle[ xTaskNumber ];
     }
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     prvMultiThreadHelper( ( void * ) prvECGetAttributeValueMultiThreadTask );
 
@@ -2507,7 +2503,7 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
     CK_OBJECT_HANDLE xCertificate;
     CK_OBJECT_HANDLE xPublicKey;
 
-    prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
+    prvFindObjectTest( &xPrivateKey, &xCertificate, &xPublicKey );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
