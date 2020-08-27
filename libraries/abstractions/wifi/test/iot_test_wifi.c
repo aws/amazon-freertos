@@ -715,6 +715,49 @@ TEST_GROUP_RUNNER( Quarantine_WiFi )
     RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
 }
 
+
+/**
+ * Test group for quarantined WiFi tests.
+ */
+TEST_GROUP( Custom_WiFi );
+
+
+TEST_SETUP( Custom_WiFi )
+{
+    prvSetupWiFiTests();
+}
+
+TEST_TEAR_DOWN( Custom_WiFi )
+{
+}
+
+TEST_GROUP_RUNNER( Custom_WiFi )
+{
+    /* Happy path tests. */
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiOnOff );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiMode );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectionLoop );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiNetworkAddGetDelete );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiPowerManagementMode )
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetIP );
+    // RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetIP_NullParameters );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetMAC );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetHostIP );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiScan );
+    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan_NullParameters );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiReset );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiPing );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiIsConnected );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiOnOffLoop );
+
+    /* Stability tests. */
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
+    // RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
+
+    prvFinishWiFiTesting();
+}
+
 /**
  * @brief Turn the Wi-Fi off then on in a loop and verify success. The Wi-Fi
  * should be ON after this test is finished.
@@ -1107,13 +1150,26 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
  */
 TEST( Quarantine_WiFi, AFQP_WiFiScan )
 {
-    WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ];
+    BaseType_t xNetworkFound = pdFALSE; 
+
+    int32_t lI = 0;
+    WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ] = { 0 };
     WIFIReturnCode_t xWiFiStatus;
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_Scan( xScanResults, testwifiMAX_SCAN_NUMBER );
         TEST_WIFI_ASSERT_EQ_REQUIRED_API( eWiFiSuccess, xWiFiStatus, xWiFiStatus );
+        
+        for(lI = 0; lI < testwifiMAX_SCAN_NUMBER; lI++ )
+        {
+            TEST_ASSERT_NOT_EQUAL( xScanResults[lI].cRSSI, 0 );
+            configPRINTF( ("%s, %s", xScanResults[lI].cSSID, clientcredentialWIFI_SSID) );
+            if ( strncmp( xScanResults[lI].cSSID, clientcredentialWIFI_SSID,
+                            sizeof( clientcredentialWIFI_SSID ) ) == 0)
+                xNetworkFound = pdTRUE;
+        }
+        TEST_ASSERT(xNetworkFound == pdTRUE);
     }
     else
     {
