@@ -98,6 +98,10 @@ static uint32_t _getConnectedNetworkForDemo( demoContext_t * pDemoContext )
     {
         ret = AWSIOT_NETWORK_TYPE_ETH;
     }
+    else if( ( ret & AWSIOT_NETWORK_TYPE_CELLULAR ) == AWSIOT_NETWORK_TYPE_CELLULAR )
+    {
+        ret = AWSIOT_NETWORK_TYPE_CELLULAR;
+    }
     else
     {
         ret = AWSIOT_NETWORK_TYPE_NONE;

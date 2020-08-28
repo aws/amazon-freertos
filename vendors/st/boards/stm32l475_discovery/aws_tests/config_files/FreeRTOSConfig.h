@@ -94,6 +94,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define INCLUDE_vTaskDelay                           1
 #define INCLUDE_xTaskGetSchedulerState               1
 #define INCLUDE_xSemaphoreGetMutexHolder             1
+#define INCLUDE_xTimerPendFunctionCall               1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS

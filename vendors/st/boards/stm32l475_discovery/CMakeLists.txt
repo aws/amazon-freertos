@@ -116,6 +116,18 @@ target_sources(
     INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
+# Cellular
+afr_mcu_port(cellular)
+target_sources(
+    AFR::cellular::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/comm_if/comm_if_st.c"
+        "${afr_ports_dir}/comm_if/iot_fifo.c"
+)
+
+# Cellular module port
+include("${AFR_VENDORS_DIR}/quectel/modules/bg96/CMakeLists.txt")
+
 # PKCS11
 afr_mcu_port(pkcs11_implementation)
 target_sources(
@@ -132,16 +144,28 @@ target_link_libraries(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-        AFR::wifi
-)
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-)
+if(SECURE_SOCKETS_CELLULAR)
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+            AFR::cellular
+            AFR::secure_sockets_cellular
+    )
+else()
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+    )
+    target_sources(
+        AFR::secure_sockets::mcu_port
+        INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
+    )
+endif()
+
 
 # Common I/O
 afr_mcu_port(common_io)
