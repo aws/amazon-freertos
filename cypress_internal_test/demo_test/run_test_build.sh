@@ -153,13 +153,13 @@ function compile_make()
     # The CY_BUILD_LOCATION needs to be provided otherwise the devops machines get a wrong build location for some reason.
     case "$toolchain" in
         GCC_ARM*)
-        make build $additional_flags CY_COMPILER_PATH="\"$GCC_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$GCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
         ARM*)
-        make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$ARMCC_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
         IAR*)
-        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir BLE_SUPPORT=1 TOOLCHAIN=$toolchain -j
+        make build $additional_flags CY_COMPILER_PATH="\"$IAR_DIR\"" CY_BUILD_LOCATION=$build_dir TOOLCHAIN=$toolchain -j
         ;;
     esac
     test_error=$?
