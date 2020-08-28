@@ -616,7 +616,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                             size_t xOptionLength )
 {
     ss_ctx_t * ctx;
-    int ret;
+    int ret = 0;
     char ** ppcAlpnIn = ( char ** ) pvOptionValue;
     size_t xLength = 0;
     uint32_t ulProtocol;
@@ -810,81 +810,58 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
             break;
 
         case SOCKETS_SO_TCPKEEPALIVE:
-           {
-               int keep_alive = *( ( int * ) pvOptionValue );
 
-               if( ( keep_alive == 0 ) || ( keep_alive == 1 ) )
-               {
-                   ret = lwip_setsockopt( ctx->ip_socket,
-                                          SOL_SOCKET,
-                                          SO_KEEPALIVE,
-                                          &keep_alive,
-                                          sizeof( keep_alive ) );
+        	ret = lwip_setsockopt( ctx->ip_socket,
+                                   SOL_SOCKET,
+                                   SO_KEEPALIVE,
+                                   pvOptionValue,
+                                   sizeof( int ) );
 
-                   if( 0 > ret )
-                   {
-                       return SOCKETS_SOCKET_ERROR;
-                   }
-               }
-               else
-               {
-                   return SOCKETS_EINVAL;
-               }
+        	break;
 
-               break;
-           }
+#if LWIP_TCP_KEEPALIVE
+       case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
 
-            #if LWIP_TCP_KEEPALIVE
-                case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
+    	   ret = lwip_setsockopt( ctx->ip_socket,
+                                  IPPROTO_TCP,
+                                  TCP_KEEPINTVL,
+                                  pvOptionValue,
+                                  sizeof( int ) );
 
-                    ret = lwip_setsockopt( ctx->ip_socket,
-                                           IPPROTO_TCP,
-                                           TCP_KEEPINTVL,
-                                           pvOptionValue,
-                                           sizeof( int ) );
+           break;
 
-                    if( 0 > ret )
-                    {
-                        return SOCKETS_SOCKET_ERROR;
-                    }
+        case SOCKETS_SO_TCPKEEPALIVE_COUNT:
 
-                    break;
+           ret = lwip_setsockopt( ctx->ip_socket,
+                                  IPPROTO_TCP,
+                                  TCP_KEEPCNT,
+                                  pvOptionValue,
+                                  sizeof( int ) );
 
-                case SOCKETS_SO_TCPKEEPALIVE_COUNT:
+           break;
 
-                    ret = lwip_setsockopt( ctx->ip_socket,
-                                           IPPROTO_TCP,
-                                           TCP_KEEPCNT,
-                                           pvOptionValue,
-                                           sizeof( int ) );
+        case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
 
-                    if( 0 > ret )
-                    {
-                        return SOCKETS_SOCKET_ERROR;
-                    }
+           ret = lwip_setsockopt( ctx->ip_socket,
+                                  IPPROTO_TCP,
+                                  TCP_KEEPIDLE,
+                                  pvOptionValue,
+                                  sizeof( int ) );
 
-                    break;
+           break;
+#endif /* if LWIP_TCP_KEEPALIVE */
 
-                case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
-
-                    ret = lwip_setsockopt( ctx->ip_socket,
-                                           IPPROTO_TCP,
-                                           TCP_KEEPIDLE,
-                                           pvOptionValue,
-                                           sizeof( int ) );
-
-                    if( 0 > ret )
-                    {
-                        return SOCKETS_SOCKET_ERROR;
-                    }
-                    break;
-            #endif /* if LWIP_TCP_KEEPALIVE */
 
         default:
             return SOCKETS_ENOPROTOOPT;
     }
 
-    return SOCKETS_ERROR_NONE;
+    if( 0 > ret )
+    {
+       return SOCKETS_SOCKET_ERROR;
+    }
+
+    return ret;
 }
 
 /*-----------------------------------------------------------*/
