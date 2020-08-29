@@ -11,7 +11,8 @@ IotHttpsRequestHandle_t allocate_IotRequestHandle();
 /* Implementation of safe malloc which returns NULL if the requested
  * size is 0.  Warning: The behavior of malloc(0) is platform
  * dependent.  It is possible for malloc(0) to return an address
- * without allocating memory.
+ * without allocating memory, but doing so generates a spurious
+ * error with cbmc --pointer-primitive-check.
  */
 void *safeMalloc(size_t xWantedSize) {
   return xWantedSize > 0 && nondet_bool() ? malloc(xWantedSize) : NULL;
@@ -249,18 +250,28 @@ IotHttpsResponseHandle_t allocate_IotResponseHandle() {
   if(pResponseHandle) {
     size_t headerLen;
     __CPROVER_assume(headerLen < CBMC_MAX_OBJECT_SIZE);
+    size_t headerCurOffset;
+    __CPROVER_assume(headerCurOffset < headerLen);
+    size_t headerEndOffset;
+    __CPROVER_assume(headerEndOffset < headerLen);
     pResponseHandle->pHeaders = safeMalloc(headerLen);
     pResponseHandle->pHeadersEnd = pResponseHandle->pHeadersCur = pResponseHandle->pHeaders;
     if (pResponseHandle->pHeaders) {
-      pResponseHandle->pHeadersEnd = pResponseHandle->pHeaders + headerLen - 1;
+      pResponseHandle->pHeadersCur = pResponseHandle->pHeaders + headerCurOffset;
+      pResponseHandle->pHeadersEnd = pResponseHandle->pHeaders + headerEndOffset;
     }
 
     size_t bodyLen;
     __CPROVER_assume(bodyLen < CBMC_MAX_OBJECT_SIZE);
+    size_t bodyCurOffset;
+    __CPROVER_assume(bodyCurOffset < bodyLen);
+    size_t bodyEndOffset;
+    __CPROVER_assume(bodyEndOffset < bodyLen);
     pResponseHandle->pBody = safeMalloc(bodyLen);
     pResponseHandle->pBodyEnd = pResponseHandle->pBodyCur = pResponseHandle->pBody;
     if (pResponseHandle->pBody) {
-      pResponseHandle->pBodyEnd = pResponseHandle->pBody + bodyLen - 1;
+      pResponseHandle->pBodyCur = pResponseHandle->pBody + bodyCurOffset;
+      pResponseHandle->pBodyEnd = pResponseHandle->pBody + bodyEndOffset;
     }
 
     pResponseHandle->pHttpsConnection = allocate_IotConnectionHandle();
@@ -282,8 +293,8 @@ initialize_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
 }
 
 int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
-  int valid_headers = pResponseHandle->pHeaders != NULL;
-  int valid_body = pResponseHandle->pBody != NULL;
+  if (pResponseHandle->pHeaders == NULL) return false;
+  if (pResponseHandle->pBody == NULL) return false;
 
   int valid_parserdata =
     pResponseHandle->httpParserInfo.readHeaderParser.data == pResponseHandle;
@@ -321,8 +332,6 @@ int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
     pResponseHandle->pBodyCur <= pResponseHandle->pBodyEnd;
 
   return
-    valid_headers &&
-    valid_body &&
     valid_parserdata &&
     valid_header_pointers &&
     valid_body_pointers;
@@ -342,10 +351,15 @@ IotHttpsRequestHandle_t allocate_IotRequestHandle() {
 
     size_t headerLen;
     __CPROVER_assume(headerLen < CBMC_MAX_OBJECT_SIZE);
+    size_t headerCurOffset;
+    __CPROVER_assume(headerCurOffset < headerLen);
+    size_t headerEndOffset;
+    __CPROVER_assume(headerEndOffset < headerLen);
     pRequestHandle->pHeaders = safeMalloc(headerLen);
     pRequestHandle->pHeadersEnd = pRequestHandle->pHeadersCur = pRequestHandle->pHeaders;
     if (pRequestHandle->pHeaders) {
-      pRequestHandle->pHeadersEnd = pRequestHandle->pHeaders + headerLen - 1;
+      pRequestHandle->pHeadersCur = pRequestHandle->pHeaders + headerCurOffset;
+      pRequestHandle->pHeadersEnd = pRequestHandle->pHeaders + headerEndOffset;
     }
 
     pRequestHandle->pBody = safeMalloc(pRequestHandle->bodyLength);
@@ -355,8 +369,8 @@ IotHttpsRequestHandle_t allocate_IotRequestHandle() {
 }
 
 int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
-  int valid_headers = pRequestHandle->pHeaders != NULL;
-  int valid_body = pRequestHandle->pBody != NULL;
+  if (pRequestHandle->pHeaders == NULL) return false;
+  if (pRequestHandle->pBody == NULL) return false;
 
   size_t header_size = __CPROVER_OBJECT_SIZE(pRequestHandle->pHeaders);
 
@@ -376,8 +390,6 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
     pRequestHandle->pHeadersCur <= pRequestHandle->pHeadersEnd;
 
   return
-    valid_headers &&
-    valid_body &&
     valid_header_pointers;
 }
 
