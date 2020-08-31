@@ -127,7 +127,7 @@
     }
 
 
-/* 
+/*
  * @brief Macro taken from "iot_pkcs11_mbedtls.c"
  */
 #define pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE    160
@@ -1005,8 +1005,9 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
     CK_OBJECT_HANDLE xObject = 0;
     uint8_t pusEmptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
     uint8_t pusFakePrivateKey[ pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE ] = { 0 };
+
     ( void ) memcpy( &pusFakePrivateKey[ pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE - sizeof( pusEmptyPubKey ) ], pusEmptyPubKey, sizeof( pusEmptyPubKey ) );
-    
+
 
     /* Private value D. */
     CK_BYTE pxD[ EC_D_LENGTH ] = { 0 };
@@ -1030,7 +1031,7 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
         mbedtls_pk_write_key_der_ExpectAnyArgsAndReturn( 6 );
-        mbedtls_pk_write_key_der_ReturnArrayThruPtr_buf( pusFakePrivateKey, sizeof(pusFakePrivateKey) );
+        mbedtls_pk_write_key_der_ReturnArrayThruPtr_buf( pusFakePrivateKey, sizeof( pusFakePrivateKey ) );
         mbedtls_pk_free_CMockIgnore();
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
         xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
