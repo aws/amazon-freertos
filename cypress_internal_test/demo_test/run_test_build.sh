@@ -64,7 +64,7 @@ case "$KERNEL" in
     ;;
 esac
 
-# Find drive letter to mount mbed/mbed-os on windows to work around path length issues.
+# Find drive letter to mount amazon-freertos on windows to work around path length issues.
 win_drive_letter="A:"
 if [ ${host} == win ]; then
     # Determine gitlab-runner instance ID from path
@@ -266,6 +266,7 @@ if [[ $nightly -eq 0 ]]; then
     # Acceptance pipeline
     echo "Running acceptance job: MQTT + OTA demo CMake and all demos Make"
 
+    ############################### CMAKE TESTS ####################################
     run_cmake_test mqtt
     # OTA feature is not supported on the WIFI_BT board.
     # Remove toolchain GCC_ARM condition after MIDDLEWARE-3718 and MIDDLEWARE-3719 are resolved.
@@ -273,6 +274,12 @@ if [[ $nightly -eq 0 ]]; then
         run_cmake_test ota -DOTA_SUPPORT=1
     fi
 
+    # Test compile with BLE module disabled. (Only GCC should be sufficient)
+    if [[ $toolchain == GCC_ARM ]]; then
+        run_cmake_test mqtt -DBLE_SUPPORTED=0
+    fi
+
+    ############################### MAKE TESTS ####################################
     if [ ${host} == win ]; then
         unmount_win_drive
         WIN_AFR_DIR="$(cygpath --windows "${AFR_DIR}")"
@@ -294,6 +301,7 @@ if [[ $nightly -eq 0 ]]; then
     # for these demos is in a common file shared accross all demos so any changes to should caught in
     # tests for GCC.
     if [[ $toolchain == GCC_ARM ]]; then
+        run_make_test mqtt  BLE_SUPPORT=0
         run_make_test tcp_secure_echo
         run_make_test shadow
         run_make_test defender
@@ -306,6 +314,7 @@ else
         toolchain=$val
 
         run_cmake_test mqtt
+        run_cmake_test mqtt -DBLE_SUPPORTED=0
         if [[ $board != "CY8CKIT_062_WIFI_BT" ]]; then
             run_cmake_test ota -DOTA_SUPPORT=1
         fi
@@ -315,6 +324,7 @@ else
         run_cmake_test green_grass
 
         run_make_test mqtt
+        run_make_test mqtt  BLE_SUPPORT=0
         if [[ $board != "CY8CKIT_062_WIFI_BT" ]]; then
             run_make_test ota OTA_SUPPORT=1
         fi

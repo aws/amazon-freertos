@@ -59,7 +59,6 @@ test_afr_build-CY8CKIT_062S2_43012-GCC_ARM:
     - devops-mac
   script:
     - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 GCC_ARM
-  allow_failure: true
 
 test_afr_build-CY8CKIT_062_WIFI_BT-GCC_ARM:
   stage: test
@@ -370,7 +369,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_GCC:
       - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_GCC
   script:
     # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W GCC_ARM 
+    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W GCC_ARM
   resource_group: afr_test
 
 # Run AFR Device tester when $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM is specified
@@ -383,7 +382,7 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
       - $AFR_DEMO_TEST_CY8CKIT_064S0S2_4343W_ARM
   script:
     # NOTE the board name below use '_' instead of '-'
-    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W ARM 
+    - bash -e cypress_internal_test/demo_test/run_test_secure.sh  CY8CKIT_064S0S2_4343W ARM
   resource_group: afr_test
 
 ###############################################################################
