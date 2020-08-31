@@ -41,6 +41,13 @@ include("${cy_psoc6_dir}/cmake/cy_create_exe_target.cmake")
 #
 set(ENV{LINKER_SCRIPT_NAME} "cy8c6xxa_cm4_dual")
 
+#--------------------------------------------------------------------
+# Features
+# Enable BLE
+if (NOT DEFINED BLE_SUPPORTED)
+set(BLE_SUPPORTED               "1" )
+endif()
+
 if(OTA_SUPPORT)
     #--------------------------------------------------------------------
     # OTA SUPPORT

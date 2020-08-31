@@ -132,14 +132,6 @@ function(cy_add_link_libraries)
         set(CYHAL_UDB_SDIO "1")
     endif()
 
-    string(FIND "${ARG_DEFINES}" "BLE_SUPPORTED" check_ble_supported)
-    if (NOT ("${check_ble_supported}" STREQUAL "-1"))
-       # BLE is only supported for arm-gcc
-       if ("${AFR_TOOLCHAIN}" STREQUAL "arm-gcc")
-          set(BLE_SUPPORTED 1)
-       endif()
-    endif()
-
     #--------------------------------------------------------------------
     # Utilities
     #--------------------------------------------------------------------
@@ -163,8 +155,8 @@ function(cy_add_link_libraries)
         TOOLCHAIN     "${AFR_TOOLCHAIN}"
     )
 
-    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE};${COMPONENTS}")
-    set(CY_ARCH_DIR 
+    set(ENV{CY_COMPONENTS} "${AFR_BOARD_NAME};${ARG_COMPONENTS};SOFTFP;BSP_DESIGN_MODUS;PSOC6HAL;FREERTOS;$ENV{CY_CORE}")
+    set(CY_ARCH_DIR
         "${cy_libraries_clib_dir}"
         "${cy_psoc6_dir}"
         "${cy_libraries_whd_dir}/WiFi_Host_Driver"
@@ -182,7 +174,7 @@ function(cy_add_link_libraries)
 
     if(BLE_SUPPORTED)
         set(ENV{CY_COMPONENTS} "$ENV{CY_COMPONENTS};WICED_BLE")
-        list(APPEND CY_ARCH_DIR ${cy_bt_dir})
+        list(APPEND CY_ARCH_DIR ${cy_libararies_bt_dir})
     endif()
 
     # Find MTB files
@@ -331,10 +323,10 @@ function(cy_add_link_libraries)
 
         target_include_directories(AFR::ble_hal::mcu_port INTERFACE
             "${afr_ports_dir}/ble"
-            "${cy_bt_dir}/common"
-            "${cy_bt_dir}/platform/include"
-            "${cy_bt_dir}/platform/common"
-            "${cy_bt_dir}/wiced_include"
+            "${cy_libararies_bt_dir}/common"
+            "${cy_libararies_bt_dir}/platform/include"
+            "${cy_libararies_bt_dir}/platform/common"
+            "${cy_libararies_bt_dir}/wiced_include"
         )
 
         target_link_libraries(

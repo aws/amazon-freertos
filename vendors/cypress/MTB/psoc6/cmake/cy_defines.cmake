@@ -15,7 +15,8 @@ set(cy_port_support_dir         "${cy_mtb_dir}/port_support")
 set(cy_libraries_dir            "${cy_mtb_dir}/libraries")
 set(cy_libraries_clib_dir       "${cy_libraries_dir}/clib-support")
 set(cy_libraries_whd_dir        "${cy_libraries_dir}/wifi-host-driver")
-set(cy_libraries_capsense_dir       "${cy_libraries_dir}/capsense")
+set(cy_libraries_capsense_dir   "${cy_libraries_dir}/capsense")
+set(cy_libararies_bt_dir        "${cy_libraries_dir}/bluetooth")
 
 set(cy_psoc6_dir                "${cy_mtb_dir}/psoc6")
 set(cy_psoc6_cmake_dir          "${cy_psoc6_dir}/cmake")
@@ -41,9 +42,6 @@ else()
     set(include_dirs "${app_dir}/config_files;${iot_common_dir}")
 endif()
 
-if(BLE_SUPPORTED)
-set(cy_bt_dir                   "${cy_libraries_dir}/bluetooth")
-endif()
 
 #--------------------------------------------------------------------
 # MCUBOOT directory used for inclusion of C files and Header directories

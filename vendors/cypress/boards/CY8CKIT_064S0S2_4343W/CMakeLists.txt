@@ -50,8 +50,13 @@ set(ENV{CY_TFM_HEX} "${cy_psoc6_dir}/psoc64tfm/COMPONENT_TFM_S_FW/tfm_s_unsigned
 set(ENV{CY_TFM_POLICY_FILE} "${cy_psoc6_dir}/psoc64tfm/security/policy/policy_multi_CM0_CM4_jitp.json")
 set(ENV{CY_DEVICE_NAME} "cy8ckit-064s0s2-4343w")
 
-#Required Modules
+#Features
+# CY_TFM_PSA_SUPPORTED feature is required on this board.
 set(CY_TFM_PSA_SUPPORTED        "1" )
+# Enable BLE
+if (NOT DEFINED BLE_SUPPORTED)
+set(BLE_SUPPORTED               "1" )
+endif()
 
 # Python path definition
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
