@@ -1209,7 +1209,7 @@ static CK_RV prvAppendEmptyECDerKey( uint8_t * pusECPrivateKey,
                                      uint32_t * pulActualKeyLength )
 {
     CK_RV xResult = CKR_OK;
-    uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
+    const uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
     int32_t lCompare = 0;
 
     if( pusECPrivateKey == NULL )
@@ -1286,11 +1286,6 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         {
             LogDebug( ( "Received EC key type." ) );
             ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
-        }
-        else
-        {
-            LogDebug( ( "Received RSA key type." ) );
-            ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
         }
     }
 
@@ -4169,11 +4164,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                 mbedtls_pk_free( &pxSession->xVerifyKey );
                 mbedtls_pk_init( &pxSession->xVerifyKey );
                 lMbedTLSResult = mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength );
-                LogError( ( "Failed to initialize verify operation. "
-                            "mbedtls_pk_parse_public_key failed: mbed TLS "
-                            "error = %s : %s.",
-                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
 
                 if( 0 != lMbedTLSResult )
                 {
@@ -4193,6 +4183,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                         LogDebug( ( "Found verify key handle." ) );
                         pxSession->xVerifyKeyHandle = hKey;
                     }
+                }
+                else
+                {
+                    LogDebug( ( "Found verify key handle." ) );
+                    pxSession->xVerifyKeyHandle = hKey;
                 }
             }
 

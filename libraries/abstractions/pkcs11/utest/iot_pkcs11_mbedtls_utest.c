@@ -126,6 +126,12 @@
         { CKA_TOKEN, &xTokenStorage, sizeof( xTokenStorage ) }                        \
     }
 
+
+/*
+ * @brief Macro taken from "iot_pkcs11_mbedtls.c"
+ */
+#define pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE    160
+
 /* Malloc calls */
 static uint16_t usMallocFreeCalls = 0;
 
@@ -997,6 +1003,11 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
     /* DER-encoding of an ANSI X9.62 Parameters value */
     CK_BYTE * pxEcPrivParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
     CK_OBJECT_HANDLE xObject = 0;
+    const uint8_t pusEmptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
+    uint8_t pusFakePrivateKey[ pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE ] = { 0 };
+
+    ( void ) memcpy( &pusFakePrivateKey[ pkcs11_PRIVATE_EC_PRIME_256_DER_SIZE - sizeof( pusEmptyPubKey ) ], pusEmptyPubKey, sizeof( pusEmptyPubKey ) );
+
 
     /* Private value D. */
     CK_BYTE pxD[ EC_D_LENGTH ] = { 0 };
@@ -1019,7 +1030,8 @@ void test_pkcs11_C_CreateObjectECPrivKey( void )
         mbedtls_ecp_group_load_IgnoreAndReturn( 0 );
         pvPortMalloc_Stub( pvPkcs11MallocCb );
         mbedtls_mpi_read_binary_IgnoreAndReturn( 0 );
-        mbedtls_pk_write_key_der_IgnoreAndReturn( 1 );
+        mbedtls_pk_write_key_der_ExpectAnyArgsAndReturn( 6 );
+        mbedtls_pk_write_key_der_ReturnArrayThruPtr_buf( pusFakePrivateKey, sizeof( pusFakePrivateKey ) );
         mbedtls_pk_free_CMockIgnore();
         PKCS11_PAL_SaveObject_IgnoreAndReturn( 1 );
         xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
@@ -2879,6 +2891,46 @@ void test_pkcs11_C_VerifyInitECDSA( void )
 }
 
 /*!
+ * @brief C_VerifyInit ECDSA public key API failed, private key API success.
+ *
+ */
+void test_pkcs11_C_VerifyInitECDSAPriv( void )
+{
+    CK_RV xResult = CKR_OK;
+    CK_SESSION_HANDLE xSession = 0;
+    CK_OBJECT_HANDLE xObject = 0;
+    CK_MECHANISM xMechanism = { 0 };
+    mbedtls_pk_context xVerifyKey = { NULL, &xResult };
+
+    xMechanism.mechanism = CKM_ECDSA;
+    CK_BBOOL xIsPrivate = CK_FALSE;
+
+    prvCommonInitStubs();
+
+    if( TEST_PROTECT() )
+    {
+        xResult = prvCreateEcPub( &xSession, &xObject );
+        TEST_ASSERT_EQUAL( CKR_OK, xResult );
+
+        PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
+        PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
+        xQueueSemaphoreTake_IgnoreAndReturn( pdTRUE );
+        mbedtls_pk_free_CMockIgnore();
+        mbedtls_pk_init_ExpectAnyArgs();
+        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
+        mbedtls_pk_parse_public_key_IgnoreAndReturn( -1 );
+        mbedtls_pk_parse_key_IgnoreAndReturn( 0 );
+        xQueueGenericSend_IgnoreAndReturn( pdTRUE );
+        PKCS11_PAL_GetObjectValueCleanup_CMockIgnore();
+        mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_ECDSA );
+        xResult = C_VerifyInit( xSession, &xMechanism, xObject );
+        TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    }
+
+    prvCommonDeinitStubs();
+}
+
+/*!
  * @brief C_VerifyInit ECDSA bad args.
  *
  */
@@ -3149,8 +3201,6 @@ void test_pkcs11_C_VerifyBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        mbedtls_pk_init_ExpectAnyArgs();
-        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -3159,8 +3209,6 @@ void test_pkcs11_C_VerifyBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        mbedtls_pk_init_ExpectAnyArgs();
-        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -3177,8 +3225,6 @@ void test_pkcs11_C_VerifyBadArgs( void )
         mbedtls_pk_get_type_IgnoreAndReturn( MBEDTLS_PK_RSA );
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        mbedtls_pk_init_ExpectAnyArgs();
-        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -3187,8 +3233,6 @@ void test_pkcs11_C_VerifyBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        mbedtls_pk_init_ExpectAnyArgs();
-        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
@@ -3197,8 +3241,6 @@ void test_pkcs11_C_VerifyBadArgs( void )
 
         PKCS11_PAL_GetObjectValue_ExpectAnyArgsAndReturn( CKR_OK );
         PKCS11_PAL_GetObjectValue_ReturnThruPtr_pIsPrivate( &xIsPrivate );
-        mbedtls_pk_init_ExpectAnyArgs();
-        mbedtls_pk_init_ReturnThruPtr_ctx( &xVerifyKey );
         xResult = C_VerifyInit( xSession, &xMechanism, xObject );
         TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
