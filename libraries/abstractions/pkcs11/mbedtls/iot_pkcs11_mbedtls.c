@@ -1209,7 +1209,7 @@ static CK_RV prvAppendEmptyECDerKey( uint8_t * pusECPrivateKey,
                                      uint32_t * pulActualKeyLength )
 {
     CK_RV xResult = CKR_OK;
-    uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
+    const uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
     int32_t lCompare = 0;
 
     if( pusECPrivateKey == NULL )
