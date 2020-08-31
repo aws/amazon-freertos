@@ -65,6 +65,11 @@
  */
 #define ETH_ENABLED                                     ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
 
+/**
+ * @brief Compile time flag which can be used to check if Cellular is enabled.
+ */
+#define CELLULAR_ENABLED                                ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_CELLULAR ) == AWSIOT_NETWORK_TYPE_CELLULAR )
+
 #define TCPIP_NETWORK_ENABLED                           ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_TCP_IP ) != 0 )
 
 /**
