@@ -114,22 +114,20 @@ function run_cmake_test()
     apply_common_changes
 
     compile_cmake $board
- 
+
     if [ $test_error -eq 0 ]; then
         run_obj_copy "$AFR_DIR/build/aws_demos"
     fi
- 
+
     if [ $test_error -eq 0 ]; then
         flash_hex "$AFR_DIR/build/aws_demos.hex"
     fi
 
-    fi
-    if [ $test_error -eq 0 ]
-    then
+    if [ $test_error -eq 0 ]; then
         check_uart_result "cmake $test"
     fi
-    if [ $test_error -ne 0 ]
-    then
+
+    if [ $test_error -ne 0 ]; then
         ((ERRORS++))
         echo "Test $test failed."
     fi
@@ -157,13 +155,12 @@ function run_make_test()
         board_name=$(echo $board | sed s/_/-/g)
         flash_hex "$AFR_DIR/build/cy/aws_demos/$board_name/Debug/aws_demos.hex"
     fi
-    
-    if [ $test_error -eq 0 ]
-    then
+
+    if [ $test_error -eq 0 ]; then
         check_uart_result "make $test"
     fi
-    if [ $test_error -ne 0 ]
-    then
+
+    if [ $test_error -ne 0 ]; then
         ((ERRORS++))
         echo "Test $test failed."
     fi
