@@ -216,8 +216,8 @@ For PSoC 6 MCU devices, see [How to Design with PSoC 6 MCU - KBA223067](https://
 
 | Document Version | Description of Change                                      |
 | ---------------- | ---------------------------------------------------------- |
-| 1.1.1            | Added info for ARM and IAR builds                          |
-| 1.1.0            | Updated for external FLASH support and CY8CKIT_062S2_43012 |
+| 1.1.0            | Added info for ARM and IAR builds                          |
+|                  | Updated for external FLASH support and CY8CKIT_062S2_43012 |
 | 1.0.0            | New Document                                               |
 
 ------
