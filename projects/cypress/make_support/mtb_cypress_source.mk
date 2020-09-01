@@ -16,7 +16,8 @@ CY_IGNORE+=\
 
 ifneq ($(BLE_SUPPORT),1)
 CY_IGNORE+=\
-	$(CY_EXTAPP_PATH)/libraries/bluetooth
+	$(CY_EXTAPP_PATH)/libraries/bluetooth\
+	$(CY_EXTAPP_PATH)/port_support/bluetooth
 endif
 
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus

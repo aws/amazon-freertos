@@ -319,14 +319,16 @@ function(cy_add_link_libraries)
             "${afr_ports_dir}/ble/iot_ble_hal_manager_adapter_ble.c"
             "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
             "${afr_ports_dir}/ble/wiced_bt_cfg.c"
+            "${cy_port_support_dir}/bluetooth/platform_bt_nvram.c"
+            "${cy_port_support_dir}/bluetooth/wiced_bt_dynamic_gattdb.c"
         )
 
         target_include_directories(AFR::ble_hal::mcu_port INTERFACE
             "${afr_ports_dir}/ble"
-            "${cy_libararies_bt_dir}/common"
             "${cy_libararies_bt_dir}/platform/include"
             "${cy_libararies_bt_dir}/platform/common"
             "${cy_libararies_bt_dir}/wiced_include"
+            "${cy_port_support_dir}/bluetooth"
         )
 
         target_link_libraries(

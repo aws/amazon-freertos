@@ -49,6 +49,7 @@ uint32_t bt_task_dropped_packet_cnt = 0;
  *                          Function Declarations
  ******************************************************************************/
 extern void cybt_core_stack_init(void);
+extern void host_stack_platform_interface_deinit(void);
 
 
 /******************************************************************************

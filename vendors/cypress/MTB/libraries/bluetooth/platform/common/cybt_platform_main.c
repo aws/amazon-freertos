@@ -71,7 +71,6 @@ cybt_platform_main_cb_t cybt_main_cb = {0};
  *                          Function Declarations
  ******************************************************************************/
 extern void host_stack_platform_interface_init(void);
-extern void host_stack_platform_interface_deinit(void);
 
 
 /******************************************************************************
