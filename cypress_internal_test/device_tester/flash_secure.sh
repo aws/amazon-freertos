@@ -30,7 +30,6 @@ do
     fi
     
     echo "######### Erasing eeprom from 0x14000000 to 0x14008000  #########"
-    #pyocd erase -t cy8c64xA_cm0 -s 0x14000000+0x8000 -u $DEVICE_ID
     pyocd erase -s 0x14000000+0x8000 -u $DEVICE_ID
     pyocd_result=$?
     if [ $pyocd_result != 0 ]; then 
@@ -39,7 +38,6 @@ do
     fi
     
     echo "######### Erasing SST #########"
-    #pyocd erase -t cy8c64xA_cm0 -s 0x101c0000+0x10000 -u $DEVICE_ID
     pyocd erase -s 0x101c0000+0x10000 -u $DEVICE_ID
     pyocd_result=$?
     if [ $pyocd_result != 0 ]; then 
@@ -49,7 +47,6 @@ do
      
     echo "######### Flashing CM4 core #########"
     pyocd flash cm4.hex -u $DEVICE_ID
-    #pyocd flash -t cy8c64xA_cm0 cm4.hex -u $DEVICE_ID
     pyocd_result=$?
     if [ $pyocd_result != 0 ]; then 
         echo "pyocd flashing cm4.hex failed with error code $pyocd_result "
@@ -58,7 +55,6 @@ do
     
     echo "######### Flashing CM0 core #########"
     pyocd flash cm0.hex -u $DEVICE_ID
-    #pyocd flash -t cy8c64xA_cm0 cm0.hex -u $DEVICE_ID
     pyocd_result=$?
     if [ $pyocd_result != 0 ]; then 
         echo "pyocd flashing cm0.hex failed with error code $pyocd_result "
