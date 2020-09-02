@@ -1228,6 +1228,9 @@ WIFIReturnCode_t WIFI_StartAP( void )
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         wifi_ret = eWiFiSuccess;
+
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiSem );
     }
     return wifi_ret;
 }
