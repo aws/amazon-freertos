@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef __IOT_PKCS11_PSA_JITP_STATUS_H__
-#define __IOT_PKCS11_PSA_JITP_STATUS_H__
+#ifndef __JITP_STATUS_H__
+#define __JITP_STATUS_H__
 
 /**
  * @brief Check if JITP is done.
@@ -40,4 +40,4 @@ int GetAwsIoTJITPStatus( void );
  */
 int SetAwsIoTJITPStatus( void );
 
-#endif /* __IOT_PKCS11_PSA_JITP_STATUS_H__ */
+#endif /* __JITP_STATUS_H__ */

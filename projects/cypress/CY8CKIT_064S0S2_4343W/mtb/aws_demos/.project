@@ -28,6 +28,16 @@
 	<linkedResources>
 
 		<link>
+			<name>./</name>
+			<type>2</type>
+			<locationURI>./</locationURI>
+		</link>
+ 		<link>
+			<name>./include</name>
+			<type>2</type>
+			<locationURI>./include</locationURI>
+		</link>
+ 		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code</locationURI>
@@ -58,9 +68,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/wifi</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/</name>
+			<name>libraries/abstractions/pkcs11/psa</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include</name>
@@ -171,6 +181,16 @@
 			<name>libraries/3rdparty/unity/src</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/unity/src</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/3rdparty/jsmn</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/jsmn</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/lwip</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/lwip</locationURI>
 		</link>
  		<link>
 			<name>libraries/abstractions/pkcs11</name>
@@ -328,6 +348,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/include/types</locationURI>
 		</link>
  		<link>
+			<name>libraries/c_sdk/aws/defender/include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/include</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/freertos_plus/standard/crypto</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/crypto</locationURI>
@@ -376,6 +401,46 @@
 			<name>libraries/freertos_plus/standard/utils/include</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/utils/include</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/freertos_plus/aws/greengrass/include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/greengrass/include</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/greengrass/src</locationURI>
+		</link>
+ 		<link>
+			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/ble</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/ble</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/abstractions/ble_hal</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/ble_hal</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/abstractions/ble_hal/include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/ble_hal/include</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/include</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/include</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/ota/mcuboot/sysflash</name>
@@ -523,6 +588,11 @@
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/MTB/whd/src/include</locationURI>
 		</link>
+ 		<link>
+			<name>./include</name>
+			<type>2</type>
+			<locationURI>./include</locationURI>
+		</link>
 
 
 		<link>
@@ -596,24 +666,19 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/wifi/iot_wifi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_input_format.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_input_format.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_object_management.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_object_management.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/hw_poll.c</name>
@@ -689,6 +754,16 @@
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+ 		<link>
+			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
+		</link>
+ 		<link>
+			<name>demos/defender/aws_iot_demo_defender.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
  		<link>
 			<name>demos/https/iot_demo_https_s3_upload_async.c</name>
@@ -1591,6 +1666,11 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/unity/src/unity.c</locationURI>
 		</link>
  		<link>
+			<name>libraries/3rdparty/jsmn/jsmn.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/jsmn/jsmn.c</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/3rdparty/lwip/src/netif/ethernet.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/3rdparty/lwip/src/netif/ethernet.c</locationURI>
@@ -1726,6 +1806,26 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
 		</link>
  		<link>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
+		</link>
+ 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
@@ -1789,6 +1889,101 @@
 			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
+		</link>
+ 		<link>
+			<name>demos/ble/aws_ble_gatt_server_demo.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/ble/aws_ble_gatt_server_demo.c</locationURI>
+		</link>
+ 		<link>
+			<name>demos/ble/iot_ble_numericComparison.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/ble/iot_ble_numericComparison.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/iot_ble_gap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/iot_ble_gap.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/iot_ble_gatt.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_data_transfer.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
+		</link>
+ 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 
 		<link>
