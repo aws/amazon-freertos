@@ -76,7 +76,7 @@ def main():
     board = config['board']
     test_groups = config['test_groups']
     port = get_default_serial_port()
-    timeout = args.timeout
+    timeout = int(args.timeout)
 
     backup = mutation_runner.generate_test_runner(test_groups)
 

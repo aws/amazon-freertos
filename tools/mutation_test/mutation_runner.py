@@ -253,7 +253,9 @@ def main():
     compiler = config['compiler']
     board = config['board']
     test_groups = config['test_groups']
+    mutations = config['mutations']
 
+    # args
     port = args.port if args.port else utils.get_default_serial_port()
     mutant_cnt = int(args.mutants)
     timeout = int(args.timeout)
@@ -267,11 +269,18 @@ def main():
             compiler = jobfile['compiler']
             board = jobfile['board']
             test_groups = jobfile['test_groups']
-            port = jobfile['port']
-            mutant_cnt = int(jobfile['mutant_cnt'])
-            timeout = int(jobfile['timeout'])
-            csv = jobfile['csv']
-            seed = jobfile['seed']
+            mutations = jobfile['mutations']
+            if not args.port:
+                port = jobfile['port']
+            if not args.mutants:
+                mutant_cnt = int(jobfile['mutant_cnt'])
+            if not args.timeout:
+                timeout = int(jobfile['timeout'])
+            if not args.csv:
+                csv = jobfile['csv']
+            if not args.seed:
+                seed = jobfile['seed']
+            
 
     # Generate test runner to run only on those test groups
     utils.yellow_print("Generating test runner based on supplied test groups...")
@@ -290,6 +299,9 @@ def main():
         seed = random.randrange(sys.maxsize)
     utils.yellow_print("Current test seed is: {}".format(seed))
     rng = random.Random(seed)
+
+    # set the mutation tricks
+    mutate.mutation_selector = mutations
     try:
         while run_cnt < mutant_cnt:
             try:
@@ -400,7 +412,8 @@ def main():
                        port=port,
                        timeout=timeout,
                        csv=csv,
-                       seed=seed)
+                       seed=seed,
+                       mutations=mutations)
         print('Done')
         sys.exit()
 

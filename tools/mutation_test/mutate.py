@@ -28,155 +28,157 @@ import mutation_runner
 
 NULL_STRING = " "
 
-mutation_trick = {
-	" < " : 
-		[ " != ", " > ", " <= ", " >= ", " == " ],
-	" > " : 
-		[ " != ", " < ", " <= ", " >= ", " == " ],
-	"<=" : 
-		[ " != ", " < ", " > ", " >= ",  "==" ],
-	">=" : 
-		[ " != ", " < ", " <= ", " > ",  "==" ],
-	"==" : 
-		[ " != ", " = ", " < ",  " > ", " <= ", " >= " ],
-	"==" : 
-		[ " != ", " = ", " < ",  " > ", " <= ", " >= " ],
-	"!=" : 
-		[ " == ", " = ", " < ",  " > ", " <= ", " >= " ],
-	" = " : 
-		[ " == ", " != ", " < ",  " > ", " <= ", " >= ", " = 0 * ", " = 0 ;//", " = NULL; //", " = ! " ],
+mutation_selector = {
+	"all" : {
+		" < " : 
+			[ " != ", " > ", " <= ", " >= ", " == " ],
+		" > " : 
+			[ " != ", " < ", " <= ", " >= ", " == " ],
+		"<=" : 
+			[ " != ", " < ", " > ", " >= ",  "==" ],
+		">=" : 
+			[ " != ", " < ", " <= ", " > ",  "==" ],
+		"==" : 
+			[ " != ", " = ", " < ",  " > ", " <= ", " >= " ],
+		"!=" : 
+			[ " == ", " = ", " < ",  " > ", " <= ", " >= " ],
+		" = " : 
+			[ " == ", " != ", " < ",  " > ", " <= ", " >= ", " = 0 * ", " = 0 ;//", " = NULL; //", " = ! " ],
 
-	" + " : 
-		[ " - ", " * ", " / ", " % " ],
-	" - " : 
-		[ " + ", " * ", " / ", " % " ],
-	
-	" * " : 
-		[ " + ", " - ", " / ", " % " ],
+		" + " : 
+			[ " - ", " * ", " / ", " % " ],
+		" - " : 
+			[ " + ", " * ", " / ", " % " ],
+		
+		" * " : 
+			[ " + ", " - ", " / ", " % " ],
 
-	" / " : 
-		[ " % ", " * ", " + ", " - " ],
- 	" % " : 
-		[ " / ", " + ", " - ", " * " ],
+		" / " : 
+			[ " % ", " * ", " + ", " - " ],
+		" % " : 
+			[ " / ", " + ", " - ", " * " ],
 
-	" + 1" :
-		[ " - 1", "+ 0", "+ 2", "- 2" ],
-	" - 1" :
-		[ " + 1", "+ 0", "+ 2", "- 2" ],
+		" + 1" :
+			[ " - 1", "+ 0", "+ 2", "- 2" ],
+		" - 1" :
+			[ " + 1", "+ 0", "+ 2", "- 2" ],
 
-	" & " : 
-		[ " | ", " ^ " ],
-	" | " : 
-		[ " & ", " ^ " ],
-	" ^ " : 
-		[ " & ", " | " ],
+		" & " : 
+			[ " | ", " ^ " ],
+		" | " : 
+			[ " & ", " ^ " ],
+		" ^ " : 
+			[ " & ", " | " ],
 
-	" &= " : 
-		[ " |= ", " ^= " ],
-	" |= " : 
-		[ " &= ", " ^= " ],
-	" ^= " : 
-		[ " &= ", " |= " ],
+		" &= " : 
+			[ " |= ", " ^= " ],
+		" |= " : 
+			[ " &= ", " ^= " ],
+		" ^= " : 
+			[ " &= ", " |= " ],
 
-	" ~" : 
-		[ " !", NULL_STRING ],
-	" !" : 
-		[ " ~", NULL_STRING ],
+		" ~" : 
+			[ " !", NULL_STRING ],
+		" !" : 
+			[ " ~", NULL_STRING ],
 
-	" && " : 
-		[ " & ", " || "," && !" ],
+		" && " : 
+			[ " & ", " || "," && !" ],
 
-	" || " :
-		[ " | ", " && ", " || !" ],
+		" || " :
+			[ " | ", " && ", " || !" ],
 
-	" >> " : " << ",
-	" << " : " >> ",
+		" >> " : " << ",
+		" << " : " >> ",
 
-	" << 1" :
-		[ " << 0"," << -1", "<< 2" ],
-	" >> 1" :
-		[ " >> 0", " >> -1", ">> 2" ],
+		" << 1" :
+			[ " << 0"," << -1", "<< 2" ],
+		" >> 1" :
+			[ " >> 0", " >> -1", ">> 2" ],
 
-	"++" : "--",
-	"--" : "++",
+		"++" : "--",
+		"--" : "++",
 
-	"++;" : 
-		[ "--;", "+=2;", "-=2;" ],
-	"++)" : 
-		[ "--)", "+=2)", "-=2)" ],
-	"--;" : 
-		[ "++;", "+=2;", "-=2;" ],
-	"--)" : 
-		[ "++)", "+=2)", "-=2)" ],
+		"++;" : 
+			[ "--;", "+=2;", "-=2;" ],
+		"++)" : 
+			[ "--)", "+=2)", "-=2)" ],
+		"--;" : 
+			[ "++;", "+=2;", "-=2;" ],
+		"--)" : 
+			[ "++)", "+=2)", "-=2)" ],
 
-	" true "  :  " false ",
-	" false " :  " true  ",
+		" true "  :  " false ",
+		" false " :  " true  ",
 
-	"if (" :
-		[ "if ( ! ", "if ( ~ ", "if ( 1 || ", "if ( 0 && " ],
-	"while (" :
-		[ "while ( ! ", "while ( ~ ", "while ( 0 && " , "// while (", " if (", "if (!"],
-	
-	"break;" : "{;}",
-	"continue;" : "{;}",
-	"goto " : "//goto ",
+		"if (" :
+			[ "if ( ! ", "if ( ~ ", "if ( 1 || ", "if ( 0 && " ],
+		"while (" :
+			[ "while ( ! ", "while ( ~ ", "while ( 0 && " , "// while (", " if (", "if (!"],
+		
+		"break;" : "{;}",
+		"continue;" : "{;}",
+		"goto " : "//goto ",
 
-	"return " : 
-		[ "return 0; //", "return 1; //", "return NULL; //", "return -1; //", "return 2* ", "return -1 * " ],
-
-
-	# for embedded systems
-
-	"0x00" :
-		[ "0x01", "0x05", "0x0A", "0x0F", "0xAA", "0x55", "0xFF" ],
-	"0x01 " :
-		[ "0x00 ", "0x05 ", "0x0A ", "0x0F " ],
-	"0x05 " :
-		[ "0x00 ", "0x01 ", "0x0A ", "0x0F " ],
-	"0x0A " :
-		[ "0x00 ", "0x01 ", "0x05 ", "0x0F " ],
-	"0x0F " :
-		[ "0x00 ", "0x01 ", "0x05 ", "0x0A " ],
+		"return " : 
+			[ "return 0; //", "return 1; //", "return NULL; //", "return -1; //", "return 2* ", "return -1 * " ],
 
 
-	"0x55 " :
-		[ "0x00 ", "0xAA ", "0xFF " ],
-	"0xAA " :
-		[ "0x00 ", "0x55 ", "0xFF " ],
-	"0xFF " :
-		[ "0x00 ", "0x55 ", "0xAA " ],
-	"[" :
-		[ "[ -1 + ", "[ 1 + ", "[ 0 * " ],
+		# for embedded systems
 
-	"(": " (! ",
-
-	");":
-		[ "*0);", "*-1);", "*2);" ],
-	"," :
-		[ ", ! ", ", 0 * ", ", -1 * ", ", 2 *" ],
-	" ? " :
-		[ " && 0 ? ", " || 1 ? " ],
-	" int " :
-		[" short int ", " char " ],
-	" signed " : " unsigned ",
-	" unsigned " : " signed ",
-	" long " : 
-		[ " int ", " short int ", " char " ],
-	" float ": " int ",
-	" double ": " int ",
+		"0x00" :
+			[ "0x01", "0x05", "0x0A", "0x0F", "0xAA", "0x55", "0xFF" ],
+		"0x01 " :
+			[ "0x00 ", "0x05 ", "0x0A ", "0x0F " ],
+		"0x05 " :
+			[ "0x00 ", "0x01 ", "0x0A ", "0x0F " ],
+		"0x0A " :
+			[ "0x00 ", "0x01 ", "0x05 ", "0x0F " ],
+		"0x0F " :
+			[ "0x00 ", "0x01 ", "0x05 ", "0x0A " ],
 
 
-	" free(": "// free(",
+		"0x55 " :
+			[ "0x00 ", "0xAA ", "0xFF " ],
+		"0xAA " :
+			[ "0x00 ", "0x55 ", "0xFF " ],
+		"0xFF " :
+			[ "0x00 ", "0x55 ", "0xAA " ],
+		"[" :
+			[ "[ -1 + ", "[ 1 + ", "[ 0 * " ],
 
-	"case ": "// case ",
-	"default ": "// default ",
+		"(": " (! ",
 
-	# null terminate a string
-	"\"": "\"\\0",
+		");":
+			[ "*0);", "*-1);", "*2);" ],
+		"," :
+			[ ", ! ", ", 0 * ", ", -1 * ", ", 2 *" ],
+		" ? " :
+			[ " && 0 ? ", " || 1 ? " ],
+		" int " :
+			[" short int ", " char " ],
+		" signed " : " unsigned ",
+		" unsigned " : " signed ",
+		" long " : 
+			[ " int ", " short int ", " char " ],
+		" float ": " int ",
+		" double ": " int ",
 
-	"else {": "{",
-	"else": "// else",
+
+		" free(": "// free(",
+
+		"case ": "// case ",
+		"default ": "// default ",
+
+		# null terminate a string
+		"\"": "\"\\0",
+
+		"else {": "{",
+		"else": "// else",
+	}
 }
+
+mutation_trick = mutation_selector["all"]
 
 def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 #
@@ -184,22 +186,31 @@ def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 	src_index = rng.randint(0, len(input_files) - 1)
 	source_file = input_files[src_index]
 	source_code = open(source_file).read().split('\n')
+
+	# if lines to mutate is unspecified, then choose from all lines
 	number_of_lines_of_code = (len(lines_to_mutate[source_file]) if 
 								lines_to_mutate[source_file] else len(source_code))
 	# try mutating a random line
 	random_line = rng.randint(0,number_of_lines_of_code)
 
-	# shuffle mutant operators
-	mutant_operators = list(mutation_trick.keys())
-	rng.shuffle(mutant_operators)
-
 	mutated_line = "" 
-	for i in list(range(random_line,number_of_lines_of_code)) + list(range(0,random_line)) :
+	for i in list(range(random_line,number_of_lines_of_code)) + list(range(0,random_line)):
 	#
+		# if lines to mutate is specified, use the index to choose from there instead
 		line = (lines_to_mutate[source_file][i] if 
 					lines_to_mutate[source_file] else i) - 1
+
+		# get the list of mutant operators for this line
+		mutation_trick = (mutation_selector[str(line)] if 
+							mutation_selector[str(line)] else mutation_selector["all"])
+		# simulate random operators by shuffling, need to create a list first in case
+		# this line doesn't have first operator in substring
+		mutant_operators = list(mutation_trick.keys())
+		rng.shuffle(mutant_operators)
+		
 		if lines_to_mutate[source_file] and max(lines_to_mutate[source_file]) >= len(source_code):
 			raise mutation_runner.LineOutOfRange("Line is out of range of source")
+
 		# do not mutate preprocessor or assert statements
 		if source_code[line].strip().startswith("#") or source_code[line].strip().startswith("assert") :
 			continue

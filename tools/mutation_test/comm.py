@@ -47,12 +47,12 @@ def read_target_output(target, start_flag, crash_flag, stop_flag, pass_flag, sta
     if start_flag is None:
         final_output = wait_for_output(target, start_timeout)
         if final_output:
-            output, final_flag = _read_until_complete(target, crash_flag, stop_flag, pass_flag, exec_timeout)
+            output, final_flag = _read_until_complete(target, stop_flag, crash_flag, pass_flag, exec_timeout)
             final_output += output
     else:
-        output, final_flag = _read_until_complete(target, crash_flag, start_flag, None, start_timeout)
+        output, final_flag = _read_until_complete(target, start_flag, crash_flag, None, start_timeout)
         if output.endswith(start_flag):
-            curr_output, final_flag = _read_until_complete(target, crash_flag, stop_flag, pass_flag, exec_timeout)
+            curr_output, final_flag = _read_until_complete(target, stop_flag, crash_flag, pass_flag, exec_timeout)
             final_output = output + curr_output
 
     return final_output, final_flag
