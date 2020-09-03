@@ -581,7 +581,6 @@ static void prvGpioInterruptCallback( uint8_t ucPinState,
     }
 
     xSemaphoreGiveFromISR( xtestIotGpioSemaphore, &xHigherPriorityTaskWoken );
-    
 }
 
 
@@ -725,7 +724,6 @@ static void prvGpioCallback( uint8_t ucPinState,
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotGpioSemaphore, &xHigherPriorityTaskWoken );
-    
 }
 
 /*-----------------------------------------------------------*/

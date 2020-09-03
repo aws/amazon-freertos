@@ -102,7 +102,6 @@ static void prvIotFlashEraseCallback( IotFlashOperationStatus_t pxStatus,
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotFlashSemaphore, &xHigherPriorityTaskWoken );
-    
 }
 
 /*-----------------------------------------------------------*/
@@ -124,7 +123,6 @@ static void prvIotTimerCallback( void * pvUserContext )
     }
 
     xSemaphoreGiveFromISR( xtestIotFlashTimerSemaphore, &xHigherPriorityTaskWoken );
-    
 }
 
 /*-----------------------------------------------------------*/
