@@ -98,7 +98,6 @@ void prvI2SWriteCallback( IotI2SOperationStatus_t xOpStatus,
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotI2SWriteSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /**
@@ -110,7 +109,6 @@ void prvI2SReadCallback( IotI2SOperationStatus_t xOpStatus,
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotI2SReadSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 

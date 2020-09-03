@@ -143,8 +143,6 @@ static void prvWdogCallback( void * pvUserContext )
 
         xSemaphoreGiveFromISR( xtestIotWatchdogBiteSemaphore, &xHigherPriorityTaskWoken );
     }
-
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/

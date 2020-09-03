@@ -122,7 +122,6 @@ int32_t iot_adc_close( IotAdcHandle_t const pxAdc );
  * {
  *     BaseType_t xHigherPriorityTaskWoken;
  *     xSemaphoreGiveFromISR( xIotAdcSemaphore, &xHigherPriorityTaskWoken );
- *     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
  * }
  * @endcode
  */
