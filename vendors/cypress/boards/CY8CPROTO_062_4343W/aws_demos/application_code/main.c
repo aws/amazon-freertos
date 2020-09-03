@@ -452,31 +452,28 @@ void vApplicationTickHook()
  * See FreeRTOSConfig.h to define configASSERT to something different.
  */
 void vAssertCalled(const char * pcFile,
-	uint32_t ulLine)
+    uint32_t ulLine)
 {
-    /* FIX ME. If necessary, update to applicable assertion routine actions. */
+    const uint32_t ulLongSleep = 1000UL;
+    volatile uint32_t ulBlockVariable = 0UL;
+    volatile char * pcFileName = (volatile char *)pcFile;
+    volatile uint32_t ulLineNumber = ulLine;
 
-	const uint32_t ulLongSleep = 1000UL;
-	volatile uint32_t ulBlockVariable = 0UL;
-	volatile char * pcFileName = (volatile char *)pcFile;
-	volatile uint32_t ulLineNumber = ulLine;
+    (void)pcFileName;
+    (void)ulLineNumber;
 
-	(void)pcFileName;
-	(void)ulLineNumber;
+    configPRINTF( ("vAssertCalled %s, %ld\n", pcFile, (long)ulLine) );
 
-	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-	fflush(stdout);
-
-	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
-	* this function to be exited. */
-	taskDISABLE_INTERRUPTS();
-	{
-		while (ulBlockVariable == 0UL)
-		{
-			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
-		}
-	}
-	taskENABLE_INTERRUPTS();
+    /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+    * this function to be exited. */
+    taskDISABLE_INTERRUPTS();
+    {
+        while (ulBlockVariable == 0UL)
+        {
+            vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+        }
+    }
+    taskENABLE_INTERRUPTS();
 }
 /*-----------------------------------------------------------*/
 

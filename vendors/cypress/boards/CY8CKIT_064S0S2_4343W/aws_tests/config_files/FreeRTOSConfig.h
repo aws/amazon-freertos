@@ -30,8 +30,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #if defined(__STDC__) || defined(__cplusplus__)
 #include <stdio.h>
 
-/* Unity includes for testing. */
-#include "unity_internals.h"
+#include "cycfg_system.h"
+
+extern uint32_t SystemCoreClock;
+
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP) || (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP)
+extern void vApplicationSleep(uint32_t xExpectedIdleTime);
+#endif
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
@@ -42,7 +47,10 @@ extern void vLoggingPrintf( const char * pcFormat, ... );
 extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
-#define configASSERT( x )    if( ( x ) == 0 )  TEST_ABORT()
+/* Assert call defined for debug builds. */
+extern void vAssertCalled(const char * pcFile,
+                           uint32_t ulLine);
+#define configASSERT(x)    if((x) == 0) vAssertCalled(__FILE__, __LINE__)
 
 #endif
 
@@ -61,7 +69,7 @@ extern void vLoggingPrint( const char * pcMessage );
 * the demo) are contained in FreeRTOSIPConfig.h.
 *----------------------------------------------------------*/
 
-#define configCPU_CLOCK_HZ                         100000000
+#define configCPU_CLOCK_HZ                         (SystemCoreClock)
 
 #define configUSE_DAEMON_TASK_STARTUP_HOOK         1
 #define configENABLE_BACKWARD_COMPATIBILITY        0

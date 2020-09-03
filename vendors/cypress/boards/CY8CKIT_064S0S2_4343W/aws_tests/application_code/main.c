@@ -82,6 +82,9 @@
 #define mainTEST_RUNNER_TASK_PRIORITY     ( 2 )
 #endif
 
+/* Unity includes for testing. */
+#include "unity_internals.h"
+
 /* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
@@ -148,6 +151,8 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 void tfm_test_task( void * arg );
 void test_crypto_random(void);
 #endif
+
+TaskHandle_t xRunTestTaskHandle = NULL;
 
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
@@ -318,7 +323,7 @@ void vApplicationDaemonTaskStartupHook( void )
                         mainTEST_RUNNER_TASK_STACK_SIZE,
                         NULL,
                         mainTEST_RUNNER_TASK_PRIORITY,
-                        NULL );
+                        &xRunTestTaskHandle );
 #else /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
@@ -336,39 +341,12 @@ void vApplicationDaemonTaskStartupHook( void )
                     mainTEST_RUNNER_TASK_STACK_SIZE,
                     NULL,
                     mainTEST_RUNNER_TASK_PRIORITY,
-                    NULL );
+                    &xRunTestTaskHandle );
 
 #endif /* #if ( defined(CY_TFM_PSA_SUPPORTED) && (testrunnerFULL_TFM_ENABLED == 1) ) */
     }
 }
-/*-----------------------------------------------------------*/
 
-// void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
-// {
-//     /* FIX ME: If your application is using Ethernet network connections and the
-//      * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
-//      * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
-//      * imported into the project. If you are not using Ethernet see the
-//      * vApplicationDaemonTaskStartupHook function. */
-//     #if 0
-//     static BaseType_t xTasksAlreadyCreated = pdFALSE;
-
-//     /* If the network has just come up...*/
-//     if( eNetworkEvent == eNetworkUp )
-//     {
-//         if( ( xTasksAlreadyCreated == pdFALSE ) && ( SYSTEM_Init() == pdPASS ) )
-//         {
-//             xTaskCreate( TEST_RUNNER_RunTests_task,
-//                          "TestRunner",
-//                          TEST_RUNNER_TASK_STACK_SIZE,
-//                          NULL,
-//                          tskIDLE_PRIORITY, NULL );
-
-//             xTasksAlreadyCreated = pdTRUE;
-//         }
-//     }
-//     #endif /* if 0 */
-// }
 /*-----------------------------------------------------------*/
 
 void prvWifiConnect( void )
@@ -443,108 +421,6 @@ void prvWifiConnect( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief This is to provide memory that is used by the Idle task.
- *
- * If configUSE_STATIC_ALLOCATION is set to 1, then the application must provide an
- * implementation of vApplicationGetIdleTaskMemory() in order to provide memory to
- * the Idle task.
- */
-// void vApplicationGetIdleTaskMemory( StaticTask_t ** ppxIdleTaskTCBBuffer,
-//                                     StackType_t ** ppxIdleTaskStackBuffer,
-//                                     uint32_t * pulIdleTaskStackSize )
-// {
-//     /* If the buffers to be provided to the Idle task are declared inside this
-//      * function then they must be declared static - otherwise they will be allocated on
-//      * the stack and so not exists after this function exits. */
-//     static StaticTask_t xIdleTaskTCB;
-//     static StackType_t uxIdleTaskStack[ configMINIMAL_STACK_SIZE ];
-
-//     /* Pass out a pointer to the StaticTask_t structure in which the Idle
-//      * task's state will be stored. */
-//     *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
-
-//     /* Pass out the array that will be used as the Idle task's stack. */
-//     *ppxIdleTaskStackBuffer = uxIdleTaskStack;
-
-//     /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
-//      * Note that, as the array is necessarily of type StackType_t,
-//      * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-//     *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-// }
-// /*-----------------------------------------------------------*/
-
-// /**
-//  * @brief This is to provide the memory that is used by the RTOS daemon/time task.
-//  *
-//  * If configUSE_STATIC_ALLOCATION is set to 1, then application must provide an
-//  * implementation of vApplicationGetTimerTaskMemory() in order to provide memory
-//  * to the RTOS daemon/time task.
-//  */
-// void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
-//                                      StackType_t ** ppxTimerTaskStackBuffer,
-//                                      uint32_t * pulTimerTaskStackSize )
-// {
-//     /* If the buffers to be provided to the Timer task are declared inside this
-//      * function then they must be declared static - otherwise they will be allocated on
-//      * the stack and so not exists after this function exits. */
-//     static StaticTask_t xTimerTaskTCB;
-//     static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
-
-//     /* Pass out a pointer to the StaticTask_t structure in which the Idle
-//      * task's state will be stored. */
-//     *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
-
-//     /* Pass out the array that will be used as the Timer task's stack. */
-//     *ppxTimerTaskStackBuffer = uxTimerTaskStack;
-
-//     /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
-//      * Note that, as the array is necessarily of type StackType_t,
-//      * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-//     *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
-// }
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Warn user if pvPortMalloc fails.
- *
- * Called if a call to pvPortMalloc() fails because there is insufficient
- * free memory available in the FreeRTOS heap.  pvPortMalloc() is called
- * internally by FreeRTOS API functions that create tasks, queues, software
- * timers, and semaphores.  The size of the FreeRTOS heap is set by the
- * configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h.
- *
- */
-// void vApplicationMallocFailedHook()
-// {
-//     /* The TCP tests will test behavior when the entire heap is allocated. In
-//      * order to avoid interfering with those tests, this function does nothing. */
-// }
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Loop forever if stack overflow is detected.
- *
- * If configCHECK_FOR_STACK_OVERFLOW is set to 1,
- * this hook provides a location for applications to
- * define a response to a stack overflow.
- *
- * Use this hook to help identify that a stack overflow
- * has occurred.
- *
- */
-// void vApplicationStackOverflowHook( TaskHandle_t xTask,
-//                                     char * pcTaskName )
-// {
-//     portDISABLE_INTERRUPTS();
-
-//     /* Loop forever */
-//     for( ; ; )
-//     {
-//     }
-// }
-/*-----------------------------------------------------------*/
-
-/**
  * @brief User defined Idle task function.
  *
  * @note Do not make any blocking operations in this function.
@@ -604,31 +480,44 @@ void vApplicationIdleHook( void )
  * See FreeRTOSConfig.h to define configASSERT to something different.
  */
 void vAssertCalled(const char * pcFile,
-	uint32_t ulLine)
+    uint32_t ulLine)
 {
-    /* FIX ME. If necessary, update to applicable assertion routine actions. */
+    /* When called from the context of the test thread the configASSERT macro is
+    * expected to call TEST_ABORT particularly to handle negative test cases.
+    * The implementation of TEST_ABORT by default calls the longjmp instruction which
+    * is not safe to be called from any other thread other than the thread that runs
+    * test. If called from another thread the longjmp instruction messes with the
+    * stack pointer causing stack corruption and hence crashes in unpredictable ways.
+    * Hence we only call TEST_ABORT when on the test thread otherwise just assert as
+    * we normally would.
+    */
+    if (xTaskGetCurrentTaskHandle() == xRunTestTaskHandle)
+    {
+        TEST_ABORT();
+    }
+    else
+    {
+        const uint32_t ulLongSleep = 1000UL;
+        volatile uint32_t ulBlockVariable = 0UL;
+        volatile char * pcFileName = (volatile char *)pcFile;
+        volatile uint32_t ulLineNumber = ulLine;
 
-	const uint32_t ulLongSleep = 1000UL;
-	volatile uint32_t ulBlockVariable = 0UL;
-	volatile char * pcFileName = (volatile char *)pcFile;
-	volatile uint32_t ulLineNumber = ulLine;
+        (void)pcFileName;
+        (void)ulLineNumber;
 
-	(void)pcFileName;
-	(void)ulLineNumber;
+        configPRINTF( ("vAssertCalled %s, %ld\n", pcFile, (long)ulLine) );
 
-	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-	fflush(stdout);
-
-	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
-	* this function to be exited. */
-	taskDISABLE_INTERRUPTS();
-	{
-		while (ulBlockVariable == 0UL)
-		{
-			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
-		}
-	}
-	taskENABLE_INTERRUPTS();
+        /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+        * this function to be exited. */
+        taskDISABLE_INTERRUPTS();
+        {
+            while (ulBlockVariable == 0UL)
+            {
+                vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+            }
+        }
+        taskENABLE_INTERRUPTS();
+    }
 }
 /*-----------------------------------------------------------*/
 
