@@ -122,7 +122,7 @@ static void prvAdcChCallback( uint16_t * pusConvertedData,
     }
 
     xSemaphoreGiveFromISR( xtestIotAdcTestSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    
 }
 
 /*-----------------------------------------------------------*/

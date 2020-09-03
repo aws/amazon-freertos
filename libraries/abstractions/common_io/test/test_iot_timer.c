@@ -86,7 +86,7 @@ static void prvTimerCallback( void * pvUserContext )
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotTimerSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    
 }
 
 /*-----------------------------------------------------------*/
