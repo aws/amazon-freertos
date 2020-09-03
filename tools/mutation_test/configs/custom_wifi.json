@@ -1,5 +1,5 @@
 {
-    "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c": [[566, 570]]},
+    "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c": [[566, 566]]},
     "test_groups": ["Custom_WiFi"],
     "mutations": {
         "all" : {

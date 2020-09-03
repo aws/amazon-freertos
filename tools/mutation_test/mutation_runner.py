@@ -253,7 +253,7 @@ def main():
     compiler = config['compiler']
     board = config['board']
     test_groups = config['test_groups']
-    mutations = config['mutations']
+    mutations = config['mutations'] if 'mutations' in config else mutate.mutation_selector
 
     # args
     port = args.port if args.port else utils.get_default_serial_port()

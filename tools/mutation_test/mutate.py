@@ -201,8 +201,8 @@ def main (input_files, output_files = False, lines_to_mutate={}, rng=None) :
 					lines_to_mutate[source_file] else i) - 1
 
 		# get the list of mutant operators for this line
-		mutation_trick = (mutation_selector[str(line)] if 
-							mutation_selector[str(line)] else mutation_selector["all"])
+		mutation_trick = (mutation_selector[str(line + 1)] if 
+							str(line + 1) in mutation_selector else mutation_selector["all"])
 		# simulate random operators by shuffling, need to create a list first in case
 		# this line doesn't have first operator in substring
 		mutant_operators = list(mutation_trick.keys())
