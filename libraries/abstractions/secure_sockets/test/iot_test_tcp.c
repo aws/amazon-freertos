@@ -641,6 +641,19 @@ static BaseType_t prvAwsIotBrokerConnectHelper( Socket_t xSocket,
         {
             tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
         }
+        else
+        {
+            /* Try to set SNI option. It does not matter if this passes or fails,
+             * in relation to the tests. The purpose of this is to allow devices
+             * that rely on SNI to authenticate, eg. AWS IoT Core's multi account
+             * registration to be pass mutual auth test cases.
+             */
+            ( void ) SOCKETS_SetSockOpt( xSocket,
+                                         0,  /* Level - Unused. */
+                                         SOCKETS_SO_SERVER_NAME_INDICATION,
+                                         clientcredentialMQTT_BROKER_ENDPOINT,
+                                         sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) );
+        }
     }
 
     return xResult;
