@@ -458,21 +458,16 @@ function(cy_kit_generate)
 
     if(CY_TFM_PSA)
         # Link to AFR::pkcs11_psa use implementation based on TF-M PSA.
-        target_sources(
+
+        target_link_libraries(
             AFR::pkcs11_implementation::mcu_port
             INTERFACE
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_input_format.h"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.h"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c"
-            "${cy_board_dir}/ports/pkcs11/psa/iot_pkcs11_psa_object_management.h"
+            AFR::pkcs11_psa
         )
+
         target_include_directories(AFR::pkcs11_implementation::mcu_port INTERFACE
             "${iot_common_include}"
         )
-
     else()
         # Link to AFR::pkcs11_mbedtls if you want to use default implemenƒtation based on mbedtls.
         target_link_libraries(

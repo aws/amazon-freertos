@@ -158,14 +158,20 @@
 #define pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED    1
 
 #if pkcs11configVENDOR_DEVICE_CERTIFICATE_SUPPORTED
+    #define PSA_DEVICE_CERTIFICATE_UID    ( ( psa_storage_uid_t )0x100 )
+    #define PSA_JITP_CERTIFICATE_UID      ( ( psa_storage_uid_t )0x101 )
+    #define PSA_DEVICE_PRIVATE_KEY_ID     ( ( psa_key_id_t ) (PSA_KEY_ID_VENDOR_MIN + 1) )
+
     #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED      0
-    #define pkcs11configVENDOR_DEVICE_KEY_ID               (PSA_KEY_ID_VENDOR_MIN + 1)
-    #define pkcs11configVENDOR_DEVICE_CERTIFICATE_UID      (0x100)
-    #define pkcs11configVENDOR_JITP_CERTIFICATE_UID        (0x101)
-    #define pkcs11configVENDOR_JITP_STATUS_UID             (0x1)
-#else
-    #define pkcs11configVENDOR_DEVICE_CERTIFICATE_UID      (0x5)
-    #define pkcs11configVENDOR_JITP_CERTIFICATE_UID        (0x6)
+    #define pkcs11configVENDOR_JITP_STATUS_UID             (01)
+#endif
+
+/**
+ * @brief Set to 1 if the TFM version is V1.0
+ *
+ */
+#ifdef CY_TFM_VERSION_1_0
+#define pkcs11configTFM_VERSION_1_0                        1
 #endif
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

@@ -58,6 +58,11 @@ target_compile_definitions(${AFR_TARGET_APP_NAME} PUBLIC
     )
 
 #--------------------------------------------------------------------
+# PKCS11 library defines
+# Only build pkcs11_psa library for this platform
+set(AFR_PKCS11_PSA TRUE)
+
+#--------------------------------------------------------------------
 # OTA SUPPORT is always used for this platform
 #
 # NOTES:
@@ -141,6 +146,7 @@ set(KIT_FEATURES "CY_BLE_SUPPORTED")
 set(KIT_FEATURES "${KIT_FEATURES}; CY_USE_LWIP")
 set(KIT_FEATURES "${KIT_FEATURES}; CY_TFM_PSA_SUPPORTED")
 set(KIT_FEATURES "${KIT_FEATURES}; TFM_MULTI_CORE_MULTI_CLIENT_CALL")
+set(KIT_FEATURES "${KIT_FEATURES}; CY_TFM_VERSION_1_0")
 
 if(OTA_SUPPORT)
     set(KIT_FEATURES "${KIT_FEATURES}; OTA_SUPPORT")
