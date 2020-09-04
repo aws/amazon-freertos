@@ -80,7 +80,11 @@
 #define AT_SEND_STRING              ">"
 #define AT_RECV_STRING              "+IPD,"
 #define AT_PASSIVE_STRING           "+CIPRECVDATA,"
-#define AT_CLOSE_STRING             ",CLOSED"
+#define AT_CLOSE0_STRING            "0,CLOSED"
+#define AT_CLOSE1_STRING            "1,CLOSED"
+#define AT_CLOSE2_STRING            "2,CLOSED"
+#define AT_CLOSE3_STRING            "3,CLOSED"
+#define AT_CLOSE4_STRING            "4,CLOSED"
 
 /* List of commands */
 #define CMD_NONE                    0x00
@@ -127,7 +131,7 @@ typedef struct {
     BaseType_t IsConnected;
     BaseType_t IsMultiConn;
     BaseType_t IsPassiveMode;
-    uint8_t ActiveSocket;
+    int8_t ActiveSocket;
 
     uint8_t StaIpAddr[4];
     uint8_t StaMacAddr[6];
@@ -136,10 +140,11 @@ typedef struct {
 } ESP_WIFI_Object_t;
 
 typedef struct {
+    BaseType_t IsOpen;
+    BaseType_t IsPassiveMode;
     char *TcpData;
     uint16_t DataAvailable;
     uint16_t DataReceive;
-    BaseType_t IsPassiveMode;
 } ESP_WIFI_IPD_t;
 
 
