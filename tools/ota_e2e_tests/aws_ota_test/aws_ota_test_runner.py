@@ -133,7 +133,7 @@ class OtaTestRunner:
         # in case cleaning AWS Resources causes exceptions.
         try:
             self._flashComm.cleanup()
-        except:
+        except Exception as e:
             # We still want to clean up AWS resources if the serial thread fails to cleanup. So just
             # print the exception here.
             print(e)

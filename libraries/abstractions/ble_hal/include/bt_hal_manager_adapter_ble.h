@@ -46,6 +46,13 @@
 #include "bt_hal_manager_types.h"
 #include "bt_hal_manager.h"
 
+/* Ble Advertisement Power Levels Index. This index would translate into platform specific values power (bBm) values */
+#define BT_HAL_BLE_ADV_TX_PWR_ULTRA_LOW     0              /* Ultra Low Adv Tx Power   */
+#define BT_HAL_BLE_ADV_TX_PWR_LOW           1              /* Low Adv Tx Power           */
+#define BT_HAL_BLE_ADV_TX_PWR_MEDIUM        2              /* Medium Adv Tx Power     */
+#define BT_HAL_BLE_ADV_TX_PWR_HIGH          3              /* High Adv Tx Power          */
+#define BT_HAL_BLE_ADV_TX_PWR_ULTRA_HIGH    4              /* Ultra High Adv Tx Power  */
+
 /**
  * @brief Scan Filter Parameters
  */

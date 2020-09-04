@@ -24,6 +24,7 @@ http://www.FreeRTOS.org
 
 """
 import time
+import shutil
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
@@ -56,12 +57,18 @@ class OtaTest2UpdatesCancel1st(OtaTestCase):
         self._otaProject.setApplicationVersion(0, 9, 1)
         # Build the OTA image.
         self._otaProject.buildProject()
-        # Create 1st OTA update.
-        otaUpdateId_1 = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
+        # Make a copy of the firmware.
+        firmware = Path(self._otaConfig['ota_firmware_file_path'])
+        first_firmware = Path(self._otaProject._projectRootDir) / firmware.name
+        shutil.copy(firmware, first_firmware)
         # Prepare another image to be updated.
         self._otaProject.setApplicationVersion(0, 9, 2)
         self._otaProject.buildProject()
+        # Create 1st OTA update.
+        self._otaConfig['ota_firmware_file_path'] = str(first_firmware)
+        otaUpdateId_1 = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
         # Create 2nd OTA update.
+        self._otaConfig['ota_firmware_file_path'] = str(firmware)
         otaUpdateId_2 = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
 
         # Wait until the job is in progress.
@@ -74,6 +81,9 @@ class OtaTest2UpdatesCancel1st(OtaTestCase):
         if exec_status == 'QUEUED':
             return OtaTestResult(testName=self._name, result=OtaTestResult.ERROR,
                                  summary='Timeout waiting for OTA job status.')
+        if exec_status == 'SUCCEEDED':
+            return OtaTestResult(testName=self._name, result=OtaTestResult.ERROR,
+                                 summary='OTA update complete too fast before we can cancel the job.')
 
         # Force cancel the first job that's in progress, device should pick up the 2nd update and succeed.
         iot_client = boto3.client('iot')
