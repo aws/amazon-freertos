@@ -39,7 +39,7 @@ SECURE_CORE_MODE=multi
 
 ifeq ($(CORE),CM4)
 # Additional components supported by the target
-COMPONENTS+=PSOC6HAL 4343W
+COMPONENTS+=PSOC6HAL 4343W BSP_DESIGN_MODUS
 # Use CyHAL
 DEFINES+=CY_USING_HAL
 
