@@ -360,31 +360,36 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-# Do not add demos or tests if they're turned off.
-if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
-    add_executable(
-        ${exe_target}
-        "${board_dir}/application_code/main.c"
-        ${extra_exe_sources}
-    )
-    idf_build_set_property(PROJECT_DIR ${AFR_ROOT_DIR})
-    idf_build_executable(${exe_target})
-    target_include_directories(
-        ${exe_target}
-        PUBLIC
-            "${esp_idf_dir}/components/esp_ringbuf/include"
-            $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-            $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-            $<TARGET_PROPERTY:AFR::wifi::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-    )
-    target_link_libraries(
-        ${exe_target}
-        PRIVATE
-            AFR::wifi
-            AFR::utils
-            AFR::ble
-    )
+# If external project is set do not link IDF components to aws target
+if (NOT IDF_PROJECT_EXECUTABLE)
+    set(IDF_PROJECT_EXECUTABLE ${exe_target})
 endif()
+
+if (NOT IDF_EXECUTABLE_SRCS)
+    set(IDF_EXECUTABLE_SRCS "${board_dir}/application_code/main.c" ${extra_exe_sources})
+endif()
+
+add_executable(
+    ${IDF_PROJECT_EXECUTABLE}
+    ${IDF_EXECUTABLE_SRCS}
+)
+
+target_include_directories(
+    ${IDF_PROJECT_EXECUTABLE}
+    PUBLIC
+        "${esp_idf_dir}/components/esp_ringbuf/include"
+        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:AFR::wifi::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+target_link_libraries(
+    ${IDF_PROJECT_EXECUTABLE}
+    PRIVATE
+        AFR::wifi
+        AFR::utils
+        AFR::ble
+)
 
 if(AFR_METADATA_MODE)
     return()
@@ -460,11 +465,6 @@ set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
-# If external project is set do not link IDF components to aws target
-if (NOT IDF_PROJECT_EXECUTABLE)
-    set(IDF_PROJECT_EXECUTABLE ${exe_target})
-endif()
-
 set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 
 get_filename_component(
@@ -534,7 +534,13 @@ target_compile_options(
     ${idf_compile_options}
 )
 
+idf_build_set_property(PROJECT_NAME ${IDF_PROJECT_EXECUTABLE})
+idf_build_set_property(EXECUTABLE_NAME ${IDF_PROJECT_EXECUTABLE})
+idf_build_set_property(PROJECT_DIR ${AFR_ROOT_DIR})
+idf_build_set_property(EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
 idf_project_generate_description_file(${CMAKE_BINARY_DIR}/project_description.json)
+idf_build_executable(${IDF_PROJECT_EXECUTABLE})
+idf_build_set_property(EXECUTABLE_DIR ${CMAKE_BINARY_DIR})
 
 # This is a hack to have IDF build system use PRIVATE keyword when
 # calling target_link_libraries() on aws_demos target. This is necessary
