@@ -174,7 +174,7 @@ function check_uart_result()
 {
     local demo_name=$1
 
-    TEST_TIMEOUT="${TEST_TIMEOUT:-400}"
+    TEST_TIMEOUT="${TEST_TIMEOUT:-1000}"
     ACCEPT_MESSAGE="${ACCEPT_MESSAGE:-Demo completed successfully.}"
     FAIL_MESSAGE="${FAIL_MESSAGE:-Error running demo.}"
                 
