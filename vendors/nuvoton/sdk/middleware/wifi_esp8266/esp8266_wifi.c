@@ -550,7 +550,6 @@ ESP_WIFI_Status_t ESP_IO_Recv( ESP_WIFI_Object_t * pxObj, uint8_t pucRxBuf[], ui
 static ESP_WIFI_Status_t ESP_AT_Command( ESP_WIFI_Object_t * pxObj, uint8_t * pucCmd, uint32_t ulTimeWaitMs )
 {
     ESP_WIFI_Status_t xRet = ESP_WIFI_STATUS_TIMEOUT;
-    uint16_t usCount;
 
     /* Wait for last AT command is done */
     while (xTaskGetTickCount() < pxObj->AvailableTick) {
@@ -1071,7 +1070,6 @@ ESP_WIFI_Status_t ESP_WIFI_Send( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * px
     ESP_WIFI_Status_t xRet = ESP_WIFI_STATUS_ERROR;
     TickType_t xTickCurrent, xTickEnd, xTickTimeout;
     uint16_t usAskSend, usRealSend;
-    uint8_t ucExit = 0;
     uint8_t ucCount;
 
     xTickEnd = xTaskGetTickCount() + xTimeout;
@@ -1154,8 +1152,7 @@ ESP_WIFI_Status_t ESP_WIFI_Recv_TCP_PASSIVE( ESP_WIFI_Object_t * pxObj, uint8_t 
                                  uint16_t usReqLen, uint16_t * usRecvLen, TickType_t xTickEnd )
 {
     ESP_WIFI_Status_t xRet = ESP_WIFI_STATUS_TIMEOUT;
-    TickType_t xTickCurrent, xTickTimeout;
-    uint8_t ucDoFlag = 1;
+   
 
     if (xWifiIpd[ucLinkID].DataAvailable != 0) {
         xWifiIpd[ucLinkID].TcpData = (char *)pcBuf;
