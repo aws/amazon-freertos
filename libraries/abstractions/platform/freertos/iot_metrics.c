@@ -111,7 +111,7 @@
 /*-----------------------------------------------------------*/
 
     void IotMetrics_GetTcpConnections( void * pContext,
-                                       void ( *metricsCallback )( void *, const IotListDouble_t * ) )
+                                       void ( * metricsCallback )( void *, const IotListDouble_t * ) )
     {
         /* Provide the connection list. Ensure that it is not modified elsewhere by
          * locking the connection list mutex. */
