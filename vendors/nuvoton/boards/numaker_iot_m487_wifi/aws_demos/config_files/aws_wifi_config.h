@@ -34,7 +34,7 @@
 /**
  * @brief Maximum number of sockets that can be created simultaneously.
  */
-#define wificonfigMAX_SOCKETS                 ( 1 )
+#define wificonfigMAX_SOCKETS                 ( 5 )
 
 /**
  * @brief Maximum number of connection retries.
