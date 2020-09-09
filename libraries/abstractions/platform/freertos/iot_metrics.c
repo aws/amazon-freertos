@@ -111,7 +111,7 @@
 /*-----------------------------------------------------------*/
 
     void IotMetrics_GetTcpConnections( void * pContext,
-                                       void ( * metricsCallback )( void *, const IotListDouble_t * ) )
+                                       void ( *metricsCallback )( void *, const IotListDouble_t * ) )
     {
         /* Provide the connection list. Ensure that it is not modified elsewhere by
          * locking the connection list mutex. */
@@ -137,7 +137,7 @@
                                           pSocketContext ) == NULL )
         {
             /* Allocate memory for a new metrics connection. */
-            pTcpConnection = pvPortMalloc( sizeof( IotMetricsTcpConnection_t ) );
+            pTcpConnection = IotMetrics_MallocTcpConnection( sizeof( IotMetricsTcpConnection_t ) );
 
             if( pTcpConnection != NULL )
             {
