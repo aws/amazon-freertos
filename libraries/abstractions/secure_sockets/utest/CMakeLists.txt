@@ -18,7 +18,7 @@
             )
 # list the directories your mocks need
     list(APPEND mock_include_list
-		"${CMAKE_CURRENT_LIST_DIR}/include"
+                "${CMAKE_CURRENT_LIST_DIR}/include"
                 "${3rdparty_dir}/lwip/src/include"
                 "${3rdparty_dir}/lwip/src/include/lwip"
                 "${3rdparty_dir}/lwip/contrib/ports/unix/port/include"
@@ -41,7 +41,7 @@
     list(APPEND real_include_directories
                 .
                 ../include
-		"${CMAKE_CURRENT_LIST_DIR}/include"
+                "${CMAKE_CURRENT_LIST_DIR}/include"
                 "${3rdparty_dir}/lwip/src/include/lwip"
                 "${3rdparty_dir}/lwip/src/include"
                 "${3rdparty_dir}/lwip/contrib/ports/unix/lib"
@@ -63,7 +63,7 @@
                 "${3rdparty_dir}/lwip/contrib/ports/unix/port/include"
                 "${AFR_ROOT_DIR}/libraries/freertos_plus/standard/tls/include"
                 "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
-		"${CMAKE_CURRENT_LIST_DIR}/include"
+                "${CMAKE_CURRENT_LIST_DIR}/include"
             )
 
 # =============================  (end edit)  ===================================
@@ -73,7 +73,7 @@
 
     create_mock_list(${mock_name}
                 "${mock_list}"
-		"${CMAKE_CURRENT_LIST_DIR}/project.yml"
+                "${CMAKE_CURRENT_LIST_DIR}/project.yml"
                 "${mock_include_list}"
                 "${mock_define_list}"
             )
