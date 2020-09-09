@@ -323,12 +323,14 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     CK_RV xBytesWritten = 0;
-    CK_RV xReturn = CKR_OK;
     uint32_t ulFlashMark = ( pkcs11OBJECT_PRESENT_MAGIC | ( ulDataSize ) );
-    uint8_t * pemBuffer = NULL;
-    size_t pemLength = 0;
-    CK_BBOOL xIsDestroy = CK_TRUE;
-    int temp;
+    #ifdef USE_OFFLOAD_SSL
+        CK_RV xReturn = CKR_OK;
+        uint8_t * pemBuffer = NULL;
+        size_t pemLength = 0;
+        CK_BBOOL xIsDestroy = CK_TRUE;
+        int temp;
+    #endif
 
     #ifdef USE_OFFLOAD_SSL
         for( int i = 0; i < ulDataSize; i++ )
@@ -496,6 +498,24 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                               sizeof( uint32_t ) );
             }
         }
+
+        else if( strcmp( pxLabel->pValue,
+                         pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) == 0 )
+        {
+            xBytesWritten = FLASH_update( ( uint32_t ) P11KeyConfig.cDeviceKey,
+                                          pucData,
+                                          ulDataSize );
+
+            if( xBytesWritten == ( ulDataSize ) )
+            {
+                xHandle = eAwsDevicePublicKey;
+
+                /* Change flash written mark. */
+                FLASH_update( ( uint32_t ) &P11KeyConfig.ulDeviceKeyMark,
+                              &ulFlashMark,
+                              sizeof( uint32_t ) );
+            }
+        }
     }
 
     return xHandle;
@@ -538,6 +558,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( CK_BYTE_PTR pxLabel,
              ( ( P11KeyConfig.ulCodeSignKeyMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC ) )
     {
         xHandle = eAwsCodeSigningKey;
+    }
+    else if( ( 0 == memcmp( pxLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, usLength ) ) &&
+             ( ( P11KeyConfig.ulDeviceKeyMark & pkcs11OBJECT_PRESENT_MASK ) == pkcs11OBJECT_PRESENT_MAGIC ) )
+    {
+        xHandle = eAwsDevicePublicKey;
     }
 
     return xHandle;
