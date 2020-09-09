@@ -924,16 +924,16 @@ void test_SecureSockets_GetHostByName_successful( void )
  * The purpose of this test case is to make sure sockets_gethostbyname
  * handles the case where lwip dns must wait for completion.
  */
-#define STUB_RETURNED_ADDRESS   5
-static err_t dns_gethostbyname_addrtype_success_CALLBACK(
-    const char* hostname,
-    ip_addr_t* addr,
-    dns_found_callback found,
-    void* callback_arg,
-    u8_t dns_addrtype,
-    int cmock_num_calls)
+#define STUB_RETURNED_ADDRESS    5
+static err_t dns_gethostbyname_addrtype_success_CALLBACK( const char * hostname,
+                                                          ip_addr_t * addr,
+                                                          dns_found_callback found,
+                                                          void * callback_arg,
+                                                          u8_t dns_addrtype,
+                                                          int cmock_num_calls )
 {
-    uint32_t* ipv4_addr_p = (uint32_t *)callback_arg;
+    uint32_t * ipv4_addr_p = ( uint32_t * ) callback_arg;
+
     *ipv4_addr_p = STUB_RETURNED_ADDRESS;
     return ERR_INPROGRESS;
 }
@@ -941,14 +941,14 @@ static err_t dns_gethostbyname_addrtype_success_CALLBACK(
 void test_SecureSockets_GetHostByName_wait_success( void )
 {
     int32_t ret;
-    uint32_t ret_addr = STUB_RETURNED_ADDRESS;  /* must match value in stub */
+    uint32_t ret_addr = STUB_RETURNED_ADDRESS; /* must match value in stub */
     int32_t hostnameMaxLen = securesocketsMAX_DNS_NAME_LENGTH;
     char hostname[ hostnameMaxLen ];
 
     strncpy( hostname, "this is a hostname", hostnameMaxLen );
 
     vTaskDelay_CMockIgnore();
-    dns_gethostbyname_addrtype_Stub( dns_gethostbyname_addrtype_success_CALLBACK);
+    dns_gethostbyname_addrtype_Stub( dns_gethostbyname_addrtype_success_CALLBACK );
     ret = SOCKETS_GetHostByName( hostname );
     TEST_ASSERT_EQUAL_INT( ret_addr, ret );
 }
