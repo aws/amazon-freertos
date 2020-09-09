@@ -1821,8 +1821,6 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
 
     CK_BYTE xEcPoint[ 256 ] = { 0 };
     CK_BYTE xPrivateKeyBuffer[ 32 ] = { 0 };
