@@ -40,7 +40,7 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 
 
-#if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
+#if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 ) || ( defined( CELLULAR_SUPPORTED ) && ( CELLULAR_SUPPORTED != 0 ) )
     #include "platform/iot_network_freertos.h"
     #include "private/iot_mqtt_internal.h"
     static const IotMqttSerializer_t _mqttSerializer =
@@ -97,6 +97,11 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
                 pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
                 break;
         #endif
+        #if defined( CELLULAR_SUPPORTED ) && ( CELLULAR_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_CELLULAR:
+                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+                break;
+        #endif
         default:
             break;
     }
@@ -127,6 +132,11 @@ const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
+                pSerializer = &_mqttSerializer;
+                break;
+        #endif
+        #if defined( CELLULAR_SUPPORTED ) && ( CELLULAR_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_CELLULAR:
                 pSerializer = &_mqttSerializer;
                 break;
         #endif

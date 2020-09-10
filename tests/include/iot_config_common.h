@@ -60,6 +60,8 @@
 #define AWSIOT_NETWORK_TYPE_NONE        0x00000000
 #define AWSIOT_NETWORK_TYPE_WIFI        0x00000001
 #define AWSIOT_NETWORK_TYPE_BLE         0x00000002
+#define AWSIOT_NETWORK_TYPE_ETH         0x00000004
+#define AWSIOT_NETWORK_TYPE_CELLULAR    0x00000008
 
 /* Logging puts function. */
 #define IotLogging_Puts( str )    configPRINTF( ( "%s\r\n", str ) )

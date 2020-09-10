@@ -37,6 +37,7 @@
 #include <conio.h>
 #include <setjmp.h>
 #include <time.h>
+#include <stdbool.h>
 
 /* Test runner includes. */
 #include "aws_test_runner.h"
@@ -128,6 +129,8 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
+extern bool prvSetupCellular( void );
+
 /*-----------------------------------------------------------*/
 
 int main( void )
@@ -173,6 +176,9 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     /* If the network has just come up...*/
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
+        /* Setup the cellular connectivity for testing. */
+        prvSetupCellular();
+
         /* Initialize AWS system libraries. */
         SYSTEM_Init();
 

@@ -78,7 +78,6 @@ static int _sortCompareFunc( const void * pElem1Ptr,
 static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext,
                                          const char * pInputLine );
 static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
-                                               const char * pInputLine,
                                                char * pTokenPtr,
                                                char * pSavePtr );
 
@@ -162,7 +161,7 @@ static CellularPktStatus_t urcParseToken( CellularContext_t * pContext,
     if( pktStatus == CELLULAR_PKT_STATUS_OK )
     {
         /* Now get the handler function based on the token. */
-        pktStatus = _atParseGetHandler( pContext, pInputLine, pTokenPtr, pSavePtr );
+        pktStatus = _atParseGetHandler( pContext, pTokenPtr, pSavePtr );
     }
 
     return pktStatus;
@@ -226,7 +225,6 @@ static CellularPktStatus_t _Cellular_TimeoutAtcmdRequestWithCallbackRaw( Cellula
         if( pktStatus != CELLULAR_PKT_STATUS_OK )
         {
             IotLogError( "Can't send req packet" );
-            pktStatus = CELLULAR_PKT_STATUS_FAILURE;
         }
         else
         {
@@ -448,7 +446,6 @@ static void _Cellular_ProcessGenericUrc( const CellularContext_t * pContext,
 /*-----------------------------------------------------------*/
 
 static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
-                                               const char * pInputLine,
                                                char * pTokenPtr,
                                                char * pSavePtr )
 {
@@ -487,7 +484,7 @@ static CellularPktStatus_t _atParseGetHandler( CellularContext_t * pContext,
     {
         /* No URC callback function available, check for generic call back. */
         IotLogDebug( "No URC Callback func avail %s, now trying generic URC Callback", pTokenPtr );
-        _Cellular_ProcessGenericUrc( pContext, pInputLine );
+        _Cellular_ProcessGenericUrc( pContext, pSavePtr );
     }
 
     return pktStatus;

@@ -95,6 +95,11 @@
 #define CELLULAR_PDN_STATUS_POS_CONTEXT_TYPE     ( 2U )
 #define CELLULAR_PDN_STATUS_POS_IP_ADDRESS       ( 3U )
 
+#define RAT_PRIOIRTY_STRING_LENGTH               ( 2U )
+#define RAT_PRIOIRTY_LIST_LENGTH                 ( 3U )
+
+#define INVALID_PDN_INDEX                        ( 0xFFU )
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -179,6 +184,11 @@ static CellularATError_t parseQpsmsActiveTime( char * pToken,
 static CellularATError_t parseGetPsmToken( char * pToken,
                                            uint8_t tokenIndex,
                                            CellularPsmSettings_t * pPsmSettings );
+static CellularRat_t convertRatPriority( char * pRatString );
+static CellularPktStatus_t _Cellular_RecvFuncGetRatPriority( CellularContext_t * pContext,
+                                                             const CellularATCommandResponse_t * pAtResp,
+                                                             void * pData,
+                                                             uint16_t dataLen );
 static CellularPktStatus_t _Cellular_RecvFuncGetPsmSettings( CellularContext_t * pContext,
                                                              const CellularATCommandResponse_t * pAtResp,
                                                              void * pData,
@@ -1111,7 +1121,7 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPdnStatus( CellularContext_t * p
         IotLogError( "GetPdnStatus: invalid context" );
         pktStatus = CELLULAR_PKT_STATUS_FAILURE;
     }
-    else if( ( pAtResp == NULL ) || ( pAtResp->pItm == NULL ) || ( pAtResp->pItm->pLine == NULL ) )
+    else if( ( pAtResp == NULL ) )
     {
         IotLogError( "GetPdnStatus: Response is invalid" );
         pktStatus = CELLULAR_PKT_STATUS_FAILURE;
@@ -1120,6 +1130,12 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPdnStatus( CellularContext_t * p
     {
         IotLogError( "GetPdnStatus: PDN Status bad parameters" );
         pktStatus = CELLULAR_PKT_STATUS_BAD_PARAM;
+    }
+    else if( ( pAtResp->pItm == NULL ) || ( pAtResp->pItm->pLine == NULL ) )
+    {
+        IotLogError( "GetPdnStatus: no activated PDN" );
+        pPdnStatusBuffers[ 0 ].contextId = INVALID_PDN_INDEX;
+        pktStatus = CELLULAR_PKT_STATUS_OK;
     }
     else
     {
@@ -1478,6 +1494,102 @@ static CellularATError_t parseGetPsmToken( char * pToken,
 
 /*-----------------------------------------------------------*/
 
+static CellularRat_t convertRatPriority( char * pRatString )
+{
+    CellularRat_t retRat = CELLULAR_RAT_INVALID;
+
+    if( strncmp( pRatString, "01", RAT_PRIOIRTY_STRING_LENGTH ) == 0 )
+    {
+        retRat = CELLULAR_RAT_GSM;
+    }
+    else if( strncmp( pRatString, "02", RAT_PRIOIRTY_STRING_LENGTH ) == 0 )
+    {
+        retRat = CELLULAR_RAT_CATM1;
+    }
+    else if( strncmp( pRatString, "03", RAT_PRIOIRTY_STRING_LENGTH ) == 0 )
+    {
+        retRat = CELLULAR_RAT_NBIOT;
+    }
+    else
+    {
+        IotLogDebug( "Invalid RAT string %s", pRatString );
+    }
+
+    return retRat;
+}
+
+/*-----------------------------------------------------------*/
+
+/* Cellular HAL types. */
+/* coverity[misra_c_2012_rule_8_13_violation] */
+static CellularPktStatus_t _Cellular_RecvFuncGetRatPriority( CellularContext_t * pContext,
+                                                             const CellularATCommandResponse_t * pAtResp,
+                                                             void * pData,
+                                                             uint16_t dataLen )
+{
+    char * pInputLine = NULL, * pToken = NULL;
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    CellularATError_t atCoreStatus = CELLULAR_AT_SUCCESS;
+    CellularRat_t * pRatPriorities = NULL;
+    char pTempString[ RAT_PRIOIRTY_STRING_LENGTH + 1 ] = { "\0" }; /* The return RAT has two chars plus NULL char. */
+    uint32_t ratIndex = 0;
+    uint32_t maxRatPriorityLength = ( dataLen > RAT_PRIOIRTY_LIST_LENGTH ? RAT_PRIOIRTY_LIST_LENGTH : dataLen );
+
+    if( pContext == NULL )
+    {
+        IotLogError( "GetRatPriority: Invalid context" );
+        pktStatus = CELLULAR_PKT_STATUS_FAILURE;
+    }
+    else if( ( pAtResp == NULL ) || ( pAtResp->pItm == NULL ) ||
+             ( pAtResp->pItm->pLine == NULL ) || ( pData == NULL ) || ( dataLen == 0U ) )
+    {
+        IotLogError( "GetRatPriority: Invalid param" );
+        pktStatus = CELLULAR_PKT_STATUS_BAD_PARAM;
+    }
+    else
+    {
+        pInputLine = pAtResp->pItm->pLine;
+        pRatPriorities = ( CellularRat_t * ) pData;
+
+        /* Response string +QCFG:"nwscanseq",020301 => pToken : +QCFG:"nwscanseq", pInputLine : 020301. */
+        if( atCoreStatus == CELLULAR_AT_SUCCESS )
+        {
+            atCoreStatus = Cellular_ATGetNextTok( &pInputLine, &pToken );
+        }
+
+        /* Response string 020301 => pToken : 020301, pInputLine : NULL. */
+        if( atCoreStatus == CELLULAR_AT_SUCCESS )
+        {
+            atCoreStatus = Cellular_ATGetNextTok( &pInputLine, &pToken );
+        }
+
+        if( atCoreStatus == CELLULAR_AT_SUCCESS )
+        {
+            if( strlen( pToken ) != ( RAT_PRIOIRTY_STRING_LENGTH * RAT_PRIOIRTY_LIST_LENGTH ) )
+            {
+                atCoreStatus = CELLULAR_AT_ERROR;
+            }
+        }
+
+        if( atCoreStatus == CELLULAR_AT_SUCCESS )
+        {
+            memset( pRatPriorities, CELLULAR_RAT_INVALID, dataLen );
+
+            for( ratIndex = 0; ratIndex < maxRatPriorityLength; ratIndex++ )
+            {
+                memcpy( pTempString, &pToken[ ratIndex * RAT_PRIOIRTY_STRING_LENGTH ], RAT_PRIOIRTY_STRING_LENGTH );
+                pRatPriorities[ ratIndex ] = convertRatPriority( pTempString );
+            }
+        }
+
+        pktStatus = _Cellular_TranslateAtCoreStatus( atCoreStatus );
+    }
+
+    return pktStatus;
+}
+
+/*-----------------------------------------------------------*/
+
 /* Cellular HAL types. */
 /* coverity[misra_c_2012_rule_8_13_violation] */
 static CellularPktStatus_t _Cellular_RecvFuncGetPsmSettings( CellularContext_t * pContext,
@@ -1533,9 +1645,20 @@ static CellularPktStatus_t _Cellular_RecvFuncGetPsmSettings( CellularContext_t *
 
                 tokenIndex++;
 
-                if( Cellular_ATGetNextTok( &pInputLine, &pToken ) != CELLULAR_AT_SUCCESS )
+                if( *pInputLine == ',' )
+                {
+                    *pInputLine = '\0';
+                    pToken = pInputLine;
+                    *pToken = '\0';
+                    pInputLine = &pInputLine[ 1 ];
+                }
+                else if( Cellular_ATGetNextTok( &pInputLine, &pToken ) != CELLULAR_AT_SUCCESS )
                 {
                     break;
+                }
+                else
+                {
+                    /* Empty Else MISRA 15.7 */
                 }
             }
         }
@@ -1726,7 +1849,6 @@ static void _dnsResultCallback( cellularModuleContext_t * pModuleContext,
     }
 }
 
-
 /*-----------------------------------------------------------*/
 
 /* Cellular HAL API. */
@@ -1797,6 +1919,65 @@ CellularError_t Cellular_SetRatPriority( CellularHandle_t cellularHandle,
     if( cellularStatus == CELLULAR_SUCCESS )
     {
         pktStatus = _Cellular_AtcmdRequestWithCallback( pContext, atReqSetRatPriority );
+        cellularStatus = _Cellular_TranslatePktStatus( pktStatus );
+    }
+
+    return cellularStatus;
+}
+
+/*-----------------------------------------------------------*/
+
+/* Cellular HAL API. */
+/* coverity[misra_c_2012_rule_8_7_violation] */
+CellularError_t Cellular_GetRatPriority( CellularHandle_t cellularHandle,
+                                         CellularRat_t * pRatPriorities,
+                                         uint8_t ratPrioritiesLength,
+                                         uint8_t * pReceiveRatPrioritesLength )
+{
+    CellularContext_t * pContext = ( CellularContext_t * ) cellularHandle;
+    CellularError_t cellularStatus = CELLULAR_SUCCESS;
+    CellularPktStatus_t pktStatus = CELLULAR_PKT_STATUS_OK;
+    uint32_t ratIndex = 0;
+
+    CellularAtReq_t atReqSetRatPriority =
+    {
+        "AT+QCFG=\"nwscanseq\"",
+        CELLULAR_AT_WITH_PREFIX,
+        "+QCFG",
+        _Cellular_RecvFuncGetRatPriority,
+        pRatPriorities,
+        ( uint16_t ) ratPrioritiesLength,
+    };
+
+    cellularStatus = _Cellular_CheckLibraryStatus( pContext );
+
+    if( cellularStatus != CELLULAR_SUCCESS )
+    {
+        IotLogDebug( "_Cellular_CheckLibraryStatus failed" );
+    }
+    else if( ( pRatPriorities == NULL ) || ( ratPrioritiesLength == 0U ) ||
+             ( ratPrioritiesLength > ( uint8_t ) CELLULAR_MAX_RAT_PRIORITY_COUNT ) ||
+             ( pReceiveRatPrioritesLength == NULL ) )
+    {
+        cellularStatus = CELLULAR_BAD_PARAMETER;
+    }
+    else
+    {
+        pktStatus = _Cellular_AtcmdRequestWithCallback( pContext, atReqSetRatPriority );
+
+        if( pktStatus == CELLULAR_PKT_STATUS_OK )
+        {
+            for( ratIndex = 0; ratIndex < ratPrioritiesLength; ratIndex++ )
+            {
+                if( pRatPriorities[ ratIndex ] == CELLULAR_RAT_INVALID )
+                {
+                    break;
+                }
+            }
+
+            *pReceiveRatPrioritesLength = ratIndex;
+        }
+
         cellularStatus = _Cellular_TranslatePktStatus( pktStatus );
     }
 
@@ -1961,7 +2142,8 @@ CellularError_t Cellular_SetPsmSettings( CellularHandle_t cellularHandle,
         CELLULAR_AT_NO_RESULT,
         NULL,
         NULL,
-        NULL,                 0,
+        NULL,
+        0
     };
 
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
@@ -2581,7 +2763,8 @@ CellularError_t Cellular_GetPdnStatus( CellularHandle_t cellularHandle,
         {
             /* Check if the PDN state is valid. The context ID of the first
              * invalid PDN status is set to FF. */
-            if( pTempPdnStatusBuffer->contextId <= CELLULAR_PDN_CONTEXT_ID_MAX )
+            if( ( pTempPdnStatusBuffer->contextId <= CELLULAR_PDN_CONTEXT_ID_MAX ) &&
+                ( pTempPdnStatusBuffer->contextId != INVALID_PDN_INDEX ) )
             {
                 ( *pNumStatus ) += 1U;
             }

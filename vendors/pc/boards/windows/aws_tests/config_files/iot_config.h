@@ -28,6 +28,9 @@
 #define IOT_THREAD_DEFAULT_STACK_SIZE        2048
 #define IOT_THREAD_DEFAULT_PRIORITY          5
 
+/* Network type configuration for this board. */
+#define CELLULAR_SUPPORTED     ( 1 )
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 

@@ -2,10 +2,17 @@ set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
+set(SECURE_SOCKETS_CELLULAR 0 CACHE BOOL "")
+set(BOARD_HAS_CELLULAR 0 CACHE BOOL "")
+
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
     set(board_dir "${board_demos_dir}")
+endif()
+
+if(BOARD_HAS_CELLULAR)
+    set(board_has_cellular_define -DBOARD_HAS_CELLULAR=1)
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -59,6 +66,7 @@ target_compile_options(
     INTERFACE
         ${common_flags}
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+        ${board_has_cellular_define}
 )
 
 # Linker flags
@@ -116,6 +124,7 @@ target_sources(
     INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
+if(BOARD_HAS_CELLULAR)
 # Cellular
 afr_mcu_port(cellular)
 target_sources(
@@ -127,6 +136,7 @@ target_sources(
 
 # Cellular module port
 include("${AFR_VENDORS_DIR}/quectel/modules/bg96/CMakeLists.txt")
+endif()
 
 # PKCS11
 afr_mcu_port(pkcs11_implementation)
@@ -144,26 +154,26 @@ target_link_libraries(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-if(SECURE_SOCKETS_CELLULAR)
-    target_link_libraries(
-        AFR::secure_sockets::mcu_port
-        INTERFACE
-            AFR::tls
-            AFR::wifi
-            AFR::cellular
-            AFR::secure_sockets_cellular
-    )
+if(BOARD_HAS_CELLULAR AND SECURE_SOCKETS_CELLULAR)
+target_link_libraries(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+        AFR::tls
+        AFR::wifi
+        AFR::cellular
+        AFR::secure_sockets_cellular
+)
 else()
-    target_link_libraries(
-        AFR::secure_sockets::mcu_port
-        INTERFACE
-            AFR::tls
-            AFR::wifi
-    )
-    target_sources(
-        AFR::secure_sockets::mcu_port
-        INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-    )
+target_link_libraries(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+        AFR::tls
+        AFR::wifi
+)
+target_sources(
+    AFR::secure_sockets::mcu_port
+    INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
+)
 endif()
 
 
@@ -172,9 +182,11 @@ afr_mcu_port(common_io)
 target_sources(
     AFR::common_io::mcu_port
     INTERFACE 
-        "${afr_ports_dir}/common_io/iot_uart.c"
         "${afr_ports_dir}/common_io/iot_i2c.c"
         "${afr_ports_dir}/common_io/iot_spi.c"
+        # Temporally cellular communication interface implementation.
+        # Cellular communication interface will be implemented with common I/O in the future.
+        $<$<NOT:$<BOOL:${BOARD_HAS_CELLULAR}>>:${afr_ports_dir}/common_io/iot_uart.c>
         # test code
         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
 )
@@ -200,6 +212,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         ${board_code_src}
         ${config_files}
         "${board_dir}/application_code/main.c"
+        "$<${AFR_IS_TESTING}:${board_dir}/application_code/cellular_setup.c>"
     )
     target_link_libraries(
         ${exe_target}

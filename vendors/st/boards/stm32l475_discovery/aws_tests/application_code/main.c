@@ -66,6 +66,9 @@ void vApplicationDaemonTaskStartupHook( void );
 extern void SPI_WIFI_ISR(void);
 extern SPI_HandleTypeDef hspi;
 
+/* Setup cellular connection. */
+bool prvSetupCellular( void );
+
 /**********************
 * Global Variables
 **********************/
@@ -109,6 +112,17 @@ int main( void )
 
     return 0;
 }
+
+/*-----------------------------------------------------------*/
+
+static void testRunnerHook( void * pvParameters )
+{
+    /* Connect to the cellular network before running the demos. */
+    prvSetupCellular();
+
+    TEST_RUNNER_RunTests_task( pvParameters );
+}
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
@@ -136,7 +150,7 @@ void vApplicationDaemonTaskStartupHook( void )
             prvWifiConnect();
 
             /* Create the task to run tests. */
-            xTaskCreate( TEST_RUNNER_RunTests_task,
+            xTaskCreate( testRunnerHook,
                          "TestRunner",
                          mainTEST_RUNNER_TASK_STACK_SIZE,
                          NULL,
