@@ -163,6 +163,7 @@ int psoc6_smif_erase(off_t addr, size_t size)
 
 /* QSPI bus frequency set to 50 Mhz */
 #define QSPI_BUS_FREQUENCY_HZ   (50000000lu)
+#define QSPI_IRQ_PRIORITY       (6u)
 
 static cy_stc_smif_mem_cmd_t sfdpcmd =
 {
@@ -213,14 +214,20 @@ static cy_stc_smif_mem_config_t mem_sfdp_0 =
 };
 
 
-int
-psoc6_qspi_init(void)
+int psoc6_qspi_init(void)
 {
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
     result = cy_serial_flash_qspi_init(&mem_sfdp_0, CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC, NC, NC, CYBSP_QSPI_SCK, CYBSP_QSPI_SS, QSPI_BUS_FREQUENCY_HZ);
 
     if ( result == CY_RSLT_SUCCESS) {
+        /* The priority of the QPSI interrupt needs to be higher than the priority of the
+        * RTOS tick interrupt. Otherwise the RTOS context switches interfere with the SMIF
+        * transfers causing interrmitent failures. By increasing the priority of the SMIF
+        * interrupt it now prempts the scheduler allowing transfer to complete without
+        * interrupts.
+        */
+        cy_serial_flash_qspi_set_interrupt_priority(QSPI_IRQ_PRIORITY);
         return (0);
     } else {
         return (-1);
