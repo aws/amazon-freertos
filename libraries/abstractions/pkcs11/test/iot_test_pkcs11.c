@@ -409,7 +409,7 @@ static MultithreadTaskParams_t xGlobalTaskParams[ pkcs11testMULTI_THREAD_TASK_CO
 /*-----------------------------------------------------------*/
 /* Stack size of each task. This can be configured in iot_test_pkcs11_config.h. */
 #ifndef pkcs11testMULTI_TASK_STACK_SIZE
-    #define pkcs11testMULTI_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 6 )
+    #define pkcs11testMULTI_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
 #endif
 
 /* Priority of each task. This can be configured in iot_test_pkcs11_config.h. */
