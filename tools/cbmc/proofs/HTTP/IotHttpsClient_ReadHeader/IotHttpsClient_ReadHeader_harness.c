@@ -20,16 +20,12 @@ void harness() {
   }
   initialize_IotResponseHandle(respHandle);
 
-  size_t nameLen;
-  size_t valueLen;
+  uint32_t nameLen;
+  uint32_t valueLen;
   __CPROVER_assume(nameLen < CBMC_MAX_OBJECT_SIZE);
   __CPROVER_assume(valueLen < CBMC_MAX_OBJECT_SIZE);
-  char *pName = safeMalloc(nameLen+1);
-  char *pValue = safeMalloc(valueLen+1);
-  if (pName)
-    pName[nameLen] = 0;
-  if (pValue)
-    pValue[valueLen] = 0;
+  char *pName = safeMalloc(nameLen);
+  char *pValue = safeMalloc(valueLen);
 
   IotHttpsClient_ReadHeader(respHandle, pName, nameLen, pValue, valueLen);
 }
