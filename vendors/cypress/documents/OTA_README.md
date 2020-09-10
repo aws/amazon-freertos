@@ -8,8 +8,11 @@ Current revision: OTA V2.1.1
 
 - [PSoC 6 Wi-Fi BT Prototyping Kit](https://www.cypress.com/CY8CPROTO-062-4343W) (CY8CPROTO-062-4343W)
 - [PSoC 62S2 Wi-Fi BT Pioneer Kit](https://www.cypress.com/CY8CKIT-062S2-43012) (CY8CKIT-062S2-43012)
+- [PSoC® 64 Standard Secure - AWS Wi-Fi BT Pioneer Kit ](https://www.cypress.com/documentation/development-kitsboards/psoc-64-standard-secure-aws-wi-fi-bt-pioneer-kit-cy8ckit) (CY8CKIT-064S0S2-4343W)
 
-Only PSoC® 62 MCUs kits with 2 MB of Internal flash are supported at this time. The kit-specific things that need to be changed:
+Only PSoC® 62 MCU kits with 2 MB of Internal flash are supported at this time.
+
+PSoC® 62 MCU kit-specific things that need to be changed:
 
 - Flash locations and sizes for Bootloader, Primary Slot (slot 0), and Secondary Slot (slot 1).
   - See further information in the Configure MCUBootApp section below.
@@ -50,7 +53,7 @@ This example uses the board's default configuration. See the kit user guide to e
 - Install a terminal emulator if you don't have one. Instructions in this document use [Tera Term](https://ttssh2.osdn.jp/index.html.en).
 - Python Interpreter. The supplied publisher.py is tested with [Python 3.8.1](https://www.python.org/downloads/release/python-381/).
 
-## Clone MCUBoot
+## Clone MCUBoot (PSoC® 62 MCU kits)
 
 We need to first build and program the bootloader app *MCUBootApp* that is available in the MCUBoot GitHub repo, before programming this OTA app. The bootloader app is run by CM0+ while this OTA app is run by CM4. Clone the MCUBoot repository onto your local machine, **outside of your application directory.**
 
@@ -68,7 +71,7 @@ We need to first build and program the bootloader app *MCUBootApp* that is avail
 
    ii. `pip install -r requirements.txt`
 
-## Configure MCUBootApp
+## Configure MCUBootApp (PSoC® 62 MCU kits)
 
 #### Adjust MCUBootApp RAM start in linker script
 
@@ -142,7 +145,7 @@ Make the following changes in *mcuboot/boot/cypress/MCUBootApp/config/mcuboot_co
 
    `//#define MCUBOOT_VALIDATE_PRIMARY_SLOT`
 
-## Build and Program MCUBootApp
+## Build and Program MCUBootApp (PSoC® 62 MCU kits)
 
 ### Build MCUBootApp
 
@@ -168,7 +171,7 @@ Make the following changes in *mcuboot/boot/cypress/MCUBootApp/config/mcuboot_co
 
    ​		`mcuboot/boot/cypress/MCUBootApp/out/PSOC_062_2M/Debug/MCUBootApp.elf`
 
-## Prepare for Building your OTA Application
+## Prepare for Building your OTA Application (PSoC® 62 MCU kits)
 
 The Makefile and cmake flows both look for this environment variable to determine how to build the application:
 
@@ -180,7 +183,7 @@ To use internal FLASH only, set the environment variable to zero
 
 `> export OTA_USE_EXTERNAL_FLASH=0`
 
-## Flash Partitioning
+## Flash Partitioning (PSoC® 62 MCU kits)
 
 OTA provides a way to update the system software. The OTA mechanism stores the new software to a "staging" area called the Secondary Slot.  MCUboot will do the actual update from the Secondary Slot to the Primary Slot on the next reboot of the device. In order for the OTA software and MCUBoot to have the same information on where the two Slots are in FLASH, we need to tell MCUBoot where the Slots are located. 
 
