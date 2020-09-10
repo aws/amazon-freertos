@@ -106,6 +106,16 @@ static const BTAttribute_t pxAttributeTableB[] =
     {
         .xServiceUUID = bletestsFREERTOS_SVC_B_UUID
     },
+#if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
+    {
+        .xAttributeType = eBTDbIncludedService,
+        .xIncludedService =
+        {
+            .xUuid          = bletestsFREERTOS_SVC_A_UUID,
+            .pxPtrToService = &_xSrvcA
+        }
+    },
+#endif
     {
         .xAttributeType = eBTDbCharacteristic,
         .xCharacteristic =
@@ -206,14 +216,6 @@ static const BTAttribute_t pxAttributeTableB[] =
         {
             .xUuid        = bletestsFREERTOS_DESCR_D_UUID,
             .xPermissions = ( eBTPermRead )
-        }
-    },
-    {
-        .xAttributeType = eBTDbIncludedService,
-        .xIncludedService =
-        {
-            .xUuid          = bletestsFREERTOS_SVC_A_UUID,
-            .pxPtrToService = &_xSrvcA
         }
     }
 };
