@@ -1069,7 +1069,7 @@ static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
 static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
     CK_RV xResult = CKR_OK;
-    int32_t ulGotSemaphore = 0UL;
+    int32_t lGotSemaphore = 0UL;
     uint32_t ulIndex = xAppHandle - 1UL;
 
     if( ulIndex >= pkcs11configMAX_NUM_OBJECTS )
@@ -1079,10 +1079,10 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
     if( xResult == CKR_OK )
     {
-        ulGotSemaphore = mbedtls_mutex_lock( &xP11Context.xObjectList.xMutex );
+        lGotSemaphore = mbedtls_mutex_lock( &xP11Context.xObjectList.xMutex );
     }
 
-    if( ulGotSemaphore == 0 )
+    if( lGotSemaphore == 0 )
     {
         if( xP11Context.xObjectList.xObjects[ ulIndex ].xHandle != CK_INVALID_HANDLE )
         {
