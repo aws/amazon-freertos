@@ -87,4 +87,12 @@ uint16_t wiced_bt_dynamic_gattdb_util_get_service_end_handle( uint8_t service_ha
  */
 wiced_bool_t wiced_bt_gatt_db_reset( void );
 
+/**
+ * Function     wiced_bt_dynamic_gattdb_init
+ *
+ * initial dynamic gatt database
+ *
+ */
+void wiced_bt_dynamic_gattdb_init( void );
+
 #endif // WICED_BT_DYNAMIC_GATTDB_H_INCLUDED

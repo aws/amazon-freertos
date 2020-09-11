@@ -33,6 +33,8 @@
 #include "wiced_bt_dynamic_gattdb.h"
 #include "wiced_memory.h"
 
+wiced_bt_heap_t *gp_porting_heap = NULL;  //for dynamic GATT DB
+
 /* GATT Db increment Step */
 #define GATT_DB_INCR_STEP 1024
 
@@ -152,7 +154,7 @@ static wiced_result_t dynamic_gattdb_add_service_to_db( uint8_t* service_data, u
     if( NULL == gatt_server_dynamic_db ) {
 
         /* allocate 1kb for GATT database and update gatt_server_dynamic_db_allocated_len */
-        gatt_server_dynamic_db = ( uint8_t* )wiced_bt_get_buffer( GATT_DB_INCR_STEP );
+        gatt_server_dynamic_db = ( uint8_t* )wiced_bt_get_buffer_from_heap( gp_porting_heap, GATT_DB_INCR_STEP );
                                                               
         if( NULL == gatt_server_dynamic_db )
         { return WICED_OUT_OF_HEAP_SPACE; }
@@ -167,7 +169,7 @@ static wiced_result_t dynamic_gattdb_add_service_to_db( uint8_t* service_data, u
     if( updated_db_len > gatt_server_dynamic_db_allocated_len ) {
 
         /* allocate new buffer with 1k more size than before */
-        swap_ptr = ( uint8_t* )wiced_bt_get_buffer( GATT_DB_INCR_STEP );
+        swap_ptr = ( uint8_t* )wiced_bt_get_buffer_from_heap( gp_porting_heap, GATT_DB_INCR_STEP );
 
         if( NULL == swap_ptr )
         { return WICED_OUT_OF_HEAP_SPACE; }
@@ -266,7 +268,7 @@ wiced_result_t wiced_bt_dynamic_gattdb_add_service( uint16_t num_of_handles, uin
     uint16_t service_type = 0;
 
     /* Allocate memory for a new entry */
-    temp = ( dynamic_gattdb_service_data_t* )wiced_bt_get_buffer( sizeof( dynamic_gattdb_service_data_t ) );
+    temp = ( dynamic_gattdb_service_data_t* )wiced_bt_get_buffer_from_heap( gp_porting_heap, sizeof( dynamic_gattdb_service_data_t ) );
 
     if( NULL == temp )
     { return WICED_OUT_OF_HEAP_SPACE; }
@@ -305,12 +307,10 @@ wiced_result_t wiced_bt_dynamic_gattdb_add_service( uint16_t num_of_handles, uin
     memcpy( &temp->uuid, uuid, sizeof( wiced_bt_uuid_t ) );
 
     /* Allocate memory for the service data based on the number of handles */
-    temp->service_data = ( uint8_t* )wiced_bt_get_buffer( num_of_handles * MAX_CHAR_SIZE );
+    temp->service_data = ( uint8_t* )wiced_bt_get_buffer_from_heap( gp_porting_heap, num_of_handles * MAX_CHAR_SIZE );
 
-    if( NULL == temp->service_data )  {
-      wiced_bt_free_buffer( (void *)temp );
-      return WICED_OUT_OF_HEAP_SPACE;
-    }
+    if( NULL == temp->service_data )
+    { return WICED_OUT_OF_HEAP_SPACE; }
 
     if(g_service_handle != 0xFFFF)
         g_service_handle            += num_of_handles;
@@ -577,5 +577,17 @@ wiced_bool_t wiced_bt_gatt_db_reset( void ) {
     gatt_server_dynamic_db_len     = 0;
     gatt_server_dynamic_db_allocated_len = 0;
 
+    wiced_bt_delete_heap(gp_porting_heap);
     return WICED_TRUE;
+}
+
+/**
+ * Function     wiced_bt_dynamic_gattdb_init
+ *
+ * initial dynamic gatt database
+ *
+ */
+void wiced_bt_dynamic_gattdb_init( void )
+{
+    gp_porting_heap = wiced_bt_create_heap ("porting", NULL, 0x1000, NULL, WICED_FALSE);
 }

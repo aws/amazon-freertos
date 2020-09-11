@@ -497,7 +497,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
         IotLogDebug("wiced_bt_stack_init failed\n");
         return prvConvertWicedErrorToAfr(result);
     }
-    wiced_bt_create_heap ("DEFAULT", NULL, 0x2000, NULL, WICED_TRUE);
+
     /* Amazon requested to wait in this API and return only when radio is turned on */
     if( CY_RSLT_SUCCESS == cy_rtos_init_semaphore(&stack_init_semaphore, 1, 0) )
     {

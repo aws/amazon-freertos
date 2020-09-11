@@ -200,6 +200,8 @@ BTStatus_t prvBTRegisterBleApp( BTUuid_t * pxAppUuid )
     BTStatus_t xStatus = eBTStatusSuccess;
     static uint8_t ucAdapterIf = 1;
 
+    wiced_bt_dynamic_gattdb_init();
+
     if( ucAdapterIf > 3)
     {
         if ( xBTBleAdapterCallbacks.pxRegisterBleAdapterCb )
