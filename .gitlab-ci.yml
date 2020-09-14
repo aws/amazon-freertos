@@ -393,32 +393,126 @@ afr_demo_test_auto_CY8CKIT_064S0S2_4343W_ARM:
 ###############  Amazon-FREERtos demo build tests (Regression)  ###############
 ###############################################################################
 
-.test_afr_build-CY8CPROTO_062_4343W-LIN:
+test_afr_build-CY8CPROTO_062_4343W-LIN:
   stage: test
   tags:
     - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CPROTO_062_4343W
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W ARM
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
 
-.test_afr_build-CY8CPROTO-062-4343W-WIN:
+test_afr_build-CY8CPROTO-062-4343W-WIN:
   stage: test
   tags:
     - devops-win
     - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CPROTO_062_4343W
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W IAR
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
+    
+test_afr_build-CY8CPROTO-062-4343W-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CPROTO_062_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CPROTO_062_4343W
 
-.test_afr_build-CY8CKIT-062-WIFI-BT-WIN:
+test_afr_build-CY8CKIT-062-WIFI-BT-WIN:
   stage: test
   tags:
     - devops-win
     - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_062_WIFI_BT
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT IAR
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
 
-.test_afr_build-CY8CKIT-062-WIFI-BT-LIN:
+test_afr_build-CY8CKIT-062-WIFI-BT-LIN:
   stage: test
   tags:
     - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_062_WIFI_BT
   script:
-    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT ARM
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
+    
+test_afr_build-CY8CKIT-062-WIFI-BT-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_062_WIFI_BT
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062_WIFI_BT
+
+test_afr_build-CY8CKIT_064S0S2_4343W-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W
+    
+test_afr_build-CY8CKIT_064S0S2_4343W-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W   
+
+test_afr_build-CY8CKIT_064S0S2_4343W-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_064S0S2_4343W
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_064S0S2_4343W 
+
+test_afr_build-CY8CKIT-062S2-43012-LIN:
+  stage: test
+  tags:
+    - devops-linux
+  only:
+    variables:
+      - $AFR_BUILD_LIN_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012
+    
+test_afr_build-CY8CKIT-062S2-43012-WIN:
+  stage: test
+  tags:
+    - devops-win
+    - IAR_8.50.4
+  only:
+    variables:
+      - $AFR_BUILD_WIN_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012   
+
+test_afr_build-CY8CKIT-062S2-43012-MAC:
+  stage: test
+  tags:
+    - devops-mac
+  only:
+    variables:
+      - $AFR_BUILD_MAC_CY8CKIT_062S2_43012
+  script:
+    - bash -e cypress_internal_test/demo_test/run_test_build.sh CY8CKIT_062S2_43012 
