@@ -21,6 +21,7 @@ from pathlib import Path
 import comm
 import utils
 import mutate
+import mutator
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -117,28 +118,6 @@ def percentage(part, whole):
     """
     return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
 
-def _merge(intervals):
-    """
-    Turns `intervals` [[0,2],[1,5],[7,8]] to [[0,5],[7,8]].
-    """
-    out = []
-    for i in sorted(intervals, key=lambda i: i[0]):
-        if out and i[0] <= out[-1][1]:
-            out[-1][1] = max(out[-1][1], i[1])
-        else:
-            out += i,
-    return out
-
-def _flatten(intervals):
-    """
-    Turns `intervals` [[0,5], [8,10]] to [0, 1, 2, 3, 4, 5, 8, 9, 10].
-    Note that it is inclusive of the second value.
-    """
-    out = []
-    for i in intervals:
-        out += list(range(i[0], i[1] + 1))
-    return out
-
 def _process_file(file_path):
     p = Path(file_path)
     backup = p.with_suffix(p.suffix + '.old')
@@ -175,6 +154,8 @@ def to_csv(csv_path, headers, dict):
     Create a csv file at `csv_path` with `headers` using data in `dict` where each key in `dict` is
     equal to one of the `headers` and `dict[key]` will be written.
     """
+    directory = os.path.dirname(csv_path)
+    Path(directory).mkdir(parents=True, exist_ok=True)
     with open(csv_path, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=headers)
         writer.writeheader()
@@ -204,126 +185,78 @@ class CompileFailed(MutationTestError):
 class LineOutOfRange(MutationTestError):
     pass
 
-def main():
-    parser = argparse.ArgumentParser('Mutation Testing')
-    parser.add_argument(
-        '--src_config', '-s',
-        help='Select the test config file to use eg. -s wifi',
-        required=True
-    )
-    parser.add_argument(
-        '--mutants', '-m',
-        help='Number of mutants',
-        default=10
-    )
-    parser.add_argument(
-        '--port', '-p',
-        help="Serial port to read from",
-        default=None
-    )
-    parser.add_argument(
-        '--timeout', '-t',
-        help='Timeout for each mutant in seconds',
-        default=500
-    )
-    parser.add_argument(
-        '--csv', '-c',
-        help='Store to csv',
-        action='store_true',
-        default=False
-    )
-    parser.add_argument(
-        '--seed',
-        help='Random seed to generate mutants with',
-        default=None
-    )
-    parser.add_argument(
-        '--jobfile', '-j',
-        help='Specify path to a jobfile to repeat a test; will replace all arguments provided',
-        default=None
-    )
-    args = parser.parse_args()
-
-    # configs
-    with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
-        config = json.load(f)
-
-    src = config['src']
-    vendor = config['vendor']
-    compiler = config['compiler']
-    board = config['board']
-    test_groups = config['test_groups']
-    mutations = config['mutations'] if 'mutations' in config else mutate.mutation_selector
-
-    # args
+def run_custom(task, args, config):
+    vendor, board, compiler = config['vendor'], config['board'], config['compiler']
     port = args.port if args.port else utils.get_default_serial_port()
-    mutant_cnt = int(args.mutants)
-    timeout = int(args.timeout)
-    csv = args.csv
-    seed = args.seed if args.seed else None
-    if args.jobfile:
-        with open(args.jobfile, 'r') as f:
-            jobfile = ast.literal_eval(f.read())
-            src = jobfile['src']
-            vendor = jobfile['vendor']
-            compiler = jobfile['compiler']
-            board = jobfile['board']
-            test_groups = jobfile['test_groups']
-            mutations = jobfile['mutations']
-            if not args.port:
-                port = jobfile['port']
-            if not args.mutants:
-                mutant_cnt = int(jobfile['mutant_cnt'])
-            if not args.timeout:
-                timeout = int(jobfile['timeout'])
-            if not args.csv:
-                csv = jobfile['csv']
-            if not args.seed:
-                seed = jobfile['seed']
-            
+    timeout = args.timeout
+    times_per_pattern = task['times_per_pattern']
 
-    # Generate test runner to run only on those test groups
-    utils.yellow_print("Generating test runner based on supplied test groups...")
-    backup = generate_test_runner(test_groups)
+    mutation = mutator.Mutator(src=task['src'], mutation_patterns=task['patterns'])
+    mutant_patterns = mutation.getPatterns()
 
-    os.chdir(root_path)
+    data_record = []
+    # outer try is for finally generating csv if automation stops early
+    try:
+        for mp in mutant_patterns:
+            print(mp)
+            occurences_with_mp = mutation.findOccurrences(mutation_pattern=mp)
+            for o in occurences_with_mp:
+                print(o)
+            failures = 0
+            total = 0
+            for occurrence in occurences_with_mp:
+                # if completed times_per_pattern times, exit loop
+                if times_per_pattern == 0:
+                    break
+                # mutate the code
+                mutation.mutate(mp, occurrence)
+                # try is for catching compile failure to continue execution
+                try:
+                    # cmake, build, flash, and read
+                    output, final_flag = flash_and_read(vendor, board, compiler, port, timeout)
+                    if final_flag == FLAGS.PassFlag:
+                        utils.red_print("Mutant is Alive")
+                    else:
+                        failures += 1
+                        utils.green_print("Mutant is Killed")
+                    total += 1
+                    times_per_pattern -= 1
+                except CompileFailed:
+                    utils.yellow_print("Cannot compile, discard and move on")
+                finally:
+                    mutation.restore()
+            data_record.append({'pattern': "{}:{}".format(mp.pattern, mp.transformation),
+                                'failures/total': "{}/{}".format(failures, total)})
+    except:
+        traceback.print_exc()
+        raise
+    finally:
+        if args.csv:
+            csv_path = os.path.join(
+                dir_path, "{}/{}/mutant_comparison.csv".format(current_date, current_time))
+            to_csv(csv_path, ['pattern', 'failures/total'], data_record)
 
+        
+
+def run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler, args):
     ### BEGIN MUTATION TESTING ###
     run_cnt = 0
     failures = 0
     nc = 0
     trials = []
     test_to_kills = {}
-    # create a rng for this run
-    if not seed:
-        seed = random.randrange(sys.maxsize)
-    utils.yellow_print("Current test seed is: {}".format(seed))
-    rng = random.Random(seed)
 
-    # set the mutation tricks
-    mutate.mutation_selector = mutations
+    # Create a mutator object
+    mutation = mutator.Mutator(src = task['src'], mutation_patterns = task['patterns'], rng=rng)
     try:
         while run_cnt < mutant_cnt:
             try:
-                os.chdir(root_path)
-                lines_to_mutate = {}
-                olds = []
-                modified = []
-                for f in src:
-                    # create copies of the original
-                    old = '{}.old'.format(f)
-                    shutil.copyfile(f, old)
-                    olds.append(old)
-                    modified.append(f)
-                    # process the line intervals into a list of line numbers
-                    lines_to_mutate[old] = _flatten(_merge(src[f]))
-                # create a mutant
-                src_index, original_line, mutated_line, line_number = mutate.main(
-                                                            olds, modified, lines_to_mutate, rng)
-                file_changed = os.path.basename(os.path.normpath(modified[src_index]))
-
+                _, occurrence, original_line, mutated_line = mutation.generateRandomMutant()
+                file_changed = occurrence.file
+                line_number = occurrence.line
                 # cmake, build, flash, and read
                 output, final_flag = flash_and_read(vendor, board, compiler, port, timeout)
+                run_cnt += 1
 
                 # Analyze the results
                 results = re.findall(TestRegEx, output)
@@ -334,7 +267,6 @@ def main():
                         kills, total = test_to_kills[(group, test)]
                         test_to_kills[(group, test)] = ((kills + 1, total + 1) if result == 'FAIL' 
                                                         else (kills, total + 1))
-                run_cnt += 1
 
                 # mutant_status can either be "FAIL", "PASS", "CRASH", "TIMEOUT"
                 mutant_status = "FAIL"
@@ -363,36 +295,32 @@ def main():
                 # restore mutant
                 # os.chdir(src_path)
                 # create a copies of the original
-                shutil.copyfile(olds[src_index], modified[src_index])
-                os.remove(olds[src_index])
+                mutation.restore()
                 utils.yellow_print("Source code restored")
     except:
         traceback.print_exc()
         raise
     finally:
-        # restore aws_test_runner.c
-        shutil.copy(backup, os.path.splitext(backup)[0])
-
         # calculate mutant score
         score = percentage(failures, run_cnt)
         utils.yellow_print(score)
         utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(run_cnt - failures, failures, run_cnt, nc, run_cnt + nc))
         trials.append({'file': "RESULTS:", 'line': "{} NO-COMPILE".format(nc) , 'mutant':"SCORE", 
-                       'original':"{} KILLED/{} MUTANTS".format(failures, run_cnt),'result':"{}%".format(score)})
+                    'original':"{} KILLED/{} MUTANTS".format(failures, run_cnt),'result':"{}%".format(score)})
         
         # aggregate pass/fail counts
         aggregates = []
         for group, test in test_to_kills:
             kills, total = test_to_kills[(group, test)]
             aggregates.append({'Group': group,
-                               'Test': test,
-                               'Kills': kills,
-                               'Passes': total - kills,
-                               'Total': total})
+                            'Test': test,
+                            'Kills': kills,
+                            'Passes': total - kills,
+                            'Total': total})
 
         # log to csv
-        if csv:
+        if args.csv:
             os.chdir(dir_path)
             csv_path = os.path.join('csvs', current_date)
             utils.mkdir(csv_path)
@@ -403,19 +331,121 @@ def main():
             to_csv(trials_csv, ['file', 'line', 'original', 'mutant', 'result'], trials)
             to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
-        create_jobfile(src=src,
-                       vendor=vendor,
-                       board=board,
-                       compiler=compiler,
-                       test_groups=test_groups,
-                       mutant_cnt=mutant_cnt,
-                       port=port,
-                       timeout=timeout,
-                       csv=csv,
-                       seed=seed,
-                       mutations=mutations)
-        print('Done')
-        sys.exit()
+def main():
+    parser = argparse.ArgumentParser('Mutation Testing')
+    parser.add_argument(
+        '--src_config', '-s',
+        help='Select the test config file to use eg. -s wifi',
+        required=True
+    )
+    parser.add_argument(
+        '--mutants', '-m',
+        help='Number of mutants',
+        default=10
+    )
+    parser.add_argument(
+        '--port', '-p',
+        help="Serial port to read from",
+        default=None
+    )
+    parser.add_argument(
+        '--timeout', '-t',
+        help='Timeout for each mutant in seconds',
+        default=300
+    )
+    parser.add_argument(
+        '--csv', '-c',
+        help='Store to csv',
+        action='store_true',
+        default=False
+    )
+    parser.add_argument(
+        '--seed',
+        help='Random seed to generate mutants with',
+        default=None
+    )
+    parser.add_argument(
+        '--jobfile', '-j',
+        help='Specify path to a jobfile to repeat a test; will replace all arguments provided',
+        default=None
+    )
+    args = parser.parse_args()
+
+    # configs
+    with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
+        config = json.load(f)
+
+    # src = config['src']
+    vendor = config['vendor']
+    compiler = config['compiler']
+    board = config['board']
+    # test_groups = config['test_groups']
+    # mutations = config['mutations'] if 'mutations' in config else mutate.mutation_selector
+
+    # args
+    port = args.port if args.port else utils.get_default_serial_port()
+    mutant_cnt = int(args.mutants)
+    timeout = int(args.timeout)
+    csv = args.csv
+    seed = args.seed if args.seed else None
+    if args.jobfile:
+        with open(args.jobfile, 'r') as f:
+            jobfile = ast.literal_eval(f.read())
+            # src = jobfile['src']
+            # vendor = jobfile['vendor']
+            # compiler = jobfile['compiler']
+            # board = jobfile['board']
+            # test_groups = jobfile['test_groups']
+            # mutations = jobfile['mutations']
+            if not args.port:
+                port = jobfile['port']
+            if not args.mutants:
+                mutant_cnt = int(jobfile['mutant_cnt'])
+            if not args.timeout:
+                timeout = int(jobfile['timeout'])
+            if not args.csv:
+                csv = jobfile['csv']
+            if not args.seed:
+                seed = jobfile['seed']
+    
+    # create a rng for this run
+    if not seed:
+        seed = random.randrange(sys.maxsize)
+    utils.yellow_print("Current test seed is: {}".format(seed))
+    rng = random.Random(seed)
+
+    # change to root path
+    os.chdir(root_path)
+
+    utils.yellow_print("Running tasks")
+    for task in config['tasks']:
+        utils.yellow_print("Running task: {}".format(task['name']))
+
+        # Generate test runner to run only on those test groups
+        utils.yellow_print("Generating test runner based on supplied test groups...")
+        backup = generate_test_runner(task['test_groups'])
+
+        # set default mutations if patterns is equal to "all"
+        if task['patterns'] == "all": task['patterns'] = mutator.default_patterns
+        try:
+            if "total_times" in task:
+                run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler, args)
+            elif "times_per_pattern" in task:
+                run_custom(task, args, config)
+        except:
+            traceback.print_exc()
+            raise
+        finally:
+            # restore aws_test_runner.c
+            shutil.copy(backup, os.path.splitext(backup)[0])
+
+    create_jobfile(mutant_cnt=mutant_cnt,
+                    port=port,
+                    timeout=timeout,
+                    csv=csv,
+                    seed=seed)
+    print('Done')
+    sys.exit()
 
 # Capture SIGINT (usually Ctrl+C is pressed) and SIGTERM, and exit gracefully.
 for s in (signal.SIGINT, signal.SIGTERM):

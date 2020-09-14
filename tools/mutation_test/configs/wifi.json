@@ -1,6 +1,13 @@
 {
-    "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c": []},
-    "test_groups": ["Full_WiFi", "Quarantine_WiFi"],
+    "tasks": [
+        {
+            "name": "Full_Wifi",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[]},
+            "test_groups": ["Full_WiFi"],
+            "patterns": "all",
+            "total_times": 10
+        }
+    ],
     "vendor": "espressif",
     "board": "esp32_wrover_kit",
     "compiler": "xtensa-esp32"
