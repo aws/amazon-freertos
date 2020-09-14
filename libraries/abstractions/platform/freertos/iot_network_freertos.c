@@ -491,7 +491,7 @@ size_t IotNetworkAfr_Send( void * pConnection,
         {
             socketStatus = SOCKETS_Send( pNetworkConnection->socket,
                                          pMessage,
-                                         messageLength,
+                                         bytesRemaining,
                                          0 );
 
             if( socketStatus > 0 )
