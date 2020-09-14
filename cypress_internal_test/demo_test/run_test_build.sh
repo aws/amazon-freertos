@@ -42,19 +42,15 @@ setup_cysecuretools
 declare -a supported_toolchains=()
 KERNEL="$($(which uname) -s)"
 case "$KERNEL" in
-    CYGWIN*|MINGW*|MSYS*)
-    export PATH="$(cygpath -u -a "${IAR_DIR}/bin"):$PATH"
-    export PATH="$(cygpath -u -a "${GCC_DIR}/bin"):$PATH"
+    CYGWIN*|MINGW*|MSYS*)    
     supported_toolchains=("GCC_ARM" "ARM" "IAR")
     host=win
     ;;
     Linux*)
-    export PATH="$GCC_DIR/bin:$PATH"
     supported_toolchains=("GCC_ARM" "ARM")
     host=linux
     ;;
     Darwin*)
-    export PATH="$GCC_DIR/bin:$PATH"
     supported_toolchains=("GCC_ARM")
     host=mac
     ;;

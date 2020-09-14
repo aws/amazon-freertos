@@ -59,12 +59,13 @@ function run_setenv()
             export GCC_DIR="$(cygpath --mixed "${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-windows}")"
             export ARMCC_DIR="${ARMCC_DIR:-$CY_DEP_DIR/arm-compiler-6.12-windows-x86_64}"
             export PATH="${ARMCC_DIR}/bin:$PATH"
+            export PATH="$(cygpath -u -a "${GCC_DIR}/bin"):$PATH"
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_win_$IDT_VER/devicetester_freertos_win}"
             if [[ -z "${HOST_IAR_PATH_8504+x}" ]]; then
                 export IAR_DIR="$(cygpath --mixed "${IAR_DIR:-C:/Program Files (x86)/IAR Systems/Embedded Workbench 8.2/arm}")"
             else
                 export IAR_DIR="$(cygpath --mixed "${HOST_IAR_PATH_8504}")"
-            fi       
+            fi
             # Assume "python" points to Python3 executable
             export PYTHON="${PYTHON:-"python3"}"
             ;;
@@ -84,6 +85,7 @@ function run_setenv()
             export GCC_DIR="${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-linux}"
             export ARMCC_DIR="${ARMCC_DIR:-$CY_DEP_DIR/arm-compiler-6.12-linux-x86_64}"
             export PATH="${ARMCC_DIR}/bin:$PATH"
+            export PATH="${GCC_DIR}/bin:$PATH"
 
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_linux_$IDT_VER/devicetester_freertos_linux}"
 
@@ -104,6 +106,7 @@ function run_setenv()
 
             # Set path to GCC toolchain root directory
             export GCC_DIR="${GCC_DIR:-$CY_DEP_DIR/gcc-7.2.1-1.0.0.1-macos}"
+            export PATH="${GCC_DIR}/bin:$PATH"
 
             export AFR_DEVICE_TESTER_DIR="${AFR_DEVICE_TESTER_DIR:-$CY_DEP_DIR/devicetester_freertos_mac_$IDT_VER/devicetester_freertos_mac}"
 
