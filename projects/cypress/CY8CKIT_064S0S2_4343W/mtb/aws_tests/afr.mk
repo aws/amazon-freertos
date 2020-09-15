@@ -128,7 +128,7 @@ SOURCES+=\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
 	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
 
@@ -262,7 +262,7 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*.c)
 
 endif
 
