@@ -40,7 +40,7 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 
 
-#if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
+#if defined( WIFI_SUPPORTED ) && ( WIFI_SUPPORTED != 0 )
     #include "platform/iot_network_freertos.h"
     #include "private/iot_mqtt_internal.h"
     static const IotMqttSerializer_t _mqttSerializer =
@@ -81,6 +81,7 @@ static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 /*-----------------------------------------------------------*/
 
+#if WIFI_SUPPORTED || BLE_SUPPORTED
 const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 {
     const IotNetworkInterface_t * pNetworkInterface = NULL;
@@ -92,7 +93,7 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
                 pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
                 break;
         #endif
-        #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
+        #if defined( WIFI_SUPPORTED ) && ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
                 pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
                 break;
@@ -136,3 +137,4 @@ const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
 
     return ( IotMqttSerializer_t * ) pSerializer;
 }
+#endif

@@ -9,6 +9,15 @@ afr_module_sources(
         "${inc_dir}/iot_i2c.h"
         "${inc_dir}/iot_uart.h"
         "${inc_dir}/iot_spi.h"
+        "${inc_dir}/iot_gpio.h"
+        "${inc_dir}/iot_flash.h"
+        "${inc_dir}/iot_perfcounter.h"
+        "${inc_dir}/iot_timer.h"
+        "${inc_dir}/iot_adc.h"
+        "${inc_dir}/iot_pwm.h"
+        "${inc_dir}/iot_rtc.h"
+        "${inc_dir}/iot_tsensor.h"
+        "${inc_dir}/iot_watchdog.h"
 )
 
 afr_module_include_dirs(
@@ -31,6 +40,15 @@ afr_module_sources(
         "${test_dir}/test_iot_i2c.c"
         "${test_dir}/test_iot_uart.c"
         "${test_dir}/test_iot_spi.c"
+        "${test_dir}/test_iot_gpio.c"
+        "${test_dir}/test_iot_flash.c"
+        "${test_dir}/test_iot_perfcounter.c"
+        "${test_dir}/test_iot_timer.c"
+        "${test_dir}/test_iot_adc.c"
+        "${test_dir}/test_iot_pwm.c"
+        "${test_dir}/test_iot_rtc.c"
+        "${test_dir}/test_iot_tsensor.c"
+        "${test_dir}/test_iot_watchdog.c"
 )
 
 afr_module_include_dirs(

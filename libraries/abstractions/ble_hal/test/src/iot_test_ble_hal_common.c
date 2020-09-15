@@ -208,6 +208,7 @@ static const BTAttribute_t pxAttributeTableB[] =
             .xPermissions = ( eBTPermRead )
         }
     },
+    #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
     {
         .xAttributeType = eBTDbIncludedService,
         .xIncludedService =
@@ -216,6 +217,7 @@ static const BTAttribute_t pxAttributeTableB[] =
             .pxPtrToService = &_xSrvcA
         }
     }
+    #endif /* ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE */
 };
 
 /* service C */

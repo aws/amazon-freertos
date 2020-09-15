@@ -79,4 +79,78 @@ TEST_GROUP_RUNNER( Common_IO )
             RUN_TEST_GROUP( TEST_IOT_SPI );
         }
     #endif
+
+    // GPIO depend on perfcounter so make sure to run these test before GPIO
+    #ifdef IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_PERFCOUNTER_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_PERFCOUNTER_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_PERFCOUNTER );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_GPIO_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_GPIO_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_GPIO_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_GPIO );
+        }
+    #endif
+
+    // FLASH depends on timer so make sure to tun these test before FLASH
+    #ifdef IOT_TEST_COMMON_IO_TIMER_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_TIMER_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_TIMER_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_TIMER );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_FLASH_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_FLASH_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_FLASH_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_FLASH );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_ADC_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_ADC_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_ADC_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_ADC );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_PWM_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_PWM_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_PWM_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_PWM );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_RTC_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_RTC_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_RTC_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_RTC );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_TEMP_SENSOR_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_TEMP_SENSOR_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_TEMP_SENSOR_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_TSENSOR );
+        }
+    #endif
+
+    #ifdef IOT_TEST_COMMON_IO_WATCHDOG_SUPPORTED
+        for( i = 0; i < IOT_TEST_COMMON_IO_WATCHDOG_SUPPORTED; i++ )
+        {
+            SET_TEST_IOT_WATCHDOG_CONFIG( i );
+            RUN_TEST_GROUP( TEST_IOT_WATCHDOG );
+        }
+    #endif
 }

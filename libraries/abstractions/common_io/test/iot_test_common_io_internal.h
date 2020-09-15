@@ -118,6 +118,7 @@
 /* Flash */
 #if defined( IOT_TEST_COMMON_IO_FLASH_SUPPORTED ) && ( IOT_TEST_COMMON_IO_FLASH_SUPPORTED >= 1 )
     extern uint32_t ultestIotFlashStartOffset; /* The Flash offset at which the flash operations in the test will take place */
+    extern uint8_t ltestIotFlashInstance; /* The Flash instance to use for testing */
 
 /**
  * Board specific Flash config set
