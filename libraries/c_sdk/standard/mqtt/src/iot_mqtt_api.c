@@ -69,6 +69,7 @@
  * used in calling MQTT LTS API from shim to send packets on the network.
  */
 _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
+MqttNetworkContext_t MqttContext;
 
 /*-----------------------------------------------------------*/
 
@@ -829,9 +830,9 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
 
     IotMqtt_Assert( pNetworkContext != NULL );
     IotMqtt_Assert( pMessage != NULL );
-
+    MqttNetworkContext_t * pMqttNetowkrContext = ( MqttNetworkContext_t * ) pNetworkContext->pContext;
     /* Sending the bytes on the network using Network Interface. */
-    bytesSend = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+    bytesSend = pMqttNetowkrContext->pNetworkInterface->send( pMqttNetowkrContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
     if( bytesSend < 0 )
     {
@@ -913,6 +914,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
+    MqttNetworkContext_t * pMqttNetowkrContext = NULL;
 
     /* Default CONNECT serializer function. */
     IotMqttError_t ( * serializeConnect )( const IotMqttConnectInfo_t *,
@@ -1084,8 +1086,10 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         connToContext[ contextIndex ].mqttConnection = newMqttConnection;
 
         /* Assigning the Network Context to be used by this MQTT Context. */
-        connToContext[ contextIndex ].networkContext.pNetworkConnection = pNetworkConnection;
-        connToContext[ contextIndex ].networkContext.pNetworkInterface = pNetworkInfo->pNetworkInterface;
+        connToContext[ contextIndex ].networkContext.pContext = &MqttContext;
+        pMqttNetowkrContext = ( MqttNetworkContext_t * ) connToContext[ contextIndex ].networkContext.pContext;
+        pMqttNetowkrContext->pNetworkConnection = pNetworkConnection;
+        pMqttNetowkrContext->pNetworkInterface = pNetworkInfo->pNetworkInterface;
 
         /* Fill in TransportInterface send function pointer. We will not be implementing the
          * TransportInterface receive function pointer as receiving of packets is handled in shim by network

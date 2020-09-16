@@ -25,13 +25,26 @@
 #include <stdint.h>
 #include <stddef.h>
 
+
+
+/**
+ * @brief Maximum length of an ASCII DNS name.
+ */
+#define MAX_DNS_NAME_LENGTH                  ( 253 )
+
  /**
   * @brief The NetworkContext is an incomplete type. An implementation of this
-  * interface must define NetworkContext as per the requirements. This context
+  * interface must define what pContext points to as per the requirements. This context
   * is passed into the network interface functions.
   */
-struct NetworkContext;
-typedef struct NetworkContext NetworkContext_t;
+typedef struct NetworkContext
+{
+    /**
+     * @brief Points to the context for each interface.
+     */
+    void * pContext;
+} NetworkContext_t;
+
 
 /**
  * @brief Transport interface for receiving data on the network.
@@ -42,9 +55,9 @@ typedef struct NetworkContext NetworkContext_t;
  *
  * @return The number of bytes received or a negative error code.
  */
-typedef int32_t(*TransportRecv_t)(NetworkContext_t* pNetworkContext,
-    void* pBuffer,
-    size_t bytesToRecv);
+typedef int32_t( *TransportRecv_t )( NetworkContext_t * pNetworkContext,
+                                     void* pBuffer,
+                                     size_t bytesToRecv );
 
 /**
  * @brief Transport interface for sending data over the network.
@@ -55,9 +68,9 @@ typedef int32_t(*TransportRecv_t)(NetworkContext_t* pNetworkContext,
  *
  * @return The number of bytes sent or a negative error code.
  */
-typedef int32_t(*TransportSend_t)(NetworkContext_t* pNetworkContext,
-    const void* pBuffer,
-    size_t bytesToSend);
+typedef int32_t( *TransportSend_t )( NetworkContext_t * pNetworkContext,
+                                     const void* pBuffer,
+                                     size_t bytesToSend );
 
 /**
  * @brief The transport layer interface.

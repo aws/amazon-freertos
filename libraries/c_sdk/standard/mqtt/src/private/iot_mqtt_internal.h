@@ -311,11 +311,11 @@ typedef struct _mqttConnection
  * @brief Defining the structure for network context used for sending the packets on the network.
  * The declaration of the structure is mentioned in the transport_interface.h file.
  */
-struct NetworkContext
+typedef struct MqttNetworkContext
 {
     void * pNetworkConnection;                       /**< @brief The network connection used for sending packets on the network. */
     const IotNetworkInterface_t * pNetworkInterface; /**< @brief The network interface used to send packets on the network using the above network connection. */
-};
+} MqttNetworkContext_t;
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.

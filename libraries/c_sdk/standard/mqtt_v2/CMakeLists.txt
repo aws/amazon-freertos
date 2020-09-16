@@ -21,6 +21,12 @@ afr_module_sources(
          "${src_dir}"
 )
 
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::transport
+)
+
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE

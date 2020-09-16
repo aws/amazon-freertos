@@ -26,6 +26,7 @@
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "mqtt_lightweight.h"
+#include "transport_interface.h"
 
 /*-----------------------------------------------------------*/
 
@@ -168,13 +169,24 @@ StaticStreamBuffer_t xStreamBufferStruct;
 bool IotBleMqttTransportInit( const NetworkContext_t * pContext )
 {
     bool status = true;
+    MqttBleNetworkContext_t * pMqttBleNetworkContext = NULL;
 
-    streamBuffer = xStreamBufferCreateStatic( pContext->bufSize, 1, pContext->buf, &xStreamBufferStruct );
 
-    if( streamBuffer == NULL )
+    if( ( pContext != NULL ) && ( pContext->pContext != NULL ) )
     {
-        LogError( ( "Transport Layer buffer could not be created.  Check the buffer and buffer size passed to network context." ) );
+        pMqttBleNetworkContext = ( MqttBleNetworkContext_t * ) pContext->pContext;
+        streamBuffer = xStreamBufferCreateStatic( pMqttBleNetworkContext->bufSize, 1, pMqttBleNetworkContext->buf, &xStreamBufferStruct );
+
+        if( streamBuffer == NULL )
+        {
+            LogError( ( "Transport Layer buffer could not be created.  Check the buffer and buffer size passed to network context." ) );
+            status = false;
+        }
+    }
+    else
+    {
         status = false;
+        LogError( ( "Invalid input" ) );
     }
 
     return status;
@@ -853,54 +865,64 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t bufToSend = { 0 };
     size_t packetSize = 0;
-
+    MqttBleNetworkContext_t * pMqttBleNetworkContext = NULL;
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t MQTTBytesWritten = ( int32_t ) bytesToWrite;
 
-    switch( packetType )
+    if( ( pContext != NULL ) && ( pContext->pContext != NULL ) )
     {
-        case MQTT_PACKET_TYPE_CONNECT:
-            status = handleOutgoingConnect( buf, &bufToSend, &packetSize );
-            break;
+        pMqttBleNetworkContext = ( MqttBleNetworkContext_t * ) pContext->pContext;
 
-        case MQTT_PACKET_TYPE_PUBLISH:
-            status = handleOutgoingPublish( buf, &bufToSend, &packetSize, &bytesToWrite );
-            break;
+        switch( packetType )
+        {
+            case MQTT_PACKET_TYPE_CONNECT:
+                status = handleOutgoingConnect( buf, &bufToSend, &packetSize );
+                break;
 
-        case MQTT_PACKET_TYPE_PUBACK:
-            status = handleOutgoingPuback( buf, &bufToSend, &packetSize );
-            break;
+            case MQTT_PACKET_TYPE_PUBLISH:
+                status = handleOutgoingPublish( buf, &bufToSend, &packetSize, &bytesToWrite );
+                break;
 
-        case MQTT_PACKET_TYPE_SUBSCRIBE:
-            status = handleOutgoingSubscribe( buf, &bufToSend, &packetSize );
-            break;
+            case MQTT_PACKET_TYPE_PUBACK:
+                status = handleOutgoingPuback( buf, &bufToSend, &packetSize );
+                break;
 
-        case MQTT_PACKET_TYPE_UNSUBSCRIBE:
-            status = handleOutgoingUnsubscribe( buf, &bufToSend, &packetSize );
-            break;
+            case MQTT_PACKET_TYPE_SUBSCRIBE:
+                status = handleOutgoingSubscribe( buf, &bufToSend, &packetSize );
+                break;
 
-        case MQTT_PACKET_TYPE_PINGREQ:
-            status = handleOutgoingPingReq( &bufToSend, &packetSize );
-            break;
+            case MQTT_PACKET_TYPE_UNSUBSCRIBE:
+                status = handleOutgoingUnsubscribe( buf, &bufToSend, &packetSize );
+                break;
 
-        case MQTT_PACKET_TYPE_DISCONNECT:
-            status = handleOutgoingDisconnect( &bufToSend, &packetSize );
-            break;
+            case MQTT_PACKET_TYPE_PINGREQ:
+                status = handleOutgoingPingReq( &bufToSend, &packetSize );
+                break;
 
-        /* QoS 2 cases, currently not supported by BLE */
-        case MQTT_PACKET_TYPE_PUBREC:
-        case MQTT_PACKET_TYPE_PUBREL:
-        case MQTT_PACKET_TYPE_PUBCOMP:
-            status = MQTTSendFailed;
-            LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
-            break;
+            case MQTT_PACKET_TYPE_DISCONNECT:
+                status = handleOutgoingDisconnect( &bufToSend, &packetSize );
+                break;
 
-        /* Client tries to send a server to client only packet */
-        default:
-            status = MQTTBadParameter;
-            LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2." ) );
-            LogError( ( "Your packet type was %i", packetType ) );
-            break;
+            /* QoS 2 cases, currently not supported by BLE */
+            case MQTT_PACKET_TYPE_PUBREC:
+            case MQTT_PACKET_TYPE_PUBREL:
+            case MQTT_PACKET_TYPE_PUBCOMP:
+                status = MQTTSendFailed;
+                LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
+                break;
+
+            /* Client tries to send a server to client only packet */
+            default:
+                status = MQTTBadParameter;
+                LogError( ( "A server to client only packet was sent. Check packet type or ensure Qos < 2." ) );
+                LogError( ( "Your packet type was %i", packetType ) );
+                break;
+        }
+    }
+    else
+    {
+       status = MQTTBadParameter;
+       LogError( ( "Invalid input." ) );
     }
 
     if( status != MQTTSuccess )
@@ -911,7 +933,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     }
     else
     {
-        CBORbytesWritten = IotBleDataTransfer_Send( pContext->pChannel, bufToSend.pBuffer, packetSize );
+        CBORbytesWritten = IotBleDataTransfer_Send( pMqttBleNetworkContext->pChannel, bufToSend.pBuffer, packetSize );
     }
 
     if( CBORbytesWritten == 0U )
@@ -933,58 +955,67 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     MQTTStatus_t status = MQTTSuccess;
     MQTTPacketInfo_t packet;
     MQTTFixedBuffer_t buffer;
-
+    MqttBleNetworkContext_t * pMqttBleNetworkContext = NULL;
     /* Sub ack is the largest packet size expected except for publish, which has its own buffer allocation */
     uint8_t sharedBuffer[ SIZE_OF_SUB_ACK ];
 
     buffer.pBuffer = sharedBuffer;
     buffer.size = SIZE_OF_SUB_ACK;
 
-    packet.type = IotBleMqtt_GetPacketType( pContext->pChannel );
-    IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
-
-    LogDebug( ( "Receiving a packet from the server." ) );
-
-    switch( packet.type )
+    if( ( pContext != NULL ) && ( pContext->pContext != NULL ) )
     {
-        case MQTT_PACKET_TYPE_CONNACK:
-            status = handleIncomingConnack( &packet, &buffer );
-            break;
+        pMqttBleNetworkContext = ( MqttBleNetworkContext_t * ) pContext->pContext;
+        packet.type = IotBleMqtt_GetPacketType( pMqttBleNetworkContext->pChannel );
+        IotBleDataTransfer_PeekReceiveBuffer( pMqttBleNetworkContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
 
-        case MQTT_PACKET_TYPE_PUBLISH:
-            status = handleIncomingPublish( &packet, &buffer );
-            break;
+        LogDebug( ( "Receiving a packet from the server." ) );
 
-        case MQTT_PACKET_TYPE_PUBACK:
-            status = handleIncomingPuback( &packet, &buffer );
-            break;
+        switch( packet.type )
+        {
+            case MQTT_PACKET_TYPE_CONNACK:
+                status = handleIncomingConnack( &packet, &buffer );
+                break;
 
-        case MQTT_PACKET_TYPE_SUBACK:
-            status = handleIncomingSuback( &packet, &buffer );
-            break;
+            case MQTT_PACKET_TYPE_PUBLISH:
+                status = handleIncomingPublish( &packet, &buffer );
+                break;
 
-        case MQTT_PACKET_TYPE_UNSUBACK:
-            status = handleIncomingUnsuback( &packet, &buffer );
-            break;
+            case MQTT_PACKET_TYPE_PUBACK:
+                status = handleIncomingPuback( &packet, &buffer );
+                break;
 
-        case MQTT_PACKET_TYPE_PINGRESP:
-            status = handleIncomingPingresp( &packet, &buffer );
-            break;
+            case MQTT_PACKET_TYPE_SUBACK:
+                status = handleIncomingSuback( &packet, &buffer );
+                break;
 
-        /* QoS 2 cases, currently not supported by BLE */
-        case MQTT_PACKET_TYPE_PUBREC:
-        case MQTT_PACKET_TYPE_PUBREL:
-        case MQTT_PACKET_TYPE_PUBCOMP:
-            status = MQTTRecvFailed;
+            case MQTT_PACKET_TYPE_UNSUBACK:
+                status = handleIncomingUnsuback( &packet, &buffer );
+                break;
 
-            LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
-            break;
+            case MQTT_PACKET_TYPE_PINGRESP:
+                status = handleIncomingPingresp( &packet, &buffer );
+                break;
 
-        /* Server tries to send a client to server only packet */
-        default:
-            LogError( ( "Client received a client to server only packet." ) );
-            status = MQTTBadParameter;
-            break;
+            /* QoS 2 cases, currently not supported by BLE */
+            case MQTT_PACKET_TYPE_PUBREC:
+            case MQTT_PACKET_TYPE_PUBREL:
+            case MQTT_PACKET_TYPE_PUBCOMP:
+                status = MQTTRecvFailed;
+
+                LogError( ( "Only Qos 0 and 1 are supported over BLE." ) );
+                break;
+
+            /* Server tries to send a client to server only packet */
+            default:
+                LogError( ( "Client received a client to server only packet." ) );
+                status = MQTTBadParameter;
+                break;
+        }
+    }
+    else
+    {
+       status = MQTTBadParameter;
+       LogError( ( "Invalid input." ) );
     }
 
     if( status != MQTTSuccess )
@@ -994,7 +1025,7 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     else
     {
         /* Flush the data from the channel */
-        ( void ) IotBleDataTransfer_Receive( pContext->pChannel, NULL, packet.remainingLength );
+        ( void ) IotBleDataTransfer_Receive( pMqttBleNetworkContext->pChannel, NULL, packet.remainingLength );
     }
     return status;
 }

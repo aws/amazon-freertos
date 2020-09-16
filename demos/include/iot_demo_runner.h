@@ -104,6 +104,8 @@
     #define DEMO_entryFUNCTION             RunHttpsAsyncUploadDemo
 #elif defined( CONFIG_MQTT_TRANSPORT_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             RunMQTTTransportDemo
+#elif defined( CONFIG_MQTT_TRANSPORT_SOCKETS_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunMQTTTransportDemoSocekts
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

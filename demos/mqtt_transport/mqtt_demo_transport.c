@@ -151,9 +151,14 @@ static uint16_t subscribePacketIdentifier;
 static uint16_t unsubscribePacketIdentifier;
 
 /**
- * @brief Network context structure to store the data channel.
+ * @brief MQTT BLE Network context structure to store the data channel.
  */
-static NetworkContext_t xContext;
+static MqttBleNetworkContext_t mqttBleNetworkContext;
+
+/**
+ * @brief Network context to store MqttBleNetworkContext_t.
+ */
+static NetworkContext_t xContext = { .pContext = &mqttBleNetworkContext };
 
 /**
  * @brief Flag to mark if the channel has been disconnected at all
@@ -178,7 +183,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
                           void * context )
 {
     MQTTStatus_t acceptCode;
-
+    MqttBleNetworkContext_t * pMqttBleNetworkContext = xContext.pContext;
     /* Unused parameters. */
     ( void ) pChannel;
     ( void ) context;
@@ -186,14 +191,14 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &xContext.isReady );
+        IotSemaphore_Post( &pMqttBleNetworkContext->isReady );
     }
 
     /* Event for when data is received over the channel. */
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         acceptCode = IotBleMqttTransportAcceptData( &xContext );
-        configconfigASSERT( acceptCode == MQTTSuccess );
+        configASSERT( acceptCode == MQTTSuccess );
     }
 
     /* Event for when channel is closed. */
@@ -212,20 +217,20 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
 static MQTTStatus_t demoInitChannel( void )
 {
     MQTTStatus_t status = MQTTSuccess;
-
+    MqttBleNetworkContext_t * pMqttBleNetworkContext = xContext.pContext;
     /* Must initialize the channel, context must contain the buffer and buf size at this point. */
     IotBleMqttTransportInit( &xContext );
 
     /* Open is a handshake proceture, so we need to wait until it is ready to use. */
-    xContext.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
+    pMqttBleNetworkContext->pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
-    if( xContext.pChannel != NULL )
+    if( pMqttBleNetworkContext->pChannel != NULL )
     {
-        if( IotSemaphore_Create( &xContext.isReady, 0, 1 ) == true )
+        if( IotSemaphore_Create( &pMqttBleNetworkContext->isReady, 0, 1 ) == true )
         {
-            ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
+            ( void ) IotBleDataTransfer_SetCallback( pMqttBleNetworkContext->pChannel, demoCallback, NULL );
 
-            if( IotSemaphore_TimedWait( &xContext.isReady, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
+            if( IotSemaphore_TimedWait( &pMqttBleNetworkContext->isReady, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
 
@@ -711,14 +716,14 @@ MQTTStatus_t RunMQTTTransportDemo( void )
     const uint16_t maxDemoIterations = 5U;
     bool publishPacketSent = false;
 
-
+    xContext.pContext = &mqttBleNetworkContext;
     /***
      * Memory that will contain the incoming packet queue used by the transport code.
      * Here we use static memory, but dynamic is OK too.
      * It is the responsibility of the user application to allocate this buffer.
      ***/
-    xContext.buf = contextBuf;
-    xContext.bufSize = INCOMING_PACKET_QUEUE_SIZE;
+    mqttBleNetworkContext.buf = contextBuf;
+    mqttBleNetworkContext.bufSize = INCOMING_PACKET_QUEUE_SIZE;
 
     /***
      * Set Fixed size buffer structure that is required by API to serialize
