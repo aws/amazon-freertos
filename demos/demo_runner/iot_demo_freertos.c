@@ -265,13 +265,16 @@ static int _initialize( demoContext_t * pContext )
     if( status == EXIT_SUCCESS )
     {
         /* Wait for network configured for the demo to be initialized. */
-        demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
-
-        if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
+        if( pContext->networkTypes != AWSIOT_NETWORK_TYPE_NONE )
         {
-            /* Network not yet initialized. Block for a network to be initialized. */
-            IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
-            demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
+            demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
+
+            if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
+            {
+                /* Network not yet initialized. Block for a network to be initialized. */
+                IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
+                demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
+            }
         }
     }
 

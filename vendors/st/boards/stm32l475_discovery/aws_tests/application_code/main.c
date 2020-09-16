@@ -124,14 +124,6 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-/*
- * The task that implements the command console processing.
- */
-static void prvUARTCommandConsoleTask( void * pvParameters )
-{
-	FreeRTOS_CLIEnterConsoleLoop(uartConsoleIO);
-}
-
 void vApplicationDaemonTaskStartupHook( void )
 {
     WIFIReturnCode_t xWifiStatus;
@@ -154,23 +146,15 @@ void vApplicationDaemonTaskStartupHook( void )
         if( SYSTEM_Init() == pdPASS )
         {
             /* Connect to the wifi before running the demos */
-            //prvWifiConnect();
-         
-            /* Create that task that handles the console itself. */
-            xTaskCreate( prvUARTCommandConsoleTask, /* The task that implements the command console. */
-                         "CLI",                     /* Text name assigned to the task.  This is just to assist debugging.  The kernel does not use this name itself. */
-						 mainTEST_RUNNER_TASK_STACK_SIZE,               /* The size of the stack allocated to the task. */
-                         ( void * ) xConsoleUart,   /* The parameter is not used, so NULL is passed. */
-						 tskIDLE_PRIORITY,                /* The priority allocated to the task. */
-                         NULL );                    /* A handle is not required, so just pass NULL. */
+            prvWifiConnect();
 
             /* Create the task to run tests. */
-            /*xTaskCreate( TEST_RUNNER_RunTests_task,
+            xTaskCreate( TEST_RUNNER_RunTests_task,
                          "TestRunner",
                          mainTEST_RUNNER_TASK_STACK_SIZE,
                          NULL,
                          tskIDLE_PRIORITY,
-                         NULL );*/
+                         NULL );
         }
     }
     else

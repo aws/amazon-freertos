@@ -6,8 +6,7 @@
 #include "iot_uart.h"
 
 extern IotUARTHandle_t xConsoleUart;
-
-#define cmdTIME_OUT    ( 500 )
+#define cmdTIME_OUT_MS    ( 500 )
 
 int32_t uart_read( char * const pcInputBuffer,
                    uint32_t xInputBufferLen );
@@ -16,8 +15,8 @@ void uart_write( const char * const pcOutputBuffer,
 
 xConsoleIO_t uartConsoleIO =
 {
-	.read = uart_read,
-	.write = uart_write
+    .read  = uart_read,
+    .write = uart_write
 };
 
 int32_t uart_read( char * const pcInputBuffer,
@@ -31,7 +30,7 @@ int32_t uart_read( char * const pcInputBuffer,
 
     if( status == IOT_UART_SUCCESS )
     {
-        vTaskDelay( pdMS_TO_TICKS( cmdTIME_OUT ) );
+        vTaskDelay( pdMS_TO_TICKS( cmdTIME_OUT_MS ) );
 
         status = iot_uart_cancel( xConsoleUart );
         configASSERT( status == IOT_UART_SUCCESS );
@@ -41,6 +40,13 @@ int32_t uart_read( char * const pcInputBuffer,
 
         status = ( int32_t ) readSize;
     }
+    else
+    {
+        /**
+         * Returns a negative error code as per the CLI interface contract.
+         */
+        status = ( 0L - status );
+    }
 
     return status;
 }
@@ -48,5 +54,10 @@ int32_t uart_read( char * const pcInputBuffer,
 void uart_write( const char * const pcOutputBuffer,
                  uint32_t xOutputBufferLen )
 {
-    vLoggingPrint( pcOutputBuffer );
+    int32_t status;
+    status = iot_uart_write_sync( xConsoleUart, ( uint8_t * ) pcOutputBuffer, xOutputBufferLen );
+    if( status != IOT_UART_SUCCESS )
+    {
+        configPRINTF(( "Failed to write to uart %d", status ));
+    }
 }

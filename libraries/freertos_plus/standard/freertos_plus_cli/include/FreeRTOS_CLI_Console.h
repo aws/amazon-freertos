@@ -28,16 +28,49 @@
 #ifndef FREERTOS_CLI_CONSOLE_H
 #define FREERTOS_CLI_CONSOLE_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+
 #include "FreeRTOS_CLI.h"
 
+/**
+ * Defines the interface for different console implementations. Interface
+ * defines the contract of how bytes are transferred between console
+ * and FreeRTOS CLI.
+ */
 typedef struct xConsoleIO
 {
-    int32_t ( * read )( char * const,
-                        uint32_t );
-    void ( * write )( const char * const,
-                      uint32_t );
+    /**
+     * Function reads input bytes from the console into a finite length buffer upto the length
+     * requested by the second parameter. It returns the number of bytes read which can
+     * be less than or equal to the requested value. If no input bytes are available,
+     * function can either block or return immediately with 0 bytes read. If there is an error for the
+     * read, it returns negative error code.
+     * FreeRTOS CLI uses this function to read the command string from input console.
+     */
+    int32_t ( * read )( char * const buffer,
+                        uint32_t length );
+
+    /**
+     * Function writes the output of a finite length buffer to the console. The buffer will be a null
+     * terminated string, length of the buffer does not include the null termination.
+     * FreeRTOS CLI uses this function to write command output or error logs to the console.
+     */
+    void ( * write )( const char * const buffer,
+                      uint32_t length );
 } xConsoleIO_t;
 
-void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO );
+
+/**
+ * The function executes a non-terminating loop to fetch command from the console, parse
+ * and execute a matching command from the list of registered commands, and writes the output back
+ * to the console. ConsoleIO interface implementation is passed as argument to the function.
+ */
+void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
+                                   char * pCommandBuffer,
+                                   size_t commandBufferLength,
+                                   char * pOutputBuffer,
+                                   size_t outputBufferLength );
 
 #endif /* ifndef FREERTOS_CLI_CONSOLE_H */

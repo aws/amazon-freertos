@@ -2,6 +2,7 @@ afr_module()
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(unit_test_dir "${CMAKE_CURRENT_LIST_DIR}/unit-test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -15,6 +16,19 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+)
+
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${unit_test_dir}/iot_test_freertos_cli.c"
+        "${unit_test_dir}/iot_test_freertos_cli_console.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::freertos_plus_cli
 )
 
 afr_module(NAME freertos_cli_plus_uart)
@@ -38,4 +52,5 @@ afr_module_dependencies(
     freertos_cli_plus_uart
     PUBLIC
         AFR::freertos_plus_cli
+        AFR::common_io
 )

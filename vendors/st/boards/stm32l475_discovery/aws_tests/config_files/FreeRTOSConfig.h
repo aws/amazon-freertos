@@ -240,13 +240,10 @@ extern int iMainRand32( void );
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "STM32L475"
 
-    /* The size of the global output buffer that is available for use when there
-     *  are multiple command interpreters running at once (for example, one on a UART
-     *  and one on TCP/IP).  This is done to prevent an output buffer being defined by
-     *  each implementation - which would waste RAM.  In this case, there is only one
-     *  command interpreter running, and it has its own local output buffer, so the
-     *  global buffer is just set to be one byte long as it is not used and should not
-     *  take up unnecessary RAM. */
-#define configCOMMAND_INT_MAX_OUTPUT_SIZE    1
+    /* The size of the output buffer is set to maximum length required by the tests,
+     * which is the length enough to accomodate largest error string written to
+     * console from CLI.
+     */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
 
 #endif /* FREERTOS_CONFIG_H */

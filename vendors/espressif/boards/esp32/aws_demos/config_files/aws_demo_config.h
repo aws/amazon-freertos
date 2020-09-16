@@ -40,6 +40,7 @@
  *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
  *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
  *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_CLI_UART_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -48,7 +49,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE    ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY     ( tskIDLE_PRIORITY + 5 )
-#define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI )
+#define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 
 #if defined( CONFIG_MQTT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
