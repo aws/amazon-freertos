@@ -218,8 +218,8 @@ static void prvNetworkRegistrationCallback( CellularUrcEvent_t urcEvent,
 /*-----------------------------------------------------------*/
 
 /* Signal strength changed callback function. */
-static void prvSignalStrengthChangedCallbac( CellularUrcEvent_t urcEvent,
-                                             const CellularSignalInfo_t * pSignalInfo )
+static void prvSignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
+                                              const CellularSignalInfo_t * pSignalInfo )
 {
     if( ( pSignalInfo != NULL ) && ( urcEvent == CELLULAR_URC_EVENT_SIGNAL_CHANGED ) )
     {
@@ -1034,7 +1034,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Configure )
         TEST_ASSERT( simReady != 0 );
 
         /* Enable Callbacks. */
-        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvSignalStrengthChangedCallbac );
+        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvSignalStrengthChangedCallback );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
         xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );

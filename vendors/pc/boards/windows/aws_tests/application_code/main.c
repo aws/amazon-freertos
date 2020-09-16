@@ -172,12 +172,20 @@ int main( void )
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
+    bool retCellular = false;
 
     /* If the network has just come up...*/
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
         /* Setup the cellular connectivity for testing. */
-        prvSetupCellular();
+        retCellular = prvSetupCellular();
+        if( retCellular == false )
+        {
+            configPRINTF( ( "Cellular failed to initialize.\r\n" ) );
+
+            /* Stop here if we fail to initialize cellular. */
+            configASSERT( retCellular != true );
+        }
 
         /* Initialize AWS system libraries. */
         SYSTEM_Init();

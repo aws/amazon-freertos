@@ -67,7 +67,7 @@ extern void SPI_WIFI_ISR(void);
 extern SPI_HandleTypeDef hspi;
 
 /* Setup cellular connection. */
-bool prvSetupCellular( void );
+extern bool prvSetupCellular( void );
 
 /**********************
 * Global Variables
@@ -115,10 +115,18 @@ int main( void )
 
 /*-----------------------------------------------------------*/
 
-static void testRunnerHook( void * pvParameters )
+static void testRunnerTask( void * pvParameters )
 {
+    bool retCellular = false;
     /* Connect to the cellular network before running the demos. */
-    prvSetupCellular();
+    retCellular = prvSetupCellular();
+    if( retCellular == false )
+    {
+        configPRINTF( ( "Cellular failed to initialize.\r\n" ) );
+
+        /* Stop here if we fail to initialize cellular. */
+        configASSERT( retCellular != true );
+    }
 
     TEST_RUNNER_RunTests_task( pvParameters );
 }
@@ -150,7 +158,7 @@ void vApplicationDaemonTaskStartupHook( void )
             prvWifiConnect();
 
             /* Create the task to run tests. */
-            xTaskCreate( testRunnerHook,
+            xTaskCreate( testRunnerTask,
                          "TestRunner",
                          mainTEST_RUNNER_TASK_STACK_SIZE,
                          NULL,
