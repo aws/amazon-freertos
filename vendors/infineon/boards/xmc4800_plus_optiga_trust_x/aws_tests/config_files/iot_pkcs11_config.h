@@ -34,6 +34,16 @@
 #include "FreeRTOS.h"
 
 /**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
+
+/**
  * @brief PKCS #11 default user PIN.
  *
  * The PKCS #11 standard specifies the presence of a user PIN. That feature is

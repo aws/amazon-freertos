@@ -60,12 +60,12 @@
 /**
  * @brief Malloc API used by iot_pkcs11.h
  */
-#define PKCS11_MALLOC pvPortMalloc
+#define PKCS11_MALLOC                                      pvPortMalloc
 
 /**
  * @brief Free API used by iot_pkcs11.h
  */
-#define PKCS11_FREE vPortFree
+#define PKCS11_FREE                                        vPortFree
 
 /**
  * @brief PKCS #11 default user PIN.
