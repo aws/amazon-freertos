@@ -32,6 +32,8 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+#include "FreeRTOS.h"
+
 /**
  * @brief PKCS #11 default user PIN.
  *
@@ -45,6 +47,17 @@
  * of this string.
  */
 #define configPKCS11_DEFAULT_USER_PIN    "0000"
+
+/**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
+
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL

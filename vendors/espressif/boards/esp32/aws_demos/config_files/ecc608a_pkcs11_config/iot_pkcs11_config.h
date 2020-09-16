@@ -37,8 +37,20 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+#include "FreeRTOS.h"
 
 extern const char * pcPkcs11GetThingName(void);
+
+/**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
+
 
 /**
  * @brief ESP32 NVS Partition where PKCS #11 data is stored

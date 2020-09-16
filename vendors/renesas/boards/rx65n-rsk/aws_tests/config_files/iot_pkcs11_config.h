@@ -32,6 +32,8 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+#include "FreeRTOS.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -54,6 +56,16 @@
 #endif
 
 #include "logging_stack.h"
+
+/**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
 
 
 /**
