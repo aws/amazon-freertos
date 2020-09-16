@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.3.0
+ * FreeRTOS+TCP V2.2.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -204,6 +204,23 @@ extern const char *FreeRTOS_inet_ntoa( uint32_t ulIPAddress, char *pcBuffer );
 struct xSOCKET;
 typedef struct xSOCKET *Socket_t;
 typedef struct xSOCKET const * ConstSocket_t;
+
+static portINLINE unsigned int prvSocketValid( Socket_t xSocket )
+{
+    unsigned int lReturnValue = pdFALSE;
+    /*
+     * There are two values which can indicate an invalid socket:
+     * FREERTOS_INVALID_SOCKET and NULL.  In order to compare against
+     * both values, the code cannot be compliant with rule 11.4,
+     * hence the Coverity suppression statement below.
+     */
+    /* coverity[misra_c_2012_rule_11_4_violation] */
+    if( ( xSocket != FREERTOS_INVALID_SOCKET ) && ( xSocket != NULL ) )
+    {
+	    lReturnValue = pdTRUE;
+    }
+    return lReturnValue;
+}
 
 #if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
 	/* The SocketSet_t type is the equivalent to the fd_set type used by the
@@ -416,16 +433,4 @@ void FreeRTOS_netstat( void );
 #endif
 
 #endif /* FREERTOS_SOCKETS_H */
-
-
-
-
-
-
-
-
-
-
-
-
 
