@@ -217,9 +217,6 @@ static BaseType_t prvFLASH_SaveFile( char * pcFileName,
     CK_RV xResult = pdFALSE;
     uint32_t certFlashAddr = 0;
     CK_RV xBytesWritten = 0;
-//    CK_ULONG ulFlashMark = pkcs11OBJECT_FLASH_CERT_PRESENT;
-//    const P11CertData_t * pCertFlash;
-//    P11CertData_t * pCertSave = 0;
     
     /* enough room to store the certificate */
     if( ulDataSize > pkcs11OBJECT_CERTIFICATE_MAX_SIZE )
@@ -439,7 +436,6 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     CK_RV ulReturn = CKR_OK;
     char        *pcFileName     = NULL;
-//    uint8_t     *pucData;
 
     if( xHandle == eAwsDeviceCertificate )
     {
