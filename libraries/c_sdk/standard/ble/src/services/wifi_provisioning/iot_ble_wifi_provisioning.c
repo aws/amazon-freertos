@@ -1638,6 +1638,6 @@ void IotBleWifiProv_Deinit( void )
 }
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "iot_ble_wifi_prov_test_access_define.h"
 #endif

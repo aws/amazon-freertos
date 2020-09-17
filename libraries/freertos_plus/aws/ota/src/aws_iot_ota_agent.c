@@ -3333,6 +3333,6 @@ OTA_Err_t OTA_Resume( void * pxConnection )
 /*-----------------------------------------------------------*/
 
 /* Provide access to private members for testing. */
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_ota_agent_test_access_define.h"
 #endif

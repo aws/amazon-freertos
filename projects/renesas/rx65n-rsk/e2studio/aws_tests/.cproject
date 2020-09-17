@@ -122,7 +122,7 @@
 									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
-									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="FREERTOS_ENABLE_UNIT_TESTS"/>
 									<listOptionValue builtIn="false" value="__FUNCTION__=__func__"/>
 								</option>
 								<option id="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC.2136784131" name="C source file (-lang)" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.langFileC.c99" valueType="enumerated"/>

@@ -55,7 +55,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VENDOR;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__LITTLE_ENDIAN__;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VENDOR;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;FREERTOS_ENABLE_UNIT_TESTS;__LITTLE_ENDIAN__;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
       <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\tests\common\include;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\unity\src;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\tests\common\ota;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
