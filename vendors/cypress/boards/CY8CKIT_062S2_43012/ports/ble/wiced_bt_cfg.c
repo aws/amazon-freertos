@@ -79,6 +79,9 @@ wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
          .server_max_links = 2,   /**< Server config: maximum number of remote clients connections allowed by the local */
          .max_attr_len     = 360, /**< Maximum attribute length; gki_cfg must have a corresponding buffer pool that can hold this length */
          .max_mtu_size     = 517, /**< Maxiimum MTU size;gki_cfg must have a corresponding buffer pool that can hold this length */
+         .max_db_service_modules = 4, /** Maximum number of service modules in the DB */
+         .max_gatt_bearers = 0,   /**< Maximum number of allowed gatt bearers */
+         .use_gatt_over_br_edr = 0  /**< Set to 1 to enable gatt over be edr */
     },
      /* Application managed l2cap protocol configuration */
     .rfcomm_cfg =
