@@ -83,6 +83,47 @@ static bool _Cellular_RegEventStatus( const cellularAtData_t * pLibAtData,
                                       CellularNetworkRegType_t regType,
                                       CellularNetworkRegistrationStatus_t prevCsRegStatus,
                                       CellularNetworkRegistrationStatus_t prevPsRegStatus );
+static CellularNetworkRegistrationStatus_t _mapCgregRegStatus( int32_t oriStat );
+
+/*-----------------------------------------------------------*/
+
+static CellularNetworkRegistrationStatus_t _mapCgregRegStatus( int32_t oriStat )
+{
+    CellularNetworkRegistrationStatus_t cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
+
+    switch( oriStat )
+    {
+        case 0:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_NOT_SEARCHING;
+            break;
+
+        case 1:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME;
+            break;
+
+        case 2:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_SEARCHING;
+            break;
+
+        case 3:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTRATION_DENIED;
+            break;
+
+        case 4:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
+            break;
+
+        case 5:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING;
+            break;
+
+        default:
+            cgregStatus = CELLULAR_NETWORK_REGISTRATION_STATUS_UNKNOWN;
+            break;
+    }
+
+    return cgregStatus;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -131,6 +172,11 @@ static CellularPktStatus_t _parseRegStatusInRegStatusParsing( CellularContext_t 
         if( regType == CELLULAR_REG_TYPE_CREG )
         {
             pLibAtData->csRegStatus = regStatus;
+        }
+        else if( regType == CELLULAR_REG_TYPE_CGREG )
+        {
+            /* Map CGREG stat to registration status. */
+            pLibAtData->psRegStatus = _mapCgregRegStatus( tempValue );
         }
         else
         {

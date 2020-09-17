@@ -42,6 +42,8 @@
 
 static void _Cellular_ProcessPowerDown( CellularContext_t * pContext,
                                         char * pInputLine );
+static void _Cellular_ProcessPsmPowerDown( CellularContext_t * pContext,
+                                           char * pInputLine );
 static void _Cellular_ProcessModemRdy( CellularContext_t * pContext,
                                        char * pInputLine );
 static void _Cellular_ProcessSocketOpen( CellularContext_t * pContext,
@@ -60,15 +62,16 @@ static void _Cellular_ProcessIndication( CellularContext_t * pContext,
 /* coverity[misra_c_2012_rule_8_7_violation] */
 CellularAtParseTokenMap_t CellularUrcHandlerTable[] =
 {
-    { "CEREG",        Cellular_CommonUrcProcessCereg },
-    { "CGREG",        Cellular_CommonUrcProcessCgreg },
-    { "CREG",         Cellular_CommonUrcProcessCreg  },
-    { "POWERED DOWN", _Cellular_ProcessPowerDown     },
-    { "QIND",         _Cellular_ProcessIndication    },
-    { "QIOPEN",       _Cellular_ProcessSocketOpen    },
-    { "QIURC",        _Cellular_ProcessSocketurc     },
-    { "QSIMSTAT",     _Cellular_ProcessSimstat       },
-    { "RDY",          _Cellular_ProcessModemRdy      }
+    { "CEREG",             Cellular_CommonUrcProcessCereg },
+    { "CGREG",             Cellular_CommonUrcProcessCgreg },
+    { "CREG",              Cellular_CommonUrcProcessCreg  },
+    { "NORMAL POWER DOWN", _Cellular_ProcessPowerDown     },
+    { "PSM POWER DOWN",    _Cellular_ProcessPsmPowerDown  },
+    { "QIND",              _Cellular_ProcessIndication    },
+    { "QIOPEN",            _Cellular_ProcessSocketOpen    },
+    { "QIURC",             _Cellular_ProcessSocketurc     },
+    { "QSIMSTAT",          _Cellular_ProcessSimstat       },
+    { "RDY",               _Cellular_ProcessModemRdy      }
 };
 
 /* Cellular HAL common porting interface. */
@@ -697,6 +700,27 @@ static void _Cellular_ProcessPowerDown( CellularContext_t * pContext,
     {
         IotLogDebug( "_Cellular_ProcessPowerDown: Modem Power down event received" );
         _Cellular_ModemEventCallback( pContext, CELLULAR_MODEM_EVENT_POWERED_DOWN );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* Cellular common prototype. */
+/* coverity[misra_c_2012_rule_8_13_violation] */
+static void _Cellular_ProcessPsmPowerDown( CellularContext_t * pContext,
+                                           char * pInputLine )
+{
+    /* The token is the pInputLine. No need to process the pInputLine. */
+    ( void ) pInputLine;
+
+    if( pContext == NULL )
+    {
+        IotLogError( "_Cellular_ProcessPowerDown: Context not set" );
+    }
+    else
+    {
+        IotLogDebug( "_Cellular_ProcessPsmPowerDown: Modem PSM power down event received" );
+        _Cellular_ModemEventCallback( pContext, CELLULAR_MODEM_EVENT_PSM_ENTER );
     }
 }
 

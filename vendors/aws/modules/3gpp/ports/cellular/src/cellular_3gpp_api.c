@@ -1063,7 +1063,16 @@ static CellularPktStatus_t _Cellular_RecvFuncIpAddress( CellularContext_t * pCon
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
         {
             IotLogDebug( "Recv IP address: Context id: %s", pToken );
-            atCoreStatus = Cellular_ATGetNextTok( &pInputLine, &pToken );
+
+            if( pInputLine[ 0 ] != '\0' )
+            {
+                atCoreStatus = Cellular_ATGetNextTok( &pInputLine, &pToken );
+            }
+            else
+            {
+                /* This is the case "+CGPADDR: 1". Return "0.0.0.0" in this case.*/
+                strncpy( pData, "0,0,0,0", dataLen );
+            }
         }
 
         if( atCoreStatus == CELLULAR_AT_SUCCESS )
@@ -1379,7 +1388,8 @@ CellularError_t Cellular_CommonSetEidrxSettings( CellularHandle_t cellularHandle
         CELLULAR_AT_NO_RESULT,
         NULL,
         NULL,
-        NULL,                 0,
+        NULL,
+        0,
     };
 
     cellularStatus = _Cellular_CheckLibraryStatus( pContext );
@@ -1724,7 +1734,8 @@ CellularError_t Cellular_CommonGetIPAddress( CellularHandle_t cellularHandle,
         CELLULAR_AT_WITH_PREFIX,
         "+CGPADDR",
         _Cellular_RecvFuncIpAddress,
-        pBuffer,                    bufferLength,
+        pBuffer,
+        bufferLength
     };
 
     /* Make sure the library is open. */

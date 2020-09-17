@@ -1212,6 +1212,9 @@
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c">
 			<Filter>application_code</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\cellular_setup.c">
+			<Filter>application_code</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
 			<Filter>application_code</Filter>
 		</ClCompile>

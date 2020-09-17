@@ -66,7 +66,7 @@ uint32_t CellularSrcTokenSuccessTableSize = sizeof( CellularSrcTokenSuccessTable
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 const char * CellularUrcTokenWoPrefixTable[] =
-{ "POWERED DOWN", "RDY" };
+{ "NORMAL POWER DOWN", "PSM POWER DOWN", "RDY" };
 /* Cellular HAL common porting interface. */
 /* coverity[misra_c_2012_rule_8_7_violation] */
 uint32_t CellularUrcTokenWoPrefixTableSize = sizeof( CellularUrcTokenWoPrefixTable ) / sizeof( char * );

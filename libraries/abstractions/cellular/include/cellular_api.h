@@ -78,6 +78,23 @@ CellularError_t Cellular_SetRatPriority( CellularHandle_t cellularHandle,
                                          uint8_t ratPrioritiesLength );
 
 /**
+ * @brief Get the priority order in which the networks are searched.
+ *
+ * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.
+ * @param[out] pRatPriorities An array of current RATs in priority order.
+ * @param[in] ratPrioritiesLength Length of the pRatPriorities array.
+ * @param[out] pOutputRatPrioritiesLength Actual number of items filled into pRatPriorities
+ * by this function when it returns.
+ *
+ * @return CELLULAR_SUCCESS if the operation is successful, otherwise an error
+ * code indicating the cause of the error.
+ */
+CellularError_t Cellular_GetRatPriority( CellularHandle_t cellularHandle,
+                                         CellularRat_t * pRatPriorities,
+                                         uint8_t ratPrioritiesLength,
+                                         uint8_t * pOutputRatPrioritiesLength );
+
+/**
  * @brief Turn on RF i.e. turn-off airplane mode.
  *
  * @param[in] cellularHandle The opaque cellular context pointer created by Cellular_Init.

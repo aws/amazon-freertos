@@ -1,6 +1,9 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
+set(SECURE_SOCKETS_CELLULAR 0 CACHE BOOL "")
+set(BOARD_HAS_CELLULAR 0 CACHE BOOL "")
+
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -9,6 +12,10 @@ endif()
 
 if(SECURE_SOCKETS_CELLULAR)
     set(freertos_plus_tcp_secure_socket_define FREERTOS_PLUS_TCP_NO_SECURE_SOCKETS)
+endif()
+
+if(BOARD_HAS_CELLULAR)
+    set(board_has_cellular_define BOARD_HAS_CELLULAR)
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -44,6 +51,7 @@ target_compile_definitions(
         _CRT_SECURE_NO_WARNINGS
         BG96_URC_PORT_USBAT
         ${freertos_plus_tcp_secure_socket_define}
+        ${board_has_cellular_define}
 )
 
 target_compile_options(
@@ -93,6 +101,7 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
+if(BOARD_HAS_CELLULAR)
 # Cellular
 afr_mcu_port(cellular)
 target_sources(
@@ -102,6 +111,7 @@ target_sources(
 
 # Cellular module port
 include("${AFR_VENDORS_DIR}/quectel/modules/bg96/CMakeLists.txt")
+endif()
 
 # PKCS11
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
@@ -130,7 +140,7 @@ target_link_libraries(
 )
 
 # Secure sockets
-if(SECURE_SOCKETS_CELLULAR)
+if(BOARD_HAS_CELLULAR AND SECURE_SOCKETS_CELLULAR)
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
@@ -182,6 +192,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     add_executable(
         ${exe_target}
         "${board_dir}/application_code/main.c"
+        "$<IF:${AFR_IS_TESTING},${board_dir}/application_code/cellular_setup.c,>"
         "${board_demos_dir}/application_code/aws_demo_logging.c"
         "${board_demos_dir}/application_code/aws_demo_logging.h"
         "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
@@ -196,7 +207,6 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         ${exe_target}
         PRIVATE
             AFR::freertos_plus_tcp
-            AFR::cellular
             AFR::utils
             AFR::dev_mode_key_provisioning
     )

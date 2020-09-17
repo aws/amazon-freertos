@@ -37,11 +37,10 @@
 /* Unity framework includes. */
 #include "unity_fixture.h"
 
-/* CELLULAR include. */
+/* Cellular include. */
 #include "aws_cellular_config.h"
 #include "cellular_config_defaults.h"
 #include "cellular_api.h"
-#include "test_cellular_api.h"
 #include "cellular_types.h"
 #include "cellular_comm_interface.h"
 #include "iot_secure_sockets.h"
@@ -50,10 +49,63 @@
 #include "aws_test_runner.h"
 #include "aws_test_tcp.h"
 #include "aws_test_utils.h"
+#include "aws_test_cellular.h"
 #include "iot_config.h"
 #include "aws_clientcredential.h"
 
+/*-----------------------------------------------------------*/
+
 /* Testing configurations definitions. */
+
+/* Retry until SIM is ready. */
+#ifndef CELLULAR_MAX_SIM_RETRY
+    #define CELLULAR_MAX_SIM_RETRY    ( 5U )
+#endif
+
+#ifndef testCELLULAR_SOCKET_CONNECTION_TIMEOUT_MS
+    #define testCELLULAR_SOCKET_CONNECTION_TIMEOUT_MS    ( 150000U )
+#endif
+
+#ifndef testCELLULAR_SOCKET_SEND_TIMEOUT_MS
+    #define testCELLULAR_SOCKET_SEND_TIMEOUT_MS    ( 60000U )
+#endif
+
+#ifndef testCELLULAR_MAX_NETWORK_REGISTER_RETRY
+    #define testCELLULAR_MAX_NETWORK_REGISTER_RETRY    ( 40U )
+#endif
+
+#ifndef testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS
+    #define testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS    ( 500U )
+#endif
+
+/* Retry until SIM is ready. */
+#ifndef testCELLULAR_MAX_SIM_RETRY
+    #define testCELLULAR_MAX_SIM_RETRY    ( 5U )
+#endif
+
+#ifndef testCELLULAR_SIM_RETRY_INTERVAL_MS
+    #define testCELLULAR_SIM_RETRY_INTERVAL_MS    ( 500U )
+#endif
+
+#ifndef testCELLULAR_MAX_GET_PSM_RETRY
+    #define testCELLULAR_MAX_GET_PSM_RETRY    ( 5U )
+#endif
+
+#ifndef testCELLULAR_GET_PSM_RETRY_INTERVAL_MS
+    #define testCELLULAR_GET_PSM_RETRY_INTERVAL_MS    ( 500U )
+#endif
+
+#ifndef testCELLULAR_SOCKET_WAIT_INTERVAL_MS
+    #define testCELLULAR_SOCKET_WAIT_INTERVAL_MS    ( 2000UL )
+#endif
+
+#ifndef testCELLULAR_GET_RAT_RETRY
+    #define testCELLULAR_GET_RAT_RETRY    ( 5UL )
+#endif
+
+#ifndef testCELLULAR_GET_RAT_RETRY_INTERVAL_MS
+    #define testCELLULAR_GET_RAT_RETRY_INTERVAL_MS    ( 200U )
+#endif
 
 /* Custom CELLULAR Test asserts. */
 #define TEST_CELLULAR_ASSERT_REQUIRED_API( condition, result )            \
@@ -97,87 +149,76 @@
     }
 
 /* Test TCP echo server address. */
-#define testtcpECHO_SERVER_ADDRESS                                               \
+#define TEST_ECHO_SERVER_ADDRESS                                                 \
     SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0, tcptestECHO_SERVER_ADDR1, \
                              tcptestECHO_SERVER_ADDR2, tcptestECHO_SERVER_ADDR3 )
 
+#define TEST_INVALID_CELLULAR_APN            "VZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERNETVZWINTERN"
+
+#define SOCKET_DATA_RECEIVED_CALLBACK_BIT    ( 0x00000001U )
+#define SOCKET_OPEN_CALLBACK_BIT             ( 0x00000002U )
+#define SOCKET_OPEN_FAILED_CALLBACK_BIT      ( 0x00000004U )
+
+#define ECHO_SERVER_DATA_SEND_INTERVAL_MS    ( 30000UL )
+
+#define MODEM_EVENT_BOOTUP_OR_REBOOT_BIT     ( 0x00000001U )
+#define MODEM_EVENT_POWERED_DOWN_BIT         ( 0x00000002U )
+#define MODEM_EVENT_PSM_ENTER_BIT            ( 0x00000004U )
+
+#define SOCKET_OPEN_STATUS_UNKNOWN           ( 0U )
+#define SOCKET_OPEN_STATUS_OPENED            ( 1U )
+#define SOCKET_OPEN_STATUS_FAILED            ( 2U )
+
+#define SOCKET_OPERATION_POLLING_TIMES       ( 4U )
+
+#define MESSAGE_BUFFER_LENGTH                ( 256U )
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief the default Cellular comm interface in system.
+ */
+extern CellularCommInterface_t CellularCommInterface;
+extern CellularHandle_t CellularHandle;
+
+/*-----------------------------------------------------------*/
+
 /* Test state variables. */
-static CellularSocketHandle_t _socketHandleSet;
-static uint8_t _simReady = 0;
 static uint8_t _dataReady = 0;
-static uint8_t _AtResp = 0;
-static char _AtRespTxt[ 100 ] = { 0 };
-static uint8_t _socketOpened = 0;
-static CellularCommInterface_t * _pCommIntf = NULL;
 static CellularHandle_t _cellularHandle = NULL;
+static bool _genericUrcCalled = false;
+static EventGroupHandle_t _socketEventGroup = NULL;
+static EventGroupHandle_t _modemEventGroup = NULL;
 
-/* Callback functions for testing */
-static void prvCellularSocketDataReadyCallback( CellularSocketHandle_t socketHandle,
-                                                void * pCallbackContext )
-{
-    configPRINTF( ( "Data Ready on Socket" ) );
-    _dataReady = 1;
-}
+/* The callback context to check. */
+static void * _socketDataReadyContext = NULL;
+static void * _socketOpenContext = NULL;
+static void * _socketClosedContext = NULL;
 
-static void prvnetworkRegistrationCallback( CellularUrcEvent_t urcEvent,
+/* Socket data send pattern. */
+static const char _socketDataSend[] = "hello from SJC31";
+
+/*-----------------------------------------------------------*/
+
+/* Netwrok registeration callback function. */
+static void prvNetworkRegistrationCallback( CellularUrcEvent_t urcEvent,
                                             const CellularServiceStatus_t * pServiceStatus )
 {
-    if( !urcEvent || !pServiceStatus )
-    {
-        return;
-    }
-    else
+    if( pServiceStatus != NULL )
     {
         if( ( urcEvent == CELLULAR_URC_EVENT_NETWORK_CS_REGISTRATION ) ||
             ( urcEvent == CELLULAR_URC_EVENT_NETWORK_PS_REGISTRATION ) )
         {
-            configPRINTF( ( "URC received: %d. \r\n", pServiceStatus->csRegistrationStatus ) );
-            configPRINTF( ( "URC received: %d. \r\n", pServiceStatus->psRegistrationStatus ) );
+            configPRINTF( ( "Network CS registration status received: %d. \r\n", pServiceStatus->csRegistrationStatus ) );
+            configPRINTF( ( "Network PS registration status received: %d. \r\n", pServiceStatus->psRegistrationStatus ) );
         }
     }
 }
 
-static CellularPktStatus_t prvresponseReceivedCallback( CellularHandle_t cellularHandle,
-                                                        const CellularATCommandResponse_t * pAtResp,
-                                                        void * pData,
-                                                        uint16_t dataLen )
-{
-    if( !pAtResp || !pAtResp->status )
-    {
-        configPRINTF( ( "AT command error. \r\n" ) );
-        return CELLULAR_BAD_PARAMETER;
-    }
-    else
-    {
-        configPRINTF( ( "AT command final response: %d. \r\n", pAtResp->status ) );
-    }
+/*-----------------------------------------------------------*/
 
-    if( pAtResp->pItm )
-    {
-        CellularATCommandLine_t * pCurr = pAtResp->pItm;
-
-        while( pCurr )
-        {
-            if( pCurr->pLine )
-            {
-                configPRINTF( ( "AT command Intermediate response: %s. \r\n", pAtResp->pItm->pLine ) );
-            }
-
-            _AtResp = 1;
-            strncpy( _AtRespTxt, pAtResp->pItm->pLine, 100 );
-            pCurr = pCurr->pNext;
-        }
-    }
-    else
-    {
-        configPRINTF( ( "AT command No intermediate response. \r\n" ) );
-    }
-
-    configPRINTF( ( "AT command set and ready. \r\n" ) );
-    return CELLULAR_SUCCESS;
-}
-
-static void prvsignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
+/* Signal strength changed callback function. */
+static void prvSignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
                                               const CellularSignalInfo_t * pSignalInfo )
 {
     if( ( pSignalInfo != NULL ) && ( urcEvent == CELLULAR_URC_EVENT_SIGNAL_CHANGED ) )
@@ -229,50 +270,143 @@ static void prvsignalStrengthChangedCallback( CellularUrcEvent_t urcEvent,
     }
 }
 
-static void prvpdnEventCallback( CellularUrcEvent_t urcEvent,
+/*-----------------------------------------------------------*/
+
+/* Generic callback function to test Cellular_RegisterUrcGenericCallback API. */
+static void prvGenericCallback( const char * pRawData )
+{
+    configPRINTF( ( "prvGenericCallback : %s \r\n", pRawData ) );
+    _genericUrcCalled = true;
+}
+
+/*-----------------------------------------------------------*/
+
+/* PDN event callback function. */
+static void prvPdnEventCallback( CellularUrcEvent_t urcEvent,
                                  uint8_t contextId )
 {
-    if( !urcEvent )
+    if( ( urcEvent == CELLULAR_URC_EVENT_PDN_ACTIVATED ) || ( urcEvent == CELLULAR_URC_EVENT_PDN_DEACTIVATED ) )
     {
-        return;
-    }
-    else
-    {
-        if( ( urcEvent == CELLULAR_URC_EVENT_PDN_ACTIVATED ) || ( urcEvent == CELLULAR_URC_EVENT_PDN_DEACTIVATED ) )
-        {
-            configPRINTF( ( "PDP Status changed. \r\n" ) );
-        }
+        configPRINTF( ( "PDP Status changed. %d\r\n", urcEvent ) );
     }
 }
 
-static void prvdclosedCallback( CellularSocketHandle_t socketHandle,
-                                void * pCallbackContext )
+/*-----------------------------------------------------------*/
+
+/* Callback functions for testing. */
+static void prvCellularSocketDataReadyCallback( CellularSocketHandle_t socketHandle,
+                                                void * pCallbackContext )
 {
-    if( !socketHandle )
+    configPRINTF( ( "Data Ready on Socket\r\n" ) );
+    _dataReady = 1;
+
+    if( _socketEventGroup != NULL )
     {
-        return;
+        ( void ) xEventGroupSetBits( _socketEventGroup, SOCKET_DATA_RECEIVED_CALLBACK_BIT );
     }
-    else
+
+    _socketDataReadyContext = pCallbackContext;
+}
+
+/*-----------------------------------------------------------*/
+
+/* Socket close event callback function. */
+static void prvSocketClosedCallback( CellularSocketHandle_t socketHandle,
+                                     void * pCallbackContext )
+{
+    if( socketHandle != NULL )
     {
         configPRINTF( ( "Socket is closed. \r\n" ) );
     }
+
+    _socketClosedContext = pCallbackContext;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Socket open event callback function. */
 static void prvCellularSocketOpenCallback( CellularUrcEvent_t urcEvent,
                                            CellularSocketHandle_t socketHandle,
                                            void * pCallbackContext )
 {
     if( urcEvent == CELLULAR_URC_SOCKET_OPENED )
     {
-        configPRINTF( ( "Socket open callback, Success" ) );
-        _socketOpened = 1;
+        configPRINTF( ( "Socket open callback, Success\r\n" ) );
+
+        if( _socketEventGroup != NULL )
+        {
+            ( void ) xEventGroupSetBits( _socketEventGroup, SOCKET_OPEN_CALLBACK_BIT );
+        }
     }
     else
     {
-        _socketOpened = 2;
-        configPRINTF( ( "Socket open callback, Failure" ) );
+        configPRINTF( ( "Socket open callback, Failure\r\n" ) );
+
+        if( _socketEventGroup != NULL )
+        {
+            ( void ) xEventGroupSetBits( _socketEventGroup, SOCKET_OPEN_FAILED_CALLBACK_BIT );
+        }
+    }
+
+    _socketOpenContext = pCallbackContext;
+}
+
+/*-----------------------------------------------------------*/
+
+/* Modem event callback function. */
+static void prvCellularModemEventCallback( CellularModemEvent_t modemEvent )
+{
+    if( _modemEventGroup != NULL )
+    {
+        switch( modemEvent )
+        {
+            case CELLULAR_MODEM_EVENT_BOOTUP_OR_REBOOT:
+                ( void ) xEventGroupSetBits( _modemEventGroup, MODEM_EVENT_BOOTUP_OR_REBOOT_BIT );
+                break;
+
+            case CELLULAR_MODEM_EVENT_POWERED_DOWN:
+                ( void ) xEventGroupSetBits( _modemEventGroup, MODEM_EVENT_POWERED_DOWN_BIT );
+                break;
+
+            case CELLULAR_MODEM_EVENT_PSM_ENTER:
+                ( void ) xEventGroupSetBits( _modemEventGroup, MODEM_EVENT_PSM_ENTER_BIT );
+                break;
+
+            default:
+                break;
+        }
     }
 }
+
+/*-----------------------------------------------------------*/
+
+/* Helper function to check sim card ready. */
+static bool prvWaitSimCardReady( void )
+{
+    bool simReady = false;
+    uint32_t tries = 0;
+    CellularSimCardStatus_t simStatus = { 0 };
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+
+    for( tries = 0; tries < testCELLULAR_MAX_SIM_RETRY; tries++ )
+    {
+        xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
+
+        if( ( CELLULAR_SUCCESS == xCellularStatus ) &&
+            ( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
+            ( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY ) )
+        {
+            simReady = true;
+            break;
+        }
+
+        vTaskDelay( pdMS_TO_TICKS( testCELLULAR_SIM_RETRY_INTERVAL_MS ) );
+    }
+
+    return simReady;
+}
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Connect to the CELLULAR and verify success.
@@ -280,28 +414,22 @@ static void prvCellularSocketOpenCallback( CellularUrcEvent_t urcEvent,
 static BaseType_t prvConnectCellular( void )
 {
     BaseType_t xResult = pdPASS;
-    CellularError_t xCellularStatus;
-    CellularSimCardStatus_t simStatus;
-    CellularServiceStatus_t serviceStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularServiceStatus_t serviceStatus = { 0 };
     CellularCommInterface_t * pCommIntf = &CellularCommInterface;
-    const uint32_t waitInterval = 500UL;
-    uint8_t tries = 0;
     CellularPdnConfig_t pdnConfig = { CELLULAR_PDN_CONTEXT_IPV4, CELLULAR_PDN_AUTH_NONE, testCELLULAR_APN, "", "" };
-    CellularPdnStatus_t PdnStatusBuffers;
-    char localIP[ 32 ] = { '\0' };
-    uint32_t timeoutMilliseconds = 20000UL;
-    uint32_t timeoutCountLimit = ( timeoutMilliseconds / waitInterval ) + 1U;
+    CellularPdnStatus_t PdnStatusBuffers = { 0 };
+    char localIP[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
     uint32_t timeoutCount = 0;
     uint8_t NumStatus = 1;
-    uint8_t pdnContextId = 1;
+    bool simReady = false;
 
-    /* Initialize Cellular Comm Interface */
-    _pCommIntf = pCommIntf;
+    /* Initialize Cellular Comm Interface. */
     xCellularStatus = Cellular_Init( &_cellularHandle, pCommIntf );
 
     if( xCellularStatus != CELLULAR_SUCCESS )
     {
-        configPRINTF( ( ">>>  Cellular module can't initialized  <<<" ) );
+        configPRINTF( ( ">>>  Cellular module can't initialized  <<<\r\n" ) );
         xResult = pdFAIL;
     }
     else
@@ -311,76 +439,92 @@ static BaseType_t prvConnectCellular( void )
 
     if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) )
     {
-        /* wait until SIM is ready */
-        while( tries < CELLULAR_MAX_SIM_RETRY )
+        /* Wait until SIM is ready. */
+        simReady = prvWaitSimCardReady();
+
+        if( simReady == false )
         {
-            xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
-
-            if( xCellularStatus == CELLULAR_SUCCESS )
-            {
-                if( ( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
-                    ( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY ) )
-                {
-                    _simReady = 1;
-                    xResult = pdPASS;
-                    break;
-                }
-            }
-            else
-            {
-                configPRINTF( ( ">>>  Cellular SIM failure  <<<" ) );
-                xResult = pdFAIL;
-                break;
-            }
-
-            vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
-            tries++;
+            xResult = pdFAIL;
         }
     }
 
-    /* Activate Cellular */
-    while( timeoutCount < timeoutCountLimit )
+    if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) )
     {
-        xCellularStatus = Cellular_GetServiceStatus( _cellularHandle, &serviceStatus );
+        /* Setup PDN for EPS Network Registration. */
+        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, &pdnConfig );
 
         if( xCellularStatus == CELLULAR_SUCCESS )
         {
-            if( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
-                ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) )
-            {
-                break;
-            }
-            else
-            {
-                timeoutCount++;
-
-                if( timeoutCount >= timeoutCountLimit )
-                {
-                    configPRINTF( ( ">>>  Cellular module can't be registered1  <<<" ) );
-                }
-
-                vTaskDelay( pdMS_TO_TICKS( waitInterval * 2 ) );
-            }
+            xResult = pdPASS;
         }
         else
         {
-            configPRINTF( ( ">>>  Cellular module can't be registered2  <<<" ) );
+            xResult = pdFAIL;
         }
     }
 
     if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) )
     {
-        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvsignalStrengthChangedCallback );
-        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvnetworkRegistrationCallback );
-        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvpdnEventCallback );
-        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, pdnContextId, &pdnConfig );
-        xCellularStatus = Cellular_ActivatePdn( _cellularHandle, pdnContextId );
-        xCellularStatus = Cellular_GetIPAddress( _cellularHandle, pdnContextId, localIP, sizeof( localIP ) );
-        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, pdnContextId, &NumStatus );
-        xCellularStatus = Cellular_SetDns( _cellularHandle, pdnContextId, "8.8.8.8" );
+        /* Check network register status. */
+        xResult = pdFAIL;
+
+        for( timeoutCount = 0; timeoutCount < testCELLULAR_MAX_NETWORK_REGISTER_RETRY; timeoutCount++ )
+        {
+            xCellularStatus = Cellular_GetServiceStatus( _cellularHandle, &serviceStatus );
+
+            if( ( xCellularStatus == CELLULAR_SUCCESS ) &&
+                ( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
+                  ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) ) )
+            {
+                xResult = pdPASS;
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS ) );
+        }
+
+        if( xResult == pdFAIL )
+        {
+            configPRINTF( ( ">>>  Cellular module can't be registered  <<<\r\n" ) );
+        }
     }
 
-    if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( PdnStatusBuffers.state == 1 ) && ( sizeof( localIP ) == 32 ) )
+    if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) )
+    {
+        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback );
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback );
+        }
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, &pdnConfig );
+        }
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_ActivatePdn( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID );
+        }
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_GetIPAddress( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, localIP, sizeof( localIP ) );
+        }
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, testCELLULAR_PDN_CONTEXT_ID, &NumStatus );
+        }
+
+        if( xCellularStatus == CELLULAR_SUCCESS )
+        {
+            xCellularStatus = Cellular_SetDns( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, testCELLULAR_DNS_SERVER_ADDRESS );
+        }
+    }
+
+    if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( xResult == pdPASS ) && ( PdnStatusBuffers.state == 1 ) )
     {
         xResult = pdPASS;
     }
@@ -392,27 +536,37 @@ static BaseType_t prvConnectCellular( void )
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Helper function to check if cellular network connected. */
 static BaseType_t prvIsConnectedCellular( void )
 {
-    CellularError_t xCellularStatus;
-    CellularPdnStatus_t PdnStatusBuffers;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularPdnStatus_t PdnStatusBuffers = { 0 };
     uint8_t NumStatus = 1;
     BaseType_t xResult = pdPASS;
 
-    xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, 1, &NumStatus );
+    if( _cellularHandle == NULL )
+    {
+        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, 1, &NumStatus );
 
-    if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( PdnStatusBuffers.state == 1 ) )
-    {
-        xResult = pdPASS;
-    }
-    else
-    {
-        xResult = pdFAIL;
+        /* State 0 = Deactivated, 1 = Activated. */
+        if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( PdnStatusBuffers.state == 1 ) )
+        {
+            xResult = pdPASS;
+        }
+        else
+        {
+            xResult = pdFAIL;
+        }
     }
 
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Finish test help function. */
 static BaseType_t prvFinishCellularTesting( void )
 {
     CellularError_t xCellularStatus = CELLULAR_SUCCESS;
@@ -422,39 +576,212 @@ static BaseType_t prvFinishCellularTesting( void )
 
     if( xCellularStatus != CELLULAR_SUCCESS )
     {
-        configPRINTF( ( ">>>  Cellular module cleanup failed  <<<" ) );
+        configPRINTF( ( ">>>  Cellular module cleanup failed  <<<\r\n" ) );
         xResult = pdFAIL;
     }
     else
     {
         _cellularHandle = NULL;
         xResult = pdPASS;
-        _simReady = 0;
     }
 
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Setup socket connection. */
+static CellularSocketHandle_t prvSocketConnectionSetup( uint16_t serverPort,
+                                                        char * pServerAddress )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularSocketAddress_t remoteSocketAddress = { 0 };
+    CellularSocketHandle_t socketHandle = NULL;
+    uint32_t sendTimeout = testCELLULAR_SOCKET_SEND_TIMEOUT_MS;
+    EventBits_t waitEventBits = 0;
+
+    /* Setup the event group. */
+    _socketEventGroup = xEventGroupCreate();
+    TEST_ASSERT_MESSAGE( _socketEventGroup != NULL, "event group create failed" );
+    xEventGroupClearBits( _socketEventGroup,
+                          SOCKET_OPEN_CALLBACK_BIT | SOCKET_OPEN_FAILED_CALLBACK_BIT | SOCKET_DATA_RECEIVED_CALLBACK_BIT );
+
+    /* Setup the tcp connection. */
+    /* Create Socket. */
+    xCellularStatus = Cellular_CreateSocket( _cellularHandle,
+                                             testCELLULAR_PDN_CONTEXT_ID,
+                                             CELLULAR_SOCKET_DOMAIN_AF_INET,
+                                             CELLULAR_SOCKET_TYPE_DGRAM,
+                                             CELLULAR_SOCKET_PROTOCOL_TCP,
+                                             &socketHandle );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    /* Modify Socket. */
+    xCellularStatus = Cellular_SocketSetSockOpt( _cellularHandle,
+                                                 socketHandle,
+                                                 CELLULAR_SOCKET_OPTION_LEVEL_TRANSPORT,
+                                                 CELLULAR_SOCKET_OPTION_SEND_TIMEOUT,
+                                                 ( uint8_t * ) &sendTimeout,
+                                                 sizeof( sendTimeout ) );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    /* Data and Socket Event call back enabled. */
+    xCellularStatus = Cellular_SocketRegisterDataReadyCallback( _cellularHandle,
+                                                                socketHandle,
+                                                                &prvCellularSocketDataReadyCallback,
+                                                                socketHandle );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+    xCellularStatus = Cellular_SocketRegisterSocketOpenCallback( _cellularHandle,
+                                                                 socketHandle,
+                                                                 &prvCellularSocketOpenCallback,
+                                                                 socketHandle );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    /* Connect Socket. */
+    remoteSocketAddress.port = serverPort;
+    remoteSocketAddress.ipAddress.ipAddressType = CELLULAR_IP_ADDRESS_V4;
+    strncpy( remoteSocketAddress.ipAddress.ipAddress, pServerAddress, CELLULAR_IP_ADDRESS_MAX_SIZE );
+    xCellularStatus = Cellular_SocketConnect( _cellularHandle,
+                                              socketHandle,
+                                              CELLULAR_ACCESSMODE_BUFFER,
+                                              &remoteSocketAddress );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+    waitEventBits = xEventGroupWaitBits( _socketEventGroup,
+                                         SOCKET_OPEN_CALLBACK_BIT | SOCKET_OPEN_FAILED_CALLBACK_BIT,
+                                         pdTRUE,
+                                         pdFALSE,
+                                         pdMS_TO_TICKS( testCELLULAR_SOCKET_CONNECTION_TIMEOUT_MS ) );
+    TEST_ASSERT_MESSAGE( ( waitEventBits & SOCKET_OPEN_CALLBACK_BIT ) != 0, "Socket connection timeout or failed" );
+
+    return socketHandle;
+}
+
+
+/*-----------------------------------------------------------*/
+
+/* Close socket connection. */
+static void prvSocketConnectionClose( CellularSocketHandle_t socketHandle )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+
+    /* Close the socket. */
+    xCellularStatus = Cellular_SocketRegisterDataReadyCallback( _cellularHandle,
+                                                                socketHandle,
+                                                                NULL,
+                                                                NULL );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    xCellularStatus = Cellular_SocketRegisterSocketOpenCallback( _cellularHandle,
+                                                                 socketHandle,
+                                                                 NULL,
+                                                                 NULL );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    xCellularStatus = Cellular_SocketClose( _cellularHandle, socketHandle );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    if( _socketEventGroup != NULL )
+    {
+        vEventGroupDelete( _socketEventGroup );
+        _socketEventGroup = NULL;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* EDRX receive count test function. */
+static uint32_t prvTestSocketReceiveCount( const uint32_t testTimeMs,
+                                           const uint32_t dataReceiveIntervalMs )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularSocketHandle_t socketHandle = NULL;
+    uint32_t dataReceivedCount = 0;
+    uint32_t sentDataLen = 0;
+    uint8_t receiveBuff[ 100 ] = { 0 };
+    uint32_t receivedDataLen = 0;
+    uint32_t totalReceivedDataLen = 0;
+    TickType_t recvStartTime = 0;
+
+    /* Setup the socket connection. */
+    socketHandle = prvSocketConnectionSetup( testCELLULAR_EDRX_ECHO_SERVER_PORT,
+                                             testCELLULAR_EDRX_ECHO_SERVER_ADDRESS );
+
+    /* Send a byte to the server to start echo in time interval. */
+    xCellularStatus = Cellular_SocketSend( _cellularHandle,
+                                           socketHandle,
+                                           ( const uint8_t * ) _socketDataSend,
+                                           strlen( _socketDataSend ),
+                                           &sentDataLen );
+    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+    recvStartTime = xTaskGetTickCount();
+    /* Echo server will send data after received data. Wait 5 seconds for the first data. */
+    configPRINTF( ( "start receive time %d, test time ms %d\r\n", recvStartTime, testTimeMs ) );
+    vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
+
+    while( 1 )
+    {
+        totalReceivedDataLen = 0;
+
+        while( 1 )
+        {
+            xCellularStatus = Cellular_SocketRecv( _cellularHandle,
+                                                   socketHandle,
+                                                   receiveBuff,
+                                                   sizeof( receiveBuff ),
+                                                   &receivedDataLen );
+            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+            if( receivedDataLen == 0 )
+            {
+                break;
+            }
+
+            totalReceivedDataLen = totalReceivedDataLen + receivedDataLen;
+        }
+
+        if( totalReceivedDataLen != 0 )
+        {
+            configPRINTF( ( "Bytes received %d\r\n", totalReceivedDataLen ) );
+            dataReceivedCount = dataReceivedCount + 1;
+        }
+
+        if( ( xTaskGetTickCount() - recvStartTime ) > pdMS_TO_TICKS( testTimeMs ) )
+        {
+            break;
+        }
+
+        vTaskDelay( pdMS_TO_TICKS( dataReceiveIntervalMs ) );
+    }
+
+    prvSocketConnectionClose( socketHandle );
+
+    return dataReceivedCount;
+}
+
+/*-----------------------------------------------------------*/
 
 /* Unity TEST initializations. */
 TEST_GROUP( Full_CELLULAR_API );
 
+/*-----------------------------------------------------------*/
+
 TEST_SETUP( Full_CELLULAR_API )
 {
-    CellularError_t xCellularStatus;
-    CellularModemInfo_t modemInfo;
-    CellularSimCardInfo_t simCardInfo;
-    CellularSimCardStatus_t simStatus;
-    CellularSignalInfo_t signalInfo;
-    char localIP[ 32 ] = { '\0' };
-    CellularPlmnInfo_t networkInfo;
-    CellularServiceStatus_t serviceStatus;
-    CellularTime_t networkTime;
-    CellularPsmSettings_t psmSettings;
-    CellularEidrxSettingsList_t eidrxSettingsList;
-    uint8_t pdnContextId = 1;
-
-    vTaskDelay( pdMS_TO_TICKS( 2000 ) );
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularModemInfo_t modemInfo = { 0 };
+    CellularSimCardInfo_t simCardInfo = { 0 };
+    CellularSimCardStatus_t simStatus = { 0 };
+    CellularSignalInfo_t signalInfo = { 0 };
+    char localIP[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
+    CellularPlmnInfo_t networkInfo = { 0 };
+    CellularServiceStatus_t serviceStatus = { 0 };
+    CellularTime_t networkTime = { 0 };
+    CellularPsmSettings_t psmSettings = { 0 };
+    CellularEidrxSettingsList_t eidrxSettingsList = { 0 };
+    CellularRat_t pRatPriorities[ CELLULAR_MAX_RAT_PRIORITY_COUNT ] = { CELLULAR_RAT_INVALID };
+    uint8_t receivedRatPrioritiesLength = 0;
+    uint32_t ratIndex = 0;
 
     configPRINTF( ( "\r\n==================================================================================\r\n" ) );
 
@@ -541,29 +868,18 @@ TEST_SETUP( Full_CELLULAR_API )
         configPRINTF( ( " Network time: \r\n" ) );
     }
 
-    xCellularStatus = Cellular_ATCommandRaw( _cellularHandle, "+QCFG", "AT+QCFG=\"nwscanseq\"", CELLULAR_AT_WITH_PREFIX,
-                                             &prvresponseReceivedCallback, NULL, 0 );
+    xCellularStatus = Cellular_GetRatPriority( _cellularHandle,
+                                               pRatPriorities, CELLULAR_MAX_RAT_PRIORITY_COUNT, &receivedRatPrioritiesLength );
 
     if( xCellularStatus == CELLULAR_SUCCESS )
     {
-        char * AtRespRatPriority = NULL;
-        char * token = strtok( _AtRespTxt, "," );
-
-        while( token != NULL )
+        for( ratIndex = 0; ratIndex < receivedRatPrioritiesLength; ratIndex++ )
         {
-            AtRespRatPriority = token;
-            token = strtok( NULL, "," );
+            configPRINTF( ( " RAT Priority: %u %u\r\n", ratIndex, pRatPriorities[ ratIndex ] ) );
         }
-
-        snprintf( _AtRespTxt, 100, AtRespRatPriority );
-        configPRINTF( ( " RAT Priority:%s \r\n", _AtRespTxt ) );
-    }
-    else
-    {
-        configPRINTF( ( " RAT Priority: \r\n" ) );
     }
 
-    xCellularStatus = Cellular_GetIPAddress( _cellularHandle, pdnContextId, localIP, sizeof( localIP ) );
+    xCellularStatus = Cellular_GetIPAddress( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, localIP, sizeof( localIP ) );
 
     if( xCellularStatus == CELLULAR_SUCCESS )
     {
@@ -578,8 +894,12 @@ TEST_SETUP( Full_CELLULAR_API )
 
     if( xCellularStatus == CELLULAR_SUCCESS )
     {
-        configPRINTF(
-            ( " PSM mode: %d \r\n PSM TAU Value: %d \r\n PSM RAU Value: %d \r\n PSM GPRS Timer: %d \r\n PSM Active Value: %d \r\n", psmSettings.mode, psmSettings.periodicTauValue, psmSettings.periodicRauValue, psmSettings.gprsReadyTimer, psmSettings.activeTimeValue ) );
+        configPRINTF( ( " PSM mode: %d \r\n PSM TAU Value: %d \r\n PSM RAU Value: %d \r\n PSM GPRS Timer: %d \r\n PSM Active Value: %d \r\n",
+                        psmSettings.mode,
+                        psmSettings.periodicTauValue,
+                        psmSettings.periodicRauValue,
+                        psmSettings.gprsReadyTimer,
+                        psmSettings.activeTimeValue ) );
     }
     else
     {
@@ -593,8 +913,12 @@ TEST_SETUP( Full_CELLULAR_API )
     {
         for( int i = 0; i < eidrxSettingsList.count; i++ )
         {
-            configPRINTF(
-                ( " eDRX index: %d eDRX mode: %d eDRX rat:%d eDRX UE Value:%d eDRX NW value:%d \r\n", i, eidrxSettingsList.eidrxList[ i ].mode, eidrxSettingsList.eidrxList[ i ].rat, eidrxSettingsList.eidrxList[ i ].requestedEdrxVaue, eidrxSettingsList.eidrxList[ i ].nwProvidedEdrxVaue ) );
+            configPRINTF( ( " eDRX index: %d eDRX mode: %d eDRX rat:%d eDRX UE Value:%d eDRX NW value:%d \r\n",
+                            i,
+                            eidrxSettingsList.eidrxList[ i ].mode,
+                            eidrxSettingsList.eidrxList[ i ].rat,
+                            eidrxSettingsList.eidrxList[ i ].requestedEdrxVaue,
+                            eidrxSettingsList.eidrxList[ i ].nwProvidedEdrxVaue ) );
         }
     }
     else
@@ -605,21 +929,37 @@ TEST_SETUP( Full_CELLULAR_API )
     configPRINTF( ( "\r\n==================================================================================\r\n" ) );
 }
 
+/*-----------------------------------------------------------*/
+
 TEST_TEAR_DOWN( Full_CELLULAR_API )
 {
     configPRINTF( ( "\r\n==================================================================================\r\n" ) );
 }
 
+/*-----------------------------------------------------------*/
+
 TEST_GROUP_RUNNER( Full_CELLULAR_API )
 {
+    /* Clean up the cellular context. */
+    if( CellularHandle != NULL )
+    {
+        configPRINTF( ( "Clean up the cellular\r\n" ) );
+        Cellular_DeactivatePdn( CellularHandle, testCELLULAR_PDN_CONTEXT_ID );
+        Cellular_Cleanup( CellularHandle );
+        CellularHandle = NULL;
+    }
+
     /* List of all tests under this group */
     /* In sequence tests. */
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_Configure );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_Activate );
+    RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_GetNetworkTime );
+    RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_GetHostByName );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_TCPDataTransfer );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_EidrxSettings );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_PsmSettings );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_RatPriority );
+    RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_AtCommandRawAndGenericUrc );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_Deactivate );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_UnConfigure );
@@ -648,64 +988,57 @@ TEST_GROUP_RUNNER( Full_CELLULAR_API )
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode_Loop );
     RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_Power_Loop );
 
-    /* HotSpot tests if supported*/
-    #if ( testHotSpotENABLE_CONFIGURE_AP_TESTS == 1 )
-        RUN_TEST_CASE( Full_CELLULAR_API, AFQP_WiFiConfigureAP );
-    #endif
+    /* PSM and eDRX tests. */
+    RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_EidrxEchoTimes );
+    RUN_TEST_CASE( Full_CELLULAR_API, AFQP_Cellular_PsmStatus );
+
     prvFinishCellularTesting();
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Configure CELLULAR
+ * @brief Configure CELLULAR.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_Configure )
 {
-    CellularError_t xCellularStatus;
-    CellularSimCardStatus_t simStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularSimCardStatus_t simStatus = { 0 };
     CellularCommInterface_t * pCommIntf = &CellularCommInterface;
-    const uint32_t waitInterval = 500UL;
     uint8_t tries = 0;
+    uint8_t simReady = 0;
 
     if( TEST_PROTECT() )
     {
-        _pCommIntf = pCommIntf;
         xCellularStatus = Cellular_Init( &_cellularHandle, pCommIntf );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                ">>>  Cellular module can't be initialized  <<<" );
 
-        /* wait until SIM is ready */
-        while( tries < CELLULAR_MAX_SIM_RETRY )
+        /* Wait until SIM is ready. */
+        for( tries = 0; tries < testCELLULAR_MAX_SIM_RETRY; tries++ )
         {
             xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
+            TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                                   ">>>  Cellular SIM failure  <<<" );
 
-            if( xCellularStatus == CELLULAR_SUCCESS )
+            if( ( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
+                ( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY ) )
             {
-                if( ( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED ) &&
-                    ( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY ) )
-                {
-                    _simReady = 1;
-                    break;
-                }
-            }
-            else
-            {
-                TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
-                                                       ">>>  Cellular SIM failure  <<<" );
+                simReady = 1;
                 break;
             }
 
-            vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
-            tries++;
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_SIM_RETRY_INTERVAL_MS ) );
         }
 
-        TEST_ASSERT( _simReady != 0 );
+        TEST_ASSERT( simReady != 0 );
 
         /* Enable Callbacks. */
-        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvsignalStrengthChangedCallback );
+        xCellularStatus = Cellular_RegisterUrcSignalStrengthChangedCallback( _cellularHandle, &prvSignalStrengthChangedCallback );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvnetworkRegistrationCallback );
+        xCellularStatus = Cellular_RegisterUrcNetworkRegistrationEventCallback( _cellularHandle, &prvNetworkRegistrationCallback );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvpdnEventCallback );
+        xCellularStatus = Cellular_RegisterUrcPdnEventCallback( _cellularHandle, &prvPdnEventCallback );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
     }
     else
@@ -714,85 +1047,89 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Configure )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief CELLULAR Activate
+ * @brief CELLULAR Activate.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_Activate )
 {
-    CellularError_t xCellularStatus;
-    CellularServiceStatus_t serviceStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularServiceStatus_t serviceStatus = { 0 };
     CellularPdnConfig_t pdnConfig =
     { CELLULAR_PDN_CONTEXT_IPV4, CELLULAR_PDN_AUTH_NONE, testCELLULAR_APN, "", "" };
-    CellularPdnStatus_t PdnStatusBuffers;
-    char localIP[ 32 ] = { '\0' };
-    const uint32_t waitInterval = 1000UL;
-    uint32_t timeoutMilliseconds = 20000UL;
-    uint32_t timeoutCountLimit = ( timeoutMilliseconds / waitInterval ) + 1U;
+    CellularPdnStatus_t PdnStatusBuffers = { 0 };
+    char localIP[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
     uint32_t timeoutCount = 0;
     uint8_t numStatus = 1;
-    uint8_t pdnContextId = 1;
-    char pIpAddress[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { 0 };
+    CellularPsmSettings_t psmSettings = { 0 };
+    CellularEidrxSettings_t eidrxSettings = { 0 };
 
     if( TEST_PROTECT() )
     {
+        /* Setup PDN for EPS Network Registration. */
+        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, &pdnConfig );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                               ">>>  PDN configuration failed  <<<" );
+
         /* Verify registration. */
-        while( timeoutCount < timeoutCountLimit )
+        for( timeoutCount = 0; timeoutCount < testCELLULAR_MAX_NETWORK_REGISTER_RETRY; timeoutCount++ )
         {
             xCellularStatus = Cellular_GetServiceStatus( _cellularHandle, &serviceStatus );
+            TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                                   ">>>  Cellular module can't be registered  <<<" );
 
-            if( xCellularStatus == CELLULAR_SUCCESS )
+            if( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
+                ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) )
             {
-                if( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
-                    ( serviceStatus.psRegistrationStatus
-                      == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) )
-                {
-                    break;
-                }
-                else
-                {
-                    timeoutCount++;
-
-                    if( timeoutCount >= timeoutCountLimit )
-                    {
-                        TEST_FAIL_MESSAGE( ">>>  Cellular module can't be registered3  <<<" );
-                    }
-
-                    vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
-                }
+                break;
             }
-            else
-            {
-                TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
-                                                       ">>>  Cellular module can't be registered4  <<<" );
-            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS ) );
+        }
+
+        if( timeoutCount >= testCELLULAR_MAX_NETWORK_REGISTER_RETRY )
+        {
+            TEST_FAIL_MESSAGE( ">>>  Cellular module can't be registered  <<<" );
         }
 
         /* Configure and Activate PDN, set DNS and verify IP. */
-        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, pdnContextId, &pdnConfig );
+        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, &pdnConfig );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                ">>>  PDN configuration failed  <<<" );
-        xCellularStatus = Cellular_ActivatePdn( _cellularHandle, pdnContextId );
+        xCellularStatus = Cellular_ActivatePdn( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                ">>>  Cellular module can't be activated  <<<" );
 
         /* Get PDN & IP and verify. */
-        xCellularStatus = Cellular_GetIPAddress( _cellularHandle, pdnContextId, localIP, sizeof( localIP ) );
+        xCellularStatus = Cellular_GetIPAddress( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, localIP, sizeof( localIP ) );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, pdnContextId, &numStatus );
+
+        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &PdnStatusBuffers, testCELLULAR_PDN_CONTEXT_ID, &numStatus );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( 1, PdnStatusBuffers.state, ">>>  Cellular module failed to be activated  <<<" );
-        TEST_ASSERT_GREATER_OR_EQUAL_MESSAGE( 32, sizeof( localIP ),
-                                              ">>>  Cellular module failed to obtain IP address  <<<" );
 
         /* Set DNS. */
-        xCellularStatus = Cellular_SetDns( _cellularHandle, pdnContextId, "8.8.8.8" );
+        xCellularStatus = Cellular_SetDns( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, testCELLULAR_DNS_SERVER_ADDRESS );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                ">>>  DNS configuration failed  <<<" );
 
-        /* DNS query IP. */
-        xCellularStatus = Cellular_GetHostByName( _cellularHandle, pdnContextId, clientcredentialMQTT_BROKER_ENDPOINT, pIpAddress );
+        /* Disable PSM and eDRX for the following tests. */
+        psmSettings.mode = 0;
+        psmSettings.periodicTauValue = 0;
+        psmSettings.periodicRauValue = 0;
+        psmSettings.gprsReadyTimer = 0;
+        psmSettings.activeTimeValue = 0;
+        xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
         TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
-                                               ">>>  DNS query IP failed  <<<" );
+                                               ">>>  Disable PSM failed  <<<" );
+
+        eidrxSettings.mode = 0;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
+        eidrxSettings.requestedEdrxVaue = 0;
+        xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                               ">>>  Disable EDRX failed  <<<" );
     }
     else
     {
@@ -800,125 +1137,140 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Activate )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief TCP Data Transfer
+ * @brief Get network time.
+ */
+TEST( Full_CELLULAR_API, AFQP_Cellular_GetNetworkTime )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularTime_t networkTime = { 0 };
+
+    if( TEST_PROTECT() )
+    {
+        xCellularStatus = Cellular_GetNetworkTime( _cellularHandle, &networkTime );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                               ">>>  Get network time failed  <<<" );
+
+        /* Verify the value range. */
+        TEST_ASSERT_MESSAGE( ( ( networkTime.month >= 1 ) && ( networkTime.month <= 12 ) ),
+                             ">>>  Get network time month value error  <<<" );
+        TEST_ASSERT_MESSAGE( ( ( networkTime.day >= 1 ) && ( networkTime.day <= 31 ) ),
+                             ">>>  Get network time day value error  <<<" );
+        TEST_ASSERT_MESSAGE( ( ( networkTime.hour >= 0 ) && ( networkTime.hour <= 24 ) ),
+                             ">>>  Get network time hour value error  <<<" );
+        TEST_ASSERT_MESSAGE( ( ( networkTime.minute >= 0 ) && ( networkTime.minute <= 59 ) ),
+                             ">>>  Get network time minute value error  <<<" );
+        TEST_ASSERT_MESSAGE( ( ( networkTime.second >= 0 ) && ( networkTime.second <= 59 ) ),
+                             ">>>  Get network time second value error  <<<" );
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Host name resolve test.
+ */
+TEST( Full_CELLULAR_API, AFQP_Cellular_GetHostByName )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    char pIpAddress[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
+
+    if( TEST_PROTECT() )
+    {
+        /* DNS query IP. */
+        xCellularStatus = Cellular_GetHostByName(
+            _cellularHandle,
+            testCELLULAR_PDN_CONTEXT_ID,
+            testCELLULAR_HOST_NAME,
+            pIpAddress );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
+                                               ">>>  DNS query IP failed  <<<" );
+        TEST_ASSERT_MESSAGE( strncmp( pIpAddress, testCELLULAR_HOST_NAME_ADDRESS, CELLULAR_IP_ADDRESS_MAX_SIZE ) == 0,
+                             ">>>  DNS query IP incorrect  <<<" );
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief TCP Data Transfer.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_TCPDataTransfer )
 {
-    CellularError_t xCellularStatus;
-    CellularSocketHandle_t socketHandle;
-    CellularSocketAddress_t pRemoteSocketAddress;
-    uint32_t sendTimeout = 60000;
-    char dataToSend[ 40 ] = "hello from SJC31";
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularSocketHandle_t socketHandle = NULL;
+    CellularSocketAddress_t remoteSocketAddress = { 0 };
+    uint32_t sendTimeout = testCELLULAR_SOCKET_SEND_TIMEOUT_MS;
     uint8_t tries = 0;
     uint32_t sentDataLen = 0;
     char receiveBuff[ 100 ] = { 0 };
     uint32_t receivedDataLen = 0;
-    uint8_t pdnContextId = 1;
-    uint8_t socketConnected = 0;
-    int lCompResults;
+    char pServerAddress[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
 
     if( TEST_PROTECT() )
     {
-        /* Create Socket. */
-        xCellularStatus = Cellular_CreateSocket( _cellularHandle, pdnContextId, /* context id */
-                                                 CELLULAR_SOCKET_DOMAIN_AF_INET, CELLULAR_SOCKET_TYPE_DGRAM, CELLULAR_SOCKET_PROTOCOL_TCP, &socketHandle );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        _socketHandleSet = socketHandle;
+        /* Setup the test variable. */
+        _dataReady = 0;
+        _socketOpenContext = NULL;
+        _socketDataReadyContext = NULL;
 
-        /* Modify Socket. */
-        xCellularStatus = Cellular_SocketSetSockOpt( _cellularHandle, socketHandle, CELLULAR_SOCKET_OPTION_LEVEL_TRANSPORT,
-                                                     CELLULAR_SOCKET_OPTION_SEND_TIMEOUT, ( uint8_t * ) &sendTimeout, sizeof( sendTimeout ) );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-        /* Data and Socket Event call back enabled. */
-        xCellularStatus = Cellular_SocketRegisterDataReadyCallback( _cellularHandle,
-                                                                    socketHandle, &prvCellularSocketDataReadyCallback, NULL );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        xCellularStatus = Cellular_SocketRegisterSocketOpenCallback( _cellularHandle,
-                                                                     socketHandle, &prvCellularSocketOpenCallback, NULL );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-        /* Connect Socket. */
-        pRemoteSocketAddress.port = tcptestECHO_PORT;
-        pRemoteSocketAddress.ipAddress.ipAddressType = CELLULAR_IP_ADDRESS_V4;
-        SOCKETS_inet_ntoa( testtcpECHO_SERVER_ADDRESS, pRemoteSocketAddress.ipAddress.ipAddress );
-        xCellularStatus = Cellular_SocketConnect( _cellularHandle, socketHandle, CELLULAR_ACCESSMODE_BUFFER, &pRemoteSocketAddress );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-        if( xCellularStatus == CELLULAR_SUCCESS )
-        {
-            while( tries < 75 )
-            {
-                /* it takes upto 150 seconds for socket connect */
-                vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-
-                if( _socketOpened == 1 )
-                {
-                    socketConnected = 1;
-                    tries = 0;
-                    break;
-                }
-                else if( _socketOpened == 2 )
-                {
-                    break;
-                }
-
-                tries++;
-            }
-
-            if( socketConnected == 0 )
-            {
-                TEST_FAIL_MESSAGE( "Socket failed to connect" );
-                configASSERT( socketConnected == 1 );
-            }
-        }
+        /* Setup server connection. */
+        SOCKETS_inet_ntoa( TEST_ECHO_SERVER_ADDRESS, pServerAddress );
+        socketHandle = prvSocketConnectionSetup( tcptestECHO_PORT, pServerAddress );
+        TEST_ASSERT_MESSAGE( _socketOpenContext == socketHandle, "Socket open context check failed" );
 
         /* Send Data on Socket. */
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-
-        while( tries < 4 )
+        for( tries = 0; tries < SOCKET_OPERATION_POLLING_TIMES; tries++ )
         {
-            xCellularStatus = Cellular_SocketSend( _cellularHandle, socketHandle, ( const uint8_t * ) dataToSend, strlen( dataToSend ),
+            xCellularStatus = Cellular_SocketSend( _cellularHandle,
+                                                   socketHandle,
+                                                   ( const uint8_t * ) _socketDataSend,
+                                                   strlen( _socketDataSend ),
                                                    &sentDataLen );
 
             if( xCellularStatus == CELLULAR_SUCCESS )
             {
                 break;
             }
-
-            vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-            tries++;
         }
 
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
-        /* Receive Data on Socket. */
-        while( tries < 4 )
+        /* Receive Data on Socket in polling method. */
+        for( tries = 0; tries < SOCKET_OPERATION_POLLING_TIMES; tries++ )
         {
-            vTaskDelay( pdMS_TO_TICKS( 2000 ) );
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_SOCKET_WAIT_INTERVAL_MS ) );
 
-            if( _dataReady )
+            if( _dataReady == 1 )
             {
-                xCellularStatus = Cellular_SocketRecv( _cellularHandle, socketHandle, ( uint8_t * ) receiveBuff, sizeof( receiveBuff ),
+                xCellularStatus = Cellular_SocketRecv( _cellularHandle,
+                                                       socketHandle,
+                                                       ( uint8_t * ) receiveBuff,
+                                                       sizeof( receiveBuff ),
                                                        &receivedDataLen );
-                _dataReady = 0;
+                TEST_ASSERT_MESSAGE( _socketDataReadyContext == socketHandle, "Socket data ready context check failed" );
                 break;
             }
-
-            tries++;
         }
 
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
         /* Compare Data on Socket. */
-        lCompResults = strncmp( dataToSend, receiveBuff, strlen( dataToSend ) );
-        TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
+        TEST_ASSERT_MESSAGE( strncmp( _socketDataSend, receiveBuff, strlen( _socketDataSend ) ) == 0,
+                             "AFQP_Cellular_TCPDataTransfer received data compare failed" );
 
         /* Close Socket. */
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-        xCellularStatus = Cellular_SocketClose( _cellularHandle, socketHandle );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        prvSocketConnectionClose( socketHandle );
     }
     else
     {
@@ -926,22 +1278,23 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_TCPDataTransfer )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Enable CELLULAR Idle Discontinuous Reception
+ * @brief Enable CELLULAR Idle Discontinuous Reception.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_EidrxSettings )
 {
-    CellularError_t xCellularStatus;
-    CellularEidrxSettings_t eidrxSettings;
-    CellularEidrxSettingsList_t eidrxSettingsList;
-    uint8_t drxRat = 4;
-    uint8_t drxValue = 9;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularEidrxSettings_t eidrxSettings = { 0 };
+    CellularEidrxSettingsList_t eidrxSettingsList = { 0 };
+    uint8_t drxValue = 5; /* 5 = ( 0 1 0 1 )  81.92 seconds. */
 
     if( TEST_PROTECT() )
     {
         /* Disable the EDRX mode. */
-        eidrxSettings.mode = 3;
-        eidrxSettings.rat = drxRat;
+        eidrxSettings.mode = 0;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
         eidrxSettings.requestedEdrxVaue = 0;
 
         xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
@@ -949,36 +1302,31 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_EidrxSettings )
 
         /* Enabling the EDRX mode and verify. */
         eidrxSettings.mode = 1;
-        eidrxSettings.rat = drxRat;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
         eidrxSettings.requestedEdrxVaue = drxValue;
 
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
         xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
         xCellularStatus = Cellular_GetEidrxSettings( _cellularHandle, &eidrxSettingsList );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
         for( int i = 0; i < eidrxSettingsList.count; i++ )
         {
-            if( eidrxSettingsList.eidrxList[ i ].rat == drxRat )
+            if( eidrxSettingsList.eidrxList[ i ].rat == testCELLULAR_EDRX_RAT )
             {
                 TEST_ASSERT_EQUAL_INT32( eidrxSettingsList.eidrxList[ i ].requestedEdrxVaue, drxValue );
-            }
-            else
-            {
-                continue;
             }
         }
 
         /* Disabling the EDRX mode and verify. */
         eidrxSettings.mode = 3;
-        eidrxSettings.rat = drxRat;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
         eidrxSettings.requestedEdrxVaue = 0;
 
         xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+
         xCellularStatus = Cellular_GetEidrxSettings( _cellularHandle, &eidrxSettingsList );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
     }
@@ -988,15 +1336,18 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_EidrxSettings )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Enable CELLULAR Power Saving Mode attributes
+ * @brief Enable CELLULAR Power Saving Mode attributes.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_PsmSettings )
 {
-    CellularError_t xCellularStatus;
-    CellularPsmSettings_t psmSettings;
-    uint32_t psmTau = 4;
-    uint32_t psmTimer = 14; /* 28 Seconds. */
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularPsmSettings_t psmSettings = { 0 };
+    uint32_t psmTau = 4;    /* 4 * 10 minutes = 40 minutes. */
+    uint32_t psmTimer = 14; /* 14 * 2 seconds = 28 Seconds. */
+    uint32_t tries = 0;
 
     if( TEST_PROTECT() )
     {
@@ -1023,11 +1374,21 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_PsmSettings )
         psmSettings.gprsReadyTimer = 0;
         psmSettings.activeTimeValue = psmTimer;
 
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
         xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-        xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+        for( tries = 0; tries < testCELLULAR_MAX_GET_PSM_RETRY; tries++ )
+        {
+            xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+            if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( psmSettings.mode == 1 ) )
+            {
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_GET_PSM_RETRY_INTERVAL_MS ) );
+        }
+
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
         TEST_ASSERT_EQUAL_INT32( psmSettings.mode, 1 );
 
@@ -1040,8 +1401,19 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_PsmSettings )
 
         xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-        xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+        for( tries = 0; tries < testCELLULAR_MAX_GET_PSM_RETRY; tries++ )
+        {
+            xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+            if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( psmSettings.mode == 0 ) )
+            {
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_GET_PSM_RETRY_INTERVAL_MS ) );
+        }
+
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
         TEST_ASSERT_EQUAL_INT32( psmSettings.mode, 0 );
     }
@@ -1051,42 +1423,61 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_PsmSettings )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Setting and checking CELLULAR RAT priority
+ * @brief Setting and checking CELLULAR RAT priority.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_RatPriority )
 {
-    CellularError_t xCellularStatus;
-    const CellularRat_t ratPriorities1[] = { 9, 8, 0 };
-    const CellularRat_t ratPriorities2[] = { 8, 9, 0 };
-    int lCompResults;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    const CellularRat_t pRatPriorities1[ CELLULAR_MAX_RAT_PRIORITY_COUNT ] =
+    { CELLULAR_RAT_NBIOT, CELLULAR_RAT_CATM1, CELLULAR_RAT_GSM };
+    const CellularRat_t pRatPriorities2[ CELLULAR_MAX_RAT_PRIORITY_COUNT ] =
+    { CELLULAR_RAT_CATM1, CELLULAR_RAT_NBIOT, CELLULAR_RAT_GSM };
+    CellularRat_t pRatPriorities[ CELLULAR_MAX_RAT_PRIORITY_COUNT ] = { CELLULAR_RAT_INVALID };
+    uint8_t receivedRatPrioritiesLength = 0;
+    int i = 0;
+    uint32_t tries = 0;
+    bool ratFlag = true;
 
     if( TEST_PROTECT() )
     {
         /* Set the first priority and verify. */
-        xCellularStatus = Cellular_SetRatPriority( _cellularHandle, ( const CellularRat_t * ) &ratPriorities1, 3 );
-        vTaskDelay( pdMS_TO_TICKS( 15000 ) );
-        xCellularStatus = Cellular_ATCommandRaw( _cellularHandle, "+QCFG", "AT+QCFG=\"nwscanseq\"", CELLULAR_AT_WITH_PREFIX,
-                                                 &prvresponseReceivedCallback, NULL, 0 );
+        xCellularStatus = Cellular_SetRatPriority( _cellularHandle, ( const CellularRat_t * ) pRatPriorities1, 3 );
 
-        if( xCellularStatus == CELLULAR_SUCCESS )
+        for( tries = 0; tries < testCELLULAR_GET_RAT_RETRY; tries++ )
         {
-            char * AtRespRatPriority = NULL;
-            char * token = strtok( _AtRespTxt, "," );
-
-            while( token != NULL )
+            if( xCellularStatus == CELLULAR_SUCCESS )
             {
-                AtRespRatPriority = token;
-                token = strtok( NULL, "," );
+                xCellularStatus = Cellular_GetRatPriority( _cellularHandle,
+                                                           pRatPriorities,
+                                                           CELLULAR_MAX_RAT_PRIORITY_COUNT,
+                                                           &receivedRatPrioritiesLength );
+                ratFlag = true;
+
+                for( i = 0; i < receivedRatPrioritiesLength; i++ )
+                {
+                    if( pRatPriorities1[ i ] != pRatPriorities[ i ] )
+                    {
+                        ratFlag = false;
+                        break;
+                    }
+                }
+
+                if( ratFlag == true )
+                {
+                    break;
+                }
+
+                vTaskDelay( pdMS_TO_TICKS( testCELLULAR_GET_RAT_RETRY_INTERVAL_MS ) );
             }
-
-            lCompResults = strncmp( AtRespRatPriority, "030201", 6 );
-            TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
-
-            /* Restore the second priority. */
-            xCellularStatus = Cellular_SetRatPriority( _cellularHandle, ( const CellularRat_t * ) &ratPriorities2, 3 );
-            vTaskDelay( pdMS_TO_TICKS( 15000 ) );
         }
+
+        TEST_ASSERT_MESSAGE( ratFlag == true, "RATs priority compare failed" );
+
+        /* Restore the second priority. */
+        xCellularStatus = Cellular_SetRatPriority( _cellularHandle, ( const CellularRat_t * ) pRatPriorities2, 3 );
     }
     else
     {
@@ -1094,77 +1485,122 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_RatPriority )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Setting CELLULAR Airplane Mode On and off
+ * @brief Send AT command with receive the generic URC.
  */
-TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode )
+TEST( Full_CELLULAR_API, AFQP_Cellular_AtCommandRawAndGenericUrc )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( TEST_PROTECT() )
     {
-        CellularSimCardStatus_t simStatus;
-        uint8_t tries = 0;
+        _genericUrcCalled = false;
+        xCellularStatus = Cellular_RegisterUrcGenericCallback( _cellularHandle,
+                                                               prvGenericCallback );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( xCellularStatus == CELLULAR_SUCCESS, xCellularStatus,
+                                               "Register URC generic callback failed" );
 
+        /* Send the 3GPP get network time AT command.
+         * The returned network time string is handled in generic URC handler. */
+        xCellularStatus = Cellular_ATCommandRaw( _cellularHandle,
+                                                 NULL,
+                                                 "AT+CCLK?",
+                                                 CELLULAR_AT_NO_RESULT,
+                                                 NULL,
+                                                 NULL,
+                                                 0U );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( xCellularStatus == CELLULAR_SUCCESS, xCellularStatus,
+                                               "Send AT command raw failed" );
+
+        /* The maximum response time is 300ms. */
+        vTaskDelay( pdMS_TO_TICKS( 300U ) );
+        TEST_ASSERT_MESSAGE( _genericUrcCalled == true, "Generic URC is not called" );
+
+        xCellularStatus = Cellular_RegisterUrcGenericCallback( _cellularHandle,
+                                                               NULL );
+        TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( xCellularStatus == CELLULAR_SUCCESS, xCellularStatus,
+                                               "Register URC generic callback failed" );
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Setting CELLULAR Airplane Mode On and off.
+ */
+TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularServiceStatus_t serviceStatus = { 0 };
+    bool simReady = false;
+    uint32_t tries = 0;
+
+    if( TEST_PROTECT() )
+    {
         /* RF Off. */
         xCellularStatus = Cellular_RfOff( _cellularHandle );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
-        if( xCellularStatus == CELLULAR_SUCCESS )
+        /* Wait until SIM is ready. */
+        simReady = prvWaitSimCardReady();
+        TEST_ASSERT( simReady == true );
+
+        /* Check network registration status. Airplane mode the register status should be
+         * CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_NOT_SEARCHING */
+        for( tries = 0; tries < testCELLULAR_MAX_NETWORK_REGISTER_RETRY; tries++ )
         {
-            /* wait until SIM is ready */
-            while( tries < 4 )
+            xCellularStatus = Cellular_GetServiceStatus( _cellularHandle, &serviceStatus );
+            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+            if( ( serviceStatus.psRegistrationStatus != CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) &&
+                ( serviceStatus.psRegistrationStatus != CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) )
             {
-                xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
-
-                if( xCellularStatus != CELLULAR_SUCCESS )
-                {
-                    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-                    break;
-                }
-                else if( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED )
-                {
-                    if( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY )
-                    {
-                        _simReady = 0;
-                        break;
-                    }
-                }
-
-                vTaskDelay( pdMS_TO_TICKS( 5000 ) );
-                tries++;
+                break;
             }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS ) );
         }
+
+        configPRINTF( ( "serviceStatus.psRegistrationStatus %d\r\n", serviceStatus.psRegistrationStatus ) );
+        TEST_ASSERT_MESSAGE( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_NOT_REGISTERED_NOT_SEARCHING,
+                             "Airplane mode network registration check failed" );
 
         /* RF On. */
         xCellularStatus = Cellular_RfOn( _cellularHandle );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
 
-        if( xCellularStatus == CELLULAR_SUCCESS )
+        /* Wait until SIM is ready. */
+        simReady = prvWaitSimCardReady();
+        TEST_ASSERT( simReady == true );
+
+        /* Check network registration status. Airplane mode the register status should be
+         * CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME or
+         * CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING */
+        for( tries = 0; tries < testCELLULAR_MAX_NETWORK_REGISTER_RETRY; tries++ )
         {
-            /* wait until SIM is ready */
-            while( tries < 4 )
+            xCellularStatus = Cellular_GetServiceStatus( _cellularHandle, &serviceStatus );
+            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+            if( ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
+                ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ) )
             {
-                xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
-
-                if( xCellularStatus != CELLULAR_SUCCESS )
-                {
-                    TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-                    break;
-                }
-                else if( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED )
-                {
-                    if( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY )
-                    {
-                        _simReady = 1;
-                        break;
-                    }
-                }
-
-                vTaskDelay( pdMS_TO_TICKS( 5000 ) );
-                tries++;
+                break;
             }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_NETWORK_REGISTER_RETRY_INTERVAL_MS ) );
         }
+
+        configPRINTF( ( "serviceStatus.psRegistrationStatus %d\r\n", serviceStatus.psRegistrationStatus ) );
+        TEST_ASSERT_MESSAGE(
+            ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_HOME ) ||
+            ( serviceStatus.psRegistrationStatus == CELLULAR_NETWORK_REGISTRATION_STATUS_REGISTERED_ROAMING ),
+            "Airplane mode network registration check failed\r\n" );
     }
     else
     {
@@ -1172,24 +1608,27 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Deactivate CELLULAR
+ * @brief Deactivate CELLULAR.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_Deactivate )
 {
-    CellularError_t xCellularStatus;
-    CellularPdnStatus_t pdnStatusBuffers;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularPdnStatus_t pdnStatusBuffers = { 0 };
     uint8_t numStatus = 1;
-    uint8_t pdnContextId = 1;
 
     if( TEST_PROTECT() )
     {
         /* Deactivate PDN and verify. */
-        xCellularStatus = Cellular_DeactivatePdn( _cellularHandle, pdnContextId );
+        xCellularStatus = Cellular_DeactivatePdn( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-        vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &pdnStatusBuffers, pdnContextId, &numStatus );
-        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
+
+        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, &pdnStatusBuffers, testCELLULAR_PDN_CONTEXT_ID, &numStatus );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        TEST_ASSERT_MESSAGE( numStatus == 0, "Deactive PDN should return 0" );
     }
     else
     {
@@ -1197,12 +1636,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Deactivate )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief CELLULAR unconfigure
+ * @brief CELLULAR unconfigure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_UnConfigure )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( TEST_PROTECT() )
     {
@@ -1223,7 +1664,6 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_UnConfigure )
         if( xCellularStatus == CELLULAR_SUCCESS )
         {
             _cellularHandle = NULL;
-            _simReady = 0;
         }
     }
     else
@@ -1232,12 +1672,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_UnConfigure )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetModemInfo( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetModemInfo_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1255,12 +1697,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetModemInfo_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_Cellular_GetSimCardInfo( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetSimCardInfo_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1278,12 +1722,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetSimCardInfo_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetSimCardStatus( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetSimCardStatus_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1301,12 +1747,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetSimCardStatus_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetServiceStatus( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetServiceStatus_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1324,12 +1772,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetServiceStatus_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetSignalInfo( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetSignalInfo_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1347,12 +1797,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetSignalInfo_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetRegisteredNetwork( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetRegisteredNetwork_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1370,12 +1822,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetRegisteredNetwork_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetPsmSettings( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetPsmSettings_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1393,12 +1847,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetPsmSettings_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetEidrxSettings( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetEidrxSettings_NullParameters )
 {
-    CellularError_t xCellularStatus;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1416,13 +1872,14 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetEidrxSettings_NullParameters )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_GetPdnStatus( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetPdnStatus_NullParameters )
 {
-    CellularError_t xCellularStatus;
-    uint8_t pdnContextId = 1;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
     uint8_t numStatus = 1;
 
     if( prvIsConnectedCellular() == pdFAIL )
@@ -1432,7 +1889,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetPdnStatus_NullParameters )
 
     if( TEST_PROTECT() )
     {
-        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, NULL, pdnContextId, &numStatus );
+        xCellularStatus = Cellular_GetPdnStatus( _cellularHandle, NULL, testCELLULAR_PDN_CONTEXT_ID, &numStatus );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
     }
     else
@@ -1440,15 +1897,15 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetPdnStatus_NullParameters )
         TEST_FAIL();
     }
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Call Cellular_GetIPAddress( _cellularHandle ) with Null parameters and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_GetIPAddress_NullParameters )
 {
-    CellularError_t xCellularStatus;
-    uint8_t pdnContextId = 1;
-    char localIP[ 32 ] = { '\0' };
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1457,7 +1914,10 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetIPAddress_NullParameters )
 
     if( TEST_PROTECT() )
     {
-        xCellularStatus = Cellular_GetIPAddress( _cellularHandle, pdnContextId, NULL, sizeof( localIP ) );
+        xCellularStatus = Cellular_GetIPAddress( _cellularHandle,
+                                                 testCELLULAR_PDN_CONTEXT_ID,
+                                                 NULL,
+                                                 CELLULAR_IP_ADDRESS_MAX_SIZE );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
     }
     else
@@ -1465,14 +1925,16 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_GetIPAddress_NullParameters )
         TEST_FAIL();
     }
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Call Cellular_SetRatPriority( _cellularHandle ) with an invalid mode and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_SetRatPriority_InvalidMode )
 {
-    CellularError_t xCellularStatus;
-    const CellularRat_t ratPriorities[] = { 9, 8, 1 }; /*Invalid value 1 */
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    const CellularRat_t ratPriorities[ CELLULAR_MAX_RAT_PRIORITY_COUNT ] = { 9, 8, 1 }; /* Invalid value 1. */
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1481,7 +1943,9 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetRatPriority_InvalidMode )
 
     if( TEST_PROTECT() )
     {
-        xCellularStatus = Cellular_SetRatPriority( _cellularHandle, ( const CellularRat_t * ) &ratPriorities, 5 /*invalid value*/ );
+        xCellularStatus = Cellular_SetRatPriority( _cellularHandle,
+                                                   ( const CellularRat_t * ) &ratPriorities,
+                                                   5 /*invalid value*/ );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
     }
     else
@@ -1490,17 +1954,19 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetRatPriority_InvalidMode )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_SetPsmSettings( _cellularHandle ) with an invalid mode and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_SetPsmSettings_InvalidMode )
 {
-    CellularError_t xCellularStatus;
-    CellularPsmSettings_t psmSettings;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularPsmSettings_t psmSettings = { 0 };
 
     psmSettings.activeTimeValue = 28;
     psmSettings.gprsReadyTimer = 0;
-    psmSettings.mode = 2; /*Invalid value */
+    psmSettings.mode = 2; /* Invalid value. */
     psmSettings.periodicRauValue = 0;
     psmSettings.periodicTauValue = 4;
 
@@ -1520,16 +1986,18 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetPsmSettings_InvalidMode )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_SetEidrxSettings( _cellularHandle ) with an invalid mode and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_SetEidrxSettings_InvalidMode )
 {
-    CellularError_t xCellularStatus;
-    CellularEidrxSettings_t eidrxSettings;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularEidrxSettings_t eidrxSettings = { 0 };
 
     eidrxSettings.mode = 1;
-    eidrxSettings.rat = 6; /*invalid value */
+    eidrxSettings.rat = 6; /* invalid value. */
     eidrxSettings.requestedEdrxVaue = 1;
 
     if( prvIsConnectedCellular() == pdFAIL )
@@ -1548,15 +2016,16 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetEidrxSettings_InvalidMode )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Call Cellular_SetPdnConfig( _cellularHandle ) with an invalid mode and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_SetPdnConfig_InvalidMode )
 {
-    CellularError_t xCellularStatus;
-    uint8_t pdnContextId = 1;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
     CellularPdnConfig_t pdnConfig =
-    { CELLULAR_PDN_CONTEXT_IPV4, CELLULAR_PDN_AUTH_NONE, testINVALID_CELLULAR_APN, "", "" };
+    { CELLULAR_PDN_CONTEXT_IPV4, CELLULAR_PDN_AUTH_NONE, TEST_INVALID_CELLULAR_APN, "", "" };
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1565,7 +2034,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetPdnConfig_InvalidMode )
 
     if( TEST_PROTECT() )
     {
-        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, pdnContextId, &pdnConfig );
+        xCellularStatus = Cellular_SetPdnConfig( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, &pdnConfig );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
     }
     else
@@ -1573,14 +2042,15 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetPdnConfig_InvalidMode )
         TEST_FAIL();
     }
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Call Cellular_SetDns( _cellularHandle ) with an invalid mode and verify failure.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_SetDns_InvalidMode )
 {
-    CellularError_t xCellularStatus;
-    uint8_t pdnContextId = 1;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1589,7 +2059,7 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetDns_InvalidMode )
 
     if( TEST_PROTECT() )
     {
-        xCellularStatus = Cellular_SetDns( _cellularHandle, pdnContextId, "123" );
+        xCellularStatus = Cellular_SetDns( _cellularHandle, testCELLULAR_PDN_CONTEXT_ID, "123" );
         TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
     }
     else
@@ -1598,12 +2068,23 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_SetDns_InvalidMode )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief CELLULAR data transfer loop
+ * @brief CELLULAR data transfer loop.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_Data_Loop )
 {
-    uint8_t index;
+    uint8_t index = 0;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularSocketHandle_t socketHandle = NULL;
+    uint32_t sendTimeout = testCELLULAR_SOCKET_SEND_TIMEOUT_MS;
+    uint8_t tries = 0;
+    uint32_t sentDataLen = 0;
+    char receiveBuff[ 100 ] = { 0 };
+    uint32_t receivedDataLen = 0;
+    char cBuffer[ MESSAGE_BUFFER_LENGTH ] = { '\0' };
+    char pServerAddress[ CELLULAR_IP_ADDRESS_MAX_SIZE ] = { '\0' };
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1614,106 +2095,19 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Data_Loop )
     {
         for( index = 0; index < testCELLULARCONNECTION_LOOP_TIMES; ++index )
         {
-            CellularError_t xCellularStatus;
-            CellularSocketHandle_t socketHandle;
-            CellularSocketAddress_t pRemoteSocketAddress;
-            uint32_t sendTimeout = 60000;
-            char dataToSend[ 40 ] = "hello from SJC31";
-            uint8_t tries = 0;
-            uint32_t sentDataLen = 0;
-            char receiveBuff[ 100 ] = { 0 };
-            uint32_t receivedDataLen = 0;
-            uint8_t pdnContextId = 1;
-            uint8_t socketConnected = 0;
-            int lCompResults;
-            char cBuffer[ 256 ];
-            uint16_t sBufferLength = 256;
-
-            /* Create Socket. */
-            xCellularStatus = Cellular_CreateSocket( _cellularHandle, pdnContextId, /* context id */
-                                                     CELLULAR_SOCKET_DOMAIN_AF_INET, CELLULAR_SOCKET_TYPE_DGRAM, CELLULAR_SOCKET_PROTOCOL_TCP, &socketHandle );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-            /* Modify Socket. */
-            xCellularStatus = Cellular_SocketSetSockOpt( _cellularHandle, socketHandle, CELLULAR_SOCKET_OPTION_LEVEL_TRANSPORT,
-                                                         CELLULAR_SOCKET_OPTION_SEND_TIMEOUT, ( uint8_t * ) &sendTimeout, sizeof( sendTimeout ) );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-            /* Data and Socket Event call back enabled. */
-            xCellularStatus = Cellular_SocketRegisterDataReadyCallback( _cellularHandle,
-                                                                        socketHandle, &prvCellularSocketDataReadyCallback, NULL );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-            xCellularStatus = Cellular_SocketRegisterSocketOpenCallback( _cellularHandle,
-                                                                         socketHandle, &prvCellularSocketOpenCallback, NULL );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-            xCellularStatus = Cellular_SocketRegisterClosedCallback( _cellularHandle,
-                                                                     socketHandle, &prvdclosedCallback, NULL );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-            /* Connect Socket. */
-            pRemoteSocketAddress.port = tcptestECHO_PORT;
-            pRemoteSocketAddress.ipAddress.ipAddressType = CELLULAR_IP_ADDRESS_V4;
-            SOCKETS_inet_ntoa( testtcpECHO_SERVER_ADDRESS, pRemoteSocketAddress.ipAddress.ipAddress );
-            xCellularStatus = Cellular_SocketConnect( _cellularHandle, socketHandle, CELLULAR_ACCESSMODE_BUFFER, &pRemoteSocketAddress );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-            if( xCellularStatus == CELLULAR_SUCCESS )
-            {
-                tries = 0;
-
-                while( tries < 75 )
-                {
-                    /* it takes upto 150 seconds for socket connect */
-                    vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-
-                    if( _socketOpened == 1 )
-                    {
-                        socketConnected = 1;
-                        tries = 0;
-                        break;
-                    }
-                    else if( _socketOpened == 2 )
-                    {
-                        break;
-                    }
-
-                    tries++;
-                }
-
-                if( socketConnected == 0 )
-                {
-                    TEST_FAIL_MESSAGE( "Socket failed to connect" );
-                    configASSERT( socketConnected == 1 );
-                }
-            }
+            SOCKETS_inet_ntoa( TEST_ECHO_SERVER_ADDRESS, pServerAddress );
+            socketHandle = prvSocketConnectionSetup( tcptestECHO_PORT, pServerAddress );
 
             /* Send Data on Socket. */
-            vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-            tries = 0;
-
-            while( tries < 4 )
-            {
-                xCellularStatus = Cellular_SocketSend( _cellularHandle, socketHandle, ( const uint8_t * ) dataToSend, strlen( dataToSend ),
-                                                       &sentDataLen );
-
-                if( xCellularStatus == CELLULAR_SUCCESS )
-                {
-                    break;
-                }
-
-                vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-                tries++;
-            }
-
-            snprintf( cBuffer, sBufferLength, "Failed Cellular_SocketSend( _cellularHandle ) in iteration %d", index );
+            xCellularStatus = Cellular_SocketSend( _cellularHandle, socketHandle, ( const uint8_t * ) _socketDataSend, strlen( _socketDataSend ),
+                                                   &sentDataLen );
+            snprintf( cBuffer, sizeof( cBuffer ), "Failed Cellular_SocketSend( _cellularHandle ) in iteration %d", index );
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus, cBuffer );
 
             /* Receive Data on Socket. */
-            tries = 0;
-
-            while( tries < 4 )
+            for( tries = 0; tries < SOCKET_OPERATION_POLLING_TIMES; tries++ )
             {
-                vTaskDelay( pdMS_TO_TICKS( 2000 ) );
+                vTaskDelay( pdMS_TO_TICKS( testCELLULAR_SOCKET_WAIT_INTERVAL_MS ) );
 
                 if( _dataReady )
                 {
@@ -1722,28 +2116,17 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Data_Loop )
                     _dataReady = 0;
                     break;
                 }
-
-                tries++;
             }
 
-            snprintf( cBuffer, sBufferLength, "Failed Cellular_SocketRecv( _cellularHandle ) in iteration %d", index );
+            snprintf( cBuffer, sizeof( cBuffer ), "Failed Cellular_SocketRecv( _cellularHandle ) in iteration %d", index );
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus, cBuffer );
 
             /* Compare Data on Socket. */
-            lCompResults = strncmp( dataToSend, receiveBuff, strlen( dataToSend ) );
-            TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
+            TEST_ASSERT_MESSAGE( strncmp( _socketDataSend, receiveBuff, strlen( _socketDataSend ) ) == 0,
+                                 "AFQP_Cellular_Data_Loop received data compare failed" );
 
             /* Close Socket. */
-            vTaskDelay( pdMS_TO_TICKS( 2000 ) );
-            xCellularStatus = Cellular_SocketClose( _cellularHandle, socketHandle );
-            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-
-            if( xCellularStatus == CELLULAR_SUCCESS )
-            {
-                _socketOpened = 0;
-                socketConnected = 0;
-                vTaskDelay( pdMS_TO_TICKS( 5000 ) );
-            }
+            prvSocketConnectionClose( socketHandle );
         }
     }
     else
@@ -1752,15 +2135,17 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Data_Loop )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief CELLULAR airplane mode loop
+ * @brief CELLULAR airplane mode loop.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode_Loop )
 {
-    char cBuffer[ 256 ];
-    uint16_t sBufferLength = 256;
-    uint8_t index;
-    CellularError_t xCellularStatus;
+    char cBuffer[ MESSAGE_BUFFER_LENGTH ] = { '\0' };
+    uint8_t index = 0;
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    bool simReady = false;
 
     if( prvIsConnectedCellular() == pdFAIL )
     {
@@ -1771,70 +2156,23 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode_Loop )
     {
         for( index = 0; index < testCELLULARCONNECTION_LOOP_TIMES; ++index )
         {
-            CellularSimCardStatus_t simStatus;
-            uint8_t tries = 0;
-
             /* RF Off. */
             xCellularStatus = Cellular_RfOff( _cellularHandle );
-            snprintf( cBuffer, sBufferLength, "Failed Cellular_RfOff( _cellularHandle ) in iteration %d", index );
+            snprintf( cBuffer, sizeof( cBuffer ), "Failed Cellular_RfOff( _cellularHandle ) in iteration %d", index );
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus, cBuffer );
 
-            if( xCellularStatus == CELLULAR_SUCCESS )
-            {
-                /* wait until SIM is ready */
-                while( tries < 4 )
-                {
-                    xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
-
-                    if( xCellularStatus != CELLULAR_SUCCESS )
-                    {
-                        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-                        break;
-                    }
-                    else if( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED )
-                    {
-                        if( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY )
-                        {
-                            _simReady = 0;
-                            break;
-                        }
-                    }
-
-                    vTaskDelay( pdMS_TO_TICKS( 5000 ) );
-                    tries++;
-                }
-            }
+            /* Wait until SIM is ready. */
+            simReady = prvWaitSimCardReady();
+            TEST_ASSERT( simReady == true );
 
             /* RF On. */
             xCellularStatus = Cellular_RfOn( _cellularHandle );
-            snprintf( cBuffer, sBufferLength, "Failed Cellular_RfOn( _cellularHandle ) in iteration %d", index );
+            snprintf( cBuffer, sizeof( cBuffer ), "Failed Cellular_RfOn( _cellularHandle ) in iteration %d", index );
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus, cBuffer );
 
-            if( xCellularStatus == CELLULAR_SUCCESS )
-            {
-                /* wait until SIM is ready */
-                while( tries < 4 )
-                {
-                    xCellularStatus = Cellular_GetSimCardStatus( _cellularHandle, &simStatus );
-
-                    if( xCellularStatus != CELLULAR_SUCCESS )
-                    {
-                        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
-                        break;
-                    }
-                    else if( simStatus.simCardState == CELLULAR_SIM_CARD_INSERTED )
-                    {
-                        if( simStatus.simCardLockState == CELLULAR_SIM_CARD_READY )
-                        {
-                            _simReady = 1;
-                            break;
-                        }
-                    }
-
-                    vTaskDelay( pdMS_TO_TICKS( 5000 ) );
-                    tries++;
-                }
-            }
+            /* Wait until SIM is ready. */
+            simReady = prvWaitSimCardReady();
+            TEST_ASSERT( simReady == true );
         }
     }
     else
@@ -1843,8 +2181,10 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_AirplaneMode_Loop )
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief CELLULAR power cycle loop
+ * @brief CELLULAR power cycle loop.
  */
 TEST( Full_CELLULAR_API, AFQP_Cellular_Power_Loop )
 {
@@ -1854,14 +2194,12 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Power_Loop )
 
     if( TEST_PROTECT() )
     {
-        /* clean previous setting. */
+        /* Clean previous setting. */
         ( void ) Cellular_Cleanup( _cellularHandle );
         _cellularHandle = NULL;
 
         for( index = 0; index < testCELLULARCONNECTION_LOOP_TIMES; ++index )
         {
-            _pCommIntf = pCommIntf;
-            vTaskDelay( pdMS_TO_TICKS( 1000 ) );
             xCellularStatus = Cellular_Init( &_cellularHandle, pCommIntf );
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                    ">>>  Cellular module can't be initialized  <<<" );
@@ -1871,6 +2209,262 @@ TEST( Full_CELLULAR_API, AFQP_Cellular_Power_Loop )
             _cellularHandle = NULL;
             TEST_CELLULAR_ASSERT_REQUIRED_API_MSG( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus,
                                                    ">>>  Cellular module can't be cleanup  <<<" );
+        }
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test eDRX settings on echo server received times.
+ *
+ * ------------------------------|--------------------------------|-------------------------------
+ *       t1                      |         t2                     |    t3
+ *     EDRX = 0                  |       EDRX = 1                 |    EDRX = 0
+ * ( RX is on )                  | ( RX is off periodically )     |  ( RX is on )
+ * ( Data receiption is normal ) | ( Data receiption is delayed ) |  ( Data receiption is normal )
+ * ------------------------------|--------------------------------|-------------------------------
+ */
+TEST( Full_CELLULAR_API, AFQP_Cellular_EidrxEchoTimes )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularEidrxSettings_t eidrxSettings = { 0 };
+    CellularEidrxSettingsList_t eidrxSettingsList = { 0 };
+    uint8_t drxValue = 5;                 /* 5 = ( 0 1 0 1 )  81.92 seconds. */
+    const uint32_t testTimoutMs = 80000U; /* Test waiting socket receive time. */
+    uint32_t normalReceiveTimes = 0;
+    uint32_t edrxReceiveTimes = 0;
+
+    if( prvIsConnectedCellular() == pdFAIL )
+    {
+        TEST_ASSERT( prvConnectCellular() == pdPASS );
+    }
+
+    if( TEST_PROTECT() )
+    {
+        /* Disable the EDRX mode. */
+        eidrxSettings.mode = 0;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
+        eidrxSettings.requestedEdrxVaue = 0;
+
+        xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        /* Send the data to the server and wait for response. */
+        normalReceiveTimes = prvTestSocketReceiveCount( testTimoutMs, testCELLULAR_EDRX_ECHO_SERVER_DATA_SEND_INTERVAL_MS );
+        configPRINTF( ( "Normal echo test receive times %d\r\n", normalReceiveTimes ) );
+        vTaskDelay( pdMS_TO_TICKS( testCELLULAR_EDRX_ECHO_SERVER_DATA_SEND_INTERVAL_MS ) );
+
+        /* Enabling the EDRX mode and verify. */
+        eidrxSettings.mode = 1;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
+        eidrxSettings.requestedEdrxVaue = drxValue;
+
+        xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        xCellularStatus = Cellular_GetEidrxSettings( _cellularHandle, &eidrxSettingsList );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        /* Send the data to the server and wait for response.
+         * Data receive times is less in eDRX mode. */
+        edrxReceiveTimes = prvTestSocketReceiveCount( testTimoutMs, testCELLULAR_EDRX_ECHO_SERVER_DATA_SEND_INTERVAL_MS );
+        configPRINTF( ( "EDRX echo test receive times %d\r\n", edrxReceiveTimes ) );
+        TEST_ASSERT_MESSAGE( ( edrxReceiveTimes < normalReceiveTimes ),
+                             "EDRX receive more times than normal" );
+
+        /* Disabling the EDRX mode and verify. */
+        eidrxSettings.mode = 3;
+        eidrxSettings.rat = testCELLULAR_EDRX_RAT;
+        eidrxSettings.requestedEdrxVaue = 0;
+
+        xCellularStatus = Cellular_SetEidrxSettings( _cellularHandle, &eidrxSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        xCellularStatus = Cellular_GetEidrxSettings( _cellularHandle, &eidrxSettingsList );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/*
+ * @brief Check cellular power saving mode status.
+ *
+ * --------------------|---------------------|---------------------
+ *      t1             |         t2          |       t3
+ *    PSM =0           |       PSM = 1       |     PSM = 0
+ * (at cmd works)      |   (at cmd fails)    | (at cmd works again)
+ * --------------------|---------------------|---------------------
+ */
+TEST( Full_CELLULAR_API, AFQP_Cellular_PsmStatus )
+{
+    CellularError_t xCellularStatus = CELLULAR_SUCCESS;
+    CellularPsmSettings_t psmSettings = { 0 };
+    uint32_t psmTau = 4;    /* 4 * 10 minutes = 40 minutes. */
+    uint32_t psmTimer = 14; /* 14 * 2 seconds = 28 Seconds. */
+    uint32_t tries = 0;
+    EventBits_t waitEventBits = 0;
+
+    if( prvIsConnectedCellular() == pdFAIL )
+    {
+        TEST_ASSERT( prvConnectCellular() == pdPASS );
+    }
+
+    if( TEST_PROTECT() )
+    {
+        /* Setup the modem event. */
+        _modemEventGroup = xEventGroupCreate();
+        TEST_ASSERT_MESSAGE( _modemEventGroup != NULL, "Create event group fail" );
+        xEventGroupClearBits( _modemEventGroup,
+                              MODEM_EVENT_BOOTUP_OR_REBOOT_BIT | MODEM_EVENT_POWERED_DOWN_BIT | MODEM_EVENT_PSM_ENTER_BIT );
+
+        xCellularStatus = Cellular_RegisterModemEventCallback( _cellularHandle, prvCellularModemEventCallback );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        /* Disabling the PSM mode if ON. */
+        xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        if( psmSettings.mode == 1 )
+        {
+            psmSettings.mode = 0;
+            psmSettings.periodicTauValue = 0;
+            psmSettings.periodicRauValue = 0;
+            psmSettings.gprsReadyTimer = 0;
+            psmSettings.activeTimeValue = 0;
+
+            xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
+            TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        }
+
+        /* Enabling the PSM mode and verify. */
+        psmSettings.mode = 1;
+        psmSettings.periodicTauValue = psmTau;
+        psmSettings.periodicRauValue = 0;
+        psmSettings.gprsReadyTimer = 0;
+        psmSettings.activeTimeValue = psmTimer;
+
+        xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        for( tries = 0; tries < testCELLULAR_MAX_GET_PSM_RETRY; tries++ )
+        {
+            xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+            if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( psmSettings.mode == 1 ) )
+            {
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_GET_PSM_RETRY_INTERVAL_MS ) );
+        }
+
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        TEST_ASSERT_EQUAL_INT32( psmSettings.mode, 1 );
+        configPRINTF( ( "PSM active time %u\r\n", psmSettings.activeTimeValue ) );
+
+        /* Wait until active timer expired. */
+        for( tries = 0; tries < 5; tries++ )
+        {
+            waitEventBits = xEventGroupWaitBits( _modemEventGroup,
+                                                 MODEM_EVENT_PSM_ENTER_BIT,
+                                                 pdTRUE,
+                                                 pdFALSE,
+                                                 pdMS_TO_TICKS( psmSettings.activeTimeValue * 1000UL ) );
+
+            if( ( waitEventBits & MODEM_EVENT_PSM_ENTER_BIT ) != 0 )
+            {
+                break;
+            }
+        }
+
+        TEST_ASSERT_MESSAGE( ( waitEventBits & MODEM_EVENT_PSM_ENTER_BIT ) != 0, "PSM enter failed" );
+        /* Wait 5 seconds after PSM mode enter. */
+        vTaskDelay( pdMS_TO_TICKS( 5000 ) );
+
+        /* Send the AT command to cellular module should return error. */
+        xCellularStatus = Cellular_ATCommandRaw( _cellularHandle,
+                                                 NULL,
+                                                 "AT",
+                                                 CELLULAR_AT_NO_RESULT,
+                                                 NULL,
+                                                 NULL,
+                                                 0U );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS != xCellularStatus, xCellularStatus );
+
+        /* Wait timer expired to wake up from PSM and disable PSM. */
+        for( tries = 0; tries < 2; tries++ )
+        {
+            waitEventBits = xEventGroupWaitBits( _modemEventGroup,
+                                                 MODEM_EVENT_BOOTUP_OR_REBOOT_BIT,
+                                                 pdTRUE,
+                                                 pdFALSE,
+                                                 portMAX_DELAY );
+
+            if( ( waitEventBits & MODEM_EVENT_BOOTUP_OR_REBOOT_BIT ) != 0 )
+            {
+                break;
+            }
+        }
+
+        TEST_ASSERT_MESSAGE( ( waitEventBits & MODEM_EVENT_BOOTUP_OR_REBOOT_BIT ) != 0, "PSM exit failed" );
+
+        /* Send the AT command to cellular module should return error. */
+        ( void ) Cellular_ATCommandRaw( _cellularHandle,
+                                        NULL,
+                                        "ATE0",
+                                        CELLULAR_AT_NO_RESULT,
+                                        NULL,
+                                        NULL,
+                                        0U );
+        configPRINTF( ( "PSM exit, echo off the AT command\r\n" ) );
+
+        /* Disable the PSM mode and verify. */
+        psmSettings.mode = 0;
+        psmSettings.periodicTauValue = 0;
+        psmSettings.periodicRauValue = 0;
+        psmSettings.gprsReadyTimer = 0;
+        psmSettings.activeTimeValue = 0;
+
+        xCellularStatus = Cellular_SetPsmSettings( _cellularHandle, &psmSettings );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        for( tries = 0; tries < testCELLULAR_MAX_GET_PSM_RETRY; tries++ )
+        {
+            xCellularStatus = Cellular_GetPsmSettings( _cellularHandle, &psmSettings );
+
+            if( ( xCellularStatus == CELLULAR_SUCCESS ) && ( psmSettings.mode == 0 ) )
+            {
+                break;
+            }
+
+            vTaskDelay( pdMS_TO_TICKS( testCELLULAR_GET_PSM_RETRY_INTERVAL_MS ) );
+        }
+
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+        TEST_ASSERT_EQUAL_INT32( psmSettings.mode, 0 );
+
+        /* Send the AT command to cellular module should return okay. */
+        xCellularStatus = Cellular_ATCommandRaw( _cellularHandle,
+                                                 NULL,
+                                                 "AT",
+                                                 CELLULAR_AT_NO_RESULT,
+                                                 NULL,
+                                                 NULL,
+                                                 0U );
+        TEST_CELLULAR_ASSERT_REQUIRED_API( CELLULAR_SUCCESS == xCellularStatus, xCellularStatus );
+
+        if( _modemEventGroup != NULL )
+        {
+            vEventGroupDelete( _modemEventGroup );
+            _modemEventGroup = NULL;
         }
     }
     else

@@ -776,6 +776,33 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
         cellularMgrStatus = CELLULAR_MANAGER_LIB_NOT_OPENED;
     }
 
+    /* Setup PDN. */
+    if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
+    {
+        cellularStatus = Cellular_SetPdnConfig( _pCellularManagerContext->cellularHandle, contextId, pPdnConfig );
+
+        if( cellularStatus != CELLULAR_SUCCESS )
+        {
+            cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
+        }
+    }
+
+    /* Rescan network. */
+    if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
+    {
+        cellularStatus = Cellular_RfOff( _pCellularManagerContext->cellularHandle );
+
+        if( cellularStatus == CELLULAR_SUCCESS )
+        {
+            cellularStatus = Cellular_RfOn( _pCellularManagerContext->cellularHandle );
+        }
+
+        if( cellularStatus != CELLULAR_SUCCESS )
+        {
+            cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
+        }
+    }
+
     /* check registration status. */
     if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
     {
@@ -803,17 +830,6 @@ CellularManagerError_t CellularManager_ConnectSync( uint8_t contextId,
 
                 vTaskDelay( pdMS_TO_TICKS( waitInterval ) );
             }
-        }
-    }
-
-    /* next setup PDN. */
-    if( cellularMgrStatus == CELLULAR_MANAGER_SUCCESS )
-    {
-        cellularStatus = Cellular_SetPdnConfig( _pCellularManagerContext->cellularHandle, contextId, pPdnConfig );
-
-        if( cellularStatus != CELLULAR_SUCCESS )
-        {
-            cellularMgrStatus = CELLULAR_MANAGER_HAL_ERROR;
         }
     }
 

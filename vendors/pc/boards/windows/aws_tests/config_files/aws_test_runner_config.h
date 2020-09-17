@@ -53,6 +53,7 @@
 #define testrunnerFULL_POSIX_ENABLED                  0
 #define testrunnerFULL_SHADOW_ENABLED                 0
 #define testrunnerFULL_SHADOWv4_ENABLED               0
+#define testrunnerFULL_CELLULAR_ENABLED               0
 #define testrunnerFULL_TCP_ENABLED                    1
 #define testrunnerFULL_TLS_ENABLED                    0
 #define testrunnerFULL_MEMORYLEAK_ENABLED             0
