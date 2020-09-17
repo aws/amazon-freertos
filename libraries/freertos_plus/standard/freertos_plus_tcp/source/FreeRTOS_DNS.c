@@ -1070,7 +1070,7 @@ size_t uxIndex = 0U;
 /* The function below will only be called :
 when ipconfigDNS_USE_CALLBACKS == 1
 when ipconfigUSE_LLMNR == 1
-for testing purposes, by the module iot_test_freertos_tcp.c
+for testing purposes, by the module test_freertos_tcp.c
 */
 uint32_t ulDNSHandlePacket( const NetworkBufferDescriptor_t *pxNetworkBuffer )
 {

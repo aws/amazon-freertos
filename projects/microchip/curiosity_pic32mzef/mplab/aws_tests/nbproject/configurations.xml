@@ -698,7 +698,7 @@
               <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</itemPath>
             </logicalFolder>
             <logicalFolder name="test" displayName="test" projectFiles="true">
-              <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</itemPath>
+              <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/test_freertos_tcp.c</itemPath>
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
