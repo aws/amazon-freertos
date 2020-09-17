@@ -67,7 +67,7 @@ extern void SPI_WIFI_ISR(void);
 extern SPI_HandleTypeDef hspi;
 
 /* Setup cellular connection. */
-extern bool prvSetupCellular( void );
+extern bool setupCellular( void );
 
 /**********************
 * Global Variables
@@ -119,7 +119,7 @@ static void testRunnerTask( void * pvParameters )
 {
     bool retCellular = false;
     /* Connect to the cellular network before running the demos. */
-    retCellular = prvSetupCellular();
+    retCellular = setupCellular();
     if( retCellular == false )
     {
         configPRINTF( ( "Cellular failed to initialize.\r\n" ) );

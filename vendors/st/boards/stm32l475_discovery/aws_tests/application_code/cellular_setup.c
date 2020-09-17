@@ -65,7 +65,7 @@
      */
     extern CellularCommInterface_t CellularCommInterface;
 
-    bool prvSetupCellular( void )
+    bool setupCellular( void )
     {
         bool cellularRet = true;
         CellularError_t cellularStatus = CELLULAR_SUCCESS;
@@ -193,7 +193,7 @@
         return cellularRet;
     }
 #else /* if defined( BOARD_HAS_CELLULAR ) */
-    bool prvSetupCellular( void )
+    bool setupCellular( void )
     {
         return true;
     }

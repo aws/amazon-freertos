@@ -129,7 +129,7 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
-extern bool prvSetupCellular( void );
+extern bool setupCellular( void );
 
 /*-----------------------------------------------------------*/
 
@@ -178,7 +178,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
         /* Setup the cellular connectivity for testing. */
-        retCellular = prvSetupCellular();
+        retCellular = setupCellular();
         if( retCellular == false )
         {
             configPRINTF( ( "Cellular failed to initialize.\r\n" ) );
