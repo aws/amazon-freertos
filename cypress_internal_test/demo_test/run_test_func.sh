@@ -26,6 +26,14 @@ test_err=0
 board=$1
 toolchain=$2
 
+ota_only=${OTA_ONLY:-0}
+
+if [[ $ota_only == 1 ]]; then
+    demo_thing=$(echo demo-$board | sed s/_/-/g)
+else
+   demo_thing='demo-tester-thing'
+fi
+
 if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin" ]]; then   # linux or Mac OSX
     python_cmd="python3.7"
 elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then # Winodws
@@ -80,15 +88,6 @@ function compile_make()
     
     test_error=$?
     popd
-    return $test_error
-}
-
-function run_obj_copy()
-{
-    local file_name=$1
-
-    $GCC_DIR/bin/arm-none-eabi-objcopy -O ihex aws_demos.elf aws_demos.hex
-    test_error=$?
     return $test_error
 }
 
@@ -158,6 +157,78 @@ flash_hex_secure()
     return $test_error
 }
 
+flash_hex_062()
+{
+    hexs_folder=$1
+
+    local DEVICE_ID=""
+    DEVICE_ID=$($python_cmd get_device_id.py $board)
+
+    mcuboot_image=MCUBootApp1_6.hex
+    hex_name=aws_demos.signed.hex
+
+    # flash mcuboot
+    for i in 1 2 3 4 5:
+    do
+        echo -e "programming mcuboot: $i"
+
+        echo "Erasing chip"
+        pyocd erase -c -u $DEVICE_ID
+        pyocd_result=$?
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd chip erasing failed with error code $pyocd_result"
+            continue
+        fi
+
+        echo "program $AFR_DIR/cypress_internal_test/device_tester/$mcuboot_image"
+        pyocd flash $AFR_DIR/cypress_internal_test/device_tester/$mcuboot_image -u $DEVICE_ID
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd flashing /$mcuboot_image failed with error code $pyocd_result"
+            continue
+        fi
+
+        if [ $pyocd_result == 0 ]; then
+            break
+        fi
+
+    done
+    
+    for i in 1 2 3 4 5:
+    do
+        echo -e "programming attempt: $i"
+        
+        echo "program $hexs_folder/$hex_name"
+        pyocd flash $hexs_folder/$hex_name -u $DEVICE_ID
+        if [ $pyocd_result != 0 ]; then 
+            echo "pyocd flashing $hex_name failed with error code $pyocd_result"
+            continue
+        fi
+        if [ $pyocd_result == 0 ]; then
+            break
+        fi
+
+    done
+
+    test_error=$?
+    return $test_error
+}
+
+reset_mcu()
+{
+    local DEVICE_ID=""
+    # workaround for BSP-2213
+    local board_name=""
+    if [[ ${board}  == "CY8CKIT_064S0S2_4343W" ]]; then
+        board_name="CY8CKIT064S0S2_4343W"
+    else
+        board_name=$board
+    fi
+
+    DEVICE_ID=$($python_cmd get_device_id.py $board_name)
+    echo "sw reset $DEVICE_ID"
+    pyocd reset -m 'sw' -u $DEVICE_ID
+}
+
 function clean_up()
 {
     pushd $AFR_DIR
@@ -174,13 +245,13 @@ function check_uart_result()
 {
     local demo_name=$1
 
-    TEST_TIMEOUT="${TEST_TIMEOUT:-1000}"
+    TEST_TIMEOUT="${TEST_TIMEOUT:-1200}"
     ACCEPT_MESSAGE="${ACCEPT_MESSAGE:-Demo completed successfully.}"
     FAIL_MESSAGE="${FAIL_MESSAGE:-Error running demo.}"
-                
+
     pushd $current_dir
     $python_cmd parse_serial.py $board "$TEST_TIMEOUT" "$ACCEPT_MESSAGE" "$FAIL_MESSAGE"
-    
+
     test_error=$?
     if [ $test_error -eq 0 ]; then
         echo "$demo_name: passed" >>$result_file
@@ -193,28 +264,29 @@ function check_uart_result()
     popd
 
     return $test_error
-    
 }
 
-function create_ota_job()
+function create_ota_job_with_id()
 {
     hexs_folder=$1
     ota_img_name=$2
     protocol=$3
-        
+    jobid=${4:-'AFR_OTA_update'}
+
     echo $hexs_folder
     
     pushd $current_dir/ota/scripts
-            
+
     $python_cmd start_ota.py --profile default \
-                                         --name demo-tester-thing \
+                                         --name $demo_thing \
                                          --role lava-role \
                                          --s3bucket lava-bucket \
                                          --otasigningprofile lavasigningprofile \
                                          --certarn ../signer_cert/certarn.json \
                                          --updateimage $hexs_folder/${ota_img_name} \
-                                         --protocol ${protocol}
-                                
+                                         --protocol ${protocol}\
+                                         --jobid ${jobid}
+
     test_error=$?
     popd
 
@@ -224,19 +296,25 @@ function create_ota_job()
 function update_img_ver()
 {
     echo "updating image version..."
-    sed -i -r "s/#define APP_VERSION_MAJOR    0/#define APP_VERSION_MAJOR    1/" $AFR_DIR/demos/include/aws_application_version.h
-
-    sed -i -r "s/#define APP_VERSION_MAJOR    0/#define APP_VERSION_MAJOR    1/" $AFR_DIR/projects/cypress/$board/mtb/aws_demos/include/aws_application_version.h
+    sed -i -r "s/#define APP_VERSION_BUILD    2/#define APP_VERSION_BUILD    3/" $AFR_DIR/demos/include/aws_application_version.h
+    if [[ $board == "CY8CKIT_064S0S2_4343W" ]];	then
+        sed -i -r "s/#define APP_VERSION_MAJOR    0/#define APP_VERSION_MAJOR    1/" $AFR_DIR/projects/cypress/$board/mtb/aws_demos/include/aws_application_version.h
+    fi
 }
 
 function run_cmake_test()
 {
     local test=$1
     local ota_protocol=${2:-'MQTT'}
+    local ota_image_name=${3:-'aws_demos.bin'}
     local ota_en=0 
     test_error=0
     
-    echo -e  "******************** " "Cmake " $test " demo test started" " ********************"
+    if [ "$test" == "ota" ]; then
+        echo -e  "***** " "CMake  " $test $ota_protocol $ota_image_name " demo test started " " *****"
+    else
+        echo -e  "******************** " "CMake " $test " demo test started" " ********************"
+    fi
 
     source "$current_dir/$test/setup_test.sh"
 
@@ -250,29 +328,42 @@ function run_cmake_test()
     fi
     
     compile_cmake $ota_en
-    
+
     if [ $test_error -eq 0 ]
-    then        
-        flash_hex_secure "$AFR_DIR/build"      
+    then
+        if [[ $board == "CY8CKIT_064S0S2_4343W" ]];
+        then
+            flash_hex_secure "$AFR_DIR/build"
+        else
+            flash_hex_062 "$AFR_DIR/build"
+        fi  
     fi
-    
+
     if [ "$test" == "ota" ]; then
+        jobid=$board-update-$((1 + RANDOM % 1000000))
         if [ $test_error -eq 0 ]
         then 
             echo "OTA protocol: " $ota_protocol
             echo "prepare image for OTA"
             update_img_ver
-            
+
             rm -rf $AFR_DIR/build
             compile_cmake $ota_en
-            create_ota_job "$AFR_DIR/build" "cm4_upgrade.bin" $ota_protocol
+
+            image_name=$(echo $board"_"$ota_image_name)
+            cp $AFR_DIR/build/$ota_image_name $AFR_DIR/build/$image_name
+            create_ota_job_with_id "$AFR_DIR/build" $image_name $ota_protocol $jobid
         fi
     fi
+
+    echo "reset the $board after the 2nd build"
+    reset_mcu
+    sleep 1
 
     if [ $test_error -eq 0 ]
     then    
         if [[ ("$test" == "ota") && ("$ota_protocol" == "MQTT" || "$ota_protocol" == "HTTP") ]]; then
-            check_uart_result "cmake $test $ota_protocol"       
+            check_uart_result "cmake $test $ota_protocol $ota_image_name"       
         else
             check_uart_result "cmake $test"
         fi
@@ -283,20 +374,31 @@ function run_cmake_test()
         ((ERRORS++))
         echo "Test $test failed."
     fi
-        
+     
     clean_up
     
-    echo -e  "******************** " "Cmake " $test " demo test finished" " ********************"
+    if [ "$test" == "ota" ]; then
+        echo "command: aws iot delete-job --force --job-id AFR_OTA-$jobid"
+        aws iot delete-job --force --job-id AFR_OTA-$jobid
+        echo -e  "***** " "CMake  " $test $ota_protocol $ota_image_name " demo test finished " " *****"
+    else
+        echo -e  "******************** " "CMake " $test " demo test finished" " ********************"
+    fi
 }
 
 function run_make_test()
 {
     local test=$1
     local ota_protocol=${2:-'MQTT'}
+    local ota_image_name=${3:-'aws_demos.bin'}
     local ota_en=0
     test_error=0
     
-    echo -e  "******************** " "Make " $test " demo test started" " ********************"
+    if [ "$test" == "ota" ]; then
+        echo -e  "***** " "Make  " $test $ota_protocol $ota_image_name " demo test started " " *****"
+    else
+        echo -e  "******************** " "Make " $test " demo test started" " ********************"
+    fi
     
     source "$current_dir/$test/setup_test.sh"
 
@@ -309,13 +411,22 @@ function run_make_test()
         ota_en=1
     fi
     compile_make $ota_en
-    
+
     if [ $test_error -eq 0 ]
     then
-        flash_hex_secure "$AFR_DIR/build/cy/aws_demos/$board/Debug"
+        if [[ $board == "CY8CKIT_064S0S2_4343W" ]];
+        then
+            board_name=$board
+            flash_hex_secure "$AFR_DIR/build/cy/aws_demos/$board_name/Debug"
+        else
+            board_name=$(echo $board | sed s/_/-/g)
+            flash_hex_062 "$AFR_DIR/build/cy/aws_demos/$board_name/Debug"
+        fi
     fi
     
     if [ "$test" == "ota" ]; then
+        jobid=$board-update-$((1 + RANDOM % 1000000))
+        
         if [ $test_error -eq 0 ]
         then 
             echo "OTA protocol: " $ota_protocol
@@ -324,28 +435,43 @@ function run_make_test()
             
             rm -rf $AFR_DIR/build
             compile_make $ota_en
-            create_ota_job "$AFR_DIR/build/cy/aws_demos/$board/Debug" "cm4.bin" $ota_protocol
+
+            image_name=$(echo $board"_"$ota_image_name)
+            cp $AFR_DIR/build/cy/aws_demos/$board_name/Debug/$ota_image_name  $AFR_DIR/build/cy/aws_demos/$board_name/Debug/$image_name
+            create_ota_job_with_id "$AFR_DIR/build/cy/aws_demos/$board_name/Debug" $image_name $ota_protocol $jobid
+
+            echo "create job: $jobid" 
         fi
     fi
+
+    echo "reset the $board after the 2nd build"
+    reset_mcu
+    sleep 1
 
     if [ $test_error -eq 0 ]
     then
         if [[ ("$test" == "ota") && ("$ota_protocol" == "MQTT" || "$ota_protocol" == "HTTP") ]]; then
-            check_uart_result "make $test $ota_protocol"
+            check_uart_result "make $test $ota_protocol $ota_image_name"
         else
             check_uart_result "make $test"
         fi
     fi
-    
+
     if [ $test_error -ne 0 ]
     then
         ((ERRORS++))
         echo "Test $test failed."
     fi
-        
+
     clean_up
     
-    echo -e  "******************** " "Make " $test " demo test finished" " ********************"
+    if [ "$test" == "ota" ]; then
+        echo "command: aws iot delete-job --force --job-id AFR_OTA-$jobid"
+        aws iot delete-job --force --job-id AFR_OTA-$jobid
+        echo -e  "***** " "Make  " $test $ota_protocol $ota_image_name " demo test finished " " *****"
+    else
+        echo -e  "******************** " "Make " $test " demo test finishe" " ********************"
+    fi
 }
 
 function replace_define()
@@ -364,7 +490,8 @@ function apply_common_changes()
     cp -f aws_clientcredential.h $AFR_DIR/demos/include/aws_clientcredential.h 
  
     cp -f $AFR_DIR/cypress_internal_test/demo_test/ota/aws_ota_codesigner_certificate.h $AFR_DIR/demos/include/aws_ota_codesigner_certificate.h
-    
+
+    replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialIOT_THING_NAME \"$demo_thing\"
     replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialWIFI_SSID \"$DEVICE_TESTER_WIFI_SSID\"
     replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialWIFI_PASSWORD \"$DEVICE_TESTER_WIFI_PASSWORD\"
 }
@@ -373,19 +500,48 @@ set +e
 
 rm -rf $AFR_DIR/build
 
-run_cmake_test tcp_secure_echo
-run_cmake_test mqtt
-run_cmake_test shadow
-run_cmake_test defender
-run_cmake_test ota MQTT
-run_cmake_test ota HTTP
+if [[ $ota_only == 1 ]]; 
+then
+    if [[ $board == "CY8CKIT_064S0S2_4343W" ]];
+    then
+        # Cmake build flow test cases
+        run_cmake_test ota MQTT aws_demos_cm4.bin
+        run_cmake_test ota HTTP aws_demos_cm4.bin
+        run_cmake_test ota HTTP cm4_only_signed.tar
+        run_cmake_test ota HTTP cm4_cm0_signed.tar
 
-run_make_test tcp_secure_echo
-run_make_test mqtt
-run_make_test shadow
-run_make_test defender
-run_make_test ota MQTT
-run_make_test ota HTTP
+        # Make build flow test cases
+        run_make_test ota MQTT cm4.bin
+        run_make_test ota HTTP cm4.bin
+        run_make_test ota HTTP cm4_only_signed.tar
+        run_make_test ota HTTP cm4_cm0_signed.tar
+    else
+        # Make build flow test cases on 062 boards
+        run_make_test ota MQTT aws_demos.bin
+        run_make_test ota HTTP aws_demos.bin
+        run_make_test ota HTTP aws_demos.tar
+
+        # Cmake build flow test cases on 062 boards
+        run_cmake_test ota MQTT aws_demos.bin
+        run_cmake_test ota HTTP aws_demos.bin
+        run_cmake_test ota HTTP aws_demos.tar
+    fi
+else
+    # Run other demos 
+    run_cmake_test tcp_secure_echo
+    run_cmake_test mqtt
+    run_cmake_test shadow
+    run_cmake_test defender
+    run_cmake_test ota MQTT cm4_upgrade.bin
+    run_cmake_test ota HTTP cm4_upgrade.bin
+
+    run_make_test tcp_secure_echo
+    run_make_test mqtt
+    run_make_test shadow
+    run_make_test defender
+    run_make_test ota MQTT cm4.bin
+    run_make_test ota HTTP cm4.bin
+fi
 
 echo "----------------"
 cat $result_file
