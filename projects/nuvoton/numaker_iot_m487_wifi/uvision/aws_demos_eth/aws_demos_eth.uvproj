@@ -374,7 +374,7 @@
 							<MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
 							<Define>MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;  CONFIG_MEDTLS_USE_AFR_MEMORY RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG M487_ETH_DEMO</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/Keil;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/standard/https/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/mbedtls_utils;../../../../../libraries/3rdparty/mbedtls_config;../../../../../libraries/3rdparty/tinycbor/src;../../../../../libraries/3rdparty/http_parser;../../../../../libraries/3rdparty/jsmn</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -931,52 +931,52 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/source/</GroupName>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/</GroupName>
 					<Files>
 						<File>
 							<FileName>FreeRTOS_ARP.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_ARP.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_DHCP.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DHCP.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_DNS.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_IP.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_IP.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_Sockets.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Sockets.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_Stream_Buffer.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_Stream_Buffer.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_TCP_IP.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_IP.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_TCP_WIN.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_TCP_WIN.c</FilePath>
 						</File>
 						<File>
 							<FileName>FreeRTOS_UDP_IP.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_UDP_IP.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1061,27 +1061,27 @@
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/</GroupName>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/</GroupName>
 					<Files>
 						<File>
 							<FileName>BufferAllocation_1.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c</FilePath>
 						</File>
 					</Files>
 				</Group>
 				<Group>
-					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/</GroupName>
+					<GroupName>libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487/</GroupName>
 					<Files>
 						<File>
 							<FileName>m480_eth.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.c</FilePath>
 						</File>
 						<File>
 							<FileName>NetworkInterface.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/NetworkInterface/M487/NetworkInterface.c</FilePath>
 						</File>
 					</Files>
 				</Group>

@@ -12,7 +12,7 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../vendors/marvell/boards/mw300_rd/aws_tests/config_files/ \
 				 -I$(d)/../../../../../vendors/marvell/boards/mw300_rd/aws_demos/config_files/ \
 				 -I$(d)/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/ \
-				 -I$(d)/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/ \
+				 -I$(d)/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/portable/Compiler/GCC/ \
 				 -I$(d)/../../../../../libraries/freertos_plus/standard/utils/include/ \
 				 -I$(d)/../../../../../libraries/freertos_plus/standard/crypto/include/ \
 				 -I$(d)/../../../../../libraries/c_sdk/standard/common/include/private/ \
