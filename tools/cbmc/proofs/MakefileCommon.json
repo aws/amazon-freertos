@@ -73,7 +73,8 @@
         "--object-bits 7",
         "--32",
         "--bounds-check",
-        "--pointer-check"
+        "--pointer-check",
+        "--pointer-primitive-check"
     ],
 
     "FORWARD_SLASH": ["/"],
