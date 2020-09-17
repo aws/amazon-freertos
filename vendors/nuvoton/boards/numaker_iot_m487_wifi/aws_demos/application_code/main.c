@@ -485,7 +485,6 @@ void vAssertCalled( const char * pcFile,
 
 void vApplicationIdleHook( void )
 {
-//    const uint32_t ulMSToSleep = 1;
     const TickType_t xIdleCheckPeriod = pdMS_TO_TICKS( 1000UL );
     static TickType_t xTimeNow, xLastTimeCheck = 0;
 
