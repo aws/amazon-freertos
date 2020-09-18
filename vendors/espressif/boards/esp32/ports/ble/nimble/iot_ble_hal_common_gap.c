@@ -626,7 +626,16 @@ BTStatus_t prvBTDisable()
     BTStatus_t xStatus = eBTStatusFail;
     int rc;
 
-    rc = nimble_port_stop();
+    rc = ble_hs_pvcy_rpa_config( 0 );
+    if( rc != 0 )
+    {
+        ESP_LOGE( TAG, "Failed to disable RPA config, reason = %d\n", rc );
+    }
+
+    if( rc == 0 )
+    {
+        rc = nimble_port_stop();
+    }
 
     if( rc == 0 )
     {
