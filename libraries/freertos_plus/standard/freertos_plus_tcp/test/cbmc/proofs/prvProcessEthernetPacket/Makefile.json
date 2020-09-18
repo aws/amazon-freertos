@@ -1,0 +1,32 @@
+{
+  "ENTRY": "prvProcessEthernetPacket",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset prvTCPSendRepeated.0:13",
+    "--nondet-static",
+    "--flush"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_IP.goto"
+  ],
+  "INSTFLAGS":
+  [
+  ],
+  "OPT":
+  [
+    "--export-file-local-symbols"
+  ],
+  "DEF":
+  [
+    "FREERTOS_TCP_ENABLE_VERIFICATION"
+  ],
+  "INC":
+  [
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/include",
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/proofs/utility",
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/stubs"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "ENTRY": "vProcessGeneratedUDPPacket",
+  "CBMCFLAGS":
+  [
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_UDP_IP.goto"
+  ],
+  "INSTFLAGS":
+  [
+  ],
+  "DEF":
+  [
+    "ipconfigSUPPORT_OUTGOING_PINGS=1",
+    "ipconfigBYTE_ORDER=pdFREERTOS_BIG_ENDIAN"
+  ],
+  "INC":
+  [
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/include",
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/proofs/utility",
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/stubs"
+  ]
+}

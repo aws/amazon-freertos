@@ -1,0 +1,24 @@
+{
+  "ENTRY": "ulARPRemoveCacheEntryByMac",
+  "NUMBER_OF_CACHE_ENTRIES":6,
+  "CBMCFLAGS":
+  [
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_ARP.goto"
+  ],
+  "INSTFLAGS":
+  [
+  ],
+  "DEF":
+  [
+    "ipconfigUSE_ARP_REMOVE_ENTRY=1",
+    "ipconfigARP_CACHE_ENTRIES={NUMBER_OF_CACHE_ENTRIES}"
+  ],
+  "INC":
+  [
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/include"
+  ]
+}
