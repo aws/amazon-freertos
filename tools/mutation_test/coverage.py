@@ -48,7 +48,8 @@ def write_line_prints(output, source_code, funcs):
                 insert_line = i + span
             if i == insert_line:
                 f.write(line+"\n")
-                f.write("configPRINTF((\"MUTATION %s: %d\\n\", __FUNCTION__, __LINE__));" + "\n")
+                f.write("configPRINTF((\"MUTATION %s: %d\\n\", __FUNCTION__, {}));"
+                    .format(i - span + 1) + "\n")
             else:
                 f.write(line+"\n")
 
@@ -70,11 +71,9 @@ def main():
     with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
         config = json.load(f)
 
-    src = config['src']
     vendor = config['vendor']
     compiler = config['compiler']
     board = config['board']
-    test_groups = config['test_groups']
     port = get_default_serial_port()
     timeout = int(args.timeout)
 

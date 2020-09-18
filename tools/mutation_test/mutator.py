@@ -8,6 +8,40 @@ from typing import Tuple
 
 NULL_STRING = " "
 
+custom_patterns = {
+    " < " : 
+        [" <= ", " > ", " == "],
+    "==" : "!=",
+    "!=" : "==",
+    " && " : " || ",
+    " || " : " && ",
+
+    "++" :
+        [ "+=2", "-=2" ],
+
+    " + " : " - ",
+    " * " : " + ",
+    " - " : " + ",
+
+    "break;" : "{;}",
+
+    " free(": "// free(",
+
+    "[" :
+        [ "[ -1 + ", "[ 1 + ", "[ 0 * " ],
+
+    "," :
+        [ ", -2 * ", ", 2 * " ],
+
+    "0x00" :
+        [ "0x01", "0x55" ],
+    "0x01" :
+        [ "0x00", "0x05" ],
+
+    "return " : 
+        [ "return 2 * ", "return -2 * " ]
+}
+
 default_patterns = {
     " < " : 
         [ " != ", " > ", " <= ", " >= ", " == " ],
@@ -21,8 +55,8 @@ default_patterns = {
         [ " != ", " = ", " < ",  " > ", " <= ", " >= " ],
     "!=" : 
         [ " == ", " = ", " < ",  " > ", " <= ", " >= " ],
-    " = " : 
-        [ " == ", " != ", " < ",  " > ", " <= ", " >= ", " = 0 * ", " = 0 ;//", " = NULL; //", " = ! " ],
+    # " = " : 
+    #     [ " == ", " != ", " < ",  " > ", " <= ", " >= ", " = 0 * ", " = 0 ;//", " = NULL; //", " = ! " ],
 
     " + " : 
         [ " - ", " * ", " / ", " % " ],
@@ -32,34 +66,34 @@ default_patterns = {
     " * " : 
         [ " + ", " - ", " / ", " % " ],
 
-    " / " : 
-        [ " % ", " * ", " + ", " - " ],
-    " % " : 
-        [ " / ", " + ", " - ", " * " ],
+    # " / " : 
+    #     [ " % ", " * ", " + ", " - " ],
+    # " % " : 
+    #     [ " / ", " + ", " - ", " * " ],
 
     " + 1" :
         [ " - 1", "+ 0", "+ 2", "- 2" ],
     " - 1" :
         [ " + 1", "+ 0", "+ 2", "- 2" ],
 
-    " & " : 
-        [ " | ", " ^ " ],
-    " | " : 
-        [ " & ", " ^ " ],
-    " ^ " : 
-        [ " & ", " | " ],
+    # " & " : 
+    #     [ " | ", " ^ " ],
+    # " | " : 
+    #     [ " & ", " ^ " ],
+    # " ^ " : 
+    #     [ " & ", " | " ],
 
-    " &= " : 
-        [ " |= ", " ^= " ],
-    " |= " : 
-        [ " &= ", " ^= " ],
-    " ^= " : 
-        [ " &= ", " |= " ],
+    # " &= " : 
+    #     [ " |= ", " ^= " ],
+    # " |= " : 
+    #     [ " &= ", " ^= " ],
+    # " ^= " : 
+    #     [ " &= ", " |= " ],
 
-    " ~" : 
-        [ " !", NULL_STRING ],
-    " !" : 
-        [ " ~", NULL_STRING ],
+    # " ~" : 
+    #     [ " !", NULL_STRING ],
+    # " !" : 
+    #     [ " ~", NULL_STRING ],
 
     " && " : 
         [ " & ", " || "," && !" ],
@@ -233,6 +267,13 @@ class Mutator():
         for i in range(len(self.src)):
             shutil.copyfile(self.olds[i], self.modified[i])
 
+    def cleanup(self):
+        """ Cleans up by deleting all old files
+        """
+        self.restore()
+        for i in range(len(self.src)):
+            os.remove(self.olds[i])
+
     def mutate(self, mutation_pattern: Pattern, occurrence: Occurrence) -> Tuple[str, str]:
         """ Mutates given `occurrence` using given `mutation_pattern`
 
@@ -287,7 +328,7 @@ class Mutator():
                             mutate_at_index = source_code[line - 1].index(m)
                         else :
                             mutate_at_index = source_code[line - 1].index(m, mutate_at_index + 1)
-                        occurrences.append(Occurrence(f, mutation_pattern, line, mutate_at_index))
+                        occurrences.append(Occurrence(mutation_pattern, f, line, mutate_at_index))
         return occurrences                      
 
     def flattenPatterns(self, mutation_patterns):
