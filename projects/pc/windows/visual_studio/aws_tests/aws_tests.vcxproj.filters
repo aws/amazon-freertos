@@ -29,15 +29,15 @@
 		<Filter Include="libraries\abstractions\secure_sockets\include"/>
 		<Filter Include="libraries\abstractions\secure_sockets"/>
 		<Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp"/>
 		<Filter Include="libraries\freertos_plus\standard"/>
 		<Filter Include="libraries\freertos_plus"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap"/>
+		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\src"/>
 		<Filter Include="libraries\freertos_plus\standard\tls"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\include"/>
@@ -807,38 +807,38 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c">
 			<Filter>libraries\abstractions\secure_sockets\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_ARP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DHCP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_DNS.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Sockets.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_Stream_Buffer.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_TCP_WIN.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\FreeRTOS_UDP_IP.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement\BufferAllocation_2.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\BufferManagement</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap\NetworkInterface.c">
+			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\portable\NetworkInterface\WinPCap</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c">
 			<Filter>libraries\freertos_plus\standard\tls\src</Filter>
