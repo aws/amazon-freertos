@@ -32,4 +32,4 @@
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
 [submodule "libraries/freertos_plus/standard/freertos_plus_tcp"]
 	path = libraries/freertos_plus/standard/freertos_plus_tcp
-	url = https://github.com/FreeRTOS/FreeRTOS-Plus-TCP
+	url = https://github.com/FreeRTOS/FreeRTOS-Plus-TCP.git
