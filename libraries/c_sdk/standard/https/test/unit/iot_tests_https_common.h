@@ -62,7 +62,7 @@
 /**
  * @brief Test address to share among the tests.
  */
-#define HTTPS_TEST_ADDRESS          "www.amazon.com "
+#define HTTPS_TEST_ADDRESS          "www.amazon.com"
 
 /**
  * @brief Test path to share among the tests.
@@ -109,7 +109,7 @@
 /**
  * @brief The size of the request user buffer to use among the tests.
  */
-#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( sizeof( _httpsRequest_t ) + 128 )
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( sizeof( _httpsRequest_t ) + 256 )
 
 /**
  * @brief The size of the response user buffer to use among the tests.
