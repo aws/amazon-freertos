@@ -1,6 +1,6 @@
 afr_module(INTERNAL)
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
