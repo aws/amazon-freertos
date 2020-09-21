@@ -959,6 +959,19 @@ typedef struct
                                                bool bSetScanRsp,
                                                uint8_t * pucData,
                                                size_t xDataLen );
+
+    /**
+     *
+     * @brief Sets the LE background scan interval and window in units of N*0.625 msec.
+     *
+     * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
+     * @param[in] ulScanInterval
+     * @param[in] ulScanWindow
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxSetBgScanParameters )( uint8_t ucAdapterIf,
+                                            uint32_t ulScanInterval,
+                                            uint32_t ulScanWindow );
 } BTBleAdapter_t;
 
 #endif /* #ifndef _BT_HAL_MANAGER_ADAPTER_BLE_H_ */
