@@ -79,7 +79,7 @@ target_sources(
         ${driver_src}
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
-        "${AFR_KERNEL_DIR}/portable/MemMang/$<IF:${AFR_IS_TESTING},heap_4.c,heap_5.c>"
+        "${AFR_KERNEL_DIR}/portable/MemMang/heap_5.c"
 )
 set(
     kernel_inc_dirs
