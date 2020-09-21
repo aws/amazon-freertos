@@ -30,6 +30,6 @@
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
-[submodule "libraries/standard/c_sdk_v4/coreMQTT"]
-	path = libraries/standard/c_sdk_v4/coreMQTT
+[submodule "libraries/c_sdk_v4/standard/coreMQTT"]
+	path = libraries/c_sdk_v4/standard/coreMQTT
 	url = git@github.com:FreeRTOS/coreMQTT.git
