@@ -13,7 +13,5 @@
             "patterns": "all"
         }
     ],
-    "vendor": "espressif",
-    "board": "esp32_wrover_kit",
-    "compiler": "xtensa-esp32"
+    "flash_command": "${DIR_PATH}/esp32_build.py"
 }

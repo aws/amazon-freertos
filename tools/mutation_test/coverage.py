@@ -10,7 +10,7 @@ import re
 from utils import get_default_serial_port, yellow_print
 import mutation_runner
 
-FuncRegEx = r'^(?:\w ){0,1}\w+ \w+[(](?:(?:.+\n.+)*|.*)[)]'
+FuncRegEx = r'^(?:\w+ ){0,1}\w+ \w+[(](?:(?:.+\n.+)*|.*)[)]'
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -48,7 +48,7 @@ def write_line_prints(output, source_code, funcs):
                 insert_line = i + span
             if i == insert_line:
                 f.write(line+"\n")
-                f.write("configPRINTF((\"MUTATION %s: %d\\n\", __FUNCTION__, {}));"
+                f.write("configPRINTF((\"MUTATION_TESTING_FUNC_COVERAGE %s: %d\\n\", __FUNCTION__, {}));"
                     .format(i - span + 1) + "\n")
             else:
                 f.write(line+"\n")

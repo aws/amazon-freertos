@@ -198,7 +198,7 @@ class Occurrence():
         self.index = index
     
     def __str__(self):
-        return f'{self.file}: {self.line}: {self.index}'
+        return f'Pattern {self.pattern.pattern} found at File: {self.file}, Line: {self.line}, Index: {self.index}'
 
 class Pattern():
     def __init__(self, pattern, transformation):
@@ -274,13 +274,14 @@ class Mutator():
         for i in range(len(self.src)):
             os.remove(self.olds[i])
 
-    def mutate(self, mutation_pattern: Pattern, occurrence: Occurrence) -> Tuple[str, str]:
-        """ Mutates given `occurrence` using given `mutation_pattern`
+    def mutate(self, occurrence: Occurrence) -> Tuple[str, str]:
+        """ Mutates given `occurrence` using `occurrence.pattern`
 
         Returns the original line and the mutated line
 
-        See mutator.py for information on what Pattern and Occurrence object is
+        See mutator.py for information on what a Occurrence object is
         """
+        mutation_pattern = occurrence.pattern
         source_code = open(occurrence.file).read().split('\n')
         sys.stderr.write("\n==> @ Line: " + str(occurrence.line) + "\n\n")
         sys.stderr.write("Original Line  : " + source_code[occurrence.line - 1].strip() + "\n")
@@ -389,7 +390,7 @@ class Mutator():
             occurrences = self.findOccurrences(pattern)
             if len(occurrences) != 0:
                 occurrence = self.rng.choice(occurrences)
-                original_line, mutated_line = self.mutate(pattern, occurrence)
+                original_line, mutated_line = self.mutate(occurrence)
                 return pattern, occurrence, original_line, mutated_line
         sys.stderr.write("Could not create a mutant. Please make sure it is a C file.\n")
         sys.stderr.write("You may need to indent your C file.\n")

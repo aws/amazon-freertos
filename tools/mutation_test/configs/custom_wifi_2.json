@@ -26,7 +26,7 @@
         },
         {
             "name": "WIFI_ConnectAP_InvalidPassword",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[363, 448], [249,264]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[363,448],[249,264]]},
             "test_groups": ["WIFI_ConnectAP_InvalidPassword"],
             "patterns": "custom_patterns",
             "total_times": 10,
@@ -41,7 +41,5 @@
             "custom": "True"
         }
     ],
-    "vendor": "espressif",
-    "board": "esp32_wrover_kit",
-    "compiler": "xtensa-esp32"
+    "flash_command": "${DIR_PATH}/esp32_build.py"
 }

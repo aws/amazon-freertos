@@ -25,8 +25,10 @@ import coverage
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
+os.environ['DIR_PATH'] = dir_path
 os.chdir('../..')
 root_path = os.getcwd()
+os.environ['ROOT_PATH'] = root_path
 os.chdir(dir_path)
 
 # test time
@@ -66,15 +68,14 @@ def build():
     finally:
         os.chdir(old_path)
 
-def flash(port):
-    # build and execute the mutant
+def flash(cmd):
     # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-    cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
+    # cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
     utils.yellow_print(cmd)
     # Flash to device
     try: 
         utils.yellow_print("Flashing to device...")
-        subprocess.check_output(shlex.split(cmd))
+        subprocess.check_call(shlex.split(cmd))
     except subprocess.CalledProcessError as e:
         print(e.output)
         raise CompileFailed('Flash command failed.')
@@ -96,12 +97,19 @@ def read_device_output(port, *, start_flag=None, end_flag=None, crash_flag=None,
         raise SerialPortError(str(e))
     return output, final_flag
 
-def flash_and_read(vendor, board, compiler, port, timeout):
-    # cmake the mutant
-    cmake(vendor, board, compiler)
-    # build and flash
-    build()
-    flash(port)
+def flash_and_read(port, timeout, flash_command):
+
+    try:
+        subprocess.check_call(flash_command, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(e)
+        raise CompileFailed("Failed to compile")
+
+    # # cmake the mutant
+    # cmake(vendor, board, compiler)
+    # # build and flash
+    # build()
+    # flash(flash_command)
     final_flag = FLAGS.EndFlag
     # Read device output through serial port
     output, final_flag = read_device_output(port=port, 
@@ -188,16 +196,24 @@ class LineOutOfRange(MutationTestError):
 
 def run_custom(task, args, config):
     vendor, board, compiler = config['vendor'], config['board'], config['compiler']
+    flash_command = config['flash_command']
+
     port = args.port if args.port else utils.get_default_serial_port()
+    os.environ['PORT'] = port
     timeout = int(args.timeout)
 
     mutation = mutator.Mutator(src=task['src'], mutation_patterns=task['patterns'])
     mutant_patterns = mutation.getPatterns()
 
+    searched_patterns = set()
+
     data_record = []
     # outer try is for finally generating csv if automation stops early
     try:
         for mp in mutant_patterns:
+            if mp.pattern in searched_patterns:
+                continue
+            searched_patterns.add(mp.pattern)
             utils.yellow_print("Searching for pattern: {}".format(mp.pattern))
             occurences_with_mp = mutation.findOccurrences(mutation_pattern=mp)
             for o in occurences_with_mp:
@@ -210,11 +226,12 @@ def run_custom(task, args, config):
                 if times_per_pattern == 0:
                     break
                 # mutate the code
-                mutation.mutate(mp, occurrence)
+                utils.yellow_print(occurrence)
+                mutation.mutate(occurrence)
                 # try is for catching compile failure to continue execution
                 try:
                     # cmake, build, flash, and read
-                    output, final_flag = flash_and_read(vendor, board, compiler, port, timeout)
+                    output, final_flag = flash_and_read(port, timeout, flash_command)
                     if final_flag == FLAGS.PassFlag:
                         utils.red_print("Mutant is Alive")
                     else:
@@ -241,7 +258,37 @@ def run_custom(task, args, config):
                 dir_path, "csvs/{}/{}/{}_mutant_comparison.csv".format(current_date, current_time, task['name']))
             to_csv(csv_path, ['pattern', 'failures', 'total', 'percentage'], data_record)
 
-def run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler, args):
+def run_randomized(task, args, config):
+    # config
+    flash_command = config['flash_command']
+    # args
+    port = args.port if args.port else utils.get_default_serial_port()
+    os.environ['PORT'] = port
+
+    mutant_cnt = int(args.mutants)
+    timeout = int(args.timeout)
+    csv = args.csv
+    seed = args.seed if args.seed else None
+    if args.jobfile:
+        with open(args.jobfile, 'r') as f:
+            jobfile = ast.literal_eval(f.read())
+            if not args.port:
+                port = jobfile['port']
+            if not args.mutants:
+                mutant_cnt = int(jobfile['mutant_cnt'])
+            if not args.timeout:
+                timeout = int(jobfile['timeout'])
+            if not args.csv:
+                csv = jobfile['csv']
+            if not args.seed:
+                seed = jobfile['seed']
+    
+    # create a rng for this run
+    if not seed:
+        seed = random.randrange(sys.maxsize)
+    utils.yellow_print("Current test seed is: {}".format(seed))
+    rng = random.Random(seed)
+
     ### BEGIN MUTATION TESTING ###
     run_cnt = 0
     failures = 0
@@ -258,7 +305,7 @@ def run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler
                 file_changed = occurrence.file
                 line_number = occurrence.line
                 # cmake, build, flash, and read
-                output, final_flag = flash_and_read(vendor, board, compiler, port, timeout)
+                output, final_flag = flash_and_read(port, timeout, flash_command)
                 run_cnt += 1
 
                 # Analyze the results
@@ -317,10 +364,10 @@ def run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler
         for group, test in test_to_kills:
             kills, total = test_to_kills[(group, test)]
             aggregates.append({'Group': group,
-                            'Test': test,
-                            'Kills': kills,
-                            'Passes': total - kills,
-                            'Total': total})
+                               'Test': test,
+                               'Kills': kills,
+                               'Passes': total - kills,
+                               'Total': total})
 
         # log to csv
         if args.csv:
@@ -334,14 +381,19 @@ def run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler
             to_csv(trials_csv, ['file', 'line', 'original', 'mutant', 'result'], trials)
             to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
+        create_jobfile(mutant_cnt=mutant_cnt,
+                port=port,
+                timeout=timeout,
+                csv=csv,
+                seed=seed)
+
 def coverage_main(args, config):
     """ Function that is called when user specified `mutation_runner.py coverage` from cmd
     """
-    vendor = config['vendor']
-    compiler = config['compiler']
-    board = config['board']
+    flash_command = config['flash_command']
 
     port = args.port if args.port else utils.get_default_serial_port()
+    os.environ['PORT'] = port
     timeout = int(args.timeout)
 
     os.chdir(root_path)
@@ -360,7 +412,7 @@ def coverage_main(args, config):
                     funcs = re.findall(coverage.FuncRegEx, text, re.MULTILINE)
                     coverage.write_line_prints(s, text, funcs)
                 # run once
-                output, _ = flash_and_read(vendor, board, compiler, port, timeout)
+                output, _ = flash_and_read(port, timeout, flash_command)
                 # TODO : Process the output which should contain FUNCTION and LINE macro output
         except Exception as e:
             traceback.print_exc()
@@ -373,47 +425,10 @@ def coverage_main(args, config):
                 shutil.copyfile("{}.old".format(s), s)
                 os.remove("{}.old".format(s))
                 utils.yellow_print("Source code restored")
-    
 
 def mutation_main(args, config):
     """ Function that is called when user specifies `mutation_runner.py start` from cmd
     """
-    # config
-    vendor = config['vendor']
-    compiler = config['compiler']
-    board = config['board']
-    # args
-    port = args.port if args.port else utils.get_default_serial_port()
-    mutant_cnt = int(args.mutants)
-    timeout = int(args.timeout)
-    csv = args.csv
-    seed = args.seed if args.seed else None
-    if args.jobfile:
-        with open(args.jobfile, 'r') as f:
-            jobfile = ast.literal_eval(f.read())
-            # src = jobfile['src']
-            # vendor = jobfile['vendor']
-            # compiler = jobfile['compiler']
-            # board = jobfile['board']
-            # test_groups = jobfile['test_groups']
-            # mutations = jobfile['mutations']
-            if not args.port:
-                port = jobfile['port']
-            if not args.mutants:
-                mutant_cnt = int(jobfile['mutant_cnt'])
-            if not args.timeout:
-                timeout = int(jobfile['timeout'])
-            if not args.csv:
-                csv = jobfile['csv']
-            if not args.seed:
-                seed = jobfile['seed']
-    
-    # create a rng for this run
-    if not seed:
-        seed = random.randrange(sys.maxsize)
-    utils.yellow_print("Current test seed is: {}".format(seed))
-    rng = random.Random(seed)
-
     # change to root path
     os.chdir(root_path)
 
@@ -433,7 +448,7 @@ def mutation_main(args, config):
                 # build your own run setups here
                 run_custom(task, args, config)
             else:
-                run_randomized(task, mutant_cnt, rng, port, timeout, vendor, board, compiler, args)
+                run_randomized(task, args, config)
         except:
             traceback.print_exc()
             raise
@@ -441,12 +456,6 @@ def mutation_main(args, config):
             # restore aws_test_runner.c
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
-
-    create_jobfile(mutant_cnt=mutant_cnt,
-                    port=port,
-                    timeout=timeout,
-                    csv=csv,
-                    seed=seed)
 
 def main():
     parser = argparse.ArgumentParser()
