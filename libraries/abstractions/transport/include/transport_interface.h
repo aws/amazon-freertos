@@ -30,13 +30,13 @@
 /**
  * @brief Maximum length of an ASCII DNS name.
  */
-#define MAX_DNS_NAME_LENGTH                  ( 253 )
+#define MAX_DNS_NAME_LENGTH    ( 253 )
 
- /**
-  * @brief The NetworkContext is an incomplete type. An implementation of this
-  * interface must define what pContext points to as per the requirements. This context
-  * is passed into the network interface functions.
-  */
+/**
+ * @brief The NetworkContext is an incomplete type. An implementation of this
+ * interface must define what pContext points to as per the requirements. This context
+ * is passed into the network interface functions.
+ */
 typedef struct NetworkContext
 {
     /**
@@ -55,9 +55,9 @@ typedef struct NetworkContext
  *
  * @return The number of bytes received or a negative error code.
  */
-typedef int32_t( *TransportRecv_t )( NetworkContext_t * pNetworkContext,
-                                     void* pBuffer,
-                                     size_t bytesToRecv );
+typedef int32_t ( * TransportRecv_t )( NetworkContext_t * pNetworkContext,
+                                       void * pBuffer,
+                                       size_t bytesToRecv );
 
 /**
  * @brief Transport interface for sending data over the network.
@@ -68,9 +68,9 @@ typedef int32_t( *TransportRecv_t )( NetworkContext_t * pNetworkContext,
  *
  * @return The number of bytes sent or a negative error code.
  */
-typedef int32_t( *TransportSend_t )( NetworkContext_t * pNetworkContext,
-                                     const void* pBuffer,
-                                     size_t bytesToSend );
+typedef int32_t ( * TransportSend_t )( NetworkContext_t * pNetworkContext,
+                                       const void * pBuffer,
+                                       size_t bytesToSend );
 
 /**
  * @brief The transport layer interface.
@@ -79,7 +79,7 @@ typedef struct TransportInterface
 {
     TransportRecv_t recv;               /**< Transport receive interface. */
     TransportSend_t send;               /**< Transport send interface. */
-    NetworkContext_t* pNetworkContext; /**< Implementation-defined network context. */
+    NetworkContext_t * pNetworkContext; /**< Implementation-defined network context. */
 } TransportInterface_t;
 
 #endif /* ifndef TRANSPORT_INTERFACE_H_ */

@@ -76,9 +76,9 @@ typedef struct ServerInfo
  */
 typedef struct SocketsConfig
 {
-    bool enableTls;           /**< @brief Whether require TLS for the transport. */
-    uint32_t sendTimeoutMs;   /**< @brief Timeout for transport send. */
-    uint32_t recvTimeoutMs;   /**< @brief Timeout for transport recv. */
+    bool enableTls;         /**< @brief Whether require TLS for the transport. */
+    uint32_t sendTimeoutMs; /**< @brief Timeout for transport send. */
+    uint32_t recvTimeoutMs; /**< @brief Timeout for transport recv. */
 
     /**
      * @brief Set this to a non-NULL value to use ALPN.
