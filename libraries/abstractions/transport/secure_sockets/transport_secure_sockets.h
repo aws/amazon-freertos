@@ -59,11 +59,6 @@
 #include "logging_stack.h"
 
 /**
- * @brief Maximum length of an ASCII DNS name.
- */
-#define MAX_DNS_NAME_LENGTH    ( 253 )
-
-/**
  * @brief The NetworkContext is an incomplete type. An implementation of this
  * interface must define what pContext points to as per the requirements. This context
  * is passed into the network interface functions.
@@ -144,10 +139,6 @@ typedef struct SocketsConfig
 
     const char * pRootCa;     /**< @brief String representing a trusted server Root CA certificate. */
     size_t rootCaSize;        /**< @brief Size associated with #IotNetworkCredentials_t.pRootCa. */
-    const char * pClientCert; /**< @brief String representing the client certificate. */
-    size_t clientCertSize;    /**< @brief Size associated with #IotNetworkCredentials_t.pClientCert. */
-    const char * pPrivateKey; /**< @brief String representing the client certificate's private key. */
-    size_t privateKeySize;    /**< @brief Size associated with #IotNetworkCredentials_t.pPrivateKey. */
 } SocketsConfig_t;
 
 
