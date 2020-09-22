@@ -71,7 +71,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 /**
  * @brief Set up TLS configurations for the socket.
  *
- * @param[in] pSocketsConfig the configure of session.
+ * @param[in] pSocketsConfig The session configuration.
  * @param[in] tcpSocket An initialized socket to secure.
  * @param[in] pHostName Remote server name for SNI.
  * @param[in] hostnameLength The length of `pHostName`.
