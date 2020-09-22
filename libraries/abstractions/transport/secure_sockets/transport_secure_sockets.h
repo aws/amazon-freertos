@@ -137,8 +137,8 @@ typedef struct SocketsConfig
      */
     size_t maxFragmentLength;
 
-    const char * pRootCa;     /**< @brief String representing a trusted server Root CA certificate. */
-    size_t rootCaSize;        /**< @brief Size associated with #IotNetworkCredentials_t.pRootCa. */
+    const char * pRootCa; /**< @brief String representing a trusted server Root CA certificate. */
+    size_t rootCaSize;    /**< @brief Size associated with #IotNetworkCredentials_t.pRootCa. */
 } SocketsConfig_t;
 
 

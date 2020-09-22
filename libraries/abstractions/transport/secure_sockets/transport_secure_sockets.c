@@ -274,10 +274,11 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     if( transportSocketStatus == SOCKETS_ERROR_NONE )
     {
         /* Secure Sockets uses TickType_t therefore replace timeout vale with portMAX_DELAY if it exceeds. */
-        receiveTimeout =  pdMS_TO_TICKS( recvTimeoutMs );
-        if(  pdMS_TO_TICKS( recvTimeoutMs ) > portMAX_DELAY )
+        receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
+
+        if( pdMS_TO_TICKS( recvTimeoutMs ) > portMAX_DELAY )
         {
-             receiveTimeout = portMAX_DELAY;
+            receiveTimeout = portMAX_DELAY;
         }
 
         transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
