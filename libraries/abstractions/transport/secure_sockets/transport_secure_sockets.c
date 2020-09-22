@@ -455,10 +455,9 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
         LogError( ( "Parameter check failed: hostNameLength must be greater than 0." ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     }
-
-    /* Establish the TCP connection. */
-    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
+    else
     {
+        /* Establish the TCP connection. */
         returnStatus = establishConnect( pNetworkContext,
                                          pServerInfo,
                                          pSocketsConfig );
