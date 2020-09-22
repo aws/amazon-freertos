@@ -105,8 +105,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
     }
     else
     {
-        xSocket = ( Socket_t ) pNetworkContext->pContext;
-        TransportSocketStatus = SOCKETS_Send( xSocket,
+        TransportSocketStatus = SOCKETS_Send( ( Socket_t ) pNetworkContext->pContext;,
                                               pMessage,
                                               bytesToSend,
                                               0 );
