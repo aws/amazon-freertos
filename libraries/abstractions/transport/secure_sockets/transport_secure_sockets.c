@@ -95,11 +95,15 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
 
     if( ( pMessage == NULL ) ||
         ( bytesToSend <= ( size_t ) 0 ) ||
-        ( pNetworkContext == NULL ) ||
-        ( pNetworkContext->pContext == NULL ) )
+        ( pNetworkContext == NULL ) )
     {
-        LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%d,  pContext=%p, pNetworkContext=%p",
-                    pMessage, bytesToSend, pNetworkContext->pContext ) );
+        LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%d, pNetworkContext=%p",
+                    pMessage, bytesToSend, pNetworkContext ) );
+        bytesSent = SOCKETS_EINVAL;
+    }
+    else if( pNetworkContext->pContext == NULL )
+    {
+        LogError( ( "Invalid parameter: pNetworkContext->pContext can not be NULL") );
         bytesSent = SOCKETS_EINVAL;
     }
     else
@@ -137,11 +141,16 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
 
     if( ( pBuffer == NULL ) ||
         ( pNetworkContext == NULL ) ||
-        ( pNetworkContext->pContext == NULL ) ||
         ( bytesToRecv == ( size_t ) 0 ) )
     {
-        LogError( ( "TransportRecvSecureSockets bad parameters" ) );
+        LogError( ( "Invalid parameter: pBuffer=%p, bytesToRecv=%d, pNetworkContext=%p",
+                    pBuffer, bytesToRecv, pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
+    }
+    else if( pNetworkContext->pContext == NULL )
+    {
+        LogError( ( "Invalid parameter: pNetworkContext->pContext can not be NULL") );
+        bytesSent = SOCKETS_EINVAL;
     }
     else
     {
