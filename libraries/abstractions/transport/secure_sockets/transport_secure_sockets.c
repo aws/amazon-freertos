@@ -99,7 +99,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         ( pNetworkContext == NULL ) ||
         ( pNetworkContext->pContext == NULL ) )
     {
-        LogError( ( "TransportSendSecureSockets bad parameters pMessage %p, bytesToSend %d,  pvContext %p",
+        LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%d,  pContext=%p, pNetworkContext=%p",
                     pMessage, bytesToSend, pNetworkContext->pContext ) );
         bytesSent = ( size_t ) SOCKETS_EINVAL;
     }
