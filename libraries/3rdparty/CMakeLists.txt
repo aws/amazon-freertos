@@ -139,7 +139,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_utils.c"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.h"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils/mbedtls_error.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h"
     )
     # The "${AFR_3RDPARTY_DIR}/pkcs11" directory must be included before
     # "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls". This is because mbedtls/include
