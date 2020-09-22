@@ -268,7 +268,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
                                       uint32_t recvTimeoutMs )
 {
     TickType_t receiveTimeout = 0, sendTimeout = 0;
-    int32_t TransportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
     if( tcpSocket == NULL )
     {
