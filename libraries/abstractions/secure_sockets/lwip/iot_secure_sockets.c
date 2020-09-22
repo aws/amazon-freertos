@@ -811,45 +811,45 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
         case SOCKETS_SO_TCPKEEPALIVE:
 
-        	ret = lwip_setsockopt( ctx->ip_socket,
+            ret = lwip_setsockopt( ctx->ip_socket,
                                    SOL_SOCKET,
                                    SO_KEEPALIVE,
                                    pvOptionValue,
                                    sizeof( int ) );
 
-        	break;
+            break;
 
-#if LWIP_TCP_KEEPALIVE
-       case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
+            #if LWIP_TCP_KEEPALIVE
+                case SOCKETS_SO_TCPKEEPALIVE_INTERVAL:
 
-    	   ret = lwip_setsockopt( ctx->ip_socket,
-                                  IPPROTO_TCP,
-                                  TCP_KEEPINTVL,
-                                  pvOptionValue,
-                                  sizeof( int ) );
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPINTVL,
+                                           pvOptionValue,
+                                           sizeof( int ) );
 
-           break;
+                    break;
 
-        case SOCKETS_SO_TCPKEEPALIVE_COUNT:
+                case SOCKETS_SO_TCPKEEPALIVE_COUNT:
 
-           ret = lwip_setsockopt( ctx->ip_socket,
-                                  IPPROTO_TCP,
-                                  TCP_KEEPCNT,
-                                  pvOptionValue,
-                                  sizeof( int ) );
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPCNT,
+                                           pvOptionValue,
+                                           sizeof( int ) );
 
-           break;
+                    break;
 
-        case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
+                case SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME:
 
-           ret = lwip_setsockopt( ctx->ip_socket,
-                                  IPPROTO_TCP,
-                                  TCP_KEEPIDLE,
-                                  pvOptionValue,
-                                  sizeof( int ) );
+                    ret = lwip_setsockopt( ctx->ip_socket,
+                                           IPPROTO_TCP,
+                                           TCP_KEEPIDLE,
+                                           pvOptionValue,
+                                           sizeof( int ) );
 
-           break;
-#endif /* if LWIP_TCP_KEEPALIVE */
+                    break;
+            #endif /* if LWIP_TCP_KEEPALIVE */
 
 
         default:
@@ -858,7 +858,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
     if( 0 > ret )
     {
-       return SOCKETS_SOCKET_ERROR;
+        return SOCKETS_SOCKET_ERROR;
     }
 
     return ret;
