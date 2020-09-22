@@ -408,7 +408,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
         if( TransportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Setup transport timeout configuration failed status: %d.", TransportSocketStatus ) );
+            LogError( ( "Failed to configure send and receive timeouts for socket: Status=%d.", TransportSocketStatus ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
     }
