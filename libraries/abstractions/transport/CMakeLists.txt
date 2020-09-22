@@ -16,14 +16,12 @@ afr_set_lib_metadata(IS_VISIBLE "true")
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 
-
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${src_dir}/transport_secure_sockets.c"
-        "${src_dir}/transport_secure_sockets.h"
-        "${inc_dir}/transport_interface.h"
 )
+
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
@@ -32,6 +30,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::transport
 )
+
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC

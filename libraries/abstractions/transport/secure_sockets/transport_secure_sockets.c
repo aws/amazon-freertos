@@ -23,6 +23,11 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file transport_secure_sockets.c
+ * @brief Implementation of transport interface API with Secure Sockets.
+ */
+
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>

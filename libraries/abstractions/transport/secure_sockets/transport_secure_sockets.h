@@ -22,6 +22,11 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file transport_secure_sockets.h
+ * @brief Secure Sockets based API for transport interface implementation.
+ */
+
 #ifndef TRANSPORT_SECURE_SOCKETS_H
 #define TRANSPORT_SECURE_SOCKETS_H
 
