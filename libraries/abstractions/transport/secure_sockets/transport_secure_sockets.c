@@ -91,7 +91,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                                      size_t bytesToSend )
 {
     size_t bytesSent = 0;
-    int32_t TransportSocketStatus = SOCKETS_ERROR_NONE;
+    int32_t transportSocketStatus = SOCKETS_ERROR_NONE;
     Socket_t xSocket = SOCKETS_INVALID_SOCKET;
 
     if( ( pMessage == NULL ) ||
