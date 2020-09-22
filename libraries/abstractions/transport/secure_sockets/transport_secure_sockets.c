@@ -384,7 +384,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
         /* Check for errors from DNS lookup. */
         if( serverAddress.ulAddress == ( uint32_t ) 0 )
         {
-            LogError( ( "Failed to resolve %s.", pServerInfo->pHostName ) );
+            LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.", pServerInfo->pHostName ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
         }
     }
