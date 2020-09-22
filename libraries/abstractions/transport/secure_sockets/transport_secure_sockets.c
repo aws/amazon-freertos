@@ -118,7 +118,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         }
         else
         {
-            LogError( ( "Error %ld while sending data.", TransportSocketStatus ) );
+            LogError( ( "Failed to send data over network. BytesRequested=%ld.", TransportSocketStatus ) );
             bytesSent = ( size_t ) SOCKETS_SOCKET_ERROR;
         }
     }
