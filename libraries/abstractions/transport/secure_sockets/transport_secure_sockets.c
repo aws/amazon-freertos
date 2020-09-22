@@ -103,7 +103,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
     }
     else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext is NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
@@ -149,7 +149,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
     }
     else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext is NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
