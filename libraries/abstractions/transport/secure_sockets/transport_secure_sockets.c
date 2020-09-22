@@ -238,7 +238,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
         if( TransportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set SNI option for socket. TransportSocketStatus %d, hostnameLength  + 1 %d ",
+            LogError( ( "Failed to set SNI option for socket. TransportSocketStatus=%d, HostNameLength=%d",
                         TransportSocketStatus, hostnameLength + 1 ) );
         }
     }
