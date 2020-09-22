@@ -91,7 +91,7 @@ typedef enum TransportSocketStatus
  */
 typedef struct ServerInfo
 {
-    const char * pHostName; /**< @brief Server host name. */
+    const char * pHostName; /**< @brief Server host name. Must be NULL-terminated. */
     size_t hostNameLength;  /**< @brief Length of the server host name. */
     uint16_t port;          /**< @brief Server port in host-order. */
 } ServerInfo_t;
