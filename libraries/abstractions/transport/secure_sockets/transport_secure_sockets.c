@@ -115,7 +115,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         if( TransportSocketStatus >= ( int32_t ) 0 )
         {
             bytesSent = ( size_t ) TransportSocketStatus;
-            LogInfo( ( "Success %ld while sending data.", TransportSocketStatus ) );
+            LogInfo( ( "Successfully sent %ld data over network.", TransportSocketStatus ) );
         }
         else
         {
