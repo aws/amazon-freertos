@@ -40,7 +40,7 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Set up the context's send and receive timeout.
+ * @brief Set up the TCP context send and receive timeouts.
  *
  * @param[in] tcpSocket The context to be set.
  * @param[in] sendTimeoutMs Timeout for transport send.
@@ -86,7 +86,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend )
 {
@@ -129,7 +129,7 @@ int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv )
 {

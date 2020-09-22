@@ -30,8 +30,16 @@
 #ifndef TRANSPORT_SECURE_SOCKETS_H
 #define TRANSPORT_SECURE_SOCKETS_H
 
-/* standard includes. */
-#include <stdbool.h>
+/* bool is defined in only C99+. */
+#if defined( __cplusplus ) || ( defined( __STDC_VERSION__ ) && ( __STDC_VERSION__ >= 199901L ) )
+    #include <stdbool.h>
+#elif !defined( bool ) && !defined( false ) && !defined( true )
+    #define bool     int8_t
+    #define false    ( int8_t ) 0
+    #define true     ( int8_t ) 1
+#endif
+/** @endcond */
+
 /* Transport interface include. */
 #include "transport_interface.h"
 
@@ -49,6 +57,24 @@
 
 /* Logging implementation header include. */
 #include "logging_stack.h"
+
+/**
+ * @brief Maximum length of an ASCII DNS name.
+ */
+#define MAX_DNS_NAME_LENGTH    ( 253 )
+
+/**
+ * @brief The NetworkContext is an incomplete type. An implementation of this
+ * interface must define what pContext points to as per the requirements. This context
+ * is passed into the network interface functions.
+ */
+struct NetworkContext
+{
+    /**
+     * @brief Points to the context for each interface.
+     */
+    void * pContext;
+};
 
 /**
  * @brief TCP, TLS Connect / Disconnect return status.
@@ -126,7 +152,7 @@ typedef struct SocketsConfig
 
 
 /**
- * @brief Sets up a TLS session on top of a TCP connection using the Secure Sockets API.
+ * @brief Sets up a TCP only connection or a TLS session on top of a TCP connection with Secure Sockets API.
  *
  * @param[out] pNetworkContext The output parameter to return the created network context.
  * @param[in] pServerInfo Server connection info.
@@ -165,7 +191,7 @@ int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkCont
  *
  * @return Number of bytes received if successful; negative value on error.
  */
-int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv );
 
@@ -181,7 +207,7 @@ int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
  *
  * @return Number of bytes sent if successful; negative value on error.
  */
-int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend );
 
