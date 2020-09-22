@@ -480,7 +480,7 @@ int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkCont
         /* Call Secure Sockets shutdown function to close connection. */
         if( SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR ) != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to close connection." ) );
+            LogError( ( "Failed to close connection: SOCKETS_Shutdown call failed." ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
         else
