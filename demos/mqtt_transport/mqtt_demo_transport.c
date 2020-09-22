@@ -193,7 +193,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         acceptCode = IotBleMqttTransportAcceptData( &xContext );
-        configconfigASSERT( acceptCode == MQTTSuccess );
+        configASSERT( acceptCode == MQTTSuccess );
     }
 
     /* Event for when channel is closed. */
