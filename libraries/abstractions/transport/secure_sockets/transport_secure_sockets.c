@@ -90,7 +90,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend )
 {
-    size_t bytesSent = 0;
+    int32_t bytesSent = 0;
     int32_t transportSocketStatus = SOCKETS_ERROR_NONE;
 
     if( ( pMessage == NULL ) ||
@@ -100,7 +100,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
     {
         LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%d,  pContext=%p, pNetworkContext=%p",
                     pMessage, bytesToSend, pNetworkContext->pContext ) );
-        bytesSent = ( size_t ) SOCKETS_EINVAL;
+        bytesSent = SOCKETS_EINVAL;
     }
     else
     {
@@ -110,19 +110,19 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                                               0 );
 
         /* If an error occurred, a negative value is returned. @ref SocketsErrors. */
-        if( transportSocketStatus >= ( int32_t ) 0 )
+        if( transportSocketStatus >= 0 )
         {
-            bytesSent = ( size_t ) transportSocketStatus;
+            bytesSent = transportSocketStatus;
             LogInfo( ( "Successfully sent %ld data over network.", transportSocketStatus ) );
         }
         else
         {
             LogError( ( "Failed to send data over network. BytesRequested=%ld.", transportSocketStatus ) );
-            bytesSent = ( size_t ) SOCKETS_SOCKET_ERROR;
+            bytesSent = SOCKETS_SOCKET_ERROR;
         }
     }
 
-    return ( int32_t ) bytesSent;
+    return bytesSent;
 }
 
 /*-----------------------------------------------------------*/
@@ -132,7 +132,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                                      size_t bytesToRecv )
 {
     int32_t transportSocketStatus = 0;
-    size_t bytesReceived = SOCKETS_SOCKET_ERROR;
+    int32_t bytesReceived = SOCKETS_SOCKET_ERROR;
     uint8_t * pRecvBuffer = ( uint8_t * ) pBuffer;
 
     if( ( pBuffer == NULL ) ||
@@ -141,7 +141,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         ( bytesToRecv == ( size_t ) 0 ) )
     {
         LogError( ( "TransportRecvSecureSockets bad parameters" ) );
-        bytesReceived = ( int32_t ) SOCKETS_EINVAL;
+        bytesReceived = SOCKETS_EINVAL;
     }
     else
     {
@@ -150,19 +150,19 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                                               bytesToRecv,
                                               0 );
 
-        if( transportSocketStatus == ( int32_t ) SOCKETS_EWOULDBLOCK )
+        if( transportSocketStatus == SOCKETS_EWOULDBLOCK )
         {
             /* The return value EWOULDBLOCK means no data was received within
              * the receive timeout. */
-            bytesReceived = ( size_t ) 0;
+            bytesReceived = 0;
         }
-        else if( transportSocketStatus < ( int32_t ) 0 )
+        else if( transportSocketStatus < 0 )
         {
             LogError( ( "Error %ld while receiving data.", transportSocketStatus ) );
         }
         else
         {
-            bytesReceived = ( size_t ) transportSocketStatus;
+            bytesReceived = transportSocketStatus;
         }
 
         if( bytesReceived < bytesToRecv )
@@ -178,7 +178,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         }
     }
 
-    return ( int32_t ) bytesReceived;
+    return bytesReceived;
 }
 
 /*-----------------------------------------------------------*/

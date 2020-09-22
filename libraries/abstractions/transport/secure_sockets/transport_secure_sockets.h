@@ -180,7 +180,9 @@ int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkCont
  * @param[out] pBuffer Buffer to receive network data into.
  * @param[in] bytesToRecv Number of bytes requested from the network.
  *
- * @return Number of bytes received if successful; negative value on error.
+ * @return Number of bytes (> 0) received if successful;
+ *         0 if the socket times out without reading any bytes;
+ *         negative value on error.
  */
 int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
