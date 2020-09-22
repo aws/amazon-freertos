@@ -346,7 +346,7 @@ typedef enum
 
 /**
  * @brief Bluetooth ACL Disconnect Reason
- * From Bluetooth Core Spec Vol2, Part D Error Codes
+ * From Bluetooth Core Spec 5.0 Vol 2, Part D Error Codes
  * Unknown disconnect reason will be treated as @ref eBTaclUnspecified
  */
 typedef enum
@@ -604,20 +604,20 @@ typedef void (* BTAclStateChangedCallback_t)( BTStatus_t xStatus,
  */
 typedef struct
 {
-    BTDeviceStateChangedCallback_t pxDeviceStateChangedCb;
-    BTDevicePropertiesCallback_t pxAdapterPropertiesCb;
-    BTRemoteDevicePropertiesCallback_t pxRemoteDevicePropertiesCb;
-    BTPinRequestCallback_t pxPinRequestCb;
-    BTSspRequestCallback_t pxSspRequestCb;
-    BTPairingStateChangedCallback_t pxPairingStateChangedCb;
-    BTBondedCallback_t pxBondedCb; /**< @deprecated */
-    BTDutModeRecvCallback_t pxDutModeRecvCb;
-    BTLeTestModeCallback_t pxleTestModeCb;
-    BTEnergyInfoCallback_t pxEnergyInfoCb;
-    BTReadRssiCallback_t pxReadRssiCb;
-    BTTxPowerCallback_t pxTxPowerCb;
-    BTSlaveSecurityRequestCallBack_t pxSlaveSecurityRequestCb;
-    BTAclStateChangedCallback_t pxAclStateChangedCb; /**< ACL State Changed Callback */
+    BTDeviceStateChangedCallback_t pxDeviceStateChangedCb;         /**< Adapter State Changed Callback */
+    BTDevicePropertiesCallback_t pxAdapterPropertiesCb;            /**< Adapter Properties Callback */
+    BTRemoteDevicePropertiesCallback_t pxRemoteDevicePropertiesCb; /**< Remote Device Properties Callback */
+    BTPinRequestCallback_t pxPinRequestCb;                         /**< Pin Request Callback */
+    BTSspRequestCallback_t pxSspRequestCb;                         /**< SSP Request Callback */
+    BTPairingStateChangedCallback_t pxPairingStateChangedCb;       /**< Pairing State Changed Callback */
+    BTBondedCallback_t pxBondedCb;                                 /**< @deprecated */
+    BTDutModeRecvCallback_t pxDutModeRecvCb;                       /**< Bluetooth Test Mode Callback */
+    BTLeTestModeCallback_t pxleTestModeCb;                         /**< LE Test Mode Callback */
+    BTEnergyInfoCallback_t pxEnergyInfoCb;                         /**< Controller Energy Info Callback */
+    BTReadRssiCallback_t pxReadRssiCb;                             /**< Read RSSI Callback */
+    BTTxPowerCallback_t pxTxPowerCb;                               /**< TX Power Callback */
+    BTSlaveSecurityRequestCallBack_t pxSlaveSecurityRequestCb;     /**< Security Request Callback */
+    BTAclStateChangedCallback_t pxAclStateChangedCb;               /**< ACL State Changed Callback */
 } BTCallbacks_t;
 
 /**
