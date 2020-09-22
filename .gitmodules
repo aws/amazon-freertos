@@ -32,4 +32,4 @@
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
 [submodule "libraries/c_sdk_v4/standard/coreMQTT"]
 	path = libraries/c_sdk_v4/standard/coreMQTT
-	url = git@github.com:FreeRTOS/coreMQTT.git
+	url = https://github.com/FreeRTOS/coreMQTT.git
