@@ -80,7 +80,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
  */
 static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          Socket_t tcpSocket,
-                         const uint8_t * pHostName,
+                         const char * pHostName,
                          size_t hostnameLength );
 
 
@@ -189,7 +189,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
 
 static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          Socket_t tcpSocket,
-                         const uint8_t * pHostName,
+                         const char * pHostName,
                          size_t hostnameLength )
 {
     int32_t TransportSocketStatus = SOCKETS_ERROR_NONE;
@@ -366,7 +366,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
         {
             if( ( int32_t ) SOCKETS_ERROR_NONE != tlsSetup( pSocketsConfig,
                                                             tcpSocket,
-                                                            ( uint8_t * ) pServerInfo->pHostName,
+                                                            pServerInfo->pHostName,
                                                             hostnameLength ) )
             {
                 returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS;
@@ -404,6 +404,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
+        /* Configure send and receive timeouts for the socket. */
         TransportSocketStatus = transportTimeoutSetup( tcpSocket, pSocketsConfig->sendTimeoutMs, pSocketsConfig->recvTimeoutMs );
 
         if( TransportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
