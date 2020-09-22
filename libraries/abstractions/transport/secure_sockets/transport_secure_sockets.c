@@ -489,7 +489,7 @@ int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkCont
             if( SOCKETS_Close( xSocket ) != ( int32_t ) SOCKETS_ERROR_NONE )
             {
                 LogError( ( "Failed to close connection: SOCKETS_Close call failed." ) );
-                
+
                 xSocket = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
             }
             else
