@@ -594,7 +594,7 @@ typedef void ( * BTBondedCallback_t)( BTStatus_t xStatus,
  * @param[in] xReason Contains ACL disconnect reason when xState is @ref eBTaclStateDisconnected.
  */
 typedef void (* BTAclStateChangedCallback_t)( BTStatus_t xStatus,
-                                              BTBdaddr_t * pxRemoteBdAddr,
+                                              const BTBdaddr_t * pxRemoteBdAddr,
                                               BTAclState_t xState,
                                               BTTransport_t xTransport,
                                               BTAclDisconnectReason_t xReason );
@@ -932,14 +932,14 @@ typedef struct
      * @return void* pointer that points to the profile interface itself. This needs to be
      *               type-casted to the Classic interface by the caller
      */
-    const void * ( *pxGetClassicAdapter )( );
+    const void * ( *pxGetClassicAdapter )( void );
 
     /**
      * @brief Retrieves the HAL LE interface.
      * @return void* pointer that points to the BLE adapter interface itself. This needs to be
      *               type-casted to the LE interface by the caller
      */
-    const void * ( *pxGetLeAdapter )( );
+    const void * ( *pxGetLeAdapter )( void );
 
     /**
      * @brief Retrieves last error number from the stack.
