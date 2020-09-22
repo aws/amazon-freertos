@@ -86,7 +86,7 @@
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;"/>
 									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
-									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="FREERTOS_ENABLE_UNIT_TESTS"/>
 									<listOptionValue builtIn="false" value="ZYNQ7000"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1864908472" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>

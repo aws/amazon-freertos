@@ -1122,7 +1122,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\iot_test_freertos_tcp.c">
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\test_freertos_tcp.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c">

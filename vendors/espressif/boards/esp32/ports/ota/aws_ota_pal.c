@@ -727,6 +727,6 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
     return eResult;
 }
 
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "aws_ota_pal_test_access_define.h"
 #endif

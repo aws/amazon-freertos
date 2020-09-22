@@ -98,14 +98,14 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * FreeRTOSConfig.h, not FreeRTOSIPConfig.h. Consideration needs to be given as to
  * the priority assigned to the task executing the IP stack relative to the
  * priority assigned to tasks that use the IP stack. */
-#define ipconfigIP_TASK_PRIORITY                   ( configMAX_PRIORITIES - 7 )
+#define ipconfigIP_TASK_PRIORITY                   ( configMAX_PRIORITIES - 7U )
 
 /* The size, in words (not bytes), of the stack allocated to the FreeRTOS+TCP
  * task.  This setting is less important when the FreeRTOS Win32 simulator is used
  * as the Win32 simulator only stores a fixed amount of information on the task
  * stack.  FreeRTOS includes optional stack overflow detection, see:
  * http://www.freertos.org/Stacks-and-stack-overflow-checking.html. */
-#define ipconfigIP_TASK_STACK_SIZE_WORDS           ( configMINIMAL_STACK_SIZE * 5 )
+#define ipconfigIP_TASK_STACK_SIZE_WORDS           ( configMINIMAL_STACK_SIZE * 5U )
 
 /* ipconfigRAND32() is called by the IP stack to generate random numbers for
  * things such as a DHCP transaction number or initial sequence number.  Random
@@ -134,7 +134,7 @@ extern uint32_t ulRand();
  * ipconfigMAX_SEND_BLOCK_TIME_TICKS is specified in RTOS ticks.  A time in
  * milliseconds can be converted to a time in ticks by dividing the time in
  * milliseconds by portTICK_PERIOD_MS. */
-#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS    ( 5000 / portTICK_PERIOD_MS )
+#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS    ( 5000U / portTICK_PERIOD_MS )
 
 /* If ipconfigUSE_DHCP is 1 then FreeRTOS+TCP will attempt to retrieve an IP
  * address, netmask, DNS server address and gateway address from a DHCP server.  If
@@ -160,7 +160,7 @@ extern uint32_t ulRand();
  * re-transmission time interval reaches ipconfigMAXIMUM_DISCOVER_TX_PERIOD without
  * a DHCP reply being received. */
 #define ipconfigMAXIMUM_DISCOVER_TX_PERIOD \
-    ( 120000 / portTICK_PERIOD_MS )
+    ( 120000U / portTICK_PERIOD_MS )
 
 /* The ARP cache is a table that maps IP addresses to MAC addresses.  The IP
  * stack can only send a UDP message to a remove IP address if it knowns the MAC
@@ -208,7 +208,7 @@ extern uint32_t ulRand();
  * be queued for processing at any one time.  The event queue must be a minimum of
  * 5 greater than the total number of network buffers. */
 #define ipconfigEVENT_QUEUE_LENGTH \
-    ( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5 )
+    ( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5U )
 
 /* The address of a socket is the combination of its IP address and its port
  * number.  FreeRTOS_bind() is used to manually allocate a port number to a socket

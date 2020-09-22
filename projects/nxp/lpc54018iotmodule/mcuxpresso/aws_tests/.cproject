@@ -91,7 +91,7 @@
 									<listOptionValue builtIn="false" value="CPU_LPC54018JET180_cm4"/>
 									<listOptionValue builtIn="false" value="CPU_LPC54018JET180"/>
 									<listOptionValue builtIn="false" value="__NEWLIB__"/>
-									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="FREERTOS_ENABLE_UNIT_TESTS"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.564845545" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol" useByScannerDiscovery="false"/>

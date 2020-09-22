@@ -698,7 +698,7 @@
               <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</itemPath>
             </logicalFolder>
             <logicalFolder name="test" displayName="test" projectFiles="true">
-              <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</itemPath>
+              <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/test_freertos_tcp.c</itemPath>
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
@@ -1131,7 +1131,7 @@
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros"
-                  value="MBEDTLS_CONFIG_FILE=\&quot;aws_mbedtls_config.h\&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
+                  value="MBEDTLS_CONFIG_FILE=\&quot;aws_mbedtls_config.h\&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;UNITY_INCLUDE_CONFIG_H;FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>

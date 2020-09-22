@@ -35,8 +35,8 @@ NAME := aws_test
 
 GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 
-ifeq ($(AMAZON_FREERTOS_ENABLE_UNIT_TESTS), 1)
-GLOBAL_DEFINES += AMAZON_FREERTOS_ENABLE_UNIT_TESTS \
+ifeq ($(FREERTOS_ENABLE_UNIT_TESTS), 1)
+GLOBAL_DEFINES += FREERTOS_ENABLE_UNIT_TESTS \
                   IOT_BUILD_TESTS \
                   UNITY_EXCLUDE_MATH_H \
                   UNITY_INCLUDE_CONFIG_H
@@ -179,9 +179,9 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_cbor.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_json.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_test_freertos_tcp.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_freertos_tcp_test_access_dns_define.h \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/test_freertos_tcp.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_dns_define.h \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_tcp_define.h \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_UDP_IP.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Sockets.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_ARP.c \
