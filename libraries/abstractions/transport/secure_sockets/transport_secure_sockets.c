@@ -333,7 +333,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 {
     Socket_t tcpSocket = ( Socket_t ) SOCKETS_INVALID_SOCKET;
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-    int32_t TransportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SocketsSockaddr_t serverAddress = { 0 };
     const size_t hostnameLength = pServerInfo->hostNameLength;
 
