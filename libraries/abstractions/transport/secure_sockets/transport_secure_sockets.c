@@ -61,7 +61,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY,
- *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_API_ERROR,
+ *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
  *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
  */
 static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkContext,
@@ -409,7 +409,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
         if( TransportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
             LogError( ( "Setup transport timeout configuration failed status: %d.", TransportSocketStatus ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_API_ERROR;
+            returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
     }
 
@@ -482,7 +482,7 @@ int32_t SecureSocketsTrasnport_Disconnect( const NetworkContext_t * pNetworkCont
         if( SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR ) != ( int32_t ) SOCKETS_ERROR_NONE )
         {
             LogError( ( "Failed to close connection." ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_API_ERROR;
+            returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
         else
         {

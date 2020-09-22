@@ -59,7 +59,7 @@ typedef enum TransportSocketStatus
     TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER,   /**< At least one parameter was invalid. */
     TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY, /**< Insufficient memory required to establish connection. */
     TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, /**< Provided credentials were invalid. */
-    TRANSPORT_SOCKET_STATUS_API_ERROR,           /**< A call to a system API resulted in an internal error. */
+    TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,      /**< A call to a system API resulted in an internal error. */
     TRANSPORT_SOCKET_STATUS_DNS_FAILURE,         /**< Resolving hostname of the server failed. */
     TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE      /**< Initial connection to the server failed. */
 } TransportSocketStatus_t;
@@ -134,7 +134,7 @@ typedef struct SocketsConfig
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY,
- *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_API_ERROR,
+ *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
  *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
  */
 TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetworkContext,
@@ -148,7 +148,7 @@ TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetw
  *             clean the created network context.
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
- *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_API_ERROR on failure.
+ *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR on failure.
  */
 int32_t SecureSocketsTrasnport_Disconnect( const NetworkContext_t * pNetworkContext );
 
