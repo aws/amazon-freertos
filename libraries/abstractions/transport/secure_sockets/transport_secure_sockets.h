@@ -47,6 +47,7 @@
     #define LIBRARY_LOG_LEVEL    LOG_ERROR
 #endif
 
+/* Logging implementation header include. */
 #include "logging_stack.h"
 
 /**
