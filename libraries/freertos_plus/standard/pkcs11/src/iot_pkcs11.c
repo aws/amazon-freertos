@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V1.0.3
+ * FreeRTOS PKCS #11 V1.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,6 @@
 
 #include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
-#include "FreeRTOS.h"
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -89,7 +88,7 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
     if( xResult == CKR_OK )
     {
         /* Allocate memory for the slot list. */
-        pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * ( *pxSlotCount ) );
+        pxSlotId = PKCS11_MALLOC( sizeof( CK_SLOT_ID ) * ( *pxSlotCount ) );
 
         if( pxSlotId == NULL )
         {
@@ -108,7 +107,7 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
 
     if( ( xResult != CKR_OK ) && ( pxSlotId != NULL ) )
     {
-        vPortFree( pxSlotId );
+        PKCS11_FREE( pxSlotId );
     }
 
     return xResult;
@@ -176,7 +175,7 @@ CK_RV xInitializePkcs11Token( void )
         ( NULL != pxFunctionList->C_InitToken ) )
     {
         /* Check if the token requires further initialization. */
-        pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
+        pxTokenInfo = PKCS11_MALLOC( sizeof( CK_TOKEN_INFO ) );
 
         if( pxTokenInfo != NULL )
         {
@@ -208,12 +207,12 @@ CK_RV xInitializePkcs11Token( void )
 
     if( pxTokenInfo != NULL )
     {
-        vPortFree( pxTokenInfo );
+        PKCS11_FREE( pxTokenInfo );
     }
 
     if( pxSlotId != NULL )
     {
-        vPortFree( pxSlotId );
+        PKCS11_FREE( pxSlotId );
     }
 
     return xResult;
@@ -262,7 +261,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         xResult = prvOpenSession( pxSession, pxSlotId[ 0 ] );
 
         /* Free the memory allocated by xGetSlotList. */
-        vPortFree( pxSlotId );
+        PKCS11_FREE( pxSlotId );
     }
 
     if( ( xResult == CKR_OK ) && ( pxFunctionList->C_Login != NULL ) )

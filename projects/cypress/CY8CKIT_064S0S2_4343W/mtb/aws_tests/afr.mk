@@ -124,14 +124,13 @@ INCLUDES+=\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)\
 	$(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
-	$(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
 	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
-
 
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
@@ -263,11 +262,9 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*.c)
 
 endif
-
-
 
 ################################################################################
 # libraries (c_sdk)
@@ -354,23 +351,10 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)
 
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/*c)\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)/*.c)
-endif
-
 # Test code
 SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/test/iot_test_tls.c
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c
-endif
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto\
@@ -383,15 +367,6 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/test\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
-
-endif
 
 ################################################################################
 # Additional Source files and includes needed for BLE support
@@ -441,7 +416,7 @@ endif
 ifeq ($(OTA_SUPPORT),1)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ota/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/ota/ports/$(CY_AFR_TARGET)/*.c)\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/aws_iot_ota_interface.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c\
@@ -453,8 +428,7 @@ SOURCES+=\
 	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
-	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 
 # Test code
 SOURCES+=\
@@ -473,7 +447,6 @@ INCLUDES+=\
 	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
 	$(CY_EXTAPP_PATH)/common/utilities/untar\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/config_files\
-	$(CY_AFR_BOARD_PATH)/ports/ota\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
 	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\

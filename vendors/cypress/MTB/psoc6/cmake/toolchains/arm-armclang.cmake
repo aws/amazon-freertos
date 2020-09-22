@@ -16,7 +16,7 @@ function(cy_cfg_toolchain)
     set(ENV{COMMON_FLAGS} "-ffunction-sections;-fdata-sections;-fno-exceptions;-fshort-enums;-fshort-wchar;-g;-masm=auto")
     set(ENV{VFP_FLAGS} "-mfloat-abi=softfp;-mfpu=fpv4-sp-d16")
     set(ENV{ASFLAGS} "--cpu=${CMAKE_SYSTEM_PROCESSOR};--thumb;--fpu=FPv4-SP")
-    set(ENV{LDFLAGS} "--fpu=FPv4-SP;--show_full_path;--undefined=uxTopUsedPriority")
+    set(ENV{LDFLAGS} "--fpu=FPv4-SP;--show_full_path;--undefined=uxTopUsedPriority;--diag_suppress=6329,6314,6304")
     set(ENV{CORE_FLAGS} "-mthumb")
 
     # list(FIND ... doesn't work reliably with lists in environment variables :-/

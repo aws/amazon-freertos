@@ -86,7 +86,7 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         }
     }
 
-    prvPrintResourceStats();
+	prvPrintResourceStats();
     
     if (xReleaseAfterSend == pdTRUE) {
         vReleaseNetworkBufferAndDescriptor(pxNetworkBuffer);

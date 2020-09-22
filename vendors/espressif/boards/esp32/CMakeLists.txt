@@ -25,6 +25,13 @@ if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
 
+if(DEFINED ENV{IDF_PATH})
+    message("WARNING: IDF_PATH environment variable is not cleared. 
+    If CMake is generating an error, consider clearing the IDF_PATH environment 
+    variable, and generating a clean build. This message can be ignored if 
+    CMake was successful.")
+endif()
+
 
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
@@ -114,6 +121,7 @@ set(
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
     "${esp_idf_dir}/components/vfs/include"
+    "${esp_idf_dir}/components/esp_ringbuf/include/"
     "${extra_components_dir}/freertos/include"
     "${extra_components_dir}/mbedtls/port/include"
 )
@@ -317,6 +325,34 @@ target_link_libraries(
 
 endif()
 
+# Common I/O
+afr_mcu_port(common_io)
+target_sources(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/common_io/iot_i2c.c"
+        "${afr_ports_dir}/common_io/iot_spi.c"
+        "${afr_ports_dir}/common_io/iot_uart.c"
+         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
+)
+target_include_directories(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/common_io/include"
+        "${AFR_ROOT_DIR}/libraries/abstractions/common_io/test"
+)
+
+
+target_compile_options(
+    AFR::common_io::mcu_port
+    INTERFACE
+    -Wno-implicit-function-declaration
+    -Wno-format -Wno-maybe-uninitialized
+    -Wno-pointer-sign
+    -Wno-unused-but-set-variable
+    -Wno-incompatible-pointer-types
+)
+
 if(AFR_IS_TESTING)
 target_compile_definitions(
     AFR::compiler::mcu_port
@@ -368,6 +404,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
             AFR::wifi
             AFR::utils
             AFR::ble
+            AFR::common_io
     )
 endif()
 

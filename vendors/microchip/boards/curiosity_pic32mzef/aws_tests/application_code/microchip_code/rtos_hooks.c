@@ -52,7 +52,7 @@ SOFTWARE
 * Note(s)     : none.
 *********************************************************************************************************
 */
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, signed char *pcTaskName )
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 {
    ( void ) pcTaskName;
    ( void ) pxTask;

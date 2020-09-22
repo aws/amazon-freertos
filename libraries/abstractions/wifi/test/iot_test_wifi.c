@@ -1,5 +1,5 @@
 /*
- * FreeRTOS WiFi V1.0.5
+ * FreeRTOS WiFi V1.0.6
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -601,56 +601,16 @@ TEST_GROUP( Full_WiFi );
 
 TEST_SETUP( Full_WiFi )
 {
-    int32_t lI = 0;
-    int8_t cScanSize = 10;
-    WIFIReturnCode_t xWiFiStatus;
-    WIFIScanResult_t xScanResults[ 10 ] = { 0 };
-
-    /* Disconnect first before running any Wi-Fi test. */
-    xWiFiStatus = WIFI_Disconnect();
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
-
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    configPRINTF(
-        ( "WiFi Networks and strength: \r\n" ) );
-
-    for( lI = 0; lI < cScanSize; lI++ )
-    {
-        configPRINTF( ( "    %s: %d\r\n",
-                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
-    }
-
-    configPRINTF(
-        ( "End of WiFi Networks\r\n" ) );
-
-    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
 {
+    WIFI_Disconnect();
 }
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
-    /* Happy path tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOff );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiMode );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectionLoop );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiNetworkAddGetDelete );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPowerManagementMode )
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetIP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetMAC );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiGetHostIP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiScan );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
-
+    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_Scan );
     /* Null parameter tests. */
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetMode_NullParameters );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_GetIP_NullParameters );
@@ -676,10 +636,6 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded );
 
-    /* Stability tests. */
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
-
     #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
         RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
@@ -693,10 +649,47 @@ TEST_GROUP_RUNNER( Full_WiFi )
 }
 
 /**
+ * Test group for quarantined WiFi tests.
+ */
+TEST_GROUP( Quarantine_WiFi );
+
+
+TEST_SETUP( Quarantine_WiFi )
+{
+}
+
+TEST_TEAR_DOWN( Quarantine_WiFi )
+{
+}
+
+TEST_GROUP_RUNNER( Quarantine_WiFi )
+{
+    /* Happy path tests. */
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiOnOff );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiMode );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectionLoop );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiNetworkAddGetDelete );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiPowerManagementMode )
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetIP );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetMAC );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiGetHostIP );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiScan );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiReset );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiPing );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiIsConnected );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiOnOffLoop );
+
+    /* Stability tests. */
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks );
+}
+
+/**
  * @brief Turn the Wi-Fi off then on in a loop and verify success. The Wi-Fi
  * should be ON after this test is finished.
  */
-TEST( Full_WiFi, AFQP_WiFiOnOffLoop )
+TEST( Quarantine_WiFi, AFQP_WiFiOnOffLoop )
 {
     char cBuffer[ 256 ];
     int16_t sBufferLength = 256;
@@ -730,7 +723,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOffLoop )
  * @brief A single happy path case of turning the Wi-Fi off, on, then connecting
  * to the AP and disconnecting. Verify API results.
  */
-TEST( Full_WiFi, AFQP_WiFiOnOff )
+TEST( Quarantine_WiFi, AFQP_WiFiOnOff )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -766,7 +759,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOff )
  * @brief Call WIFI_GetMode() and WIFI_SetMode() with each of the available
  * Wi-Fi modes; verify the API return status.
  */
-TEST( Full_WiFi, AFQP_WiFiMode )
+TEST( Quarantine_WiFi, AFQP_WiFiMode )
 {
     WIFIDeviceMode_t xWiFiDeviceMode;
     WIFIReturnCode_t xWiFiStatus;
@@ -795,6 +788,39 @@ TEST( Full_WiFi, AFQP_WiFiMode )
     {
         TEST_FAIL();
     }
+}
+
+/**
+ * @brief Call WIFI_GetMode() with Null parameterrs and verify failure.
+ */
+TEST( Full_WiFi, AFQP_WIFI_Scan )
+{
+    int32_t lI = 0;
+    int8_t cScanSize = 10;
+    WIFIReturnCode_t xWiFiStatus;
+    WIFIScanResult_t xScanResults[ 10 ] = { 0 };
+
+    /* Disconnect first before running any Wi-Fi test. */
+    xWiFiStatus = WIFI_Disconnect();
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    configPRINTF(
+        ( "WiFi Networks and strength: \r\n" ) );
+
+    for( lI = 0; lI < cScanSize; lI++ )
+    {
+        configPRINTF( ( "    %s: %d\r\n",
+                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
+    }
+
+    configPRINTF(
+        ( "End of WiFi Networks\r\n" ) );
+
+    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 /**
@@ -833,7 +859,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
  * @brief Connect and disconnect the wireless AP testwifiCONNECTION_LOOP_TIMES
  * and verify the return status each time.
  */
-TEST( Full_WiFi, AFQP_WiFiConnectionLoop )
+TEST( Quarantine_WiFi, AFQP_WiFiConnectionLoop )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -876,7 +902,7 @@ TEST( Full_WiFi, AFQP_WiFiConnectionLoop )
 /**
  * @brief Exercise WIFI_GetIP() and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiGetIP )
+TEST( Quarantine_WiFi, AFQP_WiFiGetIP )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -925,7 +951,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetIP_NullParameters )
  * The MAC address returned is checked to be non-zero. Checking for manufacturer
  * addresses given the unknown set of network interface vendors is infeasible.
  */
-TEST( Full_WiFi, AFQP_WiFiGetMAC )
+TEST( Quarantine_WiFi, AFQP_WiFiGetMAC )
 {
     uint8_t ucMacAddressVal[ testwifiMAC_ADDRESS_LENGTH ];
     WIFIReturnCode_t xWiFiStatus;
@@ -974,7 +1000,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters )
 /**
  * @brief Exercise WIFI_GetHostIP and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiGetHostIP )
+TEST( Quarantine_WiFi, AFQP_WiFiGetHostIP )
 {
     uint8_t ucIPAddr[ 4 ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1082,7 +1108,7 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 /**
  * @brief Exercise WIFI_Scan() and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiScan )
+TEST( Quarantine_WiFi, AFQP_WiFiScan )
 {
     WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ];
     WIFIReturnCode_t xWiFiStatus;
@@ -1116,7 +1142,7 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
  * @brief Single test of adding a Wi-Fi network, getting it, then delete it;
  * verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiNetworkAddGetDelete )
+TEST( Quarantine_WiFi, AFQP_WiFiNetworkAddGetDelete )
 {
     WIFINetworkProfile_t xNetworkProfile;
     WIFIReturnCode_t xWiFiStatus;
@@ -1289,7 +1315,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
 /**
  * @brief Call WIFI_NetworkGet() over the maximum network save number.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
+TEST( Quarantine_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkProfile_t xNetworkProfile;
@@ -1319,7 +1345,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
  * checked. Instead only the network returned on success is checked to be
  * correct.
  */
-TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
+TEST( Quarantine_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkProfile_t xNetworkProfile;
@@ -1389,7 +1415,7 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
  * @brief Exercise the WIFI_SetPMMode() and WIFI_GetPMMode() APIs for each of
  * the available modes and verify the return status.
  */
-TEST( Full_WiFi, AFQP_WiFiPowerManagementMode )
+TEST( Quarantine_WiFi, AFQP_WiFiPowerManagementMode )
 {
     WIFIPMMode_t xPMMode;
     WIFIReturnCode_t xWiFiStatus;
@@ -1641,7 +1667,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 /**
  * @brief Exercise WIFI_Reset and verify a success.
  */
-TEST( Full_WiFi, AFQP_WiFiReset )
+TEST( Quarantine_WiFi, AFQP_WiFiReset )
 {
     WIFIReturnCode_t xWiFiStatus;
 
@@ -1652,7 +1678,7 @@ TEST( Full_WiFi, AFQP_WiFiReset )
 /**
  * @brief Exercise WIFI_Ping() and verify a success.
  */
-TEST( Full_WiFi, AFQP_WiFiPing )
+TEST( Quarantine_WiFi, AFQP_WiFiPing )
 {
     WIFIReturnCode_t xWiFiStatus;
     uint32_t ulPingAddress = testwifiPING_ADDRESS;
@@ -1682,9 +1708,9 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
 
 /**
  * @brief Test WIFI_IsConnected() after calling WIFI_ConnectAP() and
- * WIFI_DisconnectAP() and verify success.
+ * WIFI_DisconnectP() and verify success.
  */
-TEST( Full_WiFi, AFQP_WiFiIsConnected )
+TEST( Quarantine_WiFi, AFQP_WiFiIsConnected )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     BaseType_t xIsConnected;
@@ -1917,7 +1943,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
  * credentials defined in this test over and over and verify we are still
  * connected.
  */
-TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
+TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
 {
     BaseType_t xIsConnected;
     BaseType_t xMaxRetries = 6;

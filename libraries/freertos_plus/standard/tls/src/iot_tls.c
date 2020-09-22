@@ -1,5 +1,5 @@
 /*
- * FreeRTOS TLS V1.1.7
+ * FreeRTOS TLS V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,6 +125,7 @@ typedef struct TLSContext
     mbedtls_x509_crt xMbedX509Cli;
     mbedtls_pk_context xMbedPkCtx;
     mbedtls_pk_info_t xMbedPkInfo;
+    mbedtls_ctr_drbg_context xMbedDrbgCtx;
 
     /* PKCS#11. */
     CK_FUNCTION_LIST_PTR pxP11FunctionList;
@@ -158,6 +159,7 @@ static void prvFreeContext( TLSContext_t * pxCtx )
         mbedtls_ssl_close_notify( &pxCtx->xMbedSslCtx ); /*lint !e534 The error is already taken care of inside mbedtls_ssl_close_notify*/
         mbedtls_ssl_free( &pxCtx->xMbedSslCtx );
         mbedtls_ssl_config_free( &pxCtx->xMbedSslConfig );
+        mbedtls_ctr_drbg_free( &pxCtx->xMbedDrbgCtx );
 
         /* Cleanup PKCS11 only if the handshake was started. */
         if( ( TLS_HANDSHAKE_NOT_STARTED != pxCtx->xTLSHandshakeState ) &&
@@ -228,11 +230,11 @@ static int prvGenerateRandomBytes( void * pvCtx,
                                    size_t xRandomLength )
 {
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
-    BaseType_t xResult;
+    int xResult = 0;
 
-    xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+    xResult = mbedtls_ctr_drbg_random( &pxCtx->xMbedDrbgCtx, pucRandom, xRandomLength );
 
-    if( xResult != CKR_OK )
+    if( xResult != 0 )
     {
         TLS_PRINT( ( "ERROR: Failed to generate random bytes %s : %s \r\n",
                      mbedtlsHighLevelCodeOrDefault( xResult ),
@@ -524,7 +526,6 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
     BaseType_t xResult = CKR_OK;
-    CK_SLOT_ID * pxSlotIds = NULL;
     CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
@@ -533,42 +534,10 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     /* Initialize the mbed contexts. */
     mbedtls_x509_crt_init( &pxCtx->xMbedX509Cli );
 
-    /* Get the PKCS #11 module/token slot count. */
-    if( CKR_OK == xResult )
+    if( pxCtx->xP11Session == CK_INVALID_HANDLE )
     {
-        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetSlotList( CK_TRUE,
-                                                                          NULL,
-                                                                          &xCount );
-    }
-
-    /* Allocate memory to store the token slots. */
-    if( CKR_OK == xResult )
-    {
-        pxSlotIds = ( CK_SLOT_ID * ) pvPortMalloc( sizeof( CK_SLOT_ID ) * xCount );
-
-        if( NULL == pxSlotIds )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-    }
-
-    /* Get all of the available private key slot identities. */
-    if( CKR_OK == xResult )
-    {
-        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetSlotList( CK_TRUE,
-                                                                          pxSlotIds,
-                                                                          &xCount );
-    }
-
-    /* Start a private session with the P#11 module using the first
-     * enumerated slot. */
-    if( CKR_OK == xResult )
-    {
-        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
-                                                                          CKF_SERIAL_SESSION,
-                                                                          NULL,
-                                                                          NULL,
-                                                                          &pxCtx->xP11Session );
+        xResult = CKR_SESSION_HANDLE_INVALID;
+        TLS_PRINT( ( "Error: PKCS #11 session was not initialized.\r\n" ) );
     }
 
     /* Put the module in authenticated mode. */
@@ -682,16 +651,53 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                              &pxCtx->xMbedPkCtx );
     }
 
-    /* Free memory. */
-    if( NULL != pxSlotIds )
-    {
-        vPortFree( pxSlotIds );
-    }
-
     return xResult;
 }
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief Helper to seed the entropy module used by the DRBG. Periodically this
+ * this function will be called to get more random data from the TRNG.
+ *
+ * @param[in] tlsContext The TLS context.
+ * @param[out] outputBuffer The output buffer to return the generated random data.
+ * @param[in] outputBufferLength Length of the output buffer.
+ *
+ * @return Zero on success, otherwise a negative error code telling the cause of the error.
+ */
+static int prvEntropyCallback( void * tlsContext,
+                               unsigned char * outputBuffer,
+                               size_t outputBufferLength )
+{
+    int ret = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
+    CK_RV xResult = CKR_OK;
+    TLSContext_t * pxCtx = ( TLSContext_t * ) tlsContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
+
+    if( pxCtx->xP11Session != CK_INVALID_HANDLE )
+    {
+        xResult = C_GenerateRandom( pxCtx->xP11Session,
+                                    outputBuffer,
+                                    outputBufferLength );
+    }
+    else
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+        TLS_PRINT( ( "Error: PKCS #11 session was not initialized.\r\n" ) );
+    }
+
+    if( xResult == CKR_OK )
+    {
+        ret = 0;
+    }
+    else
+    {
+        TLS_PRINT( ( "Error: PKCS #11 C_GenerateRandom failed with error code:" \
+                     "%d\r\n", xResult ) );
+    }
+
+    return ret;
+}
 
 /*
  * Interface routines.
@@ -701,6 +707,7 @@ BaseType_t TLS_Init( void ** ppvContext,
                      TLSParams_t * pxParams )
 {
     BaseType_t xResult = CKR_OK;
+    int mbedTLSResult = 0;
     TLSContext_t * pxCtx = NULL;
     CK_C_GetFunctionList xCkGetFunctionList = NULL;
 
@@ -726,15 +733,33 @@ BaseType_t TLS_Init( void ** ppvContext,
         xCkGetFunctionList = C_GetFunctionList;
         xResult = ( BaseType_t ) xCkGetFunctionList( &pxCtx->pxP11FunctionList );
 
-        /* Ensure that the PKCS #11 module is initialized. */
-        if( CKR_OK == xResult )
+        /* Ensure that the PKCS #11 module is initialized and create a session. */
+        if( xResult == CKR_OK )
         {
-            xResult = ( BaseType_t ) xInitializePKCS11();
+            xResult = xInitializePkcs11Session( &pxCtx->xP11Session );
 
             /* It is ok if the module was previously initialized. */
             if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
             {
                 xResult = CKR_OK;
+            }
+        }
+
+        if( xResult == CKR_OK )
+        {
+            mbedtls_ctr_drbg_init( &pxCtx->xMbedDrbgCtx );
+            mbedTLSResult = mbedtls_ctr_drbg_seed( &pxCtx->xMbedDrbgCtx,
+                                                   prvEntropyCallback,
+                                                   pxCtx,
+                                                   NULL,
+                                                   0 );
+
+            if( 0 != mbedTLSResult )
+            {
+                TLS_PRINT( ( "ERROR: Failed to setup DRBG seed %s : %s \r\n",
+                             mbedtlsHighLevelCodeOrDefault( mbedTLSResult ),
+                             mbedtlsLowLevelCodeOrDefault( mbedTLSResult ) ) );
+                xResult = CKR_FUNCTION_FAILED;
             }
         }
     }

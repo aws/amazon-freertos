@@ -53,7 +53,7 @@
 #include "psa/protected_storage.h"
 
 #include "iot_pkcs11_config.h"
-#include "iot_pkcs11_psa_jitp_status.h"
+#include "jitp_status.h"
 
 /**
  * @cond DOXYGEN_IGNORE

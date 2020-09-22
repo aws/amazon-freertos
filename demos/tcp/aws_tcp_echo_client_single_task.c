@@ -1,5 +1,5 @@
 /*
- * FreeRTOS V202002.00
+ * FreeRTOS V202007.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,6 +46,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /* TCP/IP abstraction includes. */
 #include "iot_secure_sockets.h"
@@ -55,7 +56,16 @@
 #include "aws_demo_config.h"
 
 /* Dimensions the buffer used to generate the task name. */
-#define echoMAX_TASK_NAME_LENGTH    8
+#define echoMAX_TASK_NAME_LENGTH        8
+
+/* Maximum connection count. */
+#define echoMAXIMUM_CONNECTION_COUNT    10
+
+/* Maximum Loop count. */
+#define echoMAX_LOOP_COUNT              10
+
+/* The threshold to declare this demo as successful. Range: 0 - 1. */
+#define echoSUCCESS_THRESHOLD           0.95
 
 /* Sanity check the configuration constants required by this demo are
  * present. */
@@ -153,6 +163,10 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 /*-----------------------------------------------------------*/
 
+/* Create a semaphore to sync all Echo task(s). */
+static SemaphoreHandle_t EchoSingleSemaphore;
+BaseType_t xSuccess[ echoNUM_ECHO_CLIENTS ];
+
 int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const char * pIdentifier,
                                           void * pNetworkServerInfo,
@@ -160,7 +174,9 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                                           const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xX;
+    BaseType_t TaskCompleteCounter, SuccessfulConnections = 0;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
+    float SuccessPercent = 0;
 
     /* Unused parameters */
     ( void ) awsIotMqttMode;
@@ -168,6 +184,9 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     ( void ) pNetworkServerInfo;
     ( void ) pNetworkCredentialInfo;
     ( void ) pNetworkInterface;
+
+    TaskCompleteCounter = 0;
+    EchoSingleSemaphore = xSemaphoreCreateCounting( echoNUM_ECHO_CLIENTS, 0 );
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
@@ -181,7 +200,37 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
                      NULL );                   /* The task handle is not used. */
     }
 
-    return 0;
+    /* Wait for all tasks to finish. */
+    while( TaskCompleteCounter < echoNUM_ECHO_CLIENTS )
+    {
+        /* Wait for the semaphore to be 'given' by a child task. */
+        xSemaphoreTake( EchoSingleSemaphore, portMAX_DELAY );
+
+        /* Increment the task completion counter variable. */
+        TaskCompleteCounter++;
+    }
+
+    xX = 0;
+
+    /* Count the number of successes. */
+    while( xX < echoNUM_ECHO_CLIENTS )
+    {
+        SuccessfulConnections += xSuccess[ xX++ ];
+    }
+
+    /* Calculate the percentage of successful connections across all connections. */
+    SuccessPercent = ( ( float ) SuccessfulConnections / ( echoNUM_ECHO_CLIENTS * echoMAX_LOOP_COUNT * echoMAXIMUM_CONNECTION_COUNT ) );
+
+    if( SuccessPercent > echoSUCCESS_THRESHOLD )
+    {
+        /* Number of successful connections more than threshold. Return Success. */
+        return EXIT_SUCCESS;
+    }
+    else
+    {
+        /* Number of successful connections less than threshold. Return Failure. */
+        return EXIT_FAILURE;
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -190,13 +239,15 @@ static void prvEchoClientTask( void * pvParameters )
     Socket_t xSocket;
 /*_RB_ struct convention is for this not to be typedef'ed, so 'struct' is required. */ SocketsSockaddr_t xEchoServerAddress;
     int32_t lLoopCount = 0UL;
-    const int32_t lMaxLoopCount = 10;
+    const int32_t lMaxLoopCount = echoMAX_LOOP_COUNT;
     volatile uint32_t ulTxCount = 0UL;
     BaseType_t xReceivedBytes, xReturned, xInstance;
     BaseType_t xTransmitted, xStringLength;
     char * pcTransmittedString;
     char * pcReceivedString;
     TickType_t xTimeOnEntering;
+    BaseType_t lConnectionCount;
+    const BaseType_t lMaxConnectionCount = echoMAXIMUM_CONNECTION_COUNT;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
         WinProperties_t xWinProps;
@@ -230,7 +281,8 @@ static void prvEchoClientTask( void * pvParameters )
                                                             configECHO_SERVER_ADDR2,
                                                             configECHO_SERVER_ADDR3 );
 
-    for( ; ; )
+    /* Create lMaxConnectionCount distinct connections to the echo server. */
+    for( lConnectionCount = 0; lConnectionCount < lMaxConnectionCount; lConnectionCount++ )
     {
         /* Create a TCP socket. */
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
@@ -335,6 +387,9 @@ static void prvEchoClientTask( void * pvParameters )
                         /* The echo reply was received without error. */
                         ulTxRxCycles[ xInstance ]++;
                         configPRINTF( ( "Received correct string from echo server.\r\n" ) );
+
+                        /* Increment success count. */
+                        xSuccess[ xInstance ]++;
                     }
                     else
                     {
@@ -402,6 +457,12 @@ static void prvEchoClientTask( void * pvParameters )
          * congested. */
         vTaskDelay( echoLOOP_DELAY );
     }
+
+    /* Notify the parent task about completion. */
+    xSemaphoreGive( EchoSingleSemaphore );
+
+    /* Delete self. */
+    vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
 

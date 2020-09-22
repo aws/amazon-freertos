@@ -1,5 +1,5 @@
 /*
- * FreeRTOS POSIX V1.1.3
+ * FreeRTOS POSIX V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,11 +93,15 @@ void UTILS_NanosecondsToTimespec( int64_t llSource,
 /**
  * @brief Calculates pxResult = x + y.
  *
+ * This function supports both signed and unsigned type definitions of
+ * the timespec.tv_sec member.
+ *
  * @param[in] x The first argument for addition.
  * @param[in] y The second argument for addition.
  * @param[out] pxResult Where the result of the calculation is stored.
  *
- * @return -1 if any argument was NULL; 1 if result is negative (overflow); otherwise, 0.
+ * @return -1 if any argument is NULL or any of the input values is negative;
+ * 1 if there is an overflow in the result; otherwise, 0 for success.
  */
 int UTILS_TimespecAdd( const struct timespec * const x,
                        const struct timespec * const y,

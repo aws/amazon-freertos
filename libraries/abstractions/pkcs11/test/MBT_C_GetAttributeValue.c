@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.8
+ * FreeRTOS PKCS #11 V2.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@
 void C_GetAttributeValue_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate;
     CK_ULONG ulCount = 1;
 
@@ -57,7 +57,7 @@ void C_GetAttributeValue_normal_behavior()
 void C_GetAttributeValue_exceptional_behavior_0()
 {
     CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate;
     CK_ULONG ulCount = 1;
 
@@ -97,7 +97,7 @@ void C_GetAttributeValue_exceptional_behavior_1()
 void C_GetAttributeValue_exceptional_behavior_2()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate;
     CK_ULONG ulCount = 1;
 
@@ -117,7 +117,7 @@ void C_GetAttributeValue_exceptional_behavior_2()
 void C_GetAttributeValue_exceptional_behavior_3()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate;
     CK_ULONG ulCount = 1;
 
@@ -137,7 +137,7 @@ void C_GetAttributeValue_exceptional_behavior_3()
 void C_GetAttributeValue_exceptional_behavior_4()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate = NULL_PTR;
     CK_ULONG ulCount = 1;
 
@@ -149,7 +149,7 @@ void C_GetAttributeValue_exceptional_behavior_4()
 void C_GetAttributeValue_exceptional_behavior_5()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    CK_OBJECT_HANDLE hObject = xPrivateKey;
+    CK_OBJECT_HANDLE hObject = xGlobalPrivateKeyHandle;
     CK_ATTRIBUTE_PTR pTemplate;
     CK_ULONG ulCount = 1;
 

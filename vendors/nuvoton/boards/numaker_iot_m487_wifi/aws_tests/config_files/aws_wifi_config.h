@@ -107,6 +107,6 @@
 /**
  * @brief Maximum size of WiFi receive buffer
  */
-#define wificonfigMAX_RECV_BUF_SIZE           ( 512 * 9 )
+#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 3 )
 
 #endif /* _AWS_WIFI_CONFIG_H_ */

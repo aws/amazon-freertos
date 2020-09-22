@@ -28,7 +28,7 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../libraries/3rdparty/mbedtls/ \
 				 -I$(d)/../../../../../libraries/3rdparty/tinycbor/src/ \
 				 -I$(d)/../../../../../libraries/3rdparty/tinycrypt/ \
-				 -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS=1 \
+				 -DFREERTOS_ENABLE_UNIT_TESTS=1 \
 				 -DUNITY_INCLUDE_CONFIG_H=1
 
 test_message-objs-y := ../../../../../vendors/marvell/boards/mw300_rd/aws_tests/application_code/main.c \

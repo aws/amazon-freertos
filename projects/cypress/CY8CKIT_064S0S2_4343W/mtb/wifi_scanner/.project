@@ -27,10 +27,25 @@
 	</natures>
 	<linkedResources>
 
+		<link>
+			<name>./</name>
+			<type>2</type>
+			<locationURI>./</locationURI>
+		</link>
+ 		<link>
+			<name>./config_files</name>
+			<type>2</type>
+			<locationURI>./config_files</locationURI>
+		</link>
  		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/config_files</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/config_files</locationURI>
+		</link>
+ 		<link>
+			<name>./include</name>
+			<type>2</type>
+			<locationURI>./include</locationURI>
 		</link>
  		<link>
 			<name>demos/include</name>
@@ -63,9 +78,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/aws_demos/application_code</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/</name>
+			<name>libraries/abstractions/pkcs11/psa</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/MTB/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include</name>
@@ -581,7 +596,12 @@
  		<link>
 			<name>./config_files</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/cypress/CY8CKIT_064S0S2_4343W/mtb/wifi_scanner/config_files</locationURI>
+			<locationURI>./config_files</locationURI>
+		</link>
+ 		<link>
+			<name>./include</name>
+			<type>2</type>
+			<locationURI>./include</locationURI>
 		</link>
 
 
@@ -651,24 +671,19 @@
 			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/wifi/iot_wifi.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_input_format.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_jitp_status.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_input_format.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_input_format.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa.c</locationURI>
 		</link>
  		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa.c</name>
+			<name>libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_object_management.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa.c</locationURI>
-		</link>
- 		<link>
-			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/psa/iot_pkcs11_psa_object_management.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/psa/iot_pkcs11_psa_object_management.c</locationURI>
 		</link>
  		<link>
 			<name>vendors/cypress/boards/CY8CKIT_064S0S2_4343W/ports/pkcs11/hw_poll.c</name>
@@ -2744,7 +2759,7 @@
  		<link>
 			<name>./main.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/cypress/CY8CKIT_064S0S2_4343W/mtb/wifi_scanner/main.c</locationURI>
+			<locationURI>./main.c</locationURI>
 		</link>
 
 	</linkedResources>

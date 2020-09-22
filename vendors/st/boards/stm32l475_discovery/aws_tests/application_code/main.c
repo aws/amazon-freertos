@@ -89,6 +89,15 @@ static void prvWifiConnect( void );
 static void prvMiscInitialization( void );
 
 /**
+ * @brief Initializes the FreeRTOS heap.
+ *
+ * Heap_5 is being used because the RAM is not contiguous, therefore the heap
+ * needs to be initialized.  See http://www.freertos.org/a00111.html
+ */
+static void prvInitializeHeap( void );
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Application runtime entry point.
  */
 int main( void )
@@ -274,6 +283,10 @@ static void prvMiscInitialization( void )
 
     /* Configure the system clock. */
     SystemClock_Config();
+
+    /* Heap_5 is being used because the RAM is not contiguous in memory, so the
+     * heap must be initialized. */
+    prvInitializeHeap();
 
     BSP_LED_Init( LED_GREEN );
     BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
@@ -597,6 +610,22 @@ int iMainRand32( void )
     uxlNextRand = ( ulMultiplier * uxlNextRand ) + ulIncrement;
 
     return( ( int ) ( uxlNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
+static void prvInitializeHeap( void )
+{
+    static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
+    static uint8_t ucHeap2[ 10 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
+
+    HeapRegion_t xHeapRegions[] =
+    {
+        { ( unsigned char * ) ucHeap2, sizeof( ucHeap2 ) },
+        { ( unsigned char * ) ucHeap1, sizeof( ucHeap1 ) },
+        { NULL,                        0                 }
+    };
+
+    vPortDefineHeapRegions( xHeapRegions );
 }
 /*-----------------------------------------------------------*/
 

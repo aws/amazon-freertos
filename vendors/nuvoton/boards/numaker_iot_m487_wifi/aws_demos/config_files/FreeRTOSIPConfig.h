@@ -47,7 +47,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * out the debugging messages. */
 #define ipconfigHAS_DEBUG_PRINTF    0
 #if ( ipconfigHAS_DEBUG_PRINTF == 1 )
-    #define FreeRTOS_debug_printf( X )    vLoggingPrintf( X )
+    #define FreeRTOS_debug_printf( X )    configPRINTF( X )
 #endif
 
 /* Set to 1 to print out non debugging messages, for example the output of the
@@ -200,13 +200,13 @@ extern uint32_t numaker_ulRand(void);
  * ipconfigINCLUDE_FULL_INET_ADDR is set to 1 then both FreeRTOS_inet_addr() and
  * FreeRTOS_indet_addr_quick() are available.  If ipconfigINCLUDE_FULL_INET_ADDR is
  * not set to 1 then only FreeRTOS_indet_addr_quick() is available. */
-#define ipconfigINCLUDE_FULL_INET_ADDR                 0
+#define ipconfigINCLUDE_FULL_INET_ADDR                 1
 
 /* ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS defines the total number of network buffer that
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS         6//16
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS         6U
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can
@@ -243,7 +243,7 @@ extern uint32_t numaker_ulRand(void);
  * lower value can save RAM, depending on the buffer management scheme used.  If
  * ipconfigCAN_FRAGMENT_OUTGOING_PACKETS is 1 then (ipconfigNETWORK_MTU - 28) must
  * be divisible by 8. */
-#define ipconfigNETWORK_MTU                            1500
+#define ipconfigNETWORK_MTU                            1500U
 
 /* Set ipconfigUSE_DNS to 1 to include a basic DNS client/resolver.  DNS is used
  * through the FreeRTOS_gethostbyname() API function. */
@@ -284,7 +284,7 @@ extern uint32_t numaker_ulRand(void);
  * 32-bit memory instructions, all packets will be stored 32-bit-aligned, plus 16-bits.
  * This has to do with the contents of the IP-packets: all 32-bit fields are
  * 32-bit-aligned, plus 16-bit(!) */
-#define ipconfigPACKET_FILLER_SIZE                     2
+#define ipconfigPACKET_FILLER_SIZE                     2U
 
 /* Define the size of the pool of TCP window descriptors.  On the average, each
  * TCP socket will use up to 2 x 6 descriptors, meaning that it can have 2 x 6

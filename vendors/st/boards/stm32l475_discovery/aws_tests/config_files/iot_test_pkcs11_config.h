@@ -71,6 +71,11 @@
  */
 #define pkcs11testEC_KEY_SUPPORT                      ( 0 )
 
+/**
+ * @brief Size of the stack for each task in multi task test.
+ */
+#define pkcs11testMULTI_TASK_STACK_SIZE               ( 4096 )
+
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
  */

@@ -1448,7 +1448,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
                              (uint32_t)usCount,
                              ulIntervalMS);
 
-    if( count < 0 )
+    if( count <= 0 )
         return eWiFiFailure;
 
     if( count != usCount )

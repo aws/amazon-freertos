@@ -3,8 +3,8 @@
 @INCLUDE = common
 
 # Basic project information.
-PROJECT_NAME = "PKCS11"
-PROJECT_BRIEF = "PKCS11 Cryptoki Library"
+PROJECT_NAME = "PKCS #11"
+PROJECT_BRIEF = "PKCS #11 Cryptoki Library"
 
 # Library documentation output directory.
 HTML_OUTPUT = pkcs11

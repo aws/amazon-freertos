@@ -248,6 +248,13 @@ BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable )
     return xStatus;
 }
 
+void prvEnableRPA( void )
+{
+    ble_hs_cfg.sm_our_key_dist   = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
+    ble_hs_cfg.sm_their_key_dist = BLE_SM_PAIR_KEY_DIST_ID | BLE_SM_PAIR_KEY_DIST_ENC;
+}
+
+
 BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -277,6 +284,11 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     if( xStatus == eBTStatusSuccess )
     {
         xStatus = prvToggleSecureConnectionOnlyMode( xProperties.bSecureConnectionOnly );
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+        prvEnableRPA();
     }
 
     if( pxCallbacks != NULL )
@@ -415,17 +427,9 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 {
     int xESPStatus;
     BTStatus_t xStatus = eBTStatusSuccess;
-    uint8_t own_addr_type;
 
-    /* Figure out address to use while advertising */
-    xESPStatus = ble_hs_id_infer_auto( xPrivacy, &own_addr_type );
-
-    if( xESPStatus != 0 )
-    {
-        xStatus = eBTStatusFail;
-    }
-
-    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, lAdvDurationMS,
+    /* Set address type to always random as RPA is enabled. */
+    xESPStatus = ble_gap_adv_start( BLE_OWN_ADDR_RANDOM, NULL, lAdvDurationMS,
                                     &xAdv_params, prvGAPeventHandler, NULL );
 
     if( xESPStatus != 0 )
@@ -566,8 +570,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
      *     o Discoverability in forthcoming advertisement (general)
      *     o BLE-only (BR/EDR unsupported).
      */
-    fields.flags = BLE_HS_ADV_F_DISC_GEN |
-                   BLE_HS_ADV_F_BREDR_UNSUP;
+    if ( !pxParams->bSetScanRsp )
+    {
+        fields.flags = BLE_HS_ADV_F_DISC_GEN |
+                       BLE_HS_ADV_F_BREDR_UNSUP;
+    }
 
     if( pxParams->ulAppearance )
     {

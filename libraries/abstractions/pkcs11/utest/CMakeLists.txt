@@ -11,7 +11,6 @@ cmake_minimum_required (VERSION 3.13)
                 "${abstraction_dir}/pkcs11/include/iot_pkcs11_pal.h"
                 "${kernel_dir}/include/portable.h"
                 "${kernel_dir}/include/queue.h"
-                "${common_dir}/include/iot_logging_task.h"
                 "${standard_dir}/crypto/include/iot_crypto.h"
                 "${3rdparty_dir}/mbedtls/include/mbedtls/platform_util.h"
                 "${3rdparty_dir}/mbedtls/include/mbedtls/ctr_drbg.h"
@@ -25,6 +24,7 @@ cmake_minimum_required (VERSION 3.13)
                 "${3rdparty_dir}/mbedtls/include/mbedtls/ecdsa.h"
                 "${3rdparty_dir}/mbedtls_utils/mbedtls_error.h"
                 "${3rdparty_dir}/mbedtls/include/mbedtls/pk.h"
+                "${3rdparty_dir}/mbedtls/include/mbedtls/x509_crt.h"
                 "${standard_dir}/utils/include/iot_pki_utils.h"
         )
 
@@ -63,6 +63,7 @@ cmake_minimum_required (VERSION 3.13)
                 "${standard_dir}/utils/include"
                 "${common_dir}/include/"
                 "${standard_dir}/utils/include"
+                "${common_dir}/include"
                 "${abstraction_dir}/pkcs11/include"
                 "${AFR_ROOT_DIR}/tests/unit_test/linux/config_files"
                 "${3rdparty_dir}/mbedtls/include"

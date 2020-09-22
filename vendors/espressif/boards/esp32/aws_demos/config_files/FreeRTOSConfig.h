@@ -63,7 +63,7 @@
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				( CONFIG_FREERTOS_LEGACY_IDLE_HOOK )
 #define configUSE_TICK_HOOK				( CONFIG_FREERTOS_LEGACY_TICK_HOOK )
-#define configTICK_RATE_HZ				( CONFIG_FREERTOS_HZ )
+#define configTICK_RATE_HZ				( ( unsigned int ) CONFIG_FREERTOS_HZ )
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 
 /* Use the default clock rate for simulator. */
@@ -71,16 +71,16 @@
 
 /* This has impact on speed of search for highest priority. */
 #ifdef SMALL_TEST
-    #define configMAX_PRIORITIES			( 7 )
+    #define configMAX_PRIORITIES			( 7U )
 #else
-    #define configMAX_PRIORITIES			( 25 )
+    #define configMAX_PRIORITIES			( 25U )
 #endif
 
 #ifndef CONFIG_ESP32_APPTRACE_ENABLE
-    #define configMINIMAL_STACK_SIZE		768
+    #define configMINIMAL_STACK_SIZE		768U
 #else
     /* The apptrace module requires at least 2KB of stack per task. */
-    #define configMINIMAL_STACK_SIZE		2048
+    #define configMINIMAL_STACK_SIZE		2048U
 #endif
 
 #define configUSE_MUTEXES				1
@@ -121,14 +121,14 @@
     #define configASSERT(a) /* assertions disabled */
 #elif defined(CONFIG_FREERTOS_ASSERT_FAIL_PRINT_CONTINUE)
     #define configASSERT(a) if (!(a)) {                                     \
-            ets_printf("%s:%d (%s)- assert failed!\n", __FILE__, __LINE__,  \
-                    __FUNCTION__);                                       \
+                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
+                                    __FILE__, __LINE__, __FUNCTION__);      \
             }
 #else /* CONFIG_FREERTOS_ASSERT_FAIL_ABORT */
-    #define configASSERT(a) if (!(a)) {                                         \
-                ets_printf("%s:%d (%s)- assert failed!\n", __FILE__, __LINE__,  \
-                        __FUNCTION__);                                          \
-                abort();                                                        \
+    #define configASSERT(a) if (!(a)) {                                     \
+                ( void ) ets_printf("%s:%d (%s)- assert failed!\n",         \
+                                    __FILE__, __LINE__, __FUNCTION__);      \
+                abort();                                                    \
             }
 #endif
 

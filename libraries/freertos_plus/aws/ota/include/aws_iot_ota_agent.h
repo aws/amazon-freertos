@@ -1,5 +1,5 @@
 /*
- * FreeRTOS OTA V1.1.1
+ * FreeRTOS OTA V1.2.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,9 +34,7 @@
 /* Standard includes. */
 /* For FILE type in OTA_FileContext_t.*/
 #include <stdio.h>
-
-/* Type definitions for OTA Agent */
-#include "aws_iot_ota_types.h"
+#include <stdbool.h>
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"
@@ -164,7 +162,8 @@ typedef enum
     eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
     eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
     eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */
-    eOTA_JobParseErr_NoContextAvailable   /* There wasn't an OTA context available. */
+    eOTA_JobParseErr_NoContextAvailable,  /* There wasn't an OTA context available. */
+    eOTA_JobParseErr_NoActiveJobs,        /* No active jobs are available in the service. */
 } OTA_JobParseErr_t;
 
 
@@ -406,7 +405,7 @@ typedef struct OTA_FileContext
     {
         int32_t lFileHandle;    /*!< Device internal file pointer or handle.
                                  * File type is handle after file is open for write. */
-        #if WIN32
+        #ifdef WIN32
             FILE * pxFile;      /*!< File type is stdio FILE structure after file is open for write. */
         #endif
         uint8_t * pucFile;      /*!< File type is RAM/Flash image pointer after file is open for write. */
@@ -423,7 +422,7 @@ typedef struct OTA_FileContext
     uint8_t * pucUpdateUrlPath; /*!< Url for the file. */
     uint8_t * pucAuthScheme;    /*!< Authorization scheme. */
     uint32_t ulUpdaterVersion;  /*!< Used by OTA self-test detection, the version of FW that did the update. */
-    bool_t xIsInSelfTest;       /*!< True if the job is in self test mode. */
+    bool bIsInSelfTest;         /*!< True if the job is in self test mode. */
     uint8_t * pucProtocols;     /*!< Authorization scheme. */
 } OTA_FileContext_t;
 
@@ -569,7 +568,7 @@ typedef struct
  * be called with the connection client context before calling @ref ota_function_checkforupdate. Only one
  * OTA Agent may exist.
  *
- * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
+ * @param[in] pvConnectionContext A pointer to a OTA_ConnectionContext_t object.
  * @param[in] pucThingName A pointer to a C string holding the Thing name.
  * @param[in] xFunc Static callback function for when an OTA job is complete. This function will have
  * input of the state of the OTA image after download and during self-test.
@@ -581,11 +580,10 @@ typedef struct
  * If the agent was successfully initialized and ready to operate, the state will be
  * eOTA_AgentState_Ready. Otherwise, it will be one of the other OTA_State_t enum values.
  */
-OTA_State_t OTA_AgentInit( void * pvClient,
+OTA_State_t OTA_AgentInit( void * pvConnectionContext,
                            const uint8_t * pucThingName,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait );
-
 
 /**
  * @brief Internal OTA Agent initialization function.
@@ -594,9 +592,9 @@ OTA_State_t OTA_AgentInit( void * pvClient,
  * be called with the MQTT messaging client context before calling @ref ota_function_checkforupdate. Only one
  * OTA Agent may exist.
  *
- * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
+ * @param[in] pvConnectionContext A pointer to a OTA_ConnectionContext_t object.
  * @param[in] pucThingName A pointer to a C string holding the Thing name.
- * @param[in] xCallbacks Static callback structure for various OTA events. This function will have
+ * @param[in] pxCallbacks Static callback structure for various OTA events. This function will have
  * input of the state of the OTA image after download and during self-test.
  * @param[in] xTicksToWait The number of ticks to wait until the OTA Task signals that it is ready.
  * If this is set to zero, then the function will return immediately after creating the OTA task but
@@ -606,12 +604,10 @@ OTA_State_t OTA_AgentInit( void * pvClient,
  * If the agent was successfully initialized and ready to operate, the state will be
  * eOTA_AgentState_Ready. Otherwise, it will be one of the other OTA_State_t enum values.
  */
-OTA_State_t OTA_AgentInit_internal( void * pvClient,
+OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
                                     const uint8_t * pucThingName,
-                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    const OTA_PAL_Callbacks_t * pxCallbacks,
                                     TickType_t xTicksToWait );
-
-
 
 /**
  * @brief Signal to the OTA Agent to shut down.
@@ -624,7 +620,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
  * returned to the caller.
  *
  * @return One of the OTA agent states from the OTA_State_t enum.
- * A normal shutdown will return eOTA_AgentState_NotReady. Otherwise, refer to the OTA_State_t enum for details.
+ * A normal shutdown will return eOTA_AgentState_Stopped. Otherwise, refer to the OTA_State_t enum for details.
  */
 OTA_State_t OTA_AgentShutdown( TickType_t xTicksToWait );
 

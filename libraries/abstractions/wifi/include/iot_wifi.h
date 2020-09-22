@@ -1,5 +1,5 @@
 /*
- * FreeRTOS WiFi V1.0.5
+ * FreeRTOS WiFi V1.0.6
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -66,6 +66,7 @@ typedef enum
     eWiFiSecurityWPA,         /**< WPA Security. */
     eWiFiSecurityWPA2,        /**< WPA2 Security. */
     eWiFiSecurityWPA2_ent,    /**< WPA2 Enterprise Security. */
+    eWiFiSecurityWPA3,        /**< WPA3 Security. */
     eWiFiSecurityNotSupported /**< Unknown Security. */
 } WIFISecurity_t;
 

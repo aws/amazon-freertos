@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Common IO V0.1.1
+ * FreeRTOS Common IO V0.1.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,7 +86,6 @@ static void prvTimerCallback( void * pvUserContext )
     BaseType_t xHigherPriorityTaskWoken;
 
     xSemaphoreGiveFromISR( xtestIotTimerSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /*-----------------------------------------------------------*/
