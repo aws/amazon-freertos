@@ -86,7 +86,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTrasnport_Send( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend )
 {
@@ -129,7 +129,7 @@ int32_t SecureSocketsTrasnport_Send( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTrasnport_Recv( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv )
 {
@@ -428,7 +428,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
 /*-----------------------------------------------------------*/
 
-TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetworkContext,
+TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetworkContext,
                                                         const ServerInfo_t * pServerInfo,
                                                         const SocketsConfig_t * pSocketsConfig )
 {
@@ -469,7 +469,7 @@ TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetw
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTrasnport_Disconnect( const NetworkContext_t * pNetworkContext )
+int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext )
 {
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     Socket_t xSocket = NULL;

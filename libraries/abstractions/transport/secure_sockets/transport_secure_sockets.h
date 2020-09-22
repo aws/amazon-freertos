@@ -137,7 +137,7 @@ typedef struct SocketsConfig
  *         #TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR,
  *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
  */
-TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetworkContext,
+TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetworkContext,
                                                         const ServerInfo_t * pServerInfo,
                                                         const SocketsConfig_t * pSocketsConfig );
 
@@ -150,7 +150,7 @@ TransportSocketStatus_t SecureSocketsTrasnport_Connect( NetworkContext_t * pNetw
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR on failure.
  */
-int32_t SecureSocketsTrasnport_Disconnect( const NetworkContext_t * pNetworkContext );
+int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext );
 
 
 /**
@@ -165,7 +165,7 @@ int32_t SecureSocketsTrasnport_Disconnect( const NetworkContext_t * pNetworkCont
  *
  * @return Number of bytes received if successful; negative value on error.
  */
-int32_t SecureSocketsTrasnport_Recv( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Recv( NetworkContext_t * pNetworkContext,
                                      void * pBuffer,
                                      size_t bytesToRecv );
 
@@ -181,7 +181,7 @@ int32_t SecureSocketsTrasnport_Recv( NetworkContext_t * pNetworkContext,
  *
  * @return Number of bytes sent if successful; negative value on error.
  */
-int32_t SecureSocketsTrasnport_Send( NetworkContext_t * pNetworkContext,
+int32_t SecureSocketsTransport_Send( NetworkContext_t * pNetworkContext,
                                      const void * pMessage,
                                      size_t bytesToSend );
 
