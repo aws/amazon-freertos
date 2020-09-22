@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,6 +31,19 @@
 
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
+
+#include "FreeRTOS.h"
+
+/**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
+
 
 /**
  * @brief PKCS #11 default user PIN.

@@ -38,7 +38,7 @@ CY_AFR_APPLOC=$(notdir $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LI
 CY_SYM_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).elf
 CY_PROG_FILE=\$$\{cy_prj_path\}/$(CY_BUILD_RELATIVE_LOCATION)/$(CY_AFR_APPLOC)/$(TARGET)/$(CONFIG)/$(APPNAME).hex
 
-# Resolve toolchain name 
+# Resolve toolchain name
 ifeq ($(TOOLCHAIN),GCC_ARM)
 CY_AFR_TOOLCHAIN=GCC
 CY_AFR_TOOLCHAIN_LS_EXT=ld
@@ -67,6 +67,9 @@ CY_AFR_BOARD_PATH=$(CY_AFR_VENDOR_PATH)/boards/$(CY_AFR_TARGET)
 CY_AFR_BOARD_APP_PATH=$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code/cy_code
 MCUBOOT_DIR=$(CY_EXTAPP_PATH)/ota/mcuboot
 
+# project directory
+CY_PROJECT_DIR:=.
+
 ifeq ($(TOOLCHAIN),IAR)
 CFLAGS+=--dlib_config=full
 CXXFLAGS+=--dlib_config=full --guard_calls
@@ -88,14 +91,14 @@ endif
 
 # Cypress-specific directories and files to ignore
 CY_IGNORE+=\
-    $(CY_EXTAPP_PATH)/ota\
-    $(CY_EXTAPP_PATH)/common\
+	$(CY_EXTAPP_PATH)/ota\
+	$(CY_EXTAPP_PATH)/common\
 	$(CY_EXTAPP_PATH)/bluetooth\
 	$(CY_AFR_VENDOR_PATH)/boards\
 	$(CY_AFR_VENDOR_PATH)/lwip\
 	$(CY_AFR_VENDOR_PATH)/WICED_SDK\
 	$(CY_AFR_VENDOR_PATH)/freertos_thirdparty_port
-    
+
 CY_CONFIG_MODUS_FILE=./$(CY_AFR_BOARD_APP_PATH)/design.modus
 
 SOURCES+=\
@@ -109,6 +112,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_BOARD_PATH)/ports/wifi/*.c)\
 
 INCLUDES+=\
+	$(CY_PROJECT_DIR)/\
+	$(CY_PROJECT_DIR)/include\
 	$(CY_AFR_BOARD_PATH)/$(CY_AFR_BUILD)/application_code\
 	$(CY_AFR_BOARD_APP_PATH)\
 	$(CY_AFR_BOARD_APP_PATH)/GeneratedSource\
@@ -118,20 +123,19 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
+	$(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/*.c)
 
 INCLUDES+=\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11
+	$(CY_AFR_BOARD_PATH)/ports/pkcs11
 else
 SOURCES+=\
-    $(wildcard $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/*.c)\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa/*.c)\
+	$(CY_AFR_BOARD_PATH)/ports/pkcs11/hw_poll.c
 
 INCLUDES+=\
-    $(CY_AFR_BOARD_PATH)/ports/pkcs11/psa/\
-    $(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/psa\
+	$(CY_EXTAPP_PATH)/psoc6/psoc64tfm/COMPONENT_TFM_NS_INTERFACE/include
 endif
-
 
 # SDIO_HOST sources and includes
 ifneq ($(filter $(TARGET),CY8CKIT-062-WIFI-BT CYW943012P6EVB-01),)
@@ -170,6 +174,8 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
 	$(wildcard $(CY_AFR_ROOT)/demos/dev_mode_key_provisioning/src/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/greengrass_connectivity/*.c)\
+	$(wildcard $(CY_AFR_ROOT)/demos/defender/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/https/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/mqtt/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/demos/network_manager/*.c)\
@@ -203,7 +209,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/mbedtls_utils/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/unity/src/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/*.c)
 
 ifneq ($(CY_USE_ALL_NETIF),)
 SOURCES+=\
@@ -225,6 +232,8 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/3rdparty/tinycbor/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/extras/fixture/src\
 	$(CY_AFR_ROOT)/libraries/3rdparty/unity/src\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(CY_AFR_VENDOR_PATH)/lwip
 
 
 ################################################################################
@@ -252,11 +261,9 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/mbedtls/*.c)
 
 endif
-
-
 
 ################################################################################
 # libraries (c_sdk)
@@ -270,7 +277,8 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/cbor/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/src/json/*c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/src/*c)\
+	$(wildcard $(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/src/*c)
 
 # MQTT without ble
 SOURCES+=\
@@ -302,6 +310,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/aws/shadow/include/types\
+	$(CY_AFR_ROOT)/libraries/c_sdk/aws/defender/include\
 
 ################################################################################
 # libraries (freertos_plus)
@@ -312,15 +321,7 @@ SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/pkcs11/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/src/*.c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/src/*.c)\
-
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-SOURCES+=\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/*c)\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/board_family/*.c)\
-	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)/*.c)
-	
-endif
+	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto\
@@ -332,18 +333,13 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/tls/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/utils/include\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/include\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/greengrass/src
 
-ifneq ($(CY_USE_FREERTOS_PLUS_TCP),)
-INCLUDES+=\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/include\
-	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/$(CY_AFR_TOOLCHAIN)
-
-endif
 
 ################################################################################
-# Additional Source files and includes needed for BLE support 
+# Additional Source files and includes needed for BLE support
 ################################################################################
 
 ifneq ($(BLE_SUPPORT),)
@@ -363,17 +359,19 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/src\
-	
+
 endif
 
 ################################################################################
-# Additional Source files and includes needed for OTA support 
+# Additional Source files and includes needed for OTA support
 ################################################################################
 
 ifeq ($(OTA_SUPPORT),1)
+DEFINES+=CY_BOOT_USE_EXTERNAL_FLASH
+
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/demos/ota/*.c)\
-	$(wildcard $(CY_AFR_BOARD_PATH)/ports/ota/*.c)\
+	$(wildcard $(CY_EXTAPP_PATH)/ota/ports/$(CY_AFR_TARGET)/*.c)\
 	$(CY_AFR_ROOT)/demos/demo_runner/aws_demo_version.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_freertos.c\
 	$(CY_AFR_ROOT)/demos/demo_runner/iot_demo_runner.c\
@@ -383,32 +381,32 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_cbor.c\
 	$(wildcard $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src/http/*.c)\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn/jsmn.c\
 	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser/JSON.c\
 	$(CY_EXTAPP_PATH)/common/utilities/untar/untar.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_map.c\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi/flash_qspi.c\
 	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_flash_psoc6.c\
-    $(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c\
-	$(CY_AFR_BOARD_PATH)/ports/ota/aws_ota_pal.c
+	$(MCUBOOT_CYFLASH_PAL_DIR)/cy_smif_psoc6.c\
+	$(MCUBOOT_DIR)/bootutil/src/bootutil_misc.c
 	
 INCLUDES+=\
-    $(MCUBOOT_DIR)\
-    $(MCUBOOT_DIR)/mcuboot_header\
-    $(MCUBOOT_DIR)/bootutil/include\
-    $(MCUBOOT_DIR)/sysflash\
-    $(MCUBOOT_CYFLASH_PAL_DIR)\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
-    $(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
-    $(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
-    $(CY_EXTAPP_PATH)/common/utilities/untar\
-    $(CY_AFR_BOARD_PATH)/ports/ota\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
-    $(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
+	$(MCUBOOT_DIR)\
+	$(MCUBOOT_DIR)/mcuboot_header\
+	$(MCUBOOT_DIR)/bootutil/include\
+	$(MCUBOOT_DIR)/sysflash\
+	$(MCUBOOT_CYFLASH_PAL_DIR)\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/include/flash_map_backend\
+	$(MCUBOOT_CYFLASH_PAL_DIR)/flash_qspi\
+	$(CY_EXTAPP_PATH)/common/utilities/JSON_parser\
+	$(CY_EXTAPP_PATH)/common/utilities/untar\
+	$(CY_AFR_ROOT)/libraries/freertos_plus/standard/crypto/include\
+	$(CY_AFR_ROOT)/libraries/3rdparty/jsmn\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/include\
 	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/src\
-    $(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
-    $(CY_AFR_ROOT)/libraries/abstractions/wifi/include
+	$(CY_AFR_ROOT)/libraries/freertos_plus/aws/ota/test\
+	$(CY_AFR_ROOT)/libraries/abstractions/wifi/include
 else
 INCLUDES+=\
 	$(MCUBOOT_DIR)/sysflash

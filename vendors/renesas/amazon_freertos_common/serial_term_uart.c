@@ -139,7 +139,7 @@ void uart_config(void)
     /* If there were an error this would demonstrate error detection of API calls. */
     if (SCI_SUCCESS != my_sci_err)
     {
-        R_NOP(); // Your error handling code would go here.
+        R_BSP_NOP(); // Your error handling code would go here.
     }
 } /* End of function uart_config() */
 
@@ -161,31 +161,31 @@ static void my_sci_callback(void *pArgs)
     if (SCI_EVT_RX_CHAR == p_args->event)
     {
         /* From RXI interrupt; received character data is in p_args->byte */
-        R_NOP();
+        R_BSP_NOP();
     }
     else if (SCI_EVT_RXBUF_OVFL == p_args->event)
     {
         /* From RXI interrupt; rx queue is full; 'lost' data is in p_args->byte
            You will need to increase buffer size or reduce baud rate */
-        R_NOP();
+        R_BSP_NOP();
     }
     else if (SCI_EVT_OVFL_ERR == p_args->event)
     {
         /* From receiver overflow error interrupt; error data is in p_args->byte
            Error condition is cleared in calling interrupt routine */
-        R_NOP();
+        R_BSP_NOP();
     }
     else if (SCI_EVT_FRAMING_ERR == p_args->event)
     {
         /* From receiver framing error interrupt; error data is in p_args->byte
            Error condition is cleared in calling interrupt routine */
-        R_NOP();
+        R_BSP_NOP();
     }
     else if (SCI_EVT_PARITY_ERR == p_args->event)
     {
         /* From receiver parity error interrupt; error data is in p_args->byte
            Error condition is cleared in calling interrupt routine */
-        R_NOP();
+        R_BSP_NOP();
     }
     else
     {
@@ -229,7 +229,7 @@ void uart_string_printf(char *pString)
 
     if (SCI_SUCCESS != sci_err)
     {
-        R_NOP(); //TODO error handling code
+        R_BSP_NOP(); //TODO error handling code
     }
 
 }

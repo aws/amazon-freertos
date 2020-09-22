@@ -1,5 +1,5 @@
 /*
- * FreeRTOS PKCS #11 V1.0.3
+ * FreeRTOS PKCS #11 V1.1.0
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,51 +38,66 @@
  */
 
 /**
+ * @defgroup pkcs11_wrapper_macros PKCS #11 Wrapper Macros
+ * @brief Macros defined by the PKCS #11 wrapper code.
+ */
+
+/**
  * @brief FreeRTOS PKCS#11 Interface.
  * The following definitions are required by the PKCS#11 standard public
  * headers.
  */
 
+/**
+ * @ingroup pkcs11_wrapper_macros
+ * @brief PKCS #11 pointer data type
+ */
 #define CK_PTR    *
 
-#ifndef NULL_PTR
-
 /**
- * @brief Null in case null is not already defined.
+ * @ingroup pkcs11_wrapper_macros
+ * @brief PKCS #11 NULL pointer value
  */
+#ifndef NULL_PTR
     #define NULL_PTR    0
 #endif
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
  * instead when possible.
  */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Macro for defining a PKCS #11 functions.
  *
  */
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Macro for defining a PKCS #11 function pointers.
  *
  */
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Macro for defining a PKCS #11 callback functions.
  *
  */
 #define CK_CALLBACK_FUNCTION( returnType, name )           returnType( CK_PTR name )
 
 /**
- *   @brief Length of a SHA256 digest, in bytes.
+ * @ingroup pkcs11_wrapper_macros
+ * @brief Length of a SHA256 digest, in bytes.
  */
 #define pkcs11SHA256_DIGEST_LENGTH           32UL
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Length of a curve P-256 ECDSA signature, in bytes.
  * PKCS #11 EC signatures are represented as a 32-bit R followed
  * by a 32-bit S value, and not ASN.1 encoded.
@@ -90,27 +105,32 @@
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64UL
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Key strength for elliptic-curve P-256.
  */
 #define pkcs11ECDSA_P256_KEY_BITS            256UL
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Public exponent for RSA.
  */
 #define pkcs11RSA_PUBLIC_EXPONENT            { 0x01, 0x00, 0x01 }
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief The number of bits in the RSA-2048 modulus.
  *
  */
 #define pkcs11RSA_2048_MODULUS_BITS          2048UL
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
  */
 #define pkcs11RSA_2048_SIGNATURE_LENGTH      ( pkcs11RSA_2048_MODULUS_BITS / 8UL )
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Length of RSA signature data before padding.
  *
  * This is calculated by adding the SHA-256 hash len (32) to the 19 bytes in
@@ -119,17 +139,20 @@
 #define pkcs11RSA_SIGNATURE_INPUT_LENGTH     51UL
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Elliptic-curve object identifiers.
  * From https://tools.ietf.org/html/rfc6637#section-11.
  */
 #define pkcs11ELLIPTIC_CURVE_NISTP256        "1.2.840.10045.3.1.7"
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief Maximum length of storage for PKCS #11 label, in bytes.
  */
 #define pkcs11MAX_LABEL_LENGTH               32UL /* 31 characters + 1 null terminator. */
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief OID for curve P-256.
  */
 #define pkcs11DER_ENCODED_OID_P256           { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
@@ -145,6 +168,7 @@
 #endif
 
 /**
+ * @ingroup pkcs11_wrapper_macros
  * @brief RSA signature padding for interoperability between providing hashed messages
  * and providing hashed messages encoded with the digest information.
  *
@@ -173,9 +197,15 @@
     #undef __PASTE
 #endif
 
+#ifdef CreateMutex
+    #undef CreateMutex /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+#endif
+
 #include "pkcs11.h"
 
-/** @brief Certificate Template
+/**
+ * @ingroup pkcs11_datatypes
+ * @brief Certificate Template
  * The object class must be the first attribute in the array.
  */
 typedef struct PKCS11_CertificateTemplate

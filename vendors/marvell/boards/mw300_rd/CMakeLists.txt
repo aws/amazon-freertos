@@ -163,6 +163,7 @@ target_sources(
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
         "${mw320_dir}/sdk/external/FreeRTOS/portable/MemMang/heap_marvell.c"
         "${mw320_dir}/sdk/external/FreeRTOS/Source/FreeRTOS-openocd.c"
+        "${mw320_dir}/sdk/external/FreeRTOS/portable/temp_patch_to_libwifidriver.c"
 )
 
 set(

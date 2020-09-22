@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Utils V1.1.2
+ * FreeRTOS Utils V1.1.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,11 +29,10 @@
  * @file iot_pki_utils.h
  * @brief Helper functions for PKCS #11
  */
-#include "FreeRTOS.h"
 #include "iot_pki_utils.h"
 
 /* CRT includes. */
-#include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 #define FAILURE    ( -1 )
@@ -42,10 +41,10 @@
 
 /* Convert the EC signature from DER encoded to PKCS #11 format. */
 /* @[declare pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
-BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
-                                                  const uint8_t * pxMbedSignature )
+int8_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
+                                              const uint8_t * pxMbedSignature )
 {
-    BaseType_t xReturn = 0;
+    int8_t xReturn = 0;
     const uint8_t * pxNextLength;
     uint8_t ucSigComponentLength;
 
@@ -119,10 +118,10 @@ BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
 
 /* Convert an EC signature from PKCS #11 format to DER encoded. */
 /* @[declare pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
-BaseType_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
-                                                  size_t * pxSigLen )
+int8_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
+                                              size_t * pxSigLen )
 {
-    BaseType_t xReturn = 0;
+    int8_t xReturn = 0;
     uint8_t * pucSigPtr;
     uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
 

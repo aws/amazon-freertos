@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v3.1.2
+ * Trace Recorder Library for Tracealyzer v4.1.4
  * Percepio AB, www.percepio.com
  *
  * trcSnapshotConfig.h
@@ -129,6 +129,8 @@
 #define TRC_CFG_NMUTEX                      90
 #define TRC_CFG_NTIMER                      250
 #define TRC_CFG_NEVENTGROUP                 90
+#define TRC_CFG_NSTREAMBUFFER               50
+#define TRC_CFG_NMESSAGEBUFFER              50
 
 /******************************************************************************
  * TRC_CFG_INCLUDE_MEMMANG_EVENTS
@@ -258,13 +260,15 @@
  * kernel objects, such as tasks and queues. If longer names are used, they will
  * be truncated when stored in the recorder.
  *****************************************************************************/
-#define TRC_CFG_NAME_LEN_TASK          15
-#define TRC_CFG_NAME_LEN_ISR           15
-#define TRC_CFG_NAME_LEN_QUEUE         15
-#define TRC_CFG_NAME_LEN_SEMAPHORE     15
-#define TRC_CFG_NAME_LEN_MUTEX         15
-#define TRC_CFG_NAME_LEN_TIMER         15
-#define TRC_CFG_NAME_LEN_EVENTGROUP    15
+#define TRC_CFG_NAME_LEN_TASK           15
+#define TRC_CFG_NAME_LEN_ISR            15
+#define TRC_CFG_NAME_LEN_QUEUE          15
+#define TRC_CFG_NAME_LEN_SEMAPHORE      15
+#define TRC_CFG_NAME_LEN_MUTEX          15
+#define TRC_CFG_NAME_LEN_TIMER          15
+#define TRC_CFG_NAME_LEN_EVENTGROUP     15
+#define TRC_CFG_NAME_LEN_STREAMBUFFER   15
+#define TRC_CFG_NAME_LEN_MESSAGEBUFFER  15
 
 /******************************************************************************
  *** ADVANCED SETTINGS ********************************************************

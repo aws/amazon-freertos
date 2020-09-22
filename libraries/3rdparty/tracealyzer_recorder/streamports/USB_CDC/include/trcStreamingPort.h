@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v3.1.2
+ * Trace Recorder Library for Tracealyzer v4.3.11
  * Percepio AB, www.percepio.com
  *
  * trcStreamingPort.h
@@ -40,7 +40,7 @@
  *
  * Tabs are used for indent in this file (1 tab = 4 spaces)
  *
- * Copyright Percepio AB, 2017.
+ * Copyright Percepio AB, 2018.
  * www.percepio.com
  ******************************************************************************/
 
@@ -51,16 +51,6 @@
 extern "C" {
 #endif
 
-/*******************************************************************************
- * Implement the below macros to define your own stream port. If your transfer 
- * method uses RTOS functions, you should not send the data directly but use 
- * the recorder's internal buffer to store the trace data, for later transfer by
- * the TzCtrl task. Check the predefined stream ports for examples on how to use 
- * the internal buffer (e.g., TCP/IP, UART or USB CDC).
- *
- * Read more at http://percepio.com/2016/10/05/rtos-tracing/  
- ******************************************************************************/
-
 /* Include files as needed, in this case it is files from STM32Cube FW_F7 V1.4.1 */
 #include "usb_device.h"
 #include "usbd_cdc.h"
@@ -70,32 +60,21 @@ extern "C" {
 /* Tested on STM32 devices using Keil/CMSIS USB stack */
 
 extern USBD_CDC_ItfTypeDef  USBD_Interface_fops_FS;
+
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 int32_t trcCDCReceive(void *data, uint32_t size, int32_t* NumBytes);
-int32_t trcCDCTransmit(void* data, uint32_t size, int32_t * noOfBytesSent );
 
-#if TRC_RECORDER_BUFFER_ALLOCATION == TRC_RECORDER_BUFFER_ALLOCATION_STATIC
-#define TRC_STREAM_PORT_ALLOCATE_FIELDS() static char _TzTraceData[TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT * TRC_CFG_PAGED_EVENT_BUFFER_PAGE_SIZE];       /* Static allocation. */
-#define TRC_STREAM_PORT_MALLOC() /* Static allocation. Not used. */
-#else
-#define TRC_STREAM_PORT_ALLOCATE_FIELDS() static char* _TzTraceData = NULL;     /* Dynamic allocation. */
-#define TRC_STREAM_PORT_MALLOC() _TzTraceData = TRC_PORT_MALLOC(TRC_PAGED_EVENT_BUFFER_PAGE_COUNT * TRC_PAGED_EVENT_BUFFER_PAGE_SIZE);
-#endif
+int32_t trcCDCTransmit(void* data, uint32_t size, int32_t * noOfBytesSent );
 
 #define TRC_STREAM_PORT_INIT() \
         MX_USB_DEVICE_Init(); \
         TRC_STREAM_PORT_MALLOC(); /*Dynamic allocation or empty if static */
 
-#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) _type* _ptrData; _ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size);
+#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) trcCDCReceive(_ptrData, _size, _ptrBytesRead)
 
-#define TRC_STREAM_PORT_ALLOCATE_DYNAMIC_EVENT(_type, _ptrData, _size) TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) /* We do the same thing as for non-dynamic event sizes */
-#define TRC_STREAM_PORT_COMMIT_EVENT(_ptrData, _size) /* Not needed since we write immediately into the buffer received above by TRC_STREAM_PORT_ALLOCATE_EVENT, and the TRC_STREAM_PORT_PERIODIC_SEND_DATA defined below will take care of the actual trace transfer. */
-#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) trcCDCReceive(_ptrData, _size, _ptrBytesRead);
-#define TRC_STREAM_PORT_PERIODIC_SEND_DATA(_ptrBytesSent) prvPagedEventBufferTransfer(trcCDCTransmit, _ptrBytesSent);
+#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, _ptrBytesSent) trcCDCTransmit(_ptrData, _size, _ptrBytesSent)
 
-#define TRC_STREAM_PORT_ON_TRACE_BEGIN() { prvPagedEventBufferInit(_TzTraceData); }
-#define TRC_STREAM_PORT_ON_TRACE_END() /* Do nothing */
 
 #ifdef __cplusplus
 }

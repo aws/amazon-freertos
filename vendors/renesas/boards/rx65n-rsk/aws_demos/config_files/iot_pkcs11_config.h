@@ -32,6 +32,41 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
+#include "FreeRTOS.h"
+
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
+
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for PKCS #11.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for PKCS #11.
+ */
+#include "logging_levels.h"
+
+/* Logging configuration for the PKCS #11 library. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "PKCS11"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_ERROR
+#endif
+
+#include "logging_stack.h"
+
+/**
+ * @brief Malloc API used by iot_pkcs11.h
+ */
+#define PKCS11_MALLOC pvPortMalloc
+
+/**
+ * @brief Free API used by iot_pkcs11.h
+ */
+#define PKCS11_FREE vPortFree
+
 /**
  * @brief PKCS #11 default user PIN.
  *
@@ -78,7 +113,7 @@
  * If set to 0, OTA code signing certificate is built in via
  * aws_ota_codesigner_certificate.h.
  */
-#define pkcs11configOTA_SUPPORTED                          0
+#define pkcs11configOTA_SUPPORTED                          1
 
 /**
  * @brief Set to 1 if PAL supports storage for JITP certificate,

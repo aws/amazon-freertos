@@ -57,6 +57,8 @@ typedef struct IotSPIDescriptor
 } IotSPIDescriptor_t;
 /*-----------------------------------------------------------*/
 
+extern uint32_t SystemCoreClock;
+
 static SPI_HandleTypeDef xSpiHandleMap[] =
 {
     {
@@ -152,29 +154,47 @@ static const STM32_SPI_HalContext_t xSpiContexts[] =
 
 static IotSPIDescriptor_t xSpi1 =
 {
-    .pxSpiContext  = &xSpiContexts[ 0 ],
-    .xConfig       = { 0 },
-    .xSpiCallback  = NULL,
-    .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .pxSpiContext     = &xSpiContexts[ 0 ],
+    .xConfig          =
+    {
+        .ulFreq       = 0,
+        .eMode        = eSPIMode0,
+        .eSetBitOrder = eSPIMSBFirst,
+        .ucDummyValue = 0
+    },
+    .xSpiCallback     = NULL,
+    .pvUserContext    = NULL,
+    .sOpened          = IOT_SPI_CLOSED,
 };
 
 static IotSPIDescriptor_t xSpi2 =
 {
-    .pxSpiContext  = &xSpiContexts[ 1 ],
-    .xConfig       = { 0 },
-    .xSpiCallback  = NULL,
-    .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .pxSpiContext     = &xSpiContexts[ 1 ],
+    .xConfig          =
+    {
+        .ulFreq       = 0,
+        .eMode        = eSPIMode0,
+        .eSetBitOrder = eSPIMSBFirst,
+        .ucDummyValue = 0
+    },
+    .xSpiCallback     = NULL,
+    .pvUserContext    = NULL,
+    .sOpened          = IOT_SPI_CLOSED,
 };
 
 static IotSPIDescriptor_t xSpi3 =
 {
-    .pxSpiContext  = &xSpiContexts[ 2 ],
-    .xConfig       = { 0 },
-    .xSpiCallback  = NULL,
-    .pvUserContext = NULL,
-    .sOpened       = IOT_SPI_CLOSED,
+    .pxSpiContext     = &xSpiContexts[ 2 ],
+    .xConfig          =
+    {
+        .ulFreq       = 0,
+        .eMode        = eSPIMode0,
+        .eSetBitOrder = eSPIMSBFirst,
+        .ucDummyValue = 0
+    },
+    .xSpiCallback     = NULL,
+    .pvUserContext    = NULL,
+    .sOpened          = IOT_SPI_CLOSED,
 };
 /*-----------------------------------------------------------*/
 
@@ -199,6 +219,8 @@ IotSPIHandle_t iot_spi_open( int32_t lSpiInstance )
             else
             {
                 xHandle->sOpened = IOT_SPI_OPENED;
+
+                xHandle->xConfig.ulFreq = ( SystemCoreClock >> 1 ); /* Default prescaler is 2 and freq = clock / prescaler */
             }
         }
         else
@@ -279,7 +301,21 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
                             break;
                     }
 
-                    LL_SPI_SetBaudRatePrescaler( pxSpi->Instance, ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreq );
+                    uint32_t sysClkTmp = SystemCoreClock;
+                    uint32_t preScaler = 0;
+                    uint8_t divisor = 0;
+
+                    while( ( sysClkTmp > ( ( IotSPIMasterConfig_t * ) pvBuffer )->ulFreq ) && ( divisor < 7 ) )
+                    {
+                        divisor++;
+                        sysClkTmp = ( sysClkTmp >> 1 );
+                    }
+
+                    preScaler = ( ( ( divisor & 0x4 ) == 0 ) ? 0x0 : SPI_CR1_BR_2 ) |
+                                ( ( ( divisor & 0x2 ) == 0 ) ? 0x0 : SPI_CR1_BR_1 ) |
+                                ( ( ( divisor & 0x1 ) == 0 ) ? 0x0 : SPI_CR1_BR_0 );
+
+                    LL_SPI_SetBaudRatePrescaler( pxSpi->Instance, preScaler );
                     lError = IOT_SPI_SUCCESS;
                     pxSPIPeripheral->xConfig = *( IotSPIMasterConfig_t * ) pvBuffer;
                 }

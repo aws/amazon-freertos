@@ -34,6 +34,7 @@
 #if AFR_ESP_LWIP
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
+#include "tcpip_adapter.h"
 #else
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -42,6 +43,7 @@
 #include "esp_smartconfig.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+
 
 static const char *TAG = "WIFI";
 static EventGroupHandle_t wifi_event_group;
@@ -562,7 +564,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 uint16_t num_aps = ucNumNetworks;
                 esp_wifi_scan_get_ap_records(&num_aps, ap_info);
                 for (int i = 0; i < num_aps; i++) {
-                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN);
+                    strlcpy(pxBuffer[i].cSSID, (const char *)ap_info[i].ssid, wificonfigMAX_SSID_LEN + 1);
                     memcpy(pxBuffer[i].ucBSSID, ap_info[i].bssid, wificonfigMAX_BSSID_LEN);
                     pxBuffer[i].cRSSI = ap_info[i].rssi;
                     pxBuffer[i].cChannel = ap_info[i].primary;
@@ -1072,7 +1074,6 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
     return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
-
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
@@ -1080,12 +1081,41 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     if (pucIPAddr == NULL) {
         return xRetVal;
     }
-#if !AFR_ESP_LWIP
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+#if !AFR_ESP_LWIP
         *( ( uint32_t * ) pucIPAddr ) = FreeRTOS_GetIPAddress();
         xRetVal = eWiFiSuccess;
+        configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                     __FUNCTION__,
+                     pucIPAddr[0],
+                     pucIPAddr[1],
+                     pucIPAddr[2],
+                     pucIPAddr[3]));
+#else /* running lwip */
+        tcpip_adapter_ip_info_t ipInfo;
+        int ret;
+
+        ret = tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo);
+        if (ret == ESP_OK)
+        {
+            xRetVal = eWiFiSuccess;
+            memcpy( pucIPAddr, &ipInfo.ip.addr, sizeof( ipInfo.ip.addr ) );
+            configPRINTF(("%s: local ip address is %d.%d.%d.%d\n",
+                          __FUNCTION__,
+                          pucIPAddr[0],
+                          pucIPAddr[1],
+                          pucIPAddr[2],
+                          pucIPAddr[3]));
+        }
+        else
+        {
+            configPRINTF(("%s: tcpip_adapter_get_ip_info_error:  %d",
+                        __FUNCTION__,
+                        ret));
+        }
+#endif
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
     }
@@ -1093,8 +1123,6 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
     {
         xRetVal = eWiFiTimeout;
     }
-#endif
-
     return xRetVal;
 }
 /*-----------------------------------------------------------*/
@@ -1200,6 +1228,9 @@ WIFIReturnCode_t WIFI_StartAP( void )
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         wifi_ret = eWiFiSuccess;
+
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiSem );
     }
     return wifi_ret;
 }
@@ -1291,9 +1322,13 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         /* ssid/password is required */
-        strlcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        /* SSID can be a non NULL terminated string if ssid_len is specified.
+         * Hence, memcpy is used to support 32 character long SSID name.
+         */
+        memcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        wifi_config.ap.ssid_len = pxNetworkParams->ucSSIDLength;
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
         ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);

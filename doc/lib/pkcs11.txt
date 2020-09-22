@@ -1,7 +1,7 @@
 /**
 @mainpage
 @anchor pkcs11
-@brief PKCS #11 Crytpo Abstraction Library.
+@brief PKCS #11 Crypto Abstraction Library.
 
 > PKCS #11 is a standard maintained by OASIS for interacting with cryptographic hardware.
 
@@ -13,8 +13,127 @@ This PKCS #11 library implements a subset of the PKCS #11 API required to establ
 - Managing certificates and keys.
 - Generating random numbers.
 
+@section PKCS11_Wrapper PKCS #11 Wrapper Dependencies
+
+Currently, the PKCS #11 wrapper library has a dependency on:
+- FreeRTOS 
+- The C standard library stdint
+- PKCS #11. 
+
+Note: "iot_pkcs11.h" should always be included first as it defines the macros that are needed by the standard PKCS #11 header files.
+
+@dot "PKCS #11 wrapper direct dependencies"
+digraph pkcs11_wrapper_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        pkcs11_wrapper[label="PKCS #11 Wrapper", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        pkcs11[label="PKCS #11"];
+        freertos[label="FreeRTOS"];
+    }
+
+    pkcs11_wrapper -> pkcs11;
+    pkcs11_wrapper -> freertos;
+}
+@enddot
+
+@section PKCS11_implementation PKCS #11 Software Implementation Dependencies
+
+PKCS #11 is a flexible library, and can easily be swapped out for other implementations. The PKCS #11 library documented here 
+is a software based implementation, to allow for writing libraries and code that can easily interface with Hardware Security Modules (HSM).
+
+Currently, the software based PKCS #11 library has the following dependencies:
+- The API defined by the PKCS #11 specification. The headers used can be found [here](https://github.com/amazon-freertos/pkcs11/tree/v2.40_errata01).
+- The PKCS #11 PAL layer. This is used for writing PKCS #11 objects to flash.
+- FreeRTOS. This library uses FreeRTOS primitives, like semaphores.
+- mbed TLS. This library uses mbed TLS for the cryptographic logic. Some examples include parsing key and certificate objects, signing operations, and creating digests.
+- The standard C library string, for memory manipulation.
+
+@dot "PKCS #11 implementation direct dependencies"
+digraph pkcs11_software_implementation_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        pkcs11_software_implementation[label="PKCS #11 Software Implementation", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        pkcs11_wrapper[label="PKCS #11"];
+        freertos[label="FreeRTOS"];
+        mbedtls[label="mbed TLS"];
+        pkcs11_pal[label="PKCS #11 PAL"];
+    }
+
+    pkcs11_software_implementation -> pkcs11_wrapper;
+    pkcs11_software_implementation -> freertos;
+    pkcs11_software_implementation -> mbedtls;
+    pkcs11_software_implementation -> pkcs11_pal;
+}
+@enddot
+
+@section PKCS11_utilities PKCS #11 Utilities Dependencies
+
+The PKI utils module is a forked version of the PKI utilities provided by mbed TLS. They are used to convert from
+Currently, the module has the following dependencies:
+- The standard C library
+- FreeRTOS
+
+@dot "PKCS #11 Utilities Dependencies"
+digraph pkcs11_utils_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        pkcs11_utils[label="PKCS #11 Utilities", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        freertos[label="FreeRTOS"];
+        stdlib[label="string.h"];
+    }
+
+    pkcs11_utils -> stdlib;
+    pkcs11_utils -> freertos;
+}
+@enddot
+
+
+@page pkcs11_rng_seq PKCS #11 RNG Sequence Diagram
+@brief Sequence diagram illustrating how to generate random bytes from PKCS #11.
+@image html pkcs11_rng.png "PKCS #11 RNG Sequence" width=80%
+
+@page pkcs11_dig_seq PKCS #11 Digest Sequence Diagram
+@brief Sequence diagram illustrating how to create a message digest with PKCS #11.
+@image html pkcs11_digest.png "PKCS #11 Digest Sequence" width=80%
+
+@page pkcs11_obj_imp_seq PKCS #11 Object Import Sequence Diagram
+@brief Sequence diagram illustrating how to import an object with PKCS #11.
+@image html pkcs11_object_import.png "PKCS #11 Object Import Sequence" width=80%
+
+@page pkcs11_obj_gen_seq PKCS #11 Generate Key Pair Sequence Diagram
+@brief Sequence diagram illustrating how to generate a key pair with PKCS #11.
+@image html pkcs11_object_generate.png "PKCS #11 Generate Key Pair Sequence" width=80%
+
+@page pkcs11_sign_verify_seq PKCS #11 Sign and Verify Sequence Diagram
+@brief Sequence diagram illustrating how to sign a hash and verify a signature with PKCS #11.
+@image html pkcs11_sign_verify.png "PKCS #11 Sign and Verify Sequence" width=80%
+
 @constants_page{pkcs11}
-@constants_brief{PKCS #11 library}
+@constants_brief{PKCS #11 library constants}
 @section pkcs11_pal_constants PKCS #11 PAL File Names
 
 @brief Provide file name mappings for the TLS client certificate, and keys.
@@ -44,18 +163,41 @@ as the solution, the application will fail to use them for it's TLS needs.
 @section pkcs11configMAX_LABEL_LENGTH
 @brief Max length of a PKCS #11 Label attribute
 
-PKCS #11 uses labels to map human readable strings to a PKCS #11 object. This defines the maximum allowable length for such a string.
+PKCS #11 uses labels to map human readable strings to a PKCS #11 object. This defines the maximum allowable length for such a string.<br>
 
 @configpossible Any positive integer.<br>
 @configdefault `32`
 
 @section pkcs11configMAX_NUM_OBJECTS
-@brief Maximum number of token objects that can be stored by the PKCS #11 module.
-
-The maximum number of token objects that can be stored by the PKCS #11 module.
+@brief Maximum number of token objects that can be stored by the PKCS #11 module.<br>
 
 @configpossible Any positive integer.<br>
 @configdefault `6`
+
+
+@section pkcs11configMAX_SESSIONS                           
+@brief Maximum number of sessions that can be stored by the PKCS #11 module.<br>
+The more sessions created, the higher RAM used by the PKCS #11 module.<br>
+@configpossible Any positive integer.<br>
+@configdefault 10
+
+@section pkcs11testIMPORT_PRIVATE_KEY_SUPPORT
+@brief Set to 1 if the PKCS #11 stack or device/hsm can load objects from an external source.<br>
+
+@configpossible 0 or 1 <br>
+@configdefault `0`
+
+@section pkcs11testGENERATE_KEYPAIR_SUPPORT
+@brief Set to 1 if the PKCS #11 stack or device/hsm can generate a key pair.<br>
+@note The device should be able to store certificate onboard as well.<br>
+
+@configpossible 0 or 1 <br>
+@configdefault `0`
+
+@section pkcs11testPREPROVISIONED_SUPPORT
+@brief Set to 1 if the PKCS #11 stack or device/hsm is pre-provisioned with all objects necessary to connect to AWS IoT Core.<br>
+@configpossible 0 or 1 <br>
+@configdefault `0`
 
 @section pkcs11configPAL_DESTROY_SUPPORTED
 @brief Set to 1 if a PAL destroy object is implemented.
