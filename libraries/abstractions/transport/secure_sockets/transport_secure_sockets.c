@@ -25,7 +25,7 @@
 
 /**
  * @file transport_secure_sockets.c
- * @brief Implementation of transport interface API with Secure Sockets.
+ * @brief Implementation of transport interface and connect/disconnect API with Secure Sockets.
  */
 
 /* Standard includes. */
@@ -94,12 +94,16 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
     int32_t transportSocketStatus = SOCKETS_ERROR_NONE;
 
     if( ( pMessage == NULL ) ||
-        ( bytesToSend <= ( size_t ) 0 ) ||
-        ( pNetworkContext == NULL ) ||
-        ( pNetworkContext->pContext == NULL ) )
+        ( bytesToSend <= 0UL ) ||
+        ( pNetworkContext == NULL ) )
     {
-        LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%d,  pContext=%p, pNetworkContext=%p",
-                    pMessage, bytesToSend, pNetworkContext->pContext ) );
+        LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%lu, pNetworkContext=%p",
+                    pMessage, bytesToSend, pNetworkContext ) );
+        bytesSent = SOCKETS_EINVAL;
+    }
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    {
+        LogError( ( "Invalid parameter: pNetworkContext->pContext is NULL." ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
@@ -113,7 +117,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
         if( transportSocketStatus >= 0 )
         {
             bytesSent = transportSocketStatus;
-            LogInfo( ( "Successfully sent %ld data over network.", transportSocketStatus ) );
+            LogInfo( ( "Successfully sent %ld bytes over network.", transportSocketStatus ) );
         }
         else
         {
@@ -136,11 +140,16 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
     uint8_t * pRecvBuffer = ( uint8_t * ) pBuffer;
 
     if( ( pBuffer == NULL ) ||
-        ( pNetworkContext == NULL ) ||
-        ( pNetworkContext->pContext == NULL ) ||
-        ( bytesToRecv == ( size_t ) 0 ) )
+        ( bytesToRecv <= 0UL ) ||
+        ( pNetworkContext == NULL ) )
     {
-        LogError( ( "TransportRecvSecureSockets bad parameters" ) );
+        LogError( ( "Invalid parameter: pBuffer=%p, bytesToRecv=%lu, pNetworkContext=%p",
+                    pBuffer, bytesToRecv, pNetworkContext ) );
+        bytesReceived = SOCKETS_EINVAL;
+    }
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    {
+        LogError( ( "Invalid parameter: pNetworkContext->pContext is NULL." ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
@@ -158,7 +167,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
         }
         else if( transportSocketStatus < 0 )
         {
-            LogError( ( "Error %ld while receiving data.", transportSocketStatus ) );
+            LogError( ( "Failed to receive data over network. SocketsStatus=%d", transportSocketStatus ) );
         }
         else
         {
@@ -205,7 +214,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
     if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
     {
-        LogError( ( "Failed to set secured option for soocket." ) );
+        LogError( ( "Failed to set secured option for socket." ) );
     }
 
     /* Set ALPN option. */
@@ -234,8 +243,8 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set SNI option for socket. transportSocketStatus=%d, HostNameLength=%d",
-                        transportSocketStatus, hostnameLength + 1 ) );
+            LogError( ( "Failed to set SNI option for socket. transportSocketStatus=%d, HostNameLength=%lu",
+                        transportSocketStatus, ( hostnameLength + 1UL ) ) );
         }
     }
 
@@ -276,7 +285,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
         /* Secure Sockets uses TickType_t therefore replace timeout vale with portMAX_DELAY if it exceeds. */
         receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
 
-        if( pdMS_TO_TICKS( recvTimeoutMs ) > portMAX_DELAY )
+        if( receiveTimeout > portMAX_DELAY )
         {
             receiveTimeout = portMAX_DELAY;
         }
@@ -289,7 +298,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
 
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set socket receive timeout. Socket status %d.", transportSocketStatus ) );
+            LogError( ( "Failed to set socket receive timeout. SocketStatus=%d.", transportSocketStatus ) );
         }
     }
 
@@ -410,10 +419,12 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
+        /* Set the socket in the network context. */
         pNetworkContext->pContext = tcpSocket;
     }
     else
     {
+        /* Clean up socket on failure. */
         ( void ) SOCKETS_Close( tcpSocket );
     }
 
