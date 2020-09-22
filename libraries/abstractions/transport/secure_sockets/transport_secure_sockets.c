@@ -40,7 +40,7 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Set up the context send, receive timeout.
+ * @brief Set up the context's send and receive timeout.
  *
  * @param[in] tcpSocket the context to be set.
  * @param[in] sendTimeoutMs Timeout for transport send.
