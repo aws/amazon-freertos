@@ -498,7 +498,7 @@ int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkCont
     }
     else
     {
-        LogError( ( "passing Null pTransportInterface to destroy." ) );
+        LogError( ( "Failed to close connection: pTransportInterface is NULL." ) );
     }
 
     return returnStatus;
