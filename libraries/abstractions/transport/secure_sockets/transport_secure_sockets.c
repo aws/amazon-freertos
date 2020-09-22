@@ -362,7 +362,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Set up connection encryption if credentials are provided. */
-        if( pSocketsConfig->enableTls )
+        if( pSocketsConfig->enableTls == true )
         {
             if( ( int32_t ) SOCKETS_ERROR_NONE != tlsSetup( pSocketsConfig,
                                                             tcpSocket,
