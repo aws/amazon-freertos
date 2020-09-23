@@ -474,7 +474,7 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
 
 /*-----------------------------------------------------------*/
 
-int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext )
+TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext )
 {
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER;
     int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;

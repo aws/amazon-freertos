@@ -166,7 +166,7 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR on failure.
  */
-int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext );
+TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext );
 
 
 /**
