@@ -1,0 +1,17 @@
+{
+    "tasks": [
+        {
+            "name": "Full_PKCS11",
+            "src": {"vendors/espressif/boards/esp32/ports/pkcs11/iot_pkcs11_pal.c":[],
+                    "libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c": [],
+                    "libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c": []},
+            "test_groups": ["Full_PKCS11_StartFinish",
+                            "Full_PKCS11_Capabilities",
+                            "Full_PKCS11_NoObject",
+                            "Full_PKCS11_RSA",
+                            "Full_PKCS11_EC"],
+            "patterns": "all"
+        }
+    ],
+    "flash_command": "${DIR_PATH}/esp32_build.py"
+}
