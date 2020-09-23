@@ -60,7 +60,7 @@
 
 /**
  * @brief Definition of the network context for the transport interface
- *        implementation that uses Secure Sockets API.
+ * implementation that uses Secure Sockets API.
  */
 struct NetworkContext
 {
