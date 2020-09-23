@@ -358,7 +358,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
         if( tcpSocket == ( Socket_t ) SOCKETS_INVALID_SOCKET )
         {
-             LogError( ( "Failed to create new socket. tcpSocket %d\n", tcpSocket ) );
+            LogError( ( "Failed to create new socket. tcpSocket %d\n", tcpSocket ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY;
         }
     }
