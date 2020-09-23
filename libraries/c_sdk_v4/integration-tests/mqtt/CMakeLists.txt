@@ -16,8 +16,6 @@ afr_module_include_dirs(
         "${AFR_MODULES_C_SDK_DIR}/standard/logging_stack/"
 )
 
-target_compile_definitions( core_mqtt PUBLIC MQTT_DO_NOT_USE_CUSTOM_CONFIG=1)
-
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PRIVATE 
