@@ -156,7 +156,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
     target_include_directories(
         afr_3rdparty_mbedtls PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
         "${AFR_3RDPARTY_DIR}/mbedtls_utils"
     )

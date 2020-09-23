@@ -56,11 +56,11 @@ afr_module_dependencies(
 ######################################################
 afr_module(NAME pkcs11_implementation)
 
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
+    pkcs11_implementation
     PUBLIC "${inc_dir}"
     # Requires standard/common/include/private/aws_default_root_certificates.h
     PRIVATE "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
@@ -69,15 +69,14 @@ afr_module_include_dirs(
 )
 
 afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
+    pkcs11_implementation
     PUBLIC
         3rdparty::pkcs11 
     PRIVATE
-        AFR::${AFR_CURRENT_MODULE}::mcu_port
+        AFR::pkcs11_implementation::mcu_port
         AFR::pkcs11_utils
         AFR::pkcs11
 )
-
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
@@ -150,7 +149,6 @@ elseif(AFR_PKCS11_PSA)
     afr_module_dependencies(
         pkcs11_psa
         INTERFACE
-            AFR::crypto
             AFR::pkcs11_implementation
             3rdparty::mbedtls
     )
@@ -166,13 +164,12 @@ else()
             "${inc_dir}/iot_pkcs11_pal.h"
     )
 
-
     afr_module_dependencies(
         pkcs11_mbedtls
         INTERFACE
-            AFR::crypto
             AFR::pkcs11_implementation
             3rdparty::mbedtls
+            AFR::crypto
     )
 endif()
 
