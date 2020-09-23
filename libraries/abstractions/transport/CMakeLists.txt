@@ -27,8 +27,6 @@ afr_module_dependencies(
     PUBLIC
         AFR::secure_sockets
         AFR::common
-    INTERFACE
-        AFR::transport
 )
 
 afr_module_include_dirs(
