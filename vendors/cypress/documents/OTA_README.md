@@ -61,7 +61,7 @@ We need to first build and program the bootloader app *MCUBootApp* that is avail
 
 2. Open a CLI terminal and navigate to the cloned mcuboot folder: `cd mcuboot`
 
-3. Change the branch to get the Cypress version: `git checkout v1.6.0-cypress`
+3. Change the branch to get the Cypress version: `git checkout v1.6.1-cypress`
 
 4. We need to pull in mcuboot sub-modules to build mcuboot: `git submodule update --init --recursive`
 
@@ -101,7 +101,7 @@ These values are used when the Secondary Slot is located in **internal** flash. 
 
    `USE_EXTERNAL_FLASH ?= 0`
 
-   `Add at line 58`
+   `Add at line 50`
 
    `DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=2000`
 
@@ -119,7 +119,7 @@ These values are used when the Secondary Slot is located in **external** flash. 
 
    `USE_EXTERNAL_FLASH ?= 1`
 
-   `Add at line 58`
+   `Add at line 50`
 
    `DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=3584`
    
