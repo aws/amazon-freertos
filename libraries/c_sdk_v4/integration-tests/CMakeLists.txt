@@ -3,14 +3,15 @@ afr_test_module(mqtt_integration)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/mqtt_system_test.c"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PRIVATE 
+    INTERFACE 
         AFR::core_mqtt
         AFR::transport
         AFR::common
+        AFR::platform
 )

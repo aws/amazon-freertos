@@ -33,12 +33,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-/* Include config file before other non-system includes. */
-#include "test_config.h"
-
+/* Unity Test framework include. */
 #include "unity_fixture.h"
+
+/* Include connection configurations header. */
 #include "aws_clientcredential.h"
-#include "aws_clientcredential_keys.h"
 
 /* Include paths for public enums, structures, and macros. */
 #include "core_mqtt.h"
@@ -48,7 +47,7 @@
 #include "transport_secure_sockets.h"
 
 /* Include clock for timer. */
-#include "clock.h"
+#include "platform/iot_clock.h"
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -75,121 +74,123 @@
 
 /*********************************************************/
 
+/**************Default Configurations values***********************/
+
+#ifndef BROKER_ENDPOINT
+    #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
+#endif
+
+#ifndef BROKER_PORT
+    #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
+#endif
+
+#ifndef SERVER_ROOT_CA_CERT
+    #error "Please define SERVER_ROOT_CA_CERT for Root CA of server certificate."
+#endif /* ifndef SERVER_ROOT_CA_CERT */
+
 /**
  * @brief A valid starting packet ID per MQTT spec. Start from 1.
  */
-#define MQTT_FIRST_VALID_PACKET_ID              ( 1 )
+#define MQTT_FIRST_VALID_PACKET_ID      ( 1 )
 
 /**
  * @brief A PINGREQ packet is always 2 bytes in size, defined by MQTT 3.1.1 spec.
  */
-#define MQTT_PACKET_PINGREQ_SIZE                ( 2U )
+#define MQTT_PACKET_PINGREQ_SIZE        ( 2U )
 
 /**
  * @brief A packet type not handled by MQTT_ProcessLoop.
  */
-#define MQTT_PACKET_TYPE_INVALID                ( 0U )
+#define MQTT_PACKET_TYPE_INVALID        ( 0U )
 
 /**
  * @brief Number of milliseconds in a second.
  */
-#define MQTT_ONE_SECOND_TO_MS                   ( 1000U )
+#define MQTT_ONE_SECOND_TO_MS           ( 1000U )
 
 /**
  * @brief Length of the MQTT network buffer.
  */
-#define MQTT_TEST_BUFFER_LENGTH                 ( 128 )
+#define MQTT_TEST_BUFFER_LENGTH         ( 128 )
 
 /**
  * @brief Sample length of remaining serialized data.
  */
-#define MQTT_SAMPLE_REMAINING_LENGTH            ( 64 )
+#define MQTT_SAMPLE_REMAINING_LENGTH    ( 64 )
 
 /**
  * @brief Subtract this value from max value of global entry time
  * for the timer overflow test.
  */
-#define MQTT_OVERFLOW_OFFSET                    ( 3 )
+#define MQTT_OVERFLOW_OFFSET            ( 3 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_TOPIC                         "/iot/integration/test"
+#define TEST_MQTT_TOPIC                 "/iot/integration/test"
 
 /**
  * @brief Sample topic filter 2 to use in tests.
  */
-#define TEST_MQTT_TOPIC_2                       "/iot/integration/test2"
+#define TEST_MQTT_TOPIC_2               "/iot/integration/test2"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_TOPIC_LENGTH                  ( sizeof( TEST_MQTT_TOPIC ) - 1 )
+#define TEST_MQTT_TOPIC_LENGTH          ( sizeof( TEST_MQTT_TOPIC ) - 1 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_LWT_TOPIC                     "/iot/integration/test/lwt"
+#define TEST_MQTT_LWT_TOPIC             "/iot/integration/test/lwt"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_LWT_TOPIC_LENGTH              ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
+#define TEST_MQTT_LWT_TOPIC_LENGTH      ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define NETWORK_BUFFER_SIZE                     ( 1024U )
+#define NETWORK_BUFFER_SIZE             ( 1024U )
 
 /**
  * @brief Client identifier for MQTT session in the tests.
  */
-#define TEST_CLIENT_IDENTIFIER                  "MQTT-Test"
+#ifndef TEST_CLIENT_IDENTIFIER
+    #define TEST_CLIENT_IDENTIFIER    "MQTT-Test"
+#endif
 
 /**
  * @brief Length of the client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LENGTH           ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LENGTH        ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
 
 /**
  * @brief Client identifier for use in LWT tests.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT              "MQTT-Test-LWT"
+#define TEST_CLIENT_IDENTIFIER_LWT           TEST_CLIENT_IDENTIFIER "-LWT"
 
 /**
  * @brief Length of LWT client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH       ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
-
-/**
- * @brief The largest random number to use in client identifier.
- *
- * @note Random number is added to MQTT client identifier to avoid client
- * identifier collisions while connecting to MQTT broker.
- */
-#define MAX_RAND_NUMBER_FOR_CLIENT_ID           ( 999u )
-
-/**
- * @brief Maximum number of random number digits in Client Identifier.
- * @note The value is derived from the #MAX_RAND_NUM_IN_FOR_CLIENT_ID.
- */
-#define MAX_RAND_NUMBER_DIGITS_FOR_CLIENT_ID    ( 3u )
+#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH    ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS          ( 200U )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS       ( 200U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS                 ( 1000U )
+#define CONNACK_RECV_TIMEOUT_MS              ( 1000U )
 
 /**
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS        ( 5U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS     ( 5U )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop() function in milliseconds.
@@ -197,12 +198,12 @@
  * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
  * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS            ( 700U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS         ( 700U )
 
 /**
  * @brief The MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE                    "Hello World!"
+#define MQTT_EXAMPLE_MESSAGE                 "Hello World!"
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -238,7 +239,7 @@ static ServerInfo_t serverInfo;
 /**
  * @brief TLS credentials needed to connect to the broker.
  */
-static SocketsConfig socketsConfig;
+static SocketsConfig_t socketsConfig;
 
 /**
  * @brief The context representing the MQTT connection with the broker for
@@ -303,15 +304,6 @@ static MQTTPublishInfo_t incomingInfo;
  * restoration tests.
  */
 static uint8_t packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
-
-/**
- * @brief Random number for the client identifier of the MQTT connection(s) in
- * the test.
- *
- * Random number is used to avoid client identifier collisions while connecting
- * to MQTT broker.
- */
-static int clientIdRandNumber;
 
 /**
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
@@ -399,16 +391,10 @@ static void establishMqttSession( MQTTContext_t * pContext,
     /* The network buffer must remain valid for the lifetime of the MQTT context. */
     static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 
-    /* Buffer for storing client ID with random integer.
-     * Note: Size value is chosen to accommodate both LWT and non-LWT client ID
-     * strings along with NULL character.*/
-    char clientIdBuffer[ TEST_CLIENT_IDENTIFIER_LWT_LENGTH +
-                         MAX_RAND_NUMBER_DIGITS_FOR_CLIENT_ID + 1u ] = { 0 };
-
     /* Setup the transport interface object for the library. */
     transport.pNetworkContext = pNetworkContext;
-    transport.send = Openssl_Send;
-    transport.recv = Openssl_Recv;
+    transport.send = SecureSocketsTransport_Send;
+    transport.recv = SecureSocketsTransport_Recv;
 
     /* Fill the values for network buffer. */
     networkBuffer.pBuffer = buffer;
@@ -420,7 +406,7 @@ static void establishMqttSession( MQTTContext_t * pContext,
         /* Initialize MQTT library. */
         TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Init( pContext,
                                                    &transport,
-                                                   Clock_GetTimeMs,
+                                                   IotClock_GetTimeMs,
                                                    eventCallback,
                                                    &networkBuffer ) );
     }
@@ -431,23 +417,13 @@ static void establishMqttSession( MQTTContext_t * pContext,
 
     if( useLWTClientIdentifier )
     {
-        /* Populate client identifier for connection with LWT topic with random number. */
-        connectInfo.clientIdentifierLength =
-            snprintf( clientIdBuffer, sizeof( clientIdBuffer ),
-                      "%d%s",
-                      clientIdRandNumber,
-                      TEST_CLIENT_IDENTIFIER_LWT );
-        connectInfo.pClientIdentifier = clientIdBuffer;
+        connectInfo.clientIdentifierLength = TEST_CLIENT_IDENTIFIER_LWT_LENGTH;
+        connectInfo.pClientIdentifier = TEST_CLIENT_IDENTIFIER_LWT;
     }
     else
     {
-        /* Populate client identifier with random number. */
-        connectInfo.clientIdentifierLength =
-            snprintf( clientIdBuffer,
-                      sizeof( clientIdBuffer ),
-                      "%d%s", clientIdRandNumber,
-                      TEST_CLIENT_IDENTIFIER );
-        connectInfo.pClientIdentifier = clientIdBuffer;
+        connectInfo.clientIdentifierLength = TEST_CLIENT_IDENTIFIER_LENGTH;
+        connectInfo.pClientIdentifier = TEST_CLIENT_IDENTIFIER;
     }
 
     LogDebug( ( "Created randomized client ID for MQTT connection: ClientID={%.*s}", connectInfo.clientIdentifierLength,
@@ -585,7 +561,7 @@ static void eventCallback( MQTTContext_t * pContext,
     {
         /* Terminate TLS session and TCP connection to test session restoration
          * across network connection. */
-        ( void ) Openssl_Disconnect( &networkContext );
+        ( void ) SecureSocketsTransport_Disconnect( &networkContext );
     }
     else
     {
@@ -707,7 +683,7 @@ static int32_t failedRecv( const NetworkContext_t * pNetworkContext,
     ( void ) bytesToRecv;
 
     /* Terminate the TLS+TCP connection with the broker for the test. */
-    ( void ) Openssl_Disconnect( pNetworkContext );
+    ( void ) SecureSocketsTransport_Disconnect( pNetworkContext );
 
     return -1;
 }
@@ -716,19 +692,16 @@ static void startPersistentSession()
 {
     /* Terminate TLS session and TCP network connection to discard the current MQTT session
      * that was created as a "clean session". */
-    ( void ) Openssl_Disconnect( &networkContext );
+    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
 
     /* Establish a new MQTT connection over TLS with the broker with the "clean session" flag set to 0
      * to start a persistent session with the broker. */
 
     /* Create the TLS+TCP connection with the broker. */
-    TEST_ASSERT_EQUAL( OPENSSL_SUCCESS, Openssl_Connect( &networkContext,
-                                                         &serverInfo,
-                                                         &opensslCredentials,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS ) );
-    TEST_ASSERT_NOT_EQUAL( -1, networkContext.socketDescriptor );
-    TEST_ASSERT_NOT_NULL( networkContext.pSsl );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
+                                                                                        &serverInfo,
+                                                                                        &socketsConfig ) );
+    TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Establish a new MQTT connection for a persistent session with the broker. */
     establishMqttSession( &context, &networkContext, false, &persistentSession );
@@ -738,13 +711,10 @@ static void startPersistentSession()
 static void resumePersistentSession()
 {
     /* Create a new TLS+TCP network connection with the server. */
-    TEST_ASSERT_EQUAL( OPENSSL_SUCCESS, Openssl_Connect( &networkContext,
-                                                         &serverInfo,
-                                                         &opensslCredentials,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS ) );
-    TEST_ASSERT_NOT_EQUAL( -1, networkContext.socketDescriptor );
-    TEST_ASSERT_NOT_NULL( networkContext.pSsl );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
+                                                                                        &serverInfo,
+                                                                                        &socketsConfig ) );
+    TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
     TEST_ASSERT_FALSE( persistentSession );
@@ -767,8 +737,6 @@ TEST_GROUP( MQTT_Integration );
 /* Called before each test method. */
 TEST_SETUP( MQTT_Integration )
 {
-    struct timespec tp;
-
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
     receivedUnsubAck = false;
@@ -783,9 +751,9 @@ TEST_SETUP( MQTT_Integration )
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
 
     /* Initializer server information. */
-    serverInfo.pHostName = clientcredentialMQTT_BROKER_ENDPOINT;
-    serverInfo.hostNameLength = sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) - 1U;
-    serverInfo.port = clientcredentialMQTT_BROKER_PORT;
+    serverInfo.pHostName = BROKER_ENDPOINT;
+    serverInfo.hostNameLength = sizeof( BROKER_ENDPOINT ) - 1U;
+    serverInfo.port = BROKER_PORT;
 
     /* Initialize SocketsConfig. */
     socketsConfig.enableTls = true;
@@ -797,24 +765,12 @@ TEST_SETUP( MQTT_Integration )
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
-    /* Get current time to seed pseudo random number generator. */
-    ( void ) clock_gettime( CLOCK_REALTIME, &tp );
-
-    /* Seed pseudo random number generator with nanoseconds. */
-    srand( tp.tv_nsec );
-
-    /* Generate a random number to use in the client identifier. */
-    clientIdRandNumber = ( rand() % ( MAX_RAND_NUMBER_FOR_CLIENT_ID + 1u ) );
-
     /* Establish a TCP connection with the server endpoint, then
      * establish TLS session on top of TCP connection. */
-    TEST_ASSERT_EQUAL( OPENSSL_SUCCESS, Openssl_Connect( &networkContext,
-                                                         &serverInfo,
-                                                         &opensslCredentials,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS ) );
-    TEST_ASSERT_NOT_EQUAL( -1, networkContext.socketDescriptor );
-    TEST_ASSERT_NOT_NULL( networkContext.pSsl );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
+                                                                                        &serverInfo,
+                                                                                        &socketsConfig ) );
+    TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     establishMqttSession( &context, &networkContext, true, &persistentSession );
@@ -838,7 +794,7 @@ TEST_TEAR_DOWN( MQTT_Integration )
     TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
 
     /* Terminate TLS session and TCP connection. */
-    ( void ) Openssl_Disconnect( &networkContext );
+    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
 }
 
 /* ========================== Test Cases ============================ */
@@ -1064,13 +1020,10 @@ TEST( MQTT_Integration, Connect_LWT )
 
     /* Establish a second TCP connection with the server endpoint, then
      * a TLS session. The server info and credentials can be reused. */
-    TEST_ASSERT_EQUAL( OPENSSL_SUCCESS, Openssl_Connect( &secondNetworkContext,
-                                                         &serverInfo,
-                                                         &opensslCredentials,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS,
-                                                         TRANSPORT_SEND_RECV_TIMEOUT_MS ) );
-    TEST_ASSERT_NOT_EQUAL( -1, secondNetworkContext.socketDescriptor );
-    TEST_ASSERT_NOT_NULL( secondNetworkContext.pSsl );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &secondNetworkContext,
+                                                                                        &serverInfo,
+                                                                                        &socketsConfig ) );
+    TEST_ASSERT_NOT_NULL( secondNetworkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     useLWTClientIdentifier = true;
@@ -1086,7 +1039,7 @@ TEST( MQTT_Integration, Connect_LWT )
     TEST_ASSERT_TRUE( receivedSubAck );
 
     /* Abruptly terminate TCP connection. */
-    ( void ) Openssl_Disconnect( &secondNetworkContext );
+    ( void ) SecureSocketsTransport_Disconnect( &secondNetworkContext );
 
     /* Run the process loop to receive the LWT. Allow some more time for the
      * server to realize the connection is closed. */
@@ -1127,7 +1080,7 @@ TEST( MQTT_Integration, ProcessLoop_KeepAlive )
     TEST_ASSERT_EQUAL( 0, context.pingReqSendTimeMs );
 
     /* Sleep until control packet needs to be sent. */
-    Clock_SleepMs( MQTT_KEEP_ALIVE_INTERVAL_SECONDS * 1000 );
+    IotClock_SleepMs( MQTT_KEEP_ALIVE_INTERVAL_SECONDS * 1000 );
     TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
 
     TEST_ASSERT_NOT_EQUAL( 0, context.pingReqSendTimeMs );
@@ -1271,7 +1224,7 @@ TEST( MQTT_Integration, Resend_Unacked_Publish_QoS1 )
 
 
     /* Reset the transport receive function in the context. */
-    context.transportInterface.recv = Openssl_Recv;
+    context.transportInterface.recv = SecureSocketsTransport_Recv;
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
@@ -1340,7 +1293,7 @@ TEST( MQTT_Integration, Resend_Unacked_Publish_QoS2 )
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.outgoingPublishRecords[ 0 ].packetId );
 
     /* Reset the transport receive function in the context. */
-    context.transportInterface.recv = Openssl_Recv;
+    context.transportInterface.recv = SecureSocketsTransport_Recv;
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
