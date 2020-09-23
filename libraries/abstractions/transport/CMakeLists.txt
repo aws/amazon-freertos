@@ -1,10 +1,4 @@
 # Transport Interface 
-
-if(AFR_ENABLE_UNIT_TESTS)
-    add_subdirectory(utest)
-    return()
-endif()
-
 afr_module()
 
 afr_set_lib_metadata(ID "transport")
@@ -34,6 +28,5 @@ afr_module_include_dirs(
     PUBLIC
        "${inc_dir}"
        "${src_dir}"
-       "${AFR_MODULES_C_SDK_DIR}/standard/logging_stack/"
 )
 

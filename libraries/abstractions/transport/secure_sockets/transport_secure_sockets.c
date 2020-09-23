@@ -198,7 +198,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          const char * pHostName,
                          size_t hostnameLength )
 {
-    int32_t transportSocketStatus = SOCKETS_ERROR_NONE;
+    int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -207,64 +207,64 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
     const char * ppcALPNProtos[] = { socketsAWS_IOT_ALPN_MQTT };
 
     /* Set secured option. */
-    transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                0,
-                                                SOCKETS_SO_REQUIRE_TLS,
-                                                NULL,
-                                                0 );
+    secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                             0,
+                                             SOCKETS_SO_REQUIRE_TLS,
+                                             NULL,
+                                             0 );
 
-    if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+    if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
     {
-        LogError( ( "Failed to set secured option for socket. transportSocketStatus %d", transportSocketStatus ) );
+        LogError( ( "Failed to set secured option for socket. secureSocketStatus=%d", secureSocketStatus ) );
     }
 
     /* Set ALPN option. */
-    if( ( transportSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pAlpnProtos != NULL ) )
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pAlpnProtos != NULL ) )
     {
-        transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                    0,
-                                                    SOCKETS_SO_ALPN_PROTOCOLS,
-                                                    ppcALPNProtos,
-                                                    sizeof( ppcALPNProtos ) / sizeof( ppcALPNProtos[ 0 ] ) );
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_ALPN_PROTOCOLS,
+                                                 ppcALPNProtos,
+                                                 sizeof( ppcALPNProtos ) / sizeof( ppcALPNProtos[ 0 ] ) );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set ALPN option socket. transportSocketStatus %d", transportSocketStatus ) );
+            LogError( ( "Failed to set ALPN option socket. secureSocketStatus=%d", secureSocketStatus ) );
         }
     }
 
     /* Set SNI option. */
-    if( ( transportSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->disableSni == false ) )
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->disableSni == false ) )
     {
-        transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                    0,
-                                                    SOCKETS_SO_SERVER_NAME_INDICATION,
-                                                    pHostName,
-                                                    hostnameLength + 1 );
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_SERVER_NAME_INDICATION,
+                                                 pHostName,
+                                                 hostnameLength + 1 );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set SNI option for socket. transportSocketStatus=%d, HostNameLength=%lu",
-                        transportSocketStatus, ( hostnameLength + 1UL ) ) );
+            LogError( ( "Failed to set SNI option for socket. secureSocketStatus=%d, HostNameLength=%lu",
+                        secureSocketStatus, ( hostnameLength + 1UL ) ) );
         }
     }
 
     /* Set custom server certificate. */
-    if( ( transportSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pRootCa != NULL ) )
+    if( ( secureSocketStatus == SOCKETS_ERROR_NONE ) && ( pSocketsConfig->pRootCa != NULL ) )
     {
-        transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                    0,
-                                                    SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
-                                                    pSocketsConfig->pRootCa,
-                                                    pSocketsConfig->rootCaSize );
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
+                                                 pSocketsConfig->pRootCa,
+                                                 pSocketsConfig->rootCaSize );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set server certificate option for socket. transportSocketStatus %d", transportSocketStatus ) );
+            LogError( ( "Failed to set server certificate option for socket. secureSocketStatus=%d", secureSocketStatus ) );
         }
     }
 
-    return transportSocketStatus;
+    return secureSocketStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -274,14 +274,14 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
                                       uint32_t recvTimeoutMs )
 {
     TickType_t receiveTimeout = 0, sendTimeout = 0;
-    int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
     if( tcpSocket == NULL )
     {
-        transportSocketStatus = SOCKETS_EINVAL;
+        secureSocketStatus = SOCKETS_EINVAL;
     }
 
-    if( transportSocketStatus == SOCKETS_ERROR_NONE )
+    if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
         /* Secure Sockets uses TickType_t therefore replace the timeout value with portMAX_DELAY if it is exceeded. */
         receiveTimeout = pdMS_TO_TICKS( recvTimeoutMs );
@@ -291,19 +291,19 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
             receiveTimeout = portMAX_DELAY;
         }
 
-        transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                    0,
-                                                    SOCKETS_SO_RCVTIMEO,
-                                                    &receiveTimeout,
-                                                    sizeof( TickType_t ) );
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_RCVTIMEO,
+                                                 &receiveTimeout,
+                                                 sizeof( TickType_t ) );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set socket receive timeout. transportSocketStatus %d.", transportSocketStatus ) );
+            LogError( ( "Failed to set socket receive timeout. secureSocketStatus=%d.", secureSocketStatus ) );
         }
     }
 
-    if( transportSocketStatus == SOCKETS_ERROR_NONE )
+    if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
         /* Secure Sockets uses TickType_t therefore replace timeout vale with portMAX_DELAY if it exceeds. */
         if( pdMS_TO_TICKS( sendTimeoutMs ) > portMAX_DELAY )
@@ -315,19 +315,19 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
             sendTimeout = pdMS_TO_TICKS( sendTimeoutMs );
         }
 
-        transportSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
-                                                    0,
-                                                    SOCKETS_SO_SNDTIMEO,
-                                                    &sendTimeout,
-                                                    sizeof( TickType_t ) );
+        secureSocketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                                 0,
+                                                 SOCKETS_SO_SNDTIMEO,
+                                                 &sendTimeout,
+                                                 sizeof( TickType_t ) );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to set socket send timeout. transportSocketStatus %d.", transportSocketStatus ) );
+            LogError( ( "Failed to set socket send timeout. secureSocketStatus=%d.", secureSocketStatus ) );
         }
     }
 
-    return transportSocketStatus;
+    return secureSocketStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -338,7 +338,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 {
     Socket_t tcpSocket = ( Socket_t ) SOCKETS_INVALID_SOCKET;
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
-    int32_t transportSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SocketsSockaddr_t serverAddress = { 0 };
     const size_t hostnameLength = pServerInfo->hostNameLength;
 
@@ -358,7 +358,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
         if( tcpSocket == ( Socket_t ) SOCKETS_INVALID_SOCKET )
         {
-            LogError( ( "Failed to create new socket. tcpSocket %d\n", tcpSocket ) );
+            LogError( ( "Failed to create new socket. tcpSocket=%d\n", tcpSocket ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY;
         }
     }
@@ -395,13 +395,13 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
-        transportSocketStatus = SOCKETS_Connect( tcpSocket,
-                                                 &serverAddress,
-                                                 sizeof( SocketsSockaddr_t ) );
+        secureSocketStatus = SOCKETS_Connect( tcpSocket,
+                                              &serverAddress,
+                                              sizeof( SocketsSockaddr_t ) );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to establish new connection. transportSocketStatus: %d.", transportSocketStatus ) );
+            LogError( ( "Failed to establish new connection. secureSocketStatus=%d.", secureSocketStatus ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
         }
     }
@@ -409,11 +409,11 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Configure send and receive timeouts for the socket. */
-        transportSocketStatus = transportTimeoutSetup( tcpSocket, pSocketsConfig->sendTimeoutMs, pSocketsConfig->recvTimeoutMs );
+        secureSocketStatus = transportTimeoutSetup( tcpSocket, pSocketsConfig->sendTimeoutMs, pSocketsConfig->recvTimeoutMs );
 
-        if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
-            LogError( ( "Failed to configure send and receive timeouts for socket: transportSocketStatus=%d.", transportSocketStatus ) );
+            LogError( ( "Failed to configure send and receive timeouts for socket: secureSocketStatus=%d.", secureSocketStatus ) );
             returnStatus = TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR;
         }
     }
