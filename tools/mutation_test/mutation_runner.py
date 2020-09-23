@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import shutil
 import subprocess
 import shlex
@@ -123,8 +125,10 @@ def flash_and_read(port, timeout, flash_command):
 
 def percentage(part, whole):
     """
-    Returns percentage with 2 decimals. If `whole` is 0, `whole` is set to 1.
+    Returns percentage with 2 decimals. If `whole` <= 0, returns -1.00.
     """
+    if whole <= 0:
+        return -1.00
     return format(100 * (float(part) / (float(whole) if whole != 0 else 1)), '.2f')
 
 def _process_file(file_path):
@@ -156,7 +160,6 @@ def generate_test_runner(test_groups):
             if line.startswith('static void RunTests'):
                 is_generating = True
     return backup
-    
 
 def to_csv(csv_path, headers, dict):
     """
@@ -195,68 +198,141 @@ class LineOutOfRange(MutationTestError):
     pass
 
 def run_custom(task, args, config):
-    vendor, board, compiler = config['vendor'], config['board'], config['compiler']
     flash_command = config['flash_command']
 
     port = args.port if args.port else utils.get_default_serial_port()
     os.environ['PORT'] = port
     timeout = int(args.timeout)
+    csv = args.csv
+    rng = random.Random(args.seed)
 
-    mutation = mutator.Mutator(src=task['src'], mutation_patterns=task['patterns'])
+    mutation = mutator.Mutator(src=task['src'], mutation_patterns=task['patterns'], rng=rng)
     mutant_patterns = mutation.getPatterns()
 
     searched_patterns = set()
 
     data_record = []
+    trials = []
+    test_to_kills = {}
+    run_cnt = 0
+    nc = 0
+    total_failures = 0
+    mutant_cnt = int(args.mutants)
     # outer try is for finally generating csv if automation stops early
     try:
         for mp in mutant_patterns:
-            if mp.pattern in searched_patterns:
+            # number of failures for this mutant pattern
+            failures_per_pattern = 0
+            # number of total mutants for this mutant pattern
+            total_per_pattern = 0
+            times_per_pattern = task['total_times']
+            if run_cnt == mutant_cnt:
+                break
+            if mp in searched_patterns:
                 continue
-            searched_patterns.add(mp.pattern)
+            searched_patterns.add(mp)
             utils.yellow_print("Searching for pattern: {}".format(mp.pattern))
             occurences_with_mp = mutation.findOccurrences(mutation_pattern=mp)
             for o in occurences_with_mp:
                 utils.yellow_print(o)
-            failures = 0
-            total = 0
-            times_per_pattern = task['total_times']
             for occurrence in occurences_with_mp:
                 # if completed times_per_pattern times, exit loop
-                if times_per_pattern == 0:
+                if times_per_pattern == 0 or run_cnt == mutant_cnt:
                     break
                 # mutate the code
                 utils.yellow_print(occurrence)
-                mutation.mutate(occurrence)
+                original_line, mutated_line = mutation.mutate(occurrence)
+                file_changed = occurrence.file
+                line_number = occurrence.line
                 # try is for catching compile failure to continue execution
                 try:
                     # cmake, build, flash, and read
                     output, final_flag = flash_and_read(port, timeout, flash_command)
+
+                    # reaching here means success, so change counters
+                    total_per_pattern += 1
+                    run_cnt += 1
+                    times_per_pattern -= 1
+
+                    tests_expected_to_catch = "N/A"
+                    if args.line_coverage and str(line_number) in args.line_coverage:
+                        tests_expected_to_catch = ",".join(args.line_coverage[str(line_number)])
+
+                    # mutant_status can either be "FAIL", "PASS", "CRASH", "TIMEOUT"
+                    mutant_status = "FAIL"
                     if final_flag == FLAGS.PassFlag:
                         utils.red_print("Mutant is Alive")
+                        utils.red_print("Tests that are expected to catch this mutant are: \n{}"
+                                            .format(tests_expected_to_catch))
+                        mutant_status = "PASS"
                     else:
-                        failures += 1
+                        failures_per_pattern += 1
+                        total_failures += 1
                         utils.green_print("Mutant is Killed")
-                    total += 1
+                    if final_flag == FLAGS.CrashFlag:
+                        mutant_status = "CRASH"
+                    elif final_flag == "TIMEOUT":
+                        mutant_status = "TIMEOUT"
+
+                    # Analyze the output to count per test failures
+                    results = re.findall(TestRegEx, output)
+                    for group, test, result in results:
+                        if (group, test) not in test_to_kills:
+                            test_to_kills[(group, test)] = (1, 1) if result == 'FAIL' else (0, 1)
+                        else:
+                            kills, total = test_to_kills[(group, test)]
+                            test_to_kills[(group, test)] = ((kills + 1, total + 1) if result == 'FAIL' 
+                                                            else (kills, total + 1))           
+
+                    # Add result to CSV queue
+                    trials.append({'file': file_changed,'line':line_number, 'original':original_line, 'mutant':mutated_line, 
+                                    'result':"{}/KILLED".format(mutant_status) if mutant_status != "PASS" else "PASS/LIVE", 
+                                    'expected_catch': tests_expected_to_catch})
+                    utils.yellow_print("Successful Mutant Runs: {}/{}".format(run_cnt, mutant_cnt))
                 except CompileFailed:
                     utils.yellow_print("Cannot compile, discard and move on")
+                    nc += 1
                 finally:
                     mutation.restore()
-                times_per_pattern -= 1
             data_record.append(
                 {'pattern': "{} => {}".format(mp.pattern, mp.transformation),
-                 'failures': failures,
-                 'total': total,
-                 'percentage': float(percentage(failures, total)) * 0.01 if total > 0 else 2})
+                 'failures': failures_per_pattern,
+                 'total': total_per_pattern,
+                 'percentage': float(percentage(failures_per_pattern, total_per_pattern)) 
+                                        * 0.01 if total_per_pattern > 0 else 2})
     except:
         traceback.print_exc()
         raise
     finally:
         mutation.cleanup()
-        if args.csv:
-            csv_path = os.path.join(
-                dir_path, "csvs/{}/{}/{}_mutant_comparison.csv".format(current_date, current_time, task['name']))
-            to_csv(csv_path, ['pattern', 'failures', 'total', 'percentage'], data_record)
+
+        # calculate mutant score
+        score = percentage(total_failures, run_cnt)
+        utils.yellow_print("Score: {}%".format(score))
+        utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
+                .format(run_cnt - total_failures, total_failures, run_cnt, nc, run_cnt + nc))
+        trials.append({'file': "RESULTS:", 'line': "{} NO-COMPILE".format(nc) , 'mutant':"SCORE", 
+                    'original':"{} KILLED/{} MUTANTS".format(total_failures, run_cnt),'result':"{}%".format(score)})
+
+        # aggregate pass/fail counts
+        aggregates = []
+        for group, test in test_to_kills:
+            kills, total = test_to_kills[(group, test)]
+            aggregates.append({'Group': group,
+                               'Test': test,
+                               'Kills': kills,
+                               'Passes': total - kills,
+                               'Total': total})
+
+        # log to csv
+        if csv:
+            csv_path = os.path.join(dir_path, "csvs/{}/{}".format(current_date, current_time))
+            pattern_csv = os.path.join(csv_path, "{}_pattern_comparison.csv".format(task['name']))
+            trials_csv = os.path.join(csv_path, "{}_mutants_created.csv".format(task['name']))
+            per_test_csv = os.path.join(csv_path, "{}_test_aggregates.csv".format(task['name']))
+            to_csv(pattern_csv, ['pattern', 'failures', 'total', 'percentage'], data_record)
+            to_csv(trials_csv, ['file', 'line', 'original', 'mutant', 'result', 'expected_catch'], trials)
+            to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
 
 def run_randomized(task, args, config):
     # config
@@ -353,7 +429,7 @@ def run_randomized(task, args, config):
     finally:
         # calculate mutant score
         score = percentage(failures, run_cnt)
-        utils.yellow_print(score)
+        utils.yellow_print("Score: {}%".format(score))
         utils.yellow_print("Alive: {} Killed: {} Mutants: {} No-Compile: {} Attempted Runs: {}"
                 .format(run_cnt - failures, failures, run_cnt, nc, run_cnt + nc))
         trials.append({'file': "RESULTS:", 'line': "{} NO-COMPILE".format(nc) , 'mutant':"SCORE", 
@@ -390,47 +466,31 @@ def run_randomized(task, args, config):
 def coverage_main(args, config):
     """ Function that is called when user specified `mutation_runner.py coverage` from cmd
     """
-    flash_command = config['flash_command']
-
-    port = args.port if args.port else utils.get_default_serial_port()
-    os.environ['PORT'] = port
-    timeout = int(args.timeout)
-
-    os.chdir(root_path)
-
-    for task in config['tasks']:
-        utils.yellow_print("Running task: {}".format(task['name']))
-
-        # Generate test runner to run only on those test groups
-        utils.yellow_print("Generating test runner based on supplied test groups...")
-        backup = generate_test_runner(task['test_groups'])
-        try:
-            for s in task['src']:
-                shutil.copyfile(s, "{}.old".format(s))
-                with open(s) as f:
-                    text = f.read()
-                    funcs = re.findall(coverage.FuncRegEx, text, re.MULTILINE)
-                    coverage.write_line_prints(s, text, funcs)
-                # run once
-                output, _ = flash_and_read(port, timeout, flash_command)
-                # TODO : Process the output which should contain FUNCTION and LINE macro output
-        except Exception as e:
-            traceback.print_exc()
-            raise Exception(e)
-        finally:
-            # restore aws_test_runner.c
-            shutil.copy(backup, os.path.splitext(backup)[0])
-            os.remove(backup)
-            for s in task['src']:
-                shutil.copyfile("{}.old".format(s), s)
-                os.remove("{}.old".format(s))
-                utils.yellow_print("Source code restored")
+    coverage.run_coverage(args, config)
 
 def mutation_main(args, config):
     """ Function that is called when user specifies `mutation_runner.py start` from cmd
     """
     # change to root path
     os.chdir(root_path)
+    if args.jobfile:
+        with open(args.jobfile, 'r') as f:
+            jobfile = ast.literal_eval(f.read())
+            if not args.port:
+                args.port = jobfile['port']
+            if not args.mutants:
+                args.mutants = int(jobfile['mutant_cnt'])
+            if not args.timeout:
+                args.timeout = int(jobfile['timeout'])
+            if not args.csv:
+                args.csv = jobfile['csv']
+            if not args.seed:
+                args.seed = jobfile['seed']
+    
+    # create a rng for this run
+    if not args.seed:
+        args.seed = random.randrange(sys.maxsize)
+    utils.yellow_print("Current test seed is: {}".format(args.seed))
 
     utils.yellow_print("Running tasks")
     for task in config['tasks']:
@@ -441,8 +501,8 @@ def mutation_main(args, config):
         backup = generate_test_runner(task['test_groups'])
 
         # set default mutations if patterns is equal to "all"
-        if task['patterns'] == "all": task['patterns'] = mutator.default_patterns
-        elif task['patterns'] == "custom_patterns": task['patterns'] = mutator.custom_patterns
+        if type(task['patterns']) == str:
+             task['patterns'] = mutator.pattern_dict[task['patterns']]
         try:
             if "custom" in task:
                 # build your own run setups here
@@ -456,11 +516,20 @@ def mutation_main(args, config):
             # restore aws_test_runner.c
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
+    create_jobfile(mutant_cnt=args.mutants,
+        port=args.port,
+        timeout=args.timeout,
+        csv=args.csv,
+        seed=args.seed)
 
 def main():
     parser = argparse.ArgumentParser()
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title='commands',
+                                       description='valid commands',
+                                       help='additional help')
+    subparsers.required = True
+    subparsers.dest = 'command'
 
     # create parser for coverage tool
     parser_coverage = subparsers.add_parser('coverage')
@@ -486,13 +555,19 @@ def main():
     parser_mutation.set_defaults(func=mutation_main)
     parser_mutation.add_argument(
         '--src_config', '-s',
-        help='Select the test config file to use eg. -s wifi',
+        help="Select the test config file to use eg. -s wifi",
         required=True
     )
     parser_mutation.add_argument(
         '--mutants', '-m',
-        help='Max number of mutants to create from all tasks (cap)',
+        help="Max number of mutants to create from all tasks (cap)",
         default=10
+    )
+    parser_mutation.add_argument(
+        '--line_coverage', '-l',
+        help="path to JSON file containing a map from line number to list of tests expected to \
+                test that line",
+        default=None
     )
     parser_mutation.add_argument(
         '--port', '-p',
@@ -520,12 +595,15 @@ def main():
         help='Specify path to a jobfile to repeat a test; will replace all arguments provided',
         default=None
     )
-
     args = parser.parse_args()
-
+    
     # configs
     with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
         config = json.load(f)
+
+    if args.line_coverage:
+        with open(args.line_coverage) as f:
+            args.line_coverage = json.loads(f.read())
 
     args.func(args, config)
     print('Done')

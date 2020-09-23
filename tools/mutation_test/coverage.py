@@ -7,7 +7,7 @@ import sys
 import signal
 import re
 
-from utils import get_default_serial_port, yellow_print
+import utils
 import mutation_runner
 
 FuncRegEx = r'^(?:\w+ ){0,1}\w+ \w+[(](?:(?:.+\n.+)*|.*)[)]'
@@ -53,59 +53,117 @@ def write_line_prints(output, source_code, funcs):
             else:
                 f.write(line+"\n")
 
+def run_coverage(args, config):
+    flash_command = config['flash_command']
+
+    port = args.port if args.port else utils.get_default_serial_port()
+    os.environ['PORT'] = port
+    timeout = int(args.timeout)
+
+    os.chdir(root_path)
+
+    for task in config['tasks']:
+        utils.yellow_print("Running task: {}".format(task['name']))
+
+        # Generate test runner to run only on those test groups
+        utils.yellow_print("Generating test runner based on supplied test groups...")
+        backup = mutation_runner.generate_test_runner(task['test_groups'])
+        try:
+            for s in task['src']:
+                shutil.copyfile(s, "{}.old".format(s))
+                with open(s) as f:
+                    text = f.read()
+                    funcs = re.findall(FuncRegEx, text, re.MULTILINE)
+                    write_line_prints(s, text, funcs)
+                # run once
+                output, _ = mutation_runner.flash_and_read(port, timeout, flash_command)
+                # TODO : Process the output which should contain FUNCTION and LINE macro output
+        except Exception as e:
+            traceback.print_exc()
+            raise Exception(e)
+        finally:
+            # restore aws_test_runner.c
+            shutil.copy(backup, os.path.splitext(backup)[0])
+            os.remove(backup)
+            for s in task['src']:
+                shutil.copyfile("{}.old".format(s), s)
+                os.remove("{}.old".format(s))
+                utils.yellow_print("Source code restored")
+
+def coverage_map():
+    os.chdir(dir_path)
+    line = {}
+    # WIFI_ConnectAP
+    for i in range(363, 448 + 1):
+        line[i] = ["WiFi_IsConnected", "WiFi_Scan", "WiFi_GetIP", "WiFi_GetHostIP", "WiFiConnectionLoop",
+                   "WIFI_ConnectAP_InvalidPassword", "WiFiConnectMultipleAP"]
+    # event_handler
+    for i in range(87, 165 + 1):
+        line[i] = ["WiFi_IsConnected", "WiFi_Scan", "WiFi_GetIP", "WiFi_GetHostIP", "WiFiConnectionLoop",
+                   "WiFiOnOffLoop", "WiFiMode", "WIFI_ConnectAP_InvalidPassword", "WiFiConnectMultipleAP"]
+    # WIFI_IsConnected
+    for i in range(249, 263 + 1):
+        line[i] = ["WiFi_IsConnected", "WiFi_GetIP", "WiFi_GetHostIP", "WIFI_ConnectAP_InvalidPassword",
+                   "WiFiConnectMultipleAP"]
+    # WIFI_Disconnect
+    for i in range(451, 479 + 1):
+        line[i] = ["WiFi_IsConnected", "WiFiConnectionLoop", "WIFI_ConnectAP_InvalidPassword"]
+    for i in range(488, 611 + 1):
+        line[i] = ["WiFi_Scan"]
+    for i in range(1077, 1127 + 1):
+        line[i] = ["WiFi_GetIP"]
+    for i in range(1171, 1210 + 1):
+        line[i] = ["WiFi_GetHostIP"]
+    # WIFI_Off
+    for i in range(266, 309 + 1):
+        line[i] = ["WiFiOnOffLoop"]
+    # WIFI_On
+    for i in range(312, 355 + 1):
+        line[i] = ["WiFiOnOffLoop"]
+    # WIFI_GetMode
+    for i in range(646, 680 + 1):
+        line[i] = ["WiFiMode"]
+    # WIFI_SetMode
+    for i in range(614, 643 + 1):
+        line[i] = ["WiFiMode"]
+    # prvInitRegistry
+    for i in range(867, 885 + 1):
+        line[i] = ["WiFiNetworkAddGetDelete"]
+    # WIFINetworkDelete
+    for i in range(1011, 1067 + 1):
+        line[i] = ["WiFiNetworkAddGetDelete"]
+
+
+    with open('wifi_line_coverage.json', 'w', encoding='utf-8') as f:
+        json.dump(line, f, ensure_ascii=False, indent=4, sort_keys=True)
+
+
 def main():
-    parser = argparse.ArgumentParser('Lines Executed Discover')
+    coverage_map()
+    sys.exit()
+
+    parser = argparse.ArgumentParser('Function Coverage Tool')
     parser.add_argument(
         '--src_config', '-s',
         help='Select the test config file to use eg. -s wifi',
         required=True
     )
     parser.add_argument(
+        '--port', '-p',
+        help="Serial port to read from",
+        default=None
+    )
+    parser.add_argument(
         '--timeout', '-t',
         help='Timeout for each mutant in seconds',
-        default=500
+        default=300
     )
     args = parser.parse_args()
-
     # configs
     with open(os.path.join(dir_path, os.path.join('configs', '{}.json'.format(args.src_config)))) as f:
         config = json.load(f)
 
-    vendor = config['vendor']
-    compiler = config['compiler']
-    board = config['board']
-    port = get_default_serial_port()
-    timeout = int(args.timeout)
-
-    backup = mutation_runner.generate_test_runner(test_groups)
-
-    os.chdir(root_path)
-
-    try:
-        for s in src:
-            shutil.copyfile(s, "{}.old".format(s))
-            with open(s) as f:
-                text = f.read()
-                funcs = re.findall(FuncRegEx, text, re.MULTILINE)
-                write_line_prints(s, text, funcs)
-        # run once
-        output, _ = mutation_runner.flash_and_read(vendor, board, compiler, port, timeout)
-
-        # TODO : Process the output which should contain FUNCTION and LINE macro output
-        
-
-    except Exception as e:
-        traceback.print_exc()
-        raise Exception(e)
-    finally:
-        # restore files
-        # restore aws_test_runner.c
-        shutil.copy(backup, os.path.splitext(backup)[0])
-
-        for s in src:
-            shutil.copyfile("{}.old".format(s), s)
-            os.remove("{}.old".format(s))
-            yellow_print("Source code restored")
+    run_coverage(args, config)
 
 # Capture SIGINT (usually Ctrl+C is pressed) and SIGTERM, and exit gracefully.
 for s in (signal.SIGINT, signal.SIGTERM):

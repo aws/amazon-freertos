@@ -2,42 +2,42 @@
     "tasks": [
         {
             "name": "WiFi_IsConnected",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[250,263],[363,448],[451,479]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[249,263],[363,448],[451,479]]},
             "test_groups": ["WiFiIsConnected"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "total_times": 10,
             "custom": "True"
         },
         {
             "name": "WiFi_Scan",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[488,611]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[488,611]]},
             "test_groups": ["WiFi_Scan"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "total_times": 10,
             "custom": "True"
         },
         {
             "name": "WiFi_GetIP",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[363,448],[249,264],[1077,1127]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[363,448],[249,264],[1077,1127]]},
             "test_groups": ["WiFi_GetIP"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "total_times": 10,
             "custom": "True"
         },
         {
             "name": "WiFi_GetHostIP",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[363,448],[249,264],[1173,1209]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[363,448],[249,264],[1173,1209]]},
             "test_groups": ["WiFi_GetHostIP"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "total_times": 10,
             "custom": "True"
         },
         {
             "name": "WiFiConnectionLoop",
-            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[364,447], [453,479]]},
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[364,447], [453,479]]},
             "test_groups": ["WiFiConnectionLoop"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "total_times": 10,
             "custom": "True"
         }
     ],
