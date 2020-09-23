@@ -29,10 +29,6 @@
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS #11 standard.
  */
-
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-
 /* PKCS #11 includes. */
 #include "iot_pkcs11_config.h"
 #include "iot_crypto.h"
@@ -48,7 +44,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
-#include "threading_alt.h"
+#include "mbedtls/platform.h"
 
 /* Custom mbedtls utils include. */
 #include "mbedtls_error.h"
@@ -75,23 +71,25 @@
     #define pkcs11configSUPPRESS_ECDSA_MECHANISM    0
 #endif
 
+#ifndef DISABLE_LOGGING
+
 /**
  * @brief Represents string to be logged when mbedTLS returned error
  * does not contain a high-level code.
  */
-static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
+    static const char * pNoHighLevelMbedTlsCodeStr = "<No-High-Level-Code>";
 
 /**
  * @brief Represents string to be logged when mbedTLS returned error
  * does not contain a low-level code.
  */
-static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
+    static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
 
 /**
  * @brief Utility for converting the high-level code in an mbedTLS error to string,
  * if the code-contains a high-level code; otherwise, using a default string.
  */
-#define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )        \
+    #define mbedtlsHighLevelCodeOrDefault( mbedTlsCode )    \
     ( mbedtls_strerror_highlevel( mbedTlsCode ) != NULL ) ? \
     mbedtls_strerror_highlevel( mbedTlsCode ) : pNoHighLevelMbedTlsCodeStr
 
@@ -99,9 +97,17 @@ static const char * pNoLowLevelMbedTlsCodeStr = "<No-Low-Level-Code>";
  * @brief Utility for converting the level-level code in an mbedTLS error to string,
  * if the code-contains a level-level code; otherwise, using a default string.
  */
-#define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )        \
+    #define mbedtlsLowLevelCodeOrDefault( mbedTlsCode )    \
     ( mbedtls_strerror_lowlevel( mbedTlsCode ) != NULL ) ? \
     mbedtls_strerror_lowlevel( mbedTlsCode ) : pNoLowLevelMbedTlsCodeStr
+
+#endif /* ifndef DISABLE_LOGGING */
+
+/**
+ * @ingroup pkcs11_macros
+ * @brief Delay to wait on acquiring a mutex, in ms.
+ */
+#define pkcs11MUTEX_WAIT_MS                     ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @ingroup pkcs11_macros
@@ -245,8 +251,7 @@ typedef struct P11Object_t
  */
 typedef struct P11ObjectList_t
 {
-    SemaphoreHandle_t xMutex;                            /**< @brief Mutex that protects write operations to the xObjects array. */
-    StaticSemaphore_t xMutexBuffer;                      /**< @brief Mutex buffer in order to avoid calling Malloc. */
+    mbedtls_threading_mutex_t xMutex;                    /**< @brief Mutex that protects write operations to the xObjects array. */
     P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ]; /**< @brief List of PKCS #11 objects. */
 } P11ObjectList_t;
 
@@ -259,8 +264,7 @@ typedef struct P11Struct_t
     CK_BBOOL xIsInitialized;                     /**< @brief Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
     mbedtls_ctr_drbg_context xMbedDrbgCtx;       /**< @brief CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
     mbedtls_entropy_context xMbedEntropyContext; /**< @brief Entropy context for PKCS #11 module - used to collect entropy for RNG. */
-    SemaphoreHandle_t xSessionMutex;             /**< @brief Mutex that protects write operations to the pxSession array. */
-    StaticSemaphore_t xSessionMutexBuffer;       /**< @brief Mutex buffer in order to avoid calling Malloc. */
+    mbedtls_threading_mutex_t xSessionMutex;     /**< @brief Mutex that protects write operations to the pxSession array. */
     P11ObjectList_t xObjectList;                 /**< @brief List of PKCS #11 objects that have been found/created since module initialization.
                                                   *         The array position indicates the "App Handle"  */
 } P11Struct_t;
@@ -278,11 +282,11 @@ typedef struct P11Session
     CK_BYTE * pxFindObjectLabel;                 /**< @brief Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     CK_ULONG xFindObjectLabelLen;                /**< @brief Size of current search label. */
     CK_MECHANISM_TYPE xOperationVerifyMechanism; /**< @brief The mechanism of verify operation in progress. Set during C_VerifyInit. */
-    SemaphoreHandle_t xVerifyMutex;              /**< @brief Protects the verification key from being modified while in use. */
+    mbedtls_threading_mutex_t xVerifyMutex;      /**< @brief Protects the verification key from being modified while in use. */
     CK_OBJECT_HANDLE xVerifyKeyHandle;           /**< @brief Object handle to the verification key. */
     mbedtls_pk_context xVerifyKey;               /**< @brief Verification key.  Set during C_VerifyInit. */
     CK_MECHANISM_TYPE xOperationSignMechanism;   /**< @brief Mechanism of the sign operation in progress. Set during C_SignInit. */
-    SemaphoreHandle_t xSignMutex;                /**< @brief Protects the signing key from being modified while in use. */
+    mbedtls_threading_mutex_t xSignMutex;        /**< @brief Protects the signing key from being modified while in use. */
     CK_OBJECT_HANDLE xSignKeyHandle;             /**< @brief Object handle to the signing key. */
     mbedtls_pk_context xSignKey;                 /**< @brief Signing key.  Set during C_SignInit. */
     mbedtls_sha256_context xSHA256Context;       /**< @brief Context for in progress digest operation. */
@@ -532,47 +536,35 @@ static CK_RV prvMbedTLS_Initialize( void )
     /* See explanation in prvCheckValidSessionAndModule for this exception. */
     /* coverity[misra_c_2012_rule_10_5_violation] */
     ( void ) memset( &xP11Context, 0, sizeof( xP11Context ) );
-    xP11Context.xObjectList.xMutex = xSemaphoreCreateMutexStatic(
-        &xP11Context.xObjectList.xMutexBuffer );
-
-    xP11Context.xSessionMutex = xSemaphoreCreateMutexStatic(
-        &xP11Context.xSessionMutexBuffer );
     int32_t lMbedTLSResult = 0;
 
-    if( ( xP11Context.xObjectList.xMutex == NULL ) ||
-        ( xP11Context.xSessionMutex == NULL ) )
+    CRYPTO_Init();
+    mbedtls_mutex_init( &xP11Context.xObjectList.xMutex );
+    mbedtls_mutex_init( &xP11Context.xSessionMutex );
+
+    /* Initialize the entropy source and DRBG for the PKCS#11 module */
+    mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
+    mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
+
+    lMbedTLSResult = mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
+                                            mbedtls_entropy_func,
+                                            &xP11Context.xMbedEntropyContext,
+                                            NULL,
+                                            0 );
+
+    if( 0 != lMbedTLSResult )
     {
-        LogError( ( "Could not initialize PKCS #11. Failed to initialize PKCS #11 Object and Session Mutexes." ) );
-        xResult = CKR_HOST_MEMORY;
+        LogError( ( "Could not initialize PKCS #11. Failed to seed the DRBG: mbed TLS error = %s : %s.",
+                    mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
+                    mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
+        xResult = CKR_FUNCTION_FAILED;
     }
-
-    if( xResult == CKR_OK )
+    else
     {
-        CRYPTO_Init();
-        /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
-        mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
-
-        lMbedTLSResult = mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
-                                                mbedtls_entropy_func,
-                                                &xP11Context.xMbedEntropyContext,
-                                                NULL,
-                                                0 );
-
-        if( 0 != lMbedTLSResult )
-        {
-            LogError( ( "Could not initialize PKCS #11. Failed to seed the DRBG: mbed TLS error = %s : %s.",
-                        mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                        mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
-            xResult = CKR_FUNCTION_FAILED;
-        }
-        else
-        {
-            /* See explanation in prvCheckValidSessionAndModule for this exception. */
-            /* coverity[misra_c_2012_rule_10_5_violation] */
-            xP11Context.xIsInitialized = ( CK_BBOOL ) CK_TRUE;
-            LogDebug( ( "PKCS #11 module was successfully initialized." ) );
-        }
+        /* See explanation in prvCheckValidSessionAndModule for this exception. */
+        /* coverity[misra_c_2012_rule_10_5_violation] */
+        xP11Context.xIsInitialized = ( CK_BBOOL ) CK_TRUE;
+        LogDebug( ( "PKCS #11 module was successfully initialized." ) );
     }
 
     return xResult;
@@ -1077,7 +1069,7 @@ static void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
 static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
     CK_RV xResult = CKR_OK;
-    BaseType_t xGotSemaphore = pdFALSE;
+    int32_t lGotSemaphore = 0UL;
     uint32_t ulIndex = xAppHandle - 1UL;
 
     if( ulIndex >= pkcs11configMAX_NUM_OBJECTS )
@@ -1087,10 +1079,10 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
     if( xResult == CKR_OK )
     {
-        xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+        lGotSemaphore = mbedtls_mutex_lock( &xP11Context.xObjectList.xMutex );
     }
 
-    if( xGotSemaphore == pdTRUE )
+    if( lGotSemaphore == 0 )
     {
         if( xP11Context.xObjectList.xObjects[ ulIndex ].xHandle != CK_INVALID_HANDLE )
         {
@@ -1104,7 +1096,7 @@ static CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
             xResult = CKR_OBJECT_HANDLE_INVALID;
         }
 
-        ( void ) xSemaphoreGive( xP11Context.xObjectList.xMutex );
+        ( void ) mbedtls_mutex_unlock( &xP11Context.xObjectList.xMutex );
     }
     else
     {
@@ -1145,7 +1137,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     "but expected <= %lu.", xLabelLength, pkcs11configMAX_LABEL_LENGTH ) );
         xResult = CKR_DATA_LEN_RANGE;
     }
-    else if( pdTRUE == xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY ) )
+    else if( 0 == mbedtls_mutex_lock( &xP11Context.xObjectList.xMutex ) )
     {
         for( ulSearchIndex = 0; ulSearchIndex < pkcs11configMAX_NUM_OBJECTS; ulSearchIndex++ )
         {
@@ -1182,7 +1174,7 @@ static CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             *pxAppHandle = ulSearchIndex;
         }
 
-        ( void ) xSemaphoreGive( xP11Context.xObjectList.xMutex );
+        ( void ) mbedtls_mutex_unlock( &xP11Context.xObjectList.xMutex );
     }
     else
     {
@@ -1203,7 +1195,7 @@ static CK_RV prvAppendEmptyECDerKey( uint8_t * pusECPrivateKey,
                                      uint32_t * pulActualKeyLength )
 {
     CK_RV xResult = CKR_OK;
-    uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
+    const uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
     int32_t lCompare = 0;
 
     if( pusECPrivateKey == NULL )
@@ -1281,15 +1273,10 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
             LogDebug( ( "Received EC key type." ) );
             ulDerBufSize = pkcs11_MAX_EC_PUBLIC_KEY_DER_SIZE;
         }
-        else
-        {
-            LogDebug( ( "Received RSA key type." ) );
-            ulDerBufSize = pkcs11_MAX_PUBLIC_KEY_DER_SIZE;
-        }
     }
 
     LogDebug( ( "Allocating a %lu bytes sized buffer to write the key to.", ulDerBufSize ) );
-    pxDerKey = pvPortMalloc( ulDerBufSize );
+    pxDerKey = mbedtls_calloc( 1, ulDerBufSize );
 
     if( pxDerKey == NULL )
     {
@@ -1348,7 +1335,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
     }
 
-    vPortFree( pxDerKey );
+    mbedtls_free( pxDerKey );
 
     return xResult;
 }
@@ -1376,7 +1363,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
         if( xResult == CKR_OK )
         {
             /* Some ports return a pointer to memory for which using memset directly won't work. */
-            pxZeroedData = pvPortMalloc( ulObjectLength );
+            pxZeroedData = mbedtls_calloc( 1, ulObjectLength );
 
             if( NULL != pxZeroedData )
             {
@@ -1402,7 +1389,7 @@ static CK_RV prvSaveDerKeyToPal( mbedtls_pk_context * pxMbedContext,
             }
 
             PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
-            vPortFree( pxZeroedData );
+            mbedtls_free( pxZeroedData );
         }
 
         return xResult;
@@ -1558,12 +1545,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pReserved )
     {
         mbedtls_entropy_free( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
-
-        if( xP11Context.xObjectList.xMutex != NULL )
-        {
-            vSemaphoreDelete( xP11Context.xObjectList.xMutex );
-            LogDebug( ( "Deleted xObjectList mutex." ) );
-        }
+        mbedtls_mutex_free( &xP11Context.xObjectList.xMutex );
 
         /* See explanation in prvCheckValidSessionAndModule for this exception. */
         /* coverity[misra_c_2012_rule_10_5_violation] */
@@ -1940,7 +1922,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     if( CKR_OK == xResult )
     {
         /* Get next open session slot. */
-        if( xSemaphoreTake( xP11Context.xSessionMutex, portMAX_DELAY ) == pdTRUE )
+        if( mbedtls_mutex_lock( &xP11Context.xSessionMutex ) == 0 )
         {
             for( ulSessionCount = 0; ulSessionCount < pkcs11configMAX_SESSIONS; ++ulSessionCount )
             {
@@ -1959,7 +1941,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
                 }
             }
 
-            ( void ) xSemaphoreGive( xP11Context.xSessionMutex );
+            ( void ) mbedtls_mutex_unlock( &xP11Context.xSessionMutex );
         }
         else
         {
@@ -1969,23 +1951,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
 
         if( CKR_OK == xResult )
         {
-            pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
-
-            if( NULL == pxSessionObj->xSignMutex )
-            {
-                LogError( ( "Could not open a session. Unable to initialize "
-                            "xSignMutex. Consider increasing heap size." ) );
-                xResult = CKR_HOST_MEMORY;
-            }
-
-            pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
-
-            if( NULL == pxSessionObj->xVerifyMutex )
-            {
-                LogError( ( "Could not open a session. Unable to initialize "
-                            "xVerifyMutex. Consider increasing heap size." ) );
-                xResult = CKR_HOST_MEMORY;
-            }
+            mbedtls_mutex_init( &pxSessionObj->xSignMutex );
+            mbedtls_mutex_init( &pxSessionObj->xVerifyMutex );
         }
     }
 
@@ -2022,15 +1989,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID slotID,
     {
         if( pxSessionObj != NULL )
         {
-            if( pxSessionObj->xSignMutex != NULL )
-            {
-                vSemaphoreDelete( pxSessionObj->xSignMutex );
-            }
-
-            if( pxSessionObj->xVerifyMutex != NULL )
-            {
-                vSemaphoreDelete( pxSessionObj->xVerifyMutex );
-            }
+            mbedtls_mutex_free( &pxSessionObj->xSignMutex );
+            mbedtls_mutex_free( &pxSessionObj->xVerifyMutex );
 
             ( void ) memset( pxSessionObj, 0, sizeof( P11Session_t ) );
             *phSession = CK_INVALID_HANDLE;
@@ -2085,20 +2045,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE hSession )
          */
         mbedtls_pk_free( &pxSession->xSignKey );
         pxSession->xSignKeyHandle = CK_INVALID_HANDLE;
-
-        if( NULL != pxSession->xSignMutex )
-        {
-            vSemaphoreDelete( pxSession->xSignMutex );
-        }
+        mbedtls_mutex_free( &pxSession->xSignMutex );
 
         /* Free the public key context if it exists. */
         mbedtls_pk_free( &pxSession->xVerifyKey );
         pxSession->xVerifyKeyHandle = CK_INVALID_HANDLE;
-
-        if( NULL != pxSession->xVerifyMutex )
-        {
-            vSemaphoreDelete( pxSession->xVerifyMutex );
-        }
+        mbedtls_mutex_free( &pxSession->xVerifyMutex );
 
         mbedtls_sha256_free( &pxSession->xSHA256Context );
 
@@ -2302,11 +2254,11 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
         if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
         {
-            *pxPalHandle = PKCS11_PAL_FindObject( pxPubKeyLabel, pxLabel->ulValueLen );
+            *pxPalHandle = PKCS11_PAL_FindObject( pxPrivKeyLabel, pxLabel->ulValueLen );
         }
         else if( 0 == strncmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
         {
-            *pxPalHandle = PKCS11_PAL_FindObject( pxPrivKeyLabel, pxLabel->ulValueLen );
+            *pxPalHandle = PKCS11_PAL_FindObject( pxPubKeyLabel, pxLabel->ulValueLen );
             /* See explanation in prvCheckValidSessionAndModule for this exception. */
             /* coverity[misra_c_2012_rule_10_5_violation] */
             xIsPrivate = ( CK_BBOOL ) CK_FALSE;
@@ -2407,7 +2359,7 @@ static void prvGetLabel( CK_ATTRIBUTE ** ppxLabel,
 
             /* If a key had been found by prvGetExistingKeyComponent, the keypair context
              * would have been malloc'ed. */
-            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+            pxKeyPair = mbedtls_calloc( 1, sizeof( mbedtls_ecp_keypair ) );
 
             if( pxKeyPair != NULL )
             {
@@ -2489,7 +2441,7 @@ static CK_RV prvCreateRsaPrivateKey( CK_ATTRIBUTE * pxTemplate,
     CK_ATTRIBUTE_PTR pxLabel = NULL;
 
     /* mbedtls_rsa_context must be malloc'ed to use with mbedtls_pk_free function. */
-    mbedtls_rsa_context * pxRsaCtx = pvPortMalloc( sizeof( mbedtls_rsa_context ) );
+    mbedtls_rsa_context * pxRsaCtx = mbedtls_calloc( 1, sizeof( mbedtls_rsa_context ) );
 
     prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
@@ -3187,7 +3139,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     if( xResult == CKR_OK )
     {
         /* Plus one to leave room for a NULL terminator. */
-        pxFindObjectLabel = pvPortMalloc( pTemplate->ulValueLen + 1UL );
+        pxFindObjectLabel = mbedtls_calloc( 1, pTemplate->ulValueLen + 1UL );
         pxSession->xFindObjectLabelLen = pTemplate->ulValueLen;
 
         pxSession->pxFindObjectLabel = pxFindObjectLabel;
@@ -3231,7 +3183,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE hSession,
     /* Clean up memory if there was an error parsing the template. */
     if( ( pxSession != NULL ) && ( xResult != CKR_OK ) && ( xResult != CKR_OPERATION_ACTIVE ) )
     {
-        vPortFree( pxFindObjectLabel );
+        mbedtls_free( pxFindObjectLabel );
         pxSession->pxFindObjectLabel = NULL;
         pxSession->xFindObjectLabelLen = 0;
     }
@@ -3372,7 +3324,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE hSession,
     {
         if( pxSession != NULL )
         {
-            vPortFree( pxSession->pxFindObjectLabel );
+            mbedtls_free( pxSession->pxFindObjectLabel );
             pxSession->pxFindObjectLabel = NULL;
             pxSession->xFindObjectLabelLen = 0;
         }
@@ -3423,7 +3375,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE hSession )
         /*
          * Clean-up find objects state.
          */
-        vPortFree( pxSession->pxFindObjectLabel );
+        mbedtls_free( pxSession->pxFindObjectLabel );
         pxSession->pxFindObjectLabel = NULL;
         pxSession->xFindObjectLabelLen = 0;
     }
@@ -3791,7 +3743,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
     {
         /* Grab the sign mutex.  This ensures that no signing operation
          * is underway on another thread where modification of key would lead to hard fault.*/
-        if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
+        if( 0 == mbedtls_mutex_lock( &pxSession->xSignMutex ) )
         {
             if( ( pxSession->xSignKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xSignKeyHandle != hKey ) )
             {
@@ -3815,7 +3767,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE hSession,
                 }
             }
 
-            ( void ) xSemaphoreGive( pxSession->xSignMutex );
+            ( void ) mbedtls_mutex_unlock( &pxSession->xSignMutex );
 
             /* Key has been parsed into mbedTLS pk structure.
              * Free the memory allocated to copy the key out of flash. */
@@ -3982,7 +3934,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
             /* Sign the data.*/
             if( CKR_OK == xResult )
             {
-                if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
+                if( 0 == mbedtls_mutex_lock( &pxSessionObj->xSignMutex ) )
                 {
                     /* Per mbed TLS documentation, if using RSA, md_alg should
                      * be MBEDTLS_MD_NONE. If ECDSA, md_alg should never be
@@ -4007,7 +3959,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE hSession,
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
-                    ( void ) xSemaphoreGive( pxSessionObj->xSignMutex );
+                    ( void ) mbedtls_mutex_unlock( &pxSessionObj->xSignMutex );
                     /* See explanation in prvCheckValidSessionAndModule for this exception. */
                     /* coverity[misra_c_2012_rule_10_5_violation] */
                     xSignatureGenerated = ( CK_BBOOL ) CK_TRUE;
@@ -4155,7 +4107,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
 
     if( xResult == CKR_OK )
     {
-        if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
+        if( 0 == mbedtls_mutex_lock( &pxSession->xVerifyMutex ) )
         {
             if( ( pxSession->xVerifyKeyHandle == CK_INVALID_HANDLE ) || ( pxSession->xVerifyKeyHandle != hKey ) )
             {
@@ -4163,11 +4115,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                 mbedtls_pk_free( &pxSession->xVerifyKey );
                 mbedtls_pk_init( &pxSession->xVerifyKey );
                 lMbedTLSResult = mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, pucKeyData, ulKeyDataLength );
-                LogError( ( "Failed to initialize verify operation. "
-                            "mbedtls_pk_parse_public_key failed: mbed TLS "
-                            "error = %s : %s.",
-                            mbedtlsHighLevelCodeOrDefault( lMbedTLSResult ),
-                            mbedtlsLowLevelCodeOrDefault( lMbedTLSResult ) ) );
 
                 if( 0 != lMbedTLSResult )
                 {
@@ -4188,9 +4135,14 @@ CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE hSession,
                         pxSession->xVerifyKeyHandle = hKey;
                     }
                 }
+                else
+                {
+                    LogDebug( ( "Found verify key handle." ) );
+                    pxSession->xVerifyKeyHandle = hKey;
+                }
             }
 
-            ( void ) xSemaphoreGive( pxSession->xVerifyMutex );
+            ( void ) mbedtls_mutex_unlock( &pxSession->xVerifyMutex );
             PKCS11_PAL_GetObjectValueCleanup( pucKeyData, ulKeyDataLength );
         }
         else
@@ -4342,7 +4294,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
         /* Perform an RSA verification. */
         if( pxSessionObj->xOperationVerifyMechanism == CKM_RSA_X_509 )
         {
-            if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+            if( 0 == mbedtls_mutex_lock( &pxSessionObj->xVerifyMutex ) )
             {
                 /* Verify the signature. If a public key is present, use it. */
                 if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
@@ -4364,7 +4316,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                     }
                 }
 
-                ( void ) xSemaphoreGive( pxSessionObj->xVerifyMutex );
+                ( void ) mbedtls_mutex_unlock( &pxSessionObj->xVerifyMutex );
             }
             else
             {
@@ -4408,7 +4360,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
 
             if( xResult == CKR_OK )
             {
-                if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+                if( 0 == mbedtls_mutex_lock( &pxSessionObj->xVerifyMutex ) )
                 {
                     /* Verify the signature. If a public key is present, use it. */
                     if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
@@ -4417,7 +4369,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE hSession,
                         lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, pData, ulDataLen, &pxEcdsaContext->Q, &xR, &xS );
                     }
 
-                    ( void ) xSemaphoreGive( pxSessionObj->xVerifyMutex );
+                    ( void ) mbedtls_mutex_unlock( &pxSessionObj->xVerifyMutex );
 
                     if( lMbedTLSResult != 0 )
                     {
@@ -4719,7 +4671,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
                                                  CK_OBJECT_HANDLE_PTR phPublicKey,
                                                  CK_OBJECT_HANDLE_PTR phPrivateKey )
 {
-    uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
+    uint8_t * pucDerFile = mbedtls_calloc( 1, pkcs11KEY_GEN_MAX_DER_SIZE );
     int32_t lMbedTLSResult = 0;
     uint32_t ulIndex = 0;
     mbedtls_pk_context xCtx = { 0 };
@@ -4919,7 +4871,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE hSession,
     }
 
     /* Clean up. */
-    vPortFree( pucDerFile );
+    mbedtls_free( pucDerFile );
     mbedtls_pk_free( &xCtx );
 
     return xResult;

@@ -27,8 +27,8 @@
 #define _AWS_TEST_WIFI_H_
 
 /* Second set of valid Wi-Fi credentials for testing the connection loop. */
-#define testwifiWIFI_SSID        ""
-#define testwifiWIFI_PASSWORD    ""
-#define testwifiWIFI_SECURITY    eWiFiSecurityWPA2
+#define testwifiWIFI_SSID        "Guest"
+#define testwifiWIFI_PASSWORD    "Dummy"
+#define testwifiWIFI_SECURITY    eWiFiSecurityOpen
 
 #endif /* ifndef AWS_TEST_WIFI_H */

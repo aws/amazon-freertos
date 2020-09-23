@@ -409,7 +409,7 @@ static MultithreadTaskParams_t xGlobalTaskParams[ pkcs11testMULTI_THREAD_TASK_CO
 /*-----------------------------------------------------------*/
 /* Stack size of each task. This can be configured in iot_test_pkcs11_config.h. */
 #ifndef pkcs11testMULTI_TASK_STACK_SIZE
-    #define pkcs11testMULTI_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
+    #define pkcs11testMULTI_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 6 )
 #endif
 
 /* Priority of each task. This can be configured in iot_test_pkcs11_config.h. */
@@ -1821,8 +1821,6 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xCertificateHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
 
     CK_BYTE xEcPoint[ 256 ] = { 0 };
     CK_BYTE xPrivateKeyBuffer[ 32 ] = { 0 };

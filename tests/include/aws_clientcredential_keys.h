@@ -37,8 +37,7 @@
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyCLIENT_CERTIFICATE_PEM                   NULL                
-
+#define keyCLIENT_CERTIFICATE_PEM                   NULL
 
 /*
  * @brief PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).

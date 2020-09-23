@@ -11,15 +11,16 @@
                 "${kernel_dir}/include/task.h"
                 "${kernel_dir}/include/portable.h"
                 "${common_dir}/include/iot_logging_task.h"
-                "${abstraction_dir}/wifi/include/iot_wifi.h"
                 "${freertos_plus_dir}/standard/tls/include/iot_tls.h"
                 "${3rdparty_dir}/lwip/src/include/lwip/sockets.h"
+                "${3rdparty_dir}/lwip/src/include/lwip/ip_addr.h"
+                "${3rdparty_dir}/lwip/src/include/lwip/dns.h"
             )
 # list the directories your mocks need
     list(APPEND mock_include_list
+                "${CMAKE_CURRENT_LIST_DIR}/include"
                 "${3rdparty_dir}/lwip/src/include"
                 "${3rdparty_dir}/lwip/src/include/lwip"
-                "${3rdparty_dir}/lwip/contrib/ports/unix/lib"
                 "${3rdparty_dir}/lwip/contrib/ports/unix/port/include"
             )
 #list the definitions of your mocks to control what to be included
@@ -40,10 +41,11 @@
     list(APPEND real_include_directories
                 .
                 ../include
+                "${CMAKE_CURRENT_LIST_DIR}/include"
+                "${3rdparty_dir}/lwip/src/include/lwip"
                 "${3rdparty_dir}/lwip/src/include"
                 "${3rdparty_dir}/lwip/contrib/ports/unix/lib"
                 "${3rdparty_dir}/lwip/contrib/ports/unix/port/include"
-                "${abstraction_dir}/wifi/include"
                 "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
                 "${AFR_ROOT_DIR}/libraries/freertos_plus/standard/tls/include"
                 "${AFR_ROOT_DIR}/freertos_kernel/include/"
@@ -61,7 +63,7 @@
                 "${3rdparty_dir}/lwip/contrib/ports/unix/port/include"
                 "${AFR_ROOT_DIR}/libraries/freertos_plus/standard/tls/include"
                 "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
-                "${abstraction_dir}/wifi/include"
+                "${CMAKE_CURRENT_LIST_DIR}/include"
             )
 
 # =============================  (end edit)  ===================================
@@ -71,7 +73,7 @@
 
     create_mock_list(${mock_name}
                 "${mock_list}"
-                "${CMAKE_SOURCE_DIR}/tools/cmock/project.yml"
+                "${CMAKE_CURRENT_LIST_DIR}/project.yml"
                 "${mock_include_list}"
                 "${mock_define_list}"
             )

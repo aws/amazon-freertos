@@ -26,6 +26,9 @@
 #ifndef _IOT_PKI_UTILS_H_
 #define _IOT_PKI_UTILS_H_
 
+#include <stdint.h>
+#include <stddef.h>
+
 /**
  * @file iot_pki_utils.h
  * @brief Helper functions for PKCS #11
@@ -67,8 +70,8 @@
  * \return 0 on success, -1 on failure.
  */
 /* @[declare_pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
-BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
-                                                  const uint8_t * pxMbedSignature );
+int8_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
+                                              const uint8_t * pxMbedSignature );
 /* @[declare_pkcs11_utils_pkimbedtlssignaturetopkcs11signature] */
 
 
@@ -96,7 +99,7 @@ BaseType_t PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
  *
  */
 /* @[declare_pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
-BaseType_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
-                                                  size_t * pxSigLen );
+int8_t PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
+                                              size_t * pxSigLen );
 /* @[declare_pkcs11_utils_pkipkcs11signaturetombedtlssignature] */
 #endif /* ifndef _IOT_PKI_UTILS_H_ */

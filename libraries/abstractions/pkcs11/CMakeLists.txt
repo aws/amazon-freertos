@@ -77,6 +77,34 @@ if(ECC608_IN_USE)
             AFR::pkcs11_implementation
             AFR::utils
     )
+elseif(AFR_PKCS11_PSA)
+    afr_module(NAME pkcs11_psa INTERFACE)
+    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/psa")
+
+    afr_module_sources(
+        pkcs11_psa
+        INTERFACE
+            "${src_dir}/iot_pkcs11_psa.c"
+            "${src_dir}/iot_pkcs11_psa_input_format.c"
+            "${src_dir}/iot_pkcs11_psa_input_format.h"
+            "${src_dir}/iot_pkcs11_psa_object_management.c"
+            "${src_dir}/iot_pkcs11_psa_object_management.h"
+    )
+
+    afr_module_include_dirs(
+        pkcs11_psa
+        INTERFACE
+            "${scr_dir}"
+    )
+
+    afr_module_dependencies(
+        pkcs11_psa
+        INTERFACE
+            AFR::crypto
+            AFR::pkcs11_implementation
+            AFR::utils
+            3rdparty::mbedtls
+    )
 else()
     afr_module(NAME pkcs11_mbedtls INTERFACE)
     set(src_dir "${CMAKE_CURRENT_LIST_DIR}/mbedtls")
@@ -99,7 +127,6 @@ else()
             3rdparty::mbedtls
     )
 endif()
-
 
 # PKCS11 test
 afr_test_module()

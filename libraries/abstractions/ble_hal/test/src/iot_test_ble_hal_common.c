@@ -106,6 +106,16 @@ static const BTAttribute_t pxAttributeTableB[] =
     {
         .xServiceUUID = bletestsFREERTOS_SVC_B_UUID
     },
+    #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
+        {
+            .xAttributeType = eBTDbIncludedService,
+            .xIncludedService =
+            {
+                .xUuid          = bletestsFREERTOS_SVC_A_UUID,
+                .pxPtrToService = &_xSrvcA
+            }
+        },
+    #endif
     {
         .xAttributeType = eBTDbCharacteristic,
         .xCharacteristic =
@@ -206,14 +216,6 @@ static const BTAttribute_t pxAttributeTableB[] =
         {
             .xUuid        = bletestsFREERTOS_DESCR_D_UUID,
             .xPermissions = ( eBTPermRead )
-        }
-    },
-    {
-        .xAttributeType = eBTDbIncludedService,
-        .xIncludedService =
-        {
-            .xUuid          = bletestsFREERTOS_SVC_A_UUID,
-            .pxPtrToService = &_xSrvcA
         }
     }
 };
@@ -1011,6 +1013,7 @@ void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xSetGetPropertyCb.xStatus );
     TEST_ASSERT_EQUAL( 1, xSetGetPropertyCb.ulNumProperties );
     TEST_ASSERT_EQUAL( xSetGetPropertyCb.xProperties.xType, pxProperty->xType );
+    TEST_ASSERT_LESS_THAN( bletestsMAX_PROPERTY_SIZE, xSetGetPropertyCb.xProperties.xLen );
 
     if( bIsSet == true )
     {
@@ -1512,11 +1515,11 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
 
                 if( pxProperties->pvVal != NULL )
                 {
-                    memcpy( pxSetGetPropertyCb->xProperties.pvVal, pxProperties->pvVal, sizeof( BTBdaddr_t ) );
+                    memcpy( pxSetGetPropertyCb->xProperties.pvVal, pxProperties->pvVal, pxProperties->xLen );
                 }
                 else
                 {
-                    memset( pxSetGetPropertyCb->xProperties.pvVal, 0, sizeof( BTBdaddr_t ) );
+                    memset( pxSetGetPropertyCb->xProperties.pvVal, 0, pxProperties->xLen );
                 }
 
                 break;

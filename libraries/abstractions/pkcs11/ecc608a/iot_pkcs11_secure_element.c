@@ -41,7 +41,7 @@
 
 #include <string.h>
 
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
     #include "iot_test_pkcs11_config.h"
 #endif
 
@@ -233,7 +233,7 @@ const char * pcPkcs11GetThingName( void )
     };
 #endif /* ifdef ATCA_HAL_KIT_HID */
 
-#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#ifdef FREERTOS_ENABLE_UNIT_TESTS
 
 /* This configuration is only suitable for testing of a device and does not enforce good
  * security policies that should be practiced in production */
@@ -298,7 +298,7 @@ const char * pcPkcs11GetThingName( void )
         0x12, 0x00,                                           /*14 */
         0x30, 0x00                                            /*15 */
     };
-#else /* ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS */
+#else /* ifdef FREERTOS_ENABLE_UNIT_TESTS */
 /** Standard Configuration Structure for ATECC608A devices */
     const uint8_t atecc608_config[] =
     {
@@ -311,7 +311,7 @@ const char * pcPkcs11GetThingName( void )
         0x33,                 0x00, 0x1C, 0x00, 0x13, 0x00, 0x13, 0x00, 0x7C, 0x00, 0x1C, 0x00, 0x3C, 0x00, 0x33, 0x00,
         0x3C,                 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x30, 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x30, 0x00,
     };
-#endif /* ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS */
+#endif /* ifdef FREERTOS_ENABLE_UNIT_TESTS */
 
 
 /* Helper function to assign the proper fields to an certificate object from a cert def */
@@ -344,7 +344,7 @@ CK_RV pkcs11_config_cert( pkcs11_lib_ctx_ptr pLibCtx,
         pObject->class_type = CK_CERTIFICATE_CATEGORY_TOKEN_USER;
         pObject->size = g_cert_def_2_device.cert_template_size;
         pObject->data = &g_cert_def_2_device;
-        #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
         #endif
     }
@@ -356,7 +356,7 @@ CK_RV pkcs11_config_cert( pkcs11_lib_ctx_ptr pLibCtx,
         pObject->class_type = CK_CERTIFICATE_CATEGORY_AUTHORITY;
         pObject->size = g_cert_def_1_signer.cert_template_size;
         pObject->data = &g_cert_def_1_signer;
-        #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
         #endif
     }
@@ -408,7 +408,7 @@ CK_RV pkcs11_config_key( pkcs11_lib_ctx_ptr pLibCtx,
         pkcs11_config_init_private( pObject, pLabel->pValue, pLabel->ulValueLen );
         pObject->slot = 0;
         pObject->config = &pSlot->cfg_zone;
-        #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
         #endif
     }
@@ -418,7 +418,7 @@ CK_RV pkcs11_config_key( pkcs11_lib_ctx_ptr pLibCtx,
         pkcs11_config_init_public( pObject, pLabel->pValue, pLabel->ulValueLen );
         pObject->slot = 0;
         pObject->config = &pSlot->cfg_zone;
-        #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        #ifdef FREERTOS_ENABLE_UNIT_TESTS
             pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
         #endif
     }

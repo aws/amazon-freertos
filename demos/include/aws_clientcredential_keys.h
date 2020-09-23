@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
- * FreeRTOS V201906.00 Major
-=======
  * FreeRTOS V202007.00
->>>>>>> 56a4020d6b23f2dfc7c51c89b9dd7efab4d3f4a4
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,44 +27,50 @@
 #define AWS_CLIENT_CREDENTIAL_KEYS_H
 
 /*
- * PEM-encoded client certificate
+ * @brief PEM-encoded client certificate.
  *
- * Must include the PEM header and footer:
+ * @todo If you are running one of the FreeRTOS demo projects, set this
+ * to the certificate that will be used for TLS client authentication.
+ *
+ * @note Must include the PEM header and footer:
  * "-----BEGIN CERTIFICATE-----\n"\
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyCLIENT_CERTIFICATE_PEM \
-"Paste client certificate here."
+#define keyCLIENT_CERTIFICATE_PEM                   NULL
 
 /*
- * PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
- * This is required if you're using JITR, since the issuer (Certificate 
- * Authority) of the client certificate is used by the server for routing the 
- * device's initial request. (The device client certificate must always be 
- * sent as well.) For more information about JITR, see:
- *  https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html, 
+ * @brief PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
+ *
+ * @todo If you are using AWS IoT Just in Time Registration (JITR), set this to
+ * the issuer (Certificate Authority) certificate of the client certificate above.
+ *
+ * @note This setting is required by JITR because the issuer is used by the AWS
+ * IoT gateway for routing the device's initial request. (The device client
+ * certificate must always be sent as well.) For more information about JITR, see:
+ *  https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html,
  *  https://aws.amazon.com/blogs/iot/just-in-time-registration-of-device-certificates-on-aws-iot/.
  *
  * If you're not using JITR, set below to NULL.
- * 
+ *
  * Must include the PEM header and footer:
  * "-----BEGIN CERTIFICATE-----\n"\
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM  NULL
+#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM    NULL
 
 /*
- * PEM-encoded client private key.
+ * @brief PEM-encoded client private key.
  *
- * Must include the PEM header and footer:
+ * @todo If you are running one of the FreeRTOS demo projects, set this
+ * to the private key that will be used for TLS client authentication.
+ *
+ * @note Must include the PEM header and footer:
  * "-----BEGIN RSA PRIVATE KEY-----\n"\
  * "...base64 data...\n"\
  * "-----END RSA PRIVATE KEY-----\n"
  */
-#define keyCLIENT_PRIVATE_KEY_PEM \
-"Paste client private key here."
-
+#define keyCLIENT_PRIVATE_KEY_PEM                   NULL
 
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */

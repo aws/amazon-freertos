@@ -476,7 +476,7 @@ size_t IotNetworkAfr_Send( void * pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength )
 {
-    size_t bytesSent = 0;
+    size_t bytesSent = 0U, bytesRemaining = messageLength;
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
     /* Cast network connection to the correct type. */
@@ -487,18 +487,25 @@ size_t IotNetworkAfr_Send( void * pConnection,
     if( xSemaphoreTake( ( QueueHandle_t ) &( pNetworkConnection->socketMutex ),
                         portMAX_DELAY ) == pdTRUE )
     {
-        socketStatus = SOCKETS_Send( pNetworkConnection->socket,
-                                     pMessage,
-                                     messageLength,
-                                     0 );
+        while( bytesRemaining > 0U )
+        {
+            socketStatus = SOCKETS_Send( pNetworkConnection->socket,
+                                         pMessage,
+                                         bytesRemaining,
+                                         0 );
 
-        if( socketStatus > 0 )
-        {
-            bytesSent = ( size_t ) socketStatus;
-        }
-        else
-        {
-            IotLogError( "Error %ld while sending data.", ( long int ) socketStatus );
+            if( socketStatus > 0 )
+            {
+                bytesSent += ( size_t ) socketStatus;
+                pMessage += ( size_t ) socketStatus;
+                bytesRemaining -= ( size_t ) socketStatus;
+                configASSERT( bytesSent + bytesRemaining == messageLength );
+            }
+            else
+            {
+                IotLogError( "Error %ld while sending data.", ( long int ) socketStatus );
+                break;
+            }
         }
 
         xSemaphoreGive( ( QueueHandle_t ) &( pNetworkConnection->socketMutex ) );

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.3.0
+ * FreeRTOS+TCP V2.2.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -140,6 +140,15 @@ handled.  The value is chosen simply to be easy to spot when debugging. */
 had an invalid length. */
 #define ipINVALID_LENGTH			0x1234U
 
+/* Trace macros to aid in debugging, disabled if ipconfigHAS_PRINTF != 1 */
+#if ( ipconfigHAS_PRINTF == 1 )
+    #define DEBUG_DECLARE_TRACE_VARIABLE( type, var, init )    type var = ( init )
+    #define DEBUG_SET_TRACE_VARIABLE( var, value )  var = ( value )
+#else
+    #define DEBUG_DECLARE_TRACE_VARIABLE( type, var, init )
+    #define DEBUG_SET_TRACE_VARIABLE( var, value )
+#endif
+
 /*-----------------------------------------------------------*/
 
 /* Used in checksum calculation. */
@@ -157,6 +166,12 @@ typedef union _xUnionPtr
 	uint16_t *u16ptr;
 	uint8_t *u8ptr;
 } xUnionPtr;
+
+
+static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( NetworkBufferDescriptor_t )
+{
+    return ( NetworkBufferDescriptor_t *)pvArgument;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -362,7 +377,7 @@ struct freertos_sockaddr xAddress;
 		/* Wait until there is something to do. If the following call exits
 		 * due to a time out rather than a message being received, set a
 		 * 'NoEvent' value. */
-		if ( xQueueReceive( xNetworkEventQueue, ipPOINTER_CAST( void *, &xReceivedEvent ), xNextIPSleep ) == pdFALSE ) 
+		if ( xQueueReceive( xNetworkEventQueue, ( void *) &xReceivedEvent, xNextIPSleep ) == pdFALSE ) 
 		{
 			xReceivedEvent.eEventType = eNoEvent;
 		}
@@ -395,14 +410,14 @@ struct freertos_sockaddr xAddress;
 			case eNetworkRxEvent:
 				/* The network hardware driver has received a new packet.  A
 				pointer to the received buffer is located in the pvData member
-				of the received event structure. */
-				prvHandleEthernetPacket( ipPOINTER_CAST( NetworkBufferDescriptor_t *, xReceivedEvent.pvData ) );
+				of the received event structure. */				
+				prvHandleEthernetPacket( ipCAST_PTR_TO_TYPE_PTR( NetworkBufferDescriptor_t, xReceivedEvent.pvData ) );
 				break;
 
 			case eNetworkTxEvent:
 				/* Send a network packet. The ownership will  be transferred to
 				the driver, which will release it after delivery. */
-				( void ) xNetworkInterfaceOutput( ipPOINTER_CAST( NetworkBufferDescriptor_t *, xReceivedEvent.pvData ), pdTRUE );
+				( void ) xNetworkInterfaceOutput( ipCAST_PTR_TO_TYPE_PTR( NetworkBufferDescriptor_t, xReceivedEvent.pvData ), pdTRUE );
 				break;
 
 			case eARPTimerEvent :
@@ -416,7 +431,7 @@ struct freertos_sockaddr xAddress;
 				usLocalPort. vSocketBind() will actually bind the socket and the
 				API will unblock as soon as the eSOCKET_BOUND event is
 				triggered. */
-				pxSocket = ipPOINTER_CAST( FreeRTOS_Socket_t *, xReceivedEvent.pvData );
+				pxSocket = ipCAST_PTR_TO_TYPE_PTR( FreeRTOS_Socket_t, xReceivedEvent.pvData );
 				xAddress.sin_addr = 0U;	/* For the moment. */
 				xAddress.sin_port = FreeRTOS_ntohs( pxSocket->usLocalPort );
 				pxSocket->usLocalPort = 0U;
@@ -434,14 +449,14 @@ struct freertos_sockaddr xAddress;
 				IP-task to actually close a socket. This is handled in
 				vSocketClose().  As the socket gets closed, there is no way to
 				report back to the API, so the API won't wait for the result */
-				( void ) vSocketClose( ipPOINTER_CAST( FreeRTOS_Socket_t *, xReceivedEvent.pvData ) );
+				( void ) vSocketClose( ipCAST_PTR_TO_TYPE_PTR( FreeRTOS_Socket_t, xReceivedEvent.pvData ) );
 				break;
 
 			case eStackTxEvent :
 				/* The network stack has generated a packet to send.  A
 				pointer to the generated buffer is located in the pvData
 				member of the received event structure. */
-				vProcessGeneratedUDPPacket( ipPOINTER_CAST( NetworkBufferDescriptor_t *, xReceivedEvent.pvData ) );
+				vProcessGeneratedUDPPacket( ipCAST_PTR_TO_TYPE_PTR( NetworkBufferDescriptor_t, xReceivedEvent.pvData ) );
 				break;
 
 			case eDHCPEvent:
@@ -462,13 +477,13 @@ struct freertos_sockaddr xAddress;
 				{
 					#if( ipconfigSELECT_USES_NOTIFY != 0 )
 					{
-						SocketSelectMessage_t *pxMessage = ipPOINTER_CAST( SocketSelectMessage_t *, xReceivedEvent.pvData );
+						SocketSelectMessage_t *pxMessage = ipCAST_PTR_TO_TYPE_PTR( SocketSelectMessage_t, xReceivedEvent.pvData );
 						vSocketSelect( pxMessage->pxSocketSet );
 						( void ) xTaskNotifyGive( pxMessage->xTaskhandle );
 					}
 					#else
-					{
-						vSocketSelect( ipPOINTER_CAST( SocketSelect_t *, xReceivedEvent.pvData ) );
+					{						
+						vSocketSelect( ipCAST_PTR_TO_TYPE_PTR( SocketSelect_t, xReceivedEvent.pvData ) );
 					}
 					#endif	/* ( ipconfigSELECT_USES_NOTIFY != 0 ) */
 				}
@@ -501,7 +516,7 @@ struct freertos_sockaddr xAddress;
 				received a new connection. */
 				#if( ipconfigUSE_TCP == 1 )
 				{
-					pxSocket = ipPOINTER_CAST( FreeRTOS_Socket_t *, xReceivedEvent.pvData );
+					pxSocket = ipCAST_PTR_TO_TYPE_PTR( FreeRTOS_Socket_t, xReceivedEvent.pvData );
 
 					if( xTCPCheckNewClient( pxSocket ) != pdFALSE )
 					{
@@ -944,7 +959,7 @@ NetworkBufferDescriptor_t *pxResult;
 			/* The following statement may trigger a:
 			warning: cast increases required alignment of target type [-Wcast-align].
 			It has been confirmed though that the alignment is suitable. */
-			pxResult = * ( ipPOINTER_CAST( NetworkBufferDescriptor_t **, pucBuffer ) );
+			pxResult = * ( ( const NetworkBufferDescriptor_t **) pucBuffer );
 		}
 		else
 		{
@@ -1153,11 +1168,10 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress,
 			}
 			if( ( uxGetNumberOfFreeNetworkBuffers() >= 3U ) && ( uxNumberOfBytesToSend >= 1U ) && ( xEnoughSpace != pdFALSE ) )
 			{
-				pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
+				pxEthernetHeader = ipCAST_PTR_TO_TYPE_PTR( EthernetHeader_t, pxNetworkBuffer->pucEthernetBuffer );
 				pxEthernetHeader->usFrameType = ipIPv4_FRAME_TYPE;
 				
-
-				pxICMPHeader = ipPOINTER_CAST( ICMPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipIP_PAYLOAD_OFFSET ] ) );
+				pxICMPHeader = ipCAST_PTR_TO_TYPE_PTR( ICMPHeader_t, &( pxNetworkBuffer->pucEthernetBuffer[ ipIP_PAYLOAD_OFFSET ] ) );
 				usSequenceNumber++;
 
 				/* Fill in the basic header information. */
@@ -1289,7 +1303,7 @@ eFrameProcessingResult_t eReturn;
 const EthernetHeader_t *pxEthernetHeader;
 
 	/* Map the buffer onto Ethernet Header struct for easy access to fields. */
-	pxEthernetHeader = ipPOINTER_CAST( const EthernetHeader_t *, pucEthernetBuffer );
+	pxEthernetHeader = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( EthernetHeader_t, pucEthernetBuffer );
 
 	if( memcmp( ipLOCAL_MAC_ADDRESS, pxEthernetHeader->xDestinationAddress.ucBytes, sizeof( MACAddress_t ) ) == 0 )
 	{
@@ -1430,7 +1444,7 @@ eFrameProcessingResult_t eReturned = eReleaseBuffer;
 		eReturned = ipCONSIDER_FRAME_FOR_PROCESSING( pxNetworkBuffer->pucEthernetBuffer );
 
 		/* Map the buffer onto the Ethernet Header struct for easy access to the fields. */
-		pxEthernetHeader = ipPOINTER_CAST( const EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
+		pxEthernetHeader = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( EthernetHeader_t, pxNetworkBuffer->pucEthernetBuffer );
 
 		/* The condition "eReturned == eProcessBuffer" must be true. */
 		#if( ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES == 0 )
@@ -1444,7 +1458,7 @@ eFrameProcessingResult_t eReturned = eReleaseBuffer;
 				/* The Ethernet frame contains an ARP packet. */
 				if( pxNetworkBuffer->xDataLength >= sizeof( ARPPacket_t ) )
 				{
-					eReturned = eARPProcessPacket( ipPOINTER_CAST( ARPPacket_t *, pxNetworkBuffer->pucEthernetBuffer ) );
+					eReturned = eARPProcessPacket( ipCAST_PTR_TO_TYPE_PTR( ARPPacket_t, pxNetworkBuffer->pucEthernetBuffer ) );
 				}
 				else
 				{
@@ -1456,7 +1470,7 @@ eFrameProcessingResult_t eReturned = eReleaseBuffer;
 				/* The Ethernet frame contains an IP packet. */
 				if( pxNetworkBuffer->xDataLength >= sizeof( IPPacket_t ) )
 				{
-					eReturned = prvProcessIPPacket( ipPOINTER_CAST( IPPacket_t *, pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer );
+					eReturned = prvProcessIPPacket( ipCAST_PTR_TO_TYPE_PTR( IPPacket_t, pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer );
 				}
 				else
 				{
@@ -1643,7 +1657,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 				const uint16_t *pusChecksum;
 
 					/* pxProtPack will point to the offset were the protocols begin. */
-					pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pxNetworkBuffer->pucEthernetBuffer[ uxHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+					pxProtPack = ipCAST_PTR_TO_TYPE_PTR( ProtocolPacket_t, &( pxNetworkBuffer->pucEthernetBuffer[ uxHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
 					pusChecksum = ( const uint16_t * ) ( &( pxProtPack->xUDPPacket.xUDPHeader.usChecksum ) );
 					if( *pusChecksum == ( uint16_t ) 0U )
 					{
@@ -1762,7 +1776,7 @@ uint8_t ucProtocol;
 							{
 								/* Map the buffer onto a ICMP-Packet struct to easily access the
 								 * fields of ICMP packet. */
-								ICMPPacket_t *pxICMPPacket = ipPOINTER_CAST( ICMPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+								ICMPPacket_t *pxICMPPacket = ipCAST_PTR_TO_TYPE_PTR( ICMPPacket_t, pxNetworkBuffer->pucEthernetBuffer );
 								if( pxIPHeader->ulDestinationIPAddress == *ipLOCAL_IP_ADDRESS_POINTER )
 								{
 									eReturn = prvProcessICMPPacket( pxICMPPacket );
@@ -1782,7 +1796,7 @@ uint8_t ucProtocol;
 
 						/* Map the buffer onto a UDP-Packet struct to easily access the
 						 * fields of UDP packet. */
-						const UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( const UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+						const UDPPacket_t *pxUDPPacket = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( UDPPacket_t, pxNetworkBuffer->pucEthernetBuffer );
 						uint16_t usLength;
 
 							/* Note the header values required prior to the checksum
@@ -1991,26 +2005,26 @@ uint8_t ucProtocol;
 	size_t uxLength;
 	const IPPacket_t * pxIPPacket;
 	UBaseType_t uxIPHeaderLength;
-	ProtocolPacket_t *pxProtPack;
+	const ProtocolPacket_t *pxProtPack;
 	uint8_t ucProtocol;
 	uint16_t usLength;
 	uint16_t ucVersionHeaderLength;
-	BaseType_t xLocation = 0;
 	size_t uxMinimumLength;
 	BaseType_t xResult = pdFAIL;
+	DEBUG_DECLARE_TRACE_VARIABLE( BaseType_t, xLocation, 0 );
 
 		do
 		{
 			/* Check for minimum packet size: Ethernet header and an IP-header, 34 bytes */
 			if( uxBufferLength < sizeof( IPPacket_t ) )
 			{
-				xLocation = 1;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 1 );
 				break;
 			}
 
 			/* Map the buffer onto a IP-Packet struct to easily access the
 			 * fields of the IP packet. */
-			pxIPPacket = ipPOINTER_CAST( const IPPacket_t *, pucEthernetBuffer );
+			pxIPPacket = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( IPPacket_t, pucEthernetBuffer );
 
 			ucVersionHeaderLength = pxIPPacket->xIPHeader.ucVersionHeaderLength;
 			/* Test if the length of the IP-header is between 20 and 60 bytes,
@@ -2018,7 +2032,7 @@ uint8_t ucProtocol;
 			if( ( ucVersionHeaderLength < ipIPV4_VERSION_HEADER_LENGTH_MIN ) ||
 				( ucVersionHeaderLength > ipIPV4_VERSION_HEADER_LENGTH_MAX ) )
 			{
-				xLocation = 2;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 2 );
 				break;
 			}
 			ucVersionHeaderLength = ( ucVersionHeaderLength & ( uint8_t ) 0x0FU ) << 2;
@@ -2027,7 +2041,7 @@ uint8_t ucProtocol;
 			/* Check if the complete IP-header is transferred. */
 			if( uxBufferLength < ( ipSIZE_OF_ETH_HEADER + uxIPHeaderLength ) )
 			{
-				xLocation = 3;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 3 );
 				break;
 			}
 			/* Check if the complete IP-header plus protocol data have been transferred: */
@@ -2035,7 +2049,7 @@ uint8_t ucProtocol;
 			usLength = FreeRTOS_ntohs( usLength );
 			if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + ( size_t ) usLength ) )
 			{
-				xLocation = 4;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 4 );
 				break;
 			}
 
@@ -2049,7 +2063,7 @@ uint8_t ucProtocol;
 			of this calculation. */
 			/* Map the Buffer onto the Protocol Packet struct for easy access to the
 			 * struct fields. */
-			pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+			pxProtPack = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( ProtocolPacket_t, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
 
 			/* Switch on the Layer 3/4 protocol. */
 			if( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
@@ -2069,12 +2083,12 @@ uint8_t ucProtocol;
 			else
 			{
 				/* Unhandled protocol, other than ICMP, IGMP, UDP, or TCP. */
-				xLocation = 5;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 5 );
 				break;
 			}
 			if( uxBufferLength < uxMinimumLength )
 			{
-				xLocation = 6;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 6 );
 				break;
 			}
 
@@ -2087,7 +2101,7 @@ uint8_t ucProtocol;
 				/* For incoming packets, the length is out of bound: either
 				too short or too long. For outgoing packets, there is a 
 				serious problem with the format/length. */
-				xLocation = 7;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 7 );
 				break;
 			}
 			xResult = pdPASS;
@@ -2095,6 +2109,7 @@ uint8_t ucProtocol;
 
 		if( xResult != pdPASS )
 		{
+			/* NOP if ipconfigHAS_PRINTF != 1 */
 			FreeRTOS_printf( ( "xCheckSizeFields: location %ld\n", xLocation ) );
 		}
 
@@ -2109,16 +2124,14 @@ uint32_t ulLength;
 uint16_t usChecksum, *pusChecksum;
 const IPPacket_t * pxIPPacket;
 UBaseType_t uxIPHeaderLength;
-ProtocolPacket_t *pxProtPack;
+const ProtocolPacket_t *pxProtPack;
 uint8_t ucProtocol;
 #if( ipconfigHAS_DEBUG_PRINTF != 0 )
 	const char *pcType;
 #endif
 uint16_t usLength;
 uint16_t ucVersionHeaderLength;
-
-
-BaseType_t location = 0;
+DEBUG_DECLARE_TRACE_VARIABLE( BaseType_t, xLocation, 0 );
 
 	/* Introduce a do-while loop to allow use of break statements.
 	 * Note: MISRA prohibits use of 'goto', thus replaced with breaks. */
@@ -2128,12 +2141,12 @@ BaseType_t location = 0;
 		if( uxBufferLength < sizeof( IPPacket_t ) )
 		{
 			usChecksum = ipINVALID_LENGTH;
-			location = 1;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 1 );
 			break;
 		}
 
 		/* Parse the packet length. */
-		pxIPPacket = ipPOINTER_CAST( const IPPacket_t *, pucEthernetBuffer );
+		pxIPPacket = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( IPPacket_t, pucEthernetBuffer );
 
 		/* Per https://tools.ietf.org/html/rfc791, the four-bit Internet Header
 		Length field contains the length of the internet header in 32-bit words. */
@@ -2145,7 +2158,7 @@ BaseType_t location = 0;
 		if( uxBufferLength < ( sizeof( IPPacket_t ) + ( uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ) ) )
 		{
 			usChecksum = ipINVALID_LENGTH;
-			location = 2;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 2 );
 			break;
 		}
 		usLength = pxIPPacket->xIPHeader.usLength;
@@ -2153,7 +2166,7 @@ BaseType_t location = 0;
 		if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + ( size_t ) usLength ) )
 		{
 			usChecksum = ipINVALID_LENGTH;
-			location = 3;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 3 );
 			break;
 		}
 
@@ -2165,7 +2178,7 @@ BaseType_t location = 0;
 		and IP headers incorrectly aligned. However, either way, the "third"
 		protocol (Layer 3 or 4) header will be aligned, which is the convenience
 		of this calculation. */
-		pxProtPack = ipPOINTER_CAST( ProtocolPacket_t *, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
+		pxProtPack = ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( ProtocolPacket_t, &( pucEthernetBuffer[ uxIPHeaderLength - ipSIZE_OF_IPv4_HEADER ] ) );
 
 		/* Switch on the Layer 3/4 protocol. */
 		if( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
@@ -2173,7 +2186,7 @@ BaseType_t location = 0;
 			if( uxBufferLength < ( uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_UDP_HEADER ) )
 			{
 				usChecksum = ipINVALID_LENGTH;
-				location = 4;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 4 );
 				break;
 			}
 
@@ -2189,7 +2202,7 @@ BaseType_t location = 0;
 			if( uxBufferLength < ( uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_TCP_HEADER ) )
 			{
 				usChecksum = ipINVALID_LENGTH;
-				location = 5;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 5 );
 				break;
 			}
 
@@ -2206,7 +2219,7 @@ BaseType_t location = 0;
 			if( uxBufferLength < ( uxIPHeaderLength + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_ICMP_HEADER ) )
 			{
 				usChecksum = ipINVALID_LENGTH;
-				location = 6;
+				DEBUG_SET_TRACE_VARIABLE( xLocation, 6 );
 				break;
 			}
 
@@ -2228,7 +2241,7 @@ BaseType_t location = 0;
 		{
 			/* Unhandled protocol, other than ICMP, IGMP, UDP, or TCP. */
 			usChecksum = ipUNHANDLED_PROTOCOL;
-			location = 7;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 7 );
 			break;
 		}
 
@@ -2266,7 +2279,7 @@ BaseType_t location = 0;
 				usChecksum = ipCORRECT_CRC;
 			}
 			#endif
-			location = 8;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 8 );
 			break;
 		}
 		else
@@ -2293,7 +2306,7 @@ BaseType_t location = 0;
 			For outgoing packets, there is a serious problem with the
 			format/length */
 			usChecksum = ipINVALID_LENGTH;
-			location = 9;
+			DEBUG_SET_TRACE_VARIABLE( xLocation, 9 );
 			break;
 		}
 		if( ucProtocol <= ( uint8_t ) ipPROTOCOL_IGMP )
@@ -2301,7 +2314,7 @@ BaseType_t location = 0;
 			/* ICMP/IGMP do not have a pseudo header for CRC-calculation. */
 			usChecksum = ( uint16_t )
 				( ~usGenerateChecksum( 0U,
-					( uint8_t * ) &( pxProtPack->xTCPPacket.xTCPHeader ), ( size_t ) ulLength ) );
+					( const uint8_t * ) &( pxProtPack->xTCPPacket.xTCPHeader ), ( size_t ) ulLength ) );
 		}
 		else
 		{
@@ -2369,7 +2382,8 @@ BaseType_t location = 0;
 	if( ( usChecksum == ipUNHANDLED_PROTOCOL ) || 
 		( usChecksum == ipINVALID_LENGTH ) )
 	{
-		FreeRTOS_printf( ( "CRC error: %04x location %ld\n", usChecksum, location ) );
+		/* NOP if ipconfigHAS_PRINTF != 0 */
+		FreeRTOS_printf( ( "CRC error: %04x location %ld\n", usChecksum, xLocation ) );
 	}
 
 	return usChecksum;
@@ -2578,11 +2592,11 @@ EthernetHeader_t *pxEthernetHeader;
 #endif
 	{
 		/* Map the Buffer to Ethernet Header struct for easy access to fields. */
-		pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
+		pxEthernetHeader = ipCAST_PTR_TO_TYPE_PTR( EthernetHeader_t, pxNetworkBuffer->pucEthernetBuffer );
 
 		/* Swap source and destination MAC addresses. */
-		( void ) memcpy( &( pxEthernetHeader->xDestinationAddress ), &( pxEthernetHeader->xSourceAddress ), sizeof( pxEthernetHeader->xDestinationAddress ) );
-		( void ) memcpy( &( pxEthernetHeader->xSourceAddress) , ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
+		( void ) memcpy( ( void * ) &( pxEthernetHeader->xDestinationAddress ), ( const void * ) ( &( pxEthernetHeader->xSourceAddress ) ), sizeof( pxEthernetHeader->xDestinationAddress ) );
+		( void ) memcpy( ( void * ) &( pxEthernetHeader->xSourceAddress) , ( const void * ) ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
 
 		/* Send! */
 		( void ) xNetworkInterfaceOutput( pxNetworkBuffer, xReleaseAfterSend );
