@@ -140,7 +140,7 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
     uint8_t * pRecvBuffer = ( uint8_t * ) pBuffer;
 
     if( ( pBuffer == NULL ) ||
-        ( bytesToRecv <= 0UL ) ||
+        ( bytesToRecv == 0UL ) ||
         ( pNetworkContext == NULL ) )
     {
         LogError( ( "Invalid parameter: pBuffer=%p, bytesToRecv=%lu, pNetworkContext=%p",
