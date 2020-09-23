@@ -593,14 +593,14 @@
 			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</name>
@@ -608,19 +608,19 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
@@ -633,6 +633,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
@@ -641,16 +651,6 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
@@ -1371,21 +1371,6 @@
 			<name>libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
@@ -2181,6 +2166,21 @@
 			<name>libraries/3rdparty/mbedtls_utils/mbedtls_error.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/src/cborpretty.c</name>

@@ -41,7 +41,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
@@ -53,7 +53,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/pkcs11/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/dev_mode_key_provisioning/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
@@ -68,7 +67,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_utils"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_config"/>
@@ -78,7 +77,6 @@
 								</option>
 								<option id="xilinx.gnu.compiler.symbols.defined.421923162" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;&lt;aws_mbedtls_config.h&gt;&quot;"/>
-									<listOptionValue builtIn="false" value="CONFIG_MEDTLS_USE_AFR_MEMORY"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.180551414" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>

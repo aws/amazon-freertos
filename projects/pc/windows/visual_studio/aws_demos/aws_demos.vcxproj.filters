@@ -45,18 +45,18 @@
 		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\src"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS"/>
+		<Filter Include="libraries\abstractions\pkcs11"/>
 		<Filter Include="vendors\pc\boards\windows\ports\pkcs11"/>
 		<Filter Include="vendors\pc\boards\windows\ports"/>
 		<Filter Include="vendors\pc\boards\windows"/>
 		<Filter Include="vendors\pc\boards"/>
 		<Filter Include="vendors\pc"/>
 		<Filter Include="vendors"/>
-		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
-		<Filter Include="libraries\abstractions\pkcs11"/>
-		<Filter Include="libraries\abstractions\pkcs11\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -332,19 +332,19 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
 			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
-			<Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pkcs11.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\threading_alt.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
-			<Filter>libraries\abstractions\pkcs11\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pki_utils.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
-			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
@@ -832,19 +832,19 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
-			<Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pkcs11.c">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\iot_pkcs11_pal.c">
 			<Filter>vendors\pc\boards\windows\ports\pkcs11</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
-			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\iot_pkcs11_mbedtls.c">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pki_utils.c">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
-			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">

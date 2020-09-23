@@ -53,9 +53,8 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/ota/test"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/dev_mode_key_provisioning/include"/>
@@ -83,7 +82,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_config"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/src"/>
@@ -95,7 +94,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.2079822681" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="XMC4800_F100x2048"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
-									<listOptionValue builtIn="false" value="FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
 									<listOptionValue builtIn="false" value="USE_CMDLIB_WITH_RTOS"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_ECDSA_SIGN_ALT"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_ECDSA_VERIFY_ALT"/>
@@ -119,7 +118,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.preprocessor.def.435702868" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="XMC4800_F100x2048"/>
 									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
-									<listOptionValue builtIn="false" value="FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
 								</option>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.cpp.compiler.base.input.1323046294" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.cpp.compiler.base.input"/>
 							</tool>

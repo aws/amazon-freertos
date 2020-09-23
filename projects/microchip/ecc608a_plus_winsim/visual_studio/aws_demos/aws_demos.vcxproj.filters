@@ -45,9 +45,10 @@
 		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\src"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS"/>
+		<Filter Include="libraries\abstractions\pkcs11"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\hal"/>
 		<Filter Include="vendors\microchip\secure_elements\lib"/>
 		<Filter Include="vendors\microchip\secure_elements"/>
@@ -57,7 +58,6 @@
 		<Filter Include="vendors\microchip\secure_elements\third_party\hidapi"/>
 		<Filter Include="vendors\microchip\secure_elements\third_party"/>
 		<Filter Include="libraries\abstractions\pkcs11\ecc608a"/>
-		<Filter Include="libraries\abstractions\pkcs11"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\atcacert"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\basic"/>
 		<Filter Include="vendors\microchip\secure_elements\lib\crypto"/>
@@ -131,7 +131,8 @@
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\3rdparty\mbedtls_utils"/>
-		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls"/>
+		<Filter Include="libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
 		<Filter Include="libraries\3rdparty\tinycbor\src"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
@@ -343,8 +344,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
 			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
-			<Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pkcs11.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.h">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
@@ -508,10 +509,10 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
-			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pki_utils.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
@@ -862,8 +863,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h">
 			<Filter>libraries\3rdparty\mbedtls_utils</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\threading_alt.h">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
@@ -999,8 +1000,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
-			<Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pkcs11.c">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c">
 			<Filter>vendors\microchip\secure_elements\lib\hal</Filter>
@@ -1221,10 +1222,10 @@
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c">
 			<Filter>vendors\microchip\secure_elements\lib\pkcs11</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
-			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pki_utils.c">
+			<Filter>libraries\abstractions\pkcs11\FreeRTOS-PKCS\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">

@@ -1,6 +1,6 @@
 ACTIVE_CONFIG_NAME=Debug
 AppCompatibilitySet=1
-DEVICE_DESC=Package\= LQFP100  \nROM\= 2048 KB Flash  \nRAM\= 352 KB RAM  \nInOut\= 55 digital I/O  \nADC\= 24 ADC Channels  \nDAC\= 2 DAC Channels, 12 bit  \nTimed_InOut\= 26 Timer, 48 CAPCOM channels  \nSerial\= 4 USIC channels, EtherCAT, ETH, USB, CAN  \nDMA\= 8 DMA channels, ETH DMA, USB DMA   \nTouch\= Touch and LED matrix control  \n
+DEVICE_DESC=Package\= LQFP100  \nROM\= 256 KB Flash  \nRAM\= 352 KB RAM  \nInOut\= 55 digital I/O  \nADC\= 24 ADC Channels  \nDAC\= 2 DAC Channels, 12 bit  \nTimed_InOut\= 26 Timer, 48 CAPCOM channels  \nSerial\= 4 USIC channels, EtherCAT, ETH, USB, CAN  \nDMA\= 8 DMA channels, ETH DMA, USB DMA   \nTouch\= Touch and LED matrix control  \n
 DEVICE_NAME=XMC4800-F100x2048
 DEVICE_PACKAGE=LQFP100
 DEVICE_PACK_VERSION=2.2.2

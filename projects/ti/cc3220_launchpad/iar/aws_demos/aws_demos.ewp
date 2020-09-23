@@ -221,7 +221,6 @@
 				<option>
 					<name>CCDefines</name>
 					<state>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;</state>
-					<state>CONFIG_MEDTLS_USE_AFR_MEMORY</state>
 					<state>_DLIB_FILE_DESCRIPTOR</state>
 				</option>
 				<option>
@@ -370,8 +369,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
@@ -390,7 +388,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_config</state>
@@ -1486,19 +1484,40 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>mbedtls</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h</name>
-					</file>
-				</group>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h</name>
-					</file>
+					<name>FreeRTOS-PKCS</name>
+					<group>
+						<name>source</name>
+						<group>
+							<name>include</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pkcs11.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pkcs11_pal.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pki_utils.h</name>
+							</file>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pkcs11.c</name>
+						</file>
+						<group>
+							<name>portable</name>
+							<group>
+								<name>mbedtls</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\iot_pkcs11_mbedtls.c</name>
+								</file>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\threading_alt.h</name>
+								</file>
+							</group>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pki_utils.c</name>
+						</file>
+					</group>
 				</group>
 			</group>
 			<group>
@@ -1588,21 +1607,6 @@
 					</group>
 				</group>
 				<group>
-					<name>pkcs11</name>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h</name>
-						</file>
-					</group>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
 					<name>crypto</name>
 					<group>
 						<name>src</name>
@@ -1624,17 +1628,11 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c</name>
-						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h</name>
 						</file>
 					</group>
 				</group>
@@ -2441,18 +2439,6 @@
 				</group>
 			</group>
 			<group>
-				<name>pkcs11</name>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h</name>
-				</file>
-			</group>
-			<group>
 				<name>mbedtls_utils</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_utils.c</name>
@@ -2462,6 +2448,18 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.c</name>
+				</file>
+			</group>
+			<group>
+				<name>pkcs11</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h</name>
 				</file>
 			</group>
 			<group>

@@ -1477,14 +1477,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</name>
@@ -1492,19 +1492,29 @@
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -1515,16 +1525,6 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
@@ -2842,29 +2842,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1580973123184</id>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-true-r_sci_rx|r_bsp|r_byteq|r_ether_rx|r_flash_rx|r_s12ad_rx|r_sci_rx </arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
+	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AWS_IOT_MCU_ROOT</name>
 			<value>$%7BPARENT-5-PROJECT_LOC%7D</value>
-		</variable>
-		<variable>
-			<name>SMC_GENERATED_LOC</name>
-			<value>$%7BAFR_HOME%7D/vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen</value>
-		</variable>
-		<variable>
-			<name>SMC_LINKED_LOC</name>
-			<value>$%7BPROJECT_LOC%7D/vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen</value>
 		</variable>
 	</variableList>
 </projectDescription>
