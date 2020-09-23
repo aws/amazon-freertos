@@ -36,6 +36,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
+#include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 
@@ -111,6 +112,7 @@ static uint64_t PIC32MZ_HW_TRNG_Get( void );
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

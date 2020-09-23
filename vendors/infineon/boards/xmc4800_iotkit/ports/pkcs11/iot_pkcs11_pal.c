@@ -359,6 +359,7 @@ void PKCS11_PAL_GetObjectValueCleanup( CK_BYTE_PTR pucData,
 CK_RV PKCS11_PAL_Initialize( void )
 {   
     CK_RV xResult = CKR_OK;
+    CRYPTO_Init();
 
     E_EEPROM_XMC4_Init( &e_eeprom, sizeof( P11KeyConfig_t ) );
 
