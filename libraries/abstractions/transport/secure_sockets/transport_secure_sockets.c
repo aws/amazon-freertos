@@ -94,7 +94,7 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
     int32_t transportSocketStatus = SOCKETS_ERROR_NONE;
 
     if( ( pMessage == NULL ) ||
-        ( bytesToSend <= 0UL ) ||
+        ( bytesToSend == 0UL ) ||
         ( pNetworkContext == NULL ) )
     {
         LogError( ( "Invalid parameter: pMessage=%p, bytesToSend=%lu, pNetworkContext=%p",
