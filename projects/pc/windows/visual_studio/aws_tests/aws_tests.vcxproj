@@ -164,6 +164,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include\core_mqtt.h"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include\core_mqtt_state.h"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include\core_mqtt_serializer.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h"/>
@@ -400,6 +403,9 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration-tests\mqtt_system_test.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c"/>
