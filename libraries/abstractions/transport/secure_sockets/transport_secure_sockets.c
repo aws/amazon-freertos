@@ -57,7 +57,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
  *
  * @param[out] pNetworkContext The output parameter to return the created network context.
  * @param[in] pServerInfo Server connection info.
- * @param[in] pSocketsConfig socket configs for the connection.
+ * @param[in] pSocketsConfig Socket configurations for the connection.
  *
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY,
