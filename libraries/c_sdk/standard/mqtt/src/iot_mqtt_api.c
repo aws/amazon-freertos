@@ -850,21 +850,6 @@ IotMqttError_t IotMqtt_Init( void )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
 
-    /* Call any additional serializer initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_InitSerializeAdditional
-            if( _IotMqtt_InitSerializeAdditional() == false )
-            {
-                status = IOT_MQTT_INIT_FAILED;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        #endif
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
     /* Log initialization status. */
     if( status != IOT_MQTT_SUCCESS )
     {
@@ -882,14 +867,6 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup( void )
 {
-    /* Call any additional serializer cleanup initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_CleanupSerializeAdditional
-            _IotMqtt_CleanupSerializeAdditional();
-        #endif
-    #endif
-
     IotLogInfo( "MQTT library cleanup done." );
 }
 
