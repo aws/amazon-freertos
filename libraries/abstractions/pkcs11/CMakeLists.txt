@@ -1,7 +1,24 @@
-if(AFR_ENABLE_UNIT_TESTS)
-    add_subdirectory(utest)
-    return()
-endif()
+######################################################
+# PKCS #11 Utils Module
+######################################################
+
+afr_module(NAME pkcs11_utils)
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
+
+afr_module_sources(
+    pkcs11_utils
+    PRIVATE
+        "${src_dir}/iot_pki_utils.c"
+        "${inc_dir}/iot_pki_utils.h"
+)
+
+afr_module_include_dirs(
+    pkcs11_utils
+    PUBLIC "${inc_dir}"
+)
+
 
 ######################################################
 # PKCS #11 Wrapper Module
@@ -12,25 +29,31 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
 
 afr_module_sources(
-    ${AFR_CURRENT_MODULE}
+    pkcs11
     PRIVATE
         "${inc_dir}/iot_pkcs11.h"
         "${src_dir}/iot_pkcs11.c"
 )
 
 afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC "${inc_dir}"
+    pkcs11
+    PUBLIC 
+        "${inc_dir}"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
-        3rdparty::pkcs11
+    PRIVATE
         AFR::pkcs11_implementation
+        3rdparty::pkcs11
+    PUBLIC
+        AFR::common
 )
 ######################################################
 
+######################################################
+# PKCS #11 Implementation Module
+######################################################
 afr_module(NAME pkcs11_implementation)
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
@@ -49,11 +72,10 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         3rdparty::pkcs11 
-        AFR::pkcs11
-        AFR::common
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
-	    AFR::utils
+        AFR::pkcs11_utils
+        AFR::pkcs11
 )
 
 
@@ -104,7 +126,6 @@ if(ECC608_IN_USE)
         INTERFACE
             AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
     )
 elseif(AFR_PKCS11_PSA)
     afr_module(NAME pkcs11_psa INTERFACE)
@@ -131,12 +152,11 @@ elseif(AFR_PKCS11_PSA)
         INTERFACE
             AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
             3rdparty::mbedtls
     )
 else()
     afr_module(NAME pkcs11_mbedtls INTERFACE)
-    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/mbedtls")
+    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/portable/mbedtls")
 
     afr_module_sources(
         pkcs11_mbedtls 
@@ -152,7 +172,6 @@ else()
         INTERFACE
             AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
             3rdparty::mbedtls
     )
 endif()
@@ -199,4 +218,5 @@ afr_module_dependencies(
     INTERFACE
         AFR::pkcs11
         AFR::crypto
+        AFR::pkcs11_utils
 )
