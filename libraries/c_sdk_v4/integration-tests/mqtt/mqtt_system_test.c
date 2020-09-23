@@ -50,19 +50,30 @@
 /* Include clock for timer. */
 #include "clock.h"
 
-/* Ensure that config macros, required for TLS connection, have been defined. */
-#ifndef BROKER_ENDPOINT
-    #error "BROKER_ENDPOINT should be defined for the MQTT integration tests."
-#endif
+/**************************************************/
+/******* DO NOT CHANGE the following order ********/
+/**************************************************/
 
-#ifndef SERVER_ROOT_CA_CERT
-    #error "SERVER_ROOT_CA_CERT should be defined for the MQTT integration tests."
-#endif
-
-/**
- * @brief Length of MQTT server host name.
+/* Include logging header files and define logging macros in the following order:
+ * 1. Include the header file "logging_levels.h".
+ * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
+ * the logging configuration for DEMO.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
  */
-#define BROKER_ENDPOINT_LENGTH                  ( ( uint16_t ) ( sizeof( BROKER_ENDPOINT ) - 1 ) )
+
+#include "logging_levels.h"
+
+/* Logging configuration for the Demo. */
+#ifndef LIBRARY_LOG_NAME
+    #define LIBRARY_LOG_NAME    "TEST"
+#endif
+
+#ifndef LIBRARY_LOG_LEVEL
+    #define LIBRARY_LOG_LEVEL    LOG_INFO
+#endif
+#include "logging_stack.h"
+
+/*********************************************************/
 
 /**
  * @brief A valid starting packet ID per MQTT spec. Start from 1.

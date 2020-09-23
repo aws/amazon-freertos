@@ -23,4 +23,5 @@ afr_module_dependencies(
     PRIVATE 
         AFR::core_mqtt
         AFR::transport
+        AFR::common
 )

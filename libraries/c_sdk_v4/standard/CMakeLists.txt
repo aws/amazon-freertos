@@ -25,3 +25,9 @@ afr_module_include_dirs(
     PRIVATE
         ${MQTT_INCLUDE_PRIVATE_DIRS}
 )
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::common
+)
