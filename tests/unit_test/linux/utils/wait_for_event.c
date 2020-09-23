@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-
 #include "wait_for_event.h"
 
 struct event
