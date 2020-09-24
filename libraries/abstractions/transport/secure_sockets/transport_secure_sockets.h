@@ -59,14 +59,13 @@
 #include "logging_stack.h"
 
 /**
- * @brief The NetworkContext is an incomplete type. An implementation of this
- * interface must define what pContext points to as per the requirements. This context
- * is passed into the network interface functions.
+ * @brief Definition of the network context for the transport interface
+ * implementation that uses Secure Sockets API.
  */
 struct NetworkContext
 {
     /**
-     * @brief Points to the context for each interface.
+     * @brief Points to the secure socket context.
      */
     void * pContext;
 };
@@ -167,7 +166,7 @@ TransportSocketStatus_t SecureSocketsTransport_Connect( NetworkContext_t * pNetw
  * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
  *         #TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, #TRANSPORT_SOCKET_STATUS_INTERNAL_ERROR on failure.
  */
-int32_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext );
+TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_t * pNetworkContext );
 
 
 /**
