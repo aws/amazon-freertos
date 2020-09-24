@@ -10,7 +10,7 @@
                             "Full_PKCS11_NoObject",
                             "Full_PKCS11_RSA",
                             "Full_PKCS11_EC"],
-            "patterns": "all"
+            "patterns": "default_patterns"
         }
     ],
     "flash_command": "${DIR_PATH}/esp32_build.py"

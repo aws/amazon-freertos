@@ -206,6 +206,9 @@ class Occurrence():
     
     def __str__(self):
         return f'Pattern {self.pattern.pattern} found at File: {self.file}, Line: {self.line}, Index: {self.index}'
+    
+    def __repr__(self):
+        return f'({self.pattern}, {self.file}, {self.line}, {self.index})'
 
 class Pattern():
     def __init__(self, pattern, transformation):
@@ -328,6 +331,12 @@ class Mutator():
         for f in self.olds:
             source_code = open(f).read().split('\n')
             for line in self.lines_to_mutate[f]:
+                # do not mutate preprocessor, comments, or assert statements
+                if (source_code[line - 1].strip().startswith("#") or 
+                    source_code[line - 1].strip().startswith("/*") or
+                    source_code[line - 1].strip().startswith("//") or
+                    source_code[line - 1].strip().startswith("*/")):
+                    continue
                 number_of_substrings_found = source_code[line - 1].count(m)
                 mutate_at_index = 0
                 if number_of_substrings_found > 0 :
@@ -365,6 +374,36 @@ class Mutator():
         """ Returns a list of flattened Pattern objects
         """
         return self.mutation_patterns
+
+    def generateMutants(self, mutants_per_pattern=None, random=False):
+        """ Returns a list of occurrences given
+
+        For each pattern, the list contains a maximum of `mutants_per_pattern` number of 
+        occurrences
+
+        If `random` is True, then the list is shuffled using this mutator's rng
+        """
+        utils.yellow_print("Searching for patterns...")
+        # list of mutations to execute, contains occurrence objects
+        mutations_list = []
+        # dictionary that maps a pattern to the list of occurrences
+        mutations_dict = {}
+        # go through each pattern
+        for mp in self.getPatterns():
+            # find their occurrences
+            occurrences_with_mp = self.findOccurrences(mutation_pattern=mp)
+            # for o in occurrences_with_mp:
+            #     utils.yellow_print(o)
+            # if occurrences are found add them to dictionary
+            if len(occurrences_with_mp) > 0:
+                if mp not in mutations_dict:
+                    mutations_dict[mp] = []
+                mutations_dict[mp] += occurrences_with_mp[0:mutants_per_pattern]
+        for mp in mutations_dict:
+            mutations_list += mutations_dict[mp]
+        if random:
+            self.rng.shuffle(mutations_list)
+        return mutations_list
     
     def nextRandomPattern(self):
         """ Gets a random pattern

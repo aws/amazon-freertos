@@ -4,7 +4,7 @@
             "name": "Full_Wifi",
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[]},
             "test_groups": ["Full_WiFi", "Quarantine_WiFi"],
-            "patterns": "all"
+            "patterns": "default_patterns"
         }
     ],
     "flash_command": "${DIR_PATH}/esp32_build.py"

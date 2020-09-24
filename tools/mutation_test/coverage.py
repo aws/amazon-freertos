@@ -132,16 +132,11 @@ def coverage_map():
     # WIFINetworkDelete
     for i in range(1011, 1067 + 1):
         line[i] = ["WiFiNetworkAddGetDelete"]
-
-
     with open('wifi_line_coverage.json', 'w', encoding='utf-8') as f:
         json.dump(line, f, ensure_ascii=False, indent=4, sort_keys=True)
 
 
 def main():
-    coverage_map()
-    sys.exit()
-
     parser = argparse.ArgumentParser('Function Coverage Tool')
     parser.add_argument(
         '--src_config', '-s',
