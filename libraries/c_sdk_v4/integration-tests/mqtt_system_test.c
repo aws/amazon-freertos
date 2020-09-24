@@ -39,6 +39,9 @@
 /* Include connection configurations header. */
 #include "aws_clientcredential.h"
 
+/* Include port-specific malloc/free functions. */
+#include "portmacro.h"
+
 /* Include paths for public enums, structures, and macros. */
 #include "core_mqtt.h"
 #include "core_mqtt_state.h"
@@ -579,10 +582,10 @@ static void eventCallback( MQTTContext_t * pContext,
             incomingInfo.pTopicName = NULL;
             incomingInfo.pPayload = NULL;
             /* Allocate buffers and copy information of topic name and payload. */
-            incomingInfo.pTopicName = malloc( pPublishInfo->topicNameLength );
+            incomingInfo.pTopicName = pvPortMalloc( pPublishInfo->topicNameLength );
             TEST_ASSERT_NOT_NULL( incomingInfo.pTopicName );
             memcpy( ( void * ) incomingInfo.pTopicName, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
-            incomingInfo.pPayload = malloc( pPublishInfo->payloadLength );
+            incomingInfo.pPayload = pvPortMalloc( pPublishInfo->payloadLength );
             TEST_ASSERT_NOT_NULL( incomingInfo.pPayload );
             memcpy( ( void * ) incomingInfo.pPayload, pPublishInfo->pPayload, pPublishInfo->payloadLength );
 
@@ -761,7 +764,7 @@ TEST_SETUP( MQTT_Integration )
     socketsConfig.maxFragmentLength = 0;
     socketsConfig.disableSni = true;
     socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
-    socketsConfig.rootCaSize = sizeof( SERVER_ROOT_CA_CERT ) - 1U;
+    socketsConfig.rootCaSize = sizeof( SERVER_ROOT_CA_CERT );
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
@@ -782,12 +785,12 @@ TEST_TEAR_DOWN( MQTT_Integration )
     /* Free memory, if allocated during test case execution. */
     if( incomingInfo.pTopicName != NULL )
     {
-        free( ( void * ) incomingInfo.pTopicName );
+        pvPortFree( ( void * ) incomingInfo.pTopicName );
     }
 
     if( incomingInfo.pPayload != NULL )
     {
-        free( ( void * ) incomingInfo.pPayload );
+        pvPortFree( ( void * ) incomingInfo.pPayload );
     }
 
     /* Terminate MQTT connection. */
