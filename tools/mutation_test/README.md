@@ -43,6 +43,16 @@ Some features that this script supports are:
   
 ---
 
+## Quick Start
+
+Install [python3](https://www.python.org/downloads/)
+
+Install requirements: `pip install -r requirements.txt`
+
+For available commands and arguments: `./mutation_runner.py -h`
+
+Try: `./mutation_runner.py start -s wifi -m 3 -c -r`
+
 ## Usage
 
 ### Prerequisites
@@ -51,7 +61,7 @@ Install [python3](https://www.python.org/downloads/)
 
 Install requirements: `pip install -r requirements.txt`
 
-### For available commands and arguments: ./mutation_runner.py -h
+### For available commands and arguments: `./mutation_runner.py -h`
 
 We will now walk through an example for setting up mutation testing for the WiFi library tests.
 
