@@ -43,7 +43,9 @@ Some features that this script supports are:
   
 ---
 
-## Quick Start
+## Quick Start for ESP32
+
+#### Prerequisites
 
 Install [python3](https://www.python.org/downloads/)
 
@@ -51,7 +53,9 @@ Install requirements: `pip install -r requirements.txt`
 
 For available commands and arguments: `./mutation_runner.py -h`
 
-Try: `./mutation_runner.py start -s wifi -m 3 -c -r`
+Be able to run the WiFi tests with [ESP32 Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html).
+
+#### Try: `./mutation_runner.py start -s wifi -m 3 -c -r`
 
 ## Usage
 
@@ -63,7 +67,7 @@ Install requirements: `pip install -r requirements.txt`
 
 ### For available commands and arguments: `./mutation_runner.py -h`
 
-We will now walk through an example for setting up mutation testing for the WiFi library tests.
+We will now walk through an example for setting up mutation testing for the WiFi library tests on ESP32.
 
 ### 1. Set up various requirements for the test group.
 
