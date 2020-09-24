@@ -2,6 +2,7 @@
 afr_module(NAME transport_interface_secure_sockets INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
+
 # The single source of truth for the transport_interface.h is in the coreMQTT repository.
 # In the FreeRTOS Device Software download page in AWS IoT Core, it is possible
 # to choose coreHTTP instead of coreMQTT. In this case, it is necessary to check
@@ -13,7 +14,6 @@ elseif( EXISTS ${MODULES_DIR}/standard/coreHTTP/source )
 else()
     message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
 endif()
-
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
