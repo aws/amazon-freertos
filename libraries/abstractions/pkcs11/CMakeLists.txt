@@ -45,8 +45,8 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         AFR::pkcs11_implementation
-        3rdparty::pkcs11
     PUBLIC
+        3rdparty::pkcs11
         AFR::common
 )
 ######################################################
