@@ -11,7 +11,7 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE 
         AFR::core_mqtt
-        AFR::transport
+        AFR::transport_interface_secure_sockets
         AFR::common
         AFR::platform
 )
