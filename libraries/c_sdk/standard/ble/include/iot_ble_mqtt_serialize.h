@@ -34,7 +34,7 @@
 
 #include "aws_clientcredential.h"
 #include "iot_ble_data_transfer.h"
-#include "mqtt_lightweight.h"
+#include "core_mqtt_serializer.h"
 
 /**
  *  @defgroup
