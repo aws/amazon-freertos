@@ -8,6 +8,8 @@ afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
+# The single source of truth for the transport_interface.h is in the coreMQTT repository.
+set(transport_interface_dir "${AFR_ROOT_DIR}/libraries/c_sdk_v4/standard/coreMQTT/source/portable")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -25,7 +27,7 @@ afr_module_dependencies(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-       "${inc_dir}"
+       "${transport_interface_dir}"
        "${src_dir}"
 )
 
