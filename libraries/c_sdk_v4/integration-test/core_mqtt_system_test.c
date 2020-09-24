@@ -75,13 +75,10 @@
 #endif
 #include "logging_stack.h"
 
-/*********************************************************/
-
 /**************Default Configurations values***********************/
 
 #ifndef BROKER_ENDPOINT
-    /*#define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT */
-    #define BROKER_ENDPOINT    "35.161.23.91"
+    #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
 #ifndef BROKER_PORT
@@ -89,34 +86,9 @@
 #endif
 
 #ifndef SERVER_ROOT_CA_CERT
-    #define SERVER_ROOT_CA_CERT                                          \
-    "-----BEGIN CERTIFICATE-----\n"                                      \
-    "MIIDsTCCApmgAwIBAgIUVnTSqxmmqWDnbPSI+gN6Ym7wODMwDQYJKoZIhvcNAQEL\n" \
-    "BQAwaDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAldBMRAwDgYDVQQHDAdTZWF0dGxl\n" \
-    "MRAwDgYDVQQKDAdBV1MgSW9UMREwDwYDVQQLDAhGcmVlUlRPUzEVMBMGA1UEAwwM\n" \
-    "TW9zcXVpdHRvIENBMB4XDTIwMDcyMzIzMTUzMloXDTIxMDcyMzIzMTUzMlowaDEL\n" \
-    "MAkGA1UEBhMCVVMxCzAJBgNVBAgMAldBMRAwDgYDVQQHDAdTZWF0dGxlMRAwDgYD\n" \
-    "VQQKDAdBV1MgSW9UMREwDwYDVQQLDAhGcmVlUlRPUzEVMBMGA1UEAwwMTW9zcXVp\n" \
-    "dHRvIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4GCGd+8+ykSz\n" \
-    "CUCaQUS5W0nwuyvUPW3l1cZcCz7npInj6S9d1IR3P4WadnZSO+grcNRhRGs9pjO3\n" \
-    "Yo6wlKaVRYSEqQMz3wrll7/8O0Z0gGsOWkW99GZ9iXQLbfQuyR7FX+z7F9AcFMgG\n" \
-    "Zo9waEl3Tt44aZ3TNjyvuCNxTMU+7p+2vQNptTinCZUwNSs8X6WsXDhtzTfGBlHv\n" \
-    "reHGF3nJsjFeq84ZEPBg1Fmyq+gjpA5ycltp6/HoCxQ6iGKZJ00Z0wwcOIApfUVz\n" \
-    "72s6gI2UxMNdHSStV/2lOCyF1OCE58Q9C9og1TXyFkiQHTTUCMdhga/pYTxP/j3r\n" \
-    "2wx1lArAsQIDAQABo1MwUTAdBgNVHQ4EFgQUxqsCLdnLa1ZVjHCwDyp6xJPpJY8w\n" \
-    "HwYDVR0jBBgwFoAUxqsCLdnLa1ZVjHCwDyp6xJPpJY8wDwYDVR0TAQH/BAUwAwEB\n" \
-    "/zANBgkqhkiG9w0BAQsFAAOCAQEAwslFyTW8UAJlrsTpLk0mIMypQtJ7yPh7dASw\n" \
-    "BwekolP72K8fmbGsuIgBtCkiFX6lpCV8ZeiRM6E+jWlS3hXGI03yrFsJDBt4ALq9\n" \
-    "6sNh/Ou5YFIQIwRleg8Uv1ly0ebgN0oNsOq0lCh7UmO4fDXerFjJUAj3uVNbTZBA\n" \
-    "POZ+UMRme7xZ5zHzTBqwrXPkO2iHvP/PMCc6jywqAxPOP2rHzx/ftIEmFztTGjVd\n" \
-    "W+n5mnYGvLnrfv1u/EJ5aYtpNL1ZNdmWV7ZhMc5YqUyeyYe53Q7pEiRsNuB/1ig/\n" \
-    "i1amG9CzGw3S/xwVkSs2LkMzbqR2W70KXY7EEoKD/mSV61KSBA==\n"             \
-    "-----END CERTIFICATE-----"
+    #error "Please define SERVER_ROOT_CA_CERT macro for signing CA of server certificate."
 #endif /* ifndef SERVER_ROOT_CA_CERT */
 
-#ifndef SERVER_ROOT_CA_CERT
-    #error "Please define SERVER_ROOT_CA_CERT for Root CA of server certificate."
-#endif /* ifndef SERVER_ROOT_CA_CERT */
 /**********************End Configurations********************************/
 
 /**
