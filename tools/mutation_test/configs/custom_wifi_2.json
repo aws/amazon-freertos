@@ -5,7 +5,7 @@
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[266, 309],[312,355]]},
             "test_groups": ["WiFiOnOffLoop"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "mutants_per_pattern": 20,
             "custom": "True"
         },
         {
@@ -13,7 +13,7 @@
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[614,643],[646,680]]},
             "test_groups": ["WiFiMode"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "mutants_per_pattern": 20,
             "custom": "True"
         },
         {
@@ -21,7 +21,7 @@
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[867,885],[1011,1067],[888,957],[960,1008]]},
             "test_groups": ["WiFiNetworkAddGetDelete"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "mutants_per_pattern": 20,
             "custom": "True"
         },
         {
@@ -29,7 +29,7 @@
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[363,448],[249,263],[451,479]]},
             "test_groups": ["WIFI_ConnectAP_InvalidPassword"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "mutants_per_pattern": 20,
             "custom": "True"
         },
         {
@@ -37,7 +37,7 @@
             "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[249,264],[363,448]]},
             "test_groups": ["WiFiConnectMultipleAP"],
             "patterns": "custom_patterns",
-            "total_times": 20,
+            "mutants_per_pattern": 20,
             "custom": "True"
         }
     ],

@@ -4,7 +4,7 @@ import sys
 import os
 import random
 
-from typing import Tuple
+from typing import Tuple, List
 
 NULL_STRING = " "
 
@@ -49,7 +49,7 @@ pattern_dict = {
 
     "default_patterns" : {
         " < " : 
-            [ " != ", " > ", " <= ", " >= ", " == " ],
+            [ " == ", " != ", " > ", " <= ", " >= "],
         " > " : 
             [ " != ", " < ", " <= ", " >= ", " == " ],
         "<=" : 
@@ -198,6 +198,15 @@ pattern_dict = {
 
 
 class Occurrence():
+    """ Object to keep track of a pattern's occurrence.
+
+    Access the object's fields directly.
+
+    `pattern`: a Pattern type.
+    `file`: str containing path to the file (source code).
+    `line`: int containing the line in the file where the `pattern` is found.
+    `index`: int representing the index of the line where the `pattern` occurs.
+    """
     def __init__(self, pattern, file, line, index):
         self.pattern = pattern
         self.file = file
@@ -211,6 +220,16 @@ class Occurrence():
         return f'({self.pattern}, {self.file}, {self.line}, {self.index})'
 
 class Pattern():
+    """ Represents a mutation pattern
+    
+    Access fields directly.
+
+    `pattern`: str containing the original mutant operator.
+
+    `transformation`: str containing the mutated operator.
+
+    eg. `pattern`: " = ", `transformation`: " <= "
+    """
     def __init__(self, pattern, transformation):
         self.pattern = pattern
         self.transformation = transformation
@@ -219,9 +238,31 @@ class Pattern():
         return f'{self.pattern} : {self.transformation}'
 
 class Mutator():
+    """ The main driver object to create mutations for a run. 
+    
+    Create one Mutator object for each set of patterns and source code files.
+    """
 
-    def __init__(self, src, mutation_patterns, rng=random.Random()):
+    def __init__(self, src: dict, mutation_patterns: dict, rng=random.Random()):
+        """ Initializes various fields
+        
+        `src` is a dictionary mapping from a path to file to a list of line ranges. eg.
 
+        { 
+            "code.c" : [],
+            "code2.c" : [[1,12],[50,150]]
+        }
+
+        `mutation_pattern` is a dictionary mapping from str to list of str or str. eg.
+
+        {
+            " == " : [ " <= ", " != " ],
+            " return " : [" return -2 * ", " return -1 + "],
+            "++" : "--"
+        }
+
+        `rng` is a Random type. Used for random operations.
+        """
         def _merge(intervals):
             """ Turns `intervals` [[0,2],[1,5],[7,8]] to [[0,5],[7,8]].
             """
@@ -264,10 +305,6 @@ class Mutator():
         self.mutation_patterns = self.flattenPatterns(mutation_patterns)
         self.pattern_generator = self.mutation_patterns.copy()
         self.file_index = None
-        
-        # for randomization
-        # how do I make sure the same Occurrence-Pattern pair doesn't mutate again?
-        self.mutants = set()
 
     def restore(self):
         """ Restores source files by replacing src with old
@@ -318,7 +355,7 @@ class Mutator():
         output_file.close()
         sys.stderr.write("\nOutput written to " + path + "\n\n")
 
-    def findOccurrences(self, mutation_pattern: Pattern):
+    def findOccurrences(self, mutation_pattern: Pattern) -> List[Occurrence]:
         """ Finds all occurrences of given `mutation_pattern` in current Mutator
 
         Returns a list of Occurrence objects (see mutator.Occurrence in mutator.py)
@@ -370,13 +407,13 @@ class Mutator():
                 mutation_list.append(Pattern(m, mutation_patterns[m]))
         return mutation_list
     
-    def getPatterns(self):
+    def getPatterns(self) -> List[Pattern]:
         """ Returns a list of flattened Pattern objects
         """
         return self.mutation_patterns
 
-    def generateMutants(self, mutants_per_pattern=None, random=False):
-        """ Returns a list of occurrences given
+    def generateMutants(self, mutants_per_pattern=None, random=False) -> List[Occurrence]:
+        """ Returns a list of occurrences including multiple different patterns
 
         For each pattern, the list contains a maximum of `mutants_per_pattern` number of 
         occurrences
@@ -395,10 +432,9 @@ class Mutator():
             # for o in occurrences_with_mp:
             #     utils.yellow_print(o)
             # if occurrences are found add them to dictionary
-            if len(occurrences_with_mp) > 0:
-                if mp not in mutations_dict:
-                    mutations_dict[mp] = []
-                mutations_dict[mp] += occurrences_with_mp[0:mutants_per_pattern]
+            if mp not in mutations_dict:
+                mutations_dict[mp] = []
+            mutations_dict[mp] += occurrences_with_mp[0:mutants_per_pattern]
         for mp in mutations_dict:
             mutations_list += mutations_dict[mp]
         if random:

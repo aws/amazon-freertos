@@ -19,6 +19,7 @@ import json
 import collections
 import fileinput
 from pathlib import Path
+from typing import List
 
 import comm
 import utils
@@ -50,39 +51,6 @@ class FLAGS:
 
 TestRegEx = re.compile(r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)')
 
-def cmake(vendor, board, compiler):
-    # cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B build -DAFR_ENABLE_TESTS=1
-    cmd = "cmake -DVENDOR={} -DBOARD={} -DCOMPILER={} -S . -B build -DAFR_ENABLE_TESTS=1".format(vendor, board, compiler)
-    utils.yellow_print(cmd)
-    subprocess.check_call(shlex.split(cmd))
-
-def build():
-    """
-    Compiles freeRTOS from free-rtos/build dir
-    """
-    old_path = os.getcwd()
-    os.chdir(os.path.join(root_path, "build"))
-    try:
-        subprocess.check_call(["make", "-j", "14", "all"])
-    except subprocess.CalledProcessError as e:
-        print(e.output)
-        raise CompileFailed('Compile Command Failed')
-    finally:
-        os.chdir(old_path)
-
-def flash(cmd):
-    # ./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -B build
-    # cmd = "./vendors/espressif/esp-idf/tools/idf.py erase_flash flash -B build -p {}".format(port)
-    utils.yellow_print(cmd)
-    # Flash to device
-    try: 
-        utils.yellow_print("Flashing to device...")
-        subprocess.check_call(shlex.split(cmd))
-    except subprocess.CalledProcessError as e:
-        print(e.output)
-        raise CompileFailed('Flash command failed.')
-    utils.yellow_print("Done Flashing")
-
 def read_device_output(port, *, start_flag=None, end_flag=None, crash_flag=None, 
                         pass_flag=None, start_timeout=360, exec_timeout):
     """
@@ -100,7 +68,14 @@ def read_device_output(port, *, start_flag=None, end_flag=None, crash_flag=None,
     return output, final_flag
 
 def flash_and_read(port, timeout, flash_command):
+    """ Executes a subprocess by calling `flash_command` and reads serial output from `port`.
 
+    `flash_command` is a str shell command that will be fed into a subprocess.
+
+    `port` is the port to read serial output from.
+
+    `timeout` is the max time before ending read process.
+    """
     try:
         subprocess.check_call(flash_command, shell=True)
     except subprocess.CalledProcessError as e:
@@ -161,6 +136,20 @@ def generate_test_runner(test_groups):
                 is_generating = True
     return backup
 
+def get_expected_catch(test_to_lines: dict, line: int) -> List[str]:
+    """ Returns a list of test that is expected to cover `line`.
+
+    `test_to_lines`: dictionary containing mapping from test to line ranges that it covers
+
+    `line`: the line to check.
+    """
+    tests_expected_to_catch = []
+    for test in test_to_lines:
+        for line_range in test_to_lines[test]:
+            if line in range(line_range[0], line_range[1]):
+                tests_expected_to_catch.append(test)
+    return tests_expected_to_catch
+
 def to_csv(csv_path, headers, dict):
     """
     Create a csv file at `csv_path` with `headers` using data in `dict` where each key in `dict` is
@@ -198,6 +187,10 @@ class LineOutOfRange(MutationTestError):
     pass
 
 def run_task(task, args, config):
+    """ Runs a mutation testing task with settings in `args` and `config`.
+
+    Collects results and produces CSV data.
+    """
     flash_command = config['flash_command']
 
     port = args.port if args.port else utils.get_default_serial_port()
@@ -221,8 +214,7 @@ def run_task(task, args, config):
 
     failures_per_pattern = {}
     total_per_pattern = {}
-    for occurrence in mutations_list:
-        mp = occurrence.pattern
+    for mp in mutation.getPatterns():
         if mp not in failures_per_pattern:
             failures_per_pattern[mp] = 0
         if mp not in total_per_pattern:
@@ -250,8 +242,9 @@ def run_task(task, args, config):
 
                 # tests expected to catch
                 tests_expected_to_catch = "N/A"
-                if args.line_coverage and str(line_number) in args.line_coverage:
-                    tests_expected_to_catch = ",".join(args.line_coverage[str(line_number)])
+                if args.line_coverage:
+                    tests_expected_to_catch = ",".join(
+                        get_expected_catch(args.line_coverage, int(line_number)))
 
                 # mutant_status can either be "FAIL", "PASS", "CRASH", "TIMEOUT"
                 mutant_status = "FAIL"
@@ -333,11 +326,15 @@ def run_task(task, args, config):
 
 def coverage_main(args, config):
     """ Function that is called when user specified `mutation_runner.py coverage` from cmd
+
+    Runs coverage tool from coverage.py
     """
     coverage.run_coverage(args, config)
 
 def mutation_main(args, config):
     """ Function that is called when user specifies `mutation_runner.py start` from cmd
+
+    Runs every task in configuration json.
     """
     os.chdir(dir_path)
     if args.jobfile:
@@ -396,6 +393,12 @@ def mutation_main(args, config):
         seed=args.seed)
 
 def main():
+    """ main method that is ran during execution
+
+    In charge of parsing commands and arguments.
+
+    Also loads json from /configs/.
+    """
     parser = argparse.ArgumentParser()
 
     subparsers = parser.add_subparsers(title='commands',

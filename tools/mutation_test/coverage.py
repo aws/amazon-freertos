@@ -90,52 +90,6 @@ def run_coverage(args, config):
                 os.remove("{}.old".format(s))
                 utils.yellow_print("Source code restored")
 
-def coverage_map():
-    os.chdir(dir_path)
-    line = {}
-    # WIFI_ConnectAP
-    for i in range(363, 448 + 1):
-        line[i] = ["WiFi_IsConnected", "WiFi_Scan", "WiFi_GetIP", "WiFi_GetHostIP", "WiFiConnectionLoop",
-                   "WIFI_ConnectAP_InvalidPassword", "WiFiConnectMultipleAP"]
-    # event_handler
-    for i in range(87, 165 + 1):
-        line[i] = ["WiFi_IsConnected", "WiFi_Scan", "WiFi_GetIP", "WiFi_GetHostIP", "WiFiConnectionLoop",
-                   "WiFiOnOffLoop", "WiFiMode", "WIFI_ConnectAP_InvalidPassword", "WiFiConnectMultipleAP"]
-    # WIFI_IsConnected
-    for i in range(249, 263 + 1):
-        line[i] = ["WiFi_IsConnected", "WiFi_GetIP", "WiFi_GetHostIP", "WIFI_ConnectAP_InvalidPassword",
-                   "WiFiConnectMultipleAP"]
-    # WIFI_Disconnect
-    for i in range(451, 479 + 1):
-        line[i] = ["WiFi_IsConnected", "WiFiConnectionLoop", "WIFI_ConnectAP_InvalidPassword"]
-    for i in range(488, 611 + 1):
-        line[i] = ["WiFi_Scan"]
-    for i in range(1077, 1127 + 1):
-        line[i] = ["WiFi_GetIP"]
-    for i in range(1171, 1210 + 1):
-        line[i] = ["WiFi_GetHostIP"]
-    # WIFI_Off
-    for i in range(266, 309 + 1):
-        line[i] = ["WiFiOnOffLoop"]
-    # WIFI_On
-    for i in range(312, 355 + 1):
-        line[i] = ["WiFiOnOffLoop"]
-    # WIFI_GetMode
-    for i in range(646, 680 + 1):
-        line[i] = ["WiFiMode"]
-    # WIFI_SetMode
-    for i in range(614, 643 + 1):
-        line[i] = ["WiFiMode"]
-    # prvInitRegistry
-    for i in range(867, 885 + 1):
-        line[i] = ["WiFiNetworkAddGetDelete"]
-    # WIFINetworkDelete
-    for i in range(1011, 1067 + 1):
-        line[i] = ["WiFiNetworkAddGetDelete"]
-    with open('wifi_line_coverage.json', 'w', encoding='utf-8') as f:
-        json.dump(line, f, ensure_ascii=False, indent=4, sort_keys=True)
-
-
 def main():
     parser = argparse.ArgumentParser('Function Coverage Tool')
     parser.add_argument(
