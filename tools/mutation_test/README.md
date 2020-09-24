@@ -59,17 +59,17 @@ Be able to run the WiFi tests with [ESP32 Getting Started Guide](https://docs.aw
 
 # Usage
 
-### Prerequisites
+## Prerequisites
 
 Install [python3](https://www.python.org/downloads/)
 
 Install requirements: `pip install -r requirements.txt`
 
-### For available commands and arguments: `./mutation_runner.py -h`
+## For available commands and arguments: `./mutation_runner.py -h`
 
 We will now walk through an example for setting up mutation testing for the WiFi library tests on ESP32.
 
-### 1. Set up various requirements for the test group.
+## 1. Set up various requirements for the test group.
 
 In order to run the WiFi tests, we need to configure WiFi credentials and set up an echo server.
 
@@ -79,7 +79,7 @@ Configure echo server address at `/freertos/tests/include/aws_test_tcp.h`. You m
 
 Configure a separate set of WiFi credentials at `/freertos/libraries/abstractions/wifi/test/iot_test_wifi.h` for multiple AP connection test.
 
-### 2. Create a config file in `/configs`
+## 2. Create a config file in `/configs`
 
 See `/configs/wifi.json` as an example.
 
@@ -94,7 +94,7 @@ See `/configs/wifi.json` as an example.
 
 In the future, it is expected that we can generate the this configuration json file with a separate script and the help of a more powerful line coverage tool (see next optional section).
 
-### (Optional) 3. Run the coverage tool to get function coverage for the test.
+## (Optional) 3. Run the coverage tool to get function coverage for the test.
 
 A function coverage tool is provided if we want to get the functional coverage for the test. All it does is add print statements to the source code files under each function header, and prints out the function name and line number. This is useful if we want to restrict the mutations to a certain set of line numbers in the source code. 
 
@@ -122,7 +122,7 @@ As we can see there are additional `MUTATION_TESTING_FUNC_COVERAGE...` statement
 
 We can then manually inspect the source code to find only the line numbers of the functions that were executed and add them to the `src` section in the configuration json file. This is useful when we want to isolate the a few tests, perhaps the new tests, and only run the mutation testing for these tests. Of course, isolation of the tests involve separating the isolated tests into its own test group, and make sure to provide the test group name to `test_groups` in the configuration json file.
 
-### 4. Begin the mutation testing
+## 4. Begin the mutation testing
 
 Test out the script by running: 
 
@@ -207,7 +207,7 @@ Alive: 0 Killed: 3 Mutants: 3 No-Compile: 0 Attempted Runs: 3
 
 We have successfully improved the score to 100%, but, obviously, only creating three mutations is not a comprehensive measure.
 
-### 5. Run the mutation testing with more advanced settings.
+## 5. Run the mutation testing with more advanced settings.
 
 For additional details on the types of arguments, try: `./mutation_runner.py start -h`.
 
@@ -236,7 +236,7 @@ A typical mutation testing sequence to test the entire WiFi test suite would be:
 | group | test | kills | passes | total |
 | ---   | ---  | ---   | ---    | ---   |
 
-### (Optional) 6. Run mutation testing with line coverage map.
+## (Optional) 6. Run mutation testing with line coverage map.
 
 *This section may require additional tools or manual work to complete.*
 
@@ -273,19 +273,19 @@ This map will be used to output which test is supposed to catch a mutant at each
 
 It is useful to know which tests are supposed to catch the mutant when the mutant is **ALIVE** or **passing** the tests. We can then inspect those tests or the source code to see why it's passing.
 
-## Task-based Approach
+# Task-based Approach
 
-## Repeating Randomized Tests
+# Repeating Randomized Tests
 
-## Challenges
+# Challenges
 
-### Mutants that do not change behavior of code
+## Mutants that do not change behavior of code
 
 Throughout mutation testing, we may notice that some mutations do not actually change the behavior of the code. For example, a mutation pattern may involve changing a `==` into a `>=`. For many cases, like `if xBool == true`, changing it to `if xBool >= true` doesn't change the behavior. When you think about the semantics of many of the operators in different contexts, they are in fact identical. The behavior of the code will not change as a result of the mutant; therefore, it is expected that these such mutants pass the test
 
 It is still difficult for us to identify mutation patterns that do not change the behavior of the code. We can remove it from the pattern set, but at the cost of not being able to identify the mutants with the same mutation pattern that is actually breaking the code but not caught by any tests. To mitigate this issue, this script supports a `task` based approach, which is specified in the configuration file (see [Task-based Approach]()).
 
-### Runtime
+## Runtime
 
 Timing Constraint. Max Runtime: The runtime is dependent on the time to run the test (base) and the number of mutants (N) created. eg. O(Base * N). Each mutant takes the full WiFi test suite time = 350 seconds. 350 * 100 mutants = 3500 seconds = ~10 hours, and that is excluding timeout which is currently set to 500 seconds as well as compile failures (takes about 60 seconds to compile each mutant, and fail-to-compile mutants are skipped). Implemented optimization techniques:
 
@@ -294,7 +294,7 @@ Timing Constraint. Max Runtime: The runtime is dependent on the time to run the 
 - Limiting mutation range to specified set of locations (line numbers).
 - Ability to customize own mutant patterns (through configuration json and mutator.py)
 
-### Randomization Issues
+## Randomization Issues
 
 This is an unconfirmed issue, but because of randomization, the mutation score between randomized runs that do not retain the same seed will flunctuate greatly. We suspect there is some *averaging* happening, as the scores always converge to around 40-50%. However, between runs with the same seed, if there is an improvement of test quality, the score will definitely be increased.
 
