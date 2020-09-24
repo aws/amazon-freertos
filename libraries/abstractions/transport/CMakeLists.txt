@@ -1,14 +1,19 @@
 # Transport Interface 
-afr_module()
-
-afr_set_lib_metadata(ID "transport")
-afr_set_lib_metadata(DESCRIPTION "Transport Interface over Secure Sockets")
-afr_set_lib_metadata(DISPLAY_NAME "SECURE_SOCKETS_TRANSPORT")
-afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "true")
+afr_module(NAME transport_interface_secure_sockets INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+
+# The single source of truth for the transport_interface.h is in the coreMQTT repository.
+# In the FreeRTOS Device Software download page in AWS IoT Core, it is possible
+# to choose coreHTTP instead of coreMQTT. In this case, it is necessary to check
+# for the existence of the file in the downloaded software package.
+if( EXISTS ${AFR_MODULES_DIR}/c_sdk_v4/standard/coreMQTT/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/c_sdk_v4/standard/coreMQTT/source/portable")
+elseif( EXISTS ${AFR_MODULES_DIR}/c_sdk_v4/standard/coreHTTP/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/c_sdk_v4/standard/coreHTTP/source/portable")
+else()
+    message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
+endif()
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -26,7 +31,7 @@ afr_module_dependencies(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-       "${inc_dir}"
+       "${transport_interface_dir}"
        "${src_dir}"
 )
 
