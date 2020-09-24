@@ -84,9 +84,10 @@
 #endif
 
 #ifndef BROKER_PORT
-    #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
+    #define BROKER_PORT        clientcredentialMQTT_BROKER_PORT
 #endif
 
+#define SERVER_ROOT_CA_CERT    " "
 #ifndef SERVER_ROOT_CA_CERT
     #error "Please define SERVER_ROOT_CA_CERT for Root CA of server certificate."
 #endif /* ifndef SERVER_ROOT_CA_CERT */
@@ -785,12 +786,12 @@ TEST_TEAR_DOWN( MQTT_Integration )
     /* Free memory, if allocated during test case execution. */
     if( incomingInfo.pTopicName != NULL )
     {
-        pvPortFree( ( void * ) incomingInfo.pTopicName );
+        vPortFree( ( void * ) incomingInfo.pTopicName );
     }
 
     if( incomingInfo.pPayload != NULL )
     {
-        pvPortFree( ( void * ) incomingInfo.pPayload );
+        vPortFree( ( void * ) incomingInfo.pPayload );
     }
 
     /* Terminate MQTT connection. */
