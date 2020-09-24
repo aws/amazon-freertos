@@ -84,10 +84,9 @@
 #endif
 
 #ifndef BROKER_PORT
-    #define BROKER_PORT        clientcredentialMQTT_BROKER_PORT
+    #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
-#define SERVER_ROOT_CA_CERT    " "
 #ifndef SERVER_ROOT_CA_CERT
     #error "Please define SERVER_ROOT_CA_CERT for Root CA of server certificate."
 #endif /* ifndef SERVER_ROOT_CA_CERT */
@@ -430,7 +429,8 @@ static void establishMqttSession( MQTTContext_t * pContext,
         connectInfo.pClientIdentifier = TEST_CLIENT_IDENTIFIER;
     }
 
-    LogDebug( ( "Created randomized client ID for MQTT connection: ClientID={%.*s}", connectInfo.clientIdentifierLength,
+    LogDebug( ( "Client ID for MQTT for MQTT connection={%.*s}",
+                connectInfo.clientIdentifierLength,
                 connectInfo.pClientIdentifier ) );
 
     /* The interval at which an MQTT PINGREQ needs to be sent out to broker. */
