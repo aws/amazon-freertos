@@ -163,6 +163,55 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
 
 static uint32_t getTimeMs( void );
 
+/**
+ * @brief The dummy application callback function.
+ *
+ * This function doesn't need to have any implementation as
+ * the receive from network is not handled by the coreMQTT library,
+ * but the MQTT shim itself. This function is just a dummy function
+ * to be passed as a parameter to `MQTT_Init()`.
+ *
+ * @param[in] pMqttContext MQTT context pointer.
+ * @param[in] pPacketInfo Packet Info pointer for the incoming packet.
+ * @param[in] packetIdentifier Packet identifier of the incoming packet.
+ * @param[in] pPublishInfo Deserialized information of the incoming publish.
+ */
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           uint16_t packetIdentifier,
+                           MQTTPublishInfo_t * pPublishInfo );
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv );
+
+/**
+ * @brief Function for sending data over the network.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer containing the bytes to send over the network stack.
+ * @param[in] bytesToSend Number of bytes to send over the network.
+ *
+ * @return The number of bytes sent or a negative error code.
+ */
+static int32_t transportSend( NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend );
+
 /*-----------------------------------------------------------*/
 
 static bool _mqttSubscription_setUnsubscribe( const IotLink_t * pSubscriptionLink,
@@ -821,6 +870,23 @@ static uint32_t getTimeMs( void )
 
 /*-----------------------------------------------------------*/
 
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           uint16_t packetIdentifier,
+                           MQTTPublishInfo_t * pPublishInfo )
+{
+    /* This function doesn't need to have any implementation as
+     * the receive from network is not handled by the coreMQTT library,
+     * but the MQTT shim itself. This function is just a dummy function
+     * to be passed as a parameter to `MQTT_Init()`. */
+    ( void ) pContext;
+    ( void ) pPacketInfo;
+    ( void ) packetIdentifier;
+    ( void ) pPublishInfo;
+}
+
+/*-----------------------------------------------------------*/
+
 static int32_t transportSend( NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
@@ -846,24 +912,28 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
+static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+
+/*-----------------------------------------------------------*/
+
 IotMqttError_t IotMqtt_Init( void )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
-
-    /* Call any additional serializer initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_InitSerializeAdditional
-            if( _IotMqtt_InitSerializeAdditional() == false )
-            {
-                status = IOT_MQTT_INIT_FAILED;
-            }
-            else
-            {
-                EMPTY_ELSE_MARKER;
-            }
-        #endif
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
     /* Log initialization status. */
     if( status != IOT_MQTT_SUCCESS )
@@ -882,14 +952,6 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup( void )
 {
-    /* Call any additional serializer cleanup initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_CleanupSerializeAdditional
-            _IotMqtt_CleanupSerializeAdditional();
-        #endif
-    #endif
-
     IotLogInfo( "MQTT library cleanup done." );
 }
 
@@ -1060,6 +1122,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
     /* Fill in time utility function pointer. */
     callbacks.getTime = getTimeMs;
+    callbacks.appCallback = eventCallback;
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
@@ -1092,6 +1155,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
          * receive task. Only using MQTT LTS APIs for transmit path.*/
         transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
         transport.send = transportSend;
+        transport.recv = transportRecv;
 
         /* Fill the values for network buffer. */
         networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );

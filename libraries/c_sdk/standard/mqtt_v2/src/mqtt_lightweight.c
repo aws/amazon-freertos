@@ -1086,7 +1086,7 @@ static MQTTStatus_t deserializePublish( const MQTTPacketInfo_t * pIncomingPacket
                                         MQTTPublishInfo_t * pPublishInfo )
 {
     MQTTStatus_t status = MQTTSuccess;
-    const uint8_t * pVariableHeader, * pPacketIdentifierHigh;
+    const uint8_t * pVariableHeader, * pPacketIdentifierHigh = NULL;
 
     assert( pIncomingPacket != NULL );
     assert( pPacketId != NULL );
