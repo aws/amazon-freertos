@@ -546,6 +546,31 @@ static uint32_t getTimeMs( void )
 }
 
 /**
+ * @brief The dummy application callback function.
+ *
+ * This function doesn't need to have any implementation as
+ * the receive from network is not handled by the coreMQTT library,
+ * but the MQTT shim itself. This function is just a dummy function
+ * to be passed as a parameter to `MQTT_Init()`.
+ *
+ * @param[in] pMqttContext MQTT context pointer.
+ * @param[in] pPacketInfo Packet Info pointer for the incoming packet.
+ * @param[in] pDeserializedInfo Deserialized information from incoming packet.
+ */
+static void eventCallback( MQTTContext_t * pContext,
+                           MQTTPacketInfo_t * pPacketInfo,
+                           MQTTDeserializedInfo_t * pDeserializedInfo )
+{
+    /* This function doesn't need to have any implementation as
+     * the receive from network is not handled by the coreMQTT library,
+     * but the MQTT shim itself. This function is just a dummy function
+     * to be passed as a parameter to `MQTT_Init()`. */
+    ( void ) pContext;
+    ( void ) pPacketInfo;
+    ( void ) pDeserializedInfo;
+}
+
+/**
  * @brief Setting the MQTT Context for the given MQTT Connection.
  */
 static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
@@ -559,7 +584,6 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
     bool contextMutex = false;
     TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
-    MQTTApplicationCallbacks_t callbacks;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
@@ -588,8 +612,6 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         /* Fill the values for network buffer. */
         networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
-        /* Fill in time utility function pointer. */
-        callbacks.getTime = getTimeMs;
         subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
         if( subscriptionMutexCreated == false )
@@ -600,7 +622,7 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         else
         {
             /* Initializing the MQTT context used in calling MQTT LTS API. */
-            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+            managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, getTimeMs, eventCallback, &networkBuffer );
             status = convertReturnCode( managedMqttStatus );
         }
 

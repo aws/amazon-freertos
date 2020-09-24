@@ -61,7 +61,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::common
         ${extra_mqtt_dependencies}
-        AFR::mqtt_v2
+        AFR::coreMQTT
 )
 
 # MQTT test

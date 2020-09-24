@@ -45,10 +45,9 @@
 #include "iot_taskpool.h"
 
 /* MQTT LTS library includes. */
-#include "mqtt_lightweight.h"
-#include "mqtt.h"
-#include "mqtt_config.h"
-#include "mqtt_state.h"
+#include "core_mqtt_serializer.h"
+#include "core_mqtt.h"
+#include "core_mqtt_state.h"
 
 /**
  * @def IotMqtt_Assert( expression )

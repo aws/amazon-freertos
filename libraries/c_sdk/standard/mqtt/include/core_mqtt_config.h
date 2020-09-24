@@ -1,5 +1,5 @@
-#ifndef MQTT_CONFIG_H_
-#define MQTT_CONFIG_H_
+#ifndef CORE_MQTT_CONFIG_H_
+#define CORE_MQTT_CONFIG_H_
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -46,12 +46,5 @@
  */
 #define MQTT_STATE_ARRAY_MAX_COUNT          10U
 
-/**
- * @brief MQTT client identifier.
- *
- * No two clients may use the same client identifier simultaneously.
- */
-#define MQTT_CLIENT_IDENTIFIER              "testclient"
 
-
-#endif /* ifndef MQTT_CONFIG_H_ */
+#endif /* ifndef CORE_MQTT_CONFIG_H_ */

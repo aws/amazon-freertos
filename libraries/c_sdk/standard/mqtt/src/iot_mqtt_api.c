@@ -173,13 +173,11 @@ static uint32_t getTimeMs( void );
  *
  * @param[in] pMqttContext MQTT context pointer.
  * @param[in] pPacketInfo Packet Info pointer for the incoming packet.
- * @param[in] packetIdentifier Packet identifier of the incoming packet.
- * @param[in] pPublishInfo Deserialized information of the incoming publish.
+ * @param[in] pDeserializedInfo Deserialized information from incoming packet.
  */
 static void eventCallback( MQTTContext_t * pContext,
                            MQTTPacketInfo_t * pPacketInfo,
-                           uint16_t packetIdentifier,
-                           MQTTPublishInfo_t * pPublishInfo );
+                           MQTTDeserializedInfo_t * pDeserializedInfo );
 
 /**
  * @brief A dummy function for transport interface receive.
@@ -872,8 +870,7 @@ static uint32_t getTimeMs( void )
 
 static void eventCallback( MQTTContext_t * pContext,
                            MQTTPacketInfo_t * pPacketInfo,
-                           uint16_t packetIdentifier,
-                           MQTTPublishInfo_t * pPublishInfo )
+                           MQTTDeserializedInfo_t * pDeserializedInfo )
 {
     /* This function doesn't need to have any implementation as
      * the receive from network is not handled by the coreMQTT library,
@@ -881,8 +878,7 @@ static void eventCallback( MQTTContext_t * pContext,
      * to be passed as a parameter to `MQTT_Init()`. */
     ( void ) pContext;
     ( void ) pPacketInfo;
-    ( void ) packetIdentifier;
-    ( void ) pPublishInfo;
+    ( void ) pDeserializedInfo;
 }
 
 /*-----------------------------------------------------------*/
@@ -971,7 +967,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     IotMqttConnection_t newMqttConnection = NULL;
     TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
-    MQTTApplicationCallbacks_t callbacks;
     int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
@@ -1120,10 +1115,6 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         EMPTY_ELSE_MARKER;
     }
 
-    /* Fill in time utility function pointer. */
-    callbacks.getTime = getTimeMs;
-    callbacks.appCallback = eventCallback;
-
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
@@ -1169,7 +1160,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         }
 
         /* Initializing the MQTT context used in calling MQTT LTS API. */
-        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, &callbacks, &networkBuffer );
+        managedMqttStatus = MQTT_Init( &( connToContext[ contextIndex ].context ), &transport, getTimeMs, eventCallback, &networkBuffer );
         status = convertReturnCode( managedMqttStatus );
 
         if( status != IOT_MQTT_SUCCESS )
