@@ -232,7 +232,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Integration );
+        RUN_TEST_GROUP( coreMQTT_Integration );
     #endif
 }
 /*-----------------------------------------------------------*/
