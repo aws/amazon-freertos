@@ -8,7 +8,6 @@ afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
