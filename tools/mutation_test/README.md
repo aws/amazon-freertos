@@ -57,7 +57,7 @@ Be able to run the WiFi tests with [ESP32 Getting Started Guide](https://docs.aw
 
 #### Try: `./mutation_runner.py start -s wifi -m 3 -c -r`
 
-## Usage
+# Usage
 
 ### Prerequisites
 
@@ -94,7 +94,7 @@ See `/configs/wifi.json` as an example.
 
 In the future, it is expected that we can generate the this configuration json file with a separate script and the help of a more powerful line coverage tool (see next optional section).
 
-### (Optional) Run the coverage tool to get function coverage for the test.
+### (Optional) 3. Run the coverage tool to get function coverage for the test.
 
 A function coverage tool is provided if we want to get the functional coverage for the test. All it does is add print statements to the source code files under each function header, and prints out the function name and line number. This is useful if we want to restrict the mutations to a certain set of line numbers in the source code. 
 
@@ -122,7 +122,7 @@ As we can see there are additional `MUTATION_TESTING_FUNC_COVERAGE...` statement
 
 We can then manually inspect the source code to find only the line numbers of the functions that were executed and add them to the `src` section in the configuration json file. This is useful when we want to isolate the a few tests, perhaps the new tests, and only run the mutation testing for these tests. Of course, isolation of the tests involve separating the isolated tests into its own test group, and make sure to provide the test group name to `test_groups` in the configuration json file.
 
-### 3. Begin the mutation testing
+### 4. Begin the mutation testing
 
 Test out the script by running: 
 
@@ -134,18 +134,80 @@ If the command completes successfully, we should see something like:
 
 ```
 Successful Mutant Runs: 3/3
-Score: 0.00%
-Alive: 3 Killed: 0 Mutants: 3 No-Compile: 0 Attempted Runs: 3
+Score: 66.67%
+Alive: 1 Killed: 2 Mutants: 3 No-Compile: 0 Attempted Runs: 3
 Done
 ```
 
-This means that 3 mutants were created, and all of them successfully passed the tests, resulting in a mutation score of 0%. That doesn't look good. Let's dive deeper by logging this to CSV. To log to CSV, use:
+This means that 3 mutants were created, and 2 failed the test, resulting in a mutation score of 66.67%. There is one mutant that is alive. Let's dive deeper by logging this to CSV. To log to CSV, run the mutation testing again with:
 
 `./mutation_runner.py start -s wifi -m 3 -c`
 
-#### TBC
+After the run completes, open up `/CURRENT_DATE/CURRENT_TIME/Full_WiFi_mutants_created.csv`.
 
-### 4. Run the mutation testing with more advanced settings.
+*Note that the `expected_catch` section is N/A. This is expected. See step 5.*
+
+Here, we see the details for each mutant created, or something like this:
+
+| line | original                                              | mutant                                                 | result      |
+|------|-------------------------------------------------------|--------------------------------------------------------|-------------|
+| 566  |                 for (int i = 0; i   < num_aps; i++) { |                 for (int i = 0; i   == num_aps; i++) { | PASS/LIVE   |
+| 702  | 		if( pxNetwork->ucSSIDLength < ulSize )                | 		if( pxNetwork->ucSSIDLength == ulSize )                | FAIL/KILLED |
+| 715  | 			if( pxNetwork->ucPasswordLength < ulSize )            | 			if( pxNetwork->ucPasswordLength == ulSize )            | FAIL/KILLED |
+
+Now, let's try fixing the test to improve the mutation score. Navigate to the root directory `/freertos/` and open `/freertos/vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c`. Note that line 566 is under the 
+`WIFI_Scan` function. We should check the test associated with testing this function.
+
+Open up `/freertos/libraries/abstractions/wifi/test/iot_test_wifi.c` and examine the WiFi_Scan test. Notice that all the test does is verify the return status! Let's improve it.
+
+Comment out the current WIFI_Scan, and add the following:
+
+```C
+/**
+ * @brief Exercise WIFI_Scan() and verify the return status.
+ */
+TEST( Quarantine_WiFi, AFQP_WiFiScan )
+{
+    BaseType_t xNetworkFound = pdFALSE; 
+
+    int32_t lI = 0;
+    WIFIScanResult_t xScanResults[ testwifiMAX_SCAN_NUMBER ] = { 0 };
+    WIFIReturnCode_t xWiFiStatus;
+
+    if( TEST_PROTECT() )
+    {
+        xWiFiStatus = WIFI_Scan( xScanResults, testwifiMAX_SCAN_NUMBER );
+        TEST_WIFI_ASSERT_EQ_REQUIRED_API( eWiFiSuccess, xWiFiStatus, xWiFiStatus );
+
+        for(lI = 0; lI < testwifiMAX_SCAN_NUMBER; lI++ )
+        {
+            TEST_ASSERT_NOT_EQUAL( xScanResults[lI].cRSSI, 0 );
+            if ( strncmp( xScanResults[lI].cSSID, clientcredentialWIFI_SSID,
+                            sizeof( clientcredentialWIFI_SSID ) ) == 0)
+                xNetworkFound = pdTRUE;
+        }
+        TEST_ASSERT(xNetworkFound == pdTRUE);
+    }
+    else
+    {
+        TEST_FAIL();
+    }
+}
+```
+
+Now, run `./mutation_runner.py start -s wifi -m 3 -c` again.
+
+We should now see the following:
+
+```bash
+Successful Mutant Runs: 3/3
+Score: 100.00%
+Alive: 0 Killed: 3 Mutants: 3 No-Compile: 0 Attempted Runs: 3
+```
+
+We have successfully improved the score to 100%, but, obviously, only creating three mutations is not a comprehensive measure.
+
+### 5. Run the mutation testing with more advanced settings.
 
 For additional details on the types of arguments, try: `./mutation_runner.py start -h`.
 
@@ -174,7 +236,7 @@ A typical mutation testing sequence to test the entire WiFi test suite would be:
 | group | test | kills | passes | total |
 | ---   | ---  | ---   | ---    | ---   |
 
-### (Optional) Run mutation testing with line coverage map.
+### (Optional) 6. Run mutation testing with line coverage map.
 
 *This section may require additional tools or manual work to complete.*
 
@@ -182,26 +244,25 @@ You may notice that the `expected_catch` column in `Full_WiFi_mutants_created.cs
 
 ```json
 {
-    "1": [
-        "Test1",
-        "Test2"
+    "Test1": [
+        [87, 165],
+        [366, 480]
     ],
-    "2": [
-        "Test1",
-        "Test3"
+    "Test2": [
+        [90, 180]
     ]
 
     ...
 
-    "87": [
-        "WiFi_IsConnected",
-        "WiFi_Scan",
-        "WiFi_GetIP"
+    "WiFi_IsConnected": [
+        [363,448],
+        [87,165],
+        [249,263],
+        [451,479]
     ]
-    "88": [
-        "WiFiConnectionLoop",
-        "WiFiOnOffLoop",
-        "WiFiMode",
+    "WiFi_Scan": [
+        [488,611],
+        [87,165]
     ]
 
     ...
@@ -211,6 +272,31 @@ You may notice that the `expected_catch` column in `Full_WiFi_mutants_created.cs
 This map will be used to output which test is supposed to catch a mutant at each any line, if it exists in this map. It will also populate the `expected_catch` column in `Full_WiFi_mutants_created.csv`.
 
 It is useful to know which tests are supposed to catch the mutant when the mutant is **ALIVE** or **passing** the tests. We can then inspect those tests or the source code to see why it's passing.
+
+## Task-based Approach
+
+## Repeating Randomized Tests
+
+## Challenges
+
+### Mutants that do not change behavior of code
+
+Throughout mutation testing, we may notice that some mutations do not actually change the behavior of the code. For example, a mutation pattern may involve changing a `==` into a `>=`. For many cases, like `if xBool == true`, changing it to `if xBool >= true` doesn't change the behavior. When you think about the semantics of many of the operators in different contexts, they are in fact identical. The behavior of the code will not change as a result of the mutant; therefore, it is expected that these such mutants pass the test
+
+It is still difficult for us to identify mutation patterns that do not change the behavior of the code. We can remove it from the pattern set, but at the cost of not being able to identify the mutants with the same mutation pattern that is actually breaking the code but not caught by any tests. To mitigate this issue, this script supports a `task` based approach, which is specified in the configuration file (see [Task-based Approach]()).
+
+### Runtime
+
+Timing Constraint. Max Runtime: The runtime is dependent on the time to run the test (base) and the number of mutants (N) created. eg. O(Base * N). Each mutant takes the full WiFi test suite time = 350 seconds. 350 * 100 mutants = 3500 seconds = ~10 hours, and that is excluding timeout which is currently set to 500 seconds as well as compile failures (takes about 60 seconds to compile each mutant, and fail-to-compile mutants are skipped). Implemented optimization techniques:
+
+- Random selection of mutant. 
+- Can also repeat by providing the same random seed. See the jobfile.
+- Limiting mutation range to specified set of locations (line numbers).
+- Ability to customize own mutant patterns (through configuration json and mutator.py)
+
+### Randomization Issues
+
+This is an unconfirmed issue, but because of randomization, the mutation score between randomized runs that do not retain the same seed will flunctuate greatly. We suspect there is some *averaging* happening, as the scores always converge to around 40-50%. However, between runs with the same seed, if there is an improvement of test quality, the score will definitely be increased.
 
 
 
