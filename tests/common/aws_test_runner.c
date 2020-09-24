@@ -63,7 +63,6 @@ unsigned int xHeapAfter;
 static void RunTests( void )
 {
     /* Tests can be disabled in aws_test_runner_config.h */
-    RUN_TEST_GROUP( MQTT_Integration );
 
     /* The FreeRTOS qualification program requires that Wi-Fi and TCP be the
      * first tests in this function. */
@@ -230,6 +229,10 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
+    #endif
+
+    #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
+        RUN_TEST_GROUP( MQTT_Integration );
     #endif
 }
 /*-----------------------------------------------------------*/
