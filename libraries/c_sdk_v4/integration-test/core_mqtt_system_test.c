@@ -818,7 +818,7 @@ TEST_SETUP( coreMQTT_Integration_AWS_IoT )
 
 TEST_TEAR_DOWN( coreMQTT_Integration_AWS_IoT )
 {
-    testTearDown( BROKER_ENDPOINT_NON_AWS, SERVER_ROOT_CA_CERT_NON_AWS );
+    testTearDown();
 }
 
 /**
@@ -829,7 +829,7 @@ TEST_GROUP( coreMQTT_Integration );
 
 TEST_SETUP( coreMQTT_Integration )
 {
-    testSetUp();
+    testSetUp( BROKER_ENDPOINT_NON_AWS, SERVER_ROOT_CA_CERT_NON_AWS );
 }
 
 TEST_TEAR_DOWN( coreMQTT_Integration )
