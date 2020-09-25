@@ -301,7 +301,7 @@ def run_task(task, args, config):
             kills, total = test_to_kills[(group, test)]
             aggregates.append({'Group': group,
                                'Test': test,
-                               'Kills': kills,
+                               'Fails': kills,
                                'Passes': total - kills,
                                'Total': total})
         
@@ -322,7 +322,7 @@ def run_task(task, args, config):
             per_test_csv = os.path.join(csv_path, "{}_test_aggregates.csv".format(task['name']))
             to_csv(pattern_csv, ['pattern', 'failures', 'total', 'percentage'], data_record)
             to_csv(trials_csv, ['file', 'line', 'original', 'mutant', 'result', 'expected_catch'], trials)
-            to_csv(per_test_csv, ['Group', 'Test', 'Kills', 'Passes', 'Total'], aggregates)
+            to_csv(per_test_csv, ['Group', 'Test', 'Fails', 'Passes', 'Total'], aggregates)
 
 def coverage_main(args, config):
     """ Function that is called when user specified `mutation_runner.py coverage` from cmd
