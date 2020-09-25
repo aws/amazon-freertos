@@ -601,14 +601,17 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
                               BTTransport_t xTransport )
 {
     BTStatus_t xStatus = eBTStatusFail;
+    uint16_t index;
 
-    if ( serviceCnt != 0 )
+    /* GATT Service is supposed to start in prvAddServiceBlob, we just
+     * check if handle is matching with the one populated in
+     * prvAddServiceBlob for each service */
+    for( index = 0; index < serviceCnt; index++ )
     {
-        /* GATT Service is supposed to start in prvAddServiceBlob, we just
-         * check if handle is matching with the one populated in prvAddServiceBlob */
-        if ( usServiceHandle == afrServices[ serviceCnt - 1 ]->pusHandlesBuffer[ 0 ] )
+        if ( usServiceHandle == afrServices[ index ]->pusHandlesBuffer[ 0 ] )
         {
             xStatus = eBTStatusSuccess;
+            break;
         }
     }
 
