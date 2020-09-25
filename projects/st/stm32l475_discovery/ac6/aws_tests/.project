@@ -1238,6 +1238,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1316,6 +1326,11 @@
 			<name>libraries/abstractions/platform/include/platform/iot_threads.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/transport_interface.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/transport_interface.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
@@ -1468,9 +1483,89 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/common_io/include/iot_adc.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_adc.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_battery.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_battery.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_efuse.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_efuse.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_flash.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_flash.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_gpio.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_gpio.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_hw.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_hw.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/common_io/include/iot_i2c.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_i2c.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_i2s.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_i2s.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_perfcounter.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_perfcounter.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_power.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_power.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_pwm.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_pwm.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_reset.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_reset.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_rtc.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_rtc.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_sdio.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_sdio.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_spi.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_spi.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_timer.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_timer.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_tsensor.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_tsensor.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/common_io/include/iot_uart.h</name>
@@ -1478,9 +1573,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_uart.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/common_io/include/iot_spi.h</name>
+			<name>libraries/abstractions/common_io/include/iot_usb_device.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_spi.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_usb_device.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_usb_host.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_usb_host.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/include/iot_watchdog.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/include/iot_watchdog.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/st/boards/stm32l475_discovery/ports/common_io/iot_uart.c</name>
@@ -1548,9 +1653,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
@@ -1568,9 +1673,49 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1853,9 +1998,84 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/iot_test_common_io.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_adc.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_adc.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_battery.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_battery.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_efuse.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_efuse.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_flash.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_flash.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_gpio.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_gpio.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/common_io/test/test_iot_i2c.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_i2s.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_i2s.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_perfcounter.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_perfcounter.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_power.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_power.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_pwm.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_pwm.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_reset.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_reset.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_rtc.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_rtc.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_sdio.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_sdio.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_spi.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_spi.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_timer.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_timer.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/common_io/test/test_iot_tsensor.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_tsensor.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/common_io/test/test_iot_uart.c</name>
@@ -1863,9 +2083,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_uart.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/common_io/test/test_iot_spi.c</name>
+			<name>libraries/abstractions/common_io/test/test_iot_watchdog.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_spi.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/common_io/test/test_iot_watchdog.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>

@@ -70,6 +70,10 @@
 		<Filter Include="libraries\c_sdk\aws\defender\include"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\src"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt"/>
+		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT\source"/>
+		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT"/>
+		<Filter Include="libraries\c_sdk_v4\standard"/>
+		<Filter Include="libraries\c_sdk_v4"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src\cbor"/>
 		<Filter Include="libraries\c_sdk\standard\serializer\src"/>
 		<Filter Include="libraries\c_sdk\standard\serializer"/>
@@ -216,6 +220,12 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
 			<Filter>libraries\c_sdk\standard\common\include\private</Filter>
 		</ClInclude>
@@ -244,6 +254,9 @@
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
+			<Filter>libraries\abstractions\platform\include\platform</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\transport_interface.h">
 			<Filter>libraries\abstractions\platform\include\platform</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
@@ -857,7 +870,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c">
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_publish_duplicates.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c">
@@ -869,8 +882,32 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_context_connection.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serializer_deserializer_wrapper.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_managed_function_wrapper.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription_container.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_mutex_wrapper.c">
+			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c">
 			<Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
 			<Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
