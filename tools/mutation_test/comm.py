@@ -25,17 +25,6 @@ def wait_for(future, timeout=None):
     return _EVENT_LOOP.run_until_complete(future)
 
 
-def subproc_run(command, timeout=300):
-    """
-    Execute a given subprocess command with a timeout. Print its output at real time.
-    """
-    from asyncio.subprocess import PIPE
-
-    proc = wait_for(asyncio.create_subprocess_shell(command, stdout=PIPE, stderr=PIPE))
-    _read_until_complete(proc, None, None, None, timeout)
-    return wait_for(proc.wait())
-
-
 def read_target_output(target, start_flag, crash_flag, stop_flag, pass_flag, start_timeout, exec_timeout):
     """
     Read output from a serial port or a subprocess. Output is printed at real time.
