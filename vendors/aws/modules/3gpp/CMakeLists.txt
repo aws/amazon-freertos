@@ -7,7 +7,7 @@ afr_module_sources(
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_3gpp_api.c"
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_3gpp_urc_handler.c"
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_common.c"
-        "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_api.c"
+        "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_common_api.c"
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_pkthandler.c"
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_at_core.c"
         "${AFR_VENDORS_DIR}/aws/modules/3gpp/ports/cellular/src/cellular_pktio.c"
