@@ -90,7 +90,7 @@ See `/configs/wifi.json` as an example.
 - `patterns`: The mutation patterns to use. Choose one from `mutator.py`, or create your own set in that file.
 - `mutants_per_pattern` (Optional): The number of mutants to create for each mutation pattern. If not specified then default is 10 mutants per pattern.
 
-`flash_command`: The `flash_command` attribute is the command executed for cmake, build, compile, and flashing the program onto the board. For ESP32, it is handled by a separate custom python script in this project. Whatever in 'flash_command' will be executed through a python subprocess, so it can be any type of executable script. Make sure to let the script end in a non-exit status code if there issue with compiling or flashing the program as this tells the script that a compile may have failed due to the mutations and advance to the next mutation pattern to try again.
+`flash_command`: The `flash_command` attribute is the command executed for cmake, build, compile, and flashing the program onto the board. For ESP32, it is handled by a separate custom python script in this project. Whatever in 'flash_command' will be executed through a python subprocess, so it can be any type of executable script. Make sure to let the script end in a non-exit status code if there issue with compiling or flashing the program as this tells the script that a compile may have failed due to the mutations and advance to the next mutation pattern to try again. For more information see [this section](#using-other-boards-for-mutation-testing).
 
 In the future, it is expected that we can generate the this configuration json file with a separate script and the help of a more powerful line coverage tool (see next optional section).
 
@@ -98,7 +98,7 @@ In the future, it is expected that we can generate the this configuration json f
 
 A function coverage tool is provided if we want to get the functional coverage for the test. All it does is add print statements to the source code files under each function header, and prints out the function name and line number. This is useful if we want to restrict the mutations to a certain set of line numbers in the source code. 
 
-We may also notice that mutants are created in lines that are not executed during the tests. This may lead to inaccurate results as the test passes the mutant, which indicates a potential test quality issue, but in reality, it is an expected behavior. A stronger coverage tool that is able to pinpoint specific lines may be more useful then this tool, but it is yet to be discovered or implemented. `lcov/gcov` was explored, but they do not work when the code is ran on an embedded system board.
+We may also notice that mutants are created in lines that are not executed during the tests. See the [challenges](#mutants-that-do-not-change-behavior-of-code). This may lead to inaccurate results as the test passes the mutant, which indicates a potential test quality issue, but in reality, it is an expected behavior. A stronger coverage tool that is able to pinpoint specific lines may be more useful then this tool, but it is yet to be discovered or implemented. `lcov/gcov` was explored, but they do not work when the code is ran on an embedded system board.
 
 To run the function coverage tool: `./mutation_runner.py coverage -s wifi`
 
@@ -226,14 +226,14 @@ A typical mutation testing sequence to test the entire WiFi test suite would be:
 | file | line | original | mutant | result | expected_catch |
 | ---  | ---  | ---      | ---    | ---    | ---            |
 
-`Full_WiFi_pattern_comparison.csv`: Each row has information on the pattern that was used, how many times it failed and the total number of mutants created for each pattern.
+`Full_WiFi_pattern_comparison.csv`: Each row has information on the pattern that was used, how many times it failed and the total number of mutants created for each pattern. This can be useful when joined together with many other tasks where each task only use a single test at a time. 
 
 | pattern | failures | total | percentage |
 | ---     | ---      | ---   | ---        |
 
-`Full_WiFi_test_aggregates.csv`: Each row has information on each specific test and how many times they failed a mutant.
+`Full_WiFi_test_aggregates.csv`: Each row has information on each specific test and how many times they failed a mutant. *Note that this captures only test failures and not timeouts or crashes.*
 
-| group | test | kills | passes | total |
+| group | test | fails | passes | total |
 | ---   | ---  | ---   | ---    | ---   |
 
 ## (Optional) 6. Run mutation testing with line coverage map.
@@ -392,7 +392,7 @@ By using a task-based approach, the tool is very flexible in setting up differen
 }
 ```
 
-For each task, it runs a different test group and also generates their own set of CSVs if specified. Therefore, in the example above, there will be 5 mutation scores outputted in total, and 15 total CSV files (since 3 are generated for each task). However, note that the test group must be created manually by modifying `iot_wifi_test.c`. A custom set of patterns with the key name "custom_patterns" was also used. To create your own set of patterns, see [Specifying Custom Mutation Patterns]().
+For each task, it runs a different test group and also generates their own set of CSVs if specified. Therefore, in the example above, there will be 5 mutation scores outputted in total, and 15 total CSV files (since 3 are generated for each task). However, note that the test group must be created manually by modifying `iot_wifi_test.c`. A custom set of patterns with the key name "custom_patterns" was also used. To create your own set of patterns, see [Specifying Custom Mutation Patterns](#specifying-custom-mutation-patterns).
 
 In the future, we wish to automatically generate test groups by picking the tests related to each line and then adding them to a single test group and only execute those tests for the line that was mutated. If this is successful, we may see a much more accurate mutation score.
 
@@ -402,7 +402,7 @@ In the future, we wish to automatically generate test groups by picking the test
 
 Throughout mutation testing, we may notice that some mutations do not actually change the behavior of the code. For example, a mutation pattern may involve changing a `==` into a `>=`. For many cases, like `if xBool == true`, changing it to `if xBool >= true` doesn't change the behavior. When you think about the semantics of many of the operators in different contexts, they are in fact identical. The behavior of the code will not change as a result of the mutant; therefore, it is expected that these such mutants pass the test
 
-It is still difficult for us to identify mutation patterns that do not change the behavior of the code. We can remove it from the pattern set, but at the cost of not being able to identify the mutants with the same mutation pattern that is actually breaking the code but not caught by any tests. To mitigate this issue, this script supports a `task` based approach, which is specified in the configuration file (see [Task-based Approach]()).
+It is still difficult for us to identify mutation patterns that do not change the behavior of the code. We can remove it from the pattern set, but at the cost of not being able to identify the mutants with the same mutation pattern that is actually breaking the code but not caught by any tests. To mitigate this issue, this script supports a `task` based approach, which is specified in the configuration file (see [Task-based Approach](#task-based-configuration-file)).
 
 ## Runtime
 
