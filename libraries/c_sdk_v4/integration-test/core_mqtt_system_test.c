@@ -807,23 +807,24 @@ void testTearDown()
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test group for coreMQTT system tests against AWS IoT.
+ * @brief Test group for coreMQTT system tests of MQTT 3.1.1
+ * features that are supported by AWS IoT.
  */
-TEST_GROUP( coreMQTT_Integration_AWS_IoT );
+TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
 
-TEST_SETUP( coreMQTT_Integration_AWS_IoT )
+TEST_SETUP( coreMQTT_Integration_AWS_IoT_Compatible )
 {
     testSetUp( AWS_IOT_ENDPOINT, tlsATS1_ROOT_CERTIFICATE_PEM );
 }
 
-TEST_TEAR_DOWN( coreMQTT_Integration_AWS_IoT )
+TEST_TEAR_DOWN( coreMQTT_Integration_AWS_IoT_Compatible )
 {
     testTearDown();
 }
 
 /**
- * @brief Test group for coreMQTT system tests against a non-AWS IoT broker
- * for MQTT 3.1.1 features not supported by AWS IoT.
+ * @brief Test group for coreMQTT system tests of MQTT 3.1.1 features
+ * that are not supported by AWS IoT.
  */
 TEST_GROUP( coreMQTT_Integration );
 
@@ -840,20 +841,20 @@ TEST_TEAR_DOWN( coreMQTT_Integration )
 /* ========================== Test Cases ============================ */
 
 /**
- * @brief Test group runner for MQTT system tests against AWS IoT.
+ * @brief Test group runner for MQTT system tests that can be run against AWS IoT.
  */
-TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT )
+TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
 {
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, Subscribe_Publish_With_Qos_0 );
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, Subscribe_Publish_With_Qos_1 );
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, Connect_LWT );
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, ProcessLoop_KeepAlive );
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, Resend_Unacked_Publish_QoS1 );
-    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT, Restore_Session_Duplicate_Incoming_Publish_Qos1 );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_0 );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_1 );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Connect_LWT );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, ProcessLoop_KeepAlive );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Resend_Unacked_Publish_QoS1 );
+    RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Restore_Session_Duplicate_Incoming_Publish_Qos1 );
 }
 
 /**
- * @brief Test group runner for MQTT system tests against a non-AWS IoT broker.
+ * @brief Test group runner for MQTT system tests that are not supported by AWS IoT.
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration )
 {
@@ -872,7 +873,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration )
  * The test subscribes to a topic, and then publishes to the same topic. The
  * broker is expected to route the publish message back to the test.
  */
-TEST( coreMQTT_Integration_AWS_IoT, Subscribe_Publish_With_Qos_0 )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_0 )
 {
     /* Subscribe to a topic with Qos 0. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
@@ -928,7 +929,7 @@ TEST( coreMQTT_Integration_AWS_IoT, Subscribe_Publish_With_Qos_0 )
  * The test subscribes to a topic, and then publishes to the same topic. The
  * broker is expected to route the publish message back to the test.
  */
-TEST( coreMQTT_Integration_AWS_IoT, Subscribe_Publish_With_Qos_1 )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_1 )
 {
     /* Subscribe to a topic with Qos 1. */
     TEST_ASSERT_EQUAL( MQTTSuccess, subscribeToTopic(
@@ -1058,7 +1059,7 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
  * @brief Verifies that the MQTT library supports the "Last Will and Testament" feature when
  * establishing a connection with a broker.
  */
-TEST( coreMQTT_Integration_AWS_IoT, Connect_LWT )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, Connect_LWT )
 {
     NetworkContext_t secondNetworkContext = { 0 };
     bool sessionPresent;
@@ -1118,7 +1119,7 @@ TEST( coreMQTT_Integration_AWS_IoT, Connect_LWT )
  * @brief Verifies that the MQTT library sends a Ping Request packet if the connection is
  * idle for more than the keep-alive period.
  */
-TEST( coreMQTT_Integration_AWS_IoT, ProcessLoop_KeepAlive )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, ProcessLoop_KeepAlive )
 {
     uint32_t connectPacketTime = context.lastPacketTime;
     uint32_t elapsedTime = 0;
@@ -1240,7 +1241,7 @@ TEST( coreMQTT_Integration, Restore_Session_Incoming_Duplicate_PubRel )
  * un-acknowledged in its first attempt.
  * Tests that the library is able to support resending the PUBLISH packet with the DUP flag.
  */
-TEST( coreMQTT_Integration_AWS_IoT, Resend_Unacked_Publish_QoS1 )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, Resend_Unacked_Publish_QoS1 )
 {
     /* Start a persistent session with the broker. */
     startPersistentSession();
@@ -1382,7 +1383,7 @@ TEST( coreMQTT_Integration, Resend_Unacked_Publish_QoS2 )
  * Tests that the library responds with a PUBACK to the duplicate incoming QoS 1 PUBLISH
  * packet that was un-acknowledged in a previous connection of the same session.
  */
-TEST( coreMQTT_Integration_AWS_IoT, Restore_Session_Duplicate_Incoming_Publish_Qos1 )
+TEST( coreMQTT_Integration_AWS_IoT_Compatible, Restore_Session_Duplicate_Incoming_Publish_Qos1 )
 {
     /* Start a persistent session with the broker. */
     startPersistentSession();
