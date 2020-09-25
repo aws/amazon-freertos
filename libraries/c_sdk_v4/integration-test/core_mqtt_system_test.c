@@ -80,22 +80,16 @@
 
 /**************Default Configurations values***********************/
 
-#ifndef AWS_IOT_ENDPOINT
-    #define AWS_IOT_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
+#ifndef BROKER_ENDPOINT
+    #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
 #ifndef BROKER_PORT
-    #define BROKER_PORT            clientcredentialMQTT_BROKER_PORT
+    #define BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
-#define BROKER_ENDPOINT_NON_AWS    ""
-#ifndef BROKER_ENDPOINT_NON_AWS
-    #error "Please BROKER_ENDPOINT_NON_AWS to connect to a non-AWS IoT broker for coreMQTT_Integration test group."
-#endif
-
-#define SERVER_ROOT_CA_CERT_NON_AWS    ""
-#ifndef SERVER_ROOT_CA_CERT_NON_AWS
-    #error "Please define SERVER_ROOT_CA_CERT_NON_AWS macro for signing CA of server certificate."
+#ifndef SERVER_ROOT_CA_CERT
+    #define SERVER_ROOT_CA_CERT    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif /* ifndef SERVER_ROOT_CA_CERT_NON_AWS */
 
 /**********************End Configurations********************************/
@@ -740,8 +734,7 @@ static void resumePersistentSession()
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
-void testSetUp( const char * pBrokerEndpoint,
-                const char * pRootCaCert )
+void testSetUp()
 {
     /* Reset file-scoped global variables. */
     receivedSubAck = false;
@@ -757,8 +750,8 @@ void testSetUp( const char * pBrokerEndpoint,
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
 
     /* Initializer server information. */
-    serverInfo.pHostName = pBrokerEndpoint;
-    serverInfo.hostNameLength = strlen( pBrokerEndpoint );
+    serverInfo.pHostName = BROKER_ENDPOINT;
+    serverInfo.hostNameLength = strlen( BROKER_ENDPOINT );
     serverInfo.port = BROKER_PORT;
 
     /* Initialize SocketsConfig. */
@@ -766,8 +759,8 @@ void testSetUp( const char * pBrokerEndpoint,
     socketsConfig.pAlpnProtos = NULL;
     socketsConfig.maxFragmentLength = 0;
     socketsConfig.disableSni = true;
-    socketsConfig.pRootCa = pRootCaCert;
-    socketsConfig.rootCaSize = strlen( pRootCaCert ) + 1U;
+    socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
+    socketsConfig.rootCaSize = strlen( SERVER_ROOT_CA_CERT ) + 1U;
     socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
     socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
 
@@ -814,7 +807,7 @@ TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
 
 TEST_SETUP( coreMQTT_Integration_AWS_IoT_Compatible )
 {
-    testSetUp( AWS_IOT_ENDPOINT, tlsATS1_ROOT_CERTIFICATE_PEM );
+    testSetUp();
 }
 
 TEST_TEAR_DOWN( coreMQTT_Integration_AWS_IoT_Compatible )
@@ -830,7 +823,7 @@ TEST_GROUP( coreMQTT_Integration );
 
 TEST_SETUP( coreMQTT_Integration )
 {
-    testSetUp( BROKER_ENDPOINT_NON_AWS, SERVER_ROOT_CA_CERT_NON_AWS );
+    testSetUp();
 }
 
 TEST_TEAR_DOWN( coreMQTT_Integration )
