@@ -406,7 +406,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration-tests\mqtt_system_test.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration-test\core_mqtt_system_test.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_system.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_ggd_unit.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c"/>
