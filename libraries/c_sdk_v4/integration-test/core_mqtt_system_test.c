@@ -22,8 +22,8 @@
 
 /**
  * @file core_mqtt_system_test.c
- * @brief Integration tests for the coreMQTT library when communication with AWS IoT
- * from a FreeRTOS platform.
+ * @brief Integration tests for the coreMQTT library for the FreeRTOS platform
+ * over Secure Sockets as the transport layer.
  */
 
 /* Standard header includes. */
