@@ -340,16 +340,12 @@ def mutation_main(args, config):
     if args.jobfile:
         with open(args.jobfile, 'r') as f:
             jobfile = ast.literal_eval(f.read())
-            if not args.port:
-                args.port = jobfile['port']
-            if not args.mutants:
-                args.mutants = int(jobfile['mutant_cnt'])
-            if not args.timeout:
-                args.timeout = int(jobfile['timeout'])
-            if not args.csv:
-                args.csv = jobfile['csv']
-            if not args.seed:
-                args.seed = jobfile['seed']
+            args.port = jobfile['port']
+            args.mutants = int(jobfile['mutants'])
+            args.timeout = int(jobfile['timeout'])
+            args.csv = jobfile['csv']
+            args.seed = jobfile['seed']
+            args.randomize = jobfile['randomize']
     if args.line_coverage:
         with open(args.line_coverage) as f:
             args.line_coverage = json.loads(f.read())
@@ -386,11 +382,12 @@ def mutation_main(args, config):
             # restore aws_test_runner.c
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
-    create_jobfile(mutant_cnt=args.mutants,
+    create_jobfile(mutants=args.mutants,
         port=args.port,
         timeout=args.timeout,
         csv=args.csv,
-        seed=args.seed)
+        seed=args.seed,
+        randomize=args.randomize)
 
 def main():
     """ main method that is ran during execution

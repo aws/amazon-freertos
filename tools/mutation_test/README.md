@@ -43,7 +43,7 @@ Some features that this script supports are:
   
 ---
 
-## Quick Start for ESP32
+## Quick Start for WiFi Tests on ESP32
 
 #### Prerequisites
 
@@ -53,7 +53,7 @@ Install requirements: `pip install -r requirements.txt`
 
 For available commands and arguments: `./mutation_runner.py -h`
 
-Be able to run the WiFi tests with [ESP32 Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html).
+Be able to run the WiFi tests with [ESP32 Getting Started Guide](https://docs.aws.amazon.com/<REPO_HOME_FOLDER>/latest/userguide/getting_started_espressif.html).
 
 #### Try: `./mutation_runner.py start -s wifi -m 3 -c -r`
 
@@ -73,11 +73,11 @@ We will now walk through an example for setting up mutation testing for the WiFi
 
 In order to run the WiFi tests, we need to configure WiFi credentials and set up an echo server.
 
-Configure your WiFi credentials at `/freertos/tests/include/aws_clientcredential.h`.
+Configure your WiFi credentials at `/<REPO_HOME_FOLDER>/tests/include/aws_clientcredential.h`.
 
-Configure echo server address at `/freertos/tests/include/aws_test_tcp.h`. You may use `/freertos/tools/echo_server/` to create an echo server.
+Configure echo server address at `/<REPO_HOME_FOLDER>/tests/include/aws_test_tcp.h`. You may use `/<REPO_HOME_FOLDER>/tools/echo_server/` to create an echo server.
 
-Configure a separate set of WiFi credentials at `/freertos/libraries/abstractions/wifi/test/iot_test_wifi.h` for multiple AP connection test.
+Configure a separate set of WiFi credentials at `/<REPO_HOME_FOLDER>/libraries/abstractions/wifi/test/iot_test_wifi.h` for multiple AP connection test.
 
 ## 2. Create a config file in `/configs`
 
@@ -88,7 +88,7 @@ See `/configs/wifi.json` as an example.
 - `src`: A mapping from the path of the source code file(s) from /freertos to the line numbers to mutate for this file. We can use the coverage tool in the next section to find function coverage and then manually inspect to find the line numbers we want to mutate. If the list is left empty, then all numbers are selected for mutation.
 - `test_groups`: The test groups that should be ran to test the source code(s) provided.
 - `patterns`: The mutation patterns to use. Choose one from `mutator.py`, or create your own set in that file.
-- `mutants_per_pattern` (Optional): The number of mutants to create for each mutation pattern. If not specified then all occurrences of the pattern will be selected as mutants. 
+- `mutants_per_pattern` (Optional): The number of mutants to create for each mutation pattern. If not specified then default is 10 mutants per pattern.
 
 `flash_command`: The `flash_command` attribute is the command executed for cmake, build, compile, and flashing the program onto the board. For ESP32, it is handled by a separate custom python script in this project. Whatever in 'flash_command' will be executed through a python subprocess, so it can be any type of executable script. Make sure to let the script end in a non-exit status code if there issue with compiling or flashing the program as this tells the script that a compile may have failed due to the mutations and advance to the next mutation pattern to try again.
 
@@ -155,10 +155,10 @@ Here, we see the details for each mutant created, or something like this:
 | 702  | 		if( pxNetwork->ucSSIDLength < ulSize )                | 		if( pxNetwork->ucSSIDLength == ulSize )                | FAIL/KILLED |
 | 715  | 			if( pxNetwork->ucPasswordLength < ulSize )            | 			if( pxNetwork->ucPasswordLength == ulSize )            | FAIL/KILLED |
 
-Now, let's try fixing the test to improve the mutation score. Navigate to the root directory `/freertos/` and open `/freertos/vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c`. Note that line 566 is under the 
+Now, let's try fixing the test to improve the mutation score. Navigate to the root directory `/<REPO_HOME_FOLDER>/` and open `/<REPO_HOME_FOLDER>/vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c`. Note that line 566 is under the 
 `WIFI_Scan` function. We should check the test associated with testing this function.
 
-Open up `/freertos/libraries/abstractions/wifi/test/iot_test_wifi.c` and examine the WiFi_Scan test. Notice that all the test does is verify the return status! Let's improve it.
+Open up `/<REPO_HOME_FOLDER>/libraries/abstractions/wifi/test/iot_test_wifi.c` and examine the WiFi_Scan test. Notice that all the test does is verify the return status! Let's improve it.
 
 Comment out the current WIFI_Scan, and add the following:
 
@@ -273,9 +273,128 @@ This map will be used to output which test is supposed to catch a mutant at each
 
 It is useful to know which tests are supposed to catch the mutant when the mutant is **ALIVE** or **passing** the tests. We can then inspect those tests or the source code to see why it's passing.
 
-# Task-based Approach
+An example of this line coverage json file is provided. Try:
 
-# Repeating Randomized Tests
+`./mutation_runner.py start -s wifi -m 3 -c -l wifi_lc_example.json`
+
+The `expected_catch` column will also be populated with `WiFi_Scan`.
+
+Evidently, when the test suite gets bigger, we would to be able to generate this coverage json in a separate step, once we get hold of a more powerful line coverage tool.
+
+# Repeating Randomized Runs
+
+Sometimes, after we make a randomized mutation testing run, we may want to repeat the same run using the same mutations. This is easy when -r is not specified (sequentially go through mutation patterns and greedily mutating occurrences beginning from line 1). For randomized runs, it is possible to repeat the same run by providing the a jobfile with -j.
+
+Notice that under `/<REPO_HOME_FOLDER>/tools/mutation_testing/` there is a file called `jobfile`. This file will contain some argument data as well as the random seed from the previous run. Make a copy of it if you like and supply it to the mutation runner like so: `./mutation_runner.py start -s wifi -j jobfile`. This will ensure that the same mutants will be generated. **Note that the jobfile will overwrite all arguments other than `-s`.** If you want to make modifications to, say the number of max mutants, change the value directly within the jobfile you are about to provide.
+
+`jobfile` contents:
+```
+{'mutants': '3', 'port': None, 'timeout': 300, 'csv': False, 'seed': 8698652545248711148, 'randomize': True}
+```
+
+One use case can be when we do a randomized run and get a mutation score. After we fix the tests, we don't want to run a new randomized version because we don't want to introduce new mutants as they are all independent variables. So we can supply the jobfile to make the run and hopefully the score will improve. We can also compare the CSVs between the two runs to see if what mutants are still alive or have been killed after the test fix.
+
+# Specifying Custom Mutation Patterns
+
+To create our own custom set of mutation patterns, open up `mutator.py`. Find the variable `pattern_dict`.
+
+```python
+pattern_dict = {
+    # To use test_patterns, specify "test_patterns" to "patterns" attribute in configuration json.
+    "test_patterns" : {
+        " < " : " == "
+    },
+
+    # Add your own custom patterns in this dictionary
+
+    "<YOUR_CUSTOM_PATTERNS>" : {
+        " > " : [ " < ", " == " ],
+        " return " : " return -1 * ",
+        ...
+    }
+
+    ...
+}
+```
+
+Then add the key name of your custom patterns to the configuration json. For example, if we want to apply them to the WiFi tests:
+
+```json
+{
+    "tasks": [
+        {
+            "name": "Full_Wifi",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[]},
+            "test_groups": ["Full_WiFi", "Quarantine_WiFi"],
+            "patterns": "<OUR_CUSTOM_PATTERNS>"
+        }
+    ],
+    "flash_command": "${DIR_PATH}/esp32_build.py"
+}
+```
+
+We can use both a mapping from strings to list of strings or strings to strings. During execution, they will be flattened into many string to string pairs and each string to string pair is considered a Pattern type. If randomization is turned on, keep in mind that each Pattern type has an equal chance of being selected, NOT the base pattern string. So if in total we have these three Pattern types:  (" > ", " < "), ( " > ", " == "), ( " return ", " return -1 * "), there is 66% chance of choosing " > " as the base. 
+
+# Using Other Boards for Mutation Testing
+
+In the configuration file (in /configs/*.json), the attribute `flash_command` is used for building and flashing.
+
+```json
+"flash_command": "${DIR_PATH}/esp32_build.py"
+```
+
+`${DIR_PATH}` will be automatically exported when we run ./mutation_runner.py. Using esp32_build.py as reference, please construct your own build and flash script for your particular board. Remember to erase the flash first as there is no where else where this command is called again until the next mutant iteration. The `flash_command` will be called as a subprocess. The driver program mutation_runner.py will read serial output from the board until certain flag is reached then terminate the serial monitor, moving on to the next mutant iteration.
+
+# Task-based Configuration File
+
+By using a task-based approach, the tool is very flexible in setting up different types of mutation testing runs. One use case that was executed during the development of the tool is isolating the tests into their individual test groups, and then executing mutants only on lines of functions called by the single test.
+
+```json
+{
+    "tasks": [
+        {
+            "name": "WiFi_IsConnected",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[249,263],[363,448],[451,479]]},
+            "test_groups": ["WiFiIsConnected"],
+            "patterns": "custom_patterns",
+            "mutants_per_pattern": 50
+        },
+        {
+            "name": "WiFi_Scan",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[488,611]]},
+            "test_groups": ["WiFi_Scan"],
+            "patterns": "custom_patterns",
+            "mutants_per_pattern": 50
+        },
+        {
+            "name": "WiFi_GetIP",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[363,448],[249,264],[1077,1127]]},
+            "test_groups": ["WiFi_GetIP"],
+            "patterns": "custom_patterns",
+            "mutants_per_pattern": 50
+        },
+        {
+            "name": "WiFi_GetHostIP",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[363,448],[249,264],[1173,1209]]},
+            "test_groups": ["WiFi_GetHostIP"],
+            "patterns": "custom_patterns",
+            "mutants_per_pattern": 50
+        },
+        {
+            "name": "WiFiConnectionLoop",
+            "src": {"vendors/espressif/boards/esp32/ports/wifi/iot_wifi.c":[[87,165],[364,447], [453,479]]},
+            "test_groups": ["WiFiConnectionLoop"],
+            "patterns": "custom_patterns",
+            "mutants_per_pattern": 50
+        }
+    ],
+    "flash_command": "${DIR_PATH}/esp32_build.py"
+}
+```
+
+For each task, it runs a different test group and also generates their own set of CSVs if specified. Therefore, in the example above, there will be 5 mutation scores outputted in total, and 15 total CSV files (since 3 are generated for each task). However, note that the test group must be created manually by modifying `iot_wifi_test.c`. A custom set of patterns with the key name "custom_patterns" was also used. To create your own set of patterns, see [Specifying Custom Mutation Patterns]().
+
+In the future, we wish to automatically generate test groups by picking the tests related to each line and then adding them to a single test group and only execute those tests for the line that was mutated. If this is successful, we may see a much more accurate mutation score.
 
 # Challenges
 
@@ -296,8 +415,11 @@ Timing Constraint. Max Runtime: The runtime is dependent on the time to run the 
 
 ## Randomization Issues
 
-This is an unconfirmed issue, but because of randomization, the mutation score between randomized runs that do not retain the same seed will flunctuate greatly. We suspect there is some *averaging* happening, as the scores always converge to around 40-50%. However, between runs with the same seed, if there is an improvement of test quality, the score will definitely be increased.
+One suspicion that might be causing inaccurate scores is that sometimes a mutation pattern exists more than other patterns, so this causes the chances of selecting that pattern in the randomization much higher than patterns that are less common throughout the code. To mitigate this issue, we can first specify the `mutants_per_pattern` attribute for each task in the configuration json, and/or create our own set of custom mutations with an equal amount of pairs of patterns and transformations.
 
+Randomly generated mutation runs may output a "surprising" mutation score every time a different random seed is used. For example, one run we might get lucky and get a score of 70%, which is considered good throughout my experiments. Another run, however, we might get 40%. So it's difficult to compare the scores against each other and hard to determine whether one test suite is better than the other. 
+
+It is difficult to compare two randomized mutation testing runs as the scale of the source code and the mutation patterns increase as we cannot determine the overall effectiveness of the mutations anymore of reach randomization set. However, it is possible to compare two of the same runs with each other if their mutants are exactly the same. To achieve this, the tool supports a jobfile feature that allows randomized runs to be repeated with the same mutants by fixing the random seed. See [Repeating Randomized Runs]() section.
 
 
 

@@ -37,7 +37,7 @@ def flash(port):
 
 def main():
     os.chdir(root_path)
-    port = utils.get_default_serial_port()
+    port = os.environ['PORT'] if os.environ['PORT'] else utils.get_default_serial_port()
     vendor = "espressif"
     board =  "esp32_wrover_kit"
     compiler =  "xtensa-esp32"

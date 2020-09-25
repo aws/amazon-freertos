@@ -9,9 +9,19 @@ from typing import Tuple, List
 NULL_STRING = " "
 
 pattern_dict = {
+
+    # To use "test_patterns" as the mutation pattern set, set "patterns" attribute in
+    # configuration json to "test_patterns".
     "test_patterns" : {
         " < " : " == "
     },
+
+    # Add your own custom pattern sets here. eg.
+    # "<YOUR_CUSTOM_PATTERNS>" : {
+    #     " > " : [ " < ", " == " ],
+    #     " return " : " return -1 * ",
+    #     ...
+    # }
 
     "custom_patterns" : {
         " < " : 
@@ -412,11 +422,11 @@ class Mutator():
         """
         return self.mutation_patterns
 
-    def generateMutants(self, mutants_per_pattern=None, random=False) -> List[Occurrence]:
+    def generateMutants(self, mutants_per_pattern=10, random=False) -> List[Occurrence]:
         """ Returns a list of occurrences including multiple different patterns
 
         For each pattern, the list contains a maximum of `mutants_per_pattern` number of 
-        occurrences
+        occurrences. Default is 10 if not provided.
 
         If `random` is True, then the list is shuffled using this mutator's rng
         """
@@ -434,6 +444,8 @@ class Mutator():
             # if occurrences are found add them to dictionary
             if mp not in mutations_dict:
                 mutations_dict[mp] = []
+            if random:
+                self.rng.shuffle(occurrences_with_mp)
             mutations_dict[mp] += occurrences_with_mp[0:mutants_per_pattern]
         for mp in mutations_dict:
             mutations_list += mutations_dict[mp]
