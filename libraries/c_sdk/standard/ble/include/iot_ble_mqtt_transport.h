@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 #include "iot_ble_mqtt_transport_config.h"
-#include "mqtt_lightweight.h"
+#include "core_mqtt_serializer.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
 #include "platform/iot_network.h"

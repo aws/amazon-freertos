@@ -38,7 +38,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "iot_ble_config.h"
-#include "mqtt_lightweight.h"
+#include "core_mqtt_serializer.h"
 
 /* MQTT internal includes. */
 #include "platform/iot_threads.h"

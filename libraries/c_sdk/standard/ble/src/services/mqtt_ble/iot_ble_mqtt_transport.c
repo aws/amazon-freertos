@@ -25,7 +25,7 @@
 #include "iot_ble.h"
 #include "iot_ble_mqtt_transport.h"
 #include "iot_ble_mqtt_serialize.h"
-#include "mqtt_lightweight.h"
+#include "core_mqtt_serializer.h"
 
 /*-----------------------------------------------------------*/
 

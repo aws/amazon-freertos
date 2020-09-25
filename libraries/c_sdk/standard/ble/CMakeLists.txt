@@ -100,7 +100,6 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
-        "${AFR_MODULES_DIR}/c_sdk/standard/mqtt_v2/include/"
         "${AFR_MODULES_DIR}/c_sdk/standard/logging_stack"
         "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
@@ -112,7 +111,7 @@ afr_module_dependencies(
     PUBLIC
         AFR::serializer
         AFR::ble
-	    AFR::mqtt_v2
+	    AFR::core_mqtt
 )
 
 #MQTT over BLE Test

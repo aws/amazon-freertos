@@ -19,8 +19,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef TEST_CONFIG_H_
-#define TEST_CONFIG_H_
+#ifndef CORE_MQTT_CONFIG_H_
+#define CORE_MQTT_CONFIG_H_
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -29,67 +29,44 @@
 /* Include logging header files and define logging macros in the following order:
  * 1. Include the header file "logging_levels.h".
  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
- * the logging configuration for DEMO.
- * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ * the logging configuration for MQTT.
+ * 3. Include the header file "logging_stack.h", if logging is enabled for MQTT.
  */
 
 #include "logging_levels.h"
 
-/* Logging configuration for the Demo. */
+/* Logging configuration for the MQTT library. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "TEST"
+    #define LIBRARY_LOG_NAME    "MQTT"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
     #define LIBRARY_LOG_LEVEL    LOG_INFO
 #endif
+
 #include "logging_stack.h"
 
 /************ End of logging configuration ****************/
 
 /**
- * @brief MQTT server host name.
+ * @brief The maximum number of MQTT PUBLISH messages that may be pending
+ * acknowledgement at any time.
  *
- * This test uses the Mosquitto test server. This is a public MQTT server; do not
- * publish anything sensitive to this server.
- * Mosquitto MQTT broker can run locally as an alternate option. Please refer to
- * the instructions in https://mosquitto.org/ for running a Mosquitto broker
- * locally.
+ * QoS 1 and 2 MQTT PUBLISHes require acknowledgement from the server before
+ * they can be completed. While they are awaiting the acknowledgement, the
+ * client must maintain information about their state. The value of this
+ * macro sets the limit on how many simultaneous PUBLISH states an MQTT
+ * context maintains.
  */
-#ifndef BROKER_ENDPOINT
-    #define BROKER_ENDPOINT    "test.mosquitto.org"
-#endif
+#define MQTT_STATE_ARRAY_MAX_COUNT    ( 10U )
 
 /**
- * @brief Length of MQTT server host name.
- */
-#ifndef BROKER_ENDPOINT_LENGTH
-    #define BROKER_ENDPOINT_LENGTH    ( ( uint16_t ) ( sizeof( BROKER_ENDPOINT ) - 1 ) )
-#endif
-
-/**
- * @brief MQTT server port number.
+ * @brief Number of milliseconds to wait for a ping response to a ping
+ * request as part of the keep-alive mechanism.
  *
- * In general, port 8883 is for secured MQTT connections.
+ * If a ping response is not received before this timeout, then
+ * #MQTT_ProcessLoop will return #MQTTKeepAliveTimeout.
  */
-#define BROKER_PORT    ( 8883 )
+#define MQTT_PINGRESP_TIMEOUT_MS      ( 500U )
 
-/**
- * @brief Path of the file containing the server's root CA certificate.
- *
- * This certificate should be PEM-encoded.
- */
-#ifndef SERVER_ROOT_CA_CERT_PATH
-    #error "SERVER_ROOT_CA_CERT_PATH should be defined for MQTT system tests."
-#endif
-
-/**
- * @brief MQTT client identifier.
- *
- * No two clients may use the same client identifier simultaneously.
- */
-#ifndef CLIENT_IDENTIFIER
-    #define CLIENT_IDENTIFIER    "testclient"
-#endif
-
-#endif /* ifndef TEST_CONFIG_H_ */
+#endif /* ifndef CORE_MQTT_CONFIG_H_ */
