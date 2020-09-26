@@ -166,9 +166,9 @@ function(config_cy_mcuboot_sign_script)
     set(CY_ELF_TO_HEX_OPTIONS "$ENV{CY_ELF_TO_HEX_OPTIONS}")
     if("$ENV{CY_ELF_TO_HEX_FILE_ORDER}" STREQUAL "elf_first")
         set(CY_ELF_TO_HEX_FILE_1 "${CY_OUTPUT_FILE_PATH_ELF}")
-        set(CY_ELF_TO_HEX_FILE_2 "${CY_OUTPUT_FILE_PATH_HEX}")
+        set(CY_ELF_TO_HEX_FILE_2 "${CY_OUTPUT_FILE_PATH_UNSIGNED_HEX}")
     else()
-        set(CY_ELF_TO_HEX_FILE_1 "${CY_OUTPUT_FILE_PATH_HEX}")
+        set(CY_ELF_TO_HEX_FILE_1 "${CY_OUTPUT_FILE_PATH_UNSIGNED_HEX}")
         set(CY_ELF_TO_HEX_FILE_2 "${CY_OUTPUT_FILE_PATH_ELF}")
     endif()
 
@@ -213,19 +213,20 @@ function(cy_sign_boot_image)
         # non-TFM signing
         #------------------------------------------------------------
         # Create our script filename in this scope
-        set(SIGN_SCRIPT_FILE_NAME           "sign_${ARG_EXE_APP_NAME}.sh")
-        set(SIGN_SCRIPT_FILE_PATH           "${CMAKE_BINARY_DIR}/${SIGN_SCRIPT_FILE_NAME}")
-        set(SIGN_SCRIPT_FILE_PATH_TMP       "${CMAKE_BINARY_DIR}/tmp/${SIGN_SCRIPT_FILE_NAME}")
-        set(CY_OUTPUT_FILE_PATH             "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}")
-        set(CY_OUTPUT_FILE_PATH_ELF         "${CY_OUTPUT_FILE_PATH}.elf")
-        set(CY_OUTPUT_FILE_PATH_HEX         "${CY_OUTPUT_FILE_PATH}.hex")
-        set(CY_OUTPUT_FILE_PATH_SIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.signed.hex")
-        set(CY_OUTPUT_FILE_NAME_BIN         "${ARG_EXE_APP_NAME}.bin")
-        set(CY_OUTPUT_FILE_PATH_BIN         "${CY_OUTPUT_FILE_PATH}.bin")
-        set(CY_OUTPUT_FILE_PATH_TAR         "${CY_OUTPUT_FILE_PATH}.tar")
-        set(CY_OUTPUT_FILE_PATH_WILD        "${CY_OUTPUT_FILE_PATH}.*")
-        set(CY_COMPONENTS_JSON_NAME         "components.json")
-        set(CY_OUTPUT_FILE_NAME_TAR         "${ARG_EXE_APP_NAME}.tar")
+        set(SIGN_SCRIPT_FILE_NAME             "sign_${ARG_EXE_APP_NAME}.sh")
+        set(SIGN_SCRIPT_FILE_PATH             "${CMAKE_BINARY_DIR}/${SIGN_SCRIPT_FILE_NAME}")
+        set(SIGN_SCRIPT_FILE_PATH_TMP         "${CMAKE_BINARY_DIR}/tmp/${SIGN_SCRIPT_FILE_NAME}")
+        set(CY_OUTPUT_FILE_PATH               "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}")
+        set(CY_OUTPUT_FILE_PATH_ELF           "${CY_OUTPUT_FILE_PATH}.elf")
+        set(CY_OUTPUT_FILE_PATH_HEX           "${CY_OUTPUT_FILE_PATH}.hex")
+        set(CY_OUTPUT_FILE_NAME_UNSIGNED_HEX  "${ARG_EXE_APP_NAME}.unsigned.hex")
+        set(CY_OUTPUT_FILE_PATH_UNSIGNED_HEX  "${CY_OUTPUT_FILE_PATH}.unsigned.hex")
+        set(CY_OUTPUT_FILE_NAME_BIN           "${ARG_EXE_APP_NAME}.bin")
+        set(CY_OUTPUT_FILE_PATH_BIN           "${CY_OUTPUT_FILE_PATH}.bin")
+        set(CY_OUTPUT_FILE_PATH_TAR           "${CY_OUTPUT_FILE_PATH}.tar")
+        set(CY_OUTPUT_FILE_PATH_WILD          "${CY_OUTPUT_FILE_PATH}.*")
+        set(CY_COMPONENTS_JSON_NAME           "components.json")
+        set(CY_OUTPUT_FILE_NAME_TAR           "${ARG_EXE_APP_NAME}.tar")
 
         # We can use objcopy for .hex to .bin for all toolchains
         find_program(GCC_OBJCOPY arm-none-eabi-objcopy HINT "${AFR_TOOLCHAIN_PATH}")
@@ -237,7 +238,7 @@ function(cy_sign_boot_image)
             # Generate HEX file
             add_custom_command(
                 TARGET "${ARG_EXE_APP_NAME}" POST_BUILD
-                COMMAND "${GCC_OBJCOPY}" -O ihex "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.hex"
+                COMMAND "${GCC_OBJCOPY}" -O ihex "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf" "${CMAKE_BINARY_DIR}/${CY_OUTPUT_FILE_NAME_UNSIGNED_HEX}"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-armclang")
             find_program(FROMELF_TOOL fromelf HINT "${AFR_TOOLCHAIN_PATH}")
@@ -248,7 +249,7 @@ function(cy_sign_boot_image)
             # Generate HEX file
             add_custom_command(
                 TARGET "${ARG_EXE_APP_NAME}" POST_BUILD
-                COMMAND ${FROMELF_TOOL} --i32 --output="${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.hex" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf"
+                COMMAND ${FROMELF_TOOL} --i32 --output="${CMAKE_BINARY_DIR}/${CY_OUTPUT_FILE_NAME_UNSIGNED_HEX}" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf"
             )
         elseif("${AFR_TOOLCHAIN}" STREQUAL "arm-iar")
         find_program(FROMELF_TOOL ielftool HINT "${AFR_TOOLCHAIN_PATH}")
@@ -259,7 +260,7 @@ function(cy_sign_boot_image)
             # Generate HEX file
             add_custom_command(
                 TARGET "${ARG_EXE_APP_NAME}" POST_BUILD
-                COMMAND ${FROMELF_TOOL} --ihex "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf" "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.hex"
+                COMMAND ${FROMELF_TOOL} --ihex "${CMAKE_BINARY_DIR}/${ARG_EXE_APP_NAME}.elf" "${CMAKE_BINARY_DIR}/${CY_OUTPUT_FILE_NAME_UNSIGNED_HEX}"
             )
         elseif(NOT AFR_METADATA_MODE)
             message(FATAL_ERROR "Toolchain ${AFR_TOOLCHAIN} is not supported ")

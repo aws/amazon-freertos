@@ -165,7 +165,7 @@ flash_hex_062()
     DEVICE_ID=$($python_cmd get_device_id.py $board)
 
     mcuboot_image=MCUBootApp1_6.hex
-    hex_name=aws_demos.signed.hex
+    hex_name=aws_demos.hex
 
     # flash mcuboot
     for i in 1 2 3 4 5:
