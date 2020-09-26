@@ -1,0 +1,10 @@
+cffi==1.14.3
+cryptography==3.1.1
+future==0.18.2
+iso8601==0.1.13
+pycparser==2.20
+pyparsing==2.0.3
+serial==0.0.97
+pyserial==3.4
+PyYAML==5.3.1
+six==1.15.0
