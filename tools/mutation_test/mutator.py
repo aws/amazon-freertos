@@ -377,13 +377,23 @@ class Mutator():
         m = mutation_pattern.pattern
         for f in self.olds:
             source_code = open(f).read().split('\n')
+            ignored_lines = set()
             for line in self.lines_to_mutate[f]:
                 # do not mutate preprocessor, comments, or assert statements
-                if (source_code[line - 1].strip().startswith("#") or 
-                    source_code[line - 1].strip().startswith("/*") or
-                    source_code[line - 1].strip().startswith("//") or
-                    source_code[line - 1].strip().startswith("*/")):
+                if (source_code[line - 1].strip().startswith("#") or
+                    source_code[line - 1].strip().startswith("//")):
                     continue
+
+                # add block comments to ignored line set
+                if "/*" in source_code[line - 1]:
+                    while "*/" not in source_code[line - 1]:
+                        ignored_lines.add(line)
+                        line += 1
+                    ignored_lines.add(line)
+                
+                if line in ignored_lines:
+                    continue
+
                 number_of_substrings_found = source_code[line - 1].count(m)
                 mutate_at_index = 0
                 if number_of_substrings_found > 0 :
