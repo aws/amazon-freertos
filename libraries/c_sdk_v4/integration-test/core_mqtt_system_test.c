@@ -42,9 +42,6 @@
 /* Include header for root CA certificates. */
 #include "iot_default_root_certificates.h"
 
-/* Include port-specific malloc/free functions. */
-#include "portmacro.h"
-
 /* Include paths for public enums, structures, and macros. */
 #include "core_mqtt.h"
 #include "core_mqtt_state.h"
@@ -321,6 +318,16 @@ static bool receivedRetainedMessage = false;
  * @brief Represents incoming PUBLISH information.
  */
 static MQTTPublishInfo_t incomingInfo;
+
+/**
+ * @brief Buffer to store incoming publish topic name for assertions in tests.
+ */
+static uint8_t incomingTopicBuffer[ TEST_MQTT_LWT_TOPIC_LENGTH ];
+
+/**
+ * @brief Buffer to store incoming PUBLUSH payload for assertions in tests.
+ */
+static uint8_t incomingPayloadBuffer[ sizeof( MQTT_EXAMPLE_MESSAGE ) ];
 
 /**
  * @brief Disconnect when receiving this packet type. Used for session
@@ -602,13 +609,11 @@ static void eventCallback( MQTTContext_t * pContext,
             memcpy( &incomingInfo, pPublishInfo, sizeof( MQTTPublishInfo_t ) );
             incomingInfo.pTopicName = NULL;
             incomingInfo.pPayload = NULL;
-            /* Allocate buffers and copy information of topic name and payload. */
-            incomingInfo.pTopicName = pvPortMalloc( pPublishInfo->topicNameLength );
-            TEST_ASSERT_NOT_NULL( incomingInfo.pTopicName );
-            memcpy( ( void * ) incomingInfo.pTopicName, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
-            incomingInfo.pPayload = pvPortMalloc( pPublishInfo->payloadLength );
-            TEST_ASSERT_NOT_NULL( incomingInfo.pPayload );
-            memcpy( ( void * ) incomingInfo.pPayload, pPublishInfo->pPayload, pPublishInfo->payloadLength );
+            /* Copy information of topic name and payload. */
+            memcpy( ( void * ) incomingTopicBuffer, pPublishInfo->pTopicName, pPublishInfo->topicNameLength );
+            incomingInfo.pTopicName = incomingTopicBuffer;
+            memcpy( ( void * ) incomingPayloadBuffer, pPublishInfo->pPayload, pPublishInfo->payloadLength );
+            incomingInfo.pPayload = incomingPayloadBuffer;
 
             /* Update the global variable if the incoming PUBLISH packet
              * represents a retained message. */
@@ -793,17 +798,6 @@ void testSetUp()
 /* Called after each test method. */
 void testTearDown()
 {
-    /* Free memory, if allocated during test case execution. */
-    if( incomingInfo.pTopicName != NULL )
-    {
-        vPortFree( ( void * ) incomingInfo.pTopicName );
-    }
-
-    if( incomingInfo.pPayload != NULL )
-    {
-        vPortFree( ( void * ) incomingInfo.pPayload );
-    }
-
     /* Terminate MQTT connection. */
     TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Disconnect( &context ) );
 
