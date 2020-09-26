@@ -277,6 +277,14 @@ An example of this line coverage json file is provided. Try:
 
 `./mutation_runner.py start -s wifi -m 3 -c -l wifi_lc_example.json`
 
+When running the first mutant, we should see:
+
+```
+Mutant is Alive
+Tests that are expected to catch this mutant are: 
+WIFI_Scan
+```
+
 The `expected_catch` column will also be populated with `WiFi_Scan`.
 
 Evidently, when the test suite gets bigger, we would to be able to generate this coverage json in a separate step, once we get hold of a more powerful line coverage tool.
