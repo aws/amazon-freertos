@@ -340,12 +340,12 @@ class Mutator():
         """
         mutation_pattern = occurrence.pattern
         source_code = open(occurrence.file).read().split('\n')
-        sys.stderr.write("\n==> @ Line: " + str(occurrence.line) + "\n\n")
-        sys.stderr.write("Original Line  : " + source_code[occurrence.line - 1].strip() + "\n")
+        print("\n==> @ Line: " + str(occurrence.line) + "\n")
+        print("Original Line  : " + source_code[occurrence.line - 1].strip())
         mutated_line = (source_code[occurrence.line - 1][0:occurrence.index] + 
             source_code[occurrence.line - 1][occurrence.index:]
                 .replace(mutation_pattern.pattern, mutation_pattern.transformation, 1))
-        sys.stderr.write("After Mutation : " + mutated_line.strip() + "\n")
+        print("After Mutation : " + mutated_line.strip())
         self.write_to_file(occurrence.file.rstrip('.old'), source_code, occurrence.line - 1, mutated_line)
         return source_code[occurrence.line - 1], mutated_line
     
@@ -363,7 +363,7 @@ class Mutator():
             else :
                 output_file.write(source_code[i] + "\n")
         output_file.close()
-        sys.stderr.write("\nOutput written to " + path + "\n\n")
+        print("\nOutput written to " + path + "\n")
 
     def findOccurrences(self, mutation_pattern: Pattern) -> List[Occurrence]:
         """ Finds all occurrences of given `mutation_pattern` in current Mutator
@@ -468,12 +468,14 @@ class Mutator():
         return ret
 
     def generateRandomMutant(self) -> Tuple[Pattern, Occurrence, str, str]:
-        """ Generates a mutant by choosing random pattern then a random line
+        """ Mutates a line in the code by choosing random pattern then a random line
 
-        Not recommended to use everytime, it is a better idea to set up your own
-        runs with the other API methods.
-
-        This can be used as an example.
+        When running mutants sequentially and we want to control mutant order,
+        it would not be a good idea to use this call as it gives a
+        random mutant.
+        
+        It is a better idea to set up your own runs with the other API methods. However,
+        this can be used as an example for what this class can do.
         """
         # Reset pattern_generator to all patterns
         self.pattern_generator = self.mutation_patterns.copy()
@@ -486,8 +488,8 @@ class Mutator():
                 occurrence = self.rng.choice(occurrences)
                 original_line, mutated_line = self.mutate(occurrence)
                 return pattern, occurrence, original_line, mutated_line
-        sys.stderr.write("Could not create a mutant. Please make sure it is a C file.\n")
-        sys.stderr.write("You may need to indent your C file.\n")
+        utils.red_print("Could not create a mutant. Please make sure it is a C file.")
+        utils.red_print("You may need to indent your C file.")
         return None
 
 
