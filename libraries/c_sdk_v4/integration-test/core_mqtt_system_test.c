@@ -55,6 +55,9 @@
 /* Include clock for timer. */
 #include "platform/iot_clock.h"
 
+/* Include task.h for delay function. */
+#include "task.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -79,6 +82,20 @@
 #include "logging_stack.h"
 
 /**************Default Configurations values***********************/
+
+/**
+ * This file contains 2 test groups:
+ * - coreMQTT_Integration_AWS_IoT_Compatible for running tests against AWS IoT
+ * - coreMQTT_Integration for running tests against an MQTT 3.1.1 fully compliant MQTT
+ * broker.
+ *
+ * Thus, the 2 test groups have different broker endpoint and TLS credentials
+ * for running to connect against their brokers. However, this test shares the same
+ * macros (BROKER_ENDPOINT, BROKER_PORT, SERVER_ROOT_CA_CERT, and macros in
+ * tests/include/aws_clientcredential_key.h file) for the test groups.
+ * Thus, ONLY ONE test group (either against AWS IoT or a different broker) can be run
+ * for a single build depending on the credentials provided.
+ */
 
 #ifndef BROKER_ENDPOINT
     #define BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
@@ -630,8 +647,7 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
 }
 
 static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
-                                          const char * pTopic,
-                                          MQTTQoS_t qos )
+                                          const char * pTopic )
 {
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
@@ -640,7 +656,6 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
 
-    pSubscriptionList[ 0 ].qos = qos;
     pSubscriptionList[ 0 ].pTopicFilter = pTopic;
     pSubscriptionList[ 0 ].topicFilterLength = strlen( pTopic );
 
@@ -915,8 +930,7 @@ void Subscribe_Publish_With_Qos_0()
                               incomingInfo.payloadLength );
 
     /* Un-subscribe from a topic with Qos 0. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic(
-                           &context, TEST_MQTT_TOPIC, MQTTQoS0 ) );
+    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* We expect an UNSUBACK from the broker for the unsubscribe operation. */
     TEST_ASSERT_EQUAL( MQTTSuccess,
@@ -935,7 +949,6 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_0 )
 {
     Subscribe_Publish_With_Qos_0();
 }
-
 
 /**
  * @brief Tests Subscribe and Publish operations with the MQTT broken using QoS 1.
@@ -989,8 +1002,7 @@ void Subscribe_Publish_With_Qos_1()
                               incomingInfo.payloadLength );
 
     /* Un-subscribe from a topic with Qos 1. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic(
-                           &context, TEST_MQTT_TOPIC, MQTTQoS1 ) );
+    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* Expect an UNSUBACK from the broker for the unsubscribe operation. */
     TEST_ASSERT_EQUAL( MQTTSuccess,
@@ -1072,8 +1084,7 @@ TEST( coreMQTT_Integration, Subscribe_Publish_With_Qos_2 )
                               incomingInfo.payloadLength );
 
     /* Un-subscribe from a topic with Qos 2. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic(
-                           &context, TEST_MQTT_TOPIC, MQTTQoS2 ) );
+    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* Expect an UNSUBACK from the broker for the unsubscribe operation. */
     TEST_ASSERT_EQUAL( MQTTSuccess,
@@ -1131,8 +1142,7 @@ void Connect_LWT()
                               incomingInfo.payloadLength );
 
     /* Un-subscribe from a topic with Qos 0. */
-    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic(
-                           &context, TEST_MQTT_TOPIC, MQTTQoS0 ) );
+    TEST_ASSERT_EQUAL( MQTTSuccess, unsubscribeFromTopic( &context, TEST_MQTT_TOPIC ) );
 
     /* We expect an UNSUBACK from the broker for the unsubscribe operation. */
     TEST_ASSERT_FALSE( receivedUnsubAck );
@@ -1166,7 +1176,7 @@ void ProcessLoop_KeepAlive()
     TEST_ASSERT_EQUAL( 0, context.pingReqSendTimeMs );
 
     /* Sleep until control packet needs to be sent. */
-    IotClock_SleepMs( MQTT_KEEP_ALIVE_INTERVAL_SECONDS * 1000 );
+    vTaskDelay( pdMS_TO_TICKS( MQTT_KEEP_ALIVE_INTERVAL_SECONDS * 1000 ) );
     TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_ProcessLoop( &context, MQTT_PROCESS_LOOP_TIMEOUT_MS ) );
 
     TEST_ASSERT_NOT_EQUAL( 0, context.pingReqSendTimeMs );
