@@ -59,7 +59,7 @@
     #ifdef IOT_LOG_LEVEL_GLOBAL
         #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define LIBRARY_LOG_LEVEL    IOT_LOG_INFO
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_ERROR
     #endif
 #endif
 #define LIBRARY_LOG_NAME             "SECURE_SOCKETS_CELLULAR"
@@ -1133,7 +1133,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
         /* coverity[misra_c_2012_directive_4_6_violation] */
         /* coverity[misra_c_2012_rule_21_6_violation] */
         ( void ) SOCKETS_inet_ntoa( pxAddress->ulAddress, serverAddress.ipAddress.ipAddress );
-        serverAddress.port = pxAddress->usPort;
+        serverAddress.port = SOCKETS_htons( pxAddress->usPort );
         IotLogDebug( "Ip address %s port %d\r\n", serverAddress.ipAddress.ipAddress, serverAddress.port );
         retConnect = prvCellularSocketRegisterCallback( tcpSocket, pCellularSocketContext );
     }

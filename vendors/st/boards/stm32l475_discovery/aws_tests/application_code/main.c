@@ -55,10 +55,17 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 6 )
 
 /* Number of times to retry to join an AP before giving up. */
 #define mainWIFI_JOIN_AP_RETRIES            ( 2 )
+
+/* Linker symbol helps to create heap from the rest of .bss and .data section. */
+extern unsigned char __freertos_heap2_start__, _eheap2;
+
+#define HEAP2_START_ADDR    ( ( unsigned char * ) ( &__freertos_heap2_start__ ) )
+#define RAM2_END_ADDR       ( ( unsigned char * ) ( &_eheap2 ) )
+#define HEAP2_SIZE          ( ( size_t ) ( RAM2_END_ADDR - HEAP2_START_ADDR ) )
 
 void vApplicationDaemonTaskStartupHook( void );
 
@@ -90,6 +97,15 @@ static void prvWifiConnect( void );
  * Initialization of clock, LEDs, RNG, RTC, and WIFI module.
  */
 static void prvMiscInitialization( void );
+
+/**
+ * @brief Initializes the FreeRTOS heap.
+ *
+ * Heap_5 is being used because the RAM is not contiguous, therefore the heap
+ * needs to be initialized.  See http://www.freertos.org/a00111.html
+ */
+static void prvInitializeHeap( void );
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Application runtime entry point.
@@ -164,6 +180,7 @@ void vApplicationDaemonTaskStartupHook( void )
                          NULL,
                          tskIDLE_PRIORITY,
                          NULL );
+
         }
     }
     else
@@ -296,6 +313,10 @@ static void prvMiscInitialization( void )
 
     /* Configure the system clock. */
     SystemClock_Config();
+
+    /* Heap_5 is being used because the RAM is not contiguous in memory, so the
+     * heap must be initialized. */
+    prvInitializeHeap();
 
     BSP_LED_Init( LED_GREEN );
     BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
@@ -619,6 +640,21 @@ int iMainRand32( void )
     uxlNextRand = ( ulMultiplier * uxlNextRand ) + ulIncrement;
 
     return( ( int ) ( uxlNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
+static void prvInitializeHeap( void )
+{
+    static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
+
+    HeapRegion_t xHeapRegions[] =
+    {
+        { HEAP2_START_ADDR, HEAP2_SIZE },
+        { ( unsigned char * ) ucHeap1, sizeof( ucHeap1 ) },
+        { NULL, 0 }
+    };
+
+    vPortDefineHeapRegions( xHeapRegions );
 }
 /*-----------------------------------------------------------*/
 

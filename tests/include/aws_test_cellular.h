@@ -36,23 +36,23 @@
 #define testCELLULAR_PDN_CONTEXT_ID                            ( CELLULAR_PDN_CONTEXT_ID_MIN )
 
 /* DNS server address. */
-#define testCELLULAR_DNS_SERVER_ADDRESS                        ""
+#define testCELLULAR_DNS_SERVER_ADDRESS                        "8.8.8.8"
 
 /* Host name to resolve. The host name should only has one IP address. */
-#define testCELLULAR_HOST_NAME                                 ""
+#define testCELLULAR_HOST_NAME                                 "ec2-34-209-68-37.us-west-2.compute.amazonaws.com"
 
 /* Host name resolved address. The resolved address should be the IP address of
  * testCELLULAR_HOST_NAME. */
-#define testCELLULAR_HOST_NAME_ADDRESS                         ""
+#define testCELLULAR_HOST_NAME_ADDRESS                         "34.209.68.37"
 
 /* Repeat echo server address for EDRX echo times test. */
-#define testCELLULAR_EDRX_ECHO_SERVER_ADDRESS                  ""
+#define testCELLULAR_EDRX_ECHO_SERVER_ADDRESS                  "34.209.68.37"
 
 /* Repeat echo server port for EDRX echo times test. */
-#define testCELLULAR_EDRX_ECHO_SERVER_PORT                     ( )
+#define testCELLULAR_EDRX_ECHO_SERVER_PORT                     ( 8885 )
 
 /* Repeat echo server send interfal for EDRX echo times test. */
-#define testCELLULAR_EDRX_ECHO_SERVER_DATA_SEND_INTERVAL_MS    ( )
+#define testCELLULAR_EDRX_ECHO_SERVER_DATA_SEND_INTERVAL_MS    ( 30000 )
 
 /*
  * 2 GSM
@@ -60,7 +60,7 @@
  * 4 LTE Cat M1
  * 5 LTE Cat NB1
  */
-#define testCELLULAR_EDRX_RAT                                  ( )
+#define testCELLULAR_EDRX_RAT                                  ( 4 )
 
 
 #endif /* ifndef __AWS_TEST_CELLULAR_H__ */

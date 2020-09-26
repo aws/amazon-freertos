@@ -34,9 +34,10 @@ ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
 _estack = 0x20018000;    /* end of RAM */
+_eheap2 =  0x10008000;    /* end of RAM2 */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x0000;     /* required amount of heap */  
-_Min_Stack_Size = 0x2000; /* required amount of stack */
+_Min_Stack_Size = 0x0800; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -153,6 +154,7 @@ SECTIONS
 
     . = ALIGN(8);
     _edata = .;        /* define a global symbol at data end */
+    __freertos_heap2_start__ = _edata;  /* The rest memory of RAM2 is used as heap */
   } >RAM2 AT> FLASH
 
   
@@ -181,7 +183,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM2
+  } >RAM
 
   
 
