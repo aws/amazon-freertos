@@ -14,6 +14,7 @@ from subprocess import Popen, CalledProcessError
 
 
 # ----------------------------------------------------------------------------------------
+# Print related helpers
 def raw_print(value):
     print(value, end='', flush=True)
 
@@ -35,6 +36,35 @@ def red_print(s):
 
 def yellow_print(s):
     color_print(s, bcolors.YELLOW)
+
+# ----------------------------------------------------------------------------------------
+# List processing related helpers
+def merge(intervals):
+    """ Turns `intervals` [[0,2],[1,5],[7,8]] to [[0,5],[7,8]].
+    """
+    out = []
+    for i in sorted(intervals, key=lambda i: i[0]):
+        if out and i[0] <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], i[1])
+        else:
+            out += i,
+    return out
+
+def flatten(intervals):
+    """ Turns `intervals` [[0,5], [8,10]] to [0, 1, 2, 3, 4, 5, 8, 9, 10].
+    
+    Note that it is inclusive of the second value.
+    """
+    out = []
+    for i in intervals:
+        out += list(range(i[0], i[1] + 1))
+    return out
+
+def find_idx(seq, predicate):
+    return next((idx for idx, elem in enumerate(seq) if predicate(elem)), None)
+
+# ----------------------------------------------------------------------------------------
+# Directory related helpers
 
 def lsdir(path, *, recurse=False):
     if recurse:
@@ -64,24 +94,23 @@ def delete_from_parent_dir(path):
     except CalledProcessError as err:
         raise Exception(str(err))
 
-def find_idx(seq, predicate):
-    return next((idx for idx, elem in enumerate(seq) if predicate(elem)), None)
+# ----------------------------------------------------------------------------------------
+# System related helpers
 
-def glob_list(full_list, filter_expr, *, default=None):
+def get_default_serial_port():
+    """ 
+    Return a default serial port.
     """
-    Given a comma-separated list of positive and negative (prefixed with -) globs,
-    e.g., '*,-foo,-bar*', return a matching subset of the full list.
-    """
-    globs = filter_expr.split(',')
-    # We want to preserve order, so list is used instead of set.
-    result = default if default else []
-    for g in globs:
-        match = fnmatch.filter(full_list, g.lstrip('-'))
-        if g.startswith('-'):
-            result = [item for item in result if item not in match]
-        else:
-            result += [item for item in match if item not in result]
-    return result
+    # Import is done here in order to move it after the check_environment() ensured that pyserial has been installed
+    import serial.tools.list_ports
+
+    ports = list(reversed(sorted(
+        p.device for p in serial.tools.list_ports.comports())))
+    try:
+        print("Choosing default port %s (use '-p PORT' option to set a specific serial port)" % ports[0].encode('ascii', 'ignore'))
+        return ports[0]
+    except IndexError:
+        raise RuntimeError("No serial ports found. Connect a device, or use '-p PORT' option to set a specific port.")
 
 def get_host_os():
     """
@@ -126,17 +155,3 @@ def add_to_env_path(files, search_path):
 
     return True
 
-def get_default_serial_port():
-    """ 
-    Return a default serial port.
-    """
-    # Import is done here in order to move it after the check_environment() ensured that pyserial has been installed
-    import serial.tools.list_ports
-
-    ports = list(reversed(sorted(
-        p.device for p in serial.tools.list_ports.comports())))
-    try:
-        print("Choosing default port %s (use '-p PORT' option to set a specific serial port)" % ports[0].encode('ascii', 'ignore'))
-        return ports[0]
-    except IndexError:
-        raise RuntimeError("No serial ports found. Connect a device, or use '-p PORT' option to set a specific port.")

@@ -273,27 +273,6 @@ class Mutator():
 
         `rng` is a Random type. Used for random operations.
         """
-        def _merge(intervals):
-            """ Turns `intervals` [[0,2],[1,5],[7,8]] to [[0,5],[7,8]].
-            """
-            out = []
-            for i in sorted(intervals, key=lambda i: i[0]):
-                if out and i[0] <= out[-1][1]:
-                    out[-1][1] = max(out[-1][1], i[1])
-                else:
-                    out += i,
-            return out
-        
-        def _flatten(intervals):
-            """ Turns `intervals` [[0,5], [8,10]] to [0, 1, 2, 3, 4, 5, 8, 9, 10].
-            
-            Note that it is inclusive of the second value.
-            """
-            out = []
-            for i in intervals:
-                out += list(range(i[0], i[1] + 1))
-            return out
-
         utils.yellow_print("CWD: {}".format(os.getcwd()))
         self.olds = [] # stores original file paths
         self.modified = [] # stores path to the modified file
@@ -310,7 +289,7 @@ class Mutator():
             if len(self.src[f]) == 0:
                 self.lines_to_mutate[old] = list(range(1, len(open(f).read().split('\n')) + 1))
             else:
-                self.lines_to_mutate[old] = _flatten(_merge(self.src[f]))
+                self.lines_to_mutate[old] = utils.flatten(utils.merge(self.src[f]))
         self.rng = rng
         self.mutation_patterns = self.flattenPatterns(mutation_patterns)
         self.pattern_generator = self.mutation_patterns.copy()
