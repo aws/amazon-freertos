@@ -368,10 +368,14 @@ class Mutator():
     def findOccurrences(self, mutation_pattern: Pattern) -> List[Occurrence]:
         """ Finds all occurrences of given `mutation_pattern` in current Mutator
 
-        Returns a list of Occurrence objects (see mutator.Occurrence in mutator.py)
+        `mutation_pattern` is a Pattern type. (see mutator.Pattern in mutator.py)
+
+        Returns a list of Occurrence objects of the given `mutation_pattern`
+        (see mutator.Occurrence in mutator.py)
         
         If there are multiple source files, searches all of them. Occurrence object
-        contains fields to access file, line, and index within line to find substring.
+        contains fields to access file, line, and index within line to find the exact
+        substring of the pattern.
         """
         occurrences = []
         m = mutation_pattern.pattern
@@ -394,13 +398,18 @@ class Mutator():
                 if line in ignored_lines:
                     continue
 
+                # count the number of times this mutation pattern base appears
                 number_of_substrings_found = source_code[line - 1].count(m)
                 mutate_at_index = 0
+                # if there is at least one occurrence
                 if number_of_substrings_found > 0 :
                     for _ in range(0, number_of_substrings_found):
+                        # find the index of the first occurrence
                         if mutate_at_index == 0 :
                             mutate_at_index = source_code[line - 1].index(m)
                         else :
+                            # an occurrence has been found, so begin looking only at the previous
+                            # location's index + 1 (the index after the previous occurrence)
                             mutate_at_index = source_code[line - 1].index(m, mutate_at_index + 1)
                         occurrences.append(Occurrence(mutation_pattern, f, line, mutate_at_index))
         return occurrences                      
