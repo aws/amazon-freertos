@@ -131,7 +131,7 @@
 		<Filter Include="libraries\abstractions\pkcs11\test"/>
 		<Filter Include="libraries\abstractions\platform\test"/>
 		<Filter Include="libraries\abstractions\secure_sockets\test"/>
-		<Filter Include="libraries\c_sdk_v4\integration-test"/>
+		<Filter Include="libraries\c_sdk_v4\integration_test"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
@@ -1234,8 +1234,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c">
 			<Filter>libraries\abstractions\secure_sockets\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration-test\core_mqtt_system_test.c">
-			<Filter>libraries\c_sdk_v4\integration-test</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration_test\core_mqtt_system_test.c">
+			<Filter>libraries\c_sdk_v4\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c">
 			<Filter>application_code</Filter>
