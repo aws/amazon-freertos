@@ -965,8 +965,8 @@ typedef struct
      * @brief Sets the LE background scan interval and window in units of N*0.625 msec.
      *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
-     * @param[in] ulScanInterval scan interval time in units of 0.625Ms
-     * @param[in] ulScanWindow scan window time in units of 0.625Ms
+     * @param[in] ulScanIntervalTime scan interval time in units of 0.625Ms
+     * @param[in] ulScanWindowTime scan window time in units of 0.625Ms
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxSetBgScanParameters )( uint8_t ucAdapterIf,
