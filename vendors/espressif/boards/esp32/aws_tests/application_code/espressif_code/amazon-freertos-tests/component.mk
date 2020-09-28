@@ -7,6 +7,7 @@
 # please read the ESP-IDF documents if you need to do this.
 
 AMAZON_FREERTOS_SDK_DIR := ../../../../../../../../libraries/c_sdk
+AMAZON_FREERTOS_SDK_V4_DIR := ../../../../../../../../libraries/c_sdk_v4
 AMAZON_FREERTOS_3RD_PARTY_DIR := ../../../../../../../../libraries/3rdparty
 AMAZON_FREERTOS_ABSTRACTIONS_DIR := ../../../../../../../../libraries/abstractions
 AMAZON_FREERTOS_ARF_PLUS_DIR := ../../../../../../../../libraries/freertos_plus
@@ -39,6 +40,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src/json \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/defender/src \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/shadow/src \
+        $(AMAZON_FREERTOS_SDK_V4_DIR)/standard/coreMQTT/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/greengrass/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src/mqtt \
@@ -63,6 +65,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              ${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/posix/include \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
+                             $(AMAZON_FREERTOS_SDK_V4_DIR)/standard/coreMQTT/source/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http_parser \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor/src \
