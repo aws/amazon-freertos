@@ -28,7 +28,12 @@ Once the application starts the OTA agent, the OTA agent will contact the MQTT B
 - [Eclipse IDE for ModusToolbox](https://www.cypress.com/products/modustoolbox-software-environment) v2.1 or later
 - [MCUBoot](https://juullabs-oss.github.io/mcuboot/)
 - Programming Language: C
-- [Python 3.7 or higher](https://www.python.org/downloads//) (for Publisher script)
+- [Python 3.7 or higher](https://www.python.org/downloads//) (for signing script)
+  - Run pip to install the modules.
+
+```
+pip install -r <repo root>/vendors/cypress/MTB/port_support/ota/scripts/requirements.txt
+```
 
 ## Supported Toolchains
 
