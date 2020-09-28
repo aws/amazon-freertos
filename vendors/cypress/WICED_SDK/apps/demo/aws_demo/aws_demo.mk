@@ -66,8 +66,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/include \
                     $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/include  \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/portable/mbedtls  \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \

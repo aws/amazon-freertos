@@ -1157,16 +1157,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1482,24 +1472,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/iot_pkcs11_pal.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pkcs11_pal.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/iot_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -1510,6 +1490,16 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
@@ -3022,11 +3012,18 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AWS_IOT_MCU_ROOT</name>
 			<value>$%7BPARENT-5-PROJECT_LOC%7D</value>
+		</variable>
+		<variable>
+			<name>SMC_GENERATED_LOC</name>
+			<value>$%7BAFR_HOME%7D/vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen</value>
+		</variable>
+		<variable>
+			<name>SMC_LINKED_LOC</name>
+			<value>$%7BPROJECT_LOC%7D/vendors/renesas/boards/rx65n-rsk/aws_demos/src/smc_gen</value>
 		</variable>
 	</variableList>
 </projectDescription>

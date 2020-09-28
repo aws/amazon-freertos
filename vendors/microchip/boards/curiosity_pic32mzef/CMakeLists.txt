@@ -65,7 +65,7 @@ set(
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
     "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/FreeRTOS-PKCS/source/include"
     "${board_dir}/application_code/microchip_code"
     "${AFR_KERNEL_DIR}/portable/MPLAB/PIC32MZ"
     "${harmony_dir}/framework"

@@ -150,6 +150,7 @@ elseif(AFR_PKCS11_PSA)
         pkcs11_psa
         INTERFACE
             AFR::pkcs11_implementation
+            AFR::crypto
             3rdparty::mbedtls
     )
 else()
@@ -160,7 +161,7 @@ else()
         pkcs11_mbedtls 
         INTERFACE
             "${src_dir}/iot_pkcs11_mbedtls.c"
-            "${src_dir}/threading_alt.h"
+            "${src_dir}/include/threading_alt.h"
             "${inc_dir}/iot_pkcs11_pal.h"
     )
 

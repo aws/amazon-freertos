@@ -53,7 +53,7 @@
 			<PrecompiledHeader>NotUsing</PrecompiledHeader>
 			<WarningLevel>Level3</WarningLevel>
 			<Optimization>Disabled</Optimization>
-			<PreprocessorDefinitions>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;WIN32;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PreprocessorDefinitions>MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;;CONFIG_MEDTLS_USE_AFR_MEMORY;WIN32;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<AdditionalUsingDirectories/>
 			<AdditionalIncludeDirectories>..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_tests\config_files;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_tests\application_code;..\..\..\..\..\vendors\microchip\secure_elements\lib;..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\hidapi;..\..\..\..\..\tests\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\test;..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\aws\defender\src;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\mock;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\src;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\src;..\..\..\..\..\libraries\c_sdk\standard\https\test\access;..\..\..\..\..\libraries\c_sdk\standard\https\include;..\..\..\..\..\libraries\c_sdk\standard\https\src;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\abstractions\retry_utils;..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\portable;..\..\..\..\..\libraries\abstractions\transport\secure_sockets;..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source;..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\mbedtls_utils;..\..\..\..\..\libraries\3rdparty\mbedtls_config;..\..\..\..\..\libraries\3rdparty\unity\src;..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\libraries\3rdparty\tinycbor\src;..\..\..\..\..\libraries\3rdparty\http_parser;..\..\..\..\..\libraries\3rdparty\jsmn</AdditionalIncludeDirectories>
 			<UndefinePreprocessorDefinitions/>
@@ -115,8 +115,6 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h"/>
@@ -206,8 +204,8 @@
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.h"/>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11f.h"/>
 		<ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11t.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pki_utils.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\include\iot_pki_utils.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h"/>
@@ -323,7 +321,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls_utils\mbedtls_error.h"/>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\threading_alt.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\portable\mbedtls\include\threading_alt.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h"/>
@@ -373,7 +371,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pkcs11.c"/>
+        <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pkcs11.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\atca_hal.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_all_platforms_kit_hidapi.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\hal\hal_freertos.c"/>
@@ -447,8 +445,8 @@
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c"/>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pki_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\FreeRTOS-PKCS\source\iot_pki_utils.c"/>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c"/>

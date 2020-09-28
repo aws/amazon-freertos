@@ -285,7 +285,7 @@ SOURCES+=\
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\

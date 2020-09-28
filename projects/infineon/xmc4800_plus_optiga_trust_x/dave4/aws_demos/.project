@@ -1049,16 +1049,6 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1234,16 +1224,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
@@ -1252,6 +1232,16 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/iot_pki_utils.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
@@ -2884,9 +2874,9 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls_utils/mbedtls_error.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/threading_alt.h</locationURI>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
@@ -2959,7 +2949,6 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AFR_HOME</name>
