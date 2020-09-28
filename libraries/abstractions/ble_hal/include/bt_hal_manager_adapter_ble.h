@@ -971,7 +971,7 @@ typedef struct
      */
     BTStatus_t ( * pxSetBgScanParameters )( uint8_t ucAdapterIf,
                                             uint32_t ulScanIntervalTime,
-                                            uint32_t ulScanWindowTime);
+                                            uint32_t ulScanWindowTime );
 } BTBleAdapter_t;
 
 #endif /* #ifndef _BT_HAL_MANAGER_ADAPTER_BLE_H_ */
