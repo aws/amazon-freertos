@@ -55,7 +55,7 @@
 	url = https://github.com/cypresssemiconductorco/serial-flash.git
 [submodule "vendors/cypress/MTB/libraries/serial-flash"]
 	path = vendors/cypress/MTB/libraries/serial-flash
-	url = http://devops-git.aus.cypress.com/repo-staging/serial-flash.git
+	url = https://github.com/cypresssemiconductorco/serial-flash.git
 [submodule "vendors/cypress/MTB/libraries/whd-bsp-integration"]
 	path = vendors/cypress/MTB/libraries/whd-bsp-integration
 	url = https://github.com/cypresssemiconductorco/whd-bsp-integration.git
