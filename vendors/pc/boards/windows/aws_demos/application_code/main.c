@@ -58,6 +58,9 @@
 #include "iot_network_manager_private.h"
 #include "aws_iot_network_config.h"
 
+#include "commandTask.h"
+#include "runtimeTimer.h"
+
 /* Define a name that will be used for LLMNR and NBNS searches. Once running,
  * you can "ping RTOSDemo" instead of pinging the IP address, which is useful when
  * using DHCP. */
@@ -119,6 +122,9 @@ int main( void )
      * but a DHCP server cannot be contacted. */
 	FreeRTOS_printf(("FreeRTOS_IPInit\n"));
 	vApplicationIPInit();
+
+    initializeRuntimeTimer();
+    initializeCommandTask();
 
     /* Start the RTOS scheduler. */
     FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );
@@ -302,12 +308,3 @@ static void prvSaveTraceFile( void )
         printf( "\r\nFailed to create trace dump file\r\n" );
     }
 }
-/*-----------------------------------------------------------*/
-
-void getUserCmd( char * pucUserCmd )
-{
-    char cTmp;
-
-    scanf( "%c%c", pucUserCmd, &cTmp );
-}
-/*-----------------------------------------------------------*/
