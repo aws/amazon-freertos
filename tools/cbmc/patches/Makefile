@@ -19,6 +19,6 @@ unpatch:
 
 #patching file lib/FreeRTOS-Plus-TCP/include/FreeRTOS_IP_Private.h
 #patching file lib/include/private/list.h
-#patching file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
-#patching file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
-#patching file lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+#patching file lib/FreeRTOS-Plus-TCP/FreeRTOS_DHCP.c
+#patching file lib/FreeRTOS-Plus-TCP/FreeRTOS_DNS.c
+#patching file lib/FreeRTOS-Plus-TCP/FreeRTOS_TCP_WIN.c

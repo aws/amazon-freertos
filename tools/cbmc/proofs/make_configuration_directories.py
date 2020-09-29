@@ -53,7 +53,7 @@ def prolog():
           "OBJS":
           [
             "$(ENTRY)_harness.goto",
-            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.goto"
+            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/FreeRTOS_ARP.goto"
           ],
           "DEF":
           [
@@ -85,7 +85,7 @@ def prolog():
           ],
           "OBJS": [
             "$(ENTRY)_harness.goto",
-            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.goto"
+            "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/FreeRTOS_ARP.goto"
           ],
           "DEF": [
             "ipconfigARP_USE_CLASH_DETECTION=0"
