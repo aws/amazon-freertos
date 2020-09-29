@@ -37,6 +37,7 @@ export AMAZON_FREERTOS_PATH := ../../../../../
 export AFR_THIRDPARTY_PATH := ../../../../../libraries/3rdparty/
 export AFR_C_SDK_STANDARD_PATH := ../../../../../libraries/c_sdk/standard/
 export AFR_C_SDK_AWS_PATH := ../../../../../libraries/c_sdk/aws/
+export AFR_C_SDK_V4_STANDARD_PATH := ../../../../../libraries/c_sdk_v4/standard/
 export AFR_ABSTRACTIONS_PATH := ../../../../../libraries/abstractions/
 export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../libraries/freertos_plus/standard/
 export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../libraries/freertos_plus/aws/
@@ -121,9 +122,17 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_api.c                                               \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_network.c                                           \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_operation.c                                         \
-                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_serialize.c                                         \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_subscription.c                                      \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_validate.c                                          \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_context_connection.c                                \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c                   \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_managed_function_wrapper.c                          \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_subscription_container.c                            \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_mutex_wrapper.c                                     \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_publish_duplicates.c                                \
+                    $(AFR_C_SDK_V4_STANDARD_PATH)coreMQTT/source/core_mqtt_serializer.c                             \
+                    $(AFR_C_SDK_V4_STANDARD_PATH)coreMQTT/source/core_mqtt_state.c                                  \
+                    $(AFR_C_SDK_V4_STANDARD_PATH)coreMQTT/source/core_mqtt.c                                        \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/iot_secure_sockets.c                         \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
                     $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
@@ -144,6 +153,8 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
 
 GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
+                    $(AFR_C_SDK_V4_STANDARD_PATH)coreMQTT/source/include \
+                    $(AFR_C_SDK_STANDARD_PATH)logging_stack \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \

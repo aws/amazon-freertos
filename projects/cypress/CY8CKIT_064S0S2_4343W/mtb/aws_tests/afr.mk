@@ -303,7 +303,16 @@ SOURCES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_context_connection.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serializer_deserializer_wrapper.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_managed_function_wrapper.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription_container.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_mutex_wrapper.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_publish_duplicates.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c\
+	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c
 
 # Test code
 SOURCES+=\
@@ -317,6 +326,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/common/include/types\
+	$(CY_AFR_ROOT)/libraries/c_sdk/standard/logging_stack\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/https/include/types\
@@ -330,6 +340,7 @@ INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/private\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/mock\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/test/access\
+	$(CY_AFR_ROOT)/libraries/c_sdk_v4/standard/coreMQTT/source/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/ble/include\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/serializer/include\
