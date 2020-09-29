@@ -1,0 +1,20 @@
+{
+  "ENTRY": "CheckOptionsOuter",
+  "CBMCFLAGS":
+  [
+      "--unwind 1",
+      "--unwindset prvSingleStepTCPHeaderOptions.2:32"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_TCP_IP.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_TCP_WIN.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_Stream_Buffer.goto",
+    "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/tasks.goto",
+    "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/list.goto"
+  ],
+  "DEF":
+  [
+  ]
+}

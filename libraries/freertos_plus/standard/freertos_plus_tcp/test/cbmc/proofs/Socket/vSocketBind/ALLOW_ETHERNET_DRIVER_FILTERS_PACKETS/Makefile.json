@@ -1,0 +1,31 @@
+{
+  "ENTRY": "vSocketBind",
+  "ALLOW_SEND_WITHOUT_BIND":"1",
+  "ALLOW_ETHERNET_DRIVER_FILTER":"1",
+  "ALLOW_TCP":"1",
+  "CBMCFLAGS":
+  [
+    "--unwind 1"
+  ],
+  "OBJS":
+  [
+    "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/list.goto",
+    "$(FREERTOS_PLUS_TCP)/FreeRTOS_Sockets.goto",
+    "$(ENTRY)_harness.goto"
+  ],
+  "INSTFLAGS":
+  [
+  ],
+  "DEF":
+  [
+    "ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND={ALLOW_SEND_WITHOUT_BIND}",
+    "ipconfigUSE_TCP={ALLOW_TCP}",
+    "ipconfigETHERNET_DRIVER_FILTERS_PACKETS={ALLOW_ETHERNET_DRIVER_FILTER}"
+  ],
+  "INC":
+  [
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/include",
+    "$(FREERTOS_PLUS_TCP)/test/cbmc/proofs/utility"
+  ]
+}
+

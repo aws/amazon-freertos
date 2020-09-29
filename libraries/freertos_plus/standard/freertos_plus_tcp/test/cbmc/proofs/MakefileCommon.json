@@ -1,0 +1,45 @@
+{
+    "FREERTOS_PLUS_TCP": [ " ../../.." ],
+    "PROOFS": [ "." ],
+
+    "DEF ": [
+	"WIN32",
+	"WINVER=0x400",
+	"_CONSOLE",
+	"_CRT_SECURE_NO_WARNINGS",
+	"_DEBUG",
+	"_WIN32_WINNT=0x0500",
+	"__PRETTY_FUNCTION__=__FUNCTION__",
+	"__free_rtos__",
+
+        "CBMC",
+	"'configASSERT(X)=__CPROVER_assert(X,\"Assertion Error\")'",
+        "'configPRECONDITION(X)=__CPROVER_assume(X)'",
+	"'_static='",
+	"'_volatile='"
+    ],
+
+  "INC ": [
+        "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/include",
+        "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/portable/MSVC-MingW",
+        "$(FREERTOS_PLUS_TCP)/include",
+        "$(FREERTOS_PLUS_TCP)/portable/Compiler/MSVC",
+        "$(FREERTOS_PLUS_TCP)/test/cbmc/include",
+        "$(FREERTOS_PLUS_TCP)/test/cbmc/patches",
+        "$(FREERTOS_PLUS_TCP)/test/cbmc/windows",
+        "$(FREERTOS_PLUS_TCP)/test/cbmc/windows2"
+    ],
+
+    "CBMCFLAGS ": [
+	"--object-bits 7",
+	"--32",
+	"--bounds-check",
+	"--pointer-check"
+    ],
+
+    "FORWARD_SLASH": ["/"],
+
+    "TYPE_HEADERS": [
+        "$(FREERTOS_PLUS_TCP)/test/FreeRTOS-Kernel/queue.c"
+    ]
+}

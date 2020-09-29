@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.2.2
+ * FreeRTOS+TCP V2.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,20 +45,6 @@ extern "C" {
 
 #include "event_groups.h"
 
-/*-----------------------------------------------------------*/
-/* Utility macros for marking casts as recognized during     */
-/* static analysis.                                          */
-/*-----------------------------------------------------------*/
-#define ipCAST_PTR_TO_TYPE_PTR( TYPE, pointer ) ( vCastPointerTo_##TYPE( ( void * )( pointer ) ) )
-#define ipCAST_CONST_PTR_TO_CONST_TYPE_PTR( TYPE, pointer ) ( vCastConstPointerTo_##TYPE( ( const void * )( pointer ) ) )
-
-/*-----------------------------------------------------------*/
-/* Utility macros for declaring cast utility functions in    */
-/* order to centralize typecasting for static analysis.      */
-/*-----------------------------------------------------------*/
-#define ipDECL_CAST_PTR_FUNC_FOR_TYPE( TYPE ) TYPE * vCastPointerTo_##TYPE( void * pvArgument )
-#define ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( TYPE ) const TYPE * vCastConstPointerTo_##TYPE( const void * pvArgument )
-
 typedef struct xNetworkAddressingParameters
 {
 	uint32_t ulDefaultIPAddress;
@@ -84,17 +70,6 @@ struct xETH_HEADER
 }
 #include "pack_struct_end.h"
 typedef struct xETH_HEADER EthernetHeader_t;
-
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( EthernetHeader_t )
-{
-	return ( EthernetHeader_t *)pvArgument;
-}
-
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( EthernetHeader_t )
-{
-	return ( const EthernetHeader_t *) pvArgument;
-}
-
 
 #include "pack_struct_start.h"
 struct xARP_HEADER
@@ -129,16 +104,6 @@ struct xIP_HEADER
 #include "pack_struct_end.h"
 typedef struct xIP_HEADER IPHeader_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( IPHeader_t )
-{
-	return ( IPHeader_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( IPHeader_t )
-{
-	return ( const IPHeader_t *) pvArgument;
-}
-
-
 #include "pack_struct_start.h"
 struct xICMP_HEADER
 {
@@ -150,16 +115,6 @@ struct xICMP_HEADER
 }
 #include "pack_struct_end.h"
 typedef struct xICMP_HEADER ICMPHeader_t;
-
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( ICMPHeader_t )
-{
-	return ( ICMPHeader_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( ICMPHeader_t )
-{
-	return ( const ICMPHeader_t *) pvArgument;
-}
-
 
 #include "pack_struct_start.h"
 struct xUDP_HEADER
@@ -205,16 +160,6 @@ struct xARP_PACKET
 #include "pack_struct_end.h"
 typedef struct xARP_PACKET ARPPacket_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( ARPPacket_t )
-{
-    return ( ARPPacket_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( ARPPacket_t )
-{
-    return ( const ARPPacket_t *) pvArgument;
-}
-
-
 #include "pack_struct_start.h"
 struct xIP_PACKET
 {
@@ -223,16 +168,6 @@ struct xIP_PACKET
 }
 #include "pack_struct_end.h"
 typedef struct xIP_PACKET IPPacket_t;
-
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( IPPacket_t )
-{
-    return ( IPPacket_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( IPPacket_t )
-{
-    return ( const IPPacket_t *) pvArgument;
-}
-
 
 #include "pack_struct_start.h"
 struct xICMP_PACKET
@@ -244,12 +179,6 @@ struct xICMP_PACKET
 #include "pack_struct_end.h"
 typedef struct xICMP_PACKET ICMPPacket_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( ICMPPacket_t )
-{
-    return ( ICMPPacket_t *)pvArgument;
-}
-
-
 #include "pack_struct_start.h"
 struct xUDP_PACKET
 {
@@ -259,15 +188,6 @@ struct xUDP_PACKET
 }
 #include "pack_struct_end.h"
 typedef struct xUDP_PACKET UDPPacket_t;
-
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( UDPPacket_t )
-{
-    return ( UDPPacket_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( UDPPacket_t )
-{
-    return ( const UDPPacket_t *) pvArgument;
-}
 
 #include "pack_struct_start.h"
 struct xTCP_PACKET
@@ -279,17 +199,6 @@ struct xTCP_PACKET
 #include "pack_struct_end.h"
 typedef struct xTCP_PACKET TCPPacket_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( TCPPacket_t )
-{
-    return ( TCPPacket_t *)pvArgument;
-}
-
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( TCPPacket_t )
-{
-	return ( const TCPPacket_t *) pvArgument;
-}
-
-
 typedef union XPROT_PACKET
 {
 	ARPPacket_t xARPPacket;
@@ -298,15 +207,6 @@ typedef union XPROT_PACKET
 	ICMPPacket_t xICMPPacket;
 } ProtocolPacket_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( ProtocolPacket_t )
-{
-	return ( ProtocolPacket_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( ProtocolPacket_t )
-{
-	return ( const ProtocolPacket_t *) pvArgument;
-}
-
 typedef union xPROT_HEADERS
 {
 	ICMPHeader_t xICMPHeader;
@@ -314,15 +214,6 @@ typedef union xPROT_HEADERS
 	TCPHeader_t xTCPHeader;
 } ProtocolHeaders_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( ProtocolHeaders_t )
-{
-	return ( ProtocolHeaders_t *)pvArgument;
-}
-
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( ProtocolHeaders_t )
-{
-	return ( const ProtocolHeaders_t *) pvArgument;
-}
 
 /* The maximum UDP payload length. */
 #define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IPv4_HEADER ) - ipSIZE_OF_UDP_HEADER )
@@ -516,6 +407,13 @@ socket events. */
 #endif
 
 /*
+ * A version of FreeRTOS_GetReleaseNetworkBuffer() that can be called from an
+ * interrupt.  If a non zero value is returned, then the calling ISR should
+ * perform a context switch before exiting the ISR.
+ */
+BaseType_t FreeRTOS_ReleaseFreeNetworkBufferFromISR( void );
+
+/*
  * Create a message that contains a command to initialise the network interface.
  * This is used during initialisation, and at any time the network interface
  * goes down thereafter.  The network interface hardware driver is responsible
@@ -578,9 +476,7 @@ BaseType_t xIPIsNetworkTaskReady( void );
 	 * Actually a user thing, but because xBoundTCPSocketsList, let it do by the
 	 * IP-task
 	 */
-	#if( ipconfigHAS_PRINTF != 0 )
-		void vTCPNetStat( void );
-	#endif
+	void vTCPNetStat( void );
 
 	/*
 	 * At least one socket needs to check for timeouts
@@ -769,15 +665,6 @@ typedef struct xSOCKET
 	} u;
 } FreeRTOS_Socket_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( FreeRTOS_Socket_t )
-{
-	return ( FreeRTOS_Socket_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( FreeRTOS_Socket_t )
-{
-	return ( const FreeRTOS_Socket_t *) pvArgument;
-}
-
 #if( ipconfigUSE_TCP == 1 )
 	/*
 	 * Lookup a TCP socket, using a multiple matching: both port numbers and
@@ -914,15 +801,6 @@ typedef struct xSOCKET_SET
 	EventGroupHandle_t xSelectGroup;
 } SocketSelect_t;
 
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( SocketSelect_t )
-{
-	return ( SocketSelect_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( SocketSelect_t )
-{
-	return ( const SocketSelect_t *) pvArgument;
-}
-
 extern void vSocketSelect( SocketSelect_t *pxSocketSet );
 
 /* Define the data that must be passed for a 'eSocketSelectEvent'. */
@@ -931,15 +809,6 @@ typedef struct xSocketSelectMessage
 	TaskHandle_t xTaskhandle;
 	SocketSelect_t *pxSocketSet;
 } SocketSelectMessage_t;
-
-static portINLINE ipDECL_CAST_PTR_FUNC_FOR_TYPE( SocketSelectMessage_t )
-{
-	return ( SocketSelectMessage_t *)pvArgument;
-}
-static portINLINE ipDECL_CAST_CONST_PTR_FUNC_FOR_TYPE( SocketSelectMessage_t )
-{
-	return ( const SocketSelectMessage_t *) pvArgument;
-}
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION */
 
@@ -958,4 +827,16 @@ void vIPNetworkUpCalls( void );
 #endif
 
 #endif /* FREERTOS_IP_PRIVATE_H */
+
+
+
+
+
+
+
+
+
+
+
+
 
