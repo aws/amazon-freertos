@@ -320,7 +320,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
             topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
             topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
             /* Finding the matching subscription if it exists. */
-            matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0, &topicMatchParams );
+            matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[0] ), 0, &topicMatchParams );
 
             if( matchedIndex != -1 )
             {
@@ -435,7 +435,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
     {
         if( contextIndex >= 0 )
         {
-            index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+            index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                             index,
                                             &topicMatchParams );
 
@@ -572,7 +572,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
             topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
             topicMatchParams.exactMatchOnly = true;
 
-            matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0,
+            matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ), 0,
                                                    &topicMatchParams );
 
             if( matchedIndex != -1 )
@@ -645,13 +645,13 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
      * function is running. */
     if( IotMutex_Take( &( connToContext[ contextIndex ].subscriptionMutex ) ) == true )
     {
-        matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ), 0
+        matchedIndex = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ), 0
                                                , &topicMatchParams );
 
         /* Check if a matching subscription was found. */
         if( matchedIndex != -1 )
         {
-            pSubscription = &( connToContext[ contextIndex ].subscriptionArray );
+            pSubscription = &( connToContext[ contextIndex ].subscriptionArray[ 0 ] );
 
             /* Copy the matching subscription to the output parameter. */
             if( pCurrentSubscription != NULL )

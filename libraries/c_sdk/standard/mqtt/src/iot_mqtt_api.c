@@ -1149,7 +1149,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         transport.recv = transportRecv;
 
         /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[0] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
 
         subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
