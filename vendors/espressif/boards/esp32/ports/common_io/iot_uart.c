@@ -376,6 +376,7 @@ int32_t iot_uart_read_async(IotUARTHandle_t const pxUartPeripheral, uint8_t * co
     uart_ctx_t *uart_ctx = (uart_ctx_t *) pxUartPeripheral;
     uart_ctx->read_buf = (char *) pvBuffer;
     uart_ctx->bytes_to_read = xBytes;
+    uart_ctx->async_bytes_read = 0;
 
     //Read from another task to make async
     if (!xSemaphoreTake(uart_ctx->uart_rd_cb_wait, SEM_WAIT_TIME)) {
@@ -404,6 +405,7 @@ int32_t iot_uart_write_async(IotUARTHandle_t const pxUartPeripheral, uint8_t * c
     uart_ctx->wr_op_in_progress = true;
     uart_ctx->write_buf = (char *)pvBuffer;
     uart_ctx->bytes_to_write = xBytes;
+    uart_ctx->async_bytes_written = 0;
     esp_timer_start_once(uart_ctx->uart_timer_wr_hdl, 0);
     return IOT_UART_SUCCESS;
 }
@@ -505,6 +507,13 @@ int32_t iot_uart_cancel(IotUARTHandle_t const pxUartPeripheral)
     } else if (uart_ctx->rd_op_in_progress) {
         uart_ctx->uart_rd_op_cancel_req = true;
         ESP_LOGD(TAG, "operation cancel request: %d\n", uart_ctx->uart_rd_op_cancel_req);
+
+        /* Start a timer to trigger the cancel operation. */
+        if (esp_timer_start_once(uart_ctx->uart_timer_rd_hdl, 0)!= ESP_OK) {
+            ESP_EARLY_LOGE(TAG, "%s: failed to create timer for cancel request", __func__);
+            return IOT_UART_INVALID_VALUE;
+        }
+
         /* Ensure no active operations on UART before flusing all data */
         if (!xSemaphoreTake(uart_ctx->uart_rd_cb_wait, SEM_WAIT_TIME)) {
             ESP_LOGE(TAG, "%s: failed to acquire read sem", __func__);

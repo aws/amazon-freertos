@@ -3686,24 +3686,24 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_declare.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_declare.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_declare.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_declare.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_dns_define.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_dns_define.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_dns_define.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_dns_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_tcp_define.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/freertos_tcp_test_access_tcp_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/test_freertos_tcp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>

@@ -505,7 +505,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
     }
 
     /* This code below is deactivated for testing the API returns false for invalid credentials. */
-    #ifndef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #ifndef FREERTOS_ENABLE_UNIT_TESTS
         char acCmdStore[128];
         unsigned short usConnTimeout;
         unsigned char ucRecvdAPDetails;
@@ -574,9 +574,9 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
                 g_usConnectIndex++;
             }
         }
-    #endif /* ifndef AMAZON_FREERTOS_ENABLE_UNIT_TESTS */
+    #endif /* ifndef FREERTOS_ENABLE_UNIT_TESTS */
 
-    #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #ifdef FREERTOS_ENABLE_UNIT_TESTS
         if (IS_CONNECTED(g_ulStatus) && IS_IP_ACQUIRED(g_ulStatus))
         {
     #endif
@@ -591,7 +591,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
             UART_PRINT("Device IP Address is %d.%d.%d.%d \n\r\n\r", SL_IPV4_BYTE(ulIP, 3), SL_IPV4_BYTE(ulIP, 2), SL_IPV4_BYTE(ulIP, 1), SL_IPV4_BYTE(ulIP, 0));
             return 0;
 
-    #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+    #ifdef FREERTOS_ENABLE_UNIT_TESTS
         }
         else {
             UART_PRINT("Invalid SSID and/or Password, Could not connect\n\r");

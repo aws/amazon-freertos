@@ -150,7 +150,7 @@ SECTIONS
     _sdata = .;        /* create a global symbol at data start */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
-
+    *(.freertos_heap2)
     . = ALIGN(8);
     _edata = .;        /* define a global symbol at data end */
   } >RAM2 AT> FLASH
@@ -181,7 +181,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM2
+  } >RAM
 
   
 

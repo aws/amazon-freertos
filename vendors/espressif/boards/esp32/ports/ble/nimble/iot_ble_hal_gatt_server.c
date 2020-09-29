@@ -600,7 +600,27 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
                               uint16_t usServiceHandle,
                               BTTransport_t xTransport )
 {
-    return eBTStatusUnsupported;
+    BTStatus_t xStatus = eBTStatusFail;
+    uint16_t index;
+
+    /* GATT Service is supposed to start in prvAddServiceBlob, we just
+     * check if handle is matching with the one populated in
+     * prvAddServiceBlob for each service */
+    for( index = 0; index < serviceCnt; index++ )
+    {
+        if ( usServiceHandle == afrServices[ index ]->pusHandlesBuffer[ 0 ] )
+        {
+            xStatus = eBTStatusSuccess;
+            break;
+        }
+    }
+
+    if( xGattServerCb.pxServiceStartedCb != NULL )
+    {
+        xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+    }
+
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/

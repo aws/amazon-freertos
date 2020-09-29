@@ -38,7 +38,7 @@
 /* Test includes. */
 #include "unity_fixture.h"
 #include "unity.h"
-#include "iot_freertos_tcp_test_access_declare.h"
+#include "freertos_tcp_test_access_declare.h"
 
 /**
  * @brief Configuration for this test group.

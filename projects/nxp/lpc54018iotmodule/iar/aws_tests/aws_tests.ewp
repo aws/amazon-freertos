@@ -223,7 +223,7 @@
 					<state>USE_RTOS=1</state>
 					<state>FSL_RTOS_FREE_RTOS</state>
 					<state>A_LITTLE_ENDIAN</state>
-					<state>AMAZON_FREERTOS_ENABLE_UNIT_TESTS</state>
+					<state>FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
 					<state>_DLIB_FILE_DESCRIPTOR=1</state>
 				</option>

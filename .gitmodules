@@ -30,3 +30,12 @@
 [submodule "libraries/abstractions/pkcs11/psa"]
 	path = libraries/abstractions/pkcs11/psa
 	url = https://github.com/Linaro/freertos-pkcs11-psa.git
+[submodule "libraries/c_sdk_v4/standard/coreMQTT"]
+	path = libraries/c_sdk_v4/standard/coreMQTT
+	url = https://github.com/FreeRTOS/coreMQTT.git
+[submodule "libraries/c_sdk_v4/standard/coreJSON"]
+	path = libraries/c_sdk_v4/standard/coreJSON
+	url = https://github.com/FreeRTOS/coreJSON.git
+[submodule "libraries/c_sdk_v4/aws/device-shadow-for-aws-iot-embedded-sdk"]
+	path = libraries/c_sdk_v4/aws/device-shadow-for-aws-iot-embedded-sdk
+	url = https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk.git
