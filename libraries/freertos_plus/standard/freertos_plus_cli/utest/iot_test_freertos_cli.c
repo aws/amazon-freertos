@@ -24,6 +24,7 @@
  *
  * 1 tab == 4 spaces!
  */
+#include <string.h>
 
 #include "FreeRTOS.h"
 

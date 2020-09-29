@@ -1,5 +1,5 @@
-## FreeRTOS-Plus-CLI UART Demo 
-The demo shows how to build a CLI application using FreeRTOS-Plus-CLI library and a UART driver implementation using Common-IO interface.
+## FreeRTOS+CLI UART Demo 
+The demo shows how to build a CLI application using FreeRTOS+CLI library and a UART driver implementation for Common-IO interface.
 
 ## Usage
 
@@ -37,4 +37,5 @@ Tmr Svc         B       5       97      3
 
 ## Requirements
 
-The boards should support UART interface by implementing `iot_uart.h` functions within common IO library. Currently the demo is supported on ESP32-DevKitC, ESP-WROVER-KIT and STM32L4 Discovery kit IoT Node.
+The demo uses a console IO implementation using common IO uart APIs. For the demo to work, the board should have an implementation for common IO APIs in `iot_uart.h`. 
+Alternatively user can implement the `xConsoleIO_t` interface defined in `FreeRTOS_CLI_Console.h` with their IO of choice and pass it to `FreeRTOS_CLIEnterConsoleLoop` within the demo.

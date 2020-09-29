@@ -2,7 +2,7 @@ afr_module()
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
-set(unit_test_dir "${CMAKE_CURRENT_LIST_DIR}/unit-test")
+set(unit_test_dir "${CMAKE_CURRENT_LIST_DIR}/utest")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}

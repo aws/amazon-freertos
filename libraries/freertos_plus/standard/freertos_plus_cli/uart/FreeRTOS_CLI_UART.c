@@ -55,9 +55,11 @@ void uart_write( const char * const pcOutputBuffer,
                  uint32_t xOutputBufferLen )
 {
     int32_t status;
+
     status = iot_uart_write_sync( xConsoleUart, ( uint8_t * ) pcOutputBuffer, xOutputBufferLen );
+
     if( status != IOT_UART_SUCCESS )
     {
-        configPRINTF(( "Failed to write to uart %d", status ));
+        configPRINTF( ( "Failed to write to uart %d", status ) );
     }
 }
