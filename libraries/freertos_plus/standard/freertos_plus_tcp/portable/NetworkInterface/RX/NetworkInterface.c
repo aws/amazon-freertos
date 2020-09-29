@@ -14,7 +14,7 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -53,7 +53,7 @@
  **********************************************************************************************************************/
 #define ETHER_BUFSIZE_MIN    60
 
-#if defined( BSP_MCU_RX65N ) || defined( BSP_MCU_RX64M ) || defined( BSP_MCU_RX71M )
+#if defined(BSP_MCU_RX65N) || defined(BSP_MCU_RX64M) || defined(BSP_MCU_RX71M) || defined(BSP_MCU_RX72M)
     #if ETHER_CFG_MODE_SEL == 0
         #define R_ETHER_PinSet_CHANNEL_0()    R_ETHER_PinSet_ETHERC0_MII()
     #elif ETHER_CFG_MODE_SEL == 1
@@ -90,7 +90,6 @@ typedef enum
 } eMAC_INIT_STATUS_TYPE;
 
 static TaskHandle_t ether_receive_check_task_handle = 0;
-static TaskHandle_t ether_link_check_task_handle = 0;
 static TaskHandle_t xTaskToNotify = NULL;
 static BaseType_t xPHYLinkStatus;
 static BaseType_t xReportedStatus;
@@ -305,15 +304,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
         if( xBytesReceived < 0 )
         {
             /* This is an error. Logged. */
-        	if( xBytesReceived == ETHER_ERR_LINK )
-        	{
-				/* Auto-negotiation is not completed, and transmission/
-				reception is not enabled. Will be logged elsewhere. */
-        	}
-        	else
-         	{
-        		FreeRTOS_printf( ( "R_ETHER_Read_ZC2: rc = %d not %d\n", xBytesReceived, ETHER_ERR_LINK ) );
-        	}
+            FreeRTOS_printf( ( "R_ETHER_Read_ZC2: rc = %d\n", xBytesReceived ) );
         }
         else if( xBytesReceived > 0 )
         {
@@ -369,7 +360,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                         /* The message was successfully sent to the TCP/IP stack.
                         * Call the standard trace macro to log the occurrence. */
                         iptraceNETWORK_INTERFACE_RECEIVE();
-                        R_NOP();
+                        R_BSP_NOP();
                     }
                 }
                 else
@@ -439,9 +430,9 @@ void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkB
     uint32_t ul;
     uint8_t * buffer_address;
 
-    R_EXTERN_SEC( B_ETHERNET_BUFFERS_1 )
+    R_BSP_SECTION_OPERATORS_INIT( B_ETHERNET_BUFFERS_1 )
 
-    buffer_address = R_SECTOP( B_ETHERNET_BUFFERS_1 );
+    buffer_address = R_BSP_SECTOP( B_ETHERNET_BUFFERS_1 );
 
     for( ul = 0; ul < ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS; ul++ )
     {
@@ -460,6 +451,7 @@ void prvLinkStatusChange( BaseType_t xStatus )
 {
     if( xReportedStatus != xStatus )
     {
+        FreeRTOS_printf( ( "prvLinkStatusChange( %d )\n", xStatus ) );
         xReportedStatus = xStatus;
     }
 }
