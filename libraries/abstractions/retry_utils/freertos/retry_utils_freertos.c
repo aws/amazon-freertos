@@ -26,16 +26,70 @@
 
 /* Standard includes. */
 #include <stdint.h>
+#include <time.h>
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* Include header of retry library API. */
 #include "retry_utils.h"
 
 #define MILLISECONDS_PER_SECOND    ( 1000U )                                                         /**< @brief Milliseconds per second. */
 
-extern UBaseType_t uxRand( void );
+/*-----------------------------------------------------------*/
+
+/* @brief This is used by the pseudo random number generator. */
+static uint32_t ulNextRand;
+
+/**
+ * @brief A psuedo random generator function.
+ *
+ * @note  This is not a secure method of generating a random number.
+ * Production devices should use a True Random Number Generator (TRNG).
+ *
+ * @return The generated random number.
+ */
+static uint32_t generateRandNum();
+
+/**
+ * @brief Seeds the psuedo random number generator.
+ */
+static void initializeRand();
+
+/*-----------------------------------------------------------*/
+
+static uint32_t generateRandNum()
+{
+    const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
+
+    /*
+     * Utility function to generate a pseudo random number.
+     *
+     * !!!NOTE!!!
+     * This is not a secure method of generating a random number.  Production
+     * devices should use a True Random Number Generator (TRNG).
+     */
+    ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
+    return( ( int ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+}
+
+/*-----------------------------------------------------------*/
+
+static void initializeRand()
+{
+    time_t xTimeNow;
+
+    /*
+     * Seed random number generator.
+     *
+     * !!!NOTE!!!
+     * This is not a secure method of generating a random number.  Production
+     * devices should use a True Random Number Generator (TRNG).
+     */
+    time( &xTimeNow );
+    ulNextRand = ( uint32_t ) xTimeNow;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -49,7 +103,7 @@ RetryUtilsStatus_t RetryUtils_BackoffAndSleep( RetryUtilsParams_t * pRetryParams
         ( 0 == pRetryParams->maxRetryAttempts ) )
     {
         /* Choose a random value for back-off time between 0 and the max jitter value. */
-        backOffDelayMs = uxRand() % pRetryParams->nextJitterMax;
+        backOffDelayMs = ( generateRandNum() % pRetryParams->nextJitterMax );
 
         /*  Wait for backoff time to expire for the next retry. */
         vTaskDelay( pdMS_TO_TICKS( backOffDelayMs * MILLISECONDS_PER_SECOND ) );
@@ -88,11 +142,13 @@ void RetryUtils_ParamsReset( RetryUtilsParams_t * pRetryParams )
 {
     uint32_t jitter = 0;
 
+    initializeRand();
+
     /* Reset attempts done to zero so that the next retry cycle can start. */
     pRetryParams->attemptsDone = 0;
 
     /* Calculate jitter value using picking a random number. */
-    jitter = ( uxRand() % MAX_JITTER_VALUE_SECONDS );
+    jitter = ( generateRandNum() % MAX_JITTER_VALUE_SECONDS );
 
     /* Reset the backoff value to the initial time out value plus jitter. */
     pRetryParams->nextJitterMax = INITIAL_RETRY_BACKOFF_SECONDS + jitter;
