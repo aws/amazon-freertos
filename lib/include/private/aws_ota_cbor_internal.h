@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS OTA V1.2.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,19 +23,19 @@
  * http://www.FreeRTOS.org
  */
 
-/**
- * @file aws_ota_cbor_internal.h
- * @brief Macros, enums, variables, and definitions internal to the OTA CBOR module and
- * shared by the testing files.
- */
+ /**
+  * @file aws_iot_ota_cbor_internal.h
+  * @brief Macros, enums, variables, and definitions internal to the OTA CBOR module and
+  * shared by the testing files.
+  */
 
-#ifndef _AWS_OTA_CBOR_INTERNAL_H_
-#define _AWS_OTA_CBOR_INTERNAL_H_
+#ifndef _AWS_IOT_OTA_CBOR_INTERNAL_H_
+#define _AWS_IOT_OTA_CBOR_INTERNAL_H_
 
-/**
- * @brief Message field definitions, per the server specification. These are
- * not part of the library interface but are included here for testability.
- */
+  /**
+   * @brief Message field definitions, per the server specification. These are
+   * not part of the library interface but are included here for testability.
+   */
 #define OTA_CBOR_CLIENTTOKEN_KEY          "c"
 #define OTA_CBOR_FILEID_KEY               "f"
 #define OTA_CBOR_BLOCKSIZE_KEY            "l"
@@ -46,5 +46,6 @@
 #define OTA_CBOR_FILESIZE_KEY             "z"
 #define OTA_CBOR_BLOCKID_KEY              "i"
 #define OTA_CBOR_BLOCKPAYLOAD_KEY         "p"
+#define OTA_CBOR_NUMBEROFBLOCKS_KEY       "n"
 
-#endif /* ifndef _AWS_OTA_CBOR_INTERNAL_H_ */
+#endif /* ifndef _AWS_IOT_OTA_CBOR_INTERNAL_H_ */

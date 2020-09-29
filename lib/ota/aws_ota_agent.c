@@ -1197,7 +1197,8 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                     ( int32_t ) ( OTA_FILE_BLOCK_SIZE & 0x7fffffffUL ), /* Mask to keep lint happy. It's still a constant. */
                     0,
                     C->pucRxBlockBitmap,
-                    ulBitmapLen ) )
+                    ulBitmapLen ,
+                    otaconfigMAX_NUM_BLOCKS_REQUEST ) )
             {
                 ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
 

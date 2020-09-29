@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS OTA Agent V1.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS OTA V1.2.0
+ * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ota_cbor.c
+ * @file aws_iot_ota_cbor.c
  * @brief CBOR encode/decode routines for AWS IoT Over-the-Air updates.
  */
 
@@ -37,7 +37,7 @@
  * @brief Message field definitions, per the server specification.
  */
 
-#define OTA_CBOR_GETSTREAMREQUEST_ITEM_COUNT    5
+#define OTA_CBOR_GETSTREAMREQUEST_ITEM_COUNT    6
 
 /**
  * @brief Internal context structure for decoding CBOR arrays.
@@ -99,7 +99,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          plFileId );
+                                          ( int * ) plFileId );
     }
 
     /* Find the block ID. */
@@ -121,7 +121,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          plBlockId );
+                                          ( int * ) plBlockId );
     }
 
     /* Find the block size. */
@@ -143,7 +143,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          plBlockSize );
+                                          ( int * ) plBlockSize );
     }
 
     /* Find the payload bytes. */
@@ -204,7 +204,8 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage( uint8_t * pucMessageBuffer,
                                                     int32_t lBlockSize,
                                                     int32_t lBlockOffset,
                                                     uint8_t * pucBlockBitmap,
-                                                    size_t xBlockBitmapSize )
+                                                    size_t xBlockBitmapSize,
+                                                    int32_t lNumOfBlocksRequested )
 {
     CborError xCborResult = CborNoError;
     CborEncoder xCborEncoder, xCborMapEncoder;
@@ -282,6 +283,19 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage( uint8_t * pucMessageBuffer,
         xCborResult = cbor_encode_byte_string( &xCborMapEncoder,
                                                pucBlockBitmap,
                                                xBlockBitmapSize );
+    }
+
+    /* Encode the number of blocks requested key and value. */
+    if( CborNoError == xCborResult )
+    {
+        xCborResult = cbor_encode_text_stringz( &xCborMapEncoder,
+                                                OTA_CBOR_NUMBEROFBLOCKS_KEY );
+    }
+
+    if( CborNoError == xCborResult )
+    {
+        xCborResult = cbor_encode_int( &xCborMapEncoder,
+                                       lNumOfBlocksRequested );
     }
 
     /* Done with the encoder. */
