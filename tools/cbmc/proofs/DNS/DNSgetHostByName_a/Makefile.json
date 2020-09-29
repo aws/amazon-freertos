@@ -17,8 +17,8 @@
     "$(ENTRY)_harness.goto",
     "$(FREERTOS)/tools/cbmc/stubs/cbmc.goto",
     "$(FREERTOS)/tools/cbmc/stubs/freertos_api.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.goto"
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_IP.goto"
   ],
   "DEF":
   [

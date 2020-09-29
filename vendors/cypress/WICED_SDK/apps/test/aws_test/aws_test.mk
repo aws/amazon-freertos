@@ -101,7 +101,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC/ \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC/ \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include/portable/cypress/$(PLATFORM) \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
@@ -182,15 +182,15 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/test_freertos_tcp.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_dns_define.h \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_tcp_define.h \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_UDP_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Sockets.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_ARP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DHCP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DNS.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_IP.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_UDP_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_Sockets.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_ARP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_DHCP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_DNS.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_Stream_Buffer.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_TCP_IP.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_TCP_WIN.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_async.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_common.c \

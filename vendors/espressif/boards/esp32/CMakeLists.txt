@@ -131,7 +131,7 @@ if(AFR_ESP_FREERTOS_TCP)
     "${extra_components_dir}/freertos_tcpip/ethernet/include"
     "${extra_components_dir}/freertos_tcpip/smartconfig_ack/include"
     "${extra_components_dir}/freertos_tcpip/tcpip_adapter/include"
-    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/GCC"
     )
 else()
     list(APPEND kernel_inc_dirs
@@ -283,8 +283,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/esp32/NetworkInterface.c"
 )
 
 # Secure sockets

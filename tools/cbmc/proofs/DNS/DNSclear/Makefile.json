@@ -11,7 +11,7 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto"
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/FreeRTOS_DNS.goto"
   ],
   "DEF":
   [
