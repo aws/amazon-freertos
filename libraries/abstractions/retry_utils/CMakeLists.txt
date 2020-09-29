@@ -1,4 +1,3 @@
-# coreMQTT Mutual Auth Demo
 afr_module(name retry_utils)
 
 afr_module_sources(
