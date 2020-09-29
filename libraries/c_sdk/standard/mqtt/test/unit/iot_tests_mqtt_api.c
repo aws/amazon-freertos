@@ -514,7 +514,7 @@ static void _decrementReferencesJob( IotTaskPool_t pTaskPool,
 /**
  * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
  */
-static int32_t transportSend( NetworkContext_t * pNetworkContext,
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
