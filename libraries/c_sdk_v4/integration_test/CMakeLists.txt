@@ -14,4 +14,5 @@ afr_module_dependencies(
         AFR::transport_interface_secure_sockets
         AFR::common
         AFR::platform
+        AFR::retry_utils
 )

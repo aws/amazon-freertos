@@ -52,6 +52,9 @@
 /* Include task.h for delay function. */
 #include "task.h"
 
+
+#include "retry_utils.h"
+
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
 /**************************************************/
@@ -791,6 +794,62 @@ static void resumePersistentSession()
     TEST_ASSERT_TRUE( persistentSession );
 }
 
+static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
+{
+    bool isSuccessful = false;
+    RetryUtilsStatus_t retryUtilsStatus = RetryUtilsSuccess;
+    RetryUtilsParams_t reconnectParams;
+    TransportSocketStatus_t transportStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+
+    /* Initializer server information. */
+    serverInfo.pHostName = BROKER_ENDPOINT;
+    serverInfo.hostNameLength = strlen( BROKER_ENDPOINT );
+    serverInfo.port = BROKER_PORT;
+
+    /* Initialize SocketsConfig. */
+    socketsConfig.enableTls = true;
+    socketsConfig.pAlpnProtos = NULL;
+    socketsConfig.maxFragmentLength = 0;
+    socketsConfig.disableSni = true;
+    socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
+    socketsConfig.rootCaSize = strlen( SERVER_ROOT_CA_CERT ) + 1U;
+    socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+    socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
+
+    /* Initialize reconnect attempts and interval */
+    RetryUtils_ParamsReset( &reconnectParams );
+
+    /* Attempt to connect to MQTT broker. If connection fails, retry after
+     * a timeout. Timeout value will exponentially increase till maximum
+     * attempts are reached.
+     */
+    do
+    {
+        /* Establish a TCP connection with the server endpoint, then
+         * establish TLS session on top of TCP connection. */
+        transportStatus = SecureSocketsTransport_Connect( &networkContext,
+                                                          &serverInfo,
+                                                          &socketsConfig );
+
+        if( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
+        {
+            LogWarn( ( "Connection to the broker failed. Retrying connection with backoff and jitter." ) );
+            retryUtilsStatus = RetryUtils_BackoffAndSleep( &reconnectParams );
+        }
+        else
+        {
+            isSuccessful = true;
+        }
+
+        if( retryUtilsStatus == RetryUtilsRetriesExhausted )
+        {
+            LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
+        }
+    } while( ( transportStatus != TRANSPORT_SOCKET_STATUS_SUCCESS ) && ( retryUtilsStatus == RetryUtilsSuccess ) );
+
+    return isSuccessful;
+}
+
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
@@ -809,26 +868,8 @@ void testSetUp()
     packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
     memset( &incomingInfo, 0u, sizeof( MQTTPublishInfo_t ) );
 
-    /* Initializer server information. */
-    serverInfo.pHostName = BROKER_ENDPOINT;
-    serverInfo.hostNameLength = strlen( BROKER_ENDPOINT );
-    serverInfo.port = BROKER_PORT;
-
-    /* Initialize SocketsConfig. */
-    socketsConfig.enableTls = true;
-    socketsConfig.pAlpnProtos = NULL;
-    socketsConfig.maxFragmentLength = 0;
-    socketsConfig.disableSni = true;
-    socketsConfig.pRootCa = SERVER_ROOT_CA_CERT;
-    socketsConfig.rootCaSize = strlen( SERVER_ROOT_CA_CERT ) + 1U;
-    socketsConfig.sendTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
-    socketsConfig.recvTimeoutMs = TRANSPORT_SEND_RECV_TIMEOUT_MS;
-
-    /* Establish a TCP connection with the server endpoint, then
-     * establish TLS session on top of TCP connection. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
+    /* Establish TLS over TCP connection with retry attempts on failures. */
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
     TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
@@ -844,7 +885,6 @@ void testTearDown()
     /* Terminate TLS session and TCP connection. */
     ( void ) SecureSocketsTransport_Disconnect( &networkContext );
 }
-
 
 /*-----------------------------------------------------------*/
 
