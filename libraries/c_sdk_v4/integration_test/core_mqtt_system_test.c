@@ -49,9 +49,6 @@
 /* Include OpenSSL implementation of transport interface. */
 #include "transport_secure_sockets.h"
 
-/* Include clock for timer. */
-#include "platform/iot_clock.h"
-
 /* Include task.h for delay function. */
 #include "task.h"
 
@@ -226,6 +223,16 @@
 #define MQTT_EXAMPLE_MESSAGE                 "Hello World!"
 
 /**
+ * @brief Milliseconds per second.
+ */
+#define _MILLISECONDS_PER_SECOND             ( 1000U )
+
+/**
+ * @brief Milliseconds per FreeRTOS tick.
+ */
+#define MILLISECONDS_PER_TICK                ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+
+/**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
  * it is used to match received Subscribe ACK to the transmitted subscribe.
  */
@@ -336,6 +343,21 @@ static uint8_t incomingPayloadBuffer[ sizeof( MQTT_EXAMPLE_MESSAGE ) ];
 static uint8_t packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
 
 /**
+ * @brief Global entry time to use as a reference timestamp in the getTimeMs()
+ * function. getTimeMs() function will always return the difference between the
+ * current time and the global entry time. This reduces the chances  of overflow
+ * for the 32 bit unsigned integer used for holding the timestamp.
+ */
+static uint32_t globalEntryTime;
+
+/**
+ * @brief The timer query function provided to the MQTT context.
+ *
+ * @return Time in milliseconds.
+ */
+static uint32_t getTimeMs();
+
+/**
  * @brief Sends an MQTT CONNECT packet over the already connected TCP socket.
  *
  * @param[in] pContext MQTT context pointer.
@@ -405,6 +427,24 @@ static void resumePersistentSession();
 
 /*-----------------------------------------------------------*/
 
+static uint32_t getTimeMs()
+{
+    TickType_t tickCount = 0;
+    uint32_t timeMs = 0UL;
+
+    /* Get the current tick count. */
+    tickCount = xTaskGetTickCount();
+
+    /* Convert the ticks to milliseconds. */
+    timeMs = ( uint32_t ) tickCount * MILLISECONDS_PER_TICK;
+
+    /* Reduce globalEntryTime from obtained time so as to always return the
+     * elapsed time in the application. */
+    timeMs = ( uint32_t ) ( timeMs - globalEntryTime );
+
+    return timeMs;
+}
+
 static void establishMqttSession( MQTTContext_t * pContext,
                                   NetworkContext_t * pNetworkContext,
                                   bool createCleanSession,
@@ -436,7 +476,7 @@ static void establishMqttSession( MQTTContext_t * pContext,
         /* Initialize MQTT library. */
         TEST_ASSERT_EQUAL( MQTTSuccess, MQTT_Init( pContext,
                                                    &transport,
-                                                   IotClock_GetTimeMs,
+                                                   getTimeMs,
                                                    eventCallback,
                                                    &networkBuffer ) );
     }
