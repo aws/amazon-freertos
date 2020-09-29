@@ -225,12 +225,12 @@
 /**
  * @brief Milliseconds per second.
  */
-#define _MILLISECONDS_PER_SECOND             ( 1000U )
+#define MILLISECONDS_PER_SECOND              ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -345,7 +345,7 @@ static uint8_t packetTypeForDisconnection = MQTT_PACKET_TYPE_INVALID;
 /**
  * @brief Global entry time to use as a reference timestamp in the getTimeMs()
  * function. getTimeMs() function will always return the difference between the
- * current time and the global entry time. This reduces the chances  of overflow
+ * current time and the global entry time. This reduces the chances of overflow
  * for the 32 bit unsigned integer used for holding the timestamp.
  */
 static uint32_t globalEntryTime;
