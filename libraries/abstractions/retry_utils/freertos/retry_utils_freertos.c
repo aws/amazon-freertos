@@ -78,8 +78,6 @@ static uint32_t generateRandNum()
 
 static void initializeRand()
 {
-    time_t xTimeNow;
-
     /*
      * Seed random number generator.
      *
@@ -87,8 +85,7 @@ static void initializeRand()
      * This is not a secure method of generating a random number.  Production
      * devices should use a True Random Number Generator (TRNG).
      */
-    time( &xTimeNow );
-    ulNextRand = ( uint32_t ) xTimeNow;
+    ulNextRand = ( uint32_t ) xTaskGetTickCount();
 }
 
 /*-----------------------------------------------------------*/
