@@ -399,8 +399,8 @@ static wiced_result_t prvWicedBTManagementCb( wiced_bt_management_evt_t event,
             if(pxWicedNvramInterface != NULL && pxWicedNvramInterface->save_bonded_device_key != NULL)
             {
                 pxWicedNvramInterface->save_bonded_device_key(
-                        p_event_data->paired_device_link_keys_request.bd_addr,
-                        (uint8_t *) &p_event_data->paired_device_link_keys_request.key_data,
+                        p_event_data->paired_device_link_keys_update.bd_addr,
+                        (uint8_t *) &p_event_data->paired_device_link_keys_update.key_data,
                         sizeof(wiced_bt_device_sec_keys_t));
             #if 0//for OTA debug
                 printf("\nLinkKey --> ");
