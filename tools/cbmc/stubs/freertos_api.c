@@ -37,8 +37,8 @@ Socket_t FreeRTOS_socket( BaseType_t xDomain,
                           BaseType_t xType,
                           BaseType_t xProtocol )
 {
-    return nondet_bool() ?
-           FREERTOS_INVALID_SOCKET : malloc( sizeof( Socket_t ) );
+  void *ptr = malloc( sizeof( Socket_t ) );
+  return ptr == NULL ? FREERTOS_INVALID_SOCKET : ptr;
 }
 
 /****************************************************************
@@ -142,7 +142,7 @@ int32_t FreeRTOS_recvfrom( Socket_t xSocket,
 
     size_t payload_size;
     __CPROVER_assume( payload_size + sizeof( UDPPacket_t )
-		      < CBMC_MAX_OBJECT_SIZE );
+                      < CBMC_MAX_OBJECT_SIZE );
 
     /****************************************************************
      * TODO: We need to make this lower bound explicit in the Makefile.json
@@ -158,7 +158,7 @@ int32_t FreeRTOS_recvfrom( Socket_t xSocket,
 
     uint32_t buffer_size = payload_size + sizeof( UDPPacket_t );
     uint8_t *buffer = safeMalloc( buffer_size );
-	
+
     if ( buffer == NULL ) {
       buffer_size = 0;
     }
@@ -167,7 +167,7 @@ int32_t FreeRTOS_recvfrom( Socket_t xSocket,
       buffer = buffer + sizeof( UDPPacket_t );
       buffer_size = buffer_size - sizeof( UDPPacket_t );
     }
-    
+
     *( ( uint8_t ** ) pvBuffer ) = buffer;
     return buffer_size;
 }
@@ -224,7 +224,7 @@ void FreeRTOS_ReleaseUDPPayloadBuffer( void * pvBuffer )
     __CPROVER_assert( pvBuffer != NULL,
                       "FreeRTOS precondition: pvBuffer != NULL" );
     __CPROVER_assert( __CPROVER_POINTER_OFFSET( pvBuffer )
-		      == sizeof( UDPPacket_t ),
+                      == sizeof( UDPPacket_t ),
                       "FreeRTOS precondition: pvBuffer offset" );
 
     free( pvBuffer - sizeof( UDPPacket_t ) );
@@ -271,9 +271,9 @@ NetworkBufferDescriptor_t * pxGetNetworkBufferWithDescriptor( size_t xRequestedS
           */
         GetNetworkBuffer_failure_count++;
         __CPROVER_assume(
-	    IMPLIES(
-	        GetNetworkBuffer_failure_count >= CBMC_GETNETWORKBUFFER_FAILURE_BOUND,
-		desc != NULL ) );
+            IMPLIES(
+                GetNetworkBuffer_failure_count >= CBMC_GETNETWORKBUFFER_FAILURE_BOUND,
+                desc != NULL ) );
     #endif
 
     if( desc != NULL )
@@ -294,8 +294,8 @@ NetworkBufferDescriptor_t * pxGetNetworkBufferWithDescriptor( size_t xRequestedS
             __CPROVER_assume( desc->pucEthernetBuffer != NULL );
         #endif
 
-	/* Allow method to fail again next time */
-	GetNetworkBuffer_failure_count = 0;
+        /* Allow method to fail again next time */
+        GetNetworkBuffer_failure_count = 0;
     }
 
     return desc;
