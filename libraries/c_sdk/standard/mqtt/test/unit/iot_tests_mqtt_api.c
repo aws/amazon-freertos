@@ -574,9 +574,7 @@ static void eventCallback( MQTTContext_t * pContext,
  * @brief Setting the MQTT Context for the given MQTT Connection.
  */
 static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
-                                   int32_t ( * transportSend )( NetworkContext_t *,
-                                                                const void *,
-                                                                size_t ) )
+                                   TransportSend_t transportSend )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
@@ -828,7 +826,7 @@ TEST( MQTT_Unit_API, OperationWaitTimeout )
         TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
         /* Set the MQTT Context for the new MQTT Connection*/
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection, _sendDelay ) );
+        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection, ( TransportSend_t ) _sendDelay ) );
 
         /* Set parameter to network send function. */
         _pMqttConnection->pNetworkConnection = &waitSem;
