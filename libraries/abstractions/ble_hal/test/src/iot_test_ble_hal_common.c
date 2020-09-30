@@ -575,7 +575,7 @@ void IotTestBleHal_BLEEnable( bool bEnable )
     }
     else
     {
-        xStatus = _pxBTInterface->pxDisable( 0 );
+        xStatus = _pxBTInterface->pxDisable();
     }
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
