@@ -610,7 +610,7 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         transport.send = transportSend;
 
         /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
         subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
