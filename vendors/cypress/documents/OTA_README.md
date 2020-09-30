@@ -102,17 +102,26 @@ These values are used when the Secondary Slot is located in **internal** flash. 
 
 1. Edit *mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk*
 
-   `Change at line 31:`
+   Change at line 31:
 
-   `USE_EXTERNAL_FLASH ?= 0`
+   ```
+USE_EXTERNAL_FLASH ?= 0
+   ```
 
-   `Add at line 50`
+   Replace line 55 with:
 
-   `DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=2000`
-
-   `DEFINES_APP +=-DCY_BOOT_PRIMARY_1_SIZE=0x0EE000`
-
-   `DEFINES_APP +=-DCY_BOOT_SECONDARY_1_SIZE=0x0EE000`
+   ```
+DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=2000
+   ```
+   
+   Add at line 56:
+   
+   ```
+   DEFINES_APP +=-DCY_BOOT_PRIMARY_1_SIZE=0x0EE000
+   DEFINES_APP +=-DCY_BOOT_SECONDARY_1_SIZE=0x0EE000
+   ```
+   
+   
 
 #### External Flash for Secondary Slot
 
@@ -120,17 +129,24 @@ These values are used when the Secondary Slot is located in **external** flash. 
 
 1. Edit *mcuboot/boot/cypress/MCUBootApp/MCUBootApp.mk*
 
-   `Change at line 31:`
+   Change at line 31:
 
-   `USE_EXTERNAL_FLASH ?= 1`
+   ```
+USE_EXTERNAL_FLASH ?= 1
+   ```
 
-   `Add at line 50`
-
-   `DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=3584`
+   Replace line 55 with:
    
-   `DEFINES_APP +=-DCY_BOOT_PRIMARY_1_SIZE=0x01c0000`
+   ```
+   DEFINES_APP +=-DMCUBOOT_MAX_IMG_SECTORS=3584
+   ```
    
-   `DEFINES_APP +=-DCY_BOOT_SECONDARY_1_SIZE=0x01c0000`
+   Add at line 56:
+   
+   ```
+   DEFINES_APP +=-DCY_BOOT_PRIMARY_1_SIZE=0x01c0000
+   DEFINES_APP +=-DCY_BOOT_SECONDARY_1_SIZE=0x01c00=00
+   ```
 
 ### Configure MCUBoot to Ignore Primary Slot Verify
 
