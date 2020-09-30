@@ -71,9 +71,6 @@
 [submodule "vendors/cypress/MTB/libraries/abstraction-rtos"]
 	path = vendors/cypress/MTB/libraries/abstraction-rtos
 	url = https://github.com/cypresssemiconductorco/abstraction-rtos.git
-[submodule "vendors/cypress/MTB/psoc6/psoc6hal"]
-	path = vendors/cypress/MTB/psoc6/psoc6hal
-	url = https://github.com/cypresssemiconductorco/psoc6hal.git
 [submodule "vendors/cypress/MTB/psoc6/psoc6cm0p"]
 	path = vendors/cypress/MTB/psoc6/psoc6cm0p
 	url = https://github.com/cypresssemiconductorco/psoc6cm0p.git
@@ -101,3 +98,9 @@
 [submodule "vendors/cypress/MTB/psoc6/udb-sdio-whd"]
 	path = vendors/cypress/MTB/psoc6/udb-sdio-whd
 	url = https://github.com/cypresssemiconductorco/udb-sdio-whd.git
+[submodule "vendors/cypress/MTB/psoc6/psoc6hal"]
+	path = vendors/cypress/MTB/psoc6/psoc6hal
+	url = https://github.com/cypresssemiconductorco/psoc6hal.git
+[submodule "vendors/cypress/MTB/libraries/lpa"]
+	path = vendors/cypress/MTB/libraries/lpa
+	url = https://github.com/cypresssemiconductorco/lpa.git

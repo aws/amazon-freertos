@@ -329,6 +329,7 @@ function(cy_add_link_libraries)
             "${cy_libararies_bt_dir}/platform/common"
             "${cy_libararies_bt_dir}/wiced_include"
             "${cy_port_support_dir}/bluetooth"
+            "${cy_libraries_dir}/lpa/include"
         )
 
         target_link_libraries(

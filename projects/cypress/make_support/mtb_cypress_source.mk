@@ -13,6 +13,7 @@ CY_IGNORE+=\
 	$(CY_EXTAPP_PATH)/libraries/connectivity-utilities\
 	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/docs\
 	$(CY_EXTAPP_PATH)/libraries/wifi-host-driver/External\
+	$(CY_EXTAPP_PATH)/libraries/lpa\
 
 ifneq ($(BLE_SUPPORT),1)
 CY_IGNORE+=\
