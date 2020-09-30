@@ -295,7 +295,6 @@ SOURCES+=\
 
 # MQTT without ble
 SOURCES+=\
-	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c\
 	$(CY_AFR_ROOT)/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c\
