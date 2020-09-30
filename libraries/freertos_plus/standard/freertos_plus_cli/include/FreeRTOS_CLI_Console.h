@@ -22,7 +22,6 @@
  * http://www.FreeRTOS.org
  * http://aws.amazon.com/freertos
  *
- * 1 tab == 4 spaces!
  */
 
 #ifndef FREERTOS_CLI_CONSOLE_H
@@ -48,6 +47,8 @@ typedef struct xConsoleIO
      * function can either block or return immediately with 0 bytes read. If there is an error for the
      * read, it returns negative error code.
      * FreeRTOS CLI uses this function to read the command string from input console.
+     * The API is not thread-safe.
+     *
      */
     int32_t ( * read )( char * const buffer,
                         uint32_t length );
@@ -56,6 +57,7 @@ typedef struct xConsoleIO
      * Function writes the output of a finite length buffer to the console. The buffer will be a null
      * terminated string, length of the buffer does not include the null termination.
      * FreeRTOS CLI uses this function to write command output or error logs to the console.
+     * The API is not thread-safe.
      */
     void ( * write )( const char * const buffer,
                       uint32_t length );

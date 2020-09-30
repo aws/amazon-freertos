@@ -112,11 +112,8 @@ static BaseType_t prvThreeParameterEchoCommand( char * pcWriteBuffer,
     BaseType_t lParameterStringLength, xReturn;
     static BaseType_t lParameterNumber = 0;
 
-    /* Remove compile time warnings about unused parameters, and check the
-     * write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+    /* Check the write buffer is not NULL.  NOTE - for simplicity, this example assumes the
      * write buffer length is adequate, so does not check for buffer overflows. */
-    ( void ) pcCommandString;
-    ( void ) xWriteBufferLen;
     configASSERT( pcWriteBuffer );
 
     if( lParameterNumber == 0 )
@@ -277,8 +274,7 @@ int vRunCLIUartDemo( bool awsIotMqttMode,
                      void * pNetworkCredentialInfo,
                      const IotNetworkInterface_t * pNetworkInterface )
 {
-    /* These parameters are unusued for the demo. */
-
+    /* These parameters are unused for the demo. */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
     ( void ) pNetworkServerInfo;

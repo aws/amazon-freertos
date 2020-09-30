@@ -35,15 +35,17 @@
 #include "unity_fixture.h"
 #include "aws_test_runner.h"
 
-#define COMMAND_BUFFER_SIZE        ( 10 )
+#define COMMAND_BUFFER_SIZE              ( 10 )
 
-#define OUTPUT_BUFFER_SIZE         ( 100 )
+#define OUTPUT_BUFFER_SIZE               ( 100 )
 
-#define MAX_INPUT_STREAM_SIZE      ( 100 )
+#define MAX_INPUT_STREAM_SIZE            ( 100 )
 
-#define MAX_OUTPUT_STREAM_SIZE     ( 200 )
+#define MAX_OUTPUT_STREAM_SIZE           ( 200 )
 
-#define MAX_OUTPUT_WAIT_TIME_MS    ( 5000 )
+#define MAX_OUTPUT_WAIT_TIME_MS          ( 5000 )
+
+#define MAX_INPUT_STREAM_WAIT_TIME_MS    ( 500 )
 
 static BaseType_t prvEchoCommandHandler( char * pcWriteBuffer,
                                          size_t xWriteBufferLen,
@@ -129,7 +131,10 @@ static void prvConsoleLoopTask( void * parameters )
 static int32_t prvReadFromInputStream( char * const buffer,
                                        uint32_t length )
 {
-    return ( int32_t ) xStreamBufferReceive( xInputStream, buffer, length, 100 );
+    return ( int32_t ) xStreamBufferReceive( xInputStream,
+                                             buffer,
+                                             length,
+                                             pdMS_TO_TICKS( MAX_INPUT_STREAM_WAIT_TIME_MS ) );
 }
 
 static void prvWriteToOutputStream( const char * const buffer,
@@ -167,7 +172,7 @@ static void prvValidateStartupMessage( void )
 
     TEST_ASSERT_EQUAL( strlen( pcStartMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcStartMessage, cOutput, strlen( pcStartMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }
 
 static void prvSetupTaskAndStreamBuffer( void )
@@ -291,7 +296,7 @@ TEST( FreeRTOS_CLI_Console, ExecuteEchoCommandSingleInvocation )
                                    cOutput,
                                    strlen( pcEndOfOutputMessage ) ) );
 
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }
 
 TEST( FreeRTOS_CLI_Console, ExecuteEchoCommandMultipleReads )
@@ -363,7 +368,7 @@ TEST( FreeRTOS_CLI_Console, ExecuteEchoCommandMultipleReads )
 
     TEST_ASSERT_EQUAL( strlen( pcEndOfOutputMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcEndOfOutputMessage, cOutput, strlen( pcEndOfOutputMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }
 
 TEST( FreeRTOS_CLI_Console, InputWithBackspace )
@@ -422,7 +427,7 @@ TEST( FreeRTOS_CLI_Console, InputWithBackspace )
 
     TEST_ASSERT_EQUAL( strlen( pcEndOfOutputMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcEndOfOutputMessage, cOutput, strlen( pcEndOfOutputMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }
 
 TEST( FreeRTOS_CLI_Console, ExecuteEchoCommandMultipleInvocation )
@@ -492,7 +497,7 @@ TEST( FreeRTOS_CLI_Console, ExecuteEchoCommandMultipleInvocation )
 
     TEST_ASSERT_EQUAL( strlen( pcEndOfOutputMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcEndOfOutputMessage, cOutput, strlen( pcEndOfOutputMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }
 
 TEST( FreeRTOS_CLI_Console, ExecutePreviousCommand )
@@ -550,7 +555,7 @@ TEST( FreeRTOS_CLI_Console, ExecutePreviousCommand )
 
     TEST_ASSERT_EQUAL( strlen( pcEndOfOutputMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcEndOfOutputMessage, cOutput, strlen( pcEndOfOutputMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 
 
     /*
@@ -602,5 +607,5 @@ TEST( FreeRTOS_CLI_Console, ExecutePreviousCommand )
 
     TEST_ASSERT_EQUAL( strlen( pcEndOfOutputMessage ), xOutputLength );
     TEST_ASSERT_EQUAL( 0, strncmp( pcEndOfOutputMessage, cOutput, strlen( pcEndOfOutputMessage ) ) );
-    TEST_ASSERT_TRUE( xStreamBufferIsEmpty );
+    TEST_ASSERT_EQUAL( pdTRUE, xStreamBufferIsEmpty( xOutputStream ) );
 }

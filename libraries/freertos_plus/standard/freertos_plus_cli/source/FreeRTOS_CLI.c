@@ -155,7 +155,7 @@ BaseType_t FreeRTOS_CLIProcessCommand( const char * const pcCommandInput,
     size_t xCommandStringLength;
 
     /* Note:  This function is not re-entrant.  It must not be called from more
-     * thank one task. */
+     * than one task. */
 
     if( pxCommand == NULL )
     {
@@ -234,6 +234,9 @@ const char * FreeRTOS_CLIGetParameter( const char * pcCommandString,
 {
     UBaseType_t uxParametersFound = 0;
     const char * pcReturn = NULL;
+
+
+    configASSERT( pxParameterStringLength );
 
     *pxParameterStringLength = 0;
 

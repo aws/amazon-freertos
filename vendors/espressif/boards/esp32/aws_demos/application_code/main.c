@@ -101,33 +101,24 @@ static void prvMiscInitialization( void );
 IotUARTHandle_t xConsoleUart;
 
 
-static int32_t iot_uart_init( void )
+static void iot_uart_init( void )
 {
     IotUARTConfig_t xUartConfig;
-    int32_t iResult = IOT_UART_SUCCESS;
+    int32_t status = IOT_UART_SUCCESS;
     
     xConsoleUart = iot_uart_open( UART_NUM_0 );
-    if( xConsoleUart == NULL )
-    {
-        iResult =  -1;
-    }
+    configASSERT( xConsoleUart );
+    
+    status = iot_uart_ioctl( xConsoleUart, eUartGetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+    
+    xUartConfig.ulBaudrate = 115200;
+    xUartConfig.xParity = eUartParityNone;
+    xUartConfig.xStopbits = eUartStopBitsOne;
+    xUartConfig.ucFlowControl = true;
 
-    if( iResult == IOT_UART_SUCCESS )
-    {
-        iResult = iot_uart_ioctl( xConsoleUart, eUartGetConfig, &xUartConfig );
-    }
-
-    if( iResult == IOT_UART_SUCCESS )
-    {
-        xUartConfig.ulBaudrate = 115200;
-        xUartConfig.xParity = eUartParityNone;
-        xUartConfig.xStopbits = eUartStopBitsOne;
-        xUartConfig.ucFlowControl = true;
-
-        iResult = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
-    }
-
-    return iResult;
+    status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
 }
 /*-----------------------------------------------------------*/
 
@@ -192,19 +183,7 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 
-    uartRet = iot_uart_init();
-    if( uartRet < 0 )
-    {
-        printf("Uart failed to initialize, ret = %d\n", uartRet );
-        while( 1 )
-        {
-
-        }
-    }
-    else
-    {
-        printf("Uart successfully initialized.\n");
-    }
+    iot_uart_init();
 
     #if BLE_ENABLED
         NumericComparisonInit();

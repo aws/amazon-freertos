@@ -1,3 +1,29 @@
+/*
+ * FreeRTOS+CLI V1.0.4
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://www.FreeRTOS.org
+ * http://aws.amazon.com/freertos
+ *
+ */
+
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
@@ -39,65 +65,44 @@ void FreeRTOS_CLIEnterConsoleLoop( xConsoleIO_t consoleIO,
                                    char * pOutputBuffer,
                                    size_t outputBufferLength )
 {
-    BaseType_t status = pdTRUE;
     int32_t bytesRead;
 
-    if( ( consoleIO.read == NULL ) || ( consoleIO.write == NULL ) )
-    {
-        status = pdFALSE;
-    }
+    configASSERT( ( consoleIO.read ) && ( consoleIO.write ) );
+    configASSERT( ( pCommandBuffer ) && ( commandBufferLength > 0 ) );
+    configASSERT( ( pOutputBuffer ) && ( outputBufferLength > 0 ) );
 
-    if( status == pdTRUE )
+    memset( pCommandBuffer, 0x00, commandBufferLength );
+    memset( pOutputBuffer, 0x00, outputBufferLength );
+
+    consoleIO.write( pcStartMessage, strlen( pcStartMessage ) );
+
+    for( ; ; )
     {
-        if( ( pCommandBuffer == NULL ) || ( commandBufferLength == 0 ) )
+        /* Read characters to input buffer. */
+        bytesRead = consoleIO.read( cInputBuffer, cmdMAX_INPUT_BUFFER_SIZE - 1 );
+
+        if( bytesRead > 0 )
         {
-            status = pdFALSE;
+            /* Echo back. */
+            consoleIO.write( cInputBuffer, bytesRead );
+
+            processInputBuffer( consoleIO,
+                                bytesRead,
+                                pCommandBuffer,
+                                commandBufferLength,
+                                pOutputBuffer,
+                                outputBufferLength );
+
+            /* Reset input buffer for next iteration. */
+            memset( cInputBuffer, 0x00, cmdMAX_INPUT_BUFFER_SIZE );
         }
-    }
-
-    if( status == pdTRUE )
-    {
-        if( ( pOutputBuffer == NULL ) || ( outputBufferLength == 0 ) )
+        else if( bytesRead < 0 )
         {
-            status = pdFALSE;
-        }
-    }
+            snprintf( cErrorString, cmdMAX_ERROR_SIZE, "Read failed with error %d\n", ( int ) bytesRead );
+            consoleIO.write( cErrorString, sizeof( cErrorString ) );
+            memset( cErrorString, 0x00, cmdMAX_ERROR_SIZE );
 
-    if( status == pdTRUE )
-    {
-        memset( pCommandBuffer, 0x00, commandBufferLength );
-        memset( pOutputBuffer, 0x00, outputBufferLength );
-
-        consoleIO.write( pcStartMessage, strlen( pcStartMessage ) );
-
-        for( ; ; )
-        {
-            /* Read characters to input buffer. */
-            bytesRead = consoleIO.read( cInputBuffer, cmdMAX_INPUT_BUFFER_SIZE - 1 );
-
-            if( bytesRead > 0 )
-            {
-                /* Echo back. */
-                consoleIO.write( cInputBuffer, bytesRead );
-
-                processInputBuffer( consoleIO,
-                                    bytesRead,
-                                    pCommandBuffer,
-                                    commandBufferLength,
-                                    pOutputBuffer,
-                                    outputBufferLength );
-
-                /* Reset input buffer for next iteration. */
-                memset( cInputBuffer, 0x00, cmdMAX_INPUT_BUFFER_SIZE );
-            }
-            else if( bytesRead < 0 )
-            {
-                snprintf( cErrorString, cmdMAX_ERROR_SIZE, "Read failed with error %d\n", ( int ) status );
-                consoleIO.write( cErrorString, sizeof( cErrorString ) );
-                memset( cErrorString, 0x00, cmdMAX_ERROR_SIZE );
-
-                vTaskDelay( pdMS_TO_TICKS( cmdERROR_DELAY ) );
-            }
+            vTaskDelay( pdMS_TO_TICKS( cmdERROR_DELAY ) );
         }
     }
 }
@@ -162,7 +167,10 @@ static void processInputBuffer( xConsoleIO_t consoleIO,
                 xReturned = FreeRTOS_CLIProcessCommand( pCommandBuffer, pOutputBuffer, outpuBufferLength - 1 );
 
                 /* Write the generated string to the output. */
-                consoleIO.write( pOutputBuffer, outpuBufferLength - 1 );
+                consoleIO.write( pOutputBuffer, strlen( pOutputBuffer ) );
+
+
+                /* Reset the output buffer to clear any command output. */
                 memset( pOutputBuffer, 0x00, outpuBufferLength );
             } while( xReturned != pdFALSE );
 

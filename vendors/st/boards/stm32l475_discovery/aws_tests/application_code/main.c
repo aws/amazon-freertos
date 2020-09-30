@@ -501,7 +501,7 @@ void vApplicationIdleHook( void )
 
     if( ( xTimeNow - xLastPrint ) > xPrintFrequency )
     {
-        //configPRINT( "." );
+        configPRINT( "." );
         xLastPrint = xTimeNow;
     }
 }
