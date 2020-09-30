@@ -1253,7 +1253,7 @@ ESP_WIFI_Status_t ESP_WIFI_Recv( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * px
             }
 
             if ((*usRecvLen) == 0) {
-                do {
+                while (1) {
                     xTickCurrent = xTaskGetTickCount();
                     if (xTickCurrent < xTickEnd) {
                         xTickTimeout = xTickEnd - xTickCurrent;
@@ -1264,7 +1264,13 @@ ESP_WIFI_Status_t ESP_WIFI_Recv( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * px
                     }
 
                     xRet = ESP_IO_Recv(pxObj, pxObj->CmdData, sizeof(pxObj->CmdData), pxConn->LinkID, xTickTimeout);
-                } while (xRet != ESP_WIFI_STATUS_RECV);
+                    if (xRet == ESP_WIFI_STATUS_RECV) {
+                        break;
+                    } else {
+                        /* Release the CPU resource */
+                        vTaskDelay(1);
+                    }
+                }
             } else {
                 ucDoFlag = 0;
             }
