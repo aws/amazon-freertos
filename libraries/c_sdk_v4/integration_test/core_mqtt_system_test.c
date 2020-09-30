@@ -83,8 +83,7 @@
 /**
  * This file contains 2 test groups:
  * - coreMQTT_Integration_AWS_IoT_Compatible for running tests against AWS IoT
- * - coreMQTT_Integration for running tests against an MQTT 3.1.1 fully compliant MQTT
- * broker.
+ * - coreMQTT_Integration for running tests against a non-AWS IoT MQTT 3.1.1 MQTT broker.
  *
  * Thus, the 2 test groups have different broker endpoint and TLS credentials
  * for running to connect against their brokers. However, this test shares the same
@@ -936,8 +935,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
 }
 
 /**
- * @brief Test group runner for MQTT system tests against a broker that is fully compliant
- * with the MQTT 3.1.1 specification.
+ * @brief Test group runner for MQTT system tests against an non-AWS IoT MQTT 3.1.1 broker.
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration )
 {
@@ -958,7 +956,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration )
 /* ========================== Test Cases ============================ */
 
 /**
- * @brief Tests Subscribe and Publish operations with the MQTT broken using QoS 0.
+ * @brief Tests Subscribe and Publish operations with the MQTT broker using QoS 0.
  * The test subscribes to a topic, and then publishes to the same topic. The
  * broker is expected to route the publish message back to the test.
  */
