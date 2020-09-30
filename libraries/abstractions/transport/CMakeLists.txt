@@ -1,5 +1,5 @@
 # Transport Interface 
-afr_module(NAME transport_interface_secure_sockets INTERFACE)
+afr_module(NAME transport_interface_secure_sockets)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/secure_sockets")
 

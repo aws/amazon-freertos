@@ -230,6 +230,14 @@ static void RunTests( void )
     #if ( testrunnerFULL_COMMON_IO_ENABLED == 1 )
         RUN_TEST_GROUP( Common_IO );
     #endif
+
+    #if ( testrunnerFULL_CORE_MQTT_ENABLED == 1 )
+        RUN_TEST_GROUP( coreMQTT_Integration );
+    #endif
+
+    #if ( testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED == 1 )
+        RUN_TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
