@@ -103,7 +103,9 @@
  * @ingroup posix_datatypes_handles
  * @brief Used to define a barrier attributes object.
  */
+#if !defined( posixconfigENABLE_PTHREAD_BARRIER_T ) || ( posixconfigENABLE_PTHREAD_BARRIER_T == 1 )
 typedef void                         * pthread_barrierattr_t;
+#endif
 
 /**
  * @ingroup posix_datatypes_handles

@@ -1,0 +1,171 @@
+//*****************************************************************************
+//
+// IAR Linker configuration file.
+//
+// Copyright (C) 2018-2020 Texas Instruments Incorporated - http://www.ti.com/
+// All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
+//  are met:
+//
+//    Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+//    Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the
+//    distribution.
+//
+//    Neither the name of Texas Instruments Incorporated nor the names of
+//    its contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+//  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+//  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//*****************************************************************************
+
+//
+// Define memory regions.
+//
+define symbol ROM_start__ = 0x01000000;
+define symbol ROM_end__   = 0x0100FFFF;
+define symbol RAM_start__ = 0x20000000;
+define symbol RAM_end__   = 0x2003BFFF;
+
+//
+// Define a memory region that covers the entire 4 GB addressable space of the
+// processor.
+//
+define memory mem with size = 4G;
+
+//
+// Define a region for the on-chip flash.
+//
+define region FLASH_HDR = mem:[from 0x01000000 to 0x010007FF];
+define region FLASH = mem:[from 0x01000800 to 0x010FFFFF];
+
+//
+// Keep the debug header
+//
+keep {section .dbghdr};
+place at start of FLASH_HDR { readonly section .dbghdr };
+
+//
+// Define a region for the on-chip SRAM.
+// SRAM size of 240KB for CC32XX ES 1.33 device
+define region SRAM = mem:[from RAM_start__ to RAM_end__];
+
+//
+// Define a block for the heap.  The size should be set to something other
+// than zero if things in the C library that require the heap are used.
+// Heap is minimized since FreeRTOS is configured to use its own heap.
+//
+define symbol HEAPSIZE = 0x8;
+define block HEAP with alignment = 8, size = HEAPSIZE { };
+keep {readonly section .cmdtbl};
+define block CmdTbl {section .cmdtbl };
+
+//
+// Indicate that the noinit values should be left alone.  This includes the
+// stack, which if initialized will destroy the return address from the
+// initialization code, causing the processor to branch to zero and fault.
+//
+do not initialize { section .noinit };
+
+define symbol STACKSIZE = 1024;
+define block CSTACK with alignment = 8, size = STACKSIZE { section .stack };
+do not initialize { section .stack};
+place at end of SRAM { block CSTACK };
+
+// Export stack top symbol. Used by startup file
+define exported symbol STACK_TOP = RAM_end__ + 1;
+
+// Place heap before stack
+place at end of SRAM { block HEAP };
+define exported symbol __heap_end__ = end(SRAM) - STACKSIZE;
+define exported symbol __heap_start__ = __heap_end__ - HEAPSIZE;
+
+// Define non heap/stack RAM
+define region RWSRAM = mem:[from RAM_start__ to __heap_start__];
+
+//-----------------------------------------------------------
+initialize by copy { readwrite };
+//-----------------------------------------------------------
+
+//
+// Place the interrupt vectors at the start of flash.
+// Define Flash = 0 if application doesn't use Flash memory
+// else define Flash = 1
+//
+define symbol Flash = 1;
+
+if (!Flash)
+{
+  //-----------------------------------------------------------
+  place at start of SRAM { readonly section .intvec };
+  //-----------------------------------------------------------
+
+  //
+  // Place the remainder of the read-only items into flash.
+  //
+  place in RWSRAM { readonly };
+
+  //
+  // Place the RAM vector table at the start of SRAM.
+  //
+
+  //-----------------------------------------------------------
+  place in RWSRAM { section VTABLE };
+  //------------------------------------------------------------
+
+  //
+  // Place all read/write items into SRAM.
+  //
+  place in RWSRAM { block CmdTbl };
+  place in RWSRAM { readwrite};
+}
+else
+{
+  //-----------------------------------------------------------
+  place at start of FLASH { readonly section .intvec };
+  //-----------------------------------------------------------
+
+  //
+  // Place the remainder of the read-only items into flash.
+  //
+  place in FLASH { readonly };
+  place in FLASH { block CmdTbl };
+
+  //
+  // Place the RAM vector table at the start of SRAM.
+  //
+
+  //-----------------------------------------------------------
+  place in RWSRAM { section VTABLE };
+  //------------------------------------------------------------
+
+  //
+  // Place all read/write items into SRAM.
+  //
+  place in RWSRAM { readwrite};
+}
+
+/* Explicitly placed off target for the storage of logging data.
+ * The data placed here is NOT  loaded ont the target device.
+ * This is part of 1 GB of external memory from 0x60000000 - 0x9FFFFFFF.
+ * ARM memory map can be found here:
+ * https://developer.arm.com/documentation/ddi0337/e/memory-map/about-the-memory-map
+ */
+define region LOG_DATA = mem:[from 0x90000000 to 0x9003FFFF];
+".log_data": place noload in LOG_DATA { readonly section .log_data };
