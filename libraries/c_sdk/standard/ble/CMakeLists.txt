@@ -119,6 +119,7 @@ afr_test_module(mqtt_ble)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        #"${test_dir}/iot_test_ble_mqtt_serialize.c"
         "${test_dir}/iot_test_ble_end_to_end.c"
         "${test_dir}/iot_test_wifi_provisioning.c"
 )

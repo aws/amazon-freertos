@@ -29,6 +29,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "FreeRTOS.h"
+#include "stream_buffer.h"
+
 #include "iot_ble_mqtt_transport_config.h"
 #include "core_mqtt_serializer.h"
 #include "iot_ble_mqtt_serialize.h"
@@ -36,6 +39,15 @@
 #include "platform/iot_network.h"
 #include "types/iot_platform_types.h"
 
+/**
+ * @brief Structure to hold the MQTT publish information to send over BLE channel.
+ */
+typedef struct MQTTBLEPublishInfo
+{
+    MQTTPublishInfo_t info;
+    uint16_t packetIdentifier;
+    bool pending;
+} MQTTBLEPublishInfo_t;
 
 struct NetworkContext
 {
@@ -43,17 +55,20 @@ struct NetworkContext
     IotSemaphore_t isReady;
     void * buf;
     size_t bufSize;
+    StreamBufferHandle_t xStreamBuffer;
+    StaticStreamBuffer_t xStreamBufferStruct;
+    MQTTBLEPublishInfo_t publishInfo;
 };
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data
  */
-bool IotBleMqttTransportInit( const NetworkContext_t * pContext );
+bool IotBleMqttTransportInit( NetworkContext_t * pContext );
 
 /**
  * @brief Cleans up the Circular buffer
  */
-void IotBleMqttTransportCleanup( void );
+void IotBleMqttTransportCleanup( NetworkContext_t * pContext );
 
 /**
  * @brief Function to accept data from the channel

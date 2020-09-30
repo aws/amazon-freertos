@@ -733,14 +733,14 @@ MQTTStatus_t IotBleMqtt_DeserializeConnack( MQTTPacketInfo_t * pConnack )
 MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPublishInfo,
                                           uint8_t ** const pPublishPacket,
                                           size_t * const pPacketSize,
-                                          uint16_t * const pPacketIdentifier )
+                                          uint16_t packetIdentifier )
 {
     uint8_t * pBuffer = NULL;
     size_t bufLen = 0;
     IotSerializerError_t error;
     MQTTStatus_t ret = MQTTSuccess;
 
-    error = _serializePublish( pPublishInfo, NULL, &bufLen, *pPacketIdentifier );
+    error = _serializePublish( pPublishInfo, NULL, &bufLen, packetIdentifier );
 
     if( error != IOT_SERIALIZER_SUCCESS )
     {
@@ -762,7 +762,7 @@ MQTTStatus_t IotBleMqtt_SerializePublish( const MQTTPublishInfo_t * const pPubli
 
     if( ret == MQTTSuccess )
     {
-        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, *pPacketIdentifier );
+        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, packetIdentifier );
 
         if( error != IOT_SERIALIZER_SUCCESS )
         {
