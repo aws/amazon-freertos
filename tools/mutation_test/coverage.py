@@ -135,7 +135,7 @@ def run_coverage(args, config):
                         line_set.clear()
                 os.chdir(dir_path)
                 with open(args.output, 'w', encoding='utf-8') as f:
-                    json.dump(line_coverage_map, f, ensure_ascii=False, indent=4, sort_keys=True)
+                    json.dump(line_coverage_map, f, ensure_ascii=False, indent=4)
                 utils.yellow_print("Written line coverage data to {}".format(args.output))
         except Exception as e:
             traceback.print_exc()
