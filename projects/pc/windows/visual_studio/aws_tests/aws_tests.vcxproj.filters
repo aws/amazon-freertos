@@ -101,6 +101,14 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
+		<Filter Include="libraries\abstractions\retry_utils"/>
+		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
+		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT\source"/>
+		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT"/>
+		<Filter Include="libraries\c_sdk_v4\standard"/>
+		<Filter Include="libraries\c_sdk_v4"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -125,6 +133,7 @@
 		<Filter Include="libraries\abstractions\pkcs11\test"/>
 		<Filter Include="libraries\abstractions\platform\test"/>
 		<Filter Include="libraries\abstractions\secure_sockets\test"/>
+		<Filter Include="libraries\c_sdk_v4\integration_test"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
@@ -233,6 +242,12 @@
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
@@ -1002,6 +1017,21 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c">
+			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c">
+			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
 		</ClCompile>
@@ -1208,6 +1238,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c">
 			<Filter>libraries\abstractions\secure_sockets\test</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration_test\core_mqtt_system_test.c">
+			<Filter>libraries\c_sdk_v4\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c">
 			<Filter>application_code</Filter>
