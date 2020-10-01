@@ -134,9 +134,9 @@ $(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_d
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/src/iot_system_init.c                                           \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c                                     \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/wifi/iot_wifi.c           \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/iot_pkcs11_mbedtls.c                              \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/iot_pki_utils.c                              \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/iot_pkcs11.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/iot_pki_utils.c                              \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/iot_pkcs11.c                              \
                     $(AFR_THIRDPARTY_PATH)mbedtls_utils/mbedtls_utils.c                              \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/src/iot_crypto.c                                               \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/iot_pkcs11_pal.c   \
@@ -152,8 +152,8 @@ GLOBAL_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
-					$(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include \
+					$(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include \
                     $(AFR_C_SDK_STANDARD_PATH)common/include \
                     $(AFR_ABSTRACTIONS_PATH)platform/include/platform \
                     $(AFR_ABSTRACTIONS_PATH)platform/freertos/include/platform \

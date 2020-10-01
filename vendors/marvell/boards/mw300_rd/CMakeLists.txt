@@ -264,7 +264,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     target_include_directories(
         ${exe_target}
         PUBLIC
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/FreeRTOS-PKCS/source/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
         "${AFR_3RDPARTY_DIR}/pkcs11"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
     )

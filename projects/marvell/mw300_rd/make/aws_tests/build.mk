@@ -7,7 +7,7 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../libraries/3rdparty/unity/src/ \
 				 -I$(d)/../../../../../libraries/3rdparty/unity/extras/fixture/src \
 				 -I$(d)/../../../../../libraries/3rdparty/mbedtls/include/ \
-				 -I$(d)/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/ \
+				 -I$(d)/../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/ \
 				 -I$(d)/../../../../../libraries/abstractions/platform/freertos/include/ \
 				 -I$(d)/../../../../../vendors/marvell/boards/mw300_rd/aws_tests/config_files/ \
 				 -I$(d)/../../../../../vendors/marvell/boards/mw300_rd/aws_demos/config_files/ \
@@ -20,8 +20,8 @@ global-cflags-y += -I$(d)/../../../../../tests/include \
 				 -I$(d)/../../../../../libraries/c_sdk/standard/common/include/ \
 				 -I$(d)/../../../../../libraries/abstractions/wifi/include/ \
 				 -I$(d)/../../../../../demos/dev_mode_key_provisioning/include/ \
-				 -I$(d)/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include/ \
-				 -I$(d)/../../../../../libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include/\
+				 -I$(d)/../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/ \
+				 -I$(d)/../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/\
 				 -I$(d)/../../../../../libraries/abstractions/secure_sockets/include/ \
 				 -I$(d)/../../../../../libraries/abstractions/platform/include/ \
 				 -I$(d)/../../../../../libraries/3rdparty/pkcs11/ \

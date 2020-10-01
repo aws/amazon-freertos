@@ -284,8 +284,8 @@ SOURCES+=\
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include\
-	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/include\
+	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include\
 	$(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/include/platform\
@@ -299,7 +299,7 @@ INCLUDES+=\
 
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
-    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/*c)
+    $(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/*c)
 
 endif
 

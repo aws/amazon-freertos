@@ -4,8 +4,8 @@
 
 afr_module(NAME pkcs11_utils)
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 
 afr_module_sources(
     pkcs11_utils
@@ -25,8 +25,8 @@ afr_module_include_dirs(
 ######################################################
 afr_module(NAME pkcs11 )
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 
 afr_module_sources(
     pkcs11
@@ -56,7 +56,7 @@ afr_module_dependencies(
 ######################################################
 afr_module(NAME pkcs11_implementation)
 
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/include")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_include_dirs(
@@ -155,7 +155,7 @@ elseif(AFR_PKCS11_PSA)
     )
 else()
     afr_module(NAME pkcs11_mbedtls INTERFACE)
-    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-PKCS/source/portable/mbedtls")
+    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/portable/mbedtls")
 
     afr_module_sources(
         pkcs11_mbedtls 
