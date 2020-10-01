@@ -177,11 +177,8 @@ static BaseType_t prvParameterEchoCommand( char * pcWriteBuffer,
     BaseType_t lParameterStringLength, xReturn;
     static BaseType_t lParameterNumber = 0;
 
-    /* Remove compile time warnings about unused parameters, and check the
-     * write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+    /* Check the write buffer is not NULL.  NOTE - for simplicity, this example assumes the
      * write buffer length is adequate, so does not check for buffer overflows. */
-    ( void ) pcCommandString;
-    ( void ) xWriteBufferLen;
     configASSERT( pcWriteBuffer );
 
     if( lParameterNumber == 0 )

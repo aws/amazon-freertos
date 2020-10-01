@@ -3,7 +3,7 @@ The demo shows how to build a CLI application using FreeRTOS+CLI library and a U
 
 ## Usage
 
-Demo implements three command handlers which are reigstered with the FreeRTOS-Plus-CLI library:
+Demo implements three command handlers which are registered with the FreeRTOS-Plus-CLI library:
 1. `echo_parameters` : Echoes back the parameters one at a time to the console. Accepts a variable number of parameters.
 2. `echo_3_parameters`: Echoes back the parameters one at a time to the console. Input should always contain three parameters.
 3. `task_stats`: Displays the status of each runnning task that includes task name, current state of the task, task priority, stack high water mark and the task number.
