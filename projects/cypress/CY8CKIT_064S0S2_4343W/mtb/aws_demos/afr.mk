@@ -243,6 +243,7 @@ INCLUDES+=\
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/*.c)
 
 INCLUDES+=\
 	$(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/include\

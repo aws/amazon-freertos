@@ -234,6 +234,7 @@ INCLUDES+=\
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/platform/freertos/*c)\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/secure_sockets/lwip/*c)
+	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/*.c)
 
 # Test code
 SOURCES+=\
@@ -262,7 +263,6 @@ INCLUDES+=\
 ifneq ($(CY_TFM_PSA_SUPPORTED),)
 SOURCES+=\
 	$(wildcard $(CY_AFR_ROOT)/libraries/abstractions/pkcs11/FreeRTOS-PKCS/source/portable/mbedtls/*.c)
-
 endif
 
 ################################################################################
