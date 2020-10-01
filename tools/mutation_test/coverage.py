@@ -6,11 +6,20 @@ import traceback
 import sys
 import signal
 import re
+<<<<<<< HEAD
+=======
+import pprint
+>>>>>>> master
 
 import utils
 import mutation_runner
 
 FuncRegEx = r'^(?:\w+ ){0,1}\w+ \w+[(](?:(?:.+\n.+)*|.*)[)]'
+<<<<<<< HEAD
+=======
+TestRegEx = r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)'
+CovRegEx = r'MUTATION_TESTING_FUNC_COVERAGE (\w+): ([0-9]+) ([0-9]+)'
+>>>>>>> master
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -48,10 +57,48 @@ def write_line_prints(output, source_code, funcs):
                 insert_line = i + span
             if i == insert_line:
                 f.write(line+"\n")
-                f.write("configPRINTF((\"MUTATION_TESTING_FUNC_COVERAGE %s: %d\\n\", __FUNCTION__, {}));"
-                    .format(i - span + 1) + "\n")
+                f.write("configPRINTF((\"MUTATION_TESTING_FUNC_COVERAGE %s: %d %d\\n\", __FUNCTION__, {}, {}));"
+                    .format(i - span + 1, find_end_line(source_code, i - span + 1)) + "\n")
             else:
                 f.write(line+"\n")
+
+def find_end_line(source_code, start_line):
+    # lines start from 1
+    open_braces = 0
+    curr_line = start_line
+    curr_char = 0
+    # find first opening brace
+    while curr_line <= len(source_code):
+        line = source_code[curr_line - 1]
+        while curr_char < len(line):
+            if line[curr_char] == "{":
+                open_braces += 1
+                break
+            curr_char += 1
+        if open_braces == 1:
+            break
+        curr_char = 0
+        curr_line += 1
+
+    # sanity check
+    assert(open_braces == 1)
+
+    # start from the next character and count braces
+    curr_char += 1
+    while curr_line <= len(source_code) and open_braces > 0:
+        line = source_code[curr_line - 1]
+        while curr_char < len(line):
+            if line[curr_char] == "{":
+                open_braces += 1
+            elif line[curr_char] == "}":
+                open_braces -= 1
+                if open_braces == 0:
+                    return curr_line
+            curr_char += 1
+        curr_char = 0
+        curr_line += 1
+    return -1
+
 
 def run_coverage(args, config):
     flash_command = config['flash_command']
@@ -77,12 +124,39 @@ def run_coverage(args, config):
                     write_line_prints(s, text, funcs)
                 # run once
                 output, _ = mutation_runner.flash_and_read(port, timeout, flash_command)
+<<<<<<< HEAD
                 # TODO : Process the output which should contain FUNCTION and LINE macro output
+=======
+                
+                # process the output to determine functional coverage
+                line_set = set()
+                line_coverage_map = {}
+                for line in output.split('\n'):
+                    funcm = re.search(CovRegEx, line)
+                    testm = re.search(TestRegEx, line)
+                    if funcm:
+                        line_set.add((funcm.group(2), funcm.group(3)))
+                    if testm:
+                        test = testm.group(2)
+                        if test not in line_coverage_map:
+                            line_coverage_map[test] = []
+                        for line_range in line_set:
+                            line_coverage_map[test].append([int(line_range[0]), int(line_range[1])])
+                        line_set.clear()
+                os.chdir(dir_path)
+                with open(args.output, 'w', encoding='utf-8') as f:
+                    json.dump(line_coverage_map, f, ensure_ascii=False, indent=4, sort_keys=True)
+                utils.yellow_print("Written line coverage data to {}".format(args.output))
+>>>>>>> master
         except Exception as e:
             traceback.print_exc()
             raise Exception(e)
         finally:
             # restore aws_test_runner.c
+<<<<<<< HEAD
+=======
+            os.chdir(root_path)
+>>>>>>> master
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
             for s in task['src']:

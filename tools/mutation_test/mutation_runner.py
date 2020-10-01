@@ -18,6 +18,10 @@ import random
 import json
 import collections
 import fileinput
+<<<<<<< HEAD
+=======
+import time
+>>>>>>> master
 from pathlib import Path
 from typing import List
 
@@ -76,11 +80,21 @@ def flash_and_read(port, timeout, flash_command):
 
     `timeout` is the max time before ending read process.
     """
+<<<<<<< HEAD
+=======
+    # begin recording time
+    time_begin = time.time()
+>>>>>>> master
     try:
         subprocess.check_call(flash_command, shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
         raise CompileFailed("Failed to compile")
+<<<<<<< HEAD
+=======
+    time_finish_build = time.time()
+    utils.yellow_print(f"Build Time: {time_finish_build - time_begin:.2f} seconds")
+>>>>>>> master
 
     # # cmake the mutant
     # cmake(vendor, board, compiler)
@@ -95,7 +109,13 @@ def flash_and_read(port, timeout, flash_command):
                                         end_flag=FLAGS.EndFlag,
                                         pass_flag=FLAGS.PassFlag,
                                         exec_timeout=timeout)
+<<<<<<< HEAD
     os.system('clear')
+=======
+    time_finish_read = time.time()
+    utils.yellow_print(f"Serial Monitor Time: {time_finish_read - time_finish_build:.2f} seconds")
+    utils.yellow_print(f"Build and Read Time: {time_finish_read - time_begin:.2f} seconds")
+>>>>>>> master
     return output, final_flag         
 
 def percentage(part, whole):
@@ -225,11 +245,19 @@ def run_task(task, args, config):
         for occurrence in mutations_list:
             if run_cnt == mutant_cnt:
                 break
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
             mp = occurrence.pattern
             # mutate the code
             utils.yellow_print(occurrence)
             original_line, mutated_line = mutation.mutate(occurrence)
+<<<<<<< HEAD
             file_changed = occurrence.file
+=======
+            file_changed = occurrence.file.rstrip(".old")
+>>>>>>> master
             line_number = occurrence.line
             # try is for catching compile failure to continue execution
             try:
@@ -357,8 +385,10 @@ def mutation_main(args, config):
         args.seed = random.randrange(sys.maxsize)
     utils.yellow_print("Current test seed is: {}".format(args.seed))
 
+    time_begin = time.time()
     utils.yellow_print("Running tasks")
     for task in config['tasks']:
+        time_task_begin = time.time()
         utils.yellow_print("Running task: {}".format(task['name']))
 
         # Generate test runner to run only on those test groups
@@ -368,12 +398,7 @@ def mutation_main(args, config):
         # set default mutations if patterns is equal to "all"
         if type(task['patterns']) == str:
              task['patterns'] = mutator.pattern_dict[task['patterns']]
-        try:
-            # if "custom" in task:
-            #     # build your own run setups here
-            #     run_custom(task, args, config)
-            # else:
-            #     run_randomized(task, args, config)
+        try:   
             run_task(task, args, config)
         except:
             traceback.print_exc()
@@ -382,6 +407,12 @@ def mutation_main(args, config):
             # restore aws_test_runner.c
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
+            time_task_end = time.time()
+            utils.yellow_print(f"Task Time: {time_task_end - time_task_begin:.2f} seconds")
+    
+    time_end = time.time()
+    utils.yellow_print(f"Total Time: {time_end - time_begin:.2f} seconds")
+
     create_jobfile(mutants=args.mutants,
         port=args.port,
         timeout=args.timeout,
@@ -410,6 +441,11 @@ def main():
     parser_coverage.add_argument(
         '--src_config', '-s',
         help='Select the test config file to use eg. -s wifi',
+        required=True
+    )
+    parser_coverage.add_argument(
+        '--output', '-o',
+        help="The output path of the line coverage map file (JSON)",
         required=True
     )
     parser_coverage.add_argument(

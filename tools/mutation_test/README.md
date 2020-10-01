@@ -100,27 +100,27 @@ A function coverage tool is provided if we want to get the functional coverage f
 
 We may also notice that mutants are created in lines that are not executed during the tests. See the [challenges](#mutants-that-do-not-change-behavior-of-code). This may lead to inaccurate results as the test passes the mutant, which indicates a potential test quality issue, but in reality, it is an expected behavior. A stronger coverage tool that is able to pinpoint specific lines may be more useful then this tool, but it is yet to be discovered or implemented. `lcov/gcov` was explored, but they do not work when the code is ran on an embedded system board.
 
-To run the function coverage tool: `./mutation_runner.py coverage -s wifi`
+To run the function coverage tool: `./mutation_runner.py coverage -s wifi -o wifi_line_coverage.json`
 
 We may see the following in the console logs.
 
 ```bash
 ...
 ---------STARTING TESTS---------
-I (7289) wifi:state: run -> init (0)
-I (7289) wifi:pm stop, total sleep time: 3633081 us / 4371457 us
+I (6772) wifi:state: run -> init (0)
+I (6772) wifi:pm stop, total sleep time: 3569365 us / 4454365 us
 
-I (7289) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,0>, prof:1
-I (7289) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 8
-10 699 [RunTests_task] MUTATION_TESTING_FUNC_COVERAGE WIFI_Disconnect: 451
-11 699 [eventTask] MUTATION_TESTING_FUNC_COVERAGE event_handler: 87
-12 700 [RunTests_task] MUTATION_TESTING_FUNC_COVERAGE WIFI_Scan: 488
+I (6772) wifi:new:<6,0>, old:<6,0>, ap:<255,255>, sta:<6,0>, prof:1
+I (6772) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 8
+10 649 [RunTests_task] MUTATION_TESTING_FUNC_COVERAGE WIFI_Disconnect: 451 479
+11 649 [eventTask] MUTATION_TESTING_FUNC_COVERAGE event_handler: 87 165
+12 650 [RunTests_task] MUTATION_TESTING_FUNC_COVERAGE WIFI_Scan: 488 611
 ...
 ```
 
-As we can see there are additional `MUTATION_TESTING_FUNC_COVERAGE...` statements which are followed by the function that is being called at this moment in execution as well as the starting line number of this function in the code.
+As we can see there are additional `MUTATION_TESTING_FUNC_COVERAGE...` statements which are followed by the function that is being called at this moment in execution as well as the starting line number and ending line number of this function in the code.
 
-We can then manually inspect the source code to find only the line numbers of the functions that were executed and add them to the `src` section in the configuration json file. This is useful when we want to isolate the a few tests, perhaps the new tests, and only run the mutation testing for these tests. Of course, isolation of the tests involve separating the isolated tests into its own test group, and make sure to provide the test group name to `test_groups` in the configuration json file.
+The output of this tool is `wifi_line_coverage.json`, which contains a mapping from tests to the **LINE RANGES** of the functions that this test calls. This mapping can be supplied as an argument to the mutation runner, which will assist in populating the `expected_catch` column in the `<TASK_NAME>_mutants_created.csv` and also with some future work, we can reverse lookup the line that the mutant is on and only execute the tests that are affected by each mutant.
 
 ## 4. Begin the mutation testing
 
@@ -272,6 +272,8 @@ You may notice that the `expected_catch` column in `Full_WiFi_mutants_created.cs
 This map will be used to output which test is supposed to catch a mutant at each any line, if it exists in this map. It will also populate the `expected_catch` column in `Full_WiFi_mutants_created.csv`.
 
 It is useful to know which tests are supposed to catch the mutant when the mutant is **ALIVE** or **passing** the tests. We can then inspect those tests or the source code to see why it's passing.
+
+We can generate a line coverage map with [this step](#optional-3-run-the-coverage-tool-to-get-function-coverage-for-the-test).
 
 An example of this line coverage json file is provided. Try:
 

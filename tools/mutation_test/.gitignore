@@ -1,4 +1,5 @@
 # ignore all logs
+/csvs
 *.csv
 # ignore all jobfiles
 *jobfile

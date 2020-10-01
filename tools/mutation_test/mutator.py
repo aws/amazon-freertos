@@ -302,6 +302,7 @@ class Mutator():
         """
         for i in range(len(self.src)):
             shutil.copyfile(self.olds[i], self.modified[i])
+        utils.yellow_print("Source Code Restored")
 
     def cleanup(self):
         """ Cleans up by deleting all old files
