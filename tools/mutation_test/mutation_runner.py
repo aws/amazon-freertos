@@ -18,10 +18,7 @@ import random
 import json
 import collections
 import fileinput
-<<<<<<< HEAD
-=======
 import time
->>>>>>> master
 from pathlib import Path
 from typing import List
 
@@ -80,21 +77,15 @@ def flash_and_read(port, timeout, flash_command):
 
     `timeout` is the max time before ending read process.
     """
-<<<<<<< HEAD
-=======
     # begin recording time
     time_begin = time.time()
->>>>>>> master
     try:
         subprocess.check_call(flash_command, shell=True)
     except subprocess.CalledProcessError as e:
         print(e)
         raise CompileFailed("Failed to compile")
-<<<<<<< HEAD
-=======
     time_finish_build = time.time()
     utils.yellow_print(f"Build Time: {time_finish_build - time_begin:.2f} seconds")
->>>>>>> master
 
     # # cmake the mutant
     # cmake(vendor, board, compiler)
@@ -109,13 +100,9 @@ def flash_and_read(port, timeout, flash_command):
                                         end_flag=FLAGS.EndFlag,
                                         pass_flag=FLAGS.PassFlag,
                                         exec_timeout=timeout)
-<<<<<<< HEAD
-    os.system('clear')
-=======
     time_finish_read = time.time()
     utils.yellow_print(f"Serial Monitor Time: {time_finish_read - time_finish_build:.2f} seconds")
     utils.yellow_print(f"Build and Read Time: {time_finish_read - time_begin:.2f} seconds")
->>>>>>> master
     return output, final_flag         
 
 def percentage(part, whole):
@@ -245,19 +232,11 @@ def run_task(task, args, config):
         for occurrence in mutations_list:
             if run_cnt == mutant_cnt:
                 break
-<<<<<<< HEAD
-=======
-
->>>>>>> master
             mp = occurrence.pattern
             # mutate the code
             utils.yellow_print(occurrence)
             original_line, mutated_line = mutation.mutate(occurrence)
-<<<<<<< HEAD
-            file_changed = occurrence.file
-=======
             file_changed = occurrence.file.rstrip(".old")
->>>>>>> master
             line_number = occurrence.line
             # try is for catching compile failure to continue execution
             try:

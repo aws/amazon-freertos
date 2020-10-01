@@ -6,20 +6,13 @@ import traceback
 import sys
 import signal
 import re
-<<<<<<< HEAD
-=======
-import pprint
->>>>>>> master
 
 import utils
 import mutation_runner
 
 FuncRegEx = r'^(?:\w+ ){0,1}\w+ \w+[(](?:(?:.+\n.+)*|.*)[)]'
-<<<<<<< HEAD
-=======
 TestRegEx = r'TEST[(](\w+), (\w+)[)].* *(PASS|FAIL)'
 CovRegEx = r'MUTATION_TESTING_FUNC_COVERAGE (\w+): ([0-9]+) ([0-9]+)'
->>>>>>> master
 
 # set root path to /FreeRTOS/
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -124,9 +117,6 @@ def run_coverage(args, config):
                     write_line_prints(s, text, funcs)
                 # run once
                 output, _ = mutation_runner.flash_and_read(port, timeout, flash_command)
-<<<<<<< HEAD
-                # TODO : Process the output which should contain FUNCTION and LINE macro output
-=======
                 
                 # process the output to determine functional coverage
                 line_set = set()
@@ -147,16 +137,12 @@ def run_coverage(args, config):
                 with open(args.output, 'w', encoding='utf-8') as f:
                     json.dump(line_coverage_map, f, ensure_ascii=False, indent=4, sort_keys=True)
                 utils.yellow_print("Written line coverage data to {}".format(args.output))
->>>>>>> master
         except Exception as e:
             traceback.print_exc()
             raise Exception(e)
         finally:
             # restore aws_test_runner.c
-<<<<<<< HEAD
-=======
             os.chdir(root_path)
->>>>>>> master
             shutil.copy(backup, os.path.splitext(backup)[0])
             os.remove(backup)
             for s in task['src']:
