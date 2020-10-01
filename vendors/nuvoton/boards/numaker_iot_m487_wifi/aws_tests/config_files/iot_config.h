@@ -48,6 +48,9 @@
 #define IOT_THREAD_DEFAULT_STACK_SIZE    2048
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
+/* Maximum Number of MQTT connections for tests. */
+#define MAX_NO_OF_MQTT_CONNECTIONS      1
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
