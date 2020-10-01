@@ -347,7 +347,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     configASSERT( pServerInfo != NULL );
     configASSERT( pSocketsConfig != NULL );
 
-    hostnameLength = 0U;
+    hostnameLength = pServerInfo->hostNameLength;
 
     if( ( hostnameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH ) )
     {
