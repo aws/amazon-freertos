@@ -35,6 +35,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
+#include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
@@ -381,6 +382,7 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

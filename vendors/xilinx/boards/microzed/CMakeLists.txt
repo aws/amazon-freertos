@@ -111,7 +111,7 @@ target_include_directories(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
         "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface"
         # Need aws_clientcredential.h

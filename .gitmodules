@@ -39,3 +39,6 @@
 [submodule "libraries/c_sdk_v4/aws/device-shadow-for-aws-iot-embedded-sdk"]
 	path = libraries/c_sdk_v4/aws/device-shadow-for-aws-iot-embedded-sdk
 	url = https://github.com/aws/device-shadow-for-aws-iot-embedded-sdk.git
+[submodule "libraries/abstractions/pkcs11/corePKCS11"]
+	path = libraries/abstractions/pkcs11/corePKCS11
+	url = https://github.com/FreeRTOS/corePKCS11.git
