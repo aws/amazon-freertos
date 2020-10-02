@@ -115,10 +115,8 @@
 		<Filter Include="libraries\abstractions\retry_utils"/>
 		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
 		<Filter Include="libraries\abstractions\transport"/>
-		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT\source"/>
-		<Filter Include="libraries\c_sdk_v4\standard\coreMQTT"/>
-		<Filter Include="libraries\c_sdk_v4\standard"/>
-		<Filter Include="libraries\c_sdk_v4"/>
+		<Filter Include="libraries\coreMQTT\source"/>
+		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\unit"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test"/>
 		<Filter Include="libraries\c_sdk\aws\defender\test\system"/>
@@ -143,7 +141,7 @@
 		<Filter Include="libraries\abstractions\pkcs11\test"/>
 		<Filter Include="libraries\abstractions\platform\test"/>
 		<Filter Include="libraries\abstractions\secure_sockets\test"/>
-		<Filter Include="libraries\c_sdk_v4\integration_test"/>
+		<Filter Include="tests\integration_test"/>
 		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
@@ -1394,14 +1392,14 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
 			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c">
-			<Filter>libraries\c_sdk_v4\standard\coreMQTT\source</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\unit\aws_iot_tests_defender_unit.c">
 			<Filter>libraries\c_sdk\aws\defender\test\unit</Filter>
@@ -1541,8 +1539,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c">
 			<Filter>libraries\abstractions\secure_sockets\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\c_sdk_v4\integration_test\core_mqtt_system_test.c">
-			<Filter>libraries\c_sdk_v4\integration_test</Filter>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c">
+			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_tests\application_code\main.c">
 			<Filter>application_code</Filter>

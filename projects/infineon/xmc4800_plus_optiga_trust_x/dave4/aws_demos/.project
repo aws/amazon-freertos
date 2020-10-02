@@ -1599,19 +1599,19 @@
 			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>

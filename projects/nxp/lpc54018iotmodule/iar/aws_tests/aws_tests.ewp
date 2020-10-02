@@ -412,10 +412,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\retry_utils</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\portable</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\portable</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\transport\secure_sockets</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</state>
@@ -1956,6 +1955,12 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\include\iot_config_common.h</name>
 			</file>
 		</group>
+		<group>
+			<name>integration_test</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\integration_test\core_mqtt_system_test.c</name>
+			</file>
+		</group>
 	</group>
 	<group>
 		<name>libraries</name>
@@ -2698,29 +2703,17 @@
 			</group>
 		</group>
 		<group>
-			<name>c_sdk_v4</name>
+			<name>coreMQTT</name>
 			<group>
-				<name>standard</name>
-				<group>
-					<name>coreMQTT</name>
-					<group>
-						<name>source</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_state.c</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\standard\coreMQTT\source\core_mqtt_serializer.c</name>
-						</file>
-					</group>
-				</group>
-			</group>
-			<group>
-				<name>integration_test</name>
+				<name>source</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk_v4\integration_test\core_mqtt_system_test.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c</name>
 				</file>
 			</group>
 		</group>
