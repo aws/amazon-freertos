@@ -43,6 +43,9 @@
 /* Transport interface include. */
 #include "transport_interface.h"
 
+/* Kernel include. */
+#include "FreeRTOS.h"
+
 /* Include header that defines log levels. */
 #include "logging_levels.h"
 
