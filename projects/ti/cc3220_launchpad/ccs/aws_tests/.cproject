@@ -88,10 +88,9 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/ota/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/retry_utils"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/portable"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreMQTT/source/portable"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/transport/secure_sockets"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreMQTT/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/extras/fixture/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>

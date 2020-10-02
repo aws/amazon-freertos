@@ -1802,19 +1802,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -2002,9 +2002,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/iot_test_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/integration_test/core_mqtt_system_test.c</name>
+			<name>tests/integration_test/core_mqtt_system_test.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk_v4/integration_test/core_mqtt_system_test.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
