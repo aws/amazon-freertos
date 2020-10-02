@@ -168,9 +168,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11</locationURI>
 		</link>
  		<link>
-			<name>libraries/abstractions/pkcs11/include</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</locationURI>
 		</link>
  		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls</name>
@@ -398,9 +398,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/pkcs11</locationURI>
 		</link>
  		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/include</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/include</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/pkcs11/include</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/corePKCS11/source/include</locationURI>
 		</link>
  		<link>
 			<name>libraries/freertos_plus/standard/tls</name>
@@ -2126,9 +2126,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/freertos_plus/standard/tls/src/iot_tls.c</name>
@@ -2141,9 +2141,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
 		</link>
  		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</locationURI>
 		</link>
  		<link>
 			<name>libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</name>

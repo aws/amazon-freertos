@@ -2218,7 +2218,7 @@
   </Group>
 
   <Group>
-    <GroupName>libraries/freertos_plus/standard/pkcs11/include/</GroupName>
+    <GroupName>libraries/abstractions/pkcs11/corePKCS11/source/include/</GroupName>
     <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -2230,7 +2230,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pkcs11.h</PathWithFileName>
       <FilenameWithoutPath>iot_pkcs11.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2238,7 +2238,7 @@
   </Group>
 
   <Group>
-    <GroupName>libraries/freertos_plus/standard/pkcs11/src/</GroupName>
+    <GroupName>libraries/abstractions/pkcs11/corePKCS11/source/</GroupName>
     <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -2250,7 +2250,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pkcs11.c</PathWithFileName>
       <FilenameWithoutPath>iot_pkcs11.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2278,7 +2278,7 @@
   </Group>
 
   <Group>
-    <GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
+    <GroupName>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/</GroupName>
     <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -2290,7 +2290,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/iot_pkcs11_mbedtls.c</PathWithFileName>
       <FilenameWithoutPath>iot_pkcs11_mbedtls.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2302,7 +2302,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</PathWithFileName>
       <FilenameWithoutPath>threading_alt.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2334,7 +2334,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</PathWithFileName>
       <FilenameWithoutPath>iot_pki_utils.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2366,7 +2366,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>../../../../../libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</PathWithFileName>
+      <PathWithFileName>../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</PathWithFileName>
       <FilenameWithoutPath>iot_pki_utils.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

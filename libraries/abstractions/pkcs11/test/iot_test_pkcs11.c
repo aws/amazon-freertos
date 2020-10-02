@@ -1824,13 +1824,13 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
 
     CK_BYTE xEcPoint[ 256 ] = { 0 };
     CK_BYTE xPrivateKeyBuffer[ 32 ] = { 0 };
-    CK_BYTE xEcParams[ 11 ] = { 0 };
     CK_KEY_TYPE xKeyType;
     CK_ATTRIBUTE xTemplate;
     CK_OBJECT_CLASS xClass;
 
     /* mbedTLS structures for verification. */
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
+    CK_BYTE xEcParams[ sizeof( ucSecp256r1Oid ) ] = { 0 };
 
     xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
                                            ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,

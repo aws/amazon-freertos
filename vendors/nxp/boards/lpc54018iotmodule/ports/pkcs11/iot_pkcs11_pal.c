@@ -282,6 +282,7 @@ CK_RV PKCS11_PAL_Initialize( void )
 { 
 
     CK_RV xResult = CKR_OK;
+    CRYPTO_Init();
 
     /* Initialize flash storage. */
     if( pdFALSE == mflash_init( g_cert_files, 1 ) )
