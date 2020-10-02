@@ -2038,6 +2038,12 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h</name>
+						</file>
 						<group>
 							<name>private</name>
 							<file>
@@ -2317,19 +2323,43 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>mbedtls</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\iot_pkcs11_mbedtls.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h</name>
-					</file>
-				</group>
-				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11_pal.h</name>
-					</file>
+					<name>corePKCS11</name>
+					<group>
+						<name>source</name>
+						<group>
+							<name>include</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11_pal.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h</name>
+							</file>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c</name>
+						</file>
+						<group>
+							<name>portable</name>
+							<group>
+								<name>mbedtls</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\iot_pkcs11_mbedtls.c</name>
+								</file>
+								<group>
+									<name>include</name>
+									<file>
+										<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h</name>
+									</file>
+								</group>
+							</group>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c</name>
+						</file>
+					</group>
 				</group>
 			</group>
 			<group>
@@ -2440,38 +2470,17 @@
 					</group>
 				</group>
 				<group>
-					<name>pkcs11</name>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h</name>
-						</file>
-					</group>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c</name>
-						</file>
-					</group>
-				</group>
-				<group>
 					<name>utils</name>
 					<group>
 						<name>src</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
 						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c</name>
-						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
-						</file>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h</name>
 						</file>
 					</group>
 				</group>
