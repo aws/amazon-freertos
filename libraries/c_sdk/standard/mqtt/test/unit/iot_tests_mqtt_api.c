@@ -511,10 +511,12 @@ static void _decrementReferencesJob( IotTaskPool_t pTaskPool,
     }
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
  */
-static int32_t transportSend( NetworkContext_t * pNetworkContext,
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
@@ -537,6 +539,64 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
     return bytesSent;
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A transport send function that delays.
+ */
+static size_t transportSendDelay( const NetworkContext_t * pSendContext,
+                                  const void * pMessage,
+                                  size_t messageLength )
+{
+    IotSemaphore_t * pWaitSem = ( IotSemaphore_t * ) pSendContext;
+
+    /* Silence warnings about unused parameters. */
+    ( void ) pMessage;
+
+    /* Post to the wait semaphore. */
+    IotSemaphore_Post( pWaitSem );
+
+    /* Delay for 2 seconds. */
+    IotClock_SleepMs( 2000 );
+
+    /* This function returns the message length to simulate a successful send. */
+    return messageLength;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief The time interface provided to the MQTT context used in calling MQTT LTS APIs.
  */
@@ -544,6 +604,8 @@ static uint32_t getTimeMs( void )
 {
     return 0U;
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief The dummy application callback function.
@@ -570,13 +632,13 @@ static void eventCallback( MQTTContext_t * pContext,
     ( void ) pDeserializedInfo;
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Setting the MQTT Context for the given MQTT Connection.
  */
 static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
-                                   int32_t ( * transportSend )( NetworkContext_t *,
-                                                                const void *,
-                                                                size_t ) )
+                                   TransportSend_t transportSend )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
     int8_t contextIndex = -1;
@@ -608,9 +670,10 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
          * receive task. Only using MQTT LTS APIs for transmit path.*/
         transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
         transport.send = transportSend;
+        transport.recv = transportRecv;
 
         /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
         subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
 
@@ -828,7 +891,7 @@ TEST( MQTT_Unit_API, OperationWaitTimeout )
         TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
         /* Set the MQTT Context for the new MQTT Connection*/
-        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection, _sendDelay ) );
+        TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _setContext( _pMqttConnection, transportSendDelay ) );
 
         /* Set parameter to network send function. */
         _pMqttConnection->pNetworkConnection = &waitSem;
@@ -1429,7 +1492,6 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttOperation_t subscribeOperation = IOT_MQTT_OPERATION_INITIALIZER;
-    int8_t contextIndex = -1;
 
     /* Initializer parameters. */
     _networkInterface.send = _sendSuccess;
@@ -1475,8 +1537,6 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
              * failure. */
             TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
         }
-
-        TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
     }
 
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );

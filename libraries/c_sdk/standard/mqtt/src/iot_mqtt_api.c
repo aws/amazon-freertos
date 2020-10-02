@@ -193,7 +193,7 @@ static void eventCallback( MQTTContext_t * pContext,
  *
  * @return The number of bytes received or a negative error code.
  */
-static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
                               void * pBuffer,
                               size_t bytesToRecv );
 
@@ -206,7 +206,7 @@ static int32_t transportRecv( NetworkContext_t * pNetworkContext,
  *
  * @return The number of bytes sent or a negative error code.
  */
-static int32_t transportSend( NetworkContext_t * pNetworkContext,
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend );
 
@@ -883,7 +883,7 @@ static void eventCallback( MQTTContext_t * pContext,
 
 /*-----------------------------------------------------------*/
 
-static int32_t transportSend( NetworkContext_t * pNetworkContext,
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
                               const void * pMessage,
                               size_t bytesToSend )
 {
@@ -908,7 +908,7 @@ static int32_t transportSend( NetworkContext_t * pNetworkContext,
 
 /*-----------------------------------------------------------*/
 
-static int32_t transportRecv( NetworkContext_t * pNetworkContext,
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
                               void * pBuffer,
                               size_t bytesToRecv )
 {
@@ -1149,7 +1149,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         transport.recv = transportRecv;
 
         /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer );
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[0] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
 
         subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );

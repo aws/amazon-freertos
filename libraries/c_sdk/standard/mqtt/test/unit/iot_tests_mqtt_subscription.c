@@ -54,6 +54,9 @@
 /* Error handling include. */
 #include "private/iot_error.h"
 
+/*FreeRTOS include. */
+#include "semphr.h"
+
 /*-----------------------------------------------------------*/
 
 /* Using initialized connToContext variable. */
@@ -199,6 +202,47 @@ static bool _waitForCount( IotMutex_t * pMutex,
         IotMutex_Lock( pMutex );
         referenceCount = *pReferenceCount;
         IotMutex_Unlock( pMutex );
+
+        /* Exit if target value is reached. Otherwise, sleep. */
+        if( referenceCount == target )
+        {
+            status = true;
+            break;
+        }
+        else
+        {
+            IotClock_SleepMs( 100 );
+        }
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Wait for a reference count to reach a target value, using FreeRTOS semaphores,
+ * subject to a timeout.
+ */
+static bool _waitForCountSemaphore( StaticSemaphore_t * pSem,
+                                    const int32_t * pReferenceCount,
+                                    int32_t target )
+{
+    bool status = false;
+    int32_t referenceCount = 0;
+    uint32_t sleepCount = 0;
+
+    /* Calculate limit on the number of times to sleep for 100 ms. */
+    const uint32_t sleepLimit = ( IOT_TEST_MQTT_TIMEOUT_MS / 100 ) +
+                                ( ( IOT_TEST_MQTT_TIMEOUT_MS % 100 ) != 0 );
+
+    /* Wait for the reference count to reach the target value. */
+    for( sleepCount = 0; sleepCount < sleepLimit; sleepCount++ )
+    {
+        /* Read reference count. */
+        xSemaphoreTake( ( SemaphoreHandle_t ) pSem, portMAX_DELAY );
+        referenceCount = *pReferenceCount;
+        xSemaphoreGive( ( SemaphoreHandle_t ) pSem );
 
         /* Exit if target value is reached. Otherwise, sleep. */
         if( referenceCount == target )
@@ -503,7 +547,7 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     topicMatchParams.topicNameLength = 6;
 
     /* On empty list. */
-    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( -1, index );
@@ -511,7 +555,7 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     _populateList();
 
     /* Topic filter present. */
-    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( 0, index );
@@ -519,7 +563,7 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     /* Topic filter not present. */
     topicMatchParams.pTopicName = "/notpresent";
     topicMatchParams.topicNameLength = 11;
-    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( -1, index );
@@ -729,7 +773,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     topicMatchParams.pTopicName = "/test1";
     topicMatchParams.topicNameLength = 6;
     topicMatchParams.exactMatchOnly = true;
-    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_NOT_EQUAL( -1, index );
@@ -742,7 +786,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
 
     /* Check that a duplicate entry wasn't created. */
     IotMqtt_RemoveSubscription( ( connToContext[ contextIndex ].subscriptionArray ), index );
-    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray ),
+    index = IotMqtt_FindFirstMatch( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
                                     0,
                                     &topicMatchParams );
     TEST_ASSERT_EQUAL( -1, index );
@@ -962,9 +1006,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
                                                     3 + keepAliveReference ) );
 
         /* Check that the subscription also has a reference count of 3. */
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCount( &( connToContext[ contextIndex ].subscriptionMutex ),
-                                                      &( pSubscription->references ),
-                                                      3 ) );
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                               &( pSubscription->references ),
+                                                               3 ) );
 
         /* Post to the wait semaphore, which unblocks one subscription callback. */
         IotSemaphore_Post( &waitSem );
@@ -975,9 +1019,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
                                                     &( _pMqttConnection->references ),
                                                     2 + keepAliveReference ) );
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCount( &( connToContext[ contextIndex ].subscriptionMutex ),
-                                                      &( pSubscription->references ),
-                                                      2 ) );
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                               &( pSubscription->references ),
+                                                               2 ) );
 
         /* Shut down the MQTT connection. */
         IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
