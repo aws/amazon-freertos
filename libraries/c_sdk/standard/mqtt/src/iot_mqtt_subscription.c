@@ -346,6 +346,10 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                 }
                 else
                 {
+                    /* Clear the new subscription. */
+                    memset( &( connToContext[ contextIndex ].subscriptionArray[ index ] ),
+                            0x00,
+                            sizeof( _mqttSubscription_t ) );
                     /* Set the members of the new subscription and add it to the list. */
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.identifier = subscribePacketIdentifier;
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
