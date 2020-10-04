@@ -87,7 +87,7 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
  * @return the number of bytes sent.
  */
 int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
-                                 void * buf,
+                                 const void * buf,
                                  size_t bytesToWrite );
 
 /**

@@ -39,7 +39,7 @@
 
 #include "FreeRTOS.h"
 
-#include "iot_threads.h"
+#include "platform/iot_threads.h"
 #include "platform/iot_network_ble.h"
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_transport.h"
@@ -287,17 +287,15 @@ IotNetworkError_t IotNetworkBle_Close( void * pConnection )
 {
     IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
     IotBleDataTransfer_Close( pBleConnection->xContext.pChannel );
+    IotBleMqttTransportCleanup( &( pBleConnection->xContext ) );
+    IotBleDataTransfer_Reset( pBleConnection->xContext.pChannel );
+    IotSemaphore_Destroy( &pBleConnection->xContext.isReady );
+    memset( pBleConnection, 0x00, sizeof( IotBleNetworkConnection_t ) );
     return IOT_NETWORK_SUCCESS;
 }
 
 
 IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
 {
-    IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pConnection;
-
-    IotBleMqttTransportCleanup( &( pBleConnection->xContext ) );
-    IotBleDataTransfer_Reset( pBleConnection->xContext.pChannel );
-    IotSemaphore_Destroy( &pBleConnection->xContext.isReady );
-    memset( pBleConnection, 0x00, sizeof( IotBleNetworkConnection_t ) );
     return IOT_NETWORK_SUCCESS;
 }

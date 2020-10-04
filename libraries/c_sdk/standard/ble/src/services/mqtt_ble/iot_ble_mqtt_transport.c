@@ -453,9 +453,18 @@ static bool parsePublish( const uint8_t * buf,
 
     pPublishInfo->info.topicNameLength = UINT16_DECODE( &buf[ index ] );
     index += sizeof( uint16_t );
-    pPublishInfo->info.pTopicName = ( const char * ) ( &buf[ index ] );
+    
+    pPublishInfo->info.pTopicName = IotMqtt_MallocMessage( pPublishInfo->info.topicNameLength );
+    if( pPublishInfo->info.topicNameLength == NULL )
+    {
+        LogError(( "Failed to allocate topic name." ));
+    }
+    else
+    {
+        memcpy( pPublishInfo->info.pTopicName, &buf[ index ], pPublishInfo->info.topicNameLength );
+    }
+    
     index += pPublishInfo->info.topicNameLength;
-
     if( pPublishInfo->info.qos > MQTTQoS0 )
     {
         pPublishInfo->packetIdentifier = UINT16_DECODE( &buf[ index ] );
@@ -736,7 +745,7 @@ static MQTTStatus_t handleOutgoingConnect( const void * buf,
 }
 
 static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t *pPublishInfo,
-                                           void * buf,
+                                           const void * buf,
                                            MQTTFixedBuffer_t * bufToSend,
                                            size_t * pSize,
                                            size_t bytesToSend )
@@ -762,6 +771,11 @@ static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t *pPublishInfo,
     if( !pPublishInfo->pending )
     {
         status = IotBleMqtt_SerializePublish( &pPublishInfo->info, &bufToSend->pBuffer, pSize, pPublishInfo->packetIdentifier );
+        if( pPublishInfo->info.pTopicName != NULL )
+        {
+            IotMqtt_FreeMessage( pPublishInfo->info.pTopicName );
+        }
+        memset( pPublishInfo, 0x00, sizeof( MQTTBLEPublishInfo_t ) );
     }
     else
     {
@@ -975,7 +989,7 @@ static MQTTStatus_t handleIncomingUnsuback( StreamBufferHandle_t streamBuffer,
 
     if( status == MQTTSuccess )
     {
-        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SUB_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
+        ( void ) xStreamBufferSend( streamBuffer, pBuffer->pBuffer, SIZE_OF_SIMPLE_ACK, pdMS_TO_TICKS( RECV_TIMEOUT_MS ) );
     }
 
     return status;
@@ -1015,7 +1029,7 @@ static MQTTStatus_t handleIncomingPingresp( StreamBufferHandle_t streamBuffer,
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  */
 int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
-                                 void * buf,
+                                 const void * buf,
                                  size_t bytesToWrite )
 {
     size_t bytesSend = 0;
@@ -1023,8 +1037,6 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t serializedBuf = { 0 };
     size_t packetSize = 0;
-
-    configPRINTF(( "Task stack size  %u, heap %u\n", uxTaskGetStackHighWaterMark(NULL), xPortGetFreeHeapSize() ));
 
     /* The send function returns the CBOR bytes written, so need to return 0 or full amount of bytes sent. */
     int32_t MQTTBytesWritten = ( int32_t ) bytesToWrite;
