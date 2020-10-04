@@ -350,6 +350,7 @@ IotMqttError_t _IotMqtt_AddSubscriptions( _mqttConnection_t * pMqttConnection,
                     memset( &( connToContext[ contextIndex ].subscriptionArray[ index ] ),
                             0x00,
                             sizeof( _mqttSubscription_t ) );
+
                     /* Set the members of the new subscription and add it to the list. */
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.identifier = subscribePacketIdentifier;
                     connToContext[ contextIndex ].subscriptionArray[ index ].packetInfo.order = i;
@@ -644,6 +645,7 @@ bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( mqttConnection );
+    IotMqtt_Assert( contextIndex != -1 );
 
     /* Prevent any other thread from modifying the subscription list while this
      * function is running. */

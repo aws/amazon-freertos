@@ -523,6 +523,7 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
 
     /* Getting MQTT Context for the specified MQTT Connection. */
     contextIndex = _IotMqtt_getContextIndexFromConnection( pMqttConnection );
+    IotMqtt_Assert( contextIndex != -1 );
 
     /* Clean up keep-alive if still allocated. */
     if( pMqttConnection->keepAliveMs != 0 )
@@ -1127,9 +1128,13 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
+
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+    bool contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                       &( connToContext[ contextIndex ].contextMutexStorage ) );
     /* Create the subscription mutex for a new connection. */
 
     if( contextMutex == true )
@@ -1149,10 +1154,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         transport.recv = transportRecv;
 
         /* Fill the values for network buffer. */
-        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[0] );
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
 
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
 
         if( subscriptionMutexCreated == false )
         {

@@ -43,13 +43,18 @@
 
 /*-----------------------------------------------------------*/
 
-bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
+bool IotMutex_CreateNonRecursiveMutex( SemaphoreHandle_t * pMutex,
+                                       StaticSemaphore_t * pxMutexBuffer )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
+    IotMqtt_Assert( pxMutexBuffer != NULL );
 
-    if( ( xSemaphoreCreateMutexStatic( pMutex ) != NULL ) )
+    /* Create a static mutex. */
+    *pMutex = xSemaphoreCreateMutexStatic( pxMutexBuffer );
+
+    if( *pMutex != NULL )
     {
         /* Mutex created successfully. */
         status = true;
@@ -62,13 +67,18 @@ bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
+bool IotMutex_CreateRecursiveMutex( SemaphoreHandle_t * pMutex,
+                                    StaticSemaphore_t * pxMutexBuffer )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
+    IotMqtt_Assert( pxMutexBuffer != NULL );
 
-    if( ( xSemaphoreCreateRecursiveMutexStatic( pMutex ) != NULL ) )
+    /* Create a recursive static mutex. */
+    *pMutex = xSemaphoreCreateRecursiveMutexStatic( pxMutexBuffer );
+
+    if( *pMutex != NULL )
     {
         /* Mutex created successfully. */
         status = true;
@@ -81,13 +91,13 @@ bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_Take( StaticSemaphore_t * pMutex )
+bool IotMutex_Take( SemaphoreHandle_t * pMutex )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreTake( ( SemaphoreHandle_t ) pMutex, portMAX_DELAY ) ) == pdTRUE )
+    if( ( xSemaphoreTake( *pMutex, portMAX_DELAY ) ) == pdTRUE )
     {
         /* Mutex granted successfully. */
         status = true;
@@ -101,13 +111,13 @@ bool IotMutex_Take( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_Give( StaticSemaphore_t * pMutex )
+bool IotMutex_Give( SemaphoreHandle_t * pMutex )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreGive( ( SemaphoreHandle_t ) pMutex ) ) == pdTRUE )
+    if( ( xSemaphoreGive( *pMutex ) ) == pdTRUE )
     {
         /* Mutex given back successfully. */
         status = true;
@@ -122,13 +132,13 @@ bool IotMutex_Give( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_TakeRecursive( StaticSemaphore_t * pMutex )
+bool IotMutex_TakeRecursive( SemaphoreHandle_t * pMutex )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) pMutex, portMAX_DELAY ) ) == pdTRUE )
+    if( ( xSemaphoreTakeRecursive( *pMutex, portMAX_DELAY ) ) == pdTRUE )
     {
         /* Mutex granted successfully. */
         status = true;
@@ -142,13 +152,13 @@ bool IotMutex_TakeRecursive( StaticSemaphore_t * pMutex )
     return status;
 }
 
-bool IotMutex_GiveRecursive( StaticSemaphore_t * pMutex )
+bool IotMutex_GiveRecursive( SemaphoreHandle_t * pMutex )
 {
     bool status = false;
 
     IotMqtt_Assert( pMutex != NULL );
 
-    if( ( xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) pMutex ) ) == pdTRUE )
+    if( ( xSemaphoreGiveRecursive( *pMutex ) ) == pdTRUE )
     {
         /* Mutex given back successfully. */
         status = true;
@@ -163,9 +173,9 @@ bool IotMutex_GiveRecursive( StaticSemaphore_t * pMutex )
     return status;
 }
 
-void IotMutex_Delete( StaticSemaphore_t * pMutex )
+void IotMutex_Delete( SemaphoreHandle_t * pMutex )
 {
     IotMqtt_Assert( pMutex != NULL );
     /* Deleting the mutex. */
-    vSemaphoreDelete( ( SemaphoreHandle_t ) pMutex );
+    vSemaphoreDelete( *pMutex );
 }

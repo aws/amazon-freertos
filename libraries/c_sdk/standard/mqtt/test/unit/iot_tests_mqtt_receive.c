@@ -514,6 +514,59 @@ static void _disconnectCallback( void * pCallbackContext,
     }
 }
 
+/**
+ * @brief A dummy function for transport interface send.
+ *
+ * Transport send is not used in this test.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pMessage Message buffer to send.
+ * @param[in] bytesToSend Number of bytes sent.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    ( void ) pNetworkContext;
+    ( void ) pMessage;
+
+    return bytesToSend;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -569,9 +622,13 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
+
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                  &( connToContext[ contextIndex ].contextMutexStorage ) );
 
     /* Create the subscription mutex for a new connection. */
     if( contextMutex == true )
@@ -579,7 +636,22 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
         /* Assigning the MQTT Connection. */
         connToContext[ contextIndex ].mqttConnection = pMqttConnection;
 
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        /* Assigning the Network Context to be used by this MQTT Context. */
+        connToContext[ contextIndex ].networkContext.pNetworkConnection = pMqttConnection->pNetworkConnection;
+        connToContext[ contextIndex ].networkContext.pNetworkInterface = pMqttConnection->pNetworkInterface;
+
+        /* Fill in TransportInterface send function pointer. We will not be implementing the
+         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+         * receive task. Only using MQTT LTS APIs for transmit path.*/
+        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.send = transportSend;
+        transport.recv = transportRecv;
+
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
 
         if( subscriptionMutexCreated == false )
         {

@@ -78,4 +78,11 @@ bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
 bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
                               void * pMatch );
 
+/**
+ * @brief Test access function for #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ *
+ * @see #_IotMqtt_getFreeIndexFromContextConnectionArray.
+ */
+int8_t IotTestMqtt_getFreeIndexFromContextConnectionArray( void );
+
 #endif /* ifndef IOT_TEST_ACCESS_MQTT_H_ */

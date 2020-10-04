@@ -49,6 +49,9 @@
 #include "core_mqtt.h"
 #include "core_mqtt_state.h"
 
+/* FreeRTOS include. */
+#include "semphr.h"
+
 /**
  * @def IotMqtt_Assert( expression )
  * @brief Assertion macro for the MQTT library.
@@ -444,11 +447,13 @@ typedef struct connContextMapping
 {
     IotMqttConnection_t mqttConnection;                                    /**< @brief MQTT connection used in MQTT 201906.00 library. */
     MQTTContext_t context;                                                 /**< @brief MQTT Context used for calling MQTT LTS API from the shim. */
-    StaticSemaphore_t contextMutex;                                        /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
+    StaticSemaphore_t contextMutexStorage;                                 /**< @brief Static storage for Mutex for synchronization of MQTT Context. */
+    SemaphoreHandle_t contextMutex;                                        /**< @brief Mutex for synchronization of network buffer as the same buffer can be used my multiple applications. */
     uint8_t buffer[ NETWORK_BUFFER_SIZE ];                                 /**< @brief Network Buffer used to send packets on the network. This will be used by MQTT context defined above. */
     NetworkContext_t networkContext;                                       /**< @brief Network Context used to send packets on the network. This will be used by MQTT context defined above. */
     _mqttSubscription_t subscriptionArray[ MAX_NO_OF_MQTT_SUBSCRIPTIONS ]; /**< @brief Holds subscriptions associated with this connection. */
-    StaticSemaphore_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
+    StaticSemaphore_t subscriptionMutexStorage;                            /**< @brief Static storage for Mutex for synchronization of subscription list. */
+    SemaphoreHandle_t subscriptionMutex;                                   /**< @brief Grants exclusive access to the subscription list. */
 } _connContext_t;
 
 /**
@@ -1168,64 +1173,68 @@ int8_t IotMqtt_FindFirstMatch( _mqttSubscription_t * pSubscriptionArray,
 /**
  * @brief Create a non recursive mutex.
  *
- * @param[in] pMutex mutex to be created.
+ * @param[out] pMutex Handle of the mutex created.
+ * @param[in] pxMutexBuffer Static storage for the semaphore.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_CreateNonRecursiveMutex( StaticSemaphore_t * pMutex );
+bool IotMutex_CreateNonRecursiveMutex( SemaphoreHandle_t * pMutex,
+                                       StaticSemaphore_t * pxMutexBuffer );
 
 /**
  * @brief Create a recursive mutex.
  *
- * @param[in] pMutex mutex to be created.
+ * @param[out] pMutex Mutex handle of the created mutex.
+ * @param[in] pxMutexBuffer Static storage for the semaphore.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_CreateRecursiveMutex( StaticSemaphore_t * pMutex );
+bool IotMutex_CreateRecursiveMutex( SemaphoreHandle_t * pMutex,
+                                    StaticSemaphore_t * pxMutexBuffer );
 
 /**
  * @brief Take a non recursive mutex.
  *
- * @param[in] pMutex mutex to be taken.
+ * @param[in] pMutex Mutex handle.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_Take( StaticSemaphore_t * pMutex );
+bool IotMutex_Take( SemaphoreHandle_t * pMutex );
 
 /**
  * @brief Give a non recursive mutex.
  *
- * @param[in] pMutex mutex to be given.
+ * @param[in] pMutex Mutex handle.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_Give( StaticSemaphore_t * pMutex );
+bool IotMutex_Give( SemaphoreHandle_t * pMutex );
 
 /**
  * @brief Take a non recursive mutex.
  *
- * @param[in] pMutex mutex to be taken.
+ * @param[in] pMutex Mutex handle.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_TakeRecursive( StaticSemaphore_t * pMutex );
+bool IotMutex_TakeRecursive( SemaphoreHandle_t * pMutex );
 
 /**
  * @brief Give a non recursive mutex.
  *
- * @param[in] pMutex mutex to be given.
+ * @param[in] pMutex Mutex handle.
  *
  * @return true if mutex is created else false
  */
-bool IotMutex_GiveRecursive( StaticSemaphore_t * pMutex );
+bool IotMutex_GiveRecursive( SemaphoreHandle_t * pMutex );
 
 /**
  * @brief Delete the mutex.
  *
- * @param[in] pMutex mutex to be deleted.
+ * @param[in] pMutex Mutex handle.
  *
  * @return true if mutex is created else false
  */
-void IotMutex_Delete( StaticSemaphore_t * pMutex );
+void IotMutex_Delete( SemaphoreHandle_t * pMutex );
 
 #endif /* ifndef IOT_MQTT_INTERNAL_H_ */
