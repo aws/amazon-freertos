@@ -752,11 +752,10 @@ static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t *pPublishInfo,
 {
     MQTTStatus_t status = MQTTSuccess;
 
-    configPRINTF( ( "Processing outgoing PUBLISH, length = %d\n", bytesToSend ) );
+    LogDebug( ( "Processing outgoing PUBLISH." ) );
 
     if( pPublishInfo->pending == true )
     {
-        configPRINTF(( "Received payload length %d %d\n", pPublishInfo->info.payloadLength, bytesToSend ));
         configASSERT(( pPublishInfo->info.payloadLength == bytesToSend ));
         pPublishInfo->info.pPayload = buf;
         pPublishInfo->pending = false;
@@ -765,7 +764,6 @@ static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t *pPublishInfo,
     else
     {
         pPublishInfo->pending = parsePublish( buf, bytesToSend, pPublishInfo );
-        configPRINTF(("Parsed publish, pending = %d\n", pPublishInfo->pending ));
     }
 
     if( !pPublishInfo->pending )
@@ -1043,12 +1041,10 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 
     if( pContext->publishInfo.pending == true )
     {
-        configPRINTF(("Pending true, handling payload of publish\r\n" ));
         status = handleOutgoingPublish( &pContext->publishInfo, buf, &serializedBuf, &packetSize, bytesToWrite );
     }
     else
     {
-        configPRINTF(( "Outgoing packet %0x\n", packetType ));
         switch( packetType )
         {
             case CLIENT_PACKET_TYPE_CONNECT:
@@ -1134,8 +1130,6 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext )
     IotBleDataTransfer_PeekReceiveBuffer( pContext->pChannel, ( const uint8_t ** ) &packet.pRemainingData, &packet.remainingLength );
 
     LogDebug( ( "Receiving a packet from the server." ) );
-
-    configPRINTF(( "Incoming packet %0x\n", packet.type ));
 
     switch( packet.type )
     {

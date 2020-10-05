@@ -44,7 +44,7 @@
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_transport.h"
 
-#define IOT_BLE_TRANSPORT_QUEUE_SIZE   (  1024U )
+#define IOT_BLE_TRANSPORT_QUEUE_SIZE   (  2048U )
 
 #define IOT_BLE_MAX_NETWORK_CONNECTIONS   ( 1 )
 

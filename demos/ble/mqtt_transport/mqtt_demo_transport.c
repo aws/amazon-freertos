@@ -19,6 +19,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
+/* Standard includes. */
+#include <stdlib.h>
+#include <string.h>
+
 /* Include demo_config.h first for logging and other configuration */
 #include "demo_config.h"
 
@@ -29,19 +34,8 @@
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_config_defaults.h"
 #include "platform/iot_clock.h"
-#include "iot_threads.h"
+#include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"
-
-/* Standard includes. */
-#include <stdlib.h>
-#include <string.h>
-
-/* POSIX socket includes. */
-#include <netdb.h>
-#include <unistd.h>
-
-#include <sys/socket.h>
-#include <sys/types.h>
 
 
 /**
@@ -701,7 +695,7 @@ static void mqttProcessIncomingPacket( MQTTFixedBuffer_t * buf )
 /**
  * @brief Entry point of demo.
  */
-MQTTStatus_t RunMQTTTransportDemo( void )
+MQTTStatus_t RunMQTTBLETransportDemo( void )
 {
     MQTTStatus_t status = MQTTSuccess;
     MQTTFixedBuffer_t fixedBuffer;
@@ -846,12 +840,12 @@ MQTTStatus_t RunMQTTTransportDemo( void )
             ( void ) sleep( MQTT_DEMO_ITERATION_DELAY_SECONDS );
 
             /* Clean up the channel in between iterations */
-            IotBleMqttTransportCleanup();
+            IotBleMqttTransportCleanup( &xContext );
             IotBleMqttTransportInit( &xContext );
         }
     }
 
-    IotBleMqttTransportCleanup();
+    IotBleMqttTransportCleanup( &xContext );
 
     if( channelActive == false )
     {
