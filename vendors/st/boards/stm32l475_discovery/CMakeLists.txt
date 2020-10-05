@@ -155,6 +155,15 @@ target_sources(
         $<${AFR_IS_TESTING}:${afr_ports_dir}/common_io/iot_test_common_io_internal.c>
 )
 
+target_include_directories(
+    AFR::common_io::mcu_port
+    INTERFACE
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/platform/freertos/include/platform"
+        # test code
+        $<${AFR_IS_TESTING}:${AFR_MODULES_ABSTRACTIONS_DIR}/common_io/test>
+)
+
+
 # -------------------------------------------------------------------------------------------------
 # FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
