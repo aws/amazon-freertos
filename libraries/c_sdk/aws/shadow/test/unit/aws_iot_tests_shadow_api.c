@@ -305,7 +305,7 @@ static size_t _sendSuccess( void * pSendContext,
                         AwsIotShadow_Assert( _publishContext.pData != NULL );
 
                         /* Copy the data received. */
-                        memcpy( _publishContext.pData, pMessage, messageLength );
+                        memcpy( ( void * ) _publishContext.pData, pMessage, messageLength );
                         _publishContext.dataLength = messageLength;
                     }
                     else
@@ -364,7 +364,7 @@ static size_t _sendSuccess( void * pSendContext,
             {
                 AwsIotShadow_Assert( _publishContext.pData != NULL );
                 /* Copy the remaining part of the MQTT PUBLISH. */
-                memcpy( _publishContext.pData + _publishContext.dataLength, pMessage, messageLength );
+                memcpy( ( void * ) ( _publishContext.pData + _publishContext.dataLength ), pMessage, messageLength );
                 _publishContext.dataLength += messageLength;
 
                 /* Read the packet type, which is the first byte in the message. */
@@ -388,7 +388,7 @@ static size_t _sendSuccess( void * pSendContext,
             /* Clear the publish data stored. */
             if( _publishContext.dataLength != 0 )
             {
-                IotTest_Free( _publishContext.pData );
+                IotTest_Free( ( void * ) _publishContext.pData );
                 memset( &_publishContext, 0x00, sizeof( _receiveContext_t ) );
             }
         }
