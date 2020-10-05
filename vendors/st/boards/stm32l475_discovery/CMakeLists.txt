@@ -158,7 +158,7 @@ target_sources(
 target_include_directories(
     AFR::common_io::mcu_port
     INTERFACE
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/platform/freertos/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/platform/freertos/include/platform"
         # test code
         $<${AFR_IS_TESTING}:${AFR_MODULES_ABSTRACTIONS_DIR}/common_io/test>
 )
