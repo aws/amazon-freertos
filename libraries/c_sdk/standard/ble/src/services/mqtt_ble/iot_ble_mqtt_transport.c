@@ -437,6 +437,7 @@ static bool parsePublish( const uint8_t * buf,
     size_t encodedLength = 0, remainingLength = length;
     size_t index = 0;
     bool ret = false;
+    void *topicBuffer = NULL;
 
     /* Parse the publish header. */
     configASSERT(( ( buf[ index ] & 0xF0U ) == CLIENT_PACKET_TYPE_PUBLISH ));
@@ -454,14 +455,15 @@ static bool parsePublish( const uint8_t * buf,
     pPublishInfo->info.topicNameLength = UINT16_DECODE( &buf[ index ] );
     index += sizeof( uint16_t );
     
-    pPublishInfo->info.pTopicName = IotMqtt_MallocMessage( pPublishInfo->info.topicNameLength );
-    if( pPublishInfo->info.topicNameLength == NULL )
+    topicBuffer = IotMqtt_MallocMessage( pPublishInfo->info.topicNameLength );
+    if( topicBuffer == NULL )
     {
-        LogError(( "Failed to allocate topic name." ));
+        LogError(( "Failed to allocate buffer for topic name." ));
     }
     else
     {
-        memcpy( pPublishInfo->info.pTopicName, &buf[ index ], pPublishInfo->info.topicNameLength );
+        memcpy( topicBuffer, &buf[ index ], pPublishInfo->info.topicNameLength );
+        pPublishInfo->info.pTopicName = topicBuffer;
     }
     
     index += pPublishInfo->info.topicNameLength;
@@ -771,7 +773,7 @@ static MQTTStatus_t handleOutgoingPublish( MQTTBLEPublishInfo_t *pPublishInfo,
         status = IotBleMqtt_SerializePublish( &pPublishInfo->info, &bufToSend->pBuffer, pSize, pPublishInfo->packetIdentifier );
         if( pPublishInfo->info.pTopicName != NULL )
         {
-            IotMqtt_FreeMessage( pPublishInfo->info.pTopicName );
+            IotMqtt_FreeMessage( ( void * ) pPublishInfo->info.pTopicName );
         }
         memset( pPublishInfo, 0x00, sizeof( MQTTBLEPublishInfo_t ) );
     }

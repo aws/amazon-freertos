@@ -44,7 +44,6 @@
 #include "iot_ble_data_transfer.h"
 #include "iot_ble_mqtt_transport.h"
 
-#define IOT_BLE_TRANSPORT_QUEUE_SIZE   (  2048U )
 
 #define IOT_BLE_MAX_NETWORK_CONNECTIONS   ( 1 )
 
@@ -57,7 +56,7 @@ typedef struct IotBleNetworkConnection
     NetworkContext_t xContext;                  /* Network Context structure to hold the ble transport channel */
     IotNetworkReceiveCallback_t pCallback;     /* Callback registered by user to get notified of receipt of new data. */
     void * pUserContext;                       /* User context associated with the callback registered. */
-    uint8_t buffer[ IOT_BLE_TRANSPORT_QUEUE_SIZE ]; /* Buffer used internally by BLE transport to queue the data. */
+    uint8_t buffer[ IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE ]; /* Buffer used internally by BLE transport to queue the data. */
 } IotBleNetworkConnection_t;
 
 /**
@@ -115,7 +114,6 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
                        void * pContext )
 {
     IotBleNetworkConnection_t * pBleConnection = ( IotBleNetworkConnection_t * ) pContext;
-    MQTTStatus_t xStatus;
 
     switch( event )
     {
@@ -124,12 +122,12 @@ static void _callback( IotBleDataTransferChannelEvent_t event,
             break;
 
         case IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED:
-            xStatus = IotBleMqttTransportAcceptData( &pBleConnection->xContext );
-            configASSERT( xStatus == MQTTSuccess );
+            ( void ) IotBleMqttTransportAcceptData( &pBleConnection->xContext );
             if( pBleConnection->pCallback != NULL )
             {
                 pBleConnection->pCallback( pBleConnection, pBleConnection->pUserContext );
             }
+ 
             break;
 
         default:
@@ -193,7 +191,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
     if( status == IOT_NETWORK_SUCCESS )
     {
         pContext->buf = ( void * ) pBleConnection->buffer;
-        pContext->bufSize = IOT_BLE_TRANSPORT_QUEUE_SIZE;
+        pContext->bufSize = IOT_BLE_NETWORK_INTERFACE_BUFFER_SIZE;
 
         /* Must initialize the channel, context must contain the buffer and buf size at this point. */
         IotBleMqttTransportInit( pContext );
