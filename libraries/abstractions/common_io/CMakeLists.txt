@@ -37,7 +37,7 @@ afr_module_include_dirs(
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PRIVATE 
+    PUBLIC 
         AFR::common_io::mcu_port
 )
 
