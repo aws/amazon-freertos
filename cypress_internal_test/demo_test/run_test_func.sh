@@ -2,6 +2,7 @@
 
 set -$-ue${DEBUG+xv}
 
+
 # Configure python venv 
 python3.7 -m venv env
 source env/bin/activate
@@ -27,11 +28,11 @@ board=$1
 toolchain=$2
 
 ota_only=${OTA_ONLY:-0}
-
+    
 if [[ $ota_only == 1 ]]; then
     demo_thing=$(echo demo-$board | sed s/_/-/g)
 else
-   demo_thing='demo-tester-thing'
+    demo_thing='demo-tester-thing'
 fi
 
 if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin" ]]; then   # linux or Mac OSX
@@ -321,7 +322,7 @@ function run_cmake_test()
     pushd $current_dir
 
     setup_test $board
-    apply_common_changes
+    apply_common_changes $test
         
     if [[ ${test}  == "ota" ]]; then
         ota_en=1
@@ -354,11 +355,11 @@ function run_cmake_test()
             cp $AFR_DIR/build/$ota_image_name $AFR_DIR/build/$image_name
             create_ota_job_with_id "$AFR_DIR/build" $image_name $ota_protocol $jobid
         fi
+        
+        echo "reset the $board after the 2nd build"
+        reset_mcu
+        sleep 1
     fi
-
-    echo "reset the $board after the 2nd build"
-    reset_mcu
-    sleep 1
 
     if [ $test_error -eq 0 ]
     then    
@@ -405,7 +406,7 @@ function run_make_test()
     pushd $current_dir
 
     setup_test $board
-    apply_common_changes
+    apply_common_changes $test
     
     if [[ ${test}  == "ota" ]]; then
         ota_en=1
@@ -442,11 +443,11 @@ function run_make_test()
 
             echo "create job: $jobid" 
         fi
+        
+        echo "reset the $board after the 2nd build"
+        reset_mcu
+        sleep 1
     fi
-
-    echo "reset the $board after the 2nd build"
-    reset_mcu
-    sleep 1
 
     if [ $test_error -eq 0 ]
     then
@@ -486,11 +487,18 @@ function replace_define()
 
 function apply_common_changes()
 {
-    cp -f aws_clientcredential_keys.h $AFR_DIR/demos/include/aws_clientcredential_keys.h
-    cp -f aws_clientcredential.h $AFR_DIR/demos/include/aws_clientcredential.h 
- 
-    cp -f $AFR_DIR/cypress_internal_test/demo_test/ota/aws_ota_codesigner_certificate.h $AFR_DIR/demos/include/aws_ota_codesigner_certificate.h
-
+    local test=$1
+    
+    if [ "$test" == "ota" ]; then
+        cp -f $AFR_DIR/cypress_internal_test/demo_test/ota/aws_ota_codesigner_certificate.h $AFR_DIR/demos/include/aws_ota_codesigner_certificate.h
+    fi
+    
+    if [ "$test" != "mar" ]; then
+        cp -f aws_clientcredential_keys.h $AFR_DIR/demos/include/aws_clientcredential_keys.h
+    fi
+    
+    cp -f aws_clientcredential.h $AFR_DIR/demos/include/aws_clientcredential.h
+    
     replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialIOT_THING_NAME \"$demo_thing\"
     replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialWIFI_SSID \"$DEVICE_TESTER_WIFI_SSID\"
     replace_define $AFR_DIR/demos/include/aws_clientcredential.h clientcredentialWIFI_PASSWORD \"$DEVICE_TESTER_WIFI_PASSWORD\"
@@ -534,6 +542,9 @@ else
     run_cmake_test defender
     run_cmake_test ota MQTT cm4_upgrade.bin
     run_cmake_test ota HTTP cm4_upgrade.bin
+    if [[ $board == "CY8CKIT_064S0S2_4343W" ]]; then
+        run_cmake_test mar
+    fi
 
     run_make_test tcp_secure_echo
     run_make_test mqtt
@@ -541,6 +552,9 @@ else
     run_make_test defender
     run_make_test ota MQTT cm4.bin
     run_make_test ota HTTP cm4.bin
+    if [[ $board == "CY8CKIT_064S0S2_4343W" ]]; then
+        run_make_test mar
+    fi
 fi
 
 echo "----------------"
