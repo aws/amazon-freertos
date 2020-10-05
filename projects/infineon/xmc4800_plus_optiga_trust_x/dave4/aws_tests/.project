@@ -1039,6 +1039,16 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_levels.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/logging_levels.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/logging_stack.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/include/logging_stack.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
@@ -1214,16 +1224,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/iot_pki_utils.c</locationURI>
@@ -1232,6 +1232,16 @@
 			<name>libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/corePKCS11/source/include/iot_pki_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
@@ -1589,19 +1599,19 @@
 			<locationURI>AFR_HOME/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_state.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_state.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</name>
+			<name>libraries/coreMQTT/source/core_mqtt_serializer.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_serializer.c</locationURI>
+			<locationURI>AFR_HOME/libraries/coreMQTT/source/core_mqtt_serializer.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/test/unit/aws_iot_tests_defender_unit.c</name>
@@ -1819,9 +1829,9 @@
 			<locationURI>AFR_HOME/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk_v4/integration_test/core_mqtt_system_test.c</name>
+			<name>tests/integration_test/core_mqtt_system_test.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/c_sdk_v4/integration_test/core_mqtt_system_test.c</locationURI>
+			<locationURI>AFR_HOME/tests/integration_test/core_mqtt_system_test.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/infineon_code/console_io.c</name>
