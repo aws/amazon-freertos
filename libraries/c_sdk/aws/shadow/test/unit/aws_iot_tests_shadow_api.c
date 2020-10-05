@@ -557,6 +557,9 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
     MQTTFixedBuffer_t networkBuffer;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
+    /* Clear the MQTT connection to context array. */
+    memset( connToContext, 0x00, sizeof( connToContext ) );
+
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
 
