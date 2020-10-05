@@ -31,12 +31,14 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC "${inc_dir}"
+    PUBLIC 
+        "${inc_dir}"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    PUBLIC AFR::common_io::mcu_port
+    PRIVATE 
+        AFR::common_io::mcu_port
 )
 
 # Common I/O tests
