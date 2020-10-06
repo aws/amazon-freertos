@@ -757,42 +757,6 @@ static int32_t failedRecv( const NetworkContext_t * pNetworkContext,
     return -1;
 }
 
-static void startPersistentSession()
-{
-    /* Terminate TLS session and TCP network connection to discard the current MQTT session
-     * that was created as a "clean session". */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
-
-    /* Establish a new MQTT connection over TLS with the broker with the "clean session" flag set to 0
-     * to start a persistent session with the broker. */
-
-    /* Create the TLS+TCP connection with the broker. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
-
-    /* Establish a new MQTT connection for a persistent session with the broker. */
-    establishMqttSession( &context, &networkContext, false, &persistentSession );
-    TEST_ASSERT_FALSE( persistentSession );
-}
-
-static void resumePersistentSession()
-{
-    /* Create a new TLS+TCP network connection with the server. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
-
-    /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
-    TEST_ASSERT_FALSE( persistentSession );
-    establishMqttSession( &context, &networkContext, false, &persistentSession );
-
-    /* Verify that the session was resumed. */
-    TEST_ASSERT_TRUE( persistentSession );
-}
-
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
@@ -826,7 +790,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     {
         /* Establish a TCP connection with the server endpoint, then
          * establish TLS session on top of TCP connection. */
-        transportStatus = SecureSocketsTransport_Connect( &networkContext,
+        transportStatus = SecureSocketsTransport_Connect( pNetworkContext,
                                                           &serverInfo,
                                                           &socketsConfig );
 
@@ -849,6 +813,36 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     return isSuccessful;
 }
 
+static void startPersistentSession()
+{
+    /* Terminate TLS session and TCP network connection to discard the current MQTT session
+     * that was created as a "clean session". */
+    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+
+    /* Establish a new MQTT connection over TLS with the broker with the "clean session" flag set to 0
+     * to start a persistent session with the broker. */
+
+    /* Create the TLS+TCP connection with the broker. */
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
+
+    /* Establish a new MQTT connection for a persistent session with the broker. */
+    establishMqttSession( &context, &networkContext, false, &persistentSession );
+    TEST_ASSERT_FALSE( persistentSession );
+}
+
+static void resumePersistentSession()
+{
+    /* Create a new TLS+TCP network connection with the server. */
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
+
+    /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
+    TEST_ASSERT_FALSE( persistentSession );
+    establishMqttSession( &context, &networkContext, false, &persistentSession );
+
+    /* Verify that the session was resumed. */
+    TEST_ASSERT_TRUE( persistentSession );
+}
+
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
@@ -869,7 +863,6 @@ void testSetUp()
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     establishMqttSession( &context, &networkContext, true, &persistentSession );
