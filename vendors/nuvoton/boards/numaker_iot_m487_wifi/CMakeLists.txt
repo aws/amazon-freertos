@@ -132,7 +132,7 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/Keil"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/Compiler/Keil"
         "${board_dir}/config_files"
         "${board_dir}/application_code/nuvoton_code"
         # Need aws_clientcredential.h
@@ -156,15 +156,15 @@ if(AFR_ENABLE_ETH)
     target_sources(
         AFR::freertos_plus_tcp::mcu_port
         INTERFACE
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c"
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/BufferManagement/BufferAllocation_1.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/m480_eth.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487/NetworkInterface.c"
     )
 
     target_include_directories(
         AFR::freertos_plus_tcp::mcu_port
         INTERFACE
-            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/portable/NetworkInterface/M487"
             "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
     )
 
