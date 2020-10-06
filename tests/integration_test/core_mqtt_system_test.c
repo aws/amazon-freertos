@@ -117,99 +117,105 @@
 /**
  * @brief A valid starting packet ID per MQTT spec. Start from 1.
  */
-#define MQTT_FIRST_VALID_PACKET_ID           ( 1 )
+#define MQTT_FIRST_VALID_PACKET_ID            ( 1 )
 
 /**
  * @brief A PINGREQ packet is always 2 bytes in size, defined by MQTT 3.1.1 spec.
  */
-#define MQTT_PACKET_PINGREQ_SIZE             ( 2U )
+#define MQTT_PACKET_PINGREQ_SIZE              ( 2U )
 
 /**
  * @brief A packet type not handled by MQTT_ProcessLoop.
  */
-#define MQTT_PACKET_TYPE_INVALID             ( 0U )
+#define MQTT_PACKET_TYPE_INVALID              ( 0U )
 
 /**
  * @brief Number of milliseconds in a second.
  */
-#define MQTT_ONE_SECOND_TO_MS                ( 1000U )
+#define MQTT_ONE_SECOND_TO_MS                 ( 1000U )
 
 /**
  * @brief Length of the MQTT network buffer.
  */
-#define MQTT_TEST_BUFFER_LENGTH              ( 128 )
+#define MQTT_TEST_BUFFER_LENGTH               ( 128 )
 
 /**
  * @brief Sample length of remaining serialized data.
  */
-#define MQTT_SAMPLE_REMAINING_LENGTH         ( 64 )
+#define MQTT_SAMPLE_REMAINING_LENGTH          ( 64 )
 
 /**
  * @brief Subtract this value from max value of global entry time
  * for the timer overflow test.
  */
-#define MQTT_OVERFLOW_OFFSET                 ( 3 )
+#define MQTT_OVERFLOW_OFFSET                  ( 3 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_TOPIC                      "/iot/integration/test"
+#define TEST_MQTT_TOPIC                       "/iot/integration/test"
 
 /**
  * @brief Sample topic filter 2 to use in tests.
  */
-#define TEST_MQTT_TOPIC_2                    "/iot/integration/test2"
+#define TEST_MQTT_TOPIC_2                     "/iot/integration/test2"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_TOPIC_LENGTH               ( sizeof( TEST_MQTT_TOPIC ) - 1 )
+#define TEST_MQTT_TOPIC_LENGTH                ( sizeof( TEST_MQTT_TOPIC ) - 1 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_LWT_TOPIC                  "/iot/integration/test/lwt"
+#define TEST_MQTT_LWT_TOPIC                   "/iot/integration/test/lwt"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_LWT_TOPIC_LENGTH           ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
+#define TEST_MQTT_LWT_TOPIC_LENGTH            ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define NETWORK_BUFFER_SIZE                  ( 1024U )
+#define NETWORK_BUFFER_SIZE                   ( 1024U )
 
 /**
  * @brief Length of the client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LENGTH        ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LENGTH         ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
 
 /**
  * @brief Client identifier for use in LWT tests.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT           TEST_CLIENT_IDENTIFIER "-LWT"
+#define TEST_CLIENT_IDENTIFIER_LWT            TEST_CLIENT_IDENTIFIER "-LWT"
 
 /**
  * @brief Length of LWT client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH    ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH     ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS       ( 200U )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS        ( 200U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS              ( 1000U )
+#define CONNACK_RECV_TIMEOUT_MS               ( 1000U )
 
 /**
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS     ( 5U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 5U )
+
+/**
+ * @brief The number of milliseconds it takes before AWS IoT Core Message Broker
+ * resends a PUBLISH that has not been acknowledged.
+ */
+#define AWS_IOT_CORE_REPUBLISH_INTERVAL_MS    ( 30000U )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop() function in milliseconds.
@@ -217,22 +223,22 @@
  * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
  * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS         ( 700U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 700U )
 
 /**
  * @brief The MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE                 "Hello World!"
+#define MQTT_EXAMPLE_MESSAGE                  "Hello World!"
 
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND              ( 1000U )
+#define MILLISECONDS_PER_SECOND               ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -322,6 +328,12 @@ static bool receivedPubComp = false;
  * with the "retain" flag set.
  */
 static bool receivedRetainedMessage = false;
+
+/**
+ * @brief Flag to represent whether the tests are being run against AWS IoT
+ * Core.
+ */
+static bool testingAgainstAWS = false;
 
 /**
  * @brief Represents incoming PUBLISH information.
@@ -919,6 +931,7 @@ TEST_TEAR_DOWN( coreMQTT_Integration )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
 {
+    testingAgainstAWS = true;
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Connect_LWT );
@@ -932,6 +945,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration )
 {
+    testingAgainstAWS = false;
     RUN_TEST_CASE( coreMQTT_Integration, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration, Connect_LWT );
@@ -1554,9 +1568,17 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
 
     /* Make sure that a record was created for the incoming PUBLISH packet. */
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
-    context.incomingPublishRecords[ 0 ].packetId = MQTT_PACKET_ID_INVALID;
 
-    vTaskDelay( pdMS_TO_TICKS( 30 * 1000 ) );
+    if( testingAgainstAWS )
+    {
+        /* AWS IoT Core takes at least 30 seconds before resending a PUBLISH. */
+        vTaskDelay( pdMS_TO_TICKS( AWS_IOT_CORE_REPUBLISH_INTERVAL_MS ) );
+
+        /* When the resent PUBLISH is received, the DUP flag will not be set to 1.
+         * Therefore, the packet ID of the original PUBLISH must be cleared from
+         * the incoming publish records array. */
+        context.incomingPublishRecords[ 0 ].packetId = MQTT_PACKET_ID_INVALID;
+    }
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
