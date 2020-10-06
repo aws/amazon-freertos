@@ -238,6 +238,11 @@ static void RunTests( void )
     #if ( testrunnerFULL_CORE_MQTT_AWS_IOT_ENABLED == 1 )
         RUN_TEST_GROUP( coreMQTT_Integration_AWS_IoT_Compatible );
     #endif
+
+    #if ( testrunnerFULL_CLI_ENABLED == 1 )
+        RUN_TEST_GROUP( FreeRTOS_CLI )
+        RUN_TEST_GROUP( FreeRTOS_CLI_Console )
+    #endif
 }
 /*-----------------------------------------------------------*/
 
