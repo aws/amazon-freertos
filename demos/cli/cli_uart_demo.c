@@ -62,6 +62,10 @@ static BaseType_t prvTaskStatsCommand( char * pcWriteBuffer,
                                        size_t xWriteBufferLen,
                                        const char * pcCommandString );
 
+/**
+ * Registers the CLI commands along with handlers required for the demo.
+ */
+static void prvRegisterCLICommands( void );
 
 /* Structure that defines the "echo_3_parameters" command line command.  This
  * takes exactly three parameters that the command simply echos back one at a
@@ -104,6 +108,7 @@ static char cCommandBuffer[ cmdMAX_INPUT_SIZE ];
  */
 static char cOutputBuffer[ cmdMAX_OUTPUT_SIZE ];
 
+
 static BaseType_t prvThreeParameterEchoCommand( char * pcWriteBuffer,
                                                 size_t xWriteBufferLen,
                                                 const char * pcCommandString )
@@ -111,16 +116,24 @@ static BaseType_t prvThreeParameterEchoCommand( char * pcWriteBuffer,
     const char * pcParameter;
     BaseType_t lParameterStringLength, xReturn;
     static BaseType_t lParameterNumber = 0;
+    size_t xStatus;
 
-    /* Check the write buffer is not NULL.  NOTE - for simplicity, this example assumes the
-     * write buffer length is adequate, so does not check for buffer overflows. */
+    /* Check the write buffer is not NULL. */
     configASSERT( pcWriteBuffer );
 
     if( lParameterNumber == 0 )
     {
         /* The first time the function is called after the command has been
          * entered just a header string is returned. */
-        sprintf( pcWriteBuffer, "The three parameters were:\r\n" );
+        xStatus = snprintf( pcWriteBuffer, xWriteBufferLen, "The three parameters were:\r\n" );
+
+        /* Assert condition that the buffer provided is enough to write the formatted string. If the buffer is not
+         * adequate, snprintf returns the total length required (without the null termination) for
+         * writing the formatted string to the buffer. If this assert condition is hit,
+         * adjust the output buffer to the required length as returned from snprintf.
+         */
+        configASSERT( ( xStatus >= 0 ) && ( xStatus < xWriteBufferLen ) );
+
 
         /* Next time the function is called the first parameter will be echoed
          * back. */
@@ -145,9 +158,17 @@ static BaseType_t prvThreeParameterEchoCommand( char * pcWriteBuffer,
 
         /* Return the parameter string. */
         memset( pcWriteBuffer, 0x00, xWriteBufferLen );
-        sprintf( pcWriteBuffer, "%d: ", lParameterNumber );
-        strncat( pcWriteBuffer, pcParameter, lParameterStringLength );
-        strncat( pcWriteBuffer, "\r\n", strlen( "\r\n" ) );
+        xStatus = snprintf( pcWriteBuffer, xWriteBufferLen, "%d: %.*s\r\n",
+                            lParameterNumber,
+                            lParameterStringLength,
+                            pcParameter );
+
+        /* Assert condition that the buffer provided is enough to write the formatted string. If the buffer is not
+         * adequate, snprintf returns the total length required (without the null termination) for
+         * writing the formatted string to the buffer. If this assert condition is hit,
+         * adjust the output buffer to the required length as returned from snprintf.
+         */
+        configASSERT( ( xStatus >= 0 ) && ( xStatus < xWriteBufferLen ) );
 
         /* If this is the last of the three parameters then there are no more
          * strings to return after this one. */
@@ -176,16 +197,23 @@ static BaseType_t prvParameterEchoCommand( char * pcWriteBuffer,
     const char * pcParameter;
     BaseType_t lParameterStringLength, xReturn;
     static BaseType_t lParameterNumber = 0;
+    size_t xStatus;
 
-    /* Check the write buffer is not NULL.  NOTE - for simplicity, this example assumes the
-     * write buffer length is adequate, so does not check for buffer overflows. */
+    /* Check the write buffer is not NULL. */
     configASSERT( pcWriteBuffer );
 
     if( lParameterNumber == 0 )
     {
         /* The first time the function is called after the command has been
          * entered just a header string is returned. */
-        sprintf( pcWriteBuffer, "The parameters were:\r\n" );
+        xStatus = snprintf( pcWriteBuffer, xWriteBufferLen, "The parameters were:\r\n" );
+
+        /* Assert condition that the buffer provided is enough to write the formatted string. If the buffer is not
+         * adequate, snprintf returns the total length required (without the null termination) for
+         * writing the formatted string to the buffer. If this assert condition is hit,
+         * adjust the output buffer to the required length as returned from snprintf.
+         */
+        configASSERT( ( xStatus >= 0 ) && ( xStatus < xWriteBufferLen ) );
 
         /* Next time the function is called the first parameter will be echoed
          * back. */
@@ -209,9 +237,19 @@ static BaseType_t prvParameterEchoCommand( char * pcWriteBuffer,
         {
             /* Return the parameter string. */
             memset( pcWriteBuffer, 0x00, xWriteBufferLen );
-            sprintf( pcWriteBuffer, "%d: ", lParameterNumber );
-            strncat( pcWriteBuffer, pcParameter, lParameterStringLength );
-            strncat( pcWriteBuffer, "\r\n", strlen( "\r\n" ) );
+            xStatus = snprintf( pcWriteBuffer, xWriteBufferLen, "%d: %.*s\r\n",
+                                lParameterNumber,
+                                lParameterStringLength,
+                                pcParameter );
+
+            /* Assert condition that the buffer provided is enough to write the formatted string. If the buffer is not
+             * adequate, snprintf returns the total length required (without the null termination) for
+             * writing the formatted string to the buffer. If this assert condition is hit,
+             * adjust the output buffer to the required length as returned from snprintf.
+             */
+            configASSERT( ( xStatus >= 0 ) && ( xStatus < xWriteBufferLen ) );
+
+
 
             /* There might be more parameters to return after this one. */
             xReturn = pdTRUE;
@@ -239,16 +277,24 @@ static BaseType_t prvTaskStatsCommand( char * pcWriteBuffer,
                                        const char * pcCommandString )
 {
     const char * const pcHeader = "Task          State  Priority  Stack	#\r\n************************************************\r\n";
+    size_t xStatus;
 
     /* Remove compile time warnings about unused parameters, and check the
-     * write buffer is not NULL.  NOTE - for simplicity, this example assumes the
-     * write buffer length is adequate, so does not check for buffer overflows. */
+     * write buffer is not NULL. */
     ( void ) pcCommandString;
     ( void ) xWriteBufferLen;
     configASSERT( pcWriteBuffer );
 
     /* Generate a table of task stats. */
-    strcpy( pcWriteBuffer, pcHeader );
+    xStatus = snprintf( pcWriteBuffer, xWriteBufferLen, pcHeader );
+
+    /* Assert condition that the buffer provided is enough to write the formatted string. If the buffer is not
+     * adequate, snprintf returns the total length required (without the null termination) for
+     * writing the formatted string to the buffer. If this assert condition is hit,
+     * adjust the output buffer to the required length as returned from snprintf.
+     */
+    configASSERT( ( xStatus >= 0 ) && ( xStatus < xWriteBufferLen ) );
+
     vTaskList( pcWriteBuffer + strlen( pcHeader ) );
 
     /* There is no more data to return after this single string, so return
@@ -256,7 +302,8 @@ static BaseType_t prvTaskStatsCommand( char * pcWriteBuffer,
     return pdFALSE;
 }
 
-void vRegisterCLICommands( void )
+
+static void prvRegisterCLICommands( void )
 {
     /* Register all the command line commands defined immediately above. */
     FreeRTOS_CLIRegisterCommand( &xThreeParameterEcho );
@@ -279,7 +326,7 @@ int vRunCLIUartDemo( bool awsIotMqttMode,
     ( void ) pNetworkInterface;
 
     /* Register all CLI commands at startup. */
-    vRegisterCLICommands();
+    prvRegisterCLICommands();
 
     configPRINTF( ( "Welcome to FreeRTOS CLI demo\r\n " ) );
 

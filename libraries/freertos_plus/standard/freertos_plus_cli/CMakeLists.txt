@@ -9,8 +9,6 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/FreeRTOS_CLI.c"
         "${src_dir}/FreeRTOS_CLI_Console.c"
-        "${inc_dir}/FreeRTOS_CLI.h"
-        "${inc_dir}/FreeRTOS_CLI_Console.h"
 )
 
 afr_module_include_dirs(
@@ -40,7 +38,6 @@ afr_module_sources(
     freertos_cli_plus_uart
     PRIVATE
         "${src_dir}/FreeRTOS_CLI_UART.c"
-        "${inc_dir}/FreeRTOS_CLI_UART.h"
 )
 
 afr_module_include_dirs(
