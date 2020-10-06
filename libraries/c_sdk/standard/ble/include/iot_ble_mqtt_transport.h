@@ -36,11 +36,9 @@
 #include "core_mqtt_serializer.h"
 #include "iot_ble_mqtt_serialize.h"
 #include "iot_ble_data_transfer.h"
-#include "platform/iot_network.h"
-#include "types/iot_platform_types.h"
 
 /**
- * @brief Structure to hold the MQTT publish information to send over BLE channel.
+ * @brief Structure to hold the MQTT publish information to be send over BLE channel.
  */
 typedef struct MQTTBLEPublishInfo
 {
@@ -52,9 +50,6 @@ typedef struct MQTTBLEPublishInfo
 struct NetworkContext
 {
     IotBleDataTransferChannel_t * pChannel;
-    IotSemaphore_t isReady;
-    void * buf;
-    size_t bufSize;
     StreamBufferHandle_t xStreamBuffer;
     StaticStreamBuffer_t xStreamBufferStruct;
     MQTTBLEPublishInfo_t publishInfo;
@@ -62,11 +57,19 @@ struct NetworkContext
 
 /**
  * @brief Initiailzes the Circular buffer to store the received data
+ * 
+ * @param[in] pBuffer Pointer to the buffer allocated by the application and used by the transport interface to
+ *            stream MQTT data.
+ * @param[in] bufSize The size of the buffer allocated.
+ * @param[out] pContext An opaque used by transport interface and to be passed to the MQTT library.
+ * @return status of the initialization.
  */
-bool IotBleMqttTransportInit( NetworkContext_t * pContext );
+bool IotBleMqttTransportInit( void * pBuffer, size_t bufSize, NetworkContext_t * pContext );
 
 /**
- * @brief Cleans up the Circular buffer
+ * @brief Cleans up the Circular buffer.
+ * 
+ * @param[in] pContext An opaque used by transport interface.
  */
 void IotBleMqttTransportCleanup( NetworkContext_t * pContext );
 
@@ -81,7 +84,7 @@ MQTTStatus_t IotBleMqttTransportAcceptData( const NetworkContext_t * pContext );
 /**
  * @brief Transport interface write function.
  *
- * @param[in] context An opaque used by transport interface.
+ * @param[in] pContext An opaque used by transport interface.
  * @param[in] buf A pointer to a buffer containing data to be sent out.
  * @param[in] bytesToWrite number of bytes to write from the buffer.
  * @return the number of bytes sent.
@@ -93,7 +96,7 @@ int32_t IotBleMqttTransportSend( NetworkContext_t * pContext,
 /**
  * @brief Transport interface read function.
  *
- * @param[in] context An opaque used by transport interface.
+ * @param[in] pContext An opaque used by transport interface.
  * @param[in] buf A pointer to a buffer where incoming data will be stored.
  * @param[in] bytesToRead number of bytes to read from the transport layer.
  * @return the number of bytes successfully read.

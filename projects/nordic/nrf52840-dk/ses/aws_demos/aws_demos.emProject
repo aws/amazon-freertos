@@ -413,14 +413,6 @@
               <file file_name="../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/core_mqtt_state.c" />
             </folder>
           </folder>
-          <folder Name="coreJSON">
-            <folder Name="source">
-              <folder Name="include">
-                <file file_name="../../../../../libraries/c_sdk_v4/standard/coreJSON/source/include/core_json.h" />
-              </folder>
-              <file file_name="../../../../../libraries/c_sdk_v4/standard/coreJSON/source/core_json.c" />
-            </folder>
-          </folder>
         </folder>
       </folder>
     </folder>
@@ -696,7 +688,7 @@
     Name="Debug"
     arm_fp_abi="None"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/portable;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreJSON/source/include;$(SolutionDir)/../../../../../demos/ble/mqtt_transport"
+    c_user_include_directories=".;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/include;$(SolutionDir)/../../../../../libraries/c_sdk_v4/standard/coreMQTT/source/portable;$(SolutionDir)/../../../../../demos/ble/mqtt_transport"
     gcc_debugging_level="Level 3"
     gcc_optimization_level="None"
     link_include_standard_libraries="Yes" />

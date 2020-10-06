@@ -37,7 +37,6 @@
 #include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"
 
-
 /**
  * @brief The first characters in the client identifier. A timestamp is appended
  * to this prefix to create a unique client identifer.
@@ -164,6 +163,11 @@ static uint8_t contextBuf[ INCOMING_PACKET_QUEUE_SIZE ];
  */
 static uint8_t fixedBufferBuf[ SINGLE_INCOMING_PACKET_MAX_SIZE ];
 
+/**
+ * @brief Semaphore used to synchronize with the data transfer channel callback.
+ */
+static IotSemaphore_t channelSemaphore = { 0 };
+
 
 /*-----------------------------------------------------------*/
 
@@ -180,7 +184,7 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     /* Event to see when the data channel is ready to receive data. */
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED )
     {
-        IotSemaphore_Post( &xContext.isReady );
+        IotSemaphore_Post( &channelSemaphore );
     }
 
     /* Event for when data is received over the channel. */
@@ -202,24 +206,26 @@ static void demoCallback( IotBleDataTransferChannelEvent_t event,
     }
 }
 
-
 static MQTTStatus_t demoInitChannel( void )
 {
     MQTTStatus_t status = MQTTSuccess;
 
-    /* Must initialize the channel, context must contain the buffer and buf size at this point. */
-    IotBleMqttTransportInit( &xContext );
+    /* Memory that will contain the incoming packet queue used by the transport code.
+     * Here we use static memory, but dynamic is OK too.
+     * It is the responsibility of the user application to allocate this buffer.
+     */
+    IotBleMqttTransportInit( contextBuf, INCOMING_PACKET_QUEUE_SIZE, &xContext );
 
     /* Open is a handshake proceture, so we need to wait until it is ready to use. */
     xContext.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT );
 
     if( xContext.pChannel != NULL )
     {
-        if( IotSemaphore_Create( &xContext.isReady, 0, 1 ) == true )
+        if( IotSemaphore_Create( &channelSemaphore, 0, 1 ) == true )
         {
             ( void ) IotBleDataTransfer_SetCallback( xContext.pChannel, demoCallback, NULL );
 
-            if( IotSemaphore_TimedWait( &xContext.isReady, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
+            if( IotSemaphore_TimedWait( &channelSemaphore, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
             {
                 LogInfo( ( "The channel was initialized successfully" ) );
 
@@ -705,15 +711,6 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
     const uint16_t maxDemoIterations = 5U;
     bool publishPacketSent = false;
 
-
-    /***
-     * Memory that will contain the incoming packet queue used by the transport code.
-     * Here we use static memory, but dynamic is OK too.
-     * It is the responsibility of the user application to allocate this buffer.
-     ***/
-    xContext.buf = contextBuf;
-    xContext.bufSize = INCOMING_PACKET_QUEUE_SIZE;
-
     /***
      * Set Fixed size buffer structure that is required by API to serialize
      * and deserialize data. pBuffer is pointing to a fixed sized mqttSharedBuffer.
@@ -841,7 +838,7 @@ MQTTStatus_t RunMQTTBLETransportDemo( void )
 
             /* Clean up the channel in between iterations */
             IotBleMqttTransportCleanup( &xContext );
-            IotBleMqttTransportInit( &xContext );
+            IotBleMqttTransportInit( contextBuf, INCOMING_PACKET_QUEUE_SIZE, &xContext );
         }
     }
 

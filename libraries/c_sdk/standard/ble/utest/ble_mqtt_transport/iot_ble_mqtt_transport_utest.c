@@ -45,8 +45,6 @@ void setUp( void )
 /* called before each testcase */
 void tearDown( void )
 {
-    context.buf = NULL;
-    context.bufSize = 0;
     context.pChannel = NULL;
 }
 
@@ -68,9 +66,10 @@ void test_IotBleMqttTransportInit_success( void )
 {
     bool ret = false;
     StreamBufferHandle_t testHandle = { 10 };
+    uint8_t buffer[ 10 ] = { 0 };
 
     xStreamBufferGenericCreateStatic_IgnoreAndReturn( testHandle );
-    ret = IotBleMqttTransportInit( &context );
+    ret = IotBleMqttTransportInit( buffer, 10, &context );
 
     TEST_ASSERT_TRUE( ret );
 }
@@ -82,9 +81,10 @@ void test_IotBleMqttTransportInit_success( void )
 void test_IotBleMqttTransportInit_fail( void )
 {
     bool ret = false;
+    uint8_t buffer[ 10 ] = { 0 };
 
     xStreamBufferGenericCreateStatic_IgnoreAndReturn( NULL );
-    ret = IotBleMqttTransportInit( &context );
+    ret = IotBleMqttTransportInit( buffer, 10, &context );
 
     TEST_ASSERT_FALSE( ret );
 }
@@ -1410,7 +1410,7 @@ void test_IotBleMqttTransportReceive( void )
 void test_IotBleMqttTransportCleanup( void )
 {
     vStreamBufferDelete_ExpectAnyArgs();
-    IotBleMqttTransportCleanup();
+    IotBleMqttTransportCleanup( &context );
 }
 /* ----- End Cleanup Test ----- */
 

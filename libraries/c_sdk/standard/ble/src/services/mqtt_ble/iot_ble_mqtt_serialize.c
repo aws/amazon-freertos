@@ -1198,7 +1198,7 @@ MQTTStatus_t IotBleMqtt_DeserializeUnsuback( MQTTPacketInfo_t * pUnsuback,
 
     IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
-    return MQTTSuccess;
+    return ret;
 }
 
 MQTTStatus_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
