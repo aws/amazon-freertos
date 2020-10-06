@@ -115,6 +115,7 @@ afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(SUPPORTED_IDE "CMakeBuildSystem;ModusToolbox")
 afr_set_board_metadata(RECOMMENDED_IDE "CMakeBuildSystem")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 # settings for CmakeBuildSystem as IDE
 afr_set_board_metadata(IDE_CMakeBuildSystem_NAME "CMakeBuildSystem")
 afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "GCC")
