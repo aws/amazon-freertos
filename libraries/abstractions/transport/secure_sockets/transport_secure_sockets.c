@@ -84,6 +84,18 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          size_t hostnameLength );
 
 
+/**
+ * @brief Connect to Server with tcpSocket.
+ *
+ * @param[in] tcpSocket The socket to establish connect.
+ * @param[in] pServerInfo Server connection info.
+ *
+ * @return #TRANSPORT_SOCKET_STATUS_SUCCESS on success;
+ *         #TRANSPORT_SOCKET_STATUS_DNS_FAILURE, #TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE on failure.
+ */
+static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
+                                                const ServerInfo_t * pServerInfo );
+
 /*-----------------------------------------------------------*/
 
 int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
@@ -100,14 +112,14 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                     pMessage, bytesToSend, pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == NULL ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be NULL." ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
     {
-        bytesSent = SOCKETS_Send( ( Socket_t ) pNetworkContext->pContext,
+        bytesSent = SOCKETS_Send( pNetworkContext->tcpSocket,
                                   pMessage,
                                   bytesToSend,
                                   0 );
@@ -150,14 +162,14 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                     pBuffer, bytesToRecv, pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->tcpSocket == NULL ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->tcpSocket cannot be NULL." ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
     {
-        bytesReceived = SOCKETS_Recv( ( Socket_t ) pNetworkContext->pContext,
+        bytesReceived = SOCKETS_Recv( pNetworkContext->tcpSocket,
                                       pRecvBuffer,
                                       bytesToRecv,
                                       0 );
@@ -273,6 +285,43 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
 /*-----------------------------------------------------------*/
 
+static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
+                                                const ServerInfo_t * pServerInfo )
+{
+    TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
+    int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
+    SocketsSockaddr_t serverAddress = { 0 };
+
+    /* Establish connection. */
+    serverAddress.ucSocketDomain = SOCKETS_AF_INET;
+    serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
+    serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
+
+    /* Check for errors from DNS lookup. */
+    if( serverAddress.ulAddress == ( uint32_t ) 0 )
+    {
+        LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.", pServerInfo->pHostName ) );
+        returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
+    }
+
+    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
+    {
+        secureSocketStatus = SOCKETS_Connect( tcpSocket,
+                                              &serverAddress,
+                                              sizeof( SocketsSockaddr_t ) );
+
+        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
+        {
+            LogError( ( "Failed to establish new connection. secureSocketStatus=%d.", secureSocketStatus ) );
+            returnStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
+        }
+    }
+
+    return returnStatus;
+}
+
+/*-----------------------------------------------------------*/
+
 static int32_t transportTimeoutSetup( Socket_t tcpSocket,
                                       uint32_t sendTimeoutMs,
                                       uint32_t recvTimeoutMs )
@@ -340,7 +389,6 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     Socket_t tcpSocket = ( Socket_t ) SOCKETS_INVALID_SOCKET;
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
-    SocketsSockaddr_t serverAddress = { 0 };
     size_t hostnameLength = 0U;
 
     configASSERT( pNetworkContext != NULL );
@@ -387,30 +435,9 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
-        /* Establish connection. */
-        serverAddress.ucSocketDomain = SOCKETS_AF_INET;
-        serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
-        serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
-
-        /* Check for errors from DNS lookup. */
-        if( serverAddress.ulAddress == ( uint32_t ) 0 )
-        {
-            LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.", pServerInfo->pHostName ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
-        }
-    }
-
-    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
-    {
-        secureSocketStatus = SOCKETS_Connect( tcpSocket,
-                                              &serverAddress,
-                                              sizeof( SocketsSockaddr_t ) );
-
-        if( secureSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
-        {
-            LogError( ( "Failed to establish new connection. secureSocketStatus=%d.", secureSocketStatus ) );
-            returnStatus = TRANSPORT_SOCKET_STATUS_CONNECT_FAILURE;
-        }
+        /* Establish the TCP connection. */
+        returnStatus = connectToServer( tcpSocket,
+                                        pServerInfo );
     }
 
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
@@ -428,7 +455,7 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
     {
         /* Set the socket in the network context. */
-        pNetworkContext->pContext = tcpSocket;
+        pNetworkContext->tcpSocket = tcpSocket;
     }
     else
     {
@@ -489,7 +516,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
     if( pNetworkContext != NULL )
     {
         /* Call Secure Sockets shutdown function to close connection. */
-        transportSocketStatus = SOCKETS_Shutdown( ( Socket_t ) pNetworkContext->pContext, SOCKETS_SHUT_RDWR );
+        transportSocketStatus = SOCKETS_Shutdown( pNetworkContext->tcpSocket, SOCKETS_SHUT_RDWR );
 
         if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
         {
@@ -499,7 +526,7 @@ TransportSocketStatus_t SecureSocketsTransport_Disconnect( const NetworkContext_
         else
         {
             /* Call Secure Sockets close function to close socket. */
-            transportSocketStatus = SOCKETS_Close( ( Socket_t ) pNetworkContext->pContext );
+            transportSocketStatus = SOCKETS_Close( pNetworkContext->tcpSocket );
 
             if( transportSocketStatus != ( int32_t ) SOCKETS_ERROR_NONE )
             {

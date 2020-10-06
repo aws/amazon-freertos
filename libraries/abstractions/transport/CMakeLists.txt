@@ -1,3 +1,8 @@
+if(AFR_ENABLE_UNIT_TESTS)
+    add_subdirectory(utest)
+    return()
+endif()
+
 # Transport Interface 
 afr_module(NAME transport_interface_secure_sockets)
 
