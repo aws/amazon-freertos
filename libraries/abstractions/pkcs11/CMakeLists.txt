@@ -1,14 +1,66 @@
-if(AFR_ENABLE_UNIT_TESTS)
-    add_subdirectory(utest)
-    return()
-endif()
+######################################################
+# PKCS #11 Utils Module
+######################################################
+
+afr_module(NAME pkcs11_utils)
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
+
+afr_module_sources(
+    pkcs11_utils
+    PRIVATE
+        "${src_dir}/iot_pki_utils.c"
+        "${inc_dir}/iot_pki_utils.h"
+)
+
+afr_module_include_dirs(
+    pkcs11_utils
+    PUBLIC "${inc_dir}"
+)
+
+
+######################################################
+# PKCS #11 Wrapper Module
+######################################################
+afr_module(NAME pkcs11 )
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
+
+afr_module_sources(
+    pkcs11
+    PRIVATE
+        "${inc_dir}/iot_pkcs11.h"
+        "${src_dir}/iot_pkcs11.c"
+)
+
+afr_module_include_dirs(
+    pkcs11
+    PUBLIC 
+        "${inc_dir}"
+)
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        AFR::pkcs11_implementation
+    PUBLIC
+        3rdparty::pkcs11
+        AFR::common
+)
+######################################################
+
+######################################################
+# PKCS #11 Implementation Module
+######################################################
 afr_module(NAME pkcs11_implementation)
 
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
+    pkcs11_implementation
     PUBLIC "${inc_dir}"
     # Requires standard/common/include/private/aws_default_root_certificates.h
     PRIVATE "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
@@ -17,16 +69,14 @@ afr_module_include_dirs(
 )
 
 afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
+    pkcs11_implementation
     PUBLIC
         3rdparty::pkcs11 
-        AFR::pkcs11
-        AFR::common
     PRIVATE
-        AFR::${AFR_CURRENT_MODULE}::mcu_port
-	    AFR::utils
+        AFR::pkcs11_implementation::mcu_port
+        AFR::pkcs11_utils
+        AFR::pkcs11
 )
-
 
 if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
@@ -75,7 +125,6 @@ if(ECC608_IN_USE)
         INTERFACE
             AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
     )
 elseif(AFR_PKCS11_PSA)
     afr_module(NAME pkcs11_psa INTERFACE)
@@ -100,31 +149,28 @@ elseif(AFR_PKCS11_PSA)
     afr_module_dependencies(
         pkcs11_psa
         INTERFACE
-            AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
+            AFR::crypto
             3rdparty::mbedtls
     )
 else()
     afr_module(NAME pkcs11_mbedtls INTERFACE)
-    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/mbedtls")
+    set(src_dir "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/portable/mbedtls")
 
     afr_module_sources(
         pkcs11_mbedtls 
         INTERFACE
             "${src_dir}/iot_pkcs11_mbedtls.c"
-            "${src_dir}/threading_alt.h"
+            "${src_dir}/include/threading_alt.h"
             "${inc_dir}/iot_pkcs11_pal.h"
     )
-
 
     afr_module_dependencies(
         pkcs11_mbedtls
         INTERFACE
-            AFR::crypto
             AFR::pkcs11_implementation
-            AFR::utils
             3rdparty::mbedtls
+            AFR::crypto
     )
 endif()
 
@@ -170,4 +216,5 @@ afr_module_dependencies(
     INTERFACE
         AFR::pkcs11
         AFR::crypto
+        AFR::pkcs11_utils
 )

@@ -168,6 +168,10 @@ typedef struct xSOCKET * Socket_t; /**< @brief Socket handle data type. */
 #define SOCKETS_SO_NONBLOCK                      ( 9 )  /**< Socket is nonblocking. */
 #define SOCKETS_SO_ALPN_PROTOCOLS                ( 10 ) /**< Application protocol list to be included in TLS ClientHello. */
 #define SOCKETS_SO_WAKEUP_CALLBACK               ( 17 ) /**< Set the callback to be called whenever there is data available on the socket for reading. */
+#define SOCKETS_SO_TCPKEEPALIVE                  ( 18 ) /**< Enable or Disable TCP keep-alive functionality. */
+#define SOCKETS_SO_TCPKEEPALIVE_INTERVAL         ( 19 ) /**< Set the time in seconds between individual TCP keep-alive probes. */
+#define SOCKETS_SO_TCPKEEPALIVE_COUNT            ( 20 ) /**< Set the maximum number of keep-alive probes TCP should send before dropping the connection. */
+#define SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME        ( 21 ) /**< Set the time in seconds for which the connection needs to remain idle before TCP starts sending keep-alive probes. */
 
 /**@} */
 
@@ -472,6 +476,20 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *      - The ALPN list is expressed as an array of NULL-terminated ANSI
  *        strings.
  *      - xOptionLength is the number of items in the array.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE
+ *      - Enable or disable the TCP keep-alive functionality.
+ *      - pvOptionValue is the value to enable or disable Keepalive.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_INTERVAL
+ *      - Set the time in seconds between individual TCP keep-alive probes.
+ *      - pvOptionValue is the time in seconds.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_COUNT
+ *      - Set the maximum number of keep-alive probes TCP should send before
+ *        dropping the connection.
+ *      - pvOptionValue is the maximum number of keep-alive probes.
+ *    - @ref SOCKETS_SO_TCPKEEPALIVE_IDLE_TIME
+ *      - Set the time in seconds for which the connection needs to remain idle
+ *        before TCP starts sending keep-alive probes.
+ *      - pvOptionValue is the time in seconds.
  *
  * @return
  * * On success, 0 is returned.

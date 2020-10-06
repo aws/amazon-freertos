@@ -41,6 +41,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "FreeRTOS_CLI_Console.h"
+#include "FreeRTOS_CLI_UART.h"
+
 /* Test includes */
 #include "aws_test_runner.h"
 #include "iot_system_init.h"
@@ -48,6 +51,7 @@
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_uart.h"
 
 /* The SPI driver polls at a high priority. The logging task's priority must also
  * be high to be not be starved of CPU time. */
@@ -63,7 +67,7 @@
 void vApplicationDaemonTaskStartupHook( void );
 
 /* Defined in es_wifi_io.c. */
-extern void SPI_WIFI_ISR(void);
+extern void SPI_WIFI_ISR( void );
 extern SPI_HandleTypeDef hspi;
 
 /**********************
@@ -73,7 +77,7 @@ RTC_HandleTypeDef xHrtc;
 RNG_HandleTypeDef xHrng;
 
 /* Private variables ---------------------------------------------------------*/
-static UART_HandleTypeDef xConsoleUart;
+IotUARTHandle_t xConsoleUart;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -167,7 +171,7 @@ void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4];
+    uint8_t ucTempIp[ 4 ];
 
     /* Initialize Network params. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -184,12 +188,12 @@ void prvWifiConnect( void )
         configPRINTF( ( "WiFi Connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }
-
     }
     else
     {
@@ -252,24 +256,6 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
      * Note that, as the array is necessarily of type StackType_t,
      * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
     *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Publishes a character to the STM32L475 UART
- *
- * This is used to implement the tinyprintf created by Spare Time Labs
- * http://www.sparetimelabs.com/tinyprintf/tinyprintf.php
- *
- * @param pv    unused void pointer for compliance with tinyprintf
- * @param ch    character to be printed
- */
-void vSTM32L475putc( void * pv,
-                     char ch )
-{
-    while( HAL_OK != HAL_UART_Transmit( &xConsoleUart, ( uint8_t * ) &ch, 1, 30000 ) )
-    {
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -379,17 +365,27 @@ static void SystemClock_Config( void )
  */
 static void Console_UART_Init( void )
 {
-    xConsoleUart.Instance = USART1;
-    xConsoleUart.Init.BaudRate = 115200;
-    xConsoleUart.Init.WordLength = UART_WORDLENGTH_8B;
-    xConsoleUart.Init.StopBits = UART_STOPBITS_1;
-    xConsoleUart.Init.Parity = UART_PARITY_NONE;
-    xConsoleUart.Init.Mode = UART_MODE_TX_RX;
-    xConsoleUart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    xConsoleUart.Init.OverSampling = UART_OVERSAMPLING_16;
-    xConsoleUart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    xConsoleUart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    BSP_COM_Init( COM1, &xConsoleUart );
+    int32_t status = IOT_UART_SUCCESS;
+
+    /* Default setting:
+     * Mode: UART_MODE_TX_RX;
+     * OverSampling: UART_OVERSAMPLING_16;
+     * OneBitSampling: UART_ONE_BIT_SAMPLE_DISABLE;
+     * AdvancedInit.AdvFeatureInit: UART_ADVFEATURE_NO_INIT; */
+    xConsoleUart = iot_uart_open( 0 );
+    configASSERT( xConsoleUart != NULL );
+
+    IotUARTConfig_t xConfig =
+    {
+        .ulBaudrate    = 115200,
+        .xParity      = UART_PARITY_NONE,
+        .ucWordlength  = UART_WORDLENGTH_8B,
+        .xStopbits    = UART_STOPBITS_1,
+        .ucFlowControl = UART_HWCONTROL_NONE
+    };
+
+    status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
 }
 /*-----------------------------------------------------------*/
 
@@ -488,7 +484,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ; );
+    for( ; ; )
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -528,12 +526,8 @@ void vOutputChar( const char cChar,
 
 void vMainUARTPrintString( char * pcString )
 {
-    const uint32_t ulTimeout = 3000UL;
-
-    HAL_UART_Transmit( &xConsoleUart,
-                       ( uint8_t * ) pcString,
-                       strlen( pcString ),
-                       ulTimeout );
+    /* Ignore returned status. */
+    iot_uart_write_sync( xConsoleUart, ( uint8_t * ) pcString, strlen( pcString ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -616,7 +610,7 @@ int iMainRand32( void )
 static void prvInitializeHeap( void )
 {
     static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
-    static uint8_t ucHeap2[ 10 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
+    static uint8_t ucHeap2[ 12 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
 
     HeapRegion_t xHeapRegions[] =
     {
@@ -640,16 +634,12 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
     {
         /* Pin number 1 is connected to Inventek Module Cmd-Data
          * ready pin. */
-        case( GPIO_PIN_1 ):
-        {
+        case ( GPIO_PIN_1 ):
             SPI_WIFI_ISR();
             break;
-        }
 
         default:
-        {
             break;
-        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -675,7 +665,7 @@ void SPI3_IRQHandler( void )
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef * htim )
 {
     if( htim->Instance == TIM6 )
     {

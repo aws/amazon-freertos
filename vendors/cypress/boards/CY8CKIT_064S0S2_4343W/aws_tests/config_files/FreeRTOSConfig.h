@@ -232,4 +232,11 @@ standard names. */
 #define xPortPendSVHandler PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
 
+
+/* The size of the output buffer is set to maximum length required by the tests,
+ * which is the length enough to accomodate largest error string written to
+ * console from CLI.
+ */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE    120
+
 #endif /* FREERTOS_CONFIG_H */

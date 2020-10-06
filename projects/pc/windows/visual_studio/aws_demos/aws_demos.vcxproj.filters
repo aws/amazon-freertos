@@ -45,18 +45,19 @@
 		<Filter Include="libraries\freertos_plus\standard\crypto\src"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\include"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11"/>
-		<Filter Include="libraries\freertos_plus\standard\pkcs11\src"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11"/>
+		<Filter Include="libraries\abstractions\pkcs11"/>
 		<Filter Include="vendors\pc\boards\windows\ports\pkcs11"/>
 		<Filter Include="vendors\pc\boards\windows\ports"/>
 		<Filter Include="vendors\pc\boards\windows"/>
 		<Filter Include="vendors\pc\boards"/>
 		<Filter Include="vendors\pc"/>
 		<Filter Include="vendors"/>
-		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
-		<Filter Include="libraries\abstractions\pkcs11"/>
-		<Filter Include="libraries\abstractions\pkcs11\include"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable"/>
+		<Filter Include="libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -101,6 +102,12 @@
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\include"/>
+		<Filter Include="libraries\abstractions\retry_utils\freertos"/>
+		<Filter Include="libraries\abstractions\retry_utils"/>
+		<Filter Include="libraries\abstractions\transport\secure_sockets"/>
+		<Filter Include="libraries\abstractions\transport"/>
+		<Filter Include="libraries\coreMQTT\source"/>
+		<Filter Include="libraries\coreMQTT"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
@@ -216,6 +223,12 @@
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
 			<Filter>libraries\c_sdk\standard\common\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_levels.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\logging_stack.h">
+			<Filter>libraries\c_sdk\standard\common\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
 			<Filter>libraries\c_sdk\standard\common\include\private</Filter>
 		</ClInclude>
@@ -318,19 +331,19 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
 			<Filter>libraries\freertos_plus\standard\crypto\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
-			<Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11.h">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
-			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include\threading_alt.h">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\include</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
-			<Filter>libraries\abstractions\pkcs11\include</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\include\iot_pki_utils.h">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
-			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
-		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
@@ -818,19 +831,19 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
 			<Filter>libraries\freertos_plus\standard\crypto\src</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
-			<Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pkcs11.c">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\iot_pkcs11_pal.c">
 			<Filter>vendors\pc\boards\windows\ports\pkcs11</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
-			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls\iot_pkcs11_mbedtls.c">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source\portable\mbedtls</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\corePKCS11\source\iot_pki_utils.c">
+			<Filter>libraries\abstractions\pkcs11\corePKCS11\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c">
-			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
-		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
 			<Filter>libraries\freertos_plus\standard\utils\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
@@ -973,6 +986,21 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\retry_utils\freertos\retry_utils_freertos.c">
+			<Filter>libraries\abstractions\retry_utils\freertos</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\abstractions\transport\secure_sockets\transport_secure_sockets.c">
+			<Filter>libraries\abstractions\transport\secure_sockets</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt.c">
+			<Filter>libraries\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_state.c">
+			<Filter>libraries\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
+			<Filter>libraries\coreMQTT\source</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>

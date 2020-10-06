@@ -71,6 +71,7 @@
 #define configGENERATE_RUN_TIME_STATS                0
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION    1
 #define configRECORD_STACK_HIGH_ADDRESS              1
+#define configUSE_STATS_FORMATTING_FUNCTIONS         1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
@@ -146,6 +147,15 @@ void vLoggingPrintf( const char * pcFormat,
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
+
+/* The size of the global output buffer that is available for use when there
+   *  are multiple command interpreters running at once (for example, one on a UART
+   *  and one on TCP/IP).  This is done to prevent an output buffer being defined by
+   *  each implementation - which would waste RAM.  In this case, there is only one
+   *  command interpreter running, and it has its own local output buffer, so the
+   *  global buffer is just set to be one byte long as it is not used and should not
+   *  take up unnecessary RAM. */
+#define configCOMMAND_INT_MAX_OUTPUT_SIZE           1
 
 /* Pseudo random number generator, just used by demos so does not have to be
  * secure.  Do not use the standard C library rand() function as it can cause

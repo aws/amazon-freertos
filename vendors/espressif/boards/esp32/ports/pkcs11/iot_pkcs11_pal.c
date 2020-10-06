@@ -163,6 +163,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
 
 CK_RV PKCS11_PAL_Initialize( void )
 {
+    CRYPTO_Init();
     return CKR_OK;
 }
 

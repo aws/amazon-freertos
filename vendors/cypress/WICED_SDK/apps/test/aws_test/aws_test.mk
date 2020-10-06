@@ -72,10 +72,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_THIRDPARTY_PATH)tinycbor/src \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
-                    $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/corePKCS11/source/portable/mbedtls/include  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \

@@ -49,6 +49,7 @@
 
 /* Amazon FreeRTOS Includes. */
 #include "iot_pkcs11.h"
+#include "iot_crypto.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
 #include "mbedtls/sha256.h"
@@ -187,6 +188,7 @@ CK_RV PKCS11_PAL_Initialize( CK_VOID_PTR pvInitArgs )
 {
     CK_RV xResult = CKR_OK;
 
+    CRYPTO_Init();
     R_FLASH_Open();
 
 #if defined (BSP_MCU_RX63N) || (BSP_MCU_RX631) || (BSP_MCU_RX630)

@@ -100,9 +100,10 @@ int32_t SecureSocketsTransport_Send( const NetworkContext_t * pNetworkContext,
                     pMessage, bytesToSend, pNetworkContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == SOCKETS_INVALID_SOCKET ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pContext is invalid. Socket=%d",
+                    pNetworkContext->pContext ) );
         bytesSent = SOCKETS_EINVAL;
     }
     else
@@ -150,9 +151,10 @@ int32_t SecureSocketsTransport_Recv( const NetworkContext_t * pNetworkContext,
                     pBuffer, bytesToRecv, pNetworkContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
-    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == NULL ) )
+    else if( ( pNetworkContext != NULL ) && ( pNetworkContext->pContext == SOCKETS_INVALID_SOCKET ) )
     {
-        LogError( ( "Invalid parameter: pNetworkContext->pContext cannot be NULL." ) );
+        LogError( ( "Invalid parameter: pNetworkContext->pContext is invalid. Socket=%d",
+                    pNetworkContext->pContext ) );
         bytesReceived = SOCKETS_EINVAL;
     }
     else
@@ -199,6 +201,10 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
                          size_t hostnameLength )
 {
     int32_t secureSocketStatus = SOCKETS_ERROR_NONE;
+
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
+    configASSERT( pSocketsConfig != NULL );
+    configASSERT( pHostName != NULL );
 
     /* ALPN options for AWS IoT. */
     /* ppcALPNProtos is unused. putting here to align behavior in IotNetworkAfr_Create. */
@@ -276,10 +282,7 @@ static int32_t transportTimeoutSetup( Socket_t tcpSocket,
     TickType_t receiveTimeout = 0, sendTimeout = 0;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
 
-    if( tcpSocket == NULL )
-    {
-        secureSocketStatus = SOCKETS_EINVAL;
-    }
+    configASSERT( tcpSocket != SOCKETS_INVALID_SOCKET );
 
     if( secureSocketStatus == SOCKETS_ERROR_NONE )
     {
@@ -340,7 +343,13 @@ static TransportSocketStatus_t establishConnect( NetworkContext_t * pNetworkCont
     TransportSocketStatus_t returnStatus = TRANSPORT_SOCKET_STATUS_SUCCESS;
     int32_t secureSocketStatus = ( int32_t ) SOCKETS_ERROR_NONE;
     SocketsSockaddr_t serverAddress = { 0 };
-    const size_t hostnameLength = pServerInfo->hostNameLength;
+    size_t hostnameLength = 0U;
+
+    configASSERT( pNetworkContext != NULL );
+    configASSERT( pServerInfo != NULL );
+    configASSERT( pSocketsConfig != NULL );
+
+    hostnameLength = pServerInfo->hostNameLength;
 
     if( ( hostnameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH ) )
     {

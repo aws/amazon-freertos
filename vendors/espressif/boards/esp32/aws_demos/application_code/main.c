@@ -62,6 +62,8 @@
 
 #include "iot_network_manager_private.h"
 
+#include "iot_uart.h"
+
 #if BLE_ENABLED
     #include "bt_hal_manager_adapter_ble.h"
     #include "bt_hal_manager.h"
@@ -78,7 +80,6 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define mainDEVICE_NICK_NAME                "Espressif_Demo"
 
-QueueHandle_t spp_uart_queue = NULL;
 
 /* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
  * are use are below. If you are using an Ethernet connection on your MCU device it is
@@ -95,9 +96,30 @@ static void prvMiscInitialization( void );
     static esp_err_t prvBLEStackInit( void );
     /** Helper function to teardown BLE stack. **/
     esp_err_t xBLEStackTeardown( void );
-    static void spp_uart_init( void );
 #endif
 
+IotUARTHandle_t xConsoleUart;
+
+
+static void iot_uart_init( void )
+{
+    IotUARTConfig_t xUartConfig;
+    int32_t status = IOT_UART_SUCCESS;
+    
+    xConsoleUart = iot_uart_open( UART_NUM_0 );
+    configASSERT( xConsoleUart );
+    
+    status = iot_uart_ioctl( xConsoleUart, eUartGetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+    
+    xUartConfig.ulBaudrate = 115200;
+    xUartConfig.xParity = eUartParityNone;
+    xUartConfig.xStopbits = eUartStopBitsOne;
+    xUartConfig.ucFlowControl = true;
+
+    status = iot_uart_ioctl( xConsoleUart, eUartSetConfig, &xUartConfig );
+    configASSERT( status == IOT_UART_SUCCESS );
+}
 /*-----------------------------------------------------------*/
 
 /**
@@ -149,6 +171,7 @@ int app_main( void )
 extern void vApplicationIPInit( void );
 static void prvMiscInitialization( void )
 {
+    int32_t uartRet;
     /* Initialize NVS */
     esp_err_t ret = nvs_flash_init();
 
@@ -160,9 +183,10 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 
+    iot_uart_init();
+
     #if BLE_ENABLED
         NumericComparisonInit();
-        spp_uart_init();
     #endif
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
@@ -250,63 +274,58 @@ static void prvMiscInitialization( void )
 
 /*-----------------------------------------------------------*/
 
+
 #if BLE_ENABLED
-    static void spp_uart_init( void )
-    {
-        uart_config_t uart_config =
-        {
-            .baud_rate           = 115200,
-            .data_bits           = UART_DATA_8_BITS,
-            .parity              = UART_PARITY_DISABLE,
-            .stop_bits           = UART_STOP_BITS_1,
-            .flow_ctrl           = UART_HW_FLOWCTRL_RTS,
-            .rx_flow_ctrl_thresh = 122,
-        };
-
-        /* Set UART parameters */
-        uart_param_config( UART_NUM_0, &uart_config );
-        /*Set UART pins */
-        uart_set_pin( UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE );
-        /*Install UART driver, and get the queue. */
-        uart_driver_install( UART_NUM_0, 4096, 8192, 10, &spp_uart_queue, 0 );
-    }
-
 /*-----------------------------------------------------------*/
 
+    static void prvUartCallback( IotUARTOperationStatus_t xStatus,
+                                      void * pvUserContext )
+    {
+        SemaphoreHandle_t xUartSem = ( SemaphoreHandle_t ) pvUserContext;
+        configASSERT( xUartSem != NULL );
+        xSemaphoreGive( xUartSem );
+    }
+
+  
     BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
                                TickType_t xAuthTimeout )
     {
-        uart_event_t xEvent;
         BaseType_t xReturnMessage = pdFALSE;
+        SemaphoreHandle_t xUartSem;
+        int32_t status, bytesRead = 0;
+        uint8_t *pucResponse;
 
-        if( xQueueReceive( spp_uart_queue, ( void * ) &xEvent, ( portTickType ) xAuthTimeout ) )
+        xUartSem = xSemaphoreCreateBinary();
+
+        
+        /* BLE Numeric comparison response is one character (y/n). */
+        pucResponse = ( uint8_t * ) pvPortMalloc( sizeof( uint8_t ) );
+
+        if( ( xUartSem != NULL ) && ( pucResponse != NULL ) )
         {
-            switch( xEvent.type )
+            iot_uart_set_callback( xConsoleUart, prvUartCallback, xUartSem );
+
+            status = iot_uart_read_async( xConsoleUart, pucResponse, 1 );
+
+            /* Wait for  auth timeout to get the input character. */
+            xSemaphoreTake( xUartSem, xAuthTimeout );
+
+            /* Cancel the uart operation if the character is received or timeout occured. */
+            iot_uart_cancel( xConsoleUart );
+
+            /* Reset the callback. */
+            iot_uart_set_callback( xConsoleUart, NULL, NULL );
+
+            iot_uart_ioctl( xConsoleUart, eGetRxNoOfbytes, &bytesRead );
+
+            if( bytesRead == 1 )
             {
-                /*Event of UART receiving data */
-                case UART_DATA:
-
-                    if( xEvent.size )
-                    {
-                        pxINPUTmessage->pcData = ( uint8_t * ) malloc( sizeof( uint8_t ) * xEvent.size );
-
-                        if( pxINPUTmessage->pcData != NULL )
-                        {
-                            memset( pxINPUTmessage->pcData, 0x0, xEvent.size );
-                            uart_read_bytes( UART_NUM_0, ( uint8_t * ) pxINPUTmessage->pcData, xEvent.size, portMAX_DELAY );
-                            xReturnMessage = pdTRUE;
-                        }
-                        else
-                        {
-                            configPRINTF( ( "Malloc failed in main.c\n" ) );
-                        }
-                    }
-
-                    break;
-
-                default:
-                    break;
+                pxINPUTmessage->pcData = pucResponse;
+                pxINPUTmessage->xDataSize = 1;
+                xReturnMessage = pdTRUE;
             }
+
+            vSemaphoreDelete( xUartSem );
         }
 
         return xReturnMessage;

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.887144602">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.887144602" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -61,10 +60,9 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/pkcs11/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/corePKCS11/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/dev_mode_key_provisioning/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/common_io/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
@@ -73,15 +71,20 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/https/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/retry_utils"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreMQTT/source/portable"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/transport/secure_sockets"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreMQTT/source/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_utils"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls_config"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_cli/include&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1779062689" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;"/>

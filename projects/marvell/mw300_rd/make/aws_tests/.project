@@ -561,7 +561,7 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/CMakeLists.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1476,19 +1476,19 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/aws_test_ble_hal.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/aws_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/aws_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<name>libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/corePKCS11/source/portable/mbedtls/include/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</name>

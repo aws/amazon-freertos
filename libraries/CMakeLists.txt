@@ -2,9 +2,6 @@
 
 if (AFR_ENABLE_UNIT_TESTS)
     add_subdirectory(abstractions/secure_sockets)
-    add_subdirectory(freertos_plus/standard/pkcs11/)
-    add_subdirectory(freertos_plus/standard/utils/)
-    add_subdirectory(abstractions/pkcs11/)
     add_subdirectory(c_sdk/standard/ble)
     return()
 endif()
@@ -58,3 +55,6 @@ foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_a
         afr_add_subdirectory("${module}")
     endif()
 endforeach()
+
+# Add core_mqtt modules
+include(core_mqtt_module.cmake)
