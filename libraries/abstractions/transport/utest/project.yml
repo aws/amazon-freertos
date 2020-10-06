@@ -50,4 +50,3 @@
     - "portableDefs.h"
     - "projdefs.h"
     - "task.h"
-    - "mocked-types.h"
