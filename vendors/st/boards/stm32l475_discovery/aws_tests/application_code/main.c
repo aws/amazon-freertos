@@ -616,7 +616,7 @@ int iMainRand32( void )
 static void prvInitializeHeap( void )
 {
     static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
-    static uint8_t ucHeap2[ 10 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
+    static uint8_t ucHeap2[ 12 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
 
     HeapRegion_t xHeapRegions[] =
     {
