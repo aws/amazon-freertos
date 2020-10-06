@@ -707,7 +707,7 @@ function(cy_kit_generate)
                 "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
                 "${AFR_ROOT_DIR}/demos/include"
                 "${AFR_ROOT_DIR}/demos/dev_mode_key_provisioning/include"
-                "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/pkcs11/include"
+                "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/corePKCS11/source/include"
                 "${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/src/mqtt"
                 "${AFR_3RDPARTY_DIR}/pkcs11"
             )

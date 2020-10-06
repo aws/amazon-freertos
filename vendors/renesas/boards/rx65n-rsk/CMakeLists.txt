@@ -22,7 +22,7 @@ afr_set_board_metadata(DESCRIPTION "The Renesas Starter Kit+ for RX65N-2MB conne
 afr_set_board_metadata(VENDOR_NAME "Renesas")
 afr_set_board_metadata(FAMILY_NAME "RX65N")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(CODE_SIGNER "null")
+afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
 afr_set_board_metadata(DATA_RAM_MEMORY "640KB")
 afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(SUPPORTED_IDE "E2Studio")
