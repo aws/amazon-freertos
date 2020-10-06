@@ -52,12 +52,12 @@
 #define MOC_SECURE_SOCKET_ERROR -1
 
 
-/* Parameters to pass to #Openssl_Send and #Openssl_Recv. */
+/* Parameters to pass to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
 #define BYTES_TO_SEND           4
 #define BYTES_TO_RECV           4
 #define SECURE_SOCKETS_READ_WRITE_ERROR    -1
 
-/* The size of the buffer passed to #Openssl_Send and #Openssl_Recv. */
+/* The size of the buffer passed to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
 #define BUFFER_LEN              4
 
 /**
@@ -70,7 +70,7 @@
  */
 #define TEST_TRANSPORT_RCV_TIMEOUT_MS            ( 5000U )
 
-/* Objects used by the OpenSSL transport implementation. */
+/* Objects used by the transport secure sockets implementation. */
 static ServerInfo_t serverInfo = {
     .pHostName = HOSTNAME,
     .hostNameLength = strlen( HOSTNAME ),
@@ -120,8 +120,7 @@ int suiteTearDown( int numFailures )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail on NULL parameters and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 {
@@ -169,17 +168,12 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail on create socket and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    /* Fail Sockets_Connect(...) */
-
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_INVALID_SOCKET );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
@@ -191,18 +185,13 @@ void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set requires TLS and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void )
 {
     TransportSocketStatus_t returnStatus;
 
-    /* Fail Sockets_Connect(...) */
-
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -215,9 +204,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set AlpnProtos and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 {
@@ -232,10 +220,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
         .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
         .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
-    /* Fail Sockets_Connect(...) */
 
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
@@ -248,9 +233,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set SNI and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 {
@@ -265,10 +249,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
         .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
         .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
-    /* Fail Sockets_Connect(...) */
 
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
@@ -281,9 +262,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set RootCA and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 {
@@ -298,10 +278,7 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
         .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
         .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
-    /* Fail Sockets_Connect(...) */
 
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
@@ -314,9 +291,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to resolve host name and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 {
@@ -342,9 +318,8 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter network error and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 {
@@ -371,9 +346,8 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set receive timeout and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 {
@@ -402,9 +376,8 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set send timeout and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 {
@@ -433,7 +406,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case in which the TLS connection is established.
+ * @brief Test the happy path case to connect to server without TLS.
  */
 void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
 {
@@ -459,8 +432,10 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, returnStatus );
 }
 
+/*-----------------------------------------------------------*/
+
 /**
- * @brief Test the happy path case in which the TLS connection is established.
+ * @brief Test the happy path case to connect to server without TLS and set send/receive timeout with zero value.
  */
 void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
 {
@@ -489,7 +464,7 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case in which the TLS connection is established.
+ * @brief Test the happy path case to connect to server with TLS.
  */
 void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 {
@@ -521,9 +496,8 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 
 /*-----------------------------------------------------------*/
 
-/*
- * @brief Test that #Openssl_Connect is able to fail on NULL parameters and forward
- * the right status from Sockets_Connect.
+/**
+ * @brief Test the happy path case to connect to server with TLS but RootCa and ALPN, SNI are not set.
  */
 void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
 {
@@ -538,10 +512,7 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
         .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
         .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
-    /* Fail Sockets_Connect(...) */
 
-    /* NULL serverInfo is handled by Sockets_Connect, so we appropriately
-     * return SOCKETS_INVALID_PARAMETER. */
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
@@ -557,8 +528,7 @@ void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Disconnect is able to return
- * #OPENSSL_INVALID_PARAMETER when #NetworkContext_t is NULL.
+ * @brief Test #SecureSocketsTransport_Disconnect with invalid parameters.
  */
 void test_SecureSocketsTransport_Disconnect_NULL_Network_Context( void )
 {
@@ -571,8 +541,7 @@ void test_SecureSocketsTransport_Disconnect_NULL_Network_Context( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Disconnect is able to return
- * #OPENSSL_INVALID_PARAMETER when #NetworkContext_t is NULL.
+ * @brief Test the #SecureSocketsTransport_Disconnect and encounterd #SOCKETS_Shutdown failure.
  */
 void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 {
@@ -586,8 +555,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Disconnect is able to return
- * #OPENSSL_INVALID_PARAMETER when #NetworkContext_t is NULL.
+ * @brief Test #SecureSocketsTransport_Disconnect and encounterd #SOCKETS_Close failure.
  */
 void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
 {
@@ -602,8 +570,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Disconnect is able to return
- * #OPENSSL_INVALID_PARAMETER when #NetworkContext_t is NULL.
+ * @brief Happy path #SecureSocketsTransport_Disconnect.
  */
 void test_SecureSocketsTransport_Disconnect_Sucess( void )
 {
@@ -618,7 +585,7 @@ void test_SecureSocketsTransport_Disconnect_Sucess( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Send is able to return that 0 bytes are sent over
+ * @brief Test that #SecureSocketsTransport_Send is able to return that 0 bytes are sent over
  * the network stack when passing any invalid parameters.
  */
 void test_SecureSocketsTransport_Send_Send_Invalid_Params( void )
@@ -643,7 +610,7 @@ void test_SecureSocketsTransport_Send_Send_Invalid_Params( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Send returns an error when #SSL_write fails to send
+ * @brief Test that #SecureSocketsTransport_Send returns an error when #SOCKETS_Send fails to send
  * data over the network stack.
  */
 void test_SecureSocketsTransport_Send_Network_Error( void )
@@ -660,7 +627,7 @@ void test_SecureSocketsTransport_Send_Network_Error( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #Openssl_Send is able to send all bytes
+ * @brief Test the happy path case when #SecureSocketsTransport_Send is able to send all bytes
  * over the network stack successfully.
  */
 void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
@@ -675,8 +642,7 @@ void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #Openssl_Send is able to send all bytes
- * over the network stack successfully.
+ * @brief Test the happy path case when #SecureSocketsTransport_Send but bytes lass then BYTES_TO_SEND.
  */
 void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
 {
@@ -691,7 +657,7 @@ void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Recv is able to return that 0 bytes are received
+ * @brief Test that #SecureSocketsTransport_Recv is able to return that 0 bytes are received
  * from the network stack when passing any invalid parameters.
  */
 void test_SecureSocketsTransport_Recv_Invalid_Params( void )
@@ -716,7 +682,7 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #Openssl_Recv is able to receive all
+ * @brief Test the happy path case when #SecureSocketsTransport_Recv is able to receive all
  * expected bytes over the network stack successfully.
  */
 void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
@@ -731,7 +697,7 @@ void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #Openssl_Recv returns an error when #SSL_read fails to
+ * @brief Test that #SecureSocketsTransport_Recv returns an error when #SOCKETS_Recv fails to
  * receive data over the network stack.
  */
 void test_SecureSocketsTransport_Recv_Network_Error( void )
@@ -757,8 +723,7 @@ void test_SecureSocketsTransport_Recv_Network_Error( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #Openssl_Recv is able to receive all
- * expected bytes over the network stack successfully.
+ * @brief Test the happy path case when #SecureSocketsTransport_Recv but received less than BYTES_TO_RECV.
  */
 void test_SecureSocketsTransport_Recv_Bytes_Received_Partially( void )
 {
