@@ -1554,6 +1554,9 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
 
     /* Make sure that a record was created for the incoming PUBLISH packet. */
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
+    context.incomingPublishRecords[ 0 ].packetId = MQTT_PACKET_ID_INVALID;
+
+    vTaskDelay( pdMS_TO_TICKS( 30 * 1000 ) );
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
