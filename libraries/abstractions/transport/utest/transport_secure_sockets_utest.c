@@ -168,7 +168,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail on create socket and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails on socket creation,
+ *  and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
 {
