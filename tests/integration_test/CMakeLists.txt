@@ -9,7 +9,7 @@ afr_module_sources(
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    INTERFACE 
+    INTERFACE
         AFR::core_mqtt
         AFR::transport_interface_secure_sockets
         AFR::common
@@ -19,7 +19,7 @@ afr_module_dependencies(
 
 #TCP test
 afr_module(
-	    freertos_plus_tcp
+	    NAME "freertos_plus_tcp"
 	    INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/../../libraries/freertos_plus/standard/freertos_plus_tcp")
