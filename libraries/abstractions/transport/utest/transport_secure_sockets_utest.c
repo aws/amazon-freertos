@@ -570,7 +570,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Happy path #SecureSocketsTransport_Disconnect.
+ * @brief A happy path #SecureSocketsTransport_Disconnect test.
  */
 void test_SecureSocketsTransport_Disconnect_Sucess( void )
 {
