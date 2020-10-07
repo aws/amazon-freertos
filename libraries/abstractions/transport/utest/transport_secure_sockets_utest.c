@@ -723,7 +723,8 @@ void test_SecureSocketsTransport_Recv_Network_Error( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #SecureSocketsTransport_Recv but received less than BYTES_TO_RECV.
+ * @brief Test the happy path case of when #SecureSocketsTransport_Recv received
+ * fewer bytes than BYTES_TO_RECV.
  */
 void test_SecureSocketsTransport_Recv_Bytes_Received_Partially( void )
 {
