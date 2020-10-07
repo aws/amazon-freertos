@@ -1143,9 +1143,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</locationURI>
 		</link>
 		<link>
-			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
+			<name>freertos_kernel/portable/MemMang/heap_5.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/portable/MemMang/heap_5.c</locationURI>
 		</link>
 		<link>
 			<name>tests/common/aws_test_framework.c</name>

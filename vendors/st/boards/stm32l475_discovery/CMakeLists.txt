@@ -54,6 +54,7 @@ set(
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
+    $<${AFR_IS_TESTING}:MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\">
 )
 
 set(common_flags "-mcpu=cortex-m4" "-mthumb" "-mfloat-abi=hard" "-mfpu=fpv4-sp-d16")
@@ -87,7 +88,7 @@ target_sources(
         ${driver_src}
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
-        "${AFR_KERNEL_DIR}/portable/MemMang/$<IF:${AFR_IS_TESTING},heap_4.c,heap_5.c>"
+        "${AFR_KERNEL_DIR}/portable/MemMang/heap_5.c"
 )
 set(
     kernel_inc_dirs

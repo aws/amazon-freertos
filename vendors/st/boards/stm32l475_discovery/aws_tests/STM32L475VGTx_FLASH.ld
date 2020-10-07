@@ -36,7 +36,7 @@ ENTRY(Reset_Handler)
 _estack = 0x20018000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x0000;     /* required amount of heap */  
-_Min_Stack_Size = 0x2000; /* required amount of stack */
+_Min_Stack_Size = 0x0800; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -150,6 +150,7 @@ SECTIONS
     _sdata = .;        /* create a global symbol at data start */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
+    *(.freertos_heap2)
 
     . = ALIGN(8);
     _edata = .;        /* define a global symbol at data end */
@@ -181,7 +182,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM2
+  } >RAM
 
   
 
