@@ -605,6 +605,7 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, 0 );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 
+    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 }
