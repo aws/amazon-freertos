@@ -1,4 +1,3 @@
-Wtcp/te
 #
 # Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  # Cypress Semiconductor Corporation. All Rights Reserved.
