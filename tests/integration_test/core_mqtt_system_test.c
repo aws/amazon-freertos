@@ -212,8 +212,8 @@
 #define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 5U )
 
 /**
- * @brief The number of milliseconds it takes before AWS IoT Core Message Broker
- * resends a PUBLISH that has not been acknowledged.
+ * @brief The number of milliseconds to wait for AWS IoT Core Message Broker
+ * to resend a PUBLISH that has not been acknowledged.
  */
 #define AWS_IOT_CORE_REPUBLISH_INTERVAL_MS    ( 30000U )
 
