@@ -1593,6 +1593,11 @@
 			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_keep_alive.c</locationURI>
 		</link>
 		<link>
+			<name>demos/coreMQTT/mqtt_demo_connection_sharing.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/coreMQTT/mqtt_demo_connection_sharing.c</locationURI>
+		</link>
+		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/defender/aws_iot_demo_defender.c</locationURI>
@@ -1766,6 +1771,11 @@
 			<name>config_files/iot_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/mqtt_demo_connection_sharing_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/mqtt_demo_connection_sharing_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mqtt_demo_keep_alive_config.h</name>
