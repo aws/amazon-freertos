@@ -55,10 +55,13 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
 
 /* Number of times to retry to join an AP before giving up. */
 #define mainWIFI_JOIN_AP_RETRIES            ( 2 )
+
+/* Heap 2 size for malloc. */
+#define HEAP2_SIZE                          ( 27 * 1024 + 400 )
 
 void vApplicationDaemonTaskStartupHook( void );
 
@@ -90,6 +93,15 @@ static void prvWifiConnect( void );
  * Initialization of clock, LEDs, RNG, RTC, and WIFI module.
  */
 static void prvMiscInitialization( void );
+
+/**
+ * @brief Initializes the FreeRTOS heap.
+ *
+ * Heap_5 is being used because the RAM is not contiguous, therefore the heap
+ * needs to be initialized.  See http://www.freertos.org/a00111.html
+ */
+static void prvInitializeHeap( void );
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Application runtime entry point.
@@ -296,6 +308,10 @@ static void prvMiscInitialization( void )
 
     /* Configure the system clock. */
     SystemClock_Config();
+
+    /* Heap_5 is being used because the RAM is not contiguous in memory, so the
+     * heap must be initialized. */
+    prvInitializeHeap();
 
     BSP_LED_Init( LED_GREEN );
     BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
@@ -619,6 +635,22 @@ int iMainRand32( void )
     uxlNextRand = ( ulMultiplier * uxlNextRand ) + ulIncrement;
 
     return( ( int ) ( uxlNextRand >> 16UL ) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
+static void prvInitializeHeap( void )
+{
+    static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
+    static uint8_t ucHeap2[ HEAP2_SIZE ] __attribute__( ( section( ".freertos_heap2" ) ) );
+
+    HeapRegion_t xHeapRegions[] =
+    {
+        { ( unsigned char * ) ucHeap2, sizeof( ucHeap2 ) },
+        { ( unsigned char * ) ucHeap1, sizeof( ucHeap1 ) },
+        { NULL, 0 }
+    };
+
+    vPortDefineHeapRegions( xHeapRegions );
 }
 /*-----------------------------------------------------------*/
 
