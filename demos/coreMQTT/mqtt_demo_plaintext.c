@@ -59,11 +59,14 @@
 /* Transport interface implementation include header for TLS. */
 #include "transport_secure_sockets.h"
 
+/* Client credential include for the default broker endpoint and port. */
+#include "aws_clientcredential.h"
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
-    #error "Define the config democonfigMQTT_BROKER_ENDPOINT by following the instructions in file mqtt_demo_plaintext_config.h."
+    #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
 /*-----------------------------------------------------------*/
@@ -76,14 +79,14 @@
  * same broker use the same client identifier.
  */
 #ifndef democonfigCLIENT_IDENTIFIER
-    #define democonfigCLIENT_IDENTIFIER    "testClient"__TIME__
+    #define democonfigCLIENT_IDENTIFIER    clientcredentialIOT_THING_NAME
 #endif
 
 /**
  * @brief The port to use for the demo.
  */
 #ifndef democonfigMQTT_BROKER_PORT
-    #define democonfigMQTT_BROKER_PORT    ( 1883 )
+    #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
 /**
