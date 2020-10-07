@@ -123,7 +123,7 @@ int suiteTearDown( int numFailures )
  */
 void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 {
-    TransportSocketStatus_t returnStatus, expectedStatus;
+    TransportSocketStatus_t returnStatus;
     TransportSocketStatus_t socketError;
 
     ServerInfo_t invalidServerInfo = { 0 };
