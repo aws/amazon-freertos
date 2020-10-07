@@ -85,7 +85,7 @@ static int32_t tlsSetup( const SocketsConfig_t * pSocketsConfig,
 
 
 /**
- * @brief Connect to Server with tcpSocket.
+Connect to the server specified in @p pServerInfo using @p tcpSocket.
  *
  * @param[in] tcpSocket The socket to establish connect.
  * @param[in] pServerInfo Server connection info.
