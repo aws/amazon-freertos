@@ -275,11 +275,11 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  * Limitations:
  *
  *   i.  The caller of SOCKETS_Bind() API should make sure the socket address has the correct local IP address for the interface.
- *   ii. The LWIP stack has ephemeral port range from 49152 to 65535, it is better avoid the source port in this range.
+ *   ii. The LWIP stack has ephemeral port range from 49152 to 65535, it is better to avoid the source port in this range.
  *
- *       NOTE: If the SOCKETS_Bind() API binds to a source port in ephemeral port range and calls SOCKETS_Bind() API
- *             but before SOCKETS_Connect() API is called then a conflict of source port arises that another TCP connection
- *             may pick the the same chosen port via API tcp_new_port() ( by scanning its internal TCP connection list )
+ *       NOTE: If the SOCKETS_Bind() API binds to a source port in ephemeral port range, and the caller calls SOCKETS_Bind() API
+ *             before SOCKETS_Connect() API, then a conflict of source port arises as another TCP connection
+ *             may pick the the same chosen port via tcp_new_port() API ( by scanning its internal TCP connection list )
  *
  *
  * @param[in] xSocket The handle of the socket to which specified address to be bound.

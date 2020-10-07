@@ -405,6 +405,7 @@ int32_t SOCKETS_Bind( Socket_t xSocket,
 
     if( pxAddress == NULL )
     {
+        configPRINTF( ( "TCP socket Invalid Address\n" ) );
         return SOCKETS_EINVAL;
     }
 
