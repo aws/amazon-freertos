@@ -119,7 +119,8 @@ int suiteTearDown( int numFailures )
 
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail on NULL parameters and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails with NULL parameters
+ * and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 {
