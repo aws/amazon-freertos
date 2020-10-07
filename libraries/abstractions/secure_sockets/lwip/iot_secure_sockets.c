@@ -411,6 +411,12 @@ int32_t SOCKETS_Bind( Socket_t xSocket,
 
     ctx = ( ss_ctx_t * ) xSocket;
 
+    if( NULL == ctx )
+    {
+        configPRINTF( ( "Invalid secure socket passed: Socket=%p\n", ctx ) );
+        return SOCKETS_EINVAL;
+    }
+
     if( 0 > ctx->ip_socket )
     {
         configPRINTF( ( "TCP socket Invalid index\n" ) );
