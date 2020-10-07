@@ -18,7 +18,9 @@ afr_module_dependencies(
 )
 
 #TCP test
-afr_module(INTERNAL)
+afr_module(
+	    freertos_plus_tcp
+	    INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/../../libraries/freertos_plus/standard/freertos_plus_tcp")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/../../libraries/freertos_plus/standard/freertos_plus_tcp/include")
