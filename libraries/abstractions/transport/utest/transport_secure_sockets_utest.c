@@ -556,7 +556,8 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test #SecureSocketsTransport_Disconnect and encounterd #SOCKETS_Close failure.
+ * @brief Test when #SecureSocketsTransport_Disconnect encounters a 
+ * #SOCKETS_Close failure.
  */
 void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
 {
