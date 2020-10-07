@@ -300,7 +300,9 @@ static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
     /* Check for errors from DNS lookup. */
     if( serverAddress.ulAddress == ( uint32_t ) 0 )
     {
-        LogError( ( "Failed to connect to server: DNS resolution failed: Server=%s.", pServerInfo->pHostName ) );
+        LogError( ( "Failed to connect to server: DNS resolution failed: Server=%.*s.",
+                    pServerInfo->hostNameLength,
+                    ( int ) ( pServerInfo->pHostName ) ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
     }
 
