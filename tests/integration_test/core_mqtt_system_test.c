@@ -1573,11 +1573,6 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
     {
         /* AWS IoT Core takes at least 30 seconds before resending a PUBLISH. */
         vTaskDelay( pdMS_TO_TICKS( AWS_IOT_CORE_REPUBLISH_INTERVAL_MS ) );
-
-        /* When the resent PUBLISH is received, the DUP flag will not be set to 1.
-         * Therefore, the packet ID of the original PUBLISH must be cleared from
-         * the incoming publish records array. */
-        context.incomingPublishRecords[ 0 ].packetId = MQTT_PACKET_ID_INVALID;
     }
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
