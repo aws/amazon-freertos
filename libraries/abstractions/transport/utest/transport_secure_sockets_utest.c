@@ -91,7 +91,7 @@ static SocketsConfig_t socketsConfig =
 };
 
 static uint8_t networkBuffer[ BUFFER_LEN ] = { 0 };
-static Socket_t mocTcpSocket = ( Socket_t ) MOCT_TCP_SOCKET;
+static Socket_t mockTcpSocket = ( Socket_t ) MOCT_TCP_SOCKET;
 static NetworkContext_t networkContext = { 0 };
 
 /* ============================   UNITY FIXTURES ============================ */
