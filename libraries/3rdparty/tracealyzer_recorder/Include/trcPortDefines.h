@@ -70,23 +70,6 @@
 #define TRC_RECORDER_BUFFER_ALLOCATION_DYNAMIC  (0x01)
 #define TRC_RECORDER_BUFFER_ALLOCATION_CUSTOM   (0x02)
 
-/* Default buffer size */
-#ifndef TRC_CFG_NSTREAMBUFFER
-    #define TRC_CFG_NSTREAMBUFFER 50
-#endif
-
-#ifndef TRC_CFG_NAME_LEN_MESSAGEBUFFER
-    #define TRC_CFG_NAME_LEN_MESSAGEBUFFER 15
-#endif
-
-#ifndef TRC_CFG_NAME_LEN_STREAMBUFFER
-    #define TRC_CFG_NAME_LEN_STREAMBUFFER 15
-#endif
-
-#ifndef TRC_CFG_NMESSAGEBUFFER
-    #define TRC_CFG_NMESSAGEBUFFER 5
-#endif
-
 /* Filter Groups */
 #define FilterGroup0 (uint16_t)0x0001
 #define FilterGroup1 (uint16_t)0x0002

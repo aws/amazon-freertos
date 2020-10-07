@@ -27,6 +27,18 @@
 
 # ================= Create the library under test here (edit) ==================
 
+# The single source of truth for the transport_interface.h is in the coreMQTT repository.
+# In the FreeRTOS Device Software download page in AWS IoT Core, it is possible
+# to choose coreHTTP instead of coreMQTT. In this case, it is necessary to check
+# for the existence of the file in the downloaded software package.
+if( EXISTS ${AFR_MODULES_DIR}/coreMQTT/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/coreMQTT/source/portable")
+elseif( EXISTS ${AFR_MODULES_DIR}/coreHTTP/source )
+    set(transport_interface_dir "${AFR_MODULES_DIR}/coreHTTP/source/portable")
+else()
+    message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
+endif()
+
 # list the files you would like to test here
     list(APPEND real_source_files
                 "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c"
@@ -34,7 +46,7 @@
 # list the directories the module under test includes
     list(APPEND real_include_directories
                 .
-                "${AFR_ROOT_DIR}/libraries/abstractions/transport/utest/include"
+                "${transport_interface_dir}"
                 "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
                 "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
                 "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
@@ -44,7 +56,7 @@
 
 # list the directories your test needs to include
     list(APPEND test_include_directories
-                "${AFR_ROOT_DIR}/libraries/abstractions/transport/utest/include"
+                "${transport_interface_dir}"
                 "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
                 "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
                 "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"

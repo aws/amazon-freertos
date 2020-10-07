@@ -25,6 +25,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include "unity.h"
 
 #include "mock_iot_secure_sockets.h"
@@ -35,60 +36,62 @@
 #include "iot_secure_sockets.h"
 
 /* The send and receive timeout to set for the socket. */
-#define SEND_RECV_TIMEOUT       0
+#define SEND_RECV_TIMEOUT          0
 
 /* The host and port from which to establish the connection. */
-#define HOSTNAME                "amazon.com"
-#define INVALID_HOSTNAME        "amazon.com9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
-#define PORT                    80
+#define HOSTNAME                   "amazon.com"
+#define INVALID_HOSTNAME           "amazon.com9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+#define PORT                       80
 
 /* Configuration parameters for the TLS connection. */
-#define MFLN                    42
-#define ALPN_PROTOS             "x-amzn-mqtt-ca"
+#define MFLN                       42
+#define ALPN_PROTOS                "x-amzn-mqtt-ca"
 
-#define MOCK_ROOT_CA            "mockRootCA"
-#define MOCK_SERVER_ADDRESS     100
-#define MOCT_TCP_SOCKET         100
-#define MOC_SECURE_SOCKET_ERROR -1
+#define MOCK_ROOT_CA               "mockRootCA"
+#define MOCK_SERVER_ADDRESS        100
+#define MOCT_TCP_SOCKET            100
+#define MOC_SECURE_SOCKET_ERROR    -1
 
 
 /* Parameters to pass to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
-#define BYTES_TO_SEND           4
-#define BYTES_TO_RECV           4
+#define BYTES_TO_SEND                      4
+#define BYTES_TO_RECV                      4
 #define SECURE_SOCKETS_READ_WRITE_ERROR    -1
 
 /* The size of the buffer passed to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
-#define BUFFER_LEN              4
+#define BUFFER_LEN                         4
 
 /**
  * @brief Transport timeout in milliseconds for transport send.
  */
-#define TEST_TRANSPORT_SND_TIMEOUT_MS            ( 5000U )
+#define TEST_TRANSPORT_SND_TIMEOUT_MS      ( 5000U )
 
 /**
  * @brief Transport timeout in milliseconds for transport receive.
  */
-#define TEST_TRANSPORT_RCV_TIMEOUT_MS            ( 5000U )
+#define TEST_TRANSPORT_RCV_TIMEOUT_MS      ( 5000U )
 
 /* Objects used by the transport secure sockets implementation. */
-static ServerInfo_t serverInfo = {
-    .pHostName = HOSTNAME,
+static ServerInfo_t serverInfo =
+{
+    .pHostName      = HOSTNAME,
     .hostNameLength = strlen( HOSTNAME ),
-    .port = PORT
+    .port           = PORT
 };
-static SocketsConfig_t socketsConfig = { 
-    .enableTls = true,
-    .pAlpnProtos = ALPN_PROTOS,
+static SocketsConfig_t socketsConfig =
+{
+    .enableTls         = true,
+    .pAlpnProtos       = ALPN_PROTOS,
     .maxFragmentLength = MFLN,
-    .disableSni = false,
-    .pRootCa = NULL,
-    .rootCaSize = 0,
-    .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-    .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+    .disableSni        = false,
+    .pRootCa           = NULL,
+    .rootCaSize        = 0,
+    .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+    .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
 };
 
 static uint8_t networkBuffer[ BUFFER_LEN ] = { 0 };
-static Socket_t mocTcpSocket = MOCT_TCP_SOCKET;
+static Socket_t mocTcpSocket = ( Socket_t ) MOCT_TCP_SOCKET;
 static NetworkContext_t networkContext = { 0 };
 
 /* ============================   UNITY FIXTURES ============================ */
@@ -125,10 +128,13 @@ int suiteTearDown( int numFailures )
 void test_SecureSocketsTransport_Connect_Invalid_Params( void )
 {
     TransportSocketStatus_t returnStatus;
-    TransportSocketStatus_t socketError;
-
     ServerInfo_t invalidServerInfo = { 0 };
+
     invalidServerInfo.port = PORT;
+    returnStatus = SecureSocketsTransport_Connect( NULL,
+                                                   &serverInfo,
+                                                   &socketsConfig );
+    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_PARAMETER, returnStatus );
 
     returnStatus = SecureSocketsTransport_Connect( &networkContext,
                                                    NULL,
@@ -181,7 +187,6 @@ void test_SecureSocketsTransport_Connect_Insufficient_Memory( void )
                                                    &serverInfo,
                                                    &socketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INSUFFICIENT_MEMORY, returnStatus );
-
 }
 
 /*-----------------------------------------------------------*/
@@ -200,7 +205,6 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
                                                    &serverInfo,
                                                    &socketsConfig );
     TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_INVALID_CREDENTIALS, returnStatus );
-
 }
 
 /*-----------------------------------------------------------*/
@@ -211,15 +215,16 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SetRequireTLS( void
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = true,
-        .pAlpnProtos = ALPN_PROTOS,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = true,
+        .pAlpnProtos       = ALPN_PROTOS,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -240,15 +245,16 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_AlpnProtos( void )
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = true,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = true,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = false,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = false,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -269,15 +275,16 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_SNI( void )
 void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = true,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = true,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = MOCK_ROOT_CA,
-        .rootCaSize = strlen(MOCK_ROOT_CA),
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = MOCK_ROOT_CA,
+        .rootCaSize        = strlen( MOCK_ROOT_CA ),
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -298,16 +305,18 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( 0 );
     SOCKETS_Close_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -325,16 +334,18 @@ void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( MOC_SECURE_SOCKET_ERROR );
@@ -353,16 +364,18 @@ void test_SecureSocketsTransport_Connect_Fail_to_Connect( void )
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = 0XFFFFFFFFF,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = 0XFFFFFFFF,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -383,16 +396,18 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = 0XFFFFFFFFF
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = 0XFFFFFFFF
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -412,16 +427,18 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -441,16 +458,18 @@ void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
 void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = false,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = false,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = 0,
-        .recvTimeoutMs = 0
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = 0,
+        .recvTimeoutMs     = 0
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_GetHostByName_ExpectAnyArgsAndReturn( MOCK_SERVER_ADDRESS );
     SOCKETS_Connect_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -470,16 +489,18 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
 void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = true,
-        .pAlpnProtos = ALPN_PROTOS,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = true,
+        .pAlpnProtos       = ALPN_PROTOS,
         .maxFragmentLength = MFLN,
-        .disableSni = false,
-        .pRootCa = MOCK_ROOT_CA,
-        .rootCaSize = strlen(MOCK_ROOT_CA),
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = false,
+        .pRootCa           = MOCK_ROOT_CA,
+        .rootCaSize        = strlen( MOCK_ROOT_CA ),
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
+
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
     SOCKETS_SetSockOpt_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -503,15 +524,16 @@ void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 void test_SecureSocketsTransport_Connect_Credentials_NotSet( void )
 {
     TransportSocketStatus_t returnStatus;
-    SocketsConfig_t localSocketsConfig = { 
-        .enableTls = true,
-        .pAlpnProtos = NULL,
+    SocketsConfig_t localSocketsConfig =
+    {
+        .enableTls         = true,
+        .pAlpnProtos       = NULL,
         .maxFragmentLength = MFLN,
-        .disableSni = true,
-        .pRootCa = NULL,
-        .rootCaSize = 0,
-        .sendTimeoutMs = TEST_TRANSPORT_SND_TIMEOUT_MS,
-        .recvTimeoutMs = TEST_TRANSPORT_RCV_TIMEOUT_MS
+        .disableSni        = true,
+        .pRootCa           = NULL,
+        .rootCaSize        = 0,
+        .sendTimeoutMs     = TEST_TRANSPORT_SND_TIMEOUT_MS,
+        .recvTimeoutMs     = TEST_TRANSPORT_RCV_TIMEOUT_MS
     };
 
     SOCKETS_Socket_ExpectAnyArgsAndReturn( SOCKETS_ERROR_NONE );
@@ -556,7 +578,7 @@ void test_SecureSocketsTransport_Disconnect_Fail_to_ShutDown( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test when #SecureSocketsTransport_Disconnect encounters a 
+ * @brief Test when #SecureSocketsTransport_Disconnect encounters a
  * #SOCKETS_Close failure.
  */
 void test_SecureSocketsTransport_Disconnect_Fail_to_Close( void )
@@ -594,7 +616,8 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
 {
     int32_t bytesSent;
     NetworkContext_t invalidNetworkContext = { 0 };
-    invalidNetworkContext.tcpSocket = NULL;
+
+    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
 
     bytesSent = SecureSocketsTransport_Send( NULL, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
@@ -605,7 +628,6 @@ void test_SecureSocketsTransport_Send_Invalid_Params( void )
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, 0 );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 
-    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
     bytesSent = SecureSocketsTransport_Send( &invalidNetworkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesSent );
 }
@@ -620,8 +642,6 @@ void test_SecureSocketsTransport_Send_Network_Error( void )
 {
     int32_t bytesSent;
 
-    /* Several errors can be returned from #SSL_get_error as mentioned here:
-     * https://www.openssl.org/docs/man1.1.1/man3/SSL_get_error.html */
     SOCKETS_Send_ExpectAnyArgsAndReturn( SECURE_SOCKETS_READ_WRITE_ERROR );
     bytesSent = SecureSocketsTransport_Send( &networkContext, networkBuffer, BYTES_TO_SEND );
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesSent );
@@ -668,7 +688,8 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
 {
     int32_t bytesReceived;
     NetworkContext_t invalidNetworkContext = { 0 };
-    invalidNetworkContext.tcpSocket = NULL;
+
+    invalidNetworkContext.tcpSocket = SOCKETS_INVALID_SOCKET;
 
     bytesReceived = SecureSocketsTransport_Recv( NULL, networkBuffer, BYTES_TO_RECV );
     TEST_ASSERT_EQUAL( SOCKETS_EINVAL, bytesReceived );
@@ -709,18 +730,11 @@ void test_SecureSocketsTransport_Recv_Network_Error( void )
     int32_t bytesReceived;
 
     SOCKETS_Recv_ExpectAnyArgsAndReturn( SOCKETS_EWOULDBLOCK );
-
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
-
-    /* SSL_ERROR_WANT_READ implies there is no data to receive, so we expect
-     * that no bytes have been received. */
     TEST_ASSERT_EQUAL( 0, bytesReceived );
 
     SOCKETS_Recv_ExpectAnyArgsAndReturn( SECURE_SOCKETS_READ_WRITE_ERROR );
     bytesReceived = SecureSocketsTransport_Recv( &networkContext, networkBuffer, BYTES_TO_RECV );
-
-    /* SSL_ERROR_WANT_READ implies there is no data to receive, so we expect
-     * that no bytes have been received. */
     TEST_ASSERT_EQUAL( SECURE_SOCKETS_READ_WRITE_ERROR, bytesReceived );
 }
 
