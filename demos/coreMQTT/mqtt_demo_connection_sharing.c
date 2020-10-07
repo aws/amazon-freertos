@@ -161,22 +161,22 @@
 /**
  * @brief Maximum number of operations awaiting an ack packet from the broker.
  */
-#define mqttexamplePENDING_ACKS_MAX_SIZE             20
+#define mqttexamplePENDING_ACKS_MAX_SIZE             10
 
 /**
  * @brief Maximum number of subscriptions to store in the subscription list.
  */
-#define mqttexampleSUBSCRIPTIONS_MAX_COUNT           10
+#define mqttexampleSUBSCRIPTIONS_MAX_COUNT           4
 
 /**
  * @brief Number of publishes done by the publisher in this demo.
  */
-#define mqttexamplePUBLISH_COUNT                     16
+#define mqttexamplePUBLISH_COUNT                     8
 
 /**
  * @brief Size of statically allocated buffers for holding topic names and payloads in this demo.
  */
-#define mqttexampleDEMO_BUFFER_SIZE                  100
+#define mqttexampleDEMO_BUFFER_SIZE                  50
 
 /**
  * @brief Size of dynamically allocated buffers for holding topic names and payloads in this demo.
@@ -186,12 +186,12 @@
 /**
  * @brief Max number of commands that can be enqueued.
  */
-#define mqttexampleCOMMAND_QUEUE_SIZE                25
+#define mqttexampleCOMMAND_QUEUE_SIZE                12
 
 /**
  * @brief Max number of received publishes that can be enqueued for a task.
  */
-#define mqttexamplePUBLISH_QUEUE_SIZE                20
+#define mqttexamplePUBLISH_QUEUE_SIZE                10
 
 /**
  * @brief Delay for the subscriber task. If no publishes are waiting in the
