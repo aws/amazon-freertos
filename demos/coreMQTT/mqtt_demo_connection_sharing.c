@@ -521,8 +521,10 @@ static void prvEventCallback( MQTTContext_t * pMqttContext,
  * This demo requires a process loop command to be enqueued before calling this
  * function, and will re-add a process loop command every time one is processed.
  * This demo will exit the loop after receiving an unsubscribe operation.
+ *
+ * @return `EXIT_SUCCESS` if successful; else `EXIT_FAILURE`.
  */
-static void prvCommandLoop();
+static int prvCommandLoop();
 
 /**
  * @brief Common callback for commands in this demo.
@@ -662,7 +664,7 @@ static MQTTStatus_t prvMQTTConnect( MQTTContext_t * pxMQTTContext,
                                     NetworkContext_t * pxNetworkContext,
                                     bool xCleanSession )
 {
-    MQTTStatus_t xResult;
+    MQTTStatus_t xResult = MQTTSuccess;
     MQTTConnectInfo_t xConnectInfo;
     bool xSessionPresent = false;
     TransportInterface_t xTransport;
@@ -681,127 +683,139 @@ static MQTTStatus_t prvMQTTConnect( MQTTContext_t * pxMQTTContext,
     {
         /* Initialize MQTT library. */
         xResult = MQTT_Init( pxMQTTContext, &xTransport, prvGetTimeMs, prvEventCallback, &xNetworkBuffer );
-        configASSERT( xResult == MQTTSuccess );
     }
 
-    /* Many fields are not used in this demo so start with everything at 0. */
-    memset( &xConnectInfo, 0x00, sizeof( xConnectInfo ) );
-
-    /* Start with a clean session i.e. direct the MQTT broker to discard any
-     * previous session data. Also, establishing a connection with clean session
-     * will ensure that the broker does not store any data when this client
-     * gets disconnected. */
-    xConnectInfo.cleanSession = xCleanSession;
-
-    /* The client identifier is used to uniquely identify this MQTT client to
-     * the MQTT broker. In a production device the identifier can be something
-     * unique, such as a device serial number. */
-    xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
-    xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
-
-    /* Set MQTT keep-alive period. It is the responsibility of the application to ensure
-     * that the interval between Control Packets being sent does not exceed the Keep Alive value.
-     * In the absence of sending any other Control Packets, the Client MUST send a PINGREQ Packet. */
-    xConnectInfo.keepAliveSeconds = mqttexampleKEEP_ALIVE_INTERVAL_SECONDS;
-
-    /* Send MQTT CONNECT packet to broker. LWT is not used in this demo, so it
-     * is passed as NULL. */
-    xResult = MQTT_Connect( pxMQTTContext,
-                            &xConnectInfo,
-                            NULL,
-                            mqttexampleCONNACK_RECV_TIMEOUT_MS,
-                            &xSessionPresent );
-
-    LogInfo( ( "Session present: %d", xSessionPresent ) );
-    configASSERT( xResult == MQTTSuccess );
-
-    /* Resend publishes if session is present. NOTE: It's possible that some
-     * of the operations that were in progress during the network interruption
-     * were subscribes. In that case, we would want to mark those operations
-     * as completing with error and remove them from the list of operations, so
-     * that the calling task can try subscribing again. We do not handle that
-     * case in this demo for simplicity, since only one subscription packet is
-     * sent per iteration of this demo. */
-    if( xSessionPresent )
+    if( xResult == MQTTSuccess )
     {
-        MQTTStateCursor_t cursor = MQTT_STATE_CURSOR_INITIALIZER;
-        uint16_t packetId = MQTT_PACKET_ID_INVALID;
-        AckInfo_t xFoundAck;
+        /* Many fields are not used in this demo so start with everything at 0. */
+        memset( &xConnectInfo, 0x00, sizeof( xConnectInfo ) );
 
-        packetId = MQTT_PublishToResend( &globalMqttContext, &cursor );
+        /* Start with a clean session i.e. direct the MQTT broker to discard any
+         * previous session data. Also, establishing a connection with clean session
+         * will ensure that the broker does not store any data when this client
+         * gets disconnected. */
+        xConnectInfo.cleanSession = xCleanSession;
 
-        while( packetId != MQTT_PACKET_ID_INVALID )
+        /* The client identifier is used to uniquely identify this MQTT client to
+         * the MQTT broker. In a production device the identifier can be something
+         * unique, such as a device serial number. */
+        xConnectInfo.pClientIdentifier = democonfigCLIENT_IDENTIFIER;
+        xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( democonfigCLIENT_IDENTIFIER );
+
+        /* Set MQTT keep-alive period. It is the responsibility of the application to ensure
+         * that the interval between Control Packets being sent does not exceed the Keep Alive value.
+         * In the absence of sending any other Control Packets, the Client MUST send a PINGREQ Packet. */
+        xConnectInfo.keepAliveSeconds = mqttexampleKEEP_ALIVE_INTERVAL_SECONDS;
+
+        /* Send MQTT CONNECT packet to broker. LWT is not used in this demo, so it
+         * is passed as NULL. */
+        xResult = MQTT_Connect( pxMQTTContext,
+                                &xConnectInfo,
+                                NULL,
+                                mqttexampleCONNACK_RECV_TIMEOUT_MS,
+                                &xSessionPresent );
+    }
+
+    if( xResult == MQTTSuccess )
+    {
+        LogInfo( ( "Session present: %d", xSessionPresent ) );
+
+        /* Resend publishes if session is present. NOTE: It's possible that some
+         * of the operations that were in progress during the network interruption
+         * were subscribes. In that case, we would want to mark those operations
+         * as completing with error and remove them from the list of operations, so
+         * that the calling task can try subscribing again. We do not handle that
+         * case in this demo for simplicity, since only one subscription packet is
+         * sent per iteration of this demo. */
+        if( xSessionPresent )
         {
-            /* Retrieve the operation but do not remove it from the list. */
-            xFoundAck = prvGetAwaitingOperation( packetId, false );
-
-            if( xFoundAck.usPacketId == packetId )
-            {
-                /* Set the DUP flag. */
-                xFoundAck.xOriginalCommand.pxCmdContext->pxPublishInfo->dup = true;
-                xResult = MQTT_Publish( &globalMqttContext, xFoundAck.xOriginalCommand.pxCmdContext->pxPublishInfo, packetId );
-            }
+            MQTTStateCursor_t cursor = MQTT_STATE_CURSOR_INITIALIZER;
+            uint16_t packetId = MQTT_PACKET_ID_INVALID;
+            AckInfo_t xFoundAck;
 
             packetId = MQTT_PublishToResend( &globalMqttContext, &cursor );
+
+            while( packetId != MQTT_PACKET_ID_INVALID )
+            {
+                /* Retrieve the operation but do not remove it from the list. */
+                xFoundAck = prvGetAwaitingOperation( packetId, false );
+
+                if( xFoundAck.usPacketId == packetId )
+                {
+                    /* Set the DUP flag. */
+                    xFoundAck.xOriginalCommand.pxCmdContext->pxPublishInfo->dup = true;
+                    xResult = MQTT_Publish( &globalMqttContext, xFoundAck.xOriginalCommand.pxCmdContext->pxPublishInfo, packetId );
+
+                    if( xResult != MQTTSuccess )
+                    {
+                        break;
+                    }
+                }
+
+                packetId = MQTT_PublishToResend( &globalMqttContext, &cursor );
+            }
         }
     }
 
-    /* If we wanted to resume a session but none existed with the broker, we
-     * should mark all in progress operations as errors so that the tasks that
-     * created them can try again. Also, we will resubscribe to the filters in
-     * the subscription list, so tasks do not unexpectedly lose their subscriptions. */
-    if( !xCleanSession && !xSessionPresent )
+    if( xResult == MQTTSuccess )
     {
-        int32_t i = 0, j = 0;
-        Command_t xNewCommand;
-        bool xCommandCreated = false;
-        BaseType_t xCommandAdded;
-
-        /* We have a clean session, so clear all operations pending acknowledgments. */
-        for( i = 0; i < mqttexamplePENDING_ACKS_MAX_SIZE; i++ )
+        /* If we wanted to resume a session but none existed with the broker, we
+         * should mark all in progress operations as errors so that the tasks that
+         * created them can try again. Also, we will resubscribe to the filters in
+         * the subscription list, so tasks do not unexpectedly lose their subscriptions. */
+        if( !xCleanSession && !xSessionPresent )
         {
-            if( pxPendingAcks[ i ].usPacketId != MQTT_PACKET_ID_INVALID )
+            int32_t i = 0, j = 0;
+            Command_t xNewCommand;
+            bool xCommandCreated = false;
+            BaseType_t xCommandAdded;
+
+            /* We have a clean session, so clear all operations pending acknowledgments. */
+            for( i = 0; i < mqttexamplePENDING_ACKS_MAX_SIZE; i++ )
             {
-                if( pxPendingAcks[ i ].xOriginalCommand.vCallback != NULL )
+                if( pxPendingAcks[ i ].usPacketId != MQTT_PACKET_ID_INVALID )
                 {
-                    /* Bad response to indicate network error. */
-                    pxPendingAcks[ i ].xOriginalCommand.pxCmdContext->xReturnStatus = MQTTBadResponse;
-                    pxPendingAcks[ i ].xOriginalCommand.vCallback( pxPendingAcks[ i ].xOriginalCommand.pxCmdContext );
+                    if( pxPendingAcks[ i ].xOriginalCommand.vCallback != NULL )
+                    {
+                        /* Bad response to indicate network error. */
+                        pxPendingAcks[ i ].xOriginalCommand.pxCmdContext->xReturnStatus = MQTTBadResponse;
+                        pxPendingAcks[ i ].xOriginalCommand.vCallback( pxPendingAcks[ i ].xOriginalCommand.pxCmdContext );
+                    }
+
+                    /* Now remove it from the list. */
+                    prvGetAwaitingOperation( pxPendingAcks[ i ].usPacketId, true );
                 }
-
-                /* Now remove it from the list. */
-                prvGetAwaitingOperation( pxPendingAcks[ i ].usPacketId, true );
             }
-        }
 
-        /* Populate the array of MQTTSubscribeInfo_t. It's possible there may be
-         * repeated subscriptions in the list. This is fine, since clients
-         * are able to subscribe to a topic with an existing subscription. */
-        for( i = 0; i < mqttexampleSUBSCRIPTIONS_MAX_COUNT; i++ )
-        {
-            if( pxSubscriptions[ i ].usFilterLength != 0 )
+            /* Populate the array of MQTTSubscribeInfo_t. It's possible there may be
+             * repeated subscriptions in the list. This is fine, since clients
+             * are able to subscribe to a topic with an existing subscription. */
+            for( i = 0; i < mqttexampleSUBSCRIPTIONS_MAX_COUNT; i++ )
             {
-                pxResendSubscriptions[ j ].pTopicFilter = pxSubscriptions[ i ].pcSubscriptionFilter;
-                pxResendSubscriptions[ j ].topicFilterLength = pxSubscriptions[ i ].usFilterLength;
-                pxResendSubscriptions[ j ].qos = MQTTQoS0;
-                j++;
+                if( pxSubscriptions[ i ].usFilterLength != 0 )
+                {
+                    pxResendSubscriptions[ j ].pTopicFilter = pxSubscriptions[ i ].pcSubscriptionFilter;
+                    pxResendSubscriptions[ j ].topicFilterLength = pxSubscriptions[ i ].usFilterLength;
+                    pxResendSubscriptions[ j ].qos = MQTTQoS0;
+                    j++;
+                }
             }
-        }
 
-        /* Resubscribe if needed. */
-        if( j > 0 )
-        {
-            prvInitializeCommandContext( &xResubscribeContext );
-            xResubscribeContext.pxSubscribeInfo = pxResendSubscriptions;
-            xResubscribeContext.ulSubscriptionCount = j;
-            /* Set to NULL so existing queues will not be overwritten. */
-            xResubscribeContext.pxResponseQueue = NULL;
-            xResubscribeContext.xTaskToNotify = NULL;
-            xCommandCreated = prvCreateCommand( SUBSCRIBE, &xResubscribeContext, prvCommandCallback, &xNewCommand );
-            configASSERT( xCommandCreated == true );
-            /* Send to the front of the queue so we will resubscribe as soon as possible. */
-            xCommandAdded = xQueueSendToFront( xCommandQueue, &xNewCommand, mqttexampleDEMO_TICKS_TO_WAIT );
-            configASSERT( xCommandAdded == pdTRUE );
+            /* Resubscribe if needed. */
+            if( j > 0 )
+            {
+                prvInitializeCommandContext( &xResubscribeContext );
+                xResubscribeContext.pxSubscribeInfo = pxResendSubscriptions;
+                xResubscribeContext.ulSubscriptionCount = j;
+                /* Set to NULL so existing queues will not be overwritten. */
+                xResubscribeContext.pxResponseQueue = NULL;
+                xResubscribeContext.xTaskToNotify = NULL;
+                xCommandCreated = prvCreateCommand( SUBSCRIBE, &xResubscribeContext, prvCommandCallback, &xNewCommand );
+                configASSERT( xCommandCreated == true );
+                /* Send to the front of the queue so we will resubscribe as soon as possible. */
+                xCommandAdded = xQueueSendToFront( xCommandQueue, &xNewCommand, mqttexampleDEMO_TICKS_TO_WAIT );
+                configASSERT( xCommandAdded == pdTRUE );
+            }
         }
     }
 
@@ -1384,7 +1398,7 @@ static void prvEventCallback( MQTTContext_t * pMqttContext,
 
 /*-----------------------------------------------------------*/
 
-static void prvCommandLoop()
+static int prvCommandLoop()
 {
     Command_t xCommand;
     Command_t xNewCommand;
@@ -1393,6 +1407,7 @@ static void prvCommandLoop()
     static int lNumProcessed = 0;
     bool xTerminateReceived = false;
     BaseType_t xCommandAdded = pdTRUE;
+    int ret = EXIT_SUCCESS;
 
     /* Loop while the queue is not empty. If a process loop command exists in the
      * queue, then it should never become empty as it will be re-added. */
@@ -1409,8 +1424,13 @@ static void prvCommandLoop()
                         MQTT_Status_strerror( xStatus ) ) );
             prvCreateCommand( RECONNECT, NULL, NULL, &xNewCommand );
             xCommandAdded = xQueueSendToFront( xCommandQueue, &xNewCommand, mqttexampleDEMO_TICKS_TO_WAIT );
+
             /* Ensure the command was added to the queue. */
-            configASSERT( xCommandAdded == pdTRUE );
+            if( xCommandAdded != pdTRUE )
+            {
+                ret = EXIT_FAILURE;
+                break;
+            }
         }
 
         lNumProcessed++;
@@ -1420,8 +1440,14 @@ static void prvCommandLoop()
             /* Add process loop back to end of queue. */
             prvCreateCommand( PROCESSLOOP, NULL, NULL, &xNewCommand );
             xCommandAdded = prvAddCommandToQueue( &xNewCommand );
+
             /* Ensure the command was re-added. */
-            configASSERT( xCommandAdded == pdTRUE );
+            if( xCommandAdded != pdTRUE )
+            {
+                ret = EXIT_FAILURE;
+                break;
+            }
+
             lNumProcessed--;
         }
 
@@ -1446,12 +1472,25 @@ static void prvCommandLoop()
 
     /* Make sure we exited the loop due to receiving a terminate command and not
      * due to the queue being empty. */
-    configASSERT( xTerminateReceived == true );
+    if( ret == EXIT_SUCCESS )
+    {
+        if( !xTerminateReceived )
+        {
+            LogError( ( "Exited from command loop without termination command." ) );
+            ret = EXIT_FAILURE;
+        }
+    }
 
-    LogInfo( ( "Creating Disconnect operation." ) );
-    prvCreateCommand( DISCONNECT, NULL, NULL, &xNewCommand );
-    prvProcessCommand( &xNewCommand );
-    LogInfo( ( "Disconnected from broker." ) );
+    if( ret == EXIT_SUCCESS )
+    {
+        LogInfo( ( "Creating Disconnect operation." ) );
+        prvCreateCommand( DISCONNECT, NULL, NULL, &xNewCommand );
+        xStatus = prvProcessCommand( &xNewCommand );
+        LogInfo( ( "Disconnected from broker." ) );
+        ret = ( xStatus == MQTTSuccess ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    return ret;
 }
 
 /*-----------------------------------------------------------*/
@@ -1737,17 +1776,27 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
      * network suddenly disconnects. */
     LogInfo( ( "Creating a TCP connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
     xNetworkStatus = prvConnectNetwork( &xNetworkContext );
-    configASSERT( xNetworkStatus == pdPASS );
-    LogInfo( ( "Clearing broker state." ) );
-    xMQTTStatus = prvMQTTConnect( &globalMqttContext, &xNetworkContext, true );
-    configASSERT( xMQTTStatus == MQTTSuccess );
 
-    /* Disconnect. */
-    xMQTTStatus = MQTT_Disconnect( &globalMqttContext );
-    configASSERT( xMQTTStatus == MQTTSuccess );
-    LogInfo( ( "Disconnecting TCP connection." ) );
-    xNetworkStatus = prvDisconnectNetwork( &xNetworkContext );
-    configASSERT( xNetworkStatus == pdPASS );
+    ret = EXIT_FAILURE;
+
+    if( xNetworkStatus == pdPASS )
+    {
+        LogInfo( ( "Clearing broker state." ) );
+        xMQTTStatus = prvMQTTConnect( &globalMqttContext, &xNetworkContext, true );
+
+        if( xMQTTStatus == MQTTSuccess )
+        {
+            /* Disconnect. */
+            xMQTTStatus = MQTT_Disconnect( &globalMqttContext );
+
+            if( xMQTTStatus == MQTTSuccess )
+            {
+                LogInfo( ( "Disconnecting TCP connection." ) );
+                xNetworkStatus = prvDisconnectNetwork( &xNetworkContext );
+                ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+            }
+        }
+    }
 
     if( ret == EXIT_SUCCESS )
     {
@@ -1758,27 +1807,48 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
         /* Create inital process loop command. */
         prvCreateCommand( PROCESSLOOP, NULL, NULL, &xCommand );
         xResult = prvAddCommandToQueue( &xCommand );
-        configASSERT( xResult == pdTRUE );
+        ret = ( xResult == pdTRUE ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 
+    if( ret == EXIT_SUCCESS )
+    {
         LogInfo( ( "Creating a TCP connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
         /* Connect to the broker. */
         xNetworkStatus = prvConnectNetwork( &xNetworkContext );
-        configASSERT( xNetworkStatus == pdPASS );
+        ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    if( ret == EXIT_SUCCESS )
+    {
         /* Form an MQTT connection with a persistent session. */
         xMQTTStatus = prvMQTTConnect( &globalMqttContext, &xNetworkContext, false );
-        configASSERT( xMQTTStatus == MQTTSuccess );
+        ret = ( xMQTTStatus == MQTTSuccess ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    if( ret == EXIT_SUCCESS )
+    {
         configASSERT( globalMqttContext.connectStatus = MQTTConnected );
 
         /* Give subscriber task higher priority so the subscribe will be processed before the first publish.
          * This must be less than or equal to the priority of the main task. */
         xResult = xTaskCreate( prvSubscribeTask, "Subscriber", democonfigDEMO_STACKSIZE, NULL, tskIDLE_PRIORITY + 1, &xSubscribeTask );
-        configASSERT( xResult == pdPASS );
+        ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+    if( ret == EXIT_SUCCESS )
+    {
         xResult = xTaskCreate( prvPublishTask, "Publisher", democonfigDEMO_STACKSIZE, NULL, tskIDLE_PRIORITY, &xPublisherTask );
-        configASSERT( xResult == pdPASS );
+        ret = ( xResult == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 
+    if( ret == EXIT_SUCCESS )
+    {
         LogInfo( ( "Running command loop" ) );
-        prvCommandLoop();
+        ret = prvCommandLoop();
+    }
 
+    if( ret == EXIT_SUCCESS )
+    {
         /* Delete created tasks and queues.
          * Wait for subscriber task to exit before cleaning up. */
         while( ( ulNotification & mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT ) != mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT )
@@ -1787,7 +1857,6 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
             xTaskNotifyWait( 0, mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
         }
 
-        configASSERT( ( ulNotification & mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT ) == mqttexampleSUBSCRIBE_TASK_COMPLETE_BIT );
         vTaskDelete( xSubscribeTask );
         LogInfo( ( "Subscribe task Deleted." ) );
 
@@ -1798,7 +1867,6 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
             xTaskNotifyWait( 0, mqttexamplePUBLISHER_TASK_COMPLETE_BIT, &ulNotification, mqttexampleDEMO_TICKS_TO_WAIT );
         }
 
-        configASSERT( ( ulNotification & mqttexamplePUBLISHER_TASK_COMPLETE_BIT ) == mqttexamplePUBLISHER_TASK_COMPLETE_BIT );
         vTaskDelete( xPublisherTask );
         LogInfo( ( "Publish task Deleted." ) );
 
@@ -1809,7 +1877,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
 
         LogInfo( ( "Disconnecting TCP connection." ) );
         xNetworkStatus = prvDisconnectNetwork( &xNetworkContext );
-        configASSERT( xNetworkStatus == pdPASS );
+        ret = ( xNetworkStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     return ret;
