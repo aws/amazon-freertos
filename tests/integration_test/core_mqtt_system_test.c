@@ -1571,7 +1571,7 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
 
     if( testingAgainstAWS )
     {
-        /* AWS IoT Core takes at least 30 seconds before resending a PUBLISH. */
+        /* Add some delay to wait for AWS IoT Core to resend the PUBLISH. */
         vTaskDelay( pdMS_TO_TICKS( AWS_IOT_CORE_REPUBLISH_INTERVAL_MS ) );
     }
 
