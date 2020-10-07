@@ -47,16 +47,13 @@
 /* Standard includes. */
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 /* Kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-
-/* FreeRTOS+TCP includes. */
-#include "FreeRTOS_IP.h"
-#include "FreeRTOS_Sockets.h"
 
 /* Demo Specific configs. */
 #include "mqtt_demo_connection_sharing_config.h"
@@ -74,6 +71,9 @@
 /* Credentials for the MQTT broker endpoint. */
 #include "aws_clientcredential.h"
 
+/* Include header for root CA certificates. */
+#include "iot_default_root_certificates.h"
+
 /**
  * These configuration settings are required to run the demo.
  */
@@ -87,14 +87,17 @@
     #define democonfigCLIENT_IDENTIFIER    clientcredentialIOT_THING_NAME
 #endif
 
-/* Compile time error for some undefined configs, and provide default values
- * for others. */
+/* Provide default values for undefined configs. */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
     #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
 #ifndef democonfigMQTT_BROKER_PORT
     #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
+#endif
+
+#ifndef democonfigROOT_CA_PEM
+    #define democonfigROOT_CA_PEM    tlsATS1_ROOT_CERTIFICATE_PEM
 #endif
 
 /**
@@ -118,11 +121,6 @@
  * @brief Timeout for receiving CONNACK packet in milliseconds.
  */
 #define mqttexampleCONNACK_RECV_TIMEOUT_MS           ( 1000U )
-
-/**
- * @brief Time to wait between each cycle of the demo implemented by prvMQTTDemoTask().
- */
-#define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS     ( pdMS_TO_TICKS( 5000U ) )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop function in milliseconds.
@@ -564,19 +562,6 @@ void prvPublishTask( void * pvParameters );
 void prvSubscribeTask( void * pvParameters );
 
 /**
- * @brief The main task used in the MQTT demo.
- *
- * After creating the publisher and subscriber tasks, this task will enter a
- * loop, processing commands from the command queue and calling the MQTT API.
- * After the termination command is received on the command queue, the task
- * will break from the loop.
- *
- * @param[in] pvParameters Parameters as passed at the time of task creation. Not
- * used in this example.
- */
-static void prvMQTTDemoTask( void * pvParameters );
-
-/**
  * @brief The timer query function provided to the MQTT context.
  *
  * @return Time in milliseconds.
@@ -631,7 +616,7 @@ static QueueHandle_t xSubscriberResponseQueue;
 static QueueHandle_t xDefaultResponseQueue;
 
 /**
- * @brief Handle for prvMQTTDemoTask.
+ * @brief Handle for the main task.
  */
 static TaskHandle_t xMainTask;
 
@@ -842,6 +827,8 @@ static BaseType_t prvConnectNetwork( NetworkContext_t * pxNetworkContext )
     xSocketConfig.enableTls = true;
     xSocketConfig.sendTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
     xSocketConfig.recvTimeoutMs = mqttexampleTRANSPORT_SEND_RECV_TIMEOUT_MS;
+    xSocketConfig.pRootCa = democonfigROOT_CA_PEM;
+    xSocketConfig.rootCaSize = sizeof( democonfigROOT_CA_PEM );
 
     /* Initialize reconnect attempts and interval. */
     xReconnectParams.maxRetryAttempts = MAX_RETRY_ATTEMPTS;
@@ -1165,11 +1152,23 @@ static MQTTStatus_t prvProcessCommand( Command_t * pxCommand )
         case RECONNECT:
             /* Reconnect TCP. */
             xNetworkResult = prvDisconnectNetwork( globalMqttContext.transportInterface.pNetworkContext );
-            configASSERT( xNetworkResult == pdPASS );
-            xNetworkResult = prvConnectNetwork( globalMqttContext.transportInterface.pNetworkContext );
-            configASSERT( xNetworkResult == pdPASS );
-            /* MQTT Connect with a persistent session. */
-            xStatus = prvMQTTConnect( &globalMqttContext, globalMqttContext.transportInterface.pNetworkContext, false );
+
+            if( xNetworkResult == pdPASS )
+            {
+                xNetworkResult = prvConnectNetwork( globalMqttContext.transportInterface.pNetworkContext );
+            }
+
+            if( xNetworkResult == pdPASS )
+            {
+                /* MQTT Connect with a persistent session. */
+                xStatus = prvMQTTConnect( &globalMqttContext, globalMqttContext.transportInterface.pNetworkContext, false );
+            }
+            else
+            {
+                /* Error code to indicate failure. */
+                xStatus = MQTTRecvFailed;
+            }
+
             break;
 
         case TERMINATE:
@@ -1417,6 +1416,13 @@ static int prvCommandLoop()
 
         xStatus = prvProcessCommand( pxCommand );
 
+        if( ( xStatus != MQTTSuccess ) && ( pxCommand->xCommandType == RECONNECT ) )
+        {
+            /* Break instead of trying again if reconnect failed. */
+            ret = EXIT_FAILURE;
+            break;
+        }
+
         /* Add connect operation to front of queue if status was not successful. */
         if( xStatus != MQTTSuccess )
         {
@@ -1522,6 +1528,7 @@ void prvPublishTask( void * pvParameters )
     char * payloadBuffers[ mqttexamplePUBLISH_COUNT ];
     char * topicBuffers[ mqttexamplePUBLISH_COUNT ];
     CommandContext_t * pxContexts[ mqttexamplePUBLISH_COUNT ] = { 0 };
+    int i = 0;
 
     /* We use QoS 1 so that the operation won't be counted as complete until we
      * receive the publish acknowledgment. */
@@ -1530,7 +1537,7 @@ void prvPublishTask( void * pvParameters )
     xPublishInfo.pPayload = payloadBuf;
 
     /* Do synchronous publishes for first half. */
-    for( int i = 0; i < mqttexamplePUBLISH_COUNT / 2; i++ )
+    for( i = 0; i < mqttexamplePUBLISH_COUNT / 2; i++ )
     {
         snprintf( payloadBuf, mqttexampleDEMO_BUFFER_SIZE, mqttexamplePUBLISH_PAYLOAD_FORMAT, i + 1 );
         xPublishInfo.payloadLength = ( uint16_t ) strlen( payloadBuf );
@@ -1560,7 +1567,7 @@ void prvPublishTask( void * pvParameters )
 
     /* Asynchronous publishes for second half. Although not necessary, we use dynamic
      * memory here to avoid declaring many static buffers. */
-    for( int i = mqttexamplePUBLISH_COUNT >> 1; i < mqttexamplePUBLISH_COUNT; i++ )
+    for( i = mqttexamplePUBLISH_COUNT >> 1; i < mqttexamplePUBLISH_COUNT; i++ )
     {
         pxContexts[ i ] = ( CommandContext_t * ) pvPortMalloc( sizeof( CommandContext_t ) );
         prvInitializeCommandContext( pxContexts[ i ] );
@@ -1597,7 +1604,7 @@ void prvPublishTask( void * pvParameters )
 
     LogInfo( ( "Finished publishing\n" ) );
 
-    for( int i = 0; i < mqttexamplePUBLISH_COUNT; i++ )
+    for( i = 0; i < mqttexamplePUBLISH_COUNT; i++ )
     {
         if( pxContexts[ i ] == NULL )
         {
@@ -1745,6 +1752,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
     uint32_t ulNotification = 0;
     Command_t xCommand;
     MQTTStatus_t xMQTTStatus;
+    bool tasksCreated = false;
     int ret = EXIT_SUCCESS;
 
     ( void ) awsIotMqttMode;
@@ -1827,7 +1835,7 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
 
     if( ret == EXIT_SUCCESS )
     {
-        configASSERT( globalMqttContext.connectStatus = MQTTConnected );
+        configASSERT( globalMqttContext.connectStatus == MQTTConnected );
 
         /* Give subscriber task higher priority so the subscribe will be processed before the first publish.
          * This must be less than or equal to the priority of the main task. */
@@ -1843,8 +1851,18 @@ int RunCoreMqttConnectionSharingDemo( bool awsIotMqttMode,
 
     if( ret == EXIT_SUCCESS )
     {
+        tasksCreated = true;
         LogInfo( ( "Running command loop" ) );
         ret = prvCommandLoop();
+    }
+
+    if( ( ret == EXIT_FAILURE ) && ( tasksCreated == true ) )
+    {
+        /* Delete created tasks. */
+        vTaskDelete( xSubscribeTask );
+        LogInfo( ( "Subscribe task Deleted." ) );
+        vTaskDelete( xPublisherTask );
+        LogInfo( ( "Publish task Deleted." ) );
     }
 
     if( ret == EXIT_SUCCESS )
