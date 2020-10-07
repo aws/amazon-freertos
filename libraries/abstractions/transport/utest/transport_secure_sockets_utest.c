@@ -642,7 +642,8 @@ void test_SecureSocketsTransport_Send_All_Bytes_Sent_Successfully( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case when #SecureSocketsTransport_Send but bytes lass then BYTES_TO_SEND.
+ * @brief Test the happy path case of when #SecureSocketsTransport_Send sends
+ * fewer bytes then BYTES_TO_SEND.
  */
 void test_SecureSocketsTransport_Send_Bytes_Sent_Partially( void )
 {
