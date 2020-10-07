@@ -30,6 +30,7 @@
  * Only one demo can be configured at a time
  *
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
@@ -43,7 +44,7 @@
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
-#define CONFIG_MQTT_DEMO_ENABLED
+#define CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE                       ( configMINIMAL_STACK_SIZE * 8 )

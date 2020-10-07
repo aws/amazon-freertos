@@ -30,6 +30,7 @@
  * Only one demo can be configured at a time
  *
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED

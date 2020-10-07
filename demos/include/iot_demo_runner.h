@@ -48,6 +48,16 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
+#elif defined( CONFIG_CORE_MQTT_PLAINTEXT_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttPlaintextDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunShadowDemo
     #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
