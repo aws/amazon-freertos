@@ -31,9 +31,7 @@
 #include "mock_iot_secure_sockets.h"
 
 /* Transport interface include. */
-#include "transport_interface.h"
 #include "transport_secure_sockets.h"
-#include "iot_secure_sockets.h"
 
 /* The send and receive timeout to set for the socket. */
 #define SEND_RECV_TIMEOUT          0
