@@ -1,3 +1,4 @@
+Wtcp/te
 #
 # Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
  # Cypress Semiconductor Corporation. All Rights Reserved.
@@ -99,7 +100,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_C_SDK_AWS_PATH)defender/src/private \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test \
+                    $(AMAZON_FREERTOS_PATH)tests/integration_test \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/portable/Compiler/GCC/ \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_posix/include/portable/cypress/$(PLATFORM) \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/config_files \
@@ -178,9 +179,9 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_cbor.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/test/iot_tests_serializer_json.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/test_freertos_tcp.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_dns_define.h \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/test/freertos_tcp_test_access_tcp_define.h \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/test_freertos_tcp.c \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_dns_define.h \
+                      $(AMAZON_FREERTOS_PATH)tests/integration_test/freertos_tcp_test_access_tcp_define.h \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_UDP_IP.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_Sockets.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/FreeRTOS_ARP.c \

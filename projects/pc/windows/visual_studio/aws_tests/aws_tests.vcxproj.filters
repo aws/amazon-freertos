@@ -127,7 +127,7 @@
 		<Filter Include="libraries\freertos_plus\aws\ota\test"/>
 		<Filter Include="libraries\freertos_plus\standard\crypto\test"/>
 		<Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\test"/>
-		<Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\test"/>
+		<Filter Include="tests\integration_test"/>
 		<Filter Include="libraries\freertos_plus\standard\tls\test"/>
 		<Filter Include="libraries\abstractions\pkcs11\test"/>
 		<Filter Include="libraries\abstractions\platform\test"/>
@@ -1151,8 +1151,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c">
 			<Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\test_freertos_tcp.c">
-			<Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
+		<ClCompile Include="..\..\..\..\..\tests\integration_test\test_freertos_tcp.c">
+			<Filter>tests\integration_test</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c">
 			<Filter>libraries\freertos_plus\standard\tls\test</Filter>

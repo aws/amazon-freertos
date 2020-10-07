@@ -1836,7 +1836,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test</name>
+			<name>tests/integration_test</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -3646,24 +3646,24 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_declare.h</name>
+			<name>tests/integration_test/aws_freertos_tcp_test_access_declare.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_declare.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/tests/integration_test/aws_freertos_tcp_test_access_declare.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_dns_define.h</name>
+			<name>tests/integration_test/aws_freertos_tcp_test_access_dns_define.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_dns_define.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/tests/integration_test/aws_freertos_tcp_test_access_dns_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_tcp_define.h</name>
+			<name>tests/integration_test/aws_freertos_tcp_test_access_tcp_define.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_freertos_tcp_test_access_tcp_define.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/tests/integration_test/aws_freertos_tcp_test_access_tcp_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</name>
+			<name>tests/integration_test/aws_test_freertos_tcp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/tests/integration_test/aws_test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>

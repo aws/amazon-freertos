@@ -3,7 +3,7 @@
 
 libs-y += libfreertosplustcp
 global-cflags-y +=  \
-		-I$(d)/../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/ \
+		-I$(d)/../../../../../../../tests/integration_test/ \
 		-I$(d)/../../../../../../../libraries/freertos_plus/standard/tls/include/
 
 libfreertosplustcp-objs-y := \
