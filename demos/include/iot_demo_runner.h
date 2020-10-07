@@ -88,6 +88,15 @@
         #undef democonfigDEMO_PRIORITY
         #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
     #endif
+#elif defined( CONFIG_CORE_MQTT_CONNECTION_SHARING_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION              RunCoreMqttConnectionSharingDemo
+    #if defined( democonfigMQTT_ECHO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigMQTT_ECHO_TASK_STACK_SIZE
+    #endif
+    /* This demo must have priority at least one greater than idle. */
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY         ( tskIDLE_PRIORITY + 1 )
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunShadowDemo
     #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
