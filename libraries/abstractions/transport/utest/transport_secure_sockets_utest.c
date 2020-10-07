@@ -683,7 +683,7 @@ void test_SecureSocketsTransport_Recv_Invalid_Params( void )
 
 /**
  * @brief Test the happy path case when #SecureSocketsTransport_Recv is able to receive all
- * expected bytes over the network stack successfully.
+ * expected bytes over the network stack.
  */
 void test_SecureSocketsTransport_Recv_All_Bytes_Received_Successfully( void )
 {
