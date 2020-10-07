@@ -588,7 +588,7 @@ void test_SecureSocketsTransport_Disconnect_Sucess( void )
  * @brief Test that #SecureSocketsTransport_Send is able to return that 0 bytes are sent over
  * the network stack, when passing any invalid parameters.
  */
-void test_SecureSocketsTransport_Send_Send_Invalid_Params( void )
+void test_SecureSocketsTransport_Send_Invalid_Params( void )
 {
     int32_t bytesSent;
     NetworkContext_t invalidNetworkContext = { 0 };
