@@ -50,7 +50,7 @@
 #define MOCK_ROOT_CA               "mockRootCA"
 #define MOCK_SERVER_ADDRESS        100
 #define MOCT_TCP_SOCKET            100
-#define MOC_SECURE_SOCKET_ERROR    -1
+#define MOCK_SECURE_SOCKET_ERROR    -1
 
 
 /* Parameters to pass to #SecureSocketsTransport_Send and #SecureSocketsTransport_Recv. */
