@@ -117,7 +117,6 @@ int suiteTearDown( int numFailures )
 
 /* ========================================================================== */
 
-/*-----------------------------------------------------------*/
 
 /**
  * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail on NULL parameters and verify the error code.
