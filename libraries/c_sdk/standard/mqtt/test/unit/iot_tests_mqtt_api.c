@@ -544,9 +544,9 @@ static int32_t transportSend( const NetworkContext_t * pNetworkContext,
 /**
  * @brief A transport send function that delays.
  */
-static size_t transportSendDelay( const NetworkContext_t * pSendContext,
-                                  const void * pMessage,
-                                  size_t messageLength )
+static int32_t transportSendDelay( const NetworkContext_t * pSendContext,
+                                   const void * pMessage,
+                                   size_t messageLength )
 {
     IotSemaphore_t * pWaitSem = ( IotSemaphore_t * ) pSendContext;
 
@@ -560,7 +560,7 @@ static size_t transportSendDelay( const NetworkContext_t * pSendContext,
     IotClock_SleepMs( 2000 );
 
     /* This function returns the message length to simulate a successful send. */
-    return messageLength;
+    return ( int32_t ) messageLength;
 }
 
 /*-----------------------------------------------------------*/
