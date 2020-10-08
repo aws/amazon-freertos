@@ -499,7 +499,7 @@ void test_SecureSocketsTransport_Connect_Succeeds_Set_Timeout_Zero( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case to connect to server with TLS.
+ * @brief Test the happy path case to connect to a server with TLS.
  */
 void test_SecureSocketsTransport_Connect_Succeeds_with_TLS( void )
 {
