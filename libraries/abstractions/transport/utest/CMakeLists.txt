@@ -8,9 +8,6 @@
 
 # list the files to mock here
     list(APPEND mock_list
-                "${kernel_dir}/include/task.h"
-                "${kernel_dir}/include/portable.h"
-                "${common_dir}/include/iot_logging_task.h"
                 "${abstraction_dir}/secure_sockets/include/iot_secure_sockets.h"
             )
 # list the directories your mocks need
@@ -27,17 +24,8 @@
 
 # ================= Create the library under test here (edit) ==================
 
-# The single source of truth for the transport_interface.h is in the coreMQTT repository.
-# In the FreeRTOS Device Software download page in AWS IoT Core, it is possible
-# to choose coreHTTP instead of coreMQTT. In this case, it is necessary to check
-# for the existence of the file in the downloaded software package.
-if( EXISTS ${AFR_MODULES_DIR}/coreMQTT/source )
-    set(transport_interface_dir "${AFR_MODULES_DIR}/coreMQTT/source/portable")
-elseif( EXISTS ${AFR_MODULES_DIR}/coreHTTP/source )
-    set(transport_interface_dir "${AFR_MODULES_DIR}/coreHTTP/source/portable")
-else()
-    message( FATAL_ERROR "No transport_interface.h exists for this included interface.")
-endif()
+# Include filepaths for source and include.
+include( ${AFR_ROOT_DIR}/libraries/abstractions/transport/transport_interface.cmake )
 
 # list the files you would like to test here
     list(APPEND real_source_files
@@ -49,7 +37,7 @@ endif()
                 "${transport_interface_dir}"
                 "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
                 "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
-                "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
+                "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
             )
 
 # =====================  Create UnitTest Code here (edit)  =====================
@@ -59,7 +47,7 @@ endif()
                 "${transport_interface_dir}"
                 "${AFR_ROOT_DIR}/libraries/abstractions/transport/secure_sockets"
                 "${AFR_ROOT_DIR}/libraries/abstractions/secure_sockets/include"
-                "${AFR_ROOT_DIR}/libraries/c_sdk/standard/common/include"
+                "${AFR_ROOT_DIR}/tests/unit_test/linux/logging-stack"
             )
 
 # =============================  (end edit)  ===================================
