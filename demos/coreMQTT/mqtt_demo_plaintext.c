@@ -343,7 +343,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
     NetworkContext_t xNetworkContext = { 0 };
     MQTTContext_t xMQTTContext;
     MQTTStatus_t xMQTTStatus;
-    BaseType_t xDemoStatus;
+    BaseType_t xDemoStatus = pdPASS;
     TransportSocketStatus_t xNetworkStatus;
     uint32_t ulDemoRunCount = 0;
     BaseType_t xIsConnectionEstablished = pdFALSE;
