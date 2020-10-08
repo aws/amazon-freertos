@@ -436,7 +436,7 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test the happy path case to connect to server without TLS.
+ * @brief Test the happy path case to connect to a server without TLS.
  */
 void test_SecureSocketsTransport_Connect_Succeeds_without_TLS( void )
 {
