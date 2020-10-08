@@ -34,7 +34,7 @@
 #include "transport_secure_sockets.h"
 
 /* The send and receive timeout to set for the socket. */
-#define SEND_RECV_TIMEOUT           0
+#define SEND_RECV_TIMEOUT           ( 0U )
 
 /* The host and port from which to establish the connection. */
 #define HOSTNAME                    "amazon.com"
