@@ -545,6 +545,8 @@ static IotNetworkManager_t networkManager =
 /*-----------------------------------------------------------*/
 
 #if CELLULAR_ENABLED
+    /* Network Manager maintain the context. */
+    static CellularManagerContext_t * _pCellularManagerContext = NULL;
 
     static void _cellularConnectionStateCB( void * pUserData,
                                             CellularManagerConnectionState_t connectionState )
@@ -578,7 +580,7 @@ static IotNetworkManager_t networkManager =
         /* Init cellular manager. */
         if( cellularStatus == true )
         {
-            wmStatus = CellularManager_Init( pCommIntf );
+            wmStatus = CellularManager_Init( &_pCellularManagerContext, pCommIntf );
 
             if( wmStatus != CELLULAR_MANAGER_SUCCESS )
             {
@@ -590,7 +592,7 @@ static IotNetworkManager_t networkManager =
         /* get the Cellular handle from Cellular manager. */
         if( cellularStatus == true )
         {
-            wmStatus = CellularManager_GetCellularHandle( &CellularHandle );
+            wmStatus = CellularManager_GetCellularHandle( _pCellularManagerContext, &CellularHandle );
 
             if( wmStatus != CELLULAR_MANAGER_SUCCESS )
             {
@@ -602,7 +604,9 @@ static IotNetworkManager_t networkManager =
         /* Register connection state change callback. */
         if( cellularStatus == true )
         {
-            wmStatus = CellularManager_SetConnectionStateChangedCallback( NULL, &_cellularConnectionStateCB );
+            wmStatus = CellularManager_SetConnectionStateChangedCallback( _pCellularManagerContext,
+                                                                          NULL,
+                                                                          &_cellularConnectionStateCB );
 
             if( wmStatus != CELLULAR_MANAGER_SUCCESS )
             {
@@ -614,8 +618,10 @@ static IotNetworkManager_t networkManager =
         /* Connect to cellular network PDN. */
         if( cellularStatus == true )
         {
-            wmStatus = CellularManager_ConnectSync( configCELLULAR_PDN_CONTEXT_ID,
-                                                    &pdnConfig, confgCELLULAR_PDN_CONNECT_TIMEOUT );
+            wmStatus = CellularManager_Connect( _pCellularManagerContext,
+                                                configCELLULAR_PDN_CONTEXT_ID,
+                                                &pdnConfig,
+                                                confgCELLULAR_PDN_CONNECT_TIMEOUT );
 
             if( wmStatus != CELLULAR_MANAGER_SUCCESS )
             {
@@ -662,10 +668,10 @@ static IotNetworkManager_t networkManager =
                 if( wmStatus != CELLULAR_MANAGER_SUCCESS )
                 {
                     /* Disconnect the PDN network. */
-                    ( void ) CellularManager_Disconnect( configCELLULAR_PDN_CONTEXT_ID );
+                    ( void ) CellularManager_Disconnect( _pCellularManagerContext, configCELLULAR_PDN_CONTEXT_ID );
 
                     /* Cleanup the cellular manager. */
-                    ( void ) CellularManager_Cleanup();
+                    ( void ) CellularManager_Cleanup( _pCellularManagerContext );
                 }
             }
         }
