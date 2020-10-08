@@ -304,8 +304,7 @@ static TransportSocketStatus_t connectToServer( Socket_t tcpSocket,
                     pServerInfo->pHostName ) );
         returnStatus = TRANSPORT_SOCKET_STATUS_DNS_FAILURE;
     }
-
-    if( returnStatus == TRANSPORT_SOCKET_STATUS_SUCCESS )
+    else
     {
         secureSocketStatus = SOCKETS_Connect( tcpSocket,
                                               &serverAddress,
