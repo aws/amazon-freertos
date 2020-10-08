@@ -117,99 +117,105 @@
 /**
  * @brief A valid starting packet ID per MQTT spec. Start from 1.
  */
-#define MQTT_FIRST_VALID_PACKET_ID           ( 1 )
+#define MQTT_FIRST_VALID_PACKET_ID            ( 1 )
 
 /**
  * @brief A PINGREQ packet is always 2 bytes in size, defined by MQTT 3.1.1 spec.
  */
-#define MQTT_PACKET_PINGREQ_SIZE             ( 2U )
+#define MQTT_PACKET_PINGREQ_SIZE              ( 2U )
 
 /**
  * @brief A packet type not handled by MQTT_ProcessLoop.
  */
-#define MQTT_PACKET_TYPE_INVALID             ( 0U )
+#define MQTT_PACKET_TYPE_INVALID              ( 0U )
 
 /**
  * @brief Number of milliseconds in a second.
  */
-#define MQTT_ONE_SECOND_TO_MS                ( 1000U )
+#define MQTT_ONE_SECOND_TO_MS                 ( 1000U )
 
 /**
  * @brief Length of the MQTT network buffer.
  */
-#define MQTT_TEST_BUFFER_LENGTH              ( 128 )
+#define MQTT_TEST_BUFFER_LENGTH               ( 128 )
 
 /**
  * @brief Sample length of remaining serialized data.
  */
-#define MQTT_SAMPLE_REMAINING_LENGTH         ( 64 )
+#define MQTT_SAMPLE_REMAINING_LENGTH          ( 64 )
 
 /**
  * @brief Subtract this value from max value of global entry time
  * for the timer overflow test.
  */
-#define MQTT_OVERFLOW_OFFSET                 ( 3 )
+#define MQTT_OVERFLOW_OFFSET                  ( 3 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_TOPIC                      "/iot/integration/test"
+#define TEST_MQTT_TOPIC                       "/iot/integration/test"
 
 /**
  * @brief Sample topic filter 2 to use in tests.
  */
-#define TEST_MQTT_TOPIC_2                    "/iot/integration/test2"
+#define TEST_MQTT_TOPIC_2                     "/iot/integration/test2"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_TOPIC_LENGTH               ( sizeof( TEST_MQTT_TOPIC ) - 1 )
+#define TEST_MQTT_TOPIC_LENGTH                ( sizeof( TEST_MQTT_TOPIC ) - 1 )
 
 /**
  * @brief Sample topic filter to subscribe to.
  */
-#define TEST_MQTT_LWT_TOPIC                  "/iot/integration/test/lwt"
+#define TEST_MQTT_LWT_TOPIC                   "/iot/integration/test/lwt"
 
 /**
  * @brief Length of sample topic filter.
  */
-#define TEST_MQTT_LWT_TOPIC_LENGTH           ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
+#define TEST_MQTT_LWT_TOPIC_LENGTH            ( sizeof( TEST_MQTT_LWT_TOPIC ) - 1 )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define NETWORK_BUFFER_SIZE                  ( 1024U )
+#define NETWORK_BUFFER_SIZE                   ( 1024U )
 
 /**
  * @brief Length of the client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LENGTH        ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LENGTH         ( sizeof( TEST_CLIENT_IDENTIFIER ) - 1u )
 
 /**
  * @brief Client identifier for use in LWT tests.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT           TEST_CLIENT_IDENTIFIER "-LWT"
+#define TEST_CLIENT_IDENTIFIER_LWT            TEST_CLIENT_IDENTIFIER "-LWT"
 
 /**
  * @brief Length of LWT client identifier.
  */
-#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH    ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
+#define TEST_CLIENT_IDENTIFIER_LWT_LENGTH     ( sizeof( TEST_CLIENT_IDENTIFIER_LWT ) - 1u )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
  */
-#define TRANSPORT_SEND_RECV_TIMEOUT_MS       ( 200U )
+#define TRANSPORT_SEND_RECV_TIMEOUT_MS        ( 200U )
 
 /**
  * @brief Timeout for receiving CONNACK packet in milli seconds.
  */
-#define CONNACK_RECV_TIMEOUT_MS              ( 1000U )
+#define CONNACK_RECV_TIMEOUT_MS               ( 1000U )
 
 /**
  * @brief Time interval in seconds at which an MQTT PINGREQ need to be sent to
  * broker.
  */
-#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS     ( 5U )
+#define MQTT_KEEP_ALIVE_INTERVAL_SECONDS      ( 5U )
+
+/**
+ * @brief The number of milliseconds to wait for AWS IoT Core Message Broker
+ * to resend a PUBLISH that has not been acknowledged.
+ */
+#define AWS_IOT_CORE_REPUBLISH_INTERVAL_MS    ( 30000U )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop() function in milliseconds.
@@ -217,22 +223,22 @@
  * PUBLISH message and ack responses for QoS 1 and QoS 2 communications
  * with the broker.
  */
-#define MQTT_PROCESS_LOOP_TIMEOUT_MS         ( 700U )
+#define MQTT_PROCESS_LOOP_TIMEOUT_MS          ( 700U )
 
 /**
  * @brief The MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE                 "Hello World!"
+#define MQTT_EXAMPLE_MESSAGE                  "Hello World!"
 
 /**
  * @brief Milliseconds per second.
  */
-#define MILLISECONDS_PER_SECOND              ( 1000U )
+#define MILLISECONDS_PER_SECOND               ( 1000U )
 
 /**
  * @brief Milliseconds per FreeRTOS tick.
  */
-#define MILLISECONDS_PER_TICK                ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
+#define MILLISECONDS_PER_TICK                 ( MILLISECONDS_PER_SECOND / configTICK_RATE_HZ )
 
 /**
  * @brief Packet Identifier generated when Subscribe request was sent to the broker;
@@ -322,6 +328,12 @@ static bool receivedPubComp = false;
  * with the "retain" flag set.
  */
 static bool receivedRetainedMessage = false;
+
+/**
+ * @brief Flag to represent whether the tests are being run against AWS IoT
+ * Core.
+ */
+static bool testingAgainstAWS = false;
 
 /**
  * @brief Represents incoming PUBLISH information.
@@ -757,42 +769,6 @@ static int32_t failedRecv( const NetworkContext_t * pNetworkContext,
     return -1;
 }
 
-static void startPersistentSession()
-{
-    /* Terminate TLS session and TCP network connection to discard the current MQTT session
-     * that was created as a "clean session". */
-    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
-
-    /* Establish a new MQTT connection over TLS with the broker with the "clean session" flag set to 0
-     * to start a persistent session with the broker. */
-
-    /* Create the TLS+TCP connection with the broker. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
-
-    /* Establish a new MQTT connection for a persistent session with the broker. */
-    establishMqttSession( &context, &networkContext, false, &persistentSession );
-    TEST_ASSERT_FALSE( persistentSession );
-}
-
-static void resumePersistentSession()
-{
-    /* Create a new TLS+TCP network connection with the server. */
-    TEST_ASSERT_EQUAL( TRANSPORT_SOCKET_STATUS_SUCCESS, SecureSocketsTransport_Connect( &networkContext,
-                                                                                        &serverInfo,
-                                                                                        &socketsConfig ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
-
-    /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
-    TEST_ASSERT_FALSE( persistentSession );
-    establishMqttSession( &context, &networkContext, false, &persistentSession );
-
-    /* Verify that the session was resumed. */
-    TEST_ASSERT_TRUE( persistentSession );
-}
-
 static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext )
 {
     bool isSuccessful = false;
@@ -826,7 +802,7 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     {
         /* Establish a TCP connection with the server endpoint, then
          * establish TLS session on top of TCP connection. */
-        transportStatus = SecureSocketsTransport_Connect( &networkContext,
+        transportStatus = SecureSocketsTransport_Connect( pNetworkContext,
                                                           &serverInfo,
                                                           &socketsConfig );
 
@@ -849,6 +825,36 @@ static bool connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContex
     return isSuccessful;
 }
 
+static void startPersistentSession()
+{
+    /* Terminate TLS session and TCP network connection to discard the current MQTT session
+     * that was created as a "clean session". */
+    ( void ) SecureSocketsTransport_Disconnect( &networkContext );
+
+    /* Establish a new MQTT connection over TLS with the broker with the "clean session" flag set to 0
+     * to start a persistent session with the broker. */
+
+    /* Create the TLS+TCP connection with the broker. */
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
+
+    /* Establish a new MQTT connection for a persistent session with the broker. */
+    establishMqttSession( &context, &networkContext, false, &persistentSession );
+    TEST_ASSERT_FALSE( persistentSession );
+}
+
+static void resumePersistentSession()
+{
+    /* Create a new TLS+TCP network connection with the server. */
+    TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
+
+    /* Re-establish the persistent session with the broker by connecting with "clean session" flag set to 0. */
+    TEST_ASSERT_FALSE( persistentSession );
+    establishMqttSession( &context, &networkContext, false, &persistentSession );
+
+    /* Verify that the session was resumed. */
+    TEST_ASSERT_TRUE( persistentSession );
+}
+
 /* ============================   UNITY FIXTURES ============================ */
 
 /* Called before each test method. */
@@ -869,7 +875,6 @@ void testSetUp()
 
     /* Establish TLS over TCP connection with retry attempts on failures. */
     TEST_ASSERT_TRUE( connectToServerWithBackoffRetries( &networkContext ) );
-    TEST_ASSERT_NOT_NULL( networkContext.pContext );
 
     /* Establish MQTT session on top of the TCP+TLS connection. */
     establishMqttSession( &context, &networkContext, true, &persistentSession );
@@ -926,6 +931,7 @@ TEST_TEAR_DOWN( coreMQTT_Integration )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
 {
+    testingAgainstAWS = true;
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration_AWS_IoT_Compatible, Connect_LWT );
@@ -939,6 +945,7 @@ TEST_GROUP_RUNNER( coreMQTT_Integration_AWS_IoT_Compatible )
  */
 TEST_GROUP_RUNNER( coreMQTT_Integration )
 {
+    testingAgainstAWS = false;
     RUN_TEST_CASE( coreMQTT_Integration, Subscribe_Publish_With_Qos_0 );
     RUN_TEST_CASE( coreMQTT_Integration, Subscribe_Publish_With_Qos_1 );
     RUN_TEST_CASE( coreMQTT_Integration, Connect_LWT );
@@ -1561,6 +1568,12 @@ void Restore_Session_Duplicate_Incoming_Publish_Qos1()
 
     /* Make sure that a record was created for the incoming PUBLISH packet. */
     TEST_ASSERT_NOT_EQUAL( MQTT_PACKET_ID_INVALID, context.incomingPublishRecords[ 0 ].packetId );
+
+    if( testingAgainstAWS )
+    {
+        /* Add some delay to wait for AWS IoT Core to resend the PUBLISH. */
+        vTaskDelay( pdMS_TO_TICKS( AWS_IOT_CORE_REPUBLISH_INTERVAL_MS ) );
+    }
 
     /* We will re-establish an MQTT over TLS connection with the broker to restore
      * the persistent session. */
