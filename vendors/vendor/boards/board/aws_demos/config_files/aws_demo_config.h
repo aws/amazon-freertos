@@ -30,6 +30,7 @@
  * Only one demo can be configured at a time
  *
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_CSDK_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_MQTT_BLE_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED

@@ -117,6 +117,13 @@
 		<Filter Include="libraries\abstractions\transport"/>
 		<Filter Include="libraries\coreMQTT\source"/>
 		<Filter Include="libraries\coreMQTT"/>
+		<Filter Include="libraries\coreJSON\source"/>
+		<Filter Include="libraries\coreJSON\source\include"/>
+		<Filter Include="libraries\coreJSON"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk\source"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk\source\include"/>
+		<Filter Include="libraries\device-shadow-for-aws-iot-embedded-sdk"/>
+		<Filter Include="demos\device-shadow-for-aws-iot-embedded-sdk"/>
 		<Filter Include="demos\defender"/>
 		<Filter Include="demos\greengrass_connectivity"/>
 		<Filter Include="demos\https"/>
@@ -1382,6 +1389,18 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\coreMQTT\source\core_mqtt_serializer.c">
 			<Filter>libraries\coreMQTT\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\coreJSON\source\core_json.c">
+			<Filter>libraries\coreJSON\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\device-shadow-for-aws-iot-embedded-sdk\source\shadow.c">
+			<Filter>libraries\device-shadow-for-aws-iot-embedded-sdk\source</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_main.c">
+			<Filter>demos\device-shadow-for-aws-iot-embedded-sdk</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\device-shadow-for-aws-iot-embedded-sdk\shadow_demo_helpers.c">
+			<Filter>demos\device-shadow-for-aws-iot-embedded-sdk</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
 			<Filter>demos\defender</Filter>

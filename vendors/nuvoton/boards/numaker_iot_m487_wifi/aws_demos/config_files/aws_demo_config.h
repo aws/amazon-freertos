@@ -29,6 +29,7 @@
 /* To run a particular demo you need to define one of these.
  * Only one demo can be configured at a time
  *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_CSDK_DEVICE_SHADOW_DEMO_ENABLED
  *          CONFIG_SHADOW_DEMO_ENABLED
  *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED

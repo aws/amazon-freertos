@@ -85,6 +85,8 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/http_parser"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/coreJSON/source/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/device-shadow-for-aws-iot-embedded-sdk/source/include"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1779062689" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&quot;aws_mbedtls_config.h&quot;"/>
