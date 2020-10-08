@@ -29,11 +29,9 @@
  */
 
 /* Standard includes. */
-#include <stdlib.h>
 #include <string.h>
 
 /* TCP/IP abstraction includes. */
-#include "iot_secure_sockets.h"
 #include "transport_secure_sockets.h"
 
 

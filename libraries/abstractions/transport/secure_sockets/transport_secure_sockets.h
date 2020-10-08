@@ -44,10 +44,6 @@
 #include "transport_interface.h"
 #include "iot_secure_sockets.h"
 
-/* Kernel include. */
-#include "FreeRTOS.h"
-#include "task.h"
-
 /* Include header that defines log levels. */
 #include "logging_levels.h"
 
