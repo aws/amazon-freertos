@@ -404,7 +404,8 @@ void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Recv( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to set send timeout and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails to set the socket
+ * send timeout, and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_TimeOutSetup_Failure_Send( void )
 {
