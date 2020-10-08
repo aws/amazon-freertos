@@ -348,11 +348,6 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
     uint32_t ulDemoRunCount = 0;
     BaseType_t xIsConnectionEstablished = pdFALSE;
 
-    /* Upon return, EXIT_SUCCESS will indicate a successful demo execution.
-     * EXIT_FAILURE will indicate some failures occurred during execution. The
-     * user of this demo must check the logs for any failure codes. */
-    int lReturnStatus = EXIT_SUCCESS;
-
     /* Remove compiler warnings about unused parameters. */
     ( void ) awsIotMqttMode;
     ( void ) pIdentifier;
@@ -376,7 +371,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
         if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
         {
-            lReturnStatus = EXIT_FAILURE;
+            xDemoStatus = pdFAIL;
         }
         else
         {
@@ -385,39 +380,27 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
             xIsConnectionEstablished = pdTRUE;
         }
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             /* Sends an MQTT Connect packet over the already connected TCP socket,
              * and waits for connection acknowledgment (CONNACK) packet. */
             LogInfo( ( "Creating an MQTT connection to %s.\r\n", democonfigMQTT_BROKER_ENDPOINT ) );
             xDemoStatus = prvCreateMQTTConnectionWithBroker( &xMQTTContext, &xNetworkContext );
-
-            if( xDemoStatus != pdPASS )
-            {
-                /* Any errors from direct MQTT library calls are logged in the
-                 * private functions. */
-                lReturnStatus = EXIT_FAILURE;
-            }
         }
 
         /**************************** Subscribe. ******************************/
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             /* If the server rejected the subscription request, attempt to
              * resubscribe to topic. Attempts are made according to the exponential
              * backoff retry strategy define in retry_utils.h. */
             xDemoStatus = prvMQTTSubscribeWithBackoffRetries( &xMQTTContext );
-
-            if( xDemoStatus != pdPASS )
-            {
-                lReturnStatus = EXIT_FAILURE;
-            }
         }
 
         /******************* Publish and Keep Alive Loop. *********************/
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             /* Publish messages with QoS0, send and process Keep alive messages. */
             for( ulPublishCount = 0; ulPublishCount < ulMaxPublishCount; ulPublishCount++ )
@@ -425,12 +408,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
                 LogInfo( ( "Publish to the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
                 xDemoStatus = prvMQTTPublishToTopic( &xMQTTContext );
 
-                if( xDemoStatus != pdPASS )
-                {
-                    lReturnStatus = EXIT_FAILURE;
-                }
-
-                if( lReturnStatus == EXIT_SUCCESS )
+                if( xDemoStatus == pdPASS )
                 {
                     /* Process the incoming publish echo. Since the application subscribed
                      * to the same topic, the broker will send the published message back
@@ -440,7 +418,9 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
                     if( xMQTTStatus != MQTTSuccess )
                     {
-                        lReturnStatus = EXIT_FAILURE;
+                        LogError( ( "MQTT_ProcessLoop() failed with status %s.",
+                                    MQTT_Status_strerror( xMQTTStatus ) ) );
+                        xDemoStatus = pdFAIL;
                     }
                 }
 
@@ -452,31 +432,30 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
         /******************** Unsubscribe from the topic. *********************/
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             LogInfo( ( "Unsubscribe from the MQTT topic %s.\r\n", mqttexampleTOPIC ) );
             xDemoStatus = prvMQTTUnsubscribeFromTopic( &xMQTTContext );
-
-            if( xDemoStatus != pdPASS )
-            {
-                lReturnStatus = EXIT_FAILURE;
-            }
         }
 
         /* Process Incoming packet from the broker. */
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             xMQTTStatus = MQTT_ProcessLoop( &xMQTTContext, mqttexamplePROCESS_LOOP_TIMEOUT_MS );
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                lReturnStatus = EXIT_FAILURE;
+                LogError( ( "MQTT_ProcessLoop() failed with status %s.",
+                            MQTT_Status_strerror( xMQTTStatus ) ) );
+                xDemoStatus = pdFAIL;
             }
         }
 
         /**************************** Disconnect. *****************************/
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        /* Whether the demo operations preceeding are successful or not, we
+         * always disconnect an open connection to free up system resources. */
+        if( xIsConnectionEstablished == pdTRUE )
         {
             /* Send an MQTT Disconnect packet over the already connected TCP
              * socket. There is no corresponding response for the disconnect
@@ -487,18 +466,17 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
 
             if( xMQTTStatus != MQTTSuccess )
             {
-                lReturnStatus = EXIT_FAILURE;
+                LogError( ( "MQTT_Disconnect() failed with status %s.",
+                            MQTT_Status_strerror( xMQTTStatus ) ) );
+                xDemoStatus = pdFAIL;
             }
-        }
 
-        if( lReturnStatus == EXIT_SUCCESS )
-        {
             /* Close the network connection.  */
             xNetworkStatus = SecureSocketsTransport_Disconnect( &xNetworkContext );
 
             if( xNetworkStatus != TRANSPORT_SOCKET_STATUS_SUCCESS )
             {
-                lReturnStatus = EXIT_FAILURE;
+                xDemoStatus = pdFAIL;
                 LogError( ( "SecureSocketsTransport_Disconnect() failed to close "
                             "the network connection with status code %d.",
                             ( int ) xNetworkStatus ) );
@@ -509,7 +487,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
             }
         }
 
-        if( lReturnStatus == EXIT_SUCCESS )
+        if( xDemoStatus == pdPASS )
         {
             /* Reset SUBACK status for each topic filter after completion of
              * subscription request cycle. */
@@ -535,16 +513,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         }
     }
 
-    /* An error may have occurred after a successful network connection, so we
-     * close the network connection that may be taking up system resources. */
-    if( xIsConnectionEstablished == pdTRUE )
-    {
-        /* Errors are ignored here as this is precautionary clean-up code. */
-        ( void ) MQTT_Disconnect( &xMQTTContext );
-        ( void ) SecureSocketsTransport_Disconnect( &xNetworkContext );
-    }
-
-    return lReturnStatus;
+    return ( xDemoStatus == pdPASS ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 /*-----------------------------------------------------------*/
 
