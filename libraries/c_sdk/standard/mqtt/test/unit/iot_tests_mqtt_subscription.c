@@ -125,12 +125,14 @@ extern _connContext_t connToContext[ MAX_NO_OF_MQTT_CONNECTIONS ];
         _topicMatchParams.topicNameLength = ( uint16_t ) strlen( _topicMatchParams.pTopicName );        \
         _topicMatchParams.exactMatchOnly = exactMatch;                                                  \
                                                                                                         \
+        pTopicFilter->pTopicFilter = IotMqtt_MallocMessage( TOPIC_FILTER_MATCH_MAX_LENGTH );            \
         pTopicFilter->topicFilterLength = ( uint16_t ) snprintf( pTopicFilter->pTopicFilter,            \
                                                                  TOPIC_FILTER_MATCH_MAX_LENGTH,         \
                                                                  topicFilterString );                   \
                                                                                                         \
         TEST_ASSERT_EQUAL_INT( expectedResult,                                                          \
                                IotTestMqtt_topicMatch( &( pTopicFilter->link ), &_topicMatchParams ) ); \
+        IotMqtt_FreeMessage( pTopicFilter->pTopicFilter );                                              \
     }
 
 /*-----------------------------------------------------------*/
@@ -224,7 +226,7 @@ static bool _waitForCount( IotMutex_t * pMutex,
  * @brief Wait for a reference count to reach a target value, using FreeRTOS semaphores,
  * subject to a timeout.
  */
-static bool _waitForCountSemaphore( StaticSemaphore_t * pSem,
+static bool _waitForCountSemaphore( SemaphoreHandle_t sem,
                                     const int32_t * pReferenceCount,
                                     int32_t target )
 {
@@ -240,9 +242,9 @@ static bool _waitForCountSemaphore( StaticSemaphore_t * pSem,
     for( sleepCount = 0; sleepCount < sleepLimit; sleepCount++ )
     {
         /* Read reference count. */
-        xSemaphoreTake( ( SemaphoreHandle_t ) pSem, portMAX_DELAY );
+        xSemaphoreTake( sem, portMAX_DELAY );
         referenceCount = *pReferenceCount;
-        xSemaphoreGive( ( SemaphoreHandle_t ) pSem );
+        xSemaphoreGive( sem );
 
         /* Exit if target value is reached. Otherwise, sleep. */
         if( referenceCount == target )
@@ -355,33 +357,116 @@ static void eventCallback( MQTTContext_t * pContext,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Transport send interface provided to the MQTT context used in calling MQTT LTS APIs.
+ */
+static int32_t transportSend( const NetworkContext_t * pNetworkContext,
+                              const void * pMessage,
+                              size_t bytesToSend )
+{
+    int32_t bytesSent = 0;
+
+    IotMqtt_Assert( pNetworkContext != NULL );
+    IotMqtt_Assert( pMessage != NULL );
+
+    /* Sending the bytes on the network using Network Interface. */
+    bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
+
+    if( bytesSent < 0 )
+    {
+        /* Network Send Interface return negative value in case of any socket error,
+         * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
+         */
+        bytesSent = -1;
+    }
+
+    return bytesSent;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A dummy function for transport interface receive.
+ *
+ * MQTT shim handles the receive from the network and hence transport
+ * implementation for receive is not used by the coreMQTT library. This
+ * dummy implementation is used for passing a non-NULL parameter to
+ * `MQTT_Init()`.
+ *
+ * @param[in] pNetworkContext Implementation-defined network context.
+ * @param[in] pBuffer Buffer to receive the data into.
+ * @param[in] bytesToRecv Number of bytes requested from the network.
+ *
+ * @return The number of bytes received or a negative error code.
+ */
+static int32_t transportRecv( const NetworkContext_t * pNetworkContext,
+                              void * pBuffer,
+                              size_t bytesToRecv )
+{
+    /* MQTT shim handles the receive from the network and hence transport
+     * implementation for receive is not used by the coreMQTT library. This
+     * dummy implementation is used for passing a non-NULL parameter to
+     * `MQTT_Init()`. */
+    ( void ) pNetworkContext;
+    ( void ) pBuffer;
+    ( void ) bytesToRecv;
+
+    /* Always return an error. */
+    return -1;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Setting the MQTT Context for the given MQTT Connection.
  *
  */
 static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_BAD_PARAMETER );
+    int8_t contextIndex = -1;
     bool subscriptionMutexCreated = false;
     bool contextMutex = false;
     TransportInterface_t transport;
     MQTTFixedBuffer_t networkBuffer;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
+    /* Clear the MQTT connection to context array. */
+    memset( connToContext, 0x00, sizeof( connToContext ) );
+
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
+
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                  &( connToContext[ contextIndex ].contextMutexStorage ) );
 
     /* Create the subscription mutex for a new connection. */
-
     if( contextMutex == true )
     {
         /* Assigning the MQTT Connection. */
         connToContext[ contextIndex ].mqttConnection = pMqttConnection;
 
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        /* Assigning the Network Context to be used by this MQTT Context. */
+        connToContext[ contextIndex ].networkContext.pNetworkConnection = pMqttConnection->pNetworkConnection;
+        connToContext[ contextIndex ].networkContext.pNetworkInterface = pMqttConnection->pNetworkInterface;
+
+        /* Fill in TransportInterface send function pointer. We will not be implementing the
+         * TransportInterface receive function pointer as receiving of packets is handled in shim by network
+         * receive task. Only using MQTT LTS APIs for transmit path.*/
+        transport.pNetworkContext = &( connToContext[ contextIndex ].networkContext );
+        transport.send = transportSend;
+        transport.recv = transportRecv;
+
+        /* Fill the values for network buffer. */
+        networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
+        networkBuffer.size = NETWORK_BUFFER_SIZE;
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
 
         if( subscriptionMutexCreated == false )
         {
@@ -411,7 +496,15 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection )
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
-    IOT_FUNCTION_EXIT_NO_CLEANUP();
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Clean up the context on error. */
+    if( status != IOT_MQTT_SUCCESS )
+    {
+        _IotMqtt_removeContext( pMqttConnection );
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 static bool _isEmpty( _mqttSubscription_t * pSubscriptionArray )
@@ -518,11 +611,28 @@ TEST( MQTT_Unit_Subscription, ListInsertRemove )
 {
     int8_t index = -1;
 
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
+
     index = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
+
+    /* Clear the new subscription. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ index ] ),
+            0x00,
+            sizeof( _mqttSubscription_t ) );
     connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = 11;
     TEST_ASSERT_EQUAL( 0, index );
 
     index = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
+    /* Clear the new subscription. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ index ] ),
+            0x00,
+            sizeof( _mqttSubscription_t ) );
     connToContext[ contextIndex ].subscriptionArray[ index ].topicFilterLength = 11;
     TEST_ASSERT_EQUAL( 1, index );
 
@@ -542,6 +652,14 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     _mqttSubscription_t * pSubscription = NULL;
     _topicMatchParams_t topicMatchParams = { 0 };
     int8_t index = -1;
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
 
     topicMatchParams.pTopicName = "/test0";
     topicMatchParams.topicNameLength = 6;
@@ -584,6 +702,14 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     packetMatchParams.packetIdentifier = 1;
     packetMatchParams.order = 0;
 
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
+
     /* On empty list. */
     TEST_ASSERT_TRUE( _isEmpty( connToContext[ contextIndex ].subscriptionArray ) );
 
@@ -594,7 +720,6 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
 
     /* 0th Index should be free after removal of matching subscription. */
     index = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
-
     TEST_ASSERT_EQUAL( 0, index );
 
     /* Filling the 0th index. */
@@ -606,7 +731,6 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
 
     /* 0th Index should be free after removal of matching subscription. */
     index = IotMqtt_GetFreeIndexInSubscriptionArray( connToContext[ contextIndex ].subscriptionArray );
-
     TEST_ASSERT_EQUAL( -1, index );
 
     /* Packet not present, order present. */
@@ -638,6 +762,14 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
 TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
 {
     int32_t i = 0;
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* On empty list (should not crash). */
     _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
@@ -674,6 +806,14 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     size_t i = 0;
     char pTopicFilters[ LIST_ITEM_COUNT ][ TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
     IotMqttSubscription_t subscription[ LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* On empty list (should not crash). */
     subscription[ 0 ].pTopicFilter = "/topic";
@@ -737,6 +877,14 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     char pTopicFilters[ LIST_ITEM_COUNT ][ TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttSubscription_t subscription[ LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
+    /* Clear the subscription array. */
+    memset( &( connToContext[ contextIndex ].subscriptionArray[ 0 ] ),
+            0x00,
+            sizeof( connToContext[ contextIndex ].subscriptionArray ) );
 
     /* Set valid values in the subscription list. */
     for( i = 0; i < LIST_ITEM_COUNT; i++ )
@@ -961,6 +1109,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
     subscription.callback.function = _blockingCallback;
     subscription.callback.pCallbackContext = &waitSem;
 
+    /* Getting MQTT Context for the specified MQTT Connection. */
+    contextIndex = _IotMqtt_getContextIndexFromConnection( _pMqttConnection );
+
     /* Add the subscriptions. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _IotMqtt_AddSubscriptions( _pMqttConnection,
                                                                     1,
@@ -1006,7 +1157,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
                                                     3 + keepAliveReference ) );
 
         /* Check that the subscription also has a reference count of 3. */
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( connToContext[ contextIndex ].subscriptionMutex,
                                                                &( pSubscription->references ),
                                                                3 ) );
 
@@ -1019,7 +1170,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
                                                     &( _pMqttConnection->references ),
                                                     2 + keepAliveReference ) );
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( &( connToContext[ contextIndex ].subscriptionMutex ),
+        TEST_ASSERT_EQUAL_INT32( true, _waitForCountSemaphore( connToContext[ contextIndex ].subscriptionMutex,
                                                                &( pSubscription->references ),
                                                                2 ) );
 

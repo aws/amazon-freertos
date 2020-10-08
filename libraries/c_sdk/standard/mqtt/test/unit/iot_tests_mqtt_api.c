@@ -528,7 +528,7 @@ static int32_t transportSend( const NetworkContext_t * pNetworkContext,
     /* Sending the bytes on the network using Network Interface. */
     bytesSent = pNetworkContext->pNetworkInterface->send( pNetworkContext->pNetworkConnection, ( const uint8_t * ) pMessage, bytesToSend );
 
-    if(bytesSent < 0 )
+    if( bytesSent < 0 )
     {
         /* Network Send Interface return negative value in case of any socket error,
          * unifying the error codes here for socket error and timeout to comply with the MQTT LTS Library.
@@ -648,12 +648,20 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
     MQTTFixedBuffer_t networkBuffer;
     MQTTStatus_t managedMqttStatus = MQTTBadParameter;
 
+    /* Clear the MQTT connection to context array. */
+    memset( connToContext, 0x00, sizeof( connToContext ) );
+
     /* Getting the free index from the MQTT connection to MQTT context mapping array. */
     contextIndex = _IotMqtt_getFreeIndexFromContextConnectionArray();
+    TEST_ASSERT_NOT_EQUAL( -1, contextIndex );
+
+    /* Clear the array at the index obtained. */
+    memset( &( connToContext[ contextIndex ] ), 0x00, sizeof( _connContext_t ) );
 
     /* Creating Mutex for the synchronization of MQTT Context used for sending the packets
      * on the network using MQTT LTS API. */
-    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ) );
+    contextMutex = IotMutex_CreateRecursiveMutex( &( connToContext[ contextIndex ].contextMutex ),
+                                                  &( connToContext[ contextIndex ].contextMutexStorage ) );
 
     /* Create the subscription mutex for a new connection. */
     if( contextMutex == true )
@@ -675,7 +683,8 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         /* Fill the values for network buffer. */
         networkBuffer.pBuffer = &( connToContext[ contextIndex ].buffer[ 0 ] );
         networkBuffer.size = NETWORK_BUFFER_SIZE;
-        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ) );
+        subscriptionMutexCreated = IotMutex_CreateNonRecursiveMutex( &( connToContext[ contextIndex ].subscriptionMutex ),
+                                                                     &( connToContext[ contextIndex ].subscriptionMutexStorage ) );
 
         if( subscriptionMutexCreated == false )
         {
@@ -705,7 +714,15 @@ static IotMqttError_t _setContext( IotMqttConnection_t pMqttConnection,
         IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
     }
 
-    IOT_FUNCTION_EXIT_NO_CLEANUP();
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Clean up the context on error. */
+    if( status != IOT_MQTT_SUCCESS )
+    {
+        _IotMqtt_removeContext( pMqttConnection );
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 
