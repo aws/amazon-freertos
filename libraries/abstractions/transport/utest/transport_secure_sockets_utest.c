@@ -310,7 +310,8 @@ void test_SecureSocketsTransport_Connect_Invalid_Credentials_RootCA( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test that #SecureSocketsTransport_Connect with parameters that encounter fail to resolve host name and verify the error code.
+ * @brief Test that #SecureSocketsTransport_Connect fails to resolve the host name,
+ * and verify the error code.
  */
 void test_SecureSocketsTransport_Connect_Dns_Failure( void )
 {
