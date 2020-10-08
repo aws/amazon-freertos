@@ -183,17 +183,6 @@ static void setServerCert( Socket_t s )
     TEST_ASSERT_EQUAL_INT( SOCKETS_ERROR_NONE, ret );
 }
 
-static void bindSocket( Socket_t s )
-{
-	int32_t ret;
-	SocketsSockaddr_t pxAddress;
-
-	lwip_bind_ExpectAnyArgsAndReturn( 0 );
-	ret = SOCKETS_Bind( s, &pxAddress, sizeof( SocketsSockaddr_t ));
-
-	TEST_ASSERT_EQUAL_INT ( SOCKETS_ERROR_NONE, ret );
-}
-
 static void connectSocket( Socket_t s )
 {
     int32_t ret;
@@ -222,16 +211,6 @@ static Socket_t create_normal_connection()
     connectSocket( s );
     return s;
 }
-
-static Socket_t create_connection_after_bind()
-{
-	Socket_t s = initSocket();
-
-	bindSocket(s);
-	connectSocket(s);
-	return s;
-}
-
 /* ======================  TESTING SOCKETS_Send  ============================ */
 
 /*!
@@ -254,29 +233,6 @@ void test_SecureSockets_send_successful( void )
     TEST_ASSERT_EQUAL_INT( BUFFER_LEN, ret );
     deinitSocket( so );
 }
-
-/*!
- * @brief A happy send case after bind with normal sockets
- *
- * @details The purpose is to make sure we get returned the same number of bytes
- *          That lwip_send returned
- */
-void test_SecureSockets_send_successful_after_bind ( void )
-{
-	int32_t ret;
-	Socket_t so = create_connection_after_bind ();
-
-	const char buffer[ BUFFER_LEN ];
-
-	lwip_send_ExpectAnyArgsAndReturn( BUFFER_LEN );
-	ret = SOCKETS_Send( so,
-	                        buffer,
-	                        BUFFER_LEN,
-	                        0 );
-	TEST_ASSERT_EQUAL_INT( BUFFER_LEN, ret );
-	deinitSocket( so );
-}
-
 
 /*!
  * @brief A happy send case with tls sockets
@@ -605,35 +561,6 @@ void test_SecureSockets_Recv_NotConnected( void )
     TEST_ASSERT_EQUAL_INT( SOCKETS_ENOTCONN, ret );
     deinitSocket( so );
 }
-/*!
- * @brief bind invalid socket
- *
- * The purpose of this test is to show that SOCKETS_Bind will be able to handle
- * wrong or bad parameters and return the appropriate errors
- */
-
-void test_SecureSockets_Bind_Invalid_Input (void )
-{
-	int32_t ret;
-	SocketsSockaddr_t pxAddress;
-
-	Socket_t so = SOCKETS_INVALID_SOCKET;
-
-	ret = SOCKETS_Bind( so,  &pxAddress, sizeof( pxAddress));
-	TEST_ASSERT_EQUAL( SOCKETS_EINVAL, ret );
-
-	so = initSocket();
-
-	pxAddress.ucLength = 32;
-	pxAddress.ucSocketDomain = SOCKETS_AF_INET;
-	pxAddress.usPort = 1000;
-	pxAddress.ulAddress = 1234567;
-
-	ret = SOCKETS_Bind( so, NULL, sizeof( pxAddress ) );
-	TEST_ASSERT_EQUAL_INT( SOCKETS_EINVAL, ret );
-	deinitSocket( so );
-}
-
 
 /*!
  * @brief Receive invalid socket
