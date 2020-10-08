@@ -129,7 +129,7 @@
 #define mqttexampleSHARED_BUFFER_SIZE                ( 500U )
 
 /**
- * @brief Time to wait between each cycle of the demo implemented by prvMQTTDemoTask().
+ * @brief Time to wait between each cycle of the demo implemented by RunCoreMqttPlaintextDemo().
  */
 #define mqttexampleDELAY_BETWEEN_DEMO_ITERATIONS     ( pdMS_TO_TICKS( 5000U ) )
 
@@ -406,7 +406,7 @@ int RunCoreMqttPlaintextDemo( bool awsIotMqttMode,
         {
             /* If the server rejected the subscription request, attempt to
              * resubscribe to topic. Attempts are made according to the exponential
-             * backoff retry strategy implemented in retryUtils. */
+             * backoff retry strategy define in retry_utils.h. */
             xDemoStatus = prvMQTTSubscribeWithBackoffRetries( &xMQTTContext );
 
             if( xDemoStatus != pdPASS )
