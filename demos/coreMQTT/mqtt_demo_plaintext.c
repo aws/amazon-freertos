@@ -64,14 +64,14 @@
 
 /*-----------------------------------------------------------*/
 
-/* Compile time error for undefined configs. */
+/* Default values for configs. */
+
+/**
+ * @brief The MQTT broker endpoint used for this demo.
+ */
 #ifndef democonfigMQTT_BROKER_ENDPOINT
     #define democonfigMQTT_BROKER_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
-
-/*-----------------------------------------------------------*/
-
-/* Default values for configs. */
 
 /**
  * @brief The MQTT client identifier used in this example.  Each client identifier
@@ -83,7 +83,7 @@
 #endif
 
 /**
- * @brief The port to use for the demo.
+ * @brief The port to use for this demo.
  */
 #ifndef democonfigMQTT_BROKER_PORT
     #define democonfigMQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
